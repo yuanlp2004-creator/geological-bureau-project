@@ -1,0 +1,302 @@
+{
+  "file": "测试15-5_20170509_[2-16].cmt",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "CCD_BAND",
+      "row_count": 120,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampNo",
+          "ordinal": 2,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampName",
+          "ordinal": 3,
+          "ole_db_type": "130",
+          "max_length": 8
+        },
+        {
+          "name": "LongName",
+          "ordinal": 4,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "MeasureTime",
+          "ordinal": 5,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RealRefStep",
+          "ordinal": 6,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnAdcs",
+          "ordinal": 7,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "DarkAdcs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "ErrIndex",
+          "ordinal": 9,
+          "ole_db_type": "2",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "BandId": "1",
+        "SampNo": "1",
+        "SampName": "1",
+        "LongName": "D13-1",
+        "MeasureTime": "2014-10-29T17:24:43.7960000",
+        "RealRefStep": "0",
+        "BurnAdcs": {
+          "kind": "blob",
+          "byte_length": 307200,
+          "sha256": "842dd6125cb2ad1dc6ee9b9b2a7a2360726b2c691de119b3b0e35b22b3378cba",
+          "first_uint16_le": [
+            935,
+            895,
+            870,
+            845,
+            881,
+            945,
+            973,
+            994
+          ],
+          "last_uint16_le": [
+            860,
+            850,
+            849,
+            875,
+            861,
+            863,
+            865,
+            820
+          ]
+        },
+        "DarkAdcs": {
+          "kind": "blob",
+          "byte_length": 102400,
+          "sha256": "b918b305e6089a399ceb7b378b3a6aa13849fb4de0ae8e4335e0373698c7bc2c",
+          "first_uint16_le": [
+            525,
+            504,
+            518,
+            508,
+            511,
+            515,
+            524,
+            525
+          ],
+          "last_uint16_le": [
+            541,
+            542,
+            518,
+            540,
+            522,
+            528,
+            545,
+            507
+          ]
+        },
+        "ErrIndex": "0"
+      }
+    },
+    {
+      "name": "LAYOUT",
+      "row_count": 1,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 2,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 3,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 5,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 7,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 9,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 10,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "PreBurn",
+          "ordinal": 11,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCyc",
+          "ordinal": 12,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "DarkCyc",
+          "ordinal": 13,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCount",
+          "ordinal": 14,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "DarkCount",
+          "ordinal": 15,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "24",
+        "FrameCount": "3",
+        "CcdsPerFrame": "2",
+        "PointsPerCcd": "2048",
+        "PointWidth": "14",
+        "CcdGapPoints": {
+          "kind": "blob",
+          "byte_length": 20,
+          "sha256": "20a238dfdd9dbbb03d4918930300f2098ba322dbb92f09aff19459ed154baefa",
+          "first_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ],
+          "last_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ]
+        },
+        "CcdCount": "5",
+        "CcdIndexs": {
+          "kind": "blob",
+          "byte_length": 5,
+          "sha256": "9b9e7cc5adc52845c8e9853560fc8b7db637f25807ec40599e3f4489f2de609f",
+          "first_uint16_le": [
+            256,
+            1026
+          ],
+          "last_uint16_le": [
+            513,
+            1284
+          ]
+        },
+        "WsCof": {
+          "kind": "blob",
+          "byte_length": 24,
+          "sha256": "11edbd5cdae8c2ff2f99d9932b450997028c8f66d22ba9fb4cc1e552cd5d52c7",
+          "first_uint16_le": [
+            62821,
+            15806,
+            10022,
+            17162,
+            20579,
+            50973,
+            32266,
+            15276
+          ],
+          "last_uint16_le": [
+            20579,
+            50973,
+            32266,
+            15276,
+            50679,
+            17273,
+            2238,
+            17316
+          ]
+        },
+        "RefWave": "313.4111",
+        "PreBurn": "3",
+        "BurnCyc": "2",
+        "DarkCyc": "2",
+        "BurnCount": "15",
+        "DarkCount": "5"
+      }
+    }
+  ],
+  "label": "cmt",
+  "source_path": "Spec2.02/DATA/测试15-5_20170509_[2-16].cmt",
+  "source_sha256": "959f3f1822adbad3be960112236df6376da2b870348c3bfd8c96d5ddbb94149f"
+}

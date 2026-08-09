@@ -1,0 +1,22 @@
+# Explicitly excluded from the public repository.
+/Spec Source/
+/Spec2.02/
+/SpecFile/
+/UI测试/
+
+# Local-only runtime, diagnostics, and test artifacts.
+/app/.local/
+/app/.pytest_cache/
+/app/**/__pycache__/
+/app/**/.pytest_cache/
+/app/**/.mypy_cache/
+/app/**/.ruff_cache/
+/app/**/.venv/
+/app/**/venv/
+*.py[cod]
+
+# Generated frontend and Tauri build outputs.
+/app/node_modules/
+/app/frontend/node_modules/
+/app/frontend/dist/
+/app/src-tauri/target/

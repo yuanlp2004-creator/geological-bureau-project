@@ -1,0 +1,749 @@
+{
+  "file": "DIRECT.MTD",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "LINES",
+      "row_count": 20,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "Ele",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 4
+        },
+        {
+          "name": "Wave",
+          "ordinal": 3,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "RealWave",
+          "ordinal": 4,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "Order",
+          "ordinal": 5,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PriLevel",
+          "ordinal": 6,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "LineType",
+          "ordinal": 7,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "InterWave",
+          "ordinal": 8,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "AlignWave",
+          "ordinal": 9,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "SeekWidth",
+          "ordinal": 10,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "Back",
+          "ordinal": 11,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PeakMode",
+          "ordinal": 12,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PeakWidth",
+          "ordinal": 13,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "LowPeak",
+          "ordinal": 14,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "LowRatio",
+          "ordinal": 15,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "FitMode",
+          "ordinal": 16,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "Digit",
+          "ordinal": 17,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "CoordType",
+          "ordinal": 18,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "Stds",
+          "ordinal": 19,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "PreSavedInt",
+          "ordinal": 20,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "ExpSegL",
+          "ordinal": 21,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "ExpSegR",
+          "ordinal": 22,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "23",
+        "Ele": "B",
+        "Wave": "249.7733",
+        "RealWave": "249.7703",
+        "Order": "1",
+        "PriLevel": "0",
+        "LineType": "0",
+        "InterWave": "270.9626",
+        "AlignWave": "0",
+        "SeekWidth": "9",
+        "Back": "12",
+        "PeakMode": "0",
+        "PeakWidth": "1",
+        "LowPeak": "300",
+        "LowRatio": "1.5",
+        "FitMode": "0",
+        "Digit": "2",
+        "CoordType": "1",
+        "Stds": {
+          "kind": "blob",
+          "byte_length": 700,
+          "sha256": "e30764f09cb5c1679ae5fca4cba1d1fcc87db27f8dd7286aba61febeb56669f9",
+          "first_uint16_le": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            26214
+          ],
+          "last_uint16_le": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "PreSavedInt": null,
+        "ExpSegL": null,
+        "ExpSegR": null
+      }
+    },
+    {
+      "name": "MTD_BURN",
+      "row_count": 3,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "PreBurn",
+          "ordinal": 2,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCyc",
+          "ordinal": 3,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "DarkCyc",
+          "ordinal": 4,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCount",
+          "ordinal": 5,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "DarkCount",
+          "ordinal": 6,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "23",
+        "PreBurn": "3",
+        "BurnCyc": "1",
+        "DarkCyc": "1",
+        "BurnCount": "35",
+        "DarkCount": "8"
+      }
+    },
+    {
+      "name": "MTD_PRIM",
+      "row_count": 3,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "MtdName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "ModifyTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 4,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "RefWidth",
+          "ordinal": 5,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "RealRefWave",
+          "ordinal": 6,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "WorkMode",
+          "ordinal": 7,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "MtdUnit",
+          "ordinal": 8,
+          "ole_db_type": "130",
+          "max_length": 8
+        },
+        {
+          "name": "SortMode",
+          "ordinal": 9,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "AllowLongName",
+          "ordinal": 10,
+          "ole_db_type": "11",
+          "max_length": 2
+        },
+        {
+          "name": "DefaultSamName",
+          "ordinal": 11,
+          "ole_db_type": "130",
+          "max_length": 8
+        },
+        {
+          "name": "RepOfSam",
+          "ordinal": 12,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "RepOfStd",
+          "ordinal": 13,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "RepOfDiag",
+          "ordinal": 14,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "LimitIda",
+          "ordinal": 15,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "CheckRsd",
+          "ordinal": 16,
+          "ole_db_type": "11",
+          "max_length": 2
+        },
+        {
+          "name": "LimitRsd",
+          "ordinal": 17,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "MtdMemo",
+          "ordinal": 18,
+          "ole_db_type": "130",
+          "max_length": 0
+        },
+        {
+          "name": "PreSavedInt",
+          "ordinal": 19,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "PreSavedBlob",
+          "ordinal": 20,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RecErrCtrl",
+          "ordinal": 21,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "ExpSegMode",
+          "ordinal": 22,
+          "ole_db_type": "11",
+          "max_length": 2
+        },
+        {
+          "name": "RefSegL",
+          "ordinal": 23,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "RefSegR",
+          "ordinal": 24,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "23",
+        "MtdName": "AgBSn最大值-35S单线",
+        "ModifyTime": "2015-06-03T14:17:17.1710000",
+        "RefWave": "313.4111",
+        "RefWidth": "21",
+        "RealRefWave": "313.373",
+        "WorkMode": "0",
+        "MtdUnit": "ug/g",
+        "SortMode": "0",
+        "AllowLongName": false,
+        "DefaultSamName": null,
+        "RepOfSam": "1",
+        "RepOfStd": "3",
+        "RepOfDiag": "1",
+        "LimitIda": "5",
+        "CheckRsd": true,
+        "LimitRsd": "5",
+        "MtdMemo": null,
+        "PreSavedInt": "0",
+        "PreSavedBlob": null,
+        "RecErrCtrl": null,
+        "ExpSegMode": false,
+        "RefSegL": null,
+        "RefSegR": null
+      }
+    },
+    {
+      "name": "MTD_WSTC",
+      "row_count": 3,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "WsName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "ModifyTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 4,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 5,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 6,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 7,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 9,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 10,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 11,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {
+        "MtdId": "23",
+        "WsName": "1米2400靠门-1022",
+        "ModifyTime": "2014-10-24T21:30:54.9840000",
+        "FrameCount": "3",
+        "CcdsPerFrame": "2",
+        "PointsPerCcd": "2048",
+        "PointWidth": "14",
+        "CcdGapPoints": {
+          "kind": "blob",
+          "byte_length": 20,
+          "sha256": "20a238dfdd9dbbb03d4918930300f2098ba322dbb92f09aff19459ed154baefa",
+          "first_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ],
+          "last_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ]
+        },
+        "CcdCount": "5",
+        "CcdIndexs": {
+          "kind": "blob",
+          "byte_length": 5,
+          "sha256": "9b9e7cc5adc52845c8e9853560fc8b7db637f25807ec40599e3f4489f2de609f",
+          "first_uint16_le": [
+            256,
+            1026
+          ],
+          "last_uint16_le": [
+            513,
+            1284
+          ]
+        },
+        "WsCof": {
+          "kind": "blob",
+          "byte_length": 24,
+          "sha256": "11edbd5cdae8c2ff2f99d9932b450997028c8f66d22ba9fb4cc1e552cd5d52c7",
+          "first_uint16_le": [
+            62821,
+            15806,
+            10022,
+            17162,
+            20579,
+            50973,
+            32266,
+            15276
+          ],
+          "last_uint16_le": [
+            20579,
+            50973,
+            32266,
+            15276,
+            50679,
+            17273,
+            2238,
+            17316
+          ]
+        }
+      }
+    },
+    {
+      "name": "USER",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "UserId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "UserName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "UserPassWord",
+          "ordinal": 3,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "Kind",
+          "ordinal": 4,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "Level",
+          "ordinal": 5,
+          "ole_db_type": "3",
+          "max_length": null
+        }
+      ],
+      "first_row": {}
+    },
+    {
+      "name": "WSTC",
+      "row_count": 5,
+      "columns": [
+        {
+          "name": "WsId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "WsName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "ModifyTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 4,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 5,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 6,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 7,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 9,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 10,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 11,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {
+        "WsId": "6",
+        "WsName": "1米2400靠门-1022",
+        "ModifyTime": "2014-10-24T21:30:54.9840000",
+        "FrameCount": "3",
+        "CcdsPerFrame": "2",
+        "PointsPerCcd": "2048",
+        "PointWidth": "14",
+        "CcdGapPoints": {
+          "kind": "blob",
+          "byte_length": 20,
+          "sha256": "20a238dfdd9dbbb03d4918930300f2098ba322dbb92f09aff19459ed154baefa",
+          "first_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ],
+          "last_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ]
+        },
+        "CcdCount": "5",
+        "CcdIndexs": {
+          "kind": "blob",
+          "byte_length": 5,
+          "sha256": "9b9e7cc5adc52845c8e9853560fc8b7db637f25807ec40599e3f4489f2de609f",
+          "first_uint16_le": [
+            256,
+            1026
+          ],
+          "last_uint16_le": [
+            513,
+            1284
+          ]
+        },
+        "WsCof": {
+          "kind": "blob",
+          "byte_length": 24,
+          "sha256": "11edbd5cdae8c2ff2f99d9932b450997028c8f66d22ba9fb4cc1e552cd5d52c7",
+          "first_uint16_le": [
+            62821,
+            15806,
+            10022,
+            17162,
+            20579,
+            50973,
+            32266,
+            15276
+          ],
+          "last_uint16_le": [
+            20579,
+            50973,
+            32266,
+            15276,
+            50679,
+            17273,
+            2238,
+            17316
+          ]
+        }
+      }
+    }
+  ],
+  "label": "mtd",
+  "source_path": "Spec2.02/DIRECT.MTD",
+  "source_sha256": "2f7c09324b4f9320506f2a198a1e2abdd6e9d31a5ef92b2ac4b4e9cb9279a3f8"
+}

@@ -1,0 +1,17 @@
+原生工具链状态（2026-08-05）：
+
+- Rustup 安装：成功，稳定工具链 `rustc 1.97.1`、`cargo 1.97.1`。
+- 依赖下载：在线重试成功，已下载 `encoding_rs v0.8.35` 等锁定依赖。
+- Tauri 构建：`cargo check --locked` 退出码 `0`；`cargo build --locked` 退出码 `0`，生成 `target/debug/geospectrum.exe`（18,130,432 bytes）。
+- Release/NSIS：`npm.cmd run tauri:build` 已完成 React 构建和 `target/release/geospectrum.exe`（11,513,344 bytes），但 NSIS 工具下载 `nsis-3.11.zip` 超时，未生成安装器。
+- Sidecar：`tools/build_sidecar.py` 使用 PyInstaller `6.11.1` 生成 `binaries/geospectrum-backend-x86_64-pc-windows-msvc.exe`（17,567,131 bytes）；`tools/verify_sidecar.py` 健康状态 `ok`、schema `1`、启动后可终止，命令退出码 `0`。
+- 资源：独立 `icons/icon.ico`（23,808 bytes）已通过 Tauri build script；未引用 `UI测试/` 或旧资料图标。
+- Tauri GUI 冒烟：程序可保持运行并创建日志目录；自动化强制终止返回 Windows 控制台中断码 `3221225786`，sidecar 子进程未由该强制路径自动回收，已清理测试进程。真实窗口退出/单实例聚焦和 NSIS 安装包仍未宣称通过。
+- 结论：源码、能力清单、原生构建和 sidecar 独立启停通过；GUI 生命周期与安装包保留 `deferred_external`。
+
+构建产物 SHA-256：
+
+- `target/debug/geospectrum.exe`: `76522B285A6A8C7648342F9AB622A48F693D755B9CDD76FD002DD09D004EA5B9`
+- `target/release/geospectrum.exe`: `ED5E31B8F86EF37EDDF1EA226C4EF189647DE7252D8F21975C3992AD7E8B5B28`
+- `geospectrum-backend-x86_64-pc-windows-msvc.exe`: `DC496861939AE6B14E59AD2E4E5E5C7330F4600B34424A2A6D86E0BB72FC3F9E`
+- `icon.ico`: `1498DDC55B11F86728EC08CC3204B86BBB2B8410ED5F6E6E0C285E86D74D1617`

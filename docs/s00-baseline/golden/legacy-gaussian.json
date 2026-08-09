@@ -1,0 +1,98 @@
+{
+  "profile": "legacy_2_0_2",
+  "provenance": "Spec Source/Source/Common/uPeakMode.pas:TGaussCur.Cal",
+  "note": "旧版返回高斯峰高；不是峰面积。写入 TPdt.Peak 时按 float32 保存。",
+  "tolerance": {
+    "double_absolute": 1e-09,
+    "stored_float32_absolute": 1e-05
+  },
+  "cases": [
+    {
+      "name": "three_point_symmetric",
+      "input": [
+        10.0,
+        40.0,
+        10.0
+      ],
+      "expected": {
+        "ok": true,
+        "size": 3,
+        "center": 1.0000000000000002,
+        "peak_double": 36.799253885128934,
+        "peak_stored_float32": 36.79925537109375,
+        "sigma": 0.611809308632124
+      }
+    },
+    {
+      "name": "five_point_symmetric",
+      "input": [
+        1.0,
+        4.0,
+        10.0,
+        4.0,
+        1.0
+      ],
+      "expected": {
+        "ok": true,
+        "size": 5,
+        "center": 2.0,
+        "peak_double": 8.481213921230479,
+        "peak_stored_float32": 8.481213569641113,
+        "sigma": 0.9390430895433282
+      }
+    },
+    {
+      "name": "seven_point_offset",
+      "input": [
+        1.4531959396856664,
+        13.53352832366127,
+        55.15397744971643,
+        98.36069275391279,
+        76.76181961208856,
+        26.21488058457632,
+        3.917684398136181
+      ],
+      "expected": {
+        "ok": true,
+        "size": 7,
+        "center": 3.2000000000000117,
+        "peak_double": 100.00000000000351,
+        "peak_stored_float32": 100.0,
+        "sigma": 1.0999999999999601
+      }
+    },
+    {
+      "name": "invalid_even",
+      "input": [
+        1.0,
+        2.0,
+        2.0,
+        1.0
+      ],
+      "expected": {
+        "ok": false,
+        "size": 4,
+        "center": 0.0,
+        "peak_double": 0.0,
+        "peak_stored_float32": 0.0,
+        "sigma": null
+      }
+    },
+    {
+      "name": "invalid_nonpositive",
+      "input": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "expected": {
+        "ok": false,
+        "size": 3,
+        "center": 0.0,
+        "peak_double": 0.0,
+        "peak_stored_float32": 0.0,
+        "sigma": null
+      }
+    }
+  ]
+}

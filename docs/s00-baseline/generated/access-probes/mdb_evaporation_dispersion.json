@@ -1,0 +1,193 @@
+{
+  "file": "蒸发色散.mdb",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "CCD_BAND",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "BandName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "MeasureTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RealRefStep",
+          "ordinal": 4,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnAdcs",
+          "ordinal": 5,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "DarkAdcs",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {}
+    },
+    {
+      "name": "LAYOUT",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 2,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 3,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 5,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 7,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 9,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 10,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "PreBurn",
+          "ordinal": 11,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCyc",
+          "ordinal": 12,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "DarkCyc",
+          "ordinal": 13,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCount",
+          "ordinal": 14,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "DarkCount",
+          "ordinal": 15,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {}
+    },
+    {
+      "name": "POINT_WAVE",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "WsName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "ModifyTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "LineCount",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "Steps",
+          "ordinal": 5,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "Waves",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {}
+    }
+  ],
+  "label": "mdb_evaporation_dispersion",
+  "source_path": "SpecFile/03_方法与数据库/蒸发色散.mdb",
+  "source_sha256": "10b7e8a311aa1b1dab4ffb49498affce3984c4d392026550b0a9559be13113fa"
+}

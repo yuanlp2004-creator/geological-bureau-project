@@ -1,0 +1,229 @@
+{
+  "file": "测试15-5_20170509_[2-16].cdt",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "CCD_BAND",
+      "row_count": 120,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampNo",
+          "ordinal": 2,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampName",
+          "ordinal": 3,
+          "ole_db_type": "130",
+          "max_length": 8
+        },
+        {
+          "name": "LongName",
+          "ordinal": 4,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "MeasureTime",
+          "ordinal": 5,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RealRefStep",
+          "ordinal": 6,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdAvgs",
+          "ordinal": 7,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {
+        "BandId": "1",
+        "SampNo": "1",
+        "SampName": "1",
+        "LongName": "D13-1",
+        "MeasureTime": "2014-10-29T17:24:43.7960000",
+        "RealRefStep": "0",
+        "CcdAvgs": {
+          "kind": "blob",
+          "byte_length": 40960,
+          "sha256": "d3e3a3c205dfa3c7b14df5e4bd04672295c952c4d5d7ac54a6af17cf479eb131",
+          "first_uint16_le": [
+            21845,
+            17186,
+            37137,
+            17177,
+            58982,
+            17160,
+            41506,
+            17156
+          ],
+          "last_uint16_le": [
+            32768,
+            17291,
+            22938,
+            17290,
+            12015,
+            17287,
+            53521,
+            17287
+          ]
+        }
+      }
+    },
+    {
+      "name": "LAYOUT",
+      "row_count": 1,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 2,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 3,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 5,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 7,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 9,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 10,
+          "ole_db_type": "4",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "24",
+        "FrameCount": "3",
+        "CcdsPerFrame": "2",
+        "PointsPerCcd": "2048",
+        "PointWidth": "14",
+        "CcdGapPoints": {
+          "kind": "blob",
+          "byte_length": 20,
+          "sha256": "20a238dfdd9dbbb03d4918930300f2098ba322dbb92f09aff19459ed154baefa",
+          "first_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ],
+          "last_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ]
+        },
+        "CcdCount": "5",
+        "CcdIndexs": {
+          "kind": "blob",
+          "byte_length": 5,
+          "sha256": "9b9e7cc5adc52845c8e9853560fc8b7db637f25807ec40599e3f4489f2de609f",
+          "first_uint16_le": [
+            256,
+            1026
+          ],
+          "last_uint16_le": [
+            513,
+            1284
+          ]
+        },
+        "WsCof": {
+          "kind": "blob",
+          "byte_length": 24,
+          "sha256": "11edbd5cdae8c2ff2f99d9932b450997028c8f66d22ba9fb4cc1e552cd5d52c7",
+          "first_uint16_le": [
+            62821,
+            15806,
+            10022,
+            17162,
+            20579,
+            50973,
+            32266,
+            15276
+          ],
+          "last_uint16_le": [
+            20579,
+            50973,
+            32266,
+            15276,
+            50679,
+            17273,
+            2238,
+            17316
+          ]
+        },
+        "RefWave": "313.4111"
+      }
+    }
+  ],
+  "label": "cdt",
+  "source_path": "Spec Source/Bin/DATA/测试15-5_20170509_[2-16].cdt",
+  "source_sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+}

@@ -1,0 +1,128 @@
+{
+  "profile": "legacy_2_0_2",
+  "provenance": [
+    "Spec Source/Source/Common/uCcdBand.pas:TCcdBand.CalAllAvgs/CalMinAvgs",
+    "Spec Source/Source/Common/uAnaThread.pas:TAnaThread.SeekPeak",
+    "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:PdtToBlack/CalRsd/CheckSampOver"
+  ],
+  "average_dark_subtraction": [
+    {
+      "burn_adc": [
+        100,
+        120,
+        140
+      ],
+      "burn_cycle_seconds": 2.0,
+      "dark_adc": [
+        10,
+        14
+      ],
+      "dark_cycle_seconds": 1.0,
+      "expected_float32": 48.0
+    },
+    {
+      "burn_adc": [
+        1,
+        1
+      ],
+      "burn_cycle_seconds": 2.0,
+      "dark_adc": [
+        10
+      ],
+      "dark_cycle_seconds": 1.0,
+      "expected_float32": 0.10000000149011612,
+      "note": "低于 LowAvg=0.1 时截断。"
+    }
+  ],
+  "peak_search": [
+    {
+      "mode": "triangle_checked",
+      "values": [
+        1.0,
+        3.0,
+        2.0,
+        7.0,
+        5.0,
+        9.0,
+        4.0
+      ],
+      "initial_index": 1,
+      "low_peak": 6.0,
+      "low_ratio": 2.0,
+      "expected_index": 5,
+      "expected_peak": 9.0,
+      "expected_min": 1.0
+    },
+    {
+      "mode": "triangle_fallback",
+      "values": [
+        5.0,
+        4.0,
+        3.0,
+        4.0,
+        5.0
+      ],
+      "initial_index": 2,
+      "expected_index": 2,
+      "expected_peak": 3.0,
+      "expected_min": 3.0
+    },
+    {
+      "mode": "max_first_on_tie",
+      "values": [
+        1.0,
+        8.0,
+        8.0,
+        2.0
+      ],
+      "expected_index": 1,
+      "expected_peak": 8.0,
+      "expected_min": 1.0
+    }
+  ],
+  "pdt_to_black": [
+    {
+      "case": "no_background",
+      "peak": 120.0,
+      "expected": 120.0
+    },
+    {
+      "case": "subtract_background",
+      "peak": 120.0,
+      "back": 20.0,
+      "expected": 100.0
+    },
+    {
+      "case": "background_as_internal_standard",
+      "peak": 120.0,
+      "back": 20.0,
+      "expected": 6.0
+    },
+    {
+      "case": "line_internal_standard",
+      "analysis_peak": 120.0,
+      "analysis_back": 20.0,
+      "internal_peak": 60.0,
+      "internal_back": 10.0,
+      "expected": 2.0
+    },
+    {
+      "case": "minimum_clip",
+      "peak": 2.0,
+      "back": 3.0,
+      "expected": 1e-05
+    }
+  ],
+  "repeatability": {
+    "values": [
+      10.0,
+      12.0,
+      14.0
+    ],
+    "mean": 12.0,
+    "sample_stddev": 2.0,
+    "rsd_percent": 16.666666666666668,
+    "ida": 7.306393676558652
+  },
+  "tolerance_absolute": 1e-05
+}

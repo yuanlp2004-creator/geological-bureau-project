@@ -1,0 +1,168 @@
+{
+  "file": "分时样品.mdb",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "CCD_BAND",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampNo",
+          "ordinal": 2,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "SampName",
+          "ordinal": 3,
+          "ole_db_type": "130",
+          "max_length": 10
+        },
+        {
+          "name": "LongName",
+          "ordinal": 4,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "MeasureTime",
+          "ordinal": 5,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RealRefStep",
+          "ordinal": 6,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnAdcs",
+          "ordinal": 7,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "DarkAdcs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "ErrIndex",
+          "ordinal": 9,
+          "ole_db_type": "2",
+          "max_length": null
+        }
+      ],
+      "first_row": {}
+    },
+    {
+      "name": "LAYOUT",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 2,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 3,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 5,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 7,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 9,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 10,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "PreBurn",
+          "ordinal": 11,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCyc",
+          "ordinal": 12,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "DarkCyc",
+          "ordinal": 13,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCount",
+          "ordinal": 14,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "DarkCount",
+          "ordinal": 15,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {}
+    }
+  ],
+  "label": "mdb_partial_interval",
+  "source_path": "SpecFile/03_方法与数据库/分时样品.mdb",
+  "source_sha256": "e1e5c001b79294b9391a7e1269bba1bafa19f97b7d8133b2382cf3c67867591c"
+}

@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"最小桌面能力：单实例、受控目录对话框和本地 sidecar。","local":true,"windows":["main"],"permissions":["core:default","dialog:default","dialog:allow-open","shell:default","shell:allow-execute"]}}

@@ -1,0 +1,17 @@
+命令：
+  C:\Users\Hust\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m pytest -q -p no:cacheprovider --basetemp app/data/pytest-tmp-final app/tests
+
+结果：退出码 0
+......                                                                   [100%]
+12 passed, 1 warning in 1.22s
+
+警告：Starlette 提示当前 httpx 测试客户端兼容层将在后续版本移除；未影响本次结果。
+
+编译检查：
+  python -m compileall -q backend tests tools
+结果：退出码 0，compileall ok
+
+覆盖率：
+  C:\Users\Hust\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m coverage run --source=app/backend -m pytest -q -p no:cacheprovider --basetemp app/data/pytest-tmp-coverage-final app/tests
+  C:\Users\Hust\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m coverage report -m
+结果：退出码 0；后端总覆盖率 99%，services.py 99%，config.py 100%，main.py 98%，sidecar_entry.py 92%。明细见 coverage.json。

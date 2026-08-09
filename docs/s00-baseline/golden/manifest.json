@@ -1,0 +1,25 @@
+{
+  "generated_at_utc": "2026-08-06T16:49:07.377715+00:00",
+  "files": [
+    {
+      "path": "docs/s00-baseline/golden/legacy-gaussian.json",
+      "size": 2097,
+      "sha256": "8a2206b6021bd4cddf70ca3d37d7b4aedc8fd5369b391c337e0f6a52564d2b75"
+    },
+    {
+      "path": "docs/s00-baseline/golden/legacy-curve-fit.json",
+      "size": 2488,
+      "sha256": "cdfa3fcd5c65bd1d97f7bfc0f9897787f80d5bb9929637632a10e1f3a85181ae"
+    },
+    {
+      "path": "docs/s00-baseline/golden/legacy-signal-processing.json",
+      "size": 2485,
+      "sha256": "19fd4331b2290674a5ff701e1955196435b91a32bbba2126f524c5451f21fa76"
+    },
+    {
+      "path": "docs/s00-baseline/generated/legacy-format-probes.json",
+      "size": 19186,
+      "sha256": "589e1bb83e5f8cbce1b04a3763e22f5a9fd7c48ad4815875c244648f76b9924e"
+    }
+  ]
+}

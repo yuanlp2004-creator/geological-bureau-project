@@ -1,0 +1,11 @@
+命令：
+  npm.cmd run build
+工作目录：app/frontend/
+
+结果：退出码 0
+vite v6.4.3 building for production...
+✓ 1580 modules transformed.
+dist/index.html                   0.45 kB │ gzip: 0.29 kB
+dist/assets/index-plaiF6Ed.css   15.87 kB │ gzip: 4.26 kB
+dist/assets/index-C6wTW8eZ.js   232.79 kB │ gzip: 71.07 kB
+✓ built in 2.27s

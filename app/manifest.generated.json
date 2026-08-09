@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "key": "core",
+      "version": "0.1.0",
+      "title": "运行基础",
+      "api_prefix": "/api/v1",
+      "route": "/workspace",
+      "enabled": true,
+      "permissions": [
+        "settings.read",
+        "settings.write",
+        "runtime-events.read",
+        "runtime-events.write"
+      ],
+      "audit_actions": [
+        "settings.update",
+        "settings.reset",
+        "runtime_event.create",
+        "runtime_event.clear"
+      ],
+      "dependencies": [],
+      "capabilities": [
+        "health",
+        "settings",
+        "runtime-events"
+      ]
+    },
+    {
+      "key": "about-diagnostics",
+      "version": "0.1.0",
+      "title": "关于与诊断",
+      "api_prefix": "/api/v1",
+      "route": "/about",
+      "enabled": true,
+      "permissions": [
+        "about.read"
+      ],
+      "audit_actions": [
+        "about.view"
+      ],
+      "dependencies": [
+        "core"
+      ],
+      "capabilities": [
+        "about",
+        "capabilities"
+      ]
+    },
+    {
+      "key": "auth",
+      "version": "0.1.0",
+      "title": "Identity and audit",
+      "api_prefix": "/api/v1",
+      "route": "/users",
+      "enabled": true,
+      "permissions": [
+        "users.read",
+        "users.write",
+        "roles.write",
+        "audit.read"
+      ],
+      "audit_actions": [
+        "bootstrap",
+        "login",
+        "user.create",
+        "user.permission.change",
+        "role.permission.change",
+        "role.permission.migrate"
+      ],
+      "dependencies": [
+        "core"
+      ],
+      "capabilities": [
+        "local-authentication",
+        "role-management",
+        "audit"
+      ]
+    },
+    {
+      "key": "methods",
+      "version": "0.5.0",
+      "title": "方法、谱线与参数打印",
+      "api_prefix": "/api/v1",
+      "route": "/methods",
+      "enabled": true,
+      "permissions": [
+        "methods.read",
+        "methods.write"
+      ],
+      "audit_actions": [
+        "method.create",
+        "method.rename",
+        "method.metadata.update",
+        "method.update",
+        "method.publish",
+        "method.pause",
+        "method.resume",
+        "method.delete",
+        "method.copy",
+        "method.open",
+        "spectral_line.create",
+        "spectral_line.update",
+        "spectral_line.toggle",
+        "spectral_line.delete",
+        "spectral_line.reorder",
+        "method.print.settings",
+        "method.preview",
+        "method.pdf.export",
+        "method.print"
+      ],
+      "dependencies": [
+        "core",
+        "auth"
+      ],
+      "capabilities": [
+        "method-lifecycle",
+        "method-conditions",
+        "ccd-layouts",
+        "spectral-lines",
+        "wavelength-detectability",
+        "standard-points",
+        "method-html-preview",
+        "method-pdf",
+        "system-printers",
+        "virtual-pdf-printer"
+      ]
+    },
+    {
+      "key": "legacy-migration",
+      "version": "0.1.0",
+      "title": "旧方法与配置迁移",
+      "api_prefix": "/api/v1",
+      "route": "/migration",
+      "enabled": true,
+      "permissions": [
+        "migration.read",
+        "migration.write"
+      ],
+      "audit_actions": [
+        "legacy_migration.stage",
+        "legacy_migration.commit"
+      ],
+      "dependencies": [
+        "core",
+        "auth",
+        "methods"
+      ],
+      "capabilities": [
+        "jet-access-win-x86",
+        "read-only-staging",
+        "atomic-commit",
+        "idempotent-import"
+      ]
+    },
+    {
+      "key": "sample-queues",
+      "version": "0.1.0",
+      "title": "样品队列",
+      "api_prefix": "/api/v1",
+      "route": "/samples",
+      "enabled": true,
+      "permissions": [
+        "samples.read",
+        "samples.write"
+      ],
+      "audit_actions": [
+        "sample_queue.create",
+        "sample_queue.update",
+        "sample_queue.rename",
+        "sample_queue.sam_import",
+        "sample_queue.sam_export"
+      ],
+      "dependencies": [
+        "core",
+        "auth"
+      ],
+      "capabilities": [
+        "queue-entry",
+        "sam-read-write",
+        "repeat-expansion",
+        "post-acquisition-rename"
+      ]
+    },
+    {
+      "key": "spectrum-migration",
+      "version": "0.1.0",
+      "title": "旧谱数据迁移",
+      "api_prefix": "/api/v1",
+      "route": "/spectrum-migration",
+      "enabled": true,
+      "permissions": [
+        "spectrum-migration.read",
+        "spectrum-migration.write"
+      ],
+      "audit_actions": [
+        "spectrum_migration.stage",
+        "spectrum_migration.commit"
+      ],
+      "dependencies": [
+        "core",
+        "auth"
+      ],
+      "capabilities": [
+        "cdt-cmt-edt-wdt",
+        "read-only-access",
+        "array-shape-validation",
+        "atomic-single-file-import",
+        "hash-idempotency"
+      ]
+    },
+    {
+      "key": "result-migration",
+      "version": "0.1.0",
+      "title": "Result matrix migration",
+      "api_prefix": "/api/v1",
+      "route": "/result-migration",
+      "enabled": true,
+      "permissions": [
+        "result-migration.read",
+        "result-migration.write"
+      ],
+      "audit_actions": [
+        "result_migration.stage",
+        "result_migration.commit"
+      ],
+      "dependencies": [
+        "core",
+        "auth"
+      ],
+      "capabilities": [
+        "pdt-dat",
+        "binary-parser",
+        "orphan-results",
+        "read-only-staging",
+        "atomic-single-file-import",
+        "hash-idempotency"
+      ]
+    },
+    {
+      "key": "spectrum-viewer",
+      "version": "0.1.0",
+      "title": "Spectrum viewer",
+      "api_prefix": "/api/v1",
+      "route": "/spectra",
+      "enabled": true,
+      "permissions": [
+        "spectra.read",
+        "spectra.export"
+      ],
+      "audit_actions": [
+        "spectrum.view",
+        "spectrum.export",
+        "spectrum.print"
+      ],
+      "dependencies": [
+        "core",
+        "auth",
+        "spectrum-migration",
+        "result-migration"
+      ],
+      "capabilities": [
+        "published-spectrum-query",
+        "ccd-coordinate-conversion",
+        "raw-frame-detail",
+        "reversible-view-state",
+        "print-visible-range"
+      ]
+    }
+  ]
+}

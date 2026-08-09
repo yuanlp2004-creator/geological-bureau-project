@@ -1,0 +1,145 @@
+{
+  "profile": "legacy_2_0_2",
+  "provenance": "Spec Source/Source/Common/uFitMode.pas",
+  "coefficient_storage": "float32",
+  "tolerance_absolute": 1e-05,
+  "least_squares_cases": [
+    {
+      "name": "linear_exact",
+      "mode": "linear",
+      "x": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "y": [
+        5.0,
+        8.0,
+        11.0,
+        14.0
+      ],
+      "expected_coefficients_c0_to_c3_float32": [
+        2.0,
+        3.0,
+        0.0,
+        0.0
+      ],
+      "expected_at_2_5": 9.5
+    },
+    {
+      "name": "quadratic_exact",
+      "mode": "quadratic",
+      "x": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "y": [
+        1.0,
+        3.5,
+        7.0,
+        11.5,
+        17.0
+      ],
+      "expected_coefficients_c0_to_c3_float32": [
+        1.0,
+        2.0,
+        0.5,
+        0.0
+      ],
+      "expected_at_2_5": 9.125
+    },
+    {
+      "name": "cubic_exact",
+      "mode": "cubic",
+      "x": [
+        -2.0,
+        -1.0,
+        0.0,
+        1.0,
+        2.0,
+        3.0
+      ],
+      "y": [
+        4.2,
+        3.15,
+        2.0,
+        1.35,
+        1.8,
+        3.95
+      ],
+      "expected_coefficients_c0_to_c3_float32": [
+        2.0,
+        -1.0,
+        0.25,
+        0.10000000149011612
+      ],
+      "expected_at_2_5": 2.625
+    }
+  ],
+  "natural_spline_case": {
+    "x": [
+      0.0,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "y": [
+      0.0,
+      1.0,
+      0.0,
+      2.0
+    ],
+    "second_derivatives": [
+      0.0,
+      -3.6521739959716797,
+      2.6086957454681396,
+      0.0
+    ],
+    "segment_slopes": [
+      -3.6521739959716797,
+      6.26086950302124,
+      -1.3043478727340698
+    ],
+    "dy": [
+      1.0,
+      -1.0,
+      1.0
+    ],
+    "evaluations": [
+      {
+        "x": 0.0,
+        "expected_y_float32": 0.0
+      },
+      {
+        "x": 0.5,
+        "expected_y_float32": 0.72826087474823
+      },
+      {
+        "x": 1.5,
+        "expected_y_float32": 0.5652173757553101
+      },
+      {
+        "x": 3.0,
+        "expected_y_float32": 0.3478260636329651
+      },
+      {
+        "x": 4.0,
+        "expected_y_float32": 2.0
+      }
+    ]
+  },
+  "log_coordinate_case": {
+    "input_intensity": 10.0,
+    "input_content": 100.0,
+    "transformed": [
+      2.302585092994046,
+      4.605170185988092
+    ],
+    "reverse_content": 100.00000000000004,
+    "provenance": "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:TCoordTransform"
+  }
+}

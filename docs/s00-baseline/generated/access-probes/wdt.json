@@ -1,0 +1,324 @@
+{
+  "file": "20141029_测试.wdt",
+  "provider": "Microsoft.Jet.OLEDB.4.0",
+  "mode": "Read",
+  "tables": [
+    {
+      "name": "CCD_BAND",
+      "row_count": 120,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "BandName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "MeasureTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "RealRefStep",
+          "ordinal": 4,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnAdcs",
+          "ordinal": 5,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "DarkAdcs",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {
+        "BandId": "1",
+        "BandName": "D13-1",
+        "MeasureTime": "2014-10-29T17:24:43.7960000",
+        "RealRefStep": "0",
+        "BurnAdcs": {
+          "kind": "blob",
+          "byte_length": 368640,
+          "sha256": "75e3302baf29c1c91e0e12a4a9a4571e1b5311e5c458206c589ec053df0e7363",
+          "first_uint16_le": [
+            774,
+            747,
+            716,
+            693,
+            735,
+            775,
+            802,
+            827
+          ],
+          "last_uint16_le": [
+            875,
+            864,
+            854,
+            885,
+            881,
+            870,
+            882,
+            839
+          ]
+        },
+        "DarkAdcs": {
+          "kind": "blob",
+          "byte_length": 102400,
+          "sha256": "b918b305e6089a399ceb7b378b3a6aa13849fb4de0ae8e4335e0373698c7bc2c",
+          "first_uint16_le": [
+            525,
+            504,
+            518,
+            508,
+            511,
+            515,
+            524,
+            525
+          ],
+          "last_uint16_le": [
+            541,
+            542,
+            518,
+            540,
+            522,
+            528,
+            545,
+            507
+          ]
+        }
+      }
+    },
+    {
+      "name": "LAYOUT",
+      "row_count": 1,
+      "columns": [
+        {
+          "name": "MtdId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "FrameCount",
+          "ordinal": 2,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdsPerFrame",
+          "ordinal": 3,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "PointsPerCcd",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "PointWidth",
+          "ordinal": 5,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "CcdGapPoints",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "CcdCount",
+          "ordinal": 7,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "CcdIndexs",
+          "ordinal": 8,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "WsCof",
+          "ordinal": 9,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "RefWave",
+          "ordinal": 10,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "PreBurn",
+          "ordinal": 11,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCyc",
+          "ordinal": 12,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "DarkCyc",
+          "ordinal": 13,
+          "ole_db_type": "4",
+          "max_length": null
+        },
+        {
+          "name": "BurnCount",
+          "ordinal": 14,
+          "ole_db_type": "17",
+          "max_length": null
+        },
+        {
+          "name": "DarkCount",
+          "ordinal": 15,
+          "ole_db_type": "17",
+          "max_length": null
+        }
+      ],
+      "first_row": {
+        "MtdId": "0",
+        "FrameCount": "3",
+        "CcdsPerFrame": "2",
+        "PointsPerCcd": "2048",
+        "PointWidth": "14",
+        "CcdGapPoints": {
+          "kind": "blob",
+          "byte_length": 20,
+          "sha256": "20a238dfdd9dbbb03d4918930300f2098ba322dbb92f09aff19459ed154baefa",
+          "first_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ],
+          "last_uint16_le": [
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455,
+            10533,
+            17455
+          ]
+        },
+        "CcdCount": "5",
+        "CcdIndexs": {
+          "kind": "blob",
+          "byte_length": 5,
+          "sha256": "9b9e7cc5adc52845c8e9853560fc8b7db637f25807ec40599e3f4489f2de609f",
+          "first_uint16_le": [
+            256,
+            1026
+          ],
+          "last_uint16_le": [
+            513,
+            1284
+          ]
+        },
+        "WsCof": {
+          "kind": "blob",
+          "byte_length": 24,
+          "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0",
+          "first_uint16_le": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "last_uint16_le": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "RefWave": "0",
+        "PreBurn": "3",
+        "BurnCyc": "2",
+        "DarkCyc": "2",
+        "BurnCount": "18",
+        "DarkCount": "5"
+      }
+    },
+    {
+      "name": "POINT_WAVE",
+      "row_count": 0,
+      "columns": [
+        {
+          "name": "BandId",
+          "ordinal": 1,
+          "ole_db_type": "3",
+          "max_length": null
+        },
+        {
+          "name": "WsName",
+          "ordinal": 2,
+          "ole_db_type": "130",
+          "max_length": 20
+        },
+        {
+          "name": "ModifyTime",
+          "ordinal": 3,
+          "ole_db_type": "7",
+          "max_length": null
+        },
+        {
+          "name": "LineCount",
+          "ordinal": 4,
+          "ole_db_type": "2",
+          "max_length": null
+        },
+        {
+          "name": "Steps",
+          "ordinal": 5,
+          "ole_db_type": "128",
+          "max_length": 0
+        },
+        {
+          "name": "Waves",
+          "ordinal": 6,
+          "ole_db_type": "128",
+          "max_length": 0
+        }
+      ],
+      "first_row": {}
+    }
+  ],
+  "label": "wdt",
+  "source_path": "Spec2.02/DATA/20141029_测试.wdt",
+  "source_sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde"
+}

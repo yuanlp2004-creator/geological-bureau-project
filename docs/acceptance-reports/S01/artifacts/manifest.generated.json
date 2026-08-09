@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "key": "core",
+      "version": "0.1.0",
+      "title": "运行基础",
+      "api_prefix": "/api/v1",
+      "route": "/workspace",
+      "enabled": true,
+      "permissions": [],
+      "audit_actions": [],
+      "dependencies": [],
+      "capabilities": ["health", "settings", "runtime-events"]
+    },
+    {
+      "key": "about-diagnostics",
+      "version": "0.1.0",
+      "title": "关于与诊断",
+      "api_prefix": "/api/v1",
+      "route": "/about",
+      "enabled": true,
+      "permissions": ["about.read"],
+      "audit_actions": ["about.view"],
+      "dependencies": ["core"],
+      "capabilities": ["about", "capabilities"]
+    }
+  ]
+}

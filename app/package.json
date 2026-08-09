@@ -1,0 +1,16 @@
+{
+  "name": "geospectrum-app",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "backend:dev": "python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8787",
+    "frontend:dev": "npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173",
+    "frontend:build": "npm --prefix frontend run build",
+    "test": "python -m pytest -q",
+    "generate:manifest": "python tools/generate_manifest.py",
+    "tauri:build": "tauri build --ci"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

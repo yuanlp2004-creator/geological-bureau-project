@@ -1,0 +1,11 @@
+测量对象：S01 FastAPI 冷启动与前端生产构建。
+
+- Vite 构建耗时：2.27 s；资源 3 个，共 249,105 字节；JS gzip 71.07 KB，CSS gzip 4.26 KB。
+- 独立冷启动脚本：`app/tools/measure_startup.py`。
+- 结果：`port=50541`、`startup_seconds=0.989`、`health_status=ok`、`schema_version=1`、`clean_exit=true`。
+- 进程返回码为 `1` 是 Windows 下向 uvicorn 发送 SIGTERM 后的预期终止码；脚本以 `clean_exit=true` 作为清理判据。
+- 冷启动门槛 ≤8 秒：通过。
+- Tauri 原生构建：`cargo build --locked` 退出码 `0`，构建耗时约 `69.2s`（首次完整构建）。
+- Tauri release 构建：`npm.cmd run tauri:build` 的 React、Rust release 编译通过；NSIS 工具下载超时，未产出安装器。
+- sidecar 独立启动：健康状态 `ok`、schema `1`、可终止，退出码 `0`；见 [`Tauri构建诊断.txt`](Tauri构建诊断.txt)。
+- Tauri GUI 冒烟：进程在 8 秒窗口内保持运行，但自动化强制终止后发现 sidecar 子进程残留，真实窗口关闭/单实例聚焦/无残留路径待桌面事件验证。

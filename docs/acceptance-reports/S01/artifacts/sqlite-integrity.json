@@ -1,0 +1,19 @@
+{
+  "integrity_check": "ok",
+  "foreign_keys": 1,
+  "journal_mode": "wal",
+  "schema_version": 1,
+  "required_tables": true,
+  "tables": [
+    "app_metadata",
+    "app_settings",
+    "runtime_events",
+    "schema_migrations",
+    "sqlite_sequence"
+  ],
+  "manifest_modules": ["core", "about-diagnostics"],
+  "manifest_sha256": "E2AFB2CEA9367E070EC31E075A63A62E04C67934822DD3BB34417DD2ED25BA0C",
+  "frontend_asset_count": 3,
+  "frontend_asset_bytes": 249105,
+  "frontend_assets_have_sha256": true
+}
