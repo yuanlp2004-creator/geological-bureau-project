@@ -136,6 +136,7 @@ class MethodCondition(BaseModel):
     actual_reference_wavelength_nm: float = 253.65
     reference_width_points: int = 21
     analysis_unit: str = "ug/g"
+    calculation_profile: Literal["legacy_2_0_2", "modern_v1"] = "modern_v1"
     pre_excitation_seconds: float = 3.0
     sampling_period_seconds: float = 1.0
     frame_count: int = 20
@@ -206,7 +207,7 @@ class SpectralLineInput(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    line_type: Literal["baseline", "analysis", "internal_standard", "alignment"] = "analysis"
+    line_type: Literal["baseline", "analysis", "internal_standard", "positioning"] = "analysis"
     element: str = Field(min_length=1, max_length=20)
     wavelength_nm: float
     actual_wavelength_nm: float | None = None
@@ -219,10 +220,10 @@ class SpectralLineInput(BaseModel):
     internal_standard_line_id: str | None = None
     scan_width_points: int = 9
     background_offset_points: int = 0
-    peak_mode: Literal["maximum", "gaussian"] = "maximum"
+    peak_mode: Literal["max_single_point", "gaussian"] = "max_single_point"
     peak_width_points: int = 1
     fit_mode: Literal["linear", "quadratic", "cubic", "spline"] = "linear"
-    coordinate_type: Literal["linear", "logarithmic"] = "linear"
+    coordinate_type: Literal["normal", "logarithmic"] = "normal"
     unit: Literal["ug/g", "mg/g", "%"] = "ug/g"
     value_kind: Literal["content", "concentration"] = "content"
     decimal_places: int = 2
@@ -359,6 +360,226 @@ class SampleQueueImport(BaseModel):
     filename: str = Field(default="queue.sam", min_length=1, max_length=255)
     content: str = Field(min_length=1, max_length=5_000_000)
     queue_name: str | None = Field(default=None, max_length=120)
+
+
+class DeviceProfileCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=100)
+    transport: Literal["simulator", "serial"] = "simulator"
+    port: int = Field(default=3, ge=1, le=256)
+    baud_rate: int = Field(default=460800, ge=1)
+    mirror: bool = False
+    frame_count: int = Field(default=3, ge=1, le=32)
+    ccds_per_frame: int = Field(default=2, ge=1, le=8)
+    points_per_ccd: int = Field(default=2048, ge=1, le=4096)
+    ccd_indices: list[int] = Field(default_factory=lambda: [0, 1, 2, 4, 5], min_length=1, max_length=256)
+    point_width_um: float = Field(default=14.0, gt=0, le=1000)
+    protection_time_ms: float = Field(default=200.0, ge=0, le=60000)
+    screen_width_mm: float = Field(default=40.92, gt=0, le=10000)
+    screen_resolution_px: int = Field(default=1920, ge=320, le=16000)
+    enabled: bool = True
+
+
+class DeviceProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    transport: Literal["simulator", "serial"] | None = None
+    port: int | None = Field(default=None, ge=1, le=256)
+    baud_rate: int | None = Field(default=None, ge=1)
+    mirror: bool | None = None
+    frame_count: int | None = Field(default=None, ge=1, le=32)
+    ccds_per_frame: int | None = Field(default=None, ge=1, le=8)
+    points_per_ccd: int | None = Field(default=None, ge=1, le=4096)
+    ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
+    point_width_um: float | None = Field(default=None, gt=0, le=1000)
+    protection_time_ms: float | None = Field(default=None, ge=0, le=60000)
+    screen_width_mm: float | None = Field(default=None, gt=0, le=10000)
+    screen_resolution_px: int | None = Field(default=None, ge=320, le=16000)
+    enabled: bool | None = None
+
+
+class DeviceConnectRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    profile_id: int = Field(ge=1)
+
+
+class DeviceDebugStartRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
+    seed: int = Field(default=0, ge=0, le=2_147_483_647)
+    fault_frame: int | None = Field(default=None, ge=0, le=10_000)
+
+
+class DispersionLineInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    element: str = Field(min_length=1, max_length=20)
+    wavelength_nm: float = Field(gt=0, le=2000)
+    ccd_index: int = Field(default=0, ge=0, le=255)
+    actual_position: float | None = Field(default=None, ge=0, le=100000)
+
+
+class DispersionTaskCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(default="S12 色散校准", min_length=1, max_length=120)
+    device_profile_id: int = Field(default=1, ge=1)
+    ccd_layout_id: str | int = "default"
+    method_id: int | None = Field(default=None, ge=1)
+    method_version: int | None = Field(default=None, ge=1)
+    sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
+    seed: int = Field(default=0, ge=0, le=2_147_483_647)
+    frame_count: int = Field(default=3, ge=1, le=255)
+    dark_frame_count: int = Field(default=1, ge=0, le=20)
+    pre_excitation_seconds: float = Field(default=3.0, ge=0, le=600)
+    sampling_period_seconds: float = Field(default=1.0, gt=0, le=60)
+    residual_limit_points: float = Field(default=2.0, gt=0, le=1000)
+    ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
+    lines: list[DispersionLineInput] = Field(default_factory=list, max_length=100)
+
+
+class DispersionLineMoveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    direction: Literal["short", "long"]
+    steps: float = Field(default=1.0, gt=0, le=1000)
+
+
+class DispersionCalibrationFitRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    degree: int = Field(default=2, ge=1, le=3)
+    residual_limit_points: float | None = Field(default=None, gt=0, le=1000)
+
+
+class DispersionCalibrationBindRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    method_id: int = Field(ge=1)
+    method_version: int | None = Field(default=None, ge=1)
+
+
+class AcquisitionTaskCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    task_kind: Literal["evaporation", "sample"] = "sample"
+    name: str = Field(default="S13 样品采集", min_length=1, max_length=120)
+    device_profile_id: int = Field(default=1, ge=1)
+    ccd_layout_id: str | int = "default"
+    ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
+    method_id: int | None = Field(default=None, ge=1)
+    method_version: int | None = Field(default=None, ge=1)
+    queue_id: int | None = Field(default=None, ge=1)
+    queue_item_id: int | None = Field(default=None, ge=1)
+    sample_name: str = Field(default="", max_length=100)
+    sample_kind: Literal["blank", "normal", "standard", "test", "preheat"] = "test"
+    naming_mode: Literal["pre_recorded", "temporary", "post"] = "temporary"
+    storage_mode: Literal["averaged", "full_interval"] = "averaged"
+    repeat_count: int = Field(default=1, ge=1, le=10)
+    burn_frame_count: int = Field(default=3, ge=1, le=255)
+    dark_frame_count: int = Field(default=1, ge=0, le=20)
+    countdown_seconds: float = Field(default=0, ge=0, le=600)
+    pre_excitation_seconds: float = Field(default=1, ge=0, le=600)
+    sampling_period_seconds: float = Field(default=1, gt=0, le=60)
+    burn_cycle_seconds: float = Field(default=1, gt=0, le=60)
+    dark_cycle_seconds: float = Field(default=1, gt=0, le=60)
+    excitation_conditions: dict[str, Any] = Field(default_factory=dict)
+    evaporation_conditions: dict[str, Any] = Field(default_factory=dict)
+    simulator_sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
+    seed: int = Field(default=0, ge=0, le=2_147_483_647)
+    fault_frame: int | None = Field(default=None, ge=0, le=10_000)
+
+
+class AcquisitionIntervalMark(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    repeat_index: int = Field(default=0, ge=0, le=10)
+    label: str = Field(min_length=1, max_length=50)
+    start_frame_index: int = Field(ge=0, le=255)
+    end_frame_index: int = Field(ge=0, le=255)
+
+
+class AcquisitionRename(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    post_name: str = Field(min_length=1, max_length=100)
+
+
+class AnalysisRunCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(default="S16 定量分析", min_length=1, max_length=120)
+    acquisition_sample_ids: list[int] = Field(min_length=1, max_length=200)
+    method_version_id: int | None = Field(default=None, ge=1)
+    calculation_profile: Literal["legacy_2_0_2", "modern_v1"] | None = None
+    slow_mode: bool = False
+    intervention_timeout_seconds: float = Field(default=300, ge=0.05, le=86_400)
+
+
+class AnalysisIntervention(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["accept", "discard"]
+    adjusted_position: int | None = Field(default=None, ge=0, le=65_535)
+    reason: str = Field(default="", max_length=500)
+
+
+class HardwareTurnInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    angle_deg: float = Field(ge=-360, le=360)
+    wavelength_nm: float = Field(ge=160, le=800)
+    priority: int = Field(default=0, ge=0, le=100)
+    key_band: bool = False
+    expected_peak_position: float = Field(default=1024, ge=0, le=4096)
+
+
+class HardwareTaskCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(default="S14 真实设备与自动转角", min_length=1, max_length=120)
+    device_profile_id: int = Field(default=1, ge=1)
+    ccd_layout_id: str | int = "default"
+    method_id: int | None = Field(default=None, ge=1)
+    method_version: int | None = Field(default=None, ge=1)
+    sample_name: str = Field(default="", max_length=100)
+    strategy: Literal["short_to_long", "key_first"] = "short_to_long"
+    anomaly_policy: Literal["retry_then_stop", "manual"] = "retry_then_stop"
+    retry_limit: int = Field(default=1, ge=0, le=5)
+    pre_excitation_seconds: float = Field(default=1, ge=0, le=600)
+    sampling_period_seconds: float = Field(default=1, gt=0, le=60)
+    ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
+    turns: list[HardwareTurnInput] = Field(min_length=1, max_length=300)
+    thresholds: dict[str, float] = Field(default_factory=dict)
+    simulator_sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
+    seed: int = Field(default=0, ge=0, le=2_147_483_647)
+    simulator_anomalies: list[dict[str, Any]] = Field(default_factory=list, max_length=100)
+
+
+class HardwareIntervention(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["accept", "retry", "stop"]
+    note: str = Field(default="", max_length=300)
+
+
+class MercurySessionCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(default="S15 汞灯调试与光学校准", min_length=1, max_length=120)
+    device_profile_id: int = Field(default=1, ge=1)
+    ccd_layout_id: str | int = "default"
+    line_ids: list[int] = Field(min_length=2, max_length=20)
+    stabilization_frames: int = Field(default=2, ge=1, le=20)
+    tolerance_points: float = Field(default=1.0, gt=0, le=100)
+    search_radius_points: int = Field(default=40, ge=1, le=500)
+    correction_limit_points: float = Field(default=25.0, gt=0, le=500)
+    simulator_offset_points: float = Field(default=6.0, ge=-100, le=100)
+    simulator_seed: int = Field(default=0, ge=0, le=2_147_483_647)
+    simulator_fault: Literal["none", "switch_failure", "stability_failure", "capture_failure"] = "none"
 
 class MethodResponse(BaseModel):
     id: int

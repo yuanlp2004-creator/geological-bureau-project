@@ -347,6 +347,8 @@ class MethodService:
         number("reference_width_points", 11, 50, integer=True)
         if conditions.get("analysis_unit") not in {"ug/g", "mg/g", "%"}:
             add("analysis_unit", "analysis_unit_invalid", "分析单位只能是 ug/g、mg/g 或 %")
+        if conditions.get("calculation_profile") not in {"legacy_2_0_2", "modern_v1"}:
+            add("calculation_profile", "calculation_profile_invalid", "计算档案只能是 legacy_2_0_2 或 modern_v1")
         number("pre_excitation_seconds", 1, 10)
         number("sampling_period_seconds", 1, 2)
         frame_count = number("frame_count", 1, 255, integer=True)

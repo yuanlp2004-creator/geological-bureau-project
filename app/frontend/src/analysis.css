@@ -1,0 +1,38 @@
+.analysis-page { padding: 26px 30px 48px; display: grid; gap: 20px; }
+.analysis-hero { display: flex; align-items: center; justify-content: space-between; }
+.analysis-hero h1 { margin: 6px 0; font-size: 28px; color: #182c3d; }
+.analysis-hero p { margin: 0; color: #6e7e8d; }
+.analysis-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; align-items: start; }
+.analysis-sidebar { padding: 16px; position: sticky; top: 18px; }
+.analysis-run-list { display: grid; gap: 8px; max-height: 70vh; overflow: auto; }
+.analysis-run-list button { border: 1px solid #dce6ec; background: #fff; border-radius: 9px; padding: 11px; text-align: left; display: grid; gap: 3px; color: #34495a; }
+.analysis-run-list button.active { border-color: #2c7d87; background: #edf8f8; box-shadow: inset 3px 0 #2c7d87; }
+.analysis-run-list span, .analysis-run-list small { color: #758592; font-size: 12px; }
+.analysis-main { display: grid; gap: 18px; min-width: 0; }
+.analysis-create, .analysis-detail { padding: 18px; }
+.analysis-form-grid { display: grid; grid-template-columns: 1.2fr 1fr .7fr 1fr; gap: 12px; align-items: end; }
+.analysis-switch { border: 1px solid #dce6ec; border-radius: 8px; padding: 9px 11px; display: flex; gap: 9px; align-items: center; }
+.analysis-switch span { display: grid; } .analysis-switch small { color: #768692; }
+.analysis-sample-groups { margin: 14px 0; display: grid; gap: 10px; }
+.analysis-sample-groups > div { border: 1px solid #e1e9ee; border-radius: 9px; padding: 10px; }
+.analysis-sample-groups > div > div { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.analysis-sample-groups label { border: 1px solid #dce6ec; border-radius: 7px; padding: 7px 9px; display: grid; grid-template-columns: auto 1fr; column-gap: 7px; }
+.analysis-sample-groups label.selected { background: #edf8f8; border-color: #50a2a7; } .analysis-sample-groups small { grid-column: 2; color: #71828e; }
+.analysis-status-row, .checkpoint-heading, .analysis-actions, .checkpoint-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.analysis-status-row h2 { margin: 8px 0 4px; } .analysis-status-row p { margin: 0; color: #73828f; }
+.analysis-status { border-radius: 99px; padding: 4px 9px; background: #eef2f4; font-size: 12px; font-weight: 700; }
+.analysis-status.completed { background: #e6f6ed; color: #247349; } .analysis-status.paused, .analysis-status.cancelled { background: #fff2cd; color: #8a6200; } .analysis-status.failed { background: #fdeaea; color: #9c3434; } .analysis-status.running { background: #eaf3fc; color: #3f6f9e; }
+.analysis-failure { margin-top: 14px; border: 1px solid #e8aaaa; background: #fff4f4; color: #8e3434; border-radius: 8px; padding: 10px; display: flex; gap: 9px; }
+.analysis-failure div { display: grid; }
+.analysis-checkpoint { margin-top: 16px; border: 1px solid #e1c776; background: #fffdf5; border-radius: 10px; padding: 14px; }
+.checkpoint-heading > div:first-child { display: flex; align-items: center; gap: 9px; } .checkpoint-heading span, .checkpoint-heading strong { display: block; }
+.analysis-checkpoint-chart { position: relative; height: 220px; margin: 10px 0; overflow: hidden; }
+.analysis-checkpoint-chart .simple-chart-plot > svg { width: 100%; height: 100%; margin: 0; }
+.analysis-checkpoint svg rect { fill: #122532; rx: 5px; } .analysis-checkpoint svg polyline { fill: none; stroke: #65d1d2; stroke-width: 2.2; }
+.analysis-checkpoint svg line { stroke-width: 2; } .analysis-checkpoint .auto-line { stroke: #f0a635; stroke-dasharray: 5 4; } .analysis-checkpoint .adjust-line { stroke: #ef6262; }
+.checkpoint-controls { align-items: end; } .checkpoint-controls .grow { flex: 1; }
+.analysis-matrix { margin-top: 18px; overflow: auto; }
+.analysis-matrix table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.analysis-matrix th, .analysis-matrix td { padding: 9px 8px; border-bottom: 1px solid #e3eaef; text-align: left; white-space: nowrap; }
+.analysis-matrix th { color: #667784; background: #f7f9fa; }
+@media (max-width: 1100px) { .analysis-layout { grid-template-columns: 1fr; } .analysis-sidebar { position: static; } .analysis-form-grid { grid-template-columns: 1fr 1fr; } }

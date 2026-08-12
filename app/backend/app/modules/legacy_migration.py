@@ -22,8 +22,8 @@ from .methods import DEFAULT_CONDITIONS, MethodService, _json
 
 READER_FORMAT_VERSION = 1
 REQUIRED_TABLES = {"MTD_PRIM", "MTD_BURN", "MTD_WSTC", "LINES", "WSTC", "USER"}
-LINE_TYPES = {0: "analysis", 1: "internal_standard", 2: "alignment"}
-PEAK_MODES = {0: "maximum", 1: "gaussian"}
+LINE_TYPES = {0: "analysis", 1: "internal_standard", 2: "positioning"}
+PEAK_MODES = {0: "max_single_point", 1: "gaussian"}
 FIT_MODES = {0: "linear", 1: "quadratic", 2: "cubic", 3: "spline"}
 
 
@@ -446,9 +446,9 @@ class LegacyMigrationService:
                     raise LegacyMigrationError("legacy_line_reference_missing", "旧谱线内标引用无法配对", details={"mtd_id": legacy_id, "wave": inter_wave})
                 if not math.isclose(align_wave, 0.0, abs_tol=1e-7) and alignment_reference is None:
                     raise LegacyMigrationError("legacy_line_reference_missing", "旧谱线定位引用无法配对", details={"mtd_id": legacy_id, "wave": align_wave})
-                peak_mode = PEAK_MODES.get(int(_number(row.get("PeakMode"), integer=True)), "maximum")
+                peak_mode = PEAK_MODES.get(int(_number(row.get("PeakMode"), integer=True)), "max_single_point")
                 peak_width = int(_number(row.get("PeakWidth"), integer=True, default=1))
-                if peak_mode == "maximum":
+                if peak_mode == "max_single_point":
                     peak_width = 1
                 line = {
                     "id": line_ids[index],
@@ -469,7 +469,7 @@ class LegacyMigrationService:
                     "peak_mode": peak_mode,
                     "peak_width_points": peak_width,
                     "fit_mode": FIT_MODES.get(int(_number(row.get("FitMode"), integer=True)), "linear"),
-                    "coordinate_type": "logarithmic" if int(_number(row.get("CoordType"), integer=True)) > 0 else "linear",
+                    "coordinate_type": "logarithmic" if int(_number(row.get("CoordType"), integer=True)) > 0 else "normal",
                     "unit": str(primary.get("MtdUnit") or "ug/g"),
                     "value_kind": "content",
                     "decimal_places": int(_number(row.get("Digit"), integer=True, default=2)),
@@ -505,6 +505,7 @@ class LegacyMigrationService:
                     "actual_reference_wavelength_nm": float(_number(primary.get("RealRefWave"))),
                     "reference_width_points": int(_number(primary.get("RefWidth"), integer=True, default=21)),
                     "analysis_unit": str(primary.get("MtdUnit") or "ug/g"),
+                    "calculation_profile": "legacy_2_0_2",
                     "pre_excitation_seconds": float(_number(burn.get("PreBurn"), default=3.0)),
                     "sampling_period_seconds": float(_number(burn.get("BurnCyc"), default=1.0)),
                     "frame_count": frame_count,

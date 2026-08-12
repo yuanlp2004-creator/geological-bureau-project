@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 from copy import deepcopy
@@ -67,10 +67,10 @@ def _line(
         "internal_standard_line_id": None,
         "scan_width_points": 9,
         "background_offset_points": 0,
-        "peak_mode": "maximum",
+        "peak_mode": "max_single_point",
         "peak_width_points": 1,
         "fit_mode": "linear",
-        "coordinate_type": "linear",
+        "coordinate_type": "normal",
         "unit": "ug/g",
         "value_kind": "content",
         "decimal_places": 2,
@@ -125,8 +125,16 @@ def test_options_baseline_and_live_detectability(line_client) -> None:
         "baseline",
         "analysis",
         "internal_standard",
-        "alignment",
+        "positioning",
     }
+    assert {item["value"] for item in options.json()["peak_modes"]} == {"max_single_point", "gaussian"}
+    assert {item["value"] for item in options.json()["coordinate_types"]} == {"normal", "logarithmic"}
+    invalid_legacy_enum = client.post(
+        f"/api/v1/methods/{method_id}/lines",
+        headers=headers,
+        json=_line(254.0, peak_mode="maximum"),
+    )
+    assert invalid_legacy_enum.status_code == 422
 
     collection = _collection(client, headers, method_id)
     assert len(collection["lines"]) == 1
@@ -233,12 +241,12 @@ def test_references_modes_and_referenced_line_protection(line_client) -> None:
         client,
         headers,
         method_id,
-        _line(255.0, line_type="alignment", element="Ne"),
+        _line(255.0, line_type="positioning", element="Ne"),
     )
     alignment = next(
         item
         for item in _collection(client, headers, method_id)["lines"]
-        if item["line_type"] == "alignment"
+        if item["line_type"] == "positioning"
     )
     _create_line(
         client,
@@ -351,8 +359,8 @@ def test_cycle_and_maximum_count_have_stable_codes(line_client) -> None:
     )
 
     service = MethodService(main.database)
-    first = _line(254.0, line_type="alignment", element="Ne")
-    second = _line(255.0, line_type="alignment", element="Ar")
+    first = _line(254.0, line_type="positioning", element="Ne")
+    second = _line(255.0, line_type="positioning", element="Ar")
     first.update({"id": "first", "order": 1, "alignment_line_id": "second"})
     second.update({"id": "second", "order": 2, "alignment_line_id": "first"})
     with main.database.read() as db:

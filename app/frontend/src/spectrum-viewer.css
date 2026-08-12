@@ -49,6 +49,8 @@
 .plot-grid { stroke: #e6ebf2; stroke-width: 1; }
 .plot-axis { stroke: #9aa8bb; stroke-width: 1; }
 .plot-label { fill: #66758a; font-size: 11px; }
+.plot-tick-label { font-size: 9px; font-variant-numeric: tabular-nums; }
+.plot-axis-title { font-size: 10px; font-weight: 700; }
 .spectrum-line { fill: none; stroke: #1c68b2; stroke-width: 1.65; vector-effect: non-scaling-stroke; }
 .spectrum-line:not(.priority) { stroke-width: 1.15; opacity: .72; }
 .spectrum-line.priority { stroke-width: 2.1; opacity: 1; }
@@ -67,3 +69,4 @@
 @media (max-width: 1180px) { .spectrum-toolbar { grid-template-columns: 1fr; } .spectrum-toolbar > .spectrum-toolbar-group:last-child { justify-content: flex-start; } .spectrum-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .spectrum-record-list { grid-template-columns: 1fr; } .spectrum-facts { grid-template-columns: 1fr 1fr; } .spectrum-plot-wrap, .spectrum-plot { min-height: 300px; height: 300px; } }
 @media print { .sidebar, .topbar, .spectrum-records, .spectrum-toolbar, .spectrum-controls, .spectrum-pan, .spectrum-legend, .page-intro-actions { display: none !important; } .main-area, .page-content, .spectrum-viewer-layout, .spectrum-workbench { display: block; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; } .spectrum-plot-wrap { border: 0; } .spectrum-plot { height: 480px; } .spectrum-facts { grid-template-columns: repeat(4, 1fr); } }
+.spectrum-facts > div > span, .spectrum-facts > div > strong, .spectrum-facts > div > code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

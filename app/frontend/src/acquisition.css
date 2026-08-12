@@ -1,0 +1,67 @@
+.acquisition-page { max-width: 1640px; }
+.acquisition-layout { display: grid; grid-template-columns: minmax(250px, .28fr) minmax(0, .72fr); gap: 17px; }
+.acquisition-sidebar, .acquisition-workbench { min-width: 0; padding: 20px; }
+.acquisition-sidebar { align-self: start; }
+.device-facts { display: grid; gap: 0; margin-top: 18px; border-top: 1px solid #edf1f4; }
+.device-facts > div { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid #edf1f4; }
+.device-facts span, .curve-meta span { color: #97a5b2; font-size: 10px; }
+.device-facts strong, .curve-meta strong { color: #405970; font-size: 10px; font-weight: 600; }
+.device-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.device-actions button { flex: 1 1 120px; justify-content: center; }
+.diagnostic-state { display: flex; align-items: center; gap: 8px; margin-top: 18px; padding-top: 15px; border-top: 1px solid #edf1f4; color: #87a0b1; }
+.diagnostic-state > div { flex: 1; }
+.diagnostic-state span:not(.status-dot) { display: block; font-size: 10px; }
+.diagnostic-state strong { display: block; margin-top: 4px; color: #466277; font-size: 11px; text-transform: uppercase; }
+.debug-state { display: flex; align-items: center; gap: 8px; color: #78a693; }
+.state-chip { display: inline-flex; align-items: center; padding: 4px 7px; color: #607789; border: 1px solid #dce5eb; border-radius: 4px; background: #f7fafb; font-size: 9px; text-transform: uppercase; }
+.state-chip.debugging { color: #326ca9; border-color: #c9def5; background: #eef6ff; }
+.state-chip.error { color: #a15b54; border-color: #f0d0cc; background: #fff6f5; }
+.warning-icon { color: #bd7657; }
+.debug-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 11px; margin-top: 17px; padding: 13px; border: 1px solid #edf1f4; background: #fafcfd; }
+.compact-field { min-width: 120px; flex: 1 1 130px; }
+.compact-field input, .compact-field select { height: 32px; }
+.debug-command { display: flex; flex-wrap: wrap; gap: 7px; }
+.curve-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 14px 0 9px; }
+.curve-tools .selected { color: #3569a5; border-color: #b9d1ec; background: #eef6ff; }
+.zoom-presets { display: inline-flex; align-items: center; border: 1px solid #dce5eb; border-radius: 4px; overflow: hidden; }
+.zoom-presets button { min-height: 28px; padding: 0 8px; color: #718599; border: 0; border-right: 1px solid #dce5eb; background: #fff; font-size: 9px; }
+.zoom-presets button:last-child { border-right: 0; }
+.zoom-presets button:hover { color: #3569a5; background: #eef6ff; }
+.range-control { display: flex; align-items: center; gap: 6px; margin-left: 8px; color: #8799a8; font-size: 9px; }
+.range-control input { width: 82px; accent-color: #6b94c1; }
+.curve-frame { position: relative; height: clamp(260px, 39vw, 420px); overflow: hidden; border: 1px solid #dfe7ed; background: #fbfdfe; cursor: crosshair; }
+.curve-frame svg { width: 100%; height: 100%; display: block; }
+.curve-grid line { stroke: #edf2f5; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.curve-path { fill: none; stroke: #5588b4; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.curve-crosshair { stroke: #c17d5b; stroke-width: 1; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+.curve-cursor { fill: #fff; stroke: #c17d5b; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.curve-hover-readout { position: absolute; top: 10px; right: 10px; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 7px 9px; color: #6f4d3c; border: 1px solid #e5c7b8; border-radius: 5px; background: rgba(255, 250, 247, .94); box-shadow: 0 4px 12px rgba(84, 55, 41, .08); font-size: 10px; pointer-events: none; }
+.curve-hover-readout strong { color: #553a2e; font-size: 11px; }
+.curve-empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px; color: #9aaab7; font-size: 11px; background: rgba(251,253,254,.82); }
+.curve-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 12px; }
+.curve-meta > div { min-width: 0; padding: 10px; border: 1px solid #edf1f4; background: #fafcfd; }
+.curve-meta span, .curve-meta strong, .curve-meta code { display: block; }
+.curve-meta strong, .curve-meta code { margin-top: 5px; overflow-wrap: anywhere; white-space: normal; }
+.curve-meta code { color: #718599; font-family: 'DM Sans', monospace; font-size: 9px; }
+.safe-result { color: #2f7e64 !important; }
+.debug-error { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 11px; color: #a66054; border: 1px solid #f0d0cc; background: #fff6f5; font-size: 10px; }
+@media (max-width: 980px) { .acquisition-layout { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .range-control { margin-left: 0; }.debug-toolbar { align-items: stretch; }.debug-command { width: 100%; }.debug-command button { flex: 1; justify-content: center; } }
+
+:root[data-theme='dark'] .device-facts > div,
+:root[data-theme='dark'] .diagnostic-state,
+:root[data-theme='dark'] .debug-toolbar,
+:root[data-theme='dark'] .curve-meta > div { border-color: #2b3e52; }
+:root[data-theme='dark'] .debug-toolbar,
+:root[data-theme='dark'] .curve-meta > div { background: #132233; }
+:root[data-theme='dark'] .device-facts strong,
+:root[data-theme='dark'] .curve-meta strong,
+:root[data-theme='dark'] .diagnostic-state strong { color: #d9e4ef; }
+:root[data-theme='dark'] .curve-frame { border-color: #3b4f64; background: #102033; }
+:root[data-theme='dark'] .curve-grid line { stroke: #2b3e52; }
+:root[data-theme='dark'] .curve-cursor { fill: #102033; }
+:root[data-theme='dark'] .curve-hover-readout { color: #e1bca9; border-color: #664b3e; background: rgba(36, 29, 28, .94); }
+:root[data-theme='dark'] .curve-hover-readout strong { color: #f0d2c2; }
+:root[data-theme='dark'] .curve-empty { background: rgba(16,32,51,.84); }
+:root[data-theme='dark'] .zoom-presets { border-color: #3b4f64; }
+:root[data-theme='dark'] .zoom-presets button { color: #bdcad7; border-color: #3b4f64; background: #182a3d; }

@@ -1,0 +1,20 @@
+.simple-chart-plot-host { --chart-left: 70px; --chart-right: 14px; --chart-top: 14px; --chart-bottom: 42px; }
+.simple-chart-plot { position: absolute; z-index: 1; left: var(--chart-left); right: var(--chart-right); top: var(--chart-top); bottom: var(--chart-bottom); overflow: hidden; }
+.simple-chart-plot > svg { width: 100%; height: 100%; display: block; }
+.simple-chart-axes { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; color: #65768a; font-size: 9px; line-height: 1; }
+.simple-axis-border { position: absolute; left: var(--chart-left); right: var(--chart-right); top: var(--chart-top); bottom: var(--chart-bottom); border-left: 1px solid #8e9eae; border-bottom: 1px solid #8e9eae; }
+.simple-axis-title { position: absolute; color: #43566b; font-size: 10px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
+.simple-axis-x-title { left: var(--chart-left); right: var(--chart-right); bottom: 7px; text-align: center; }
+.simple-axis-y-title { left: 8px; top: var(--chart-top); bottom: var(--chart-bottom); writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; justify-content: center; }
+.simple-axis-x-scale { position: absolute; left: var(--chart-left); right: var(--chart-right); bottom: 0; height: var(--chart-bottom); }
+.simple-axis-y-scale { position: absolute; left: 0; top: var(--chart-top); bottom: var(--chart-bottom); width: var(--chart-left); }
+.simple-axis-tick { position: absolute; color: #65768a; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.simple-axis-x-tick { top: 9px; transform: translateX(-50%); }
+.simple-axis-x-tick i { position: absolute; left: 50%; bottom: calc(100% + 4px); width: 1px; height: 5px; background: #8e9eae; }
+.simple-axis-y-tick { right: 10px; transform: translateY(50%); text-align: right; }
+.simple-axis-y-tick i { position: absolute; left: calc(100% + 5px); top: 50%; width: 5px; height: 1px; background: #8e9eae; }
+:root[data-theme='dark'] .simple-chart-axes { color: #a9bacb; }
+:root[data-theme='dark'] .simple-axis-border { border-color: #66798b; }
+:root[data-theme='dark'] .simple-axis-title { color: #c2cfdb; }
+:root[data-theme='dark'] .simple-axis-tick { color: #a9bacb; }
+:root[data-theme='dark'] .simple-axis-tick i { background: #66798b; }

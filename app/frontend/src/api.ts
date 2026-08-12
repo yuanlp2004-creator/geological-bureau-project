@@ -1,4 +1,4 @@
-export type EventSeverity = 'debug' | 'info' | 'success' | 'warning' | 'error'
+﻿export type EventSeverity = 'debug' | 'info' | 'success' | 'warning' | 'error'
 
 export type RuntimeEvent = {
   id: number
@@ -90,6 +90,517 @@ export type Diagnostics = {
   foreign_keys: number
   event_count: number
   manifest_valid: boolean
+}
+
+export type DeviceProfile = {
+  id: number
+  name: string
+  transport: 'simulator' | 'serial'
+  port: number
+  baud_rate: number
+  mirror: boolean
+  frame_count: number
+  ccds_per_frame: number
+  points_per_ccd: number
+  ccd_indices: number[]
+  point_width_um: number
+  protection_time_ms: number
+  screen_width_mm: number
+  screen_resolution_px: number
+  enabled: boolean
+  created_at: string
+  updated_at: string
+  screen_conversion: { pixels_per_mm: number; um_per_pixel: number; point_width_px: number }
+}
+
+export type DeviceCcd = {
+  ccd_index: number
+  points?: number[]
+  points_count: number
+  dtype: 'uint16'
+  endianness: 'little'
+  compression: 'zlib'
+  points_sha256: string
+  raw_transfer_sha256: string
+  raw_byte_length: number
+  peak: number
+  peak_position: number
+}
+
+export type DeviceEvent = {
+  event_type: string
+  state: string
+  occurred_at: string
+  correlation_id: string
+  frame_index: number | null
+  frame_count: number | null
+  ccds: DeviceCcd[]
+  message: string
+  details: { sha256?: string; frame_size?: number; byte_length?: number; headers?: number[]; mirror?: boolean; ccd_indices?: number[]; seed?: number; [key: string]: unknown }
+}
+
+export type DeviceDiagnostics = {
+  adapter: { adapter: string; state: string; session_id: string | null; connected: boolean; contract: Record<string, number> }
+  profiles: DeviceProfile[]
+}
+
+export type DeviceDebugResult = {
+  session_id: string | null
+  event: DeviceEvent
+  diagnostics: DeviceDiagnostics['adapter']
+  sample_records_created: number
+  spectrum_records_created: number
+}
+
+export type DispersionState = 'draft' | 'pre_excitation' | 'burn' | 'dark' | 'paused' | 'stopping' | 'completed' | 'failed' | 'stopped'
+
+export type DispersionLine = {
+  id: number
+  task_id: number
+  element: string
+  wavelength_nm: number
+  ccd_index: number
+  expected_position: number | null
+  located_position: number | null
+  saved_position: number | null
+  position_state: 'pending' | 'located' | 'saved'
+  position_source: string | null
+  position_frame_id: number | null
+  adjustment_points: number
+  created_at: string
+  updated_at: string
+}
+
+export type DispersionCalibrationVersion = {
+  id: number
+  name: string
+  version: number
+  state: 'draft' | 'published' | 'superseded'
+  calibration_id: number | null
+  ccd_layout_id: number
+  source_task_id: number | null
+  coefficients: number[]
+  residuals: Array<{ line_id: number; element: string; wavelength_nm: number; ccd_index: number; measured_position: number; predicted_position: number; residual_points: number }>
+  wavelength_min: number
+  wavelength_max: number
+  residual_rms: number
+  residual_max: number
+  point_count: number
+  residual_limit_points: number
+  publishable: boolean
+  created_at: string
+}
+
+export type DispersionTask = {
+  id: number
+  name: string
+  status: DispersionState
+  paused_from: string | null
+  device_profile_id: number
+  ccd_layout_id: number
+  method_id: number | null
+  method_version: number | null
+  frame_count: number
+  dark_frame_count: number
+  pre_excitation_seconds: number
+  sampling_period_seconds: number
+  residual_limit_points: number
+  ccd_indices: number[]
+  condition: Record<string, unknown>
+  adapter_session_id: string | null
+  burn_frames_captured: number
+  dark_frames_captured: number
+  last_frame_index: number | null
+  last_event: DeviceEvent | null
+  failure_code: string | null
+  failure_message: string | null
+  lines: DispersionLine[]
+  frame_summary: Array<{ phase: 'burn' | 'dark'; frame_count: number; last_frame_index: number }>
+  calibrations: DispersionCalibrationVersion[]
+  layout: { id: number; name: string; frame_count: number; ccds_per_frame: number; points_per_ccd: number; ccd_indices: number[] }
+  profile: { id: number; name: string; transport: string }
+  created_at: string
+  updated_at: string
+}
+
+export type DispersionFrame = {
+  id: number
+  task_id: number
+  phase: 'burn' | 'dark'
+  frame_index: number
+  ccd_index: number
+  points: number[]
+  sha256: string
+  headers: number[]
+  byte_length: number
+  virtual_time_ms: number
+  captured_at: string
+}
+
+export type DispersionOptions = {
+  ccd_layouts: Array<{ id: number; name: string; frame_count: number; ccds_per_frame: number; points_per_ccd: number; point_width_um: number; ccd_indices: number[]; wavelength_min: number; wavelength_max: number }>
+  calibration_versions: DispersionCalibrationVersion[]
+  device_profiles: Array<{ id: number; name: string; transport: string; frame_count: number; ccds_per_frame: number; points_per_ccd: number; ccd_indices: number[] }>
+  states: DispersionState[]
+}
+
+export type AcquisitionState = 'draft' | 'countdown' | 'pre_excitation' | 'burn' | 'dark' | 'between_repeats' | 'paused' | 'stopping' | 'completed' | 'failed' | 'stopped'
+
+export type AcquisitionSample = {
+  id: number
+  task_id: number
+  queue_item_id: number | null
+  repeat_index: number
+  sample_name_original: string
+  sample_name: string
+  sample_kind: 'evaporation' | 'blank' | 'normal' | 'standard' | 'test' | 'preheat'
+  storage_mode: 'averaged' | 'full_interval'
+  status: 'collecting' | 'completed' | 'failed' | 'stopped'
+  finalized: boolean
+  result_sha256: string | null
+  failure_code: string | null
+  failure_message: string | null
+  bands: Array<{ id: number; ccd_index: number; storage_mode: string; points_count: number; burn_frame_count: number; dark_frame_count: number; mean_sha256: string; burn_sha256: string | null; dark_sha256: string | null }>
+}
+
+export type AcquisitionMessage = {
+  id: number
+  task_id: number
+  level: 'info' | 'warning' | 'error' | 'success'
+  code: string
+  message: string
+  details: Record<string, unknown>
+  created_at: string
+}
+
+export type AcquisitionTask = {
+  id: number
+  task_kind: 'evaporation' | 'sample'
+  name: string
+  status: AcquisitionState
+  paused_from: string | null
+  device_profile_id: number
+  ccd_layout_id: number
+  method_id: number | null
+  method_version: number | null
+  queue_id: number | null
+  queue_item_id: number | null
+  sample_name: string
+  sample_kind: AcquisitionSample['sample_kind']
+  naming_mode: 'pre_recorded' | 'temporary' | 'post'
+  storage_mode: 'averaged' | 'full_interval'
+  repeat_count: number
+  current_repeat_index: number
+  completed_repeats: number
+  burn_frame_count: number
+  dark_frame_count: number
+  countdown_seconds: number
+  countdown_remaining: number
+  pre_excitation_seconds: number
+  sampling_period_seconds: number
+  burn_cycle_seconds: number
+  dark_cycle_seconds: number
+  ccd_indices: number[]
+  excitation_condition: Record<string, unknown>
+  evaporation_condition: Record<string, unknown>
+  simulator: Record<string, unknown>
+  adapter_session_id: string | null
+  burn_frames_captured: number
+  dark_frames_captured: number
+  last_event: DeviceEvent | null
+  last_message: string
+  progress: number
+  result_sha256: string | null
+  failure_code: string | null
+  failure_message: string | null
+  layout: { id: number; name: string; points_per_ccd: number; ccd_indices: number[] }
+  profile: { id: number; name: string; transport: string; mirror: boolean }
+  samples: AcquisitionSample[]
+  messages: AcquisitionMessage[]
+  intervals: Array<{ id: number; repeat_index: number; label: string; start_frame_index: number; end_frame_index: number }>
+  created_at: string
+  updated_at: string
+}
+
+export type AcquisitionFrame = {
+  id: number
+  task_id: number
+  sample_id: number
+  repeat_index: number
+  phase: 'burn' | 'dark'
+  frame_index: number
+  ccd_index: number
+  points_count: number
+  points?: number[]
+  dtype: 'uint16'
+  endianness: 'little'
+  points_sha256: string | null
+  raw_transfer_sha256: string | null
+  raw_byte_length: number
+  headers_json: string
+  virtual_time_ms: number
+  peak_value: number | null
+  peak_position: number | null
+  integral_value: number | null
+  interval_label: string | null
+  damaged: boolean
+  damage_code: string | null
+  damage_message: string | null
+  captured_at: string
+}
+
+export type AcquisitionOptions = {
+  task_kinds: Array<'evaporation' | 'sample'>
+  sample_kinds: AcquisitionSample['sample_kind'][]
+  storage_modes: Array<'averaged' | 'full_interval'>
+  states: AcquisitionState[]
+  profiles: Array<{ id: number; name: string; transport: string; ccd_indices: number[]; points_per_ccd: number }>
+  layouts: Array<{ id: number; name: string; frame_count: number; ccds_per_frame: number; points_per_ccd: number; ccd_indices: number[] }>
+  methods: Array<{ method_id: number; method_version: number; name: string }>
+  queues: SampleQueue[]
+}
+
+export type AcquisitionAnalysis = {
+  task_id: number
+  repeat_index: number
+  points_per_ccd: number
+  curves: AcquisitionFrame[]
+  intervals: Array<Record<string, unknown> & { label: string; stats: Array<Record<string, unknown> & { ccd_index: number; point_mean: number[] }> }>
+}
+
+export type HardwareTaskState = 'draft' | 'connecting' | 'connected' | 'pre_excitation' | 'turning' | 'collecting' | 'anomaly' | 'manual_intervention' | 'paused' | 'stopping' | 'completed' | 'failed' | 'stopped' | 'safety_stopped' | 'deferred_external'
+
+export type HardwarePlanStep = {
+  id: number
+  task_id: number
+  order_index: number
+  source_index: number
+  angle_deg: number
+  wavelength_nm: number
+  priority: number
+  key_band: boolean
+  expected_peak_position: number
+  status: string
+  retry_count: number
+  last_attempt: number
+  correction_offset: number
+}
+
+export type HardwareTask = {
+  id: number
+  name: string
+  status: HardwareTaskState
+  paused_from: HardwareTaskState | null
+  device_profile_id: number
+  ccd_layout_id: number
+  transport: 'simulator' | 'serial'
+  strategy: 'short_to_long' | 'key_first'
+  anomaly_policy: 'retry_then_stop' | 'manual'
+  sample_name: string
+  retry_limit: number
+  pre_excitation_seconds: number
+  sampling_period_seconds: number
+  ccd_indices: number[]
+  plan: HardwarePlanStep[]
+  thresholds: Record<string, number>
+  simulator: Record<string, unknown>
+  total_steps: number
+  current_step_index: number
+  current_retry_count: number
+  completed_steps: number
+  adapter_session_id: string | null
+  last_event: Record<string, unknown> | null
+  last_message: string
+  progress: number
+  result_sha256: string | null
+  failure_code: string | null
+  failure_message: string | null
+  profile: { id: number; name: string; transport: string; port: number; baud_rate: number; mirror: boolean }
+  layout: { id: number; name: string; points_per_ccd: number; ccd_indices: number[] }
+  steps: HardwarePlanStep[]
+  traces: Array<Record<string, unknown>>
+  decisions: Array<Record<string, unknown>>
+  frames: Array<Record<string, unknown>>
+  messages: Array<Record<string, unknown>>
+  latest_trace: Record<string, unknown> | null
+  latest_decision: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export type HardwareOptions = {
+  states: HardwareTaskState[]
+  strategies: Array<'short_to_long' | 'key_first'>
+  anomaly_policies: Array<'retry_then_stop' | 'manual'>
+  anomaly_kinds: string[]
+  profiles: Array<{ id: number; name: string; transport: string; port: number; baud_rate: number; ccd_indices: number[]; points_per_ccd: number }>
+  layouts: Array<Record<string, unknown>>
+}
+
+export type MercuryReferenceLine = {
+  id: number
+  label: string
+  wavelength_nm: number
+  relative_intensity: number
+  source_name: string
+  source_url: string
+  enabled: boolean
+}
+
+export type MercuryAlignmentVersion = {
+  id: number
+  version: number
+  offset_points: number
+  before_rms: number
+  after_rms: number
+  max_before_offset: number
+  max_after_offset: number
+  snapshot_sha256: string
+  snapshot: Record<string, unknown>
+}
+
+export type MercurySessionLine = {
+  id: number
+  label: string
+  wavelength_nm: number
+  expected_ccd_index: number
+  expected_position: number
+  observed_position: number | null
+  peak_value: number | null
+  offset_points: number | null
+  after_offset_points: number | null
+  state: 'pending' | 'located' | 'not_found'
+}
+
+export type MercurySession = {
+  id: number
+  name: string
+  status: 'draft' | 'stabilizing' | 'acquiring' | 'ready' | 'applied' | 'rolled_back' | 'stopped' | 'safe_off' | 'deferred_external'
+  device_profile_id: number
+  ccd_layout_id: number
+  transport: 'simulator' | 'serial'
+  stabilization_frames: number
+  stabilized_frames: number
+  tolerance_points: number
+  search_radius_points: number
+  correction_limit_points: number
+  simulator: { offset_points: number; seed: number; fault: string }
+  adapter_session_id: string | null
+  safe_off: boolean
+  progress: number
+  last_message: string
+  failure_code: string | null
+  failure_message: string | null
+  analysis: null | { line_count: number; median_offset_points: number; suggestion_points: number; before_rms: number; after_rms: number; max_before_offset: number; max_after_offset: number; within_tolerance: boolean; candidate_version_id: number }
+  last_event: null | { phase?: string; frame_index?: number; ccds?: Array<{ ccd_index: number; points?: number[]; points_sha256: string }> }
+  profile: { id: number; name: string; transport: string; port: number; baud_rate: number }
+  layout: { id: number; name: string; points_per_ccd: number; ccd_indices: number[]; wavelength_min: number; wavelength_max: number }
+  lines: MercurySessionLine[]
+  messages: Array<Record<string, unknown>>
+  traces: Array<Record<string, unknown>>
+  frames: Array<Record<string, unknown>>
+  before_version: MercuryAlignmentVersion
+  candidate_version: MercuryAlignmentVersion | null
+  active_version: MercuryAlignmentVersion
+}
+
+export type MercuryOptions = {
+  reference_lines: MercuryReferenceLine[]
+  profiles: Array<{ id: number; name: string; transport: 'simulator' | 'serial'; port: number; baud_rate: number; ccd_indices: number[]; points_per_ccd: number; mercury_protocol_available: boolean; protocol_status: string }>
+  layouts: Array<{ id: number; name: string; points_per_ccd: number; ccd_indices: number[]; wavelength_min: number; wavelength_max: number }>
+  active_alignments: Array<Record<string, unknown>>
+  faults: string[]
+  real_protocol_available: boolean
+  protocol_notice: string
+}
+
+export type AnalysisStatus = 'draft' | 'running' | 'paused' | 'completed' | 'cancelled' | 'failed'
+
+export type AnalysisSampleOption = {
+  id: number
+  sample_name: string
+  sample_kind: string
+  repeat_index: number
+  input_sha256: string
+  acquisition_task_id: number
+  acquisition_task_name: string
+  method_version_id: number
+  method_id: number
+  method_version: number
+}
+
+export type AnalysisOptions = {
+  profiles: Array<'legacy_2_0_2' | 'modern_v1'>
+  samples: AnalysisSampleOption[]
+  method_versions: Array<{ method_version_id: number; method_id: number; version: number; name: string; calculation_profile: 'legacy_2_0_2' | 'modern_v1' }>
+}
+
+export type AnalysisLineResult = {
+  id: number
+  sample_position: number
+  line_position: number
+  line_id: string
+  line_type: string
+  element: string
+  wavelength_nm: number
+  ccd_index: number
+  expected_position: number
+  peak_position: number
+  peak_height: number
+  background: number
+  net_signal: number
+  gaussian_center: number | null
+  gaussian_peak_height: number | null
+  gaussian_sigma: number | null
+  gaussian_area: number | null
+  quantitative_signal: number
+  calculation_profile: 'legacy_2_0_2' | 'modern_v1'
+  intervention_id: number | null
+  intermediates: Record<string, unknown>
+  result_sha256: string
+}
+
+export type AnalysisCheckpoint = {
+  id: number
+  sequence: number
+  sample_position: number
+  line_position: number
+  line_id: string
+  status: 'pending' | 'accepted' | 'discarded' | 'cancelled'
+  automatic_position: number
+  accepted_position: number | null
+  window_start: number
+  window_end: number
+  spectrum_window: Array<{ point_index: number; value: number }>
+  candidate: AnalysisLineResult & { corrected_expected_position: number }
+  deadline_at: string
+}
+
+export type AnalysisRun = {
+  id: number
+  name: string
+  status: AnalysisStatus
+  method_id: number
+  method_name: string
+  method_version_id: number
+  method_version: number
+  calculation_profile: 'legacy_2_0_2' | 'modern_v1'
+  slow_mode: boolean
+  intervention_timeout_seconds: number
+  current_sample_position: number
+  current_line_position: number
+  input_sha256: string
+  result_sha256: string | null
+  failure_code: string | null
+  failure_message: string | null
+  failure_details: Record<string, unknown>
+  samples: Array<{ id: number; position: number; acquisition_sample_id: number; sample_name: string; input_sha256: string; result_matrix: Array<{ line_id: string; element: string; wavelength_nm: number; quantitative_signal: number; calculation_profile: string }>; result_sha256: string | null }>
+  line_results: AnalysisLineResult[]
+  checkpoint: AnalysisCheckpoint | null
+  interventions: Array<{ id: number; action: 'accept' | 'discard'; before_position: number; after_position: number; reason: string; created_at: string }>
+  messages: Array<{ id: number; level: string; code: string; message: string; details: Record<string, unknown>; created_at: string }>
+  created_at: string
+  updated_at: string
 }
 
 export type LegacyMigrationDiagnostic = {
@@ -415,6 +926,7 @@ export type MethodConditions = {
   actual_reference_wavelength_nm: number
   reference_width_points: number
   analysis_unit: 'ug/g' | 'mg/g' | '%'
+  calculation_profile: 'legacy_2_0_2' | 'modern_v1'
   pre_excitation_seconds: number
   sampling_period_seconds: number
   frame_count: number
@@ -463,7 +975,7 @@ export type LineDetectability = {
 }
 
 export type SpectralLineInput = {
-  line_type: 'baseline' | 'analysis' | 'internal_standard' | 'alignment'
+  line_type: 'baseline' | 'analysis' | 'internal_standard' | 'positioning'
   element: string
   wavelength_nm: number
   actual_wavelength_nm: number | null
@@ -476,10 +988,10 @@ export type SpectralLineInput = {
   internal_standard_line_id: string | null
   scan_width_points: number
   background_offset_points: number
-  peak_mode: 'maximum' | 'gaussian'
+  peak_mode: 'max_single_point' | 'gaussian'
   peak_width_points: number
   fit_mode: 'linear' | 'quadratic' | 'cubic' | 'spline'
-  coordinate_type: 'linear' | 'logarithmic'
+  coordinate_type: 'normal' | 'logarithmic'
   unit: 'ug/g' | 'mg/g' | '%'
   value_kind: 'content' | 'concentration'
   decimal_places: number
@@ -700,4 +1212,77 @@ export const api = {
   clearLogs: (token: string) => request<{ deleted: number }>('/api/v1/logs', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
   appendLog: (token: string, event: Pick<RuntimeEvent, 'category' | 'severity' | 'message'>) =>
     request<RuntimeEvent>('/api/v1/logs', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(event) }),
+  deviceProfiles: (token: string) => request<DeviceProfile[]>('/api/v1/devices/profiles', { headers: { Authorization: `Bearer ${token}` } }),
+  deviceDiagnostics: (token: string) => request<DeviceDiagnostics>('/api/v1/devices/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
+  createDeviceProfile: (token: string, payload: Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>) => request<DeviceProfile>('/api/v1/devices/profiles', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  updateDeviceProfile: (token: string, profileId: number, payload: Partial<Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>>) => request<DeviceProfile>(`/api/v1/devices/profiles/${profileId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  connectDevice: (token: string, profileId: number) => request<{ profile: DeviceProfile; diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/connect', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }),
+  disconnectDevice: (token: string) => request<{ diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/disconnect', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  startDeviceDebug: (token: string, payload: { sample?: string; seed?: number; fault_frame?: number | null }) => request<DeviceDebugResult>('/api/v1/devices/debug/start', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  stepDeviceDebug: (token: string) => request<DeviceDebugResult>('/api/v1/devices/debug/step', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stopDeviceDebug: (token: string) => request<Omit<DeviceDebugResult, 'session_id'>>('/api/v1/devices/debug/stop', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  dispersionOptions: (token: string) => request<DispersionOptions>('/api/v1/dispersion/options', { headers: { Authorization: `Bearer ${token}` } }),
+  dispersionTasks: (token: string) => request<DispersionTask[]>('/api/v1/dispersion/tasks', { headers: { Authorization: `Bearer ${token}` } }),
+  createDispersionTask: (token: string, payload: Record<string, unknown>) => request<DispersionTask>('/api/v1/dispersion/tasks', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  dispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  startDispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stepDispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  pauseDispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  resumeDispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stopDispersionTask: (token: string, taskId: number) => request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  dispersionFrames: (token: string, taskId: number, ccdIndex?: number) => request<DispersionFrame[]>(`/api/v1/dispersion/tasks/${taskId}/frames${ccdIndex === undefined ? '' : `?ccd_index=${ccdIndex}`}`, { headers: { Authorization: `Bearer ${token}` } }),
+  addDispersionLine: (token: string, taskId: number, payload: { element: string; wavelength_nm: number; ccd_index: number; actual_position?: number | null }) => request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  deleteDispersionLine: (token: string, taskId: number, lineId: number) => request<{ id: number; deleted: boolean }>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
+  locateDispersionLine: (token: string, taskId: number, lineId: number) => request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/locate`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  locateAllDispersionLines: (token: string, taskId: number) => request<{ located: DispersionLine[]; errors: Array<Record<string, unknown>>; all_succeeded: boolean }>(`/api/v1/dispersion/tasks/${taskId}/lines/locate-all`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  moveDispersionLine: (token: string, taskId: number, lineId: number, direction: 'short' | 'long', steps = 1) => request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/move`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ direction, steps }) }),
+  saveDispersionLinePosition: (token: string, taskId: number, lineId: number) => request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/position/save`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  restoreDispersionLinePosition: (token: string, taskId: number, lineId: number) => request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/position/restore`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  fitDispersionCalibration: (token: string, taskId: number, payload: { name?: string; degree?: number; residual_limit_points?: number }) => request<DispersionCalibrationVersion>(`/api/v1/dispersion/tasks/${taskId}/calibrations/fit`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  publishDispersionCalibration: (token: string, calibrationVersionId: number) => request<DispersionCalibrationVersion>(`/api/v1/dispersion/calibrations/${calibrationVersionId}/publish`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  bindDispersionCalibration: (token: string, calibrationVersionId: number, methodId: number, methodVersion?: number) => request<Record<string, unknown>>(`/api/v1/dispersion/calibrations/${calibrationVersionId}/bind`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ method_id: methodId, method_version: methodVersion }) }),
+  acquisitionOptions: (token: string) => request<AcquisitionOptions>('/api/v1/acquisitions/options', { headers: { Authorization: `Bearer ${token}` } }),
+  acquisitionTasks: (token: string) => request<AcquisitionTask[]>('/api/v1/acquisitions/tasks', { headers: { Authorization: `Bearer ${token}` } }),
+  createAcquisitionTask: (token: string, payload: Record<string, unknown>) => request<AcquisitionTask>('/api/v1/acquisitions/tasks', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  acquisitionTask: (token: string, taskId: number, includePoints = false) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  startAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stepAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  pauseAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  resumeAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stopAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  acquisitionFrames: (token: string, taskId: number, params = '') => request<AcquisitionFrame[]>(`/api/v1/acquisitions/tasks/${taskId}/frames${params}`, { headers: { Authorization: `Bearer ${token}` } }),
+  markAcquisitionInterval: (token: string, taskId: number, payload: { repeat_index: number; label: string; start_frame_index: number; end_frame_index: number }) => request<AcquisitionAnalysis>(`/api/v1/acquisitions/tasks/${taskId}/intervals`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  acquisitionAnalysis: (token: string, taskId: number, repeatIndex?: number) => request<AcquisitionAnalysis>(`/api/v1/acquisitions/tasks/${taskId}/analysis${repeatIndex === undefined ? '' : `?repeat_index=${repeatIndex}`}`, { headers: { Authorization: `Bearer ${token}` } }),
+  acquisitionBands: (token: string, sampleId: number, includePoints = false) => request<Array<Record<string, unknown>>>(`/api/v1/acquisitions/samples/${sampleId}/bands${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  renameAcquisitionSample: (token: string, taskId: number, sampleId: number, postName: string) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/samples/${sampleId}/rename`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ post_name: postName }) }),
+  hardwareAcquisitionOptions: (token: string) => request<HardwareOptions>('/api/v1/hardware-acquisitions/options', { headers: { Authorization: `Bearer ${token}` } }),
+  hardwareAcquisitionTasks: (token: string) => request<HardwareTask[]>('/api/v1/hardware-acquisitions/tasks', { headers: { Authorization: `Bearer ${token}` } }),
+  createHardwareAcquisitionTask: (token: string, payload: Record<string, unknown>) => request<HardwareTask>('/api/v1/hardware-acquisitions/tasks', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  hardwareAcquisitionTask: (token: string, taskId: number, includePoints = false) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  startHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stepHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  pauseHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  resumeHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stopHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  interveneHardwareAcquisitionTask: (token: string, taskId: number, action: 'accept' | 'retry' | 'stop', note = '') => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/intervene`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ action, note }) }),
+  hardwareAcquisitionFrames: (token: string, taskId: number, includePoints = false) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/frames${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  hardwareAcquisitionTraces: (token: string, taskId: number) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/traces`, { headers: { Authorization: `Bearer ${token}` } }),
+  hardwareAcquisitionDecisions: (token: string, taskId: number) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/decisions`, { headers: { Authorization: `Bearer ${token}` } }),
+  mercuryCalibrationOptions: (token: string) => request<MercuryOptions>('/api/v1/mercury-calibrations/options', { headers: { Authorization: `Bearer ${token}` } }),
+  mercuryCalibrationSessions: (token: string) => request<MercurySession[]>('/api/v1/mercury-calibrations/sessions', { headers: { Authorization: `Bearer ${token}` } }),
+  createMercuryCalibrationSession: (token: string, payload: Record<string, unknown>) => request<MercurySession>('/api/v1/mercury-calibrations/sessions', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  mercuryCalibrationSession: (token: string, sessionId: number, includePoints = false) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  startMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stepMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  applyMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/apply`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  rollbackMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/rollback`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stopMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  analysisOptions: (token: string) => request<AnalysisOptions>('/api/v1/analyses/options', { headers: { Authorization: `Bearer ${token}` } }),
+  analysisRuns: (token: string) => request<AnalysisRun[]>('/api/v1/analyses/runs', { headers: { Authorization: `Bearer ${token}` } }),
+  createAnalysisRun: (token: string, payload: Record<string, unknown>) => request<AnalysisRun>('/api/v1/analyses/runs', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  analysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  startAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  stepAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  interveneAnalysisRun: (token: string, runId: number, payload: { action: 'accept' | 'discard'; adjusted_position?: number | null; reason: string }) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/intervene`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  cancelAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/cancel`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
 }

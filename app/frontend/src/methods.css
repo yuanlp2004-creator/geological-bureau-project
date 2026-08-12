@@ -1,4 +1,4 @@
-.workspace-method { background: transparent; cursor: pointer; }
+﻿.workspace-method { background: transparent; cursor: pointer; }
 .workspace-method:disabled { cursor: default; }
 .ready-badge.pending { color: #9a6c35; background: #fff4e5; }
 .methods-page { max-width: 1760px; }
@@ -100,7 +100,7 @@
 .line-type-mark { width: 7px; height: 30px; flex: 0 0 auto; border-radius: 3px; background: #3f83d6; }
 .line-type-mark.baseline { background: #63788d; }
 .line-type-mark.internal_standard { background: #8a69c4; }
-.line-type-mark.alignment { background: #36a38a; }
+.line-type-mark.positioning { background: #36a38a; }
 .line-main { min-width: 0; flex: 1; }
 .line-main strong, .line-main small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .line-main strong { color: #3e566d; font-size: 10px; }
@@ -119,6 +119,7 @@
 .detectability-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; margin-top: 13px; padding: 10px 12px; border: 1px solid; border-radius: 6px; }
 .detectability-card.detectable { color: #26705a; border-color: #bee2d5; background: #f0faf6; }
 .detectability-card.undetectable { color: #9e5b53; border-color: #edcbc7; background: #fff7f6; }
+.detectability-card.checking { color: #52779c; border-color: #ccdeed; background: #f3f8fc; }
 .detectability-card strong, .detectability-card span { display: block; }
 .detectability-card strong { font-size: 10px; }
 .detectability-card span { margin-top: 2px; color: #74889b; font-size: 8px; }
@@ -172,6 +173,7 @@
 .print-job .job-status { padding: 4px 6px; color: #377963; border-radius: 9px; background: #e8f6f0; font-size: 7px; font-weight: 700; text-align: center; }
 .print-job.failed .job-status { color: #a55750; background: #fbe9e7; }
 .print-job.queued .job-status { color: #8b712e; background: #fbf3dc; }
+.print-job.rendered .job-status { color: #3f6f9e; background: #eaf3fc; }
 .print-job > div, .print-job code { min-width: 0; }
 .print-job strong, .print-job small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .print-job strong { color: #52687d; font-size: 9px; }
@@ -187,3 +189,5 @@
   .print-workbench { grid-template-columns: 240px minmax(0, 1fr); }
   .spectral-form-grid.dense { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+.print-jobs .full-list { margin-top: 7px; }
+.print-job > div, .print-job code, .print-job .copyable-code { min-width: 0; }

@@ -51,6 +51,50 @@ def test_bootstrap_uses_argon2id_and_seeds_roles(auth_client) -> None:
     assert json.loads(audit[0][1])["password_scheme"] == "argon2id"
 
 
+def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) -> None:
+    client, main = auth_client
+    assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+
+    expected = {name: set(keys) for name, _description, keys in main.BUILTIN_ROLES}
+    with main.database.read() as db:
+        actual = {
+            role: {
+                row[0]
+                for row in db.execute(
+                    "SELECT p.key FROM permissions p JOIN role_permissions rp ON rp.permission_id=p.id "
+                    "JOIN roles r ON r.id=rp.role_id WHERE r.name=?",
+                    (role,),
+                ).fetchall()
+            }
+            for role in expected
+        }
+    assert actual == expected
+    assert {"acquisition.execute", "hardware-acquisition.execute", "mercury-calibration.execute"}.isdisjoint(expected["method_administrator"])
+    assert {"devices.write", "devices.execute"}.isdisjoint(expected["analyst"])
+    assert {"acquisition.execute", "hardware-acquisition.execute", "analysis.execute", "analysis.intervene"}.issubset(expected["analyst"])
+
+    with main.database.write() as db:
+        for role, permission in (("method_administrator", "acquisition.execute"), ("analyst", "devices.execute")):
+            db.execute(
+                "INSERT INTO role_permissions(role_id, permission_id) "
+                "SELECT r.id, p.id FROM roles r, permissions p WHERE r.name=? AND p.key=?",
+                (role, permission),
+            )
+    assert main.auth_service.synchronize_builtin_permissions() == 2
+    with main.database.read() as db:
+        stale = db.execute(
+            "SELECT r.name, p.key FROM role_permissions rp JOIN roles r ON r.id=rp.role_id "
+            "JOIN permissions p ON p.id=rp.permission_id "
+            "WHERE (r.name='method_administrator' AND p.key='acquisition.execute') "
+            "OR (r.name='analyst' AND p.key='devices.execute')"
+        ).fetchall()
+        changes = json.loads(
+            db.execute("SELECT details_json FROM audit_events WHERE action='role.permission.migrate' ORDER BY id DESC LIMIT 1").fetchone()[0]
+        )["changes"]
+    assert stale == []
+    assert {item["operation"] for item in changes} == {"revoke"}
+
+
 def test_authentication_and_permission_matrix(auth_client) -> None:
     client, _ = auth_client
     client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})

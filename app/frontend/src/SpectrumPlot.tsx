@@ -1,5 +1,6 @@
 import { useRef, useState, type PointerEvent, type WheelEvent } from 'react'
 import type { SpectrumPoint } from './api'
+import { formatIntegerTick, integerAxisTicks } from './SimpleChartAxes'
 
 export type SpectrumPlotDatum = { point: SpectrumPoint; x: number; y: number }
 export type SpectrumPlotCurve = {
@@ -30,6 +31,8 @@ type Props = {
   onToggleLock: () => void
   onPan: (xDelta: number, yDelta: number) => void
   onBoxSelect: (range: { xMin: number; xMax: number; yMin: number; yMax: number }) => void
+  xAxisLabel?: string
+  yAxisLabel?: string
 }
 
 const LEFT = 54
@@ -37,10 +40,12 @@ const TOP = 42
 const WIDTH = 872
 const HEIGHT = 288
 
-export function SpectrumPlot({ curves, xStart, xEnd, yStart, yEnd, tool, cursor, locked, onCursor, onToggleLock, onPan, onBoxSelect }: Props) {
+export function SpectrumPlot({ curves, xStart, xEnd, yStart, yEnd, tool, cursor, locked, onCursor, onToggleLock, onPan, onBoxSelect, xAxisLabel = '波长 / 点位', yAxisLabel = '强度 / 结果' }: Props) {
   const [drag, setDrag] = useState<{ startX: number; startY: number; x: number; y: number } | null>(null)
   const [panAnchor, setPanAnchor] = useState<{ x: number; y: number } | null>(null)
   const raf = useRef<number | null>(null)
+  const xTicks = integerAxisTicks(xStart, xEnd)
+  const yTicks = integerAxisTicks(yStart, yEnd)
 
   const plotX = (value: number) => LEFT + ((value - xStart) / (xEnd - xStart || 1)) * WIDTH
   const plotY = (value: number) => TOP + HEIGHT - ((value - yStart) / (yEnd - yStart || 1)) * HEIGHT
@@ -116,7 +121,8 @@ export function SpectrumPlot({ curves, xStart, xEnd, yStart, yEnd, tool, cursor,
   >
     <defs><clipPath id="spectrum-plot-clip"><rect x={LEFT} y={TOP} width={WIDTH} height={HEIGHT} /></clipPath></defs>
     <rect x={LEFT} y={TOP} width={WIDTH} height={HEIGHT} className="plot-background" />
-    {[0, .25, .5, .75, 1].map((ratio) => <line key={ratio} x1={LEFT} y1={TOP + HEIGHT * ratio} x2={LEFT + WIDTH} y2={TOP + HEIGHT * ratio} className="plot-grid" />)}
+    {xTicks.map((value) => <line key={`grid-x-${value}`} x1={plotX(value)} y1={TOP} x2={plotX(value)} y2={TOP + HEIGHT} className="plot-grid" />)}
+    {yTicks.map((value) => <line key={`grid-y-${value}`} x1={LEFT} y1={plotY(value)} x2={LEFT + WIDTH} y2={plotY(value)} className="plot-grid" />)}
     <line x1={LEFT} y1={TOP + HEIGHT} x2={LEFT + WIDTH} y2={TOP + HEIGHT} className="plot-axis" />
     <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + HEIGHT} className="plot-axis" />
     <g clipPath="url(#spectrum-plot-clip)">
@@ -128,9 +134,9 @@ export function SpectrumPlot({ curves, xStart, xEnd, yStart, yEnd, tool, cursor,
       {drag && <rect x={Math.min(drag.startX, drag.x)} y={Math.min(drag.startY, drag.y)} width={Math.abs(drag.x - drag.startX)} height={Math.abs(drag.y - drag.startY)} className="plot-selection" />}
     </g>
     <text x={LEFT} y="24" className="plot-label">{curves.find((curve) => curve.priority)?.label ?? curves[0]?.label ?? '无可显示曲线'}</text>
-    <text x={LEFT} y="365" className="plot-label">{xStart.toFixed(3)}</text>
-    <text x={LEFT + WIDTH - 74} y="365" className="plot-label">{xEnd.toFixed(3)}</text>
-    <text x="4" y={TOP + 5} className="plot-label">{yEnd.toFixed(2)}</text>
-    <text x="4" y={TOP + HEIGHT} className="plot-label">{yStart.toFixed(2)}</text>
+    {xTicks.map((value) => <text key={`x-${value}`} x={plotX(value)} y="350" textAnchor="middle" className="plot-label plot-tick-label">{formatIntegerTick(value)}</text>)}
+    {yTicks.map((value) => <text key={`y-${value}`} x={LEFT - 7} y={plotY(value) + 4} textAnchor="end" className="plot-label plot-tick-label">{formatIntegerTick(value)}</text>)}
+    <text x={LEFT + WIDTH / 2} y="372" textAnchor="middle" className="plot-label plot-axis-title">{xAxisLabel}</text>
+    <text x="13" y={TOP + HEIGHT / 2} textAnchor="middle" transform={`rotate(-90 13 ${TOP + HEIGHT / 2})`} className="plot-label plot-axis-title">{yAxisLabel}</text>
   </svg>
 }

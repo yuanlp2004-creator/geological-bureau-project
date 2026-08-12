@@ -106,9 +106,81 @@ SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
     capabilities=("published-spectrum-query", "ccd-coordinate-conversion", "raw-frame-detail", "reversible-view-state", "print-visible-range"),
 )
 
+DEVICE_MANIFEST = ModuleManifest(
+    key="devices",
+    version="0.1.0",
+    title="设备与实时调试",
+    api_prefix="/api/v1",
+    route="/acquisition",
+    permissions=("devices.read", "devices.write", "devices.execute"),
+    audit_actions=("device_profile.create", "device_profile.update", "device.connect", "device.connect.failed", "device.disconnect", "device.debug.start", "device.debug.failed", "device.debug.step", "device.debug.stop", "device.debug.fault"),
+    dependencies=("core", "auth"),
+    capabilities=("device-adapter-contract", "acq-simulator", "device-profiles", "connection-diagnostics", "realtime-debug", "ccd-curve-interaction"),
+)
+
+DISPERSION_MANIFEST = ModuleManifest(
+    key="dispersion",
+    version="0.1.0",
+    title="色散采集与校准",
+    api_prefix="/api/v1",
+    route="/dispersion",
+    permissions=("dispersion.read", "dispersion.write", "dispersion.execute"),
+    audit_actions=("dispersion.task.create", "dispersion.task.start", "dispersion.task.pause", "dispersion.task.resume", "dispersion.task.stop.request", "dispersion.task.stop", "dispersion.task.failed", "dispersion.frame.capture", "dispersion.line.create", "dispersion.line.delete", "dispersion.line.locate", "dispersion.line.move", "dispersion.line.position.save", "dispersion.line.position.restore", "dispersion.calibration.fit", "dispersion.calibration.publish", "dispersion.calibration.bind"),
+    dependencies=("core", "auth", "methods", "devices"),
+    capabilities=("dispersion-acquisition-state", "burn-dark-frame-storage", "known-line-location", "position-save-restore", "pixel-wavelength-fit", "immutable-calibration-version", "method-revision-binding"),
+)
+
+ACQUISITION_MANIFEST = ModuleManifest(
+    key="acquisition",
+    version="0.1.0",
+    title="蒸发与样品采集",
+    api_prefix="/api/v1",
+    route="/sample-acquisition",
+    permissions=("acquisition.read", "acquisition.write", "acquisition.execute"),
+    audit_actions=("acquisition.task.create", "acquisition.task.start", "acquisition.task.pause", "acquisition.task.resume", "acquisition.task.stop", "acquisition.task.failed", "acquisition.frame.capture", "acquisition.task.completed", "acquisition.repeat.start", "acquisition.interval.mark", "acquisition.sample.rename"),
+    dependencies=("core", "auth", "methods", "sample-queues", "devices"),
+    capabilities=("evaporation-full-frame", "sample-queue-link", "average-float32", "full-interval-storage", "interval-curve-analysis", "repeat-and-preheat", "post-acquisition-rename"),
+)
+
+HARDWARE_ACQUISITION_MANIFEST = ModuleManifest(
+    key="hardware-acquisition",
+    version="0.1.0",
+    title="真实设备与自动转角",
+    api_prefix="/api/v1",
+    route="/hardware-acquisition",
+    permissions=("hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute"),
+    audit_actions=("hardware.task.create", "hardware.task.start", "hardware.task.deferred", "hardware.turn.request", "hardware.turn.response", "hardware.frame.capture", "hardware.anomaly.detected", "hardware.decision.retry", "hardware.decision.correct", "hardware.decision.manual", "hardware.decision.accept", "hardware.task.pause", "hardware.task.resume", "hardware.task.stop", "hardware.task.safety_stop", "hardware.task.completed"),
+    dependencies=("core", "auth", "methods", "devices"),
+    capabilities=("turn-plan-short-to-long", "key-band-priority", "hardware-trace", "arc-baseline-anomaly", "finite-retry", "manual-takeover", "safe-stop", "serial-protocol-gate"),
+)
+
+MERCURY_CALIBRATION_MANIFEST = ModuleManifest(
+    key="mercury-calibration",
+    version="0.1.0",
+    title="汞灯调试与光学校准",
+    api_prefix="/api/v1",
+    route="/mercury-calibration",
+    permissions=("mercury-calibration.read", "mercury-calibration.write", "mercury-calibration.execute"),
+    audit_actions=("mercury.session.create", "mercury.session.start", "mercury.session.deferred", "mercury.frame.capture", "mercury.calibration.suggest", "mercury.calibration.apply", "mercury.calibration.rollback", "mercury.session.stop", "mercury.session.safe_off"),
+    dependencies=("core", "auth", "devices", "dispersion"),
+    capabilities=("curated-mercury-lines", "synthetic-spectrum", "peak-offset", "optical-correction-suggestion", "immutable-alignment-version", "rollback", "safe-off", "serial-protocol-gate"),
+)
+
+ANALYSIS_MANIFEST = ModuleManifest(
+    key="analysis",
+    version="0.1.0",
+    title="定量分析与慢进干预",
+    api_prefix="/api/v1",
+    route="/analysis",
+    permissions=("analysis.read", "analysis.execute", "analysis.intervene"),
+    audit_actions=("analysis.run.create", "analysis.run.start", "analysis.run.cancel", "analysis.run.failed", "analysis.intervention.accept", "analysis.intervention.discard"),
+    dependencies=("core", "auth", "methods", "acquisition"),
+    capabilities=("reference-correction", "line-location", "maximum-and-gaussian", "three-internal-standard-modes", "legacy-and-modern-profiles", "single-and-multi-sample-matrix", "slow-mode-checkpoints", "audited-intervention", "replayable-input"),
+)
+
 
 def registered_manifests() -> tuple[ModuleManifest, ...]:
-    return (CORE_MANIFEST, ABOUT_MANIFEST, AUTH_MANIFEST, METHOD_MANIFEST, LEGACY_MIGRATION_MANIFEST, SAMPLE_QUEUE_MANIFEST, SPECTRUM_MIGRATION_MANIFEST, RESULT_MIGRATION_MANIFEST, SPECTRUM_VIEWER_MANIFEST)
+    return (CORE_MANIFEST, ABOUT_MANIFEST, AUTH_MANIFEST, METHOD_MANIFEST, LEGACY_MIGRATION_MANIFEST, SAMPLE_QUEUE_MANIFEST, SPECTRUM_MIGRATION_MANIFEST, RESULT_MIGRATION_MANIFEST, SPECTRUM_VIEWER_MANIFEST, DEVICE_MANIFEST, DISPERSION_MANIFEST, ACQUISITION_MANIFEST, HARDWARE_ACQUISITION_MANIFEST, MERCURY_CALIBRATION_MANIFEST, ANALYSIS_MANIFEST)
 
 
 def validate_manifests(manifests: tuple[ModuleManifest, ...] | list[ModuleManifest]) -> None:

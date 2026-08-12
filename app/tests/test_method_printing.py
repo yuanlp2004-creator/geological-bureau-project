@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import io
 import json
@@ -70,10 +70,10 @@ def _analysis_line(element: str, wavelength: float) -> dict:
         "internal_standard_line_id": None,
         "scan_width_points": 9,
         "background_offset_points": 0,
-        "peak_mode": "maximum",
+        "peak_mode": "max_single_point",
         "peak_width_points": 1,
         "fit_mode": "linear",
-        "coordinate_type": "linear",
+        "coordinate_type": "normal",
         "unit": "ug/g",
         "value_kind": "content",
         "decimal_places": 2,
@@ -156,6 +156,8 @@ def test_html_preview_and_pdf_share_pages_fields_and_text(print_client) -> None:
     assert "S05 多元素方法" in preview.text
     assert "方法条件" in preview.text
     assert "标准点（12 个）" in preview.text
+    assert "最大单点" in preview.text
+    assert "普通坐标" in preview.text
     preview_pages = int(preview.headers["x-page-count"])
     preview_fields = int(preview.headers["x-field-count"])
     assert preview_pages >= 2
@@ -172,7 +174,14 @@ def test_html_preview_and_pdf_share_pages_fields_and_text(print_client) -> None:
 
     with pdfplumber.open(io.BytesIO(pdf.content)) as document:
         extracted = "\n".join(page.extract_text() or "" for page in document.pages)
-    for expected in ("S05 多元素方法", "方法条件", "Fe 254.0000 nm", "STD-4"):
+    for expected in (
+        "S05 多元素方法",
+        "方法条件",
+        "Fe 254.0000 nm",
+        "最大单点",
+        "普通坐标",
+        "STD-4",
+    ):
         assert expected in extracted
 
 

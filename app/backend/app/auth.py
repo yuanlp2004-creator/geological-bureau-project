@@ -50,22 +50,40 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "spectra.export",
             "samples.read",
             "samples.write",
+            "devices.read",
+            "devices.write",
+            "devices.execute",
+            "dispersion.read",
+            "dispersion.write",
+            "dispersion.execute",
+            "acquisition.read",
+            "acquisition.write",
+            "acquisition.execute",
+            "hardware-acquisition.read",
+            "hardware-acquisition.write",
+            "hardware-acquisition.execute",
+            "mercury-calibration.read",
+            "mercury-calibration.write",
+            "mercury-calibration.execute",
+            "analysis.read",
+            "analysis.execute",
+            "analysis.intervene",
         ),
     ),
     (
         "method_administrator",
         "Method administrator",
-        ("settings.read", "runtime-events.read", "methods.read", "methods.write", "migration.read", "migration.write", "spectrum-migration.read", "spectrum-migration.write", "result-migration.read", "result-migration.write", "spectra.read", "spectra.export", "samples.read", "samples.write", "audit.read"),
+        ("settings.read", "runtime-events.read", "methods.read", "methods.write", "migration.read", "migration.write", "devices.read", "dispersion.read", "dispersion.write", "dispersion.execute"),
     ),
     (
         "analyst",
         "Analyst",
-        ("settings.read", "runtime-events.read", "methods.read", "samples.read", "samples.write", "spectra.read", "spectra.export", "acquisition.execute", "analysis.execute", "reports.write"),
+        ("settings.read", "runtime-events.read", "methods.read", "samples.read", "samples.write", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "acquisition.write", "acquisition.execute", "hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute", "mercury-calibration.read", "analysis.read", "analysis.execute", "analysis.intervene", "reports.write"),
     ),
     (
         "read_only_auditor",
         "Read-only auditor",
-        ("settings.read", "runtime-events.read", "audit.read", "results.read", "results.export", "spectra.read", "spectra.export"),
+        ("settings.read", "runtime-events.read", "audit.read", "results.read", "results.export", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "hardware-acquisition.read", "mercury-calibration.read", "analysis.read"),
     ),
 )
 
@@ -106,7 +124,7 @@ class AuthService:
             return db.execute("SELECT 1 FROM users LIMIT 1").fetchone() is not None
 
     def synchronize_builtin_permissions(self) -> int:
-        """Add permissions introduced by a new module to existing built-in roles."""
+        """Make persisted built-in roles exactly match the locked role matrix."""
 
         with self.database.write() as db:
             if db.execute("SELECT 1 FROM users LIMIT 1").fetchone() is None:
@@ -118,6 +136,20 @@ class AuthService:
                     (role_name, description),
                 )
                 role_id = int(db.execute("SELECT id FROM roles WHERE name=?", (role_name,)).fetchone()[0])
+                expected = set(permission_keys)
+                current = {
+                    str(row[0])
+                    for row in db.execute(
+                        "SELECT p.key FROM permissions p JOIN role_permissions rp ON rp.permission_id=p.id WHERE rp.role_id=?",
+                        (role_id,),
+                    ).fetchall()
+                }
+                for permission_key in sorted(current - expected):
+                    db.execute(
+                        "DELETE FROM role_permissions WHERE role_id=? AND permission_id=(SELECT id FROM permissions WHERE key=?)",
+                        (role_id, permission_key),
+                    )
+                    changes.append({"operation": "revoke", "role": role_name, "permission": permission_key})
                 for permission_key in permission_keys:
                     db.execute(
                         "INSERT OR IGNORE INTO permissions(key, description) VALUES (?, ?)",
@@ -131,7 +163,7 @@ class AuthService:
                         (role_id, permission_id),
                     )
                     if cursor.rowcount:
-                        changes.append({"role": role_name, "permission": permission_key})
+                        changes.append({"operation": "grant", "role": role_name, "permission": permission_key})
             if changes:
                 db.execute(
                     "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) "

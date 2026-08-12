@@ -26,11 +26,11 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
         assert client.get("/health").status_code == 200
-        assert client.get("/about").json()["stage"].startswith("S10")
+        assert client.get("/about").json()["stage"] == "S16 · 定量分析与慢进干预"
         capabilities = client.get("/api/v1/capabilities")
         assert capabilities.status_code == 200
         assert {item["key"] for item in capabilities.json()["capabilities"]} == {
-            "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer"
+                "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis"
         }
         diagnostics = client.get("/api/v1/diagnostics")
         assert diagnostics.status_code == 200

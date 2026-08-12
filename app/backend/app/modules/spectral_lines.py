@@ -50,10 +50,10 @@ def reference_baseline(conditions: dict[str, Any]) -> dict[str, Any]:
         "internal_standard_line_id": None,
         "scan_width_points": conditions.get("reference_width_points", 21),
         "background_offset_points": 0,
-        "peak_mode": "maximum",
+        "peak_mode": "max_single_point",
         "peak_width_points": 1,
         "fit_mode": "linear",
-        "coordinate_type": "linear",
+        "coordinate_type": "normal",
         "unit": conditions.get("analysis_unit", "ug/g"),
         "value_kind": "content",
         "decimal_places": 2,
@@ -69,6 +69,17 @@ def reference_baseline(conditions: dict[str, Any]) -> dict[str, Any]:
 
 def canonical_lines(lines: Any, conditions: dict[str, Any]) -> list[dict[str, Any]]:
     result = [deepcopy(item) for item in lines] if isinstance(lines, list) else []
+    # Read-only compatibility for method versions created by the unaccepted
+    # pre-gate API vocabulary. New writes use the PLAN-locked public enums.
+    for item in result:
+        if not isinstance(item, dict):
+            continue
+        if item.get("line_type") == "alignment":
+            item["line_type"] = "positioning"
+        if item.get("peak_mode") == "maximum":
+            item["peak_mode"] = "max_single_point"
+        if item.get("coordinate_type") == "linear":
+            item["coordinate_type"] = "normal"
     baselines = [item for item in result if isinstance(item, dict) and item.get("line_type") == "baseline"]
     if not baselines:
         result.insert(0, reference_baseline(conditions))
@@ -198,10 +209,10 @@ def validate_spectral_lines(
     ids: list[str] = []
     by_id: dict[str, dict[str, Any]] = {}
     nonbaseline_waves: list[tuple[int, float]] = []
-    valid_types = {"baseline", "analysis", "internal_standard", "alignment"}
-    valid_peak_modes = {"maximum", "gaussian"}
+    valid_types = {"baseline", "analysis", "internal_standard", "positioning"}
+    valid_peak_modes = {"max_single_point", "gaussian"}
     valid_fit_modes = {"linear", "quadratic", "cubic", "spline"}
-    valid_coords = {"linear", "logarithmic"}
+    valid_coords = {"normal", "logarithmic"}
     valid_units = {"ug/g", "mg/g", "%"}
 
     def number(prefix: str, line: dict[str, Any], field: str, minimum: float | None = None, maximum: float | None = None, *, integer: bool = False) -> float | None:
@@ -269,7 +280,7 @@ def validate_spectral_lines(
         peak_width = number(prefix, line, "peak_width_points", 1, 9, integer=True)
         if peak_mode not in valid_peak_modes:
             errors.append(_issue(f"{prefix}.peak_mode", "peak_mode_invalid", "峰值方式无效"))
-        elif peak_mode == "maximum" and peak_width is not None and int(peak_width) != 1:
+        elif peak_mode == "max_single_point" and peak_width is not None and int(peak_width) != 1:
             errors.append(_issue(f"{prefix}.peak_width_points", "maximum_peak_width", "最大值模式只能使用 1 个计算点"))
         elif peak_mode == "gaussian" and peak_width is not None:
             if int(peak_width) < 3 or int(peak_width) > 9 or int(peak_width) % 2 == 0:
@@ -327,7 +338,7 @@ def validate_spectral_lines(
         line_id = line["id"]
         refs = {
             "background_line_id": "baseline",
-            "alignment_line_id": ("alignment", "internal_standard"),
+            "alignment_line_id": ("positioning", "internal_standard"),
             "internal_standard_line_id": "internal_standard",
         }
         graph[line_id] = []
@@ -391,21 +402,21 @@ class SpectralLineService:
                 {"value": "baseline", "label": "参考基线"},
                 {"value": "analysis", "label": "分析线"},
                 {"value": "internal_standard", "label": "内标线"},
-                {"value": "alignment", "label": "定位线"},
+                {"value": "positioning", "label": "定位线"},
             ],
             "internal_standard_modes": [
                 {"value": "none", "label": "无内标"},
                 {"value": "background", "label": "背景内标"},
                 {"value": "line", "label": "普通内标线"},
             ],
-            "peak_modes": [{"value": "maximum", "label": "最大值"}, {"value": "gaussian", "label": "高斯曲线"}],
+            "peak_modes": [{"value": "max_single_point", "label": "最大值"}, {"value": "gaussian", "label": "高斯曲线"}],
             "fit_modes": [
                 {"value": "linear", "label": "直线函数"},
                 {"value": "quadratic", "label": "二次曲线"},
                 {"value": "cubic", "label": "三次曲线"},
                 {"value": "spline", "label": "样条函数"},
             ],
-            "coordinate_types": [{"value": "linear", "label": "普通坐标"}, {"value": "logarithmic", "label": "对数坐标"}],
+            "coordinate_types": [{"value": "normal", "label": "普通坐标"}, {"value": "logarithmic", "label": "对数坐标"}],
             "limits": {
                 "wavelength_nm": [160, 800],
                 "duplicate_tolerance_nm": 0.01,

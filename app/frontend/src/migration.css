@@ -90,3 +90,4 @@
 .reader-status span { margin-top: 4px; color: #8b9aa8; font-family: 'DM Sans', monospace; font-size: 9px; }
 @media (max-width: 760px) { .migration-path-form { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .spectrum-count-grid { grid-template-columns: repeat(2, 1fr); } .spectrum-record-summary > div { grid-template-columns: 60px 1fr; } }
+.spectrum-fingerprint strong, .spectrum-record-summary strong { overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }

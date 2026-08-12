@@ -47,6 +47,12 @@ from .schemas import (
     ResultMigrationStageRequest,
     ResultMigrationCommitRequest,
     SampleQueueCreate, SampleQueueUpdate, SampleQueueRename, SampleQueueImport,
+    DeviceProfileCreate, DeviceProfileUpdate, DeviceConnectRequest, DeviceDebugStartRequest,
+    DispersionTaskCreate, DispersionLineInput, DispersionLineMoveRequest,
+    DispersionCalibrationFitRequest, DispersionCalibrationBindRequest,
+    AcquisitionTaskCreate, AcquisitionIntervalMark, AcquisitionRename,
+    HardwareTaskCreate, HardwareIntervention, MercurySessionCreate,
+    AnalysisRunCreate, AnalysisIntervention,
 )
 from .services import AppService
 from .auth import BUILTIN_ROLES, AuthService, Session, hash_password, require_permission, require_session
@@ -59,6 +65,12 @@ from .modules.sample_queues import SampleQueueError, SampleQueueService
 from .modules.spectrum_migration import SpectrumMigrationService
 from .modules.result_migration import ResultMigrationError, ResultMigrationService
 from .modules.spectrum_viewer import SpectrumViewerError, SpectrumViewerService
+from .modules.devices import DeviceError, DeviceService
+from .modules.dispersion import DispersionError, DispersionService
+from .modules.acquisition import AcquisitionError, AcquisitionService
+from .modules.hardware_acquisition import HardwareError, HardwareAcquisitionService
+from .modules.mercury_calibration import MercuryError, MercuryCalibrationService
+from .modules.analysis import AnalysisError, AnalysisService
 
 database = Database(config.database_path)
 service = AppService(database, config.runtime_log_path)
@@ -100,6 +112,60 @@ def spectrum_viewer_service() -> SpectrumViewerService:
     return SpectrumViewerService(database)
 
 
+_device_service_instance: DeviceService | None = None
+
+
+def devices_service() -> DeviceService:
+    global _device_service_instance
+    if _device_service_instance is None or _device_service_instance.database is not database:
+        _device_service_instance = DeviceService(database)
+    return _device_service_instance
+
+
+_dispersion_service_instance: DispersionService | None = None
+
+
+def dispersion_service() -> DispersionService:
+    global _dispersion_service_instance
+    if _dispersion_service_instance is None or _dispersion_service_instance.database is not database:
+        _dispersion_service_instance = DispersionService(database)
+    return _dispersion_service_instance
+
+
+_acquisition_service_instance: AcquisitionService | None = None
+
+
+def acquisition_service() -> AcquisitionService:
+    global _acquisition_service_instance
+    if _acquisition_service_instance is None or _acquisition_service_instance.database is not database:
+        _acquisition_service_instance = AcquisitionService(database)
+    return _acquisition_service_instance
+
+
+_hardware_acquisition_service_instance: HardwareAcquisitionService | None = None
+
+
+def hardware_acquisition_service() -> HardwareAcquisitionService:
+    global _hardware_acquisition_service_instance
+    if _hardware_acquisition_service_instance is None or _hardware_acquisition_service_instance.database is not database:
+        _hardware_acquisition_service_instance = HardwareAcquisitionService(database)
+    return _hardware_acquisition_service_instance
+
+
+_mercury_calibration_service_instance: MercuryCalibrationService | None = None
+
+
+def mercury_calibration_service() -> MercuryCalibrationService:
+    global _mercury_calibration_service_instance
+    if _mercury_calibration_service_instance is None or _mercury_calibration_service_instance.database is not database:
+        _mercury_calibration_service_instance = MercuryCalibrationService(database)
+    return _mercury_calibration_service_instance
+
+
+def analysis_service() -> AnalysisService:
+    return AnalysisService(database)
+
+
 def method_error(exc: MethodDomainError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
@@ -121,6 +187,30 @@ def result_migration_error(exc: ResultMigrationError) -> HTTPException:
 
 
 def spectrum_viewer_error(exc: SpectrumViewerError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def device_error(exc: DeviceError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def dispersion_error(exc: DispersionError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def acquisition_error(exc: AcquisitionError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def hardware_error(exc: HardwareError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def mercury_error(exc: MercuryError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def analysis_error(exc: AnalysisError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
@@ -186,7 +276,7 @@ def about() -> AboutResponse:
         display_name="GeoSpectrum 自动转角平面光栅光谱仪分析平台",
         version=__version__,
         api_version="v1",
-        stage="S10 · 谱图查看与交互",
+        stage="S16 · 定量分析与慢进干预",
         description="面向 SpecDirect 2.0.2 兼容重构的本地分析工作台。",
         runtime=f"Python {platform.python_version()} · {platform.system()}",
         database=str(config.database_path),
@@ -1027,6 +1117,686 @@ def print_spectrum_pdf(
             "X-Visible-Point-Count": str(result["visible_point_count"]),
         },
     )
+
+
+@app.get("/api/v1/devices/profiles", tags=["devices"])
+def list_device_profiles(_: Session = Depends(require_permission("devices.read"))) -> list[dict[str, Any]]:
+    return devices_service().profiles()
+
+
+@app.get("/api/v1/devices/profiles/{profile_id}", tags=["devices"])
+def get_device_profile(profile_id: int, _: Session = Depends(require_permission("devices.read"))) -> dict[str, Any]:
+    try:
+        return devices_service().profile(profile_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.post("/api/v1/devices/profiles", status_code=201, tags=["devices"])
+def create_device_profile(payload: DeviceProfileCreate, session: Session = Depends(require_permission("devices.write"))) -> dict[str, Any]:
+    try:
+        return devices_service().create_profile(payload.model_dump(), actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.patch("/api/v1/devices/profiles/{profile_id}", tags=["devices"])
+def update_device_profile(profile_id: int, payload: DeviceProfileUpdate, session: Session = Depends(require_permission("devices.write"))) -> dict[str, Any]:
+    try:
+        return devices_service().update_profile(profile_id, payload.model_dump(exclude_none=True), actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.get("/api/v1/devices/diagnostics", tags=["devices"])
+def device_diagnostics(_: Session = Depends(require_permission("devices.read"))) -> dict[str, Any]:
+    current = devices_service()
+    return {"profiles": current.profiles(), "adapter": current.adapter.diagnostics()}
+
+
+@app.post("/api/v1/devices/connect", tags=["devices"])
+def connect_device(payload: DeviceConnectRequest, session: Session = Depends(require_permission("devices.execute"))) -> dict[str, Any]:
+    try:
+        return devices_service().connect(payload.profile_id, actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.post("/api/v1/devices/disconnect", tags=["devices"])
+def disconnect_device(session: Session = Depends(require_permission("devices.execute"))) -> dict[str, Any]:
+    try:
+        return devices_service().disconnect(actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.post("/api/v1/devices/debug/start", tags=["devices"])
+def start_device_debug(payload: DeviceDebugStartRequest, session: Session = Depends(require_permission("devices.execute"))) -> dict[str, Any]:
+    try:
+        return devices_service().start_debug(payload.model_dump(), actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.post("/api/v1/devices/debug/step", tags=["devices"])
+def step_device_debug(session: Session = Depends(require_permission("devices.execute"))) -> dict[str, Any]:
+    try:
+        return devices_service().step_debug(actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.post("/api/v1/devices/debug/stop", tags=["devices"])
+def stop_device_debug(session: Session = Depends(require_permission("devices.execute"))) -> dict[str, Any]:
+    try:
+        return devices_service().stop_debug(actor_user_id=session.user_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@app.get("/api/v1/dispersion/options", tags=["dispersion"])
+def dispersion_options(_: Session = Depends(require_permission("dispersion.read"))) -> dict[str, Any]:
+    return dispersion_service().options()
+
+
+@app.get("/api/v1/dispersion/tasks", tags=["dispersion"])
+def list_dispersion_tasks(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: Session = Depends(require_permission("dispersion.read")),
+) -> list[dict[str, Any]]:
+    return dispersion_service().list_tasks(limit)
+
+
+@app.post("/api/v1/dispersion/tasks", status_code=201, tags=["dispersion"])
+def create_dispersion_task(
+    payload: DispersionTaskCreate,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().create_task(payload.model_dump(mode="json"), session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.get("/api/v1/dispersion/tasks/{task_id}", tags=["dispersion"])
+def get_dispersion_task(
+    task_id: int,
+    _: Session = Depends(require_permission("dispersion.read")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().get_task(task_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/start", tags=["dispersion"])
+def start_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().start_task(task_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/step", tags=["dispersion"])
+def step_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().step_task(task_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/pause", tags=["dispersion"])
+def pause_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().pause_task(task_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/resume", tags=["dispersion"])
+def resume_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().resume_task(task_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/stop", tags=["dispersion"])
+def stop_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().stop_task(task_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.get("/api/v1/dispersion/tasks/{task_id}/frames", tags=["dispersion"])
+def dispersion_task_frames(
+    task_id: int,
+    phase: str | None = Query(default=None),
+    ccd_index: int | None = Query(default=None, ge=0, le=255),
+    _: Session = Depends(require_permission("dispersion.read")),
+) -> list[dict[str, Any]]:
+    try:
+        return dispersion_service().frames(task_id, phase=phase, ccd_index=ccd_index)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines", status_code=201, tags=["dispersion"])
+def add_dispersion_line(
+    task_id: int,
+    payload: DispersionLineInput,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().add_line(task_id, payload.model_dump(mode="json"), session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.delete("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}", tags=["dispersion"])
+def delete_dispersion_line(
+    task_id: int,
+    line_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().delete_line(task_id, line_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines/locate-all", tags=["dispersion"])
+def locate_all_dispersion_lines(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    return dispersion_service().locate_all(task_id, session.user_id)
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/locate", tags=["dispersion"])
+def locate_dispersion_line(
+    task_id: int,
+    line_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().locate_line(task_id, line_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move", tags=["dispersion"])
+def move_dispersion_line(
+    task_id: int,
+    line_id: int,
+    payload: DispersionLineMoveRequest,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().move_line(task_id, line_id, payload.direction, payload.steps, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position/save", tags=["dispersion"])
+def save_dispersion_line_position(
+    task_id: int,
+    line_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().save_line_position(task_id, line_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position/restore", tags=["dispersion"])
+def restore_dispersion_line_position(
+    task_id: int,
+    line_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().restore_line_position(task_id, line_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/tasks/{task_id}/calibrations/fit", status_code=201, tags=["dispersion"])
+def fit_dispersion_calibration(
+    task_id: int,
+    payload: DispersionCalibrationFitRequest,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().fit_calibration(task_id, payload.model_dump(exclude_none=True), session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.get("/api/v1/dispersion/calibrations/{calibration_version_id}", tags=["dispersion"])
+def get_dispersion_calibration(
+    calibration_version_id: int,
+    _: Session = Depends(require_permission("dispersion.read")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().calibration(calibration_version_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/calibrations/{calibration_version_id}/publish", tags=["dispersion"])
+def publish_dispersion_calibration(
+    calibration_version_id: int,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().publish_calibration(calibration_version_id, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.post("/api/v1/dispersion/calibrations/{calibration_version_id}/bind", tags=["dispersion"])
+def bind_dispersion_calibration(
+    calibration_version_id: int,
+    payload: DispersionCalibrationBindRequest,
+    session: Session = Depends(require_permission("dispersion.write")),
+) -> dict[str, Any]:
+    try:
+        return dispersion_service().bind_calibration(calibration_version_id, payload.model_dump(exclude_none=True), session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@app.get("/api/v1/dispersion/bindings", tags=["dispersion"])
+def list_dispersion_bindings(
+    method_id: int | None = Query(default=None, ge=1),
+    _: Session = Depends(require_permission("dispersion.read")),
+) -> list[dict[str, Any]]:
+    return dispersion_service().bindings(method_id)
+
+
+@app.get("/api/v1/acquisitions/options", tags=["acquisition"])
+def acquisition_options(_: Session = Depends(require_permission("acquisition.read"))) -> dict[str, Any]:
+    return acquisition_service().options()
+
+
+@app.get("/api/v1/acquisitions/tasks", tags=["acquisition"])
+def list_acquisition_tasks(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: Session = Depends(require_permission("acquisition.read")),
+) -> list[dict[str, Any]]:
+    return acquisition_service().list_tasks(limit)
+
+
+@app.post("/api/v1/acquisitions/tasks", status_code=201, tags=["acquisition"])
+def create_acquisition_task(
+    payload: AcquisitionTaskCreate,
+    session: Session = Depends(require_permission("acquisition.write")),
+) -> dict[str, Any]:
+    try:
+        return acquisition_service().create_task(payload.model_dump(), session.user_id)
+    except (AcquisitionError, SampleQueueError) as exc:
+        if isinstance(exc, SampleQueueError):
+            raise sample_queue_error(exc) from exc
+        raise acquisition_error(exc) from exc
+
+
+@app.get("/api/v1/acquisitions/tasks/{task_id}", tags=["acquisition"])
+def get_acquisition_task(
+    task_id: int,
+    include_points: bool = Query(default=False),
+    _: Session = Depends(require_permission("acquisition.read")),
+) -> dict[str, Any]:
+    try:
+        return acquisition_service()._task_dict(task_id, include_points=include_points)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/start", tags=["acquisition"])
+def start_acquisition_task(task_id: int, session: Session = Depends(require_permission("acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return acquisition_service().start(task_id, session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/step", tags=["acquisition"])
+def step_acquisition_task(task_id: int, session: Session = Depends(require_permission("acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return acquisition_service().step(task_id, session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/pause", tags=["acquisition"])
+def pause_acquisition_task(task_id: int, session: Session = Depends(require_permission("acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return acquisition_service().pause(task_id, session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/resume", tags=["acquisition"])
+def resume_acquisition_task(task_id: int, session: Session = Depends(require_permission("acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return acquisition_service().resume(task_id, session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/stop", tags=["acquisition"])
+def stop_acquisition_task(task_id: int, session: Session = Depends(require_permission("acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return acquisition_service().stop(task_id, session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.get("/api/v1/acquisitions/tasks/{task_id}/frames", tags=["acquisition"])
+def acquisition_frames(
+    task_id: int,
+    repeat_index: int | None = Query(default=None, ge=0, le=10),
+    phase: str | None = Query(default=None),
+    ccd_index: int | None = Query(default=None, ge=0, le=255),
+    include_points: bool = Query(default=False),
+    _: Session = Depends(require_permission("acquisition.read")),
+) -> list[dict[str, Any]]:
+    try:
+        return acquisition_service().frames(task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index, include_points=include_points)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/intervals", tags=["acquisition"])
+def mark_acquisition_interval(
+    task_id: int,
+    payload: AcquisitionIntervalMark,
+    session: Session = Depends(require_permission("acquisition.write")),
+) -> dict[str, Any]:
+    try:
+        return acquisition_service().mark_interval(task_id, payload.model_dump(), session.user_id)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.get("/api/v1/acquisitions/tasks/{task_id}/analysis", tags=["acquisition"])
+def acquisition_analysis(
+    task_id: int,
+    repeat_index: int | None = Query(default=None, ge=0, le=10),
+    _: Session = Depends(require_permission("acquisition.read")),
+) -> dict[str, Any]:
+    try:
+        return acquisition_service().analysis(task_id, repeat_index)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.get("/api/v1/acquisitions/samples/{sample_id}/bands", tags=["acquisition"])
+def acquisition_sample_bands(
+    sample_id: int,
+    ccd_index: int | None = Query(default=None, ge=0, le=255),
+    include_points: bool = Query(default=False),
+    _: Session = Depends(require_permission("acquisition.read")),
+) -> list[dict[str, Any]]:
+    try:
+        return acquisition_service().band(sample_id, ccd_index, include_points)
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@app.post("/api/v1/acquisitions/tasks/{task_id}/samples/{sample_id}/rename", tags=["acquisition"])
+def rename_acquisition_sample(
+    task_id: int,
+    sample_id: int,
+    payload: AcquisitionRename,
+    session: Session = Depends(require_permission("acquisition.write")),
+) -> dict[str, Any]:
+    try:
+        return acquisition_service().rename(task_id, sample_id, payload.post_name, session.user_id)
+    except (AcquisitionError, SampleQueueError) as exc:
+        if isinstance(exc, SampleQueueError):
+            raise sample_queue_error(exc) from exc
+        raise acquisition_error(exc) from exc
+
+
+@app.get("/api/v1/hardware-acquisitions/options", tags=["hardware-acquisition"])
+def hardware_acquisition_options(_: Session = Depends(require_permission("hardware-acquisition.read"))) -> dict[str, Any]:
+    return hardware_acquisition_service().options()
+
+
+@app.get("/api/v1/hardware-acquisitions/tasks", tags=["hardware-acquisition"])
+def list_hardware_acquisition_tasks(limit: int = Query(default=50, ge=1, le=200), _: Session = Depends(require_permission("hardware-acquisition.read"))) -> list[dict[str, Any]]:
+    return hardware_acquisition_service().list_tasks(limit)
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks", status_code=201, tags=["hardware-acquisition"])
+def create_hardware_acquisition_task(payload: HardwareTaskCreate, session: Session = Depends(require_permission("hardware-acquisition.write"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().create_task(payload.model_dump(mode="json"), session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.get("/api/v1/hardware-acquisitions/tasks/{task_id}", tags=["hardware-acquisition"])
+def get_hardware_acquisition_task(task_id: int, include_points: bool = Query(default=False), _: Session = Depends(require_permission("hardware-acquisition.read"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service()._task_dict(task_id, include_points=include_points)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/start", tags=["hardware-acquisition"])
+def start_hardware_acquisition_task(task_id: int, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().start(task_id, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/step", tags=["hardware-acquisition"])
+def step_hardware_acquisition_task(task_id: int, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().step(task_id, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/pause", tags=["hardware-acquisition"])
+def pause_hardware_acquisition_task(task_id: int, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().pause(task_id, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/resume", tags=["hardware-acquisition"])
+def resume_hardware_acquisition_task(task_id: int, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().resume(task_id, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/stop", tags=["hardware-acquisition"])
+def stop_hardware_acquisition_task(task_id: int, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().stop(task_id, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.post("/api/v1/hardware-acquisitions/tasks/{task_id}/intervene", tags=["hardware-acquisition"])
+def intervene_hardware_acquisition_task(task_id: int, payload: HardwareIntervention, session: Session = Depends(require_permission("hardware-acquisition.execute"))) -> dict[str, Any]:
+    try:
+        return hardware_acquisition_service().intervene(task_id, payload.action, payload.note, session.user_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.get("/api/v1/hardware-acquisitions/tasks/{task_id}/frames", tags=["hardware-acquisition"])
+def hardware_acquisition_frames(task_id: int, step_id: int | None = Query(default=None, ge=1), include_points: bool = Query(default=False), _: Session = Depends(require_permission("hardware-acquisition.read"))) -> list[dict[str, Any]]:
+    try:
+        return hardware_acquisition_service().frames(task_id, step_id=step_id, include_points=include_points)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.get("/api/v1/hardware-acquisitions/tasks/{task_id}/traces", tags=["hardware-acquisition"])
+def hardware_acquisition_traces(task_id: int, _: Session = Depends(require_permission("hardware-acquisition.read"))) -> list[dict[str, Any]]:
+    try:
+        return hardware_acquisition_service().traces(task_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.get("/api/v1/hardware-acquisitions/tasks/{task_id}/decisions", tags=["hardware-acquisition"])
+def hardware_acquisition_decisions(task_id: int, _: Session = Depends(require_permission("hardware-acquisition.read"))) -> list[dict[str, Any]]:
+    try:
+        return hardware_acquisition_service().decisions(task_id)
+    except HardwareError as exc:
+        raise hardware_error(exc) from exc
+
+
+@app.get("/api/v1/mercury-calibrations/options", tags=["mercury-calibration"])
+def mercury_calibration_options(_: Session = Depends(require_permission("mercury-calibration.read"))) -> dict[str, Any]:
+    return mercury_calibration_service().options()
+
+
+@app.get("/api/v1/mercury-calibrations/sessions", tags=["mercury-calibration"])
+def list_mercury_calibration_sessions(limit: int = Query(default=50, ge=1, le=200), _: Session = Depends(require_permission("mercury-calibration.read"))) -> list[dict[str, Any]]:
+    return mercury_calibration_service().list_sessions(limit)
+
+
+@app.post("/api/v1/mercury-calibrations/sessions", status_code=201, tags=["mercury-calibration"])
+def create_mercury_calibration_session(payload: MercurySessionCreate, session: Session = Depends(require_permission("mercury-calibration.write"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().create_session(payload.model_dump(mode="json"), session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.get("/api/v1/mercury-calibrations/sessions/{session_id}", tags=["mercury-calibration"])
+def get_mercury_calibration_session(session_id: int, include_points: bool = Query(default=False), _: Session = Depends(require_permission("mercury-calibration.read"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().session(session_id, include_points=include_points)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.post("/api/v1/mercury-calibrations/sessions/{session_id}/start", tags=["mercury-calibration"])
+def start_mercury_calibration_session(session_id: int, session: Session = Depends(require_permission("mercury-calibration.execute"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().start(session_id, session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.post("/api/v1/mercury-calibrations/sessions/{session_id}/step", tags=["mercury-calibration"])
+def step_mercury_calibration_session(session_id: int, session: Session = Depends(require_permission("mercury-calibration.execute"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().step(session_id, session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.post("/api/v1/mercury-calibrations/sessions/{session_id}/apply", tags=["mercury-calibration"])
+def apply_mercury_calibration_session(session_id: int, session: Session = Depends(require_permission("mercury-calibration.write"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().apply(session_id, session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.post("/api/v1/mercury-calibrations/sessions/{session_id}/rollback", tags=["mercury-calibration"])
+def rollback_mercury_calibration_session(session_id: int, session: Session = Depends(require_permission("mercury-calibration.write"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().rollback(session_id, session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.post("/api/v1/mercury-calibrations/sessions/{session_id}/stop", tags=["mercury-calibration"])
+def stop_mercury_calibration_session(session_id: int, session: Session = Depends(require_permission("mercury-calibration.execute"))) -> dict[str, Any]:
+    try:
+        return mercury_calibration_service().stop(session_id, session.user_id)
+    except MercuryError as exc:
+        raise mercury_error(exc) from exc
+
+
+@app.get("/api/v1/analyses/options", tags=["analysis"])
+def analysis_options(_: Session = Depends(require_permission("analysis.read"))) -> dict[str, Any]:
+    return analysis_service().options()
+
+
+@app.get("/api/v1/analyses/runs", tags=["analysis"])
+def list_analysis_runs(limit: int = Query(default=50, ge=1, le=200), _: Session = Depends(require_permission("analysis.read"))) -> list[dict[str, Any]]:
+    return analysis_service().list_runs(limit)
+
+
+@app.post("/api/v1/analyses/runs", status_code=201, tags=["analysis"])
+def create_analysis_run(payload: AnalysisRunCreate, session: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
+    try:
+        return analysis_service().create_run(payload.model_dump(mode="json"), session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.get("/api/v1/analyses/runs/{run_id}", tags=["analysis"])
+def get_analysis_run(run_id: int, _: Session = Depends(require_permission("analysis.read"))) -> dict[str, Any]:
+    try:
+        return analysis_service().run(run_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/start", tags=["analysis"])
+def start_analysis_run(run_id: int, session: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
+    try:
+        return analysis_service().start(run_id, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/step", tags=["analysis"])
+def step_analysis_run(run_id: int, session: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
+    try:
+        return analysis_service().step(run_id, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/intervene", tags=["analysis"])
+def intervene_analysis_run(run_id: int, payload: AnalysisIntervention, session: Session = Depends(require_permission("analysis.intervene"))) -> dict[str, Any]:
+    try:
+        return analysis_service().intervene(run_id, payload.action, payload.adjusted_position, payload.reason, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/cancel", tags=["analysis"])
+def cancel_analysis_run(run_id: int, session: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
+    try:
+        return analysis_service().cancel(run_id, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
 
 
 @app.get("/api/v1/sample-queues", tags=["sample-queues"])

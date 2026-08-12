@@ -64,10 +64,11 @@ LINE_TYPE_LABELS = {
     "baseline": "参考基线",
     "analysis": "分析线",
     "internal_standard": "内标线",
-    "alignment": "定位线",
+    "positioning": "定位线",
 }
-PEAK_LABELS = {"maximum": "最大值", "gaussian": "高斯曲线"}
+PEAK_LABELS = {"max_single_point": "最大单点", "gaussian": "高斯曲线"}
 FIT_LABELS = {"linear": "直线", "quadratic": "二次", "cubic": "三次", "spline": "样条"}
+COORDINATE_LABELS = {"normal": "普通坐标", "logarithmic": "对数坐标"}
 INTERNAL_LABELS = {"none": "无内标", "background": "背景内标", "line": "普通内标线"}
 
 
@@ -342,7 +343,7 @@ class MethodPrintService:
                 f"优先级={line.get('priority')}; 扫描={line.get('scan_width_points')}点; "
                 f"背景偏移={line.get('background_offset_points')}点; "
                 f"峰值={PEAK_LABELS.get(line.get('peak_mode'), line.get('peak_mode'))}/{line.get('peak_width_points')}点; "
-                f"拟合={FIT_LABELS.get(line.get('fit_mode'), line.get('fit_mode'))}/{line.get('coordinate_type')}; "
+                f"拟合={FIT_LABELS.get(line.get('fit_mode'), line.get('fit_mode'))}/{COORDINATE_LABELS.get(line.get('coordinate_type'), line.get('coordinate_type'))}; "
                 f"内标方式={INTERNAL_LABELS.get(line.get('internal_standard_mode'), line.get('internal_standard_mode'))}; "
                 f"结果={line.get('value_kind')} {line.get('unit')} / {line.get('decimal_places')}位; "
                 f"有效范围={line.get('valid_range_min')}-{line.get('valid_range_max')}; "

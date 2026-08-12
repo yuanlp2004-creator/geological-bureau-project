@@ -20,7 +20,7 @@ def test_registered_manifests_have_unique_contracts() -> None:
     manifests = registered_manifests()
     validate_manifests(manifests)
     assert {manifest.key for manifest in manifests} == {
-        "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer"
+        "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis"
     }
     assert all(manifest.api_prefix == "/api/v1" for manifest in manifests)
 

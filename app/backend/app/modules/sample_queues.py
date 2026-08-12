@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import sqlite3
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +94,18 @@ class SampleQueueService:
             result["expanded_bands"] = sum(item["expanded_bands"] for item in result["items"])
             return result
 
+    def get_item(self, queue_id: int, item_id: int) -> dict[str, Any]:
+        """Public application-service lookup used by acquisition workflows."""
+
+        with self.database.read() as db:
+            row = db.execute(
+                "SELECT * FROM sample_queue_items WHERE id=? AND queue_id=?",
+                (item_id, queue_id),
+            ).fetchone()
+            if row is None:
+                raise SampleQueueError("queue_item_not_found", "队列项不存在", status_code=404)
+            return dict(row)
+
     def list(self) -> list[dict[str, Any]]:
         with self.database.read() as db:
             ids = [row[0] for row in db.execute("SELECT id FROM sample_queues ORDER BY updated_at DESC").fetchall()]
@@ -132,6 +145,95 @@ class SampleQueueService:
             db.execute("UPDATE sample_queues SET updated_at=? WHERE id=?", (now, queue_id))
             self._audit(db, actor, "sample_queue.rename", item_id, {"queue_id": queue_id, "from": row["post_name"] or row["pre_name"], "to": name, "spectrum_hash": row["spectrum_hash"]})
         return self.get(queue_id)
+
+    def rename_linked_item(
+        self,
+        queue_id: int,
+        item_id: int,
+        post_name: str,
+        actor: int | None,
+        *,
+        connection: sqlite3.Connection,
+    ) -> str:
+        """Rename a queue item inside a caller-owned acquisition transaction."""
+
+        name, _ = normalize_name(post_name)
+        if not name:
+            raise SampleQueueError("sample_name_invalid", "采集后名称不能为空")
+        row = connection.execute(
+            "SELECT * FROM sample_queue_items WHERE id=? AND queue_id=?",
+            (item_id, queue_id),
+        ).fetchone()
+        if row is None:
+            raise SampleQueueError("queue_item_not_found", "队列项不存在", status_code=404)
+        now = utc_now()
+        connection.execute(
+            "UPDATE sample_queue_items SET post_name=?, updated_at=? WHERE id=?",
+            (name, now, item_id),
+        )
+        connection.execute("UPDATE sample_queues SET updated_at=? WHERE id=?", (now, queue_id))
+        self._audit(
+            connection,
+            actor,
+            "sample_queue.rename",
+            item_id,
+            {
+                "queue_id": queue_id,
+                "from": row["post_name"] or row["pre_name"],
+                "to": name,
+                "spectrum_hash": row["spectrum_hash"],
+            },
+        )
+        return name
+
+    def attach_acquisition(
+        self,
+        queue_id: int,
+        item_id: int,
+        spectrum_hash: str,
+        actor: int | None,
+        *,
+        connection: sqlite3.Connection,
+    ) -> None:
+        """Attach one completed S13 acquisition without exposing queue tables."""
+
+        fingerprint = str(spectrum_hash).lower()
+        if len(fingerprint) != 64 or any(char not in "0123456789abcdef" for char in fingerprint):
+            raise SampleQueueError("spectrum_hash_invalid", "采集数据哈希无效")
+        row = connection.execute(
+            "SELECT * FROM sample_queue_items WHERE id=? AND queue_id=?",
+            (item_id, queue_id),
+        ).fetchone()
+        if row is None:
+            raise SampleQueueError("queue_item_not_found", "队列项不存在", status_code=404)
+        if row["spectrum_hash"] not in (None, fingerprint):
+            raise SampleQueueError(
+                "queue_item_already_acquired",
+                "队列项已经关联另一份采集数据",
+                details={"existing_hash": row["spectrum_hash"]},
+                status_code=409,
+            )
+        now = utc_now()
+        connection.execute(
+            "UPDATE sample_queue_items SET spectrum_hash=?, updated_at=? WHERE id=?",
+            (fingerprint, now, item_id),
+        )
+        remaining = connection.execute(
+            "SELECT COUNT(*) FROM sample_queue_items WHERE queue_id=? AND spectrum_hash IS NULL",
+            (queue_id,),
+        ).fetchone()[0]
+        queue_status = "completed" if remaining == 0 else "ready"
+        connection.execute(
+            "UPDATE sample_queues SET status=?, updated_at=? WHERE id=?",
+            (queue_status, now, queue_id),
+        )
+        self._audit(
+            connection,
+            actor,
+            "sample_queue.acquisition.attach",
+            item_id,
+            {"queue_id": queue_id, "spectrum_hash": fingerprint, "queue_status": queue_status},
+        )
 
     def delete_item(self, queue_id: int, item_id: int, actor: int | None) -> dict[str, Any]:
         now = utc_now()
