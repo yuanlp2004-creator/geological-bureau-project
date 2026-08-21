@@ -11,7 +11,7 @@ export type RuntimeEvent = {
 }
 
 export type Settings = {
-  directories: Record<string, string>
+  directories: { data: string; methods: string; samples: string; exports: string; backups: string }
   logging: { level: string; max_bytes: number; retention_days: number }
   display: { theme: string; density: string; show_status_bar: boolean }
   printing: MethodPrintSettings
@@ -66,6 +66,19 @@ export type Capability = {
   enabled: boolean
   permissions: string[]
   audit_actions: string[]
+  navigation_entries: Array<{
+    key: string
+    group: 'workspace' | 'methods' | 'conditions' | 'analysis-tests' | 'data' | 'tools' | 'system' | 'help'
+    section_label: string
+    label: string
+    description: string
+    page: string
+    view: string | null
+    required_any: string[]
+    order: number
+    status: 'normal' | 'deferred_external' | 'test_only'
+    required_context: 'none' | 'current_method' | 'current_method_exp_seg' | 'page_scoped'
+  }>
 }
 
 export type About = {
@@ -78,6 +91,8 @@ export type About = {
   runtime: string
   database: string
   modules: Array<Record<string, unknown>>
+  license: string
+  build: Record<string, unknown>
 }
 
 export type Diagnostics = {
@@ -91,6 +106,27 @@ export type Diagnostics = {
   event_count: number
   manifest_valid: boolean
 }
+
+export type BackupRecord = {
+  id: string
+  kind: string
+  source_path: string
+  backup_path: string
+  source_sha256: string
+  backup_sha256: string
+  byte_length: number
+  integrity: string
+  foreign_keys: number
+  entity_counts: Record<string, number>
+  blob_samples: Array<{ table: string; rowid: number; sha256: string; byte_length: number }>
+  retention_expires_at: string | null
+  status: string
+  created_at: string
+  completed_at: string | null
+}
+
+export type MaintenanceStatus = { database_path: string; database_bytes: number; wal_bytes: number; integrity: string; foreign_key_errors: number; backups: BackupRecord[]; operations: Array<{ id: string; operation: string; status: string; details: Record<string, unknown>; created_at: string }> }
+export type HelpTopic = { slug: string; title: string; section: string; keywords: string[]; body: string; related_routes: string[]; updated_at: string }
 
 export type DeviceProfile = {
   id: number
@@ -576,6 +612,27 @@ export type AnalysisCheckpoint = {
   deadline_at: string
 }
 
+export type AnalysisQcMember = { line_result_id: number; sample_position: number; repeat_index: number; value: number; included: boolean; source_sha256: string; last_decision_id: number | null }
+export type AnalysisQcGroup = {
+  acquisition_task_id: number; sample_name: string; sample_kind: string; standard_index: number | null; line_id: string; element: string; wavelength_nm: number; repeat_count: number
+  members: AnalysisQcMember[]
+  statistics: { effective_count: number; mean: number | null; minimum: number | null; maximum: number | null; range: number | null; stddev: number | null; rsd: number | null; id: number | null }
+  warnings: Array<{ code: string; message: string; actual?: number; threshold?: number }>
+  warning_accepted: boolean
+}
+export type AnalysisQcSnapshot = { id: number; sequence: number; groups: AnalysisQcGroup[]; publishable: boolean; result_sha256: string; created_at: string }
+export type AnalysisCurvePoint = { point_index: number; name: string; standard_value: number; original_intensity: number | null; adjusted_intensity: number | null; original_active: boolean; active: boolean; qc_group: { acquisition_task_id: number; effective_count: number } | null }
+export type AnalysisCurveSnapshot = {
+  id: number; sequence: number; line_id: string; qc_snapshot_id: number; adjustment_set_id: number; fit_mode: 'linear' | 'quadratic' | 'cubic' | 'spline'; coordinate_type: 'normal' | 'logarithmic'; publishable: boolean; result_sha256: string; created_at: string
+  points: AnalysisCurvePoint[]; fit: Record<string, unknown>; chart: Array<{ intensity: number; value: number }>
+  diagnostics: { points: Array<AnalysisCurvePoint & { calculated_value: number; residual: number; relative_error_percent: number | null }>; correlation: number | null; rmse: number; maximum_absolute_error: number }
+}
+export type AnalysisCurveLine = {
+  line_id: string; element: string; wavelength_nm: number; unit: string; active_curve_snapshot_id: number | null
+  workspace: { fit_mode: 'linear' | 'quadratic' | 'cubic' | 'spline'; coordinate_type: 'normal' | 'logarithmic'; points: AnalysisCurvePoint[]; adjustment_set_id: number | null; sequence: number }
+  snapshots: AnalysisCurveSnapshot[]
+}
+
 export type AnalysisRun = {
   id: number
   name: string
@@ -599,9 +656,21 @@ export type AnalysisRun = {
   checkpoint: AnalysisCheckpoint | null
   interventions: Array<{ id: number; action: 'accept' | 'discard'; before_position: number; after_position: number; reason: string; created_at: string }>
   messages: Array<{ id: number; level: string; code: string; message: string; details: Record<string, unknown>; created_at: string }>
+  quality: { latest_snapshot: AnalysisQcSnapshot | null; snapshot_history: Array<{ id: number; sequence: number; publishable: boolean; result_sha256: string; created_at: string }>; decisions: Array<Record<string, unknown>> }
+  curves: {
+    lines: AnalysisCurveLine[]; actions: Array<Record<string, unknown>>
+    results: Array<{ id: number; curve_snapshot_id: number; acquisition_task_id: number; sample_name: string; sample_kind: string; is_standard: boolean; standard_value: number | null; effective_count: number; intensity: number; calculated_value: number; result_sha256: string }>
+    merges: Array<{ id: number; sequence: number; curve_snapshot_ids: number[]; results: Array<{ acquisition_task_id: number; sample_name: string; sample_kind: string; values: Array<{ element: string; line_id: string; curve_snapshot_id: number; value: number; intensity: number; candidate_count: number }> }>; result_sha256: string; created_at: string }>
+    print_jobs: Array<{ id: number; curve_snapshot_id: number; mode: 'image' | 'text'; content_sha256: string; byte_length: number; created_at: string }>
+  }
   created_at: string
   updated_at: string
 }
+
+export type ReportTemplate = { id: number; key: string; name: string; version: number; schema: Record<string, unknown>; enabled: boolean }
+export type ReportRow = { report_number: string; sample_name: string; element: string; wavelength_nm: number; calculated_value: number; unit: string; curve_snapshot_id: number; calculation_profile: string; qc_status: string; analysis_run_id: number; line_id: string; merge_snapshot_id: number }
+export type Report = { id: number; report_number: string; version: number; template_id: number; template_key?: string; template_name?: string; template_version?: number; source_run_ids: number[]; filter: Record<string, unknown>; arrangement: 'standard' | 'exchange'; model: { columns: string[]; rows: ReportRow[]; runs: Array<Record<string, unknown>>; arrangement: string; filters: Record<string, unknown> }; model_sha256: string; status: string; created_at: string; updated_at: string }
+export type ReportExport = { id: string; report_id: number; format: string; status: string; path: string | null; content_sha256: string; byte_length: number; page_count: number; media_type: string }
 
 export type LegacyMigrationDiagnostic = {
   available: boolean
@@ -819,6 +888,65 @@ export type SpectrumRecord = {
   line?: Record<string, unknown> & { points: SpectrumPoint[] }
 }
 
+export type PostProcessingRecord = {
+  id: string
+  kind: 'raw'
+  format: 'edt' | 'cmt'
+  source_sha256: string
+  record_index: number
+  sample_name: string | null
+  band_name: string | null
+  measure_time: string | null
+  frame_count: number
+  ccd_count: number
+  points_per_ccd: number
+  ccd_indices: number[]
+  ignition: Record<string, number>
+}
+
+export type PostProcessingRecalculationOptions = {
+  methods: Array<{ method_version_id: number; method_id: number; version: number; name: string }>
+  sources: Array<{ id: string; kind: 'result' | 'sample'; label: string; source_sha256: string | null; method_id?: number | null; method_version_id?: number | null; method_match_status?: string | null; measure_time?: string | null }>
+  curve_snapshots: Array<{ id: number; line_id: string; fit_mode: string; coordinate_type: string; result_sha256: string; method_version_id: number; calculation_profile: 'legacy_2_0_2' | 'modern_v1'; method_name: string; method_version: number }>
+}
+
+export type PostProcessingInterval = {
+  id: string
+  source_sha256: string
+  measure_time: string | null
+  ccd: number
+  phase: string
+  start_frame: number
+  end_frame: number
+  frame_count: number
+  points_per_ccd: number
+  frames: Array<{ frame_index: number; adc: number[]; sha256: string }>
+  mean: { values: number[]; sha256: string }
+}
+
+export type PostProcessingRun = {
+  id: string
+  status: string
+  input_sha256: string
+  source_record_ids?: string[]
+  source_hashes?: string[]
+  sample_ids?: number[]
+  task_ids?: number[]
+  result?: Record<string, unknown>
+  report: Record<string, unknown>
+  result_sha256?: string
+}
+
+export type PostProcessingExport = {
+  id: string
+  status: string
+  input_sha256: string
+  path: string
+  content_sha256: string
+  byte_length: number
+  report: Record<string, unknown>
+}
+
 export type SampleQueueItem = {
   id: number
   queue_id: number
@@ -844,23 +972,100 @@ export type SampleQueue = {
   updated_at: string
 }
 
+type DesktopRuntime = { api_base: string; process_key: string }
+
+declare global {
+  interface Window {
+    __TAURI__?: { core?: { invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T> } }
+  }
+}
+
+let desktopRuntimePromise: Promise<DesktopRuntime | null> | null = null
+
+function desktopRuntime(): Promise<DesktopRuntime | null> {
+  if (!desktopRuntimePromise) {
+    const invoke = window.__TAURI__?.core?.invoke
+    desktopRuntimePromise = invoke ? invoke<DesktopRuntime>('runtime_config') : Promise.resolve(null)
+  }
+  return desktopRuntimePromise
+}
+
+const exportContentType = (fileName: string): string => {
+  const extension = fileName.toLocaleLowerCase().split('.').pop()
+  if (extension === 'pdf') return 'application/pdf'
+  if (extension === 'csv') return 'text/csv'
+  return 'text/plain'
+}
+
+export async function saveFile(blob: Blob, fileName: string): Promise<string | null> {
+  const invoke = window.__TAURI__?.core?.invoke
+  if (invoke) {
+    const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()))
+    return invoke<string | null>('save_export_file', { fileName, contentType: exportContentType(fileName), bytes })
+  }
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = fileName
+  document.body.append(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+  return fileName
+}
+
+export const savePdfFile = saveFile
+
+export class ApiError extends Error {
+  constructor(message: string, readonly status: number, readonly code?: string) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
 async function requestRaw(path: string, init?: RequestInit): Promise<Response> {
-  const response = await fetch(path, {
+  const runtime = await desktopRuntime()
+  const endpoint = runtime && path.startsWith('/') ? `${runtime.api_base}${path}` : path
+  const requestInit = {
     ...init,
-    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
-  })
+    headers: { 'Content-Type': 'application/json', ...(runtime ? { 'X-GeoSpectrum-Process-Key': runtime.process_key } : {}), ...(init?.headers ?? {}) },
+  }
+  let response: Response | null = null
+  let lastError: unknown = null
+  const attempts = runtime ? 80 : 1
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      response = await fetch(endpoint, requestInit)
+      break
+    } catch (error) {
+      lastError = error
+      if (attempt + 1 < attempts) await new Promise((resolve) => window.setTimeout(resolve, 100))
+    }
+  }
+  if (!response) throw lastError instanceof Error ? lastError : new Error('本地服务启动超时')
   if (!response.ok) {
     const body = await response.text()
     try {
-      const parsed = JSON.parse(body) as { detail?: string | { message?: string } }
-      const message = typeof parsed.detail === 'string' ? parsed.detail : parsed.detail?.message
-      throw new Error(message || body || `${response.status} ${response.statusText}`)
+      const parsed = JSON.parse(body) as { detail?: string | { code?: string; message?: string } | unknown[] }
+      const detail = parsed.detail
+      const structured = !Array.isArray(detail) && typeof detail === 'object' && detail ? detail : undefined
+      const message = typeof detail === 'string' ? detail : structured?.message
+      const code = structured?.code
+      throw new ApiError(message || (response.status === 422 ? '输入数据无效' : body || `${response.status} ${response.statusText}`), response.status, code)
     } catch (error) {
-      if (error instanceof SyntaxError) throw new Error(body || `${response.status} ${response.statusText}`)
+      if (error instanceof SyntaxError) throw new ApiError(body || `${response.status} ${response.statusText}`, response.status)
       throw error
     }
   }
   return response
+}
+
+export async function eventSocketUrl(accessToken: string): Promise<string> {
+  const runtime = await desktopRuntime()
+  const base = runtime ? runtime.api_base.replace(/^http/, 'ws') : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
+  const query = new URLSearchParams({ access_token: accessToken })
+  if (runtime) query.set('process_key', runtime.process_key)
+  return `${base}/ws/events?${query}`
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -1189,6 +1394,17 @@ export const api = {
     const response = await requestRaw(`/api/v1/spectra/${encodeURIComponent(recordId)}/print-pdf`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })
     return { blob: await response.blob(), filename: response.headers.get('Content-Disposition') ?? `spectrum-${recordId.replace(':', '-')}.pdf`, curveCount: Number(response.headers.get('X-Curve-Count') ?? 0), pointCount: Number(response.headers.get('X-Visible-Point-Count') ?? 0) }
   },
+  postprocessingEdtRecords: (token: string) => request<{ records: PostProcessingRecord[] }>('/api/v1/postprocessing/edt-records', { headers: { Authorization: `Bearer ${token}` } }),
+  postprocessingRecalculationOptions: (token: string) => request<PostProcessingRecalculationOptions>('/api/v1/postprocessing/recalculation-options', { headers: { Authorization: `Bearer ${token}` } }),
+  postprocessingInterval: (token: string, recordId: string, params: { ccd: number; startFrame: number; endFrame: number; phase?: 'burn' | 'dark' }) => {
+    const query = new URLSearchParams({ ccd: String(params.ccd), start_frame: String(params.startFrame), end_frame: String(params.endFrame), phase: params.phase ?? 'burn' })
+    return request<PostProcessingInterval>(`/api/v1/postprocessing/raw/${encodeURIComponent(recordId)}/interval?${query}`, { headers: { Authorization: `Bearer ${token}` } })
+  },
+  postprocessingConversions: (token: string) => request<{ runs: PostProcessingRun[] }>('/api/v1/postprocessing/conversions', { headers: { Authorization: `Bearer ${token}` } }),
+  convertPostprocessingEdt: (token: string, payload: { record_ids: string[]; start_frame: number; end_frame?: number; target_ccd_layout_id: number; target_ccd_indices?: number[]; method_version_id?: number; name?: string }) => request<PostProcessingRun>('/api/v1/postprocessing/conversions', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  postprocessingRecalculations: (token: string) => request<{ runs: PostProcessingRun[] }>('/api/v1/postprocessing/recalculations', { headers: { Authorization: `Bearer ${token}` } }),
+  recalculatePostprocessing: (token: string, payload: { source_record_ids: string[]; method_version_id: number; calculation_profile: 'legacy_2_0_2' | 'modern_v1'; curve_snapshot_ids: number[]; expected_measure_time?: string }) => request<PostProcessingRun>('/api/v1/postprocessing/recalculations', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  exportPostprocessing: (token: string, payload: { record_ids: string[]; kind: 'raw_intensity' | 'processed_intensity' | 'result_matrix'; format: 'txt' | 'csv' | 'excel'; output_directory: string; filename: string; same_name_strategy: 'suffix' | 'error' | 'overwrite' }) => request<PostProcessingExport>('/api/v1/postprocessing/exports', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   sampleQueues: (token: string) => request<SampleQueue[]>('/api/v1/sample-queues', { headers: { Authorization: `Bearer ${token}` } }),
   createSampleQueue: (token: string, payload: { name: string; items: Array<{ pre_name: string; repeats: number }> }) => request<SampleQueue>('/api/v1/sample-queues', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   updateSampleQueue: (token: string, queueId: number, items: Array<{ pre_name: string; repeats: number }>) => request<SampleQueue>(`/api/v1/sample-queues/${queueId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ items }) }),
@@ -1201,15 +1417,23 @@ export const api = {
     return { blob: await response.blob(), filename: response.headers.get('Content-Disposition') ?? `queue-${queueId}.sam` }
   },
   health: () => request<{ status: string; version: string; uptime_seconds: number }>('/health'),
-  about: () => request<About>('/about'),
+  about: (token: string) => request<About>('/about', { headers: { Authorization: `Bearer ${token}` } }),
   capabilities: () => request<{ capabilities: Capability[] }>('/api/v1/capabilities'),
-  diagnostics: () => request<Diagnostics>('/api/v1/diagnostics'),
+  diagnostics: (token: string) => request<Diagnostics>('/api/v1/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
   settings: (token: string) => request<Settings>('/api/v1/settings', { headers: { Authorization: `Bearer ${token}` } }),
   saveSettings: (token: string, settings: Partial<Settings>) =>
     request<Settings>('/api/v1/settings', { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(settings) }),
   resetSettings: (token: string) => request<Settings>('/api/v1/settings/reset', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   logs: (token: string, params = '') => request<RuntimeEvent[]>(`/api/v1/logs${params}`, { headers: { Authorization: `Bearer ${token}` } }),
   clearLogs: (token: string) => request<{ deleted: number }>('/api/v1/logs', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
+  maintenanceStatus: (token: string) => request<MaintenanceStatus>('/api/v1/maintenance/status', { headers: { Authorization: `Bearer ${token}` } }),
+  createBackup: (token: string, payload: { output_directory: string; filename?: string; retention_days: number }) => request<Record<string, unknown>>('/api/v1/backups', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  verifyBackup: (token: string, id: string) => request<Record<string, unknown>>(`/api/v1/backups/${encodeURIComponent(id)}/verify`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  restoreRehearsal: (token: string, id: string) => request<Record<string, unknown>>(`/api/v1/backups/${encodeURIComponent(id)}/restore-rehearsal`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  maintenanceAction: (token: string, action: 'checkpoint' | 'optimize' | 'reclaim' | 'logs/cleanup' | 'temp/cleanup' | 'retention', payload: Record<string, unknown> = {}) => request<Record<string, unknown>>(`/api/v1/${action === 'retention' ? 'backups/retention' : `maintenance/${action}`}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  helpTopics: (token: string, query = '') => request<HelpTopic[]>(`/api/v1/help/topics${query ? `?q=${encodeURIComponent(query)}` : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+  helpTopic: (token: string, slug: string) => request<HelpTopic>(`/api/v1/help/topics/${encodeURIComponent(slug)}`, { headers: { Authorization: `Bearer ${token}` } }),
+  executeExtension: (token: string, key: string) => request<Record<string, unknown>>(`/api/v1/extensions/${encodeURIComponent(key)}/execute`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   appendLog: (token: string, event: Pick<RuntimeEvent, 'category' | 'severity' | 'message'>) =>
     request<RuntimeEvent>('/api/v1/logs', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(event) }),
   deviceProfiles: (token: string) => request<DeviceProfile[]>('/api/v1/devices/profiles', { headers: { Authorization: `Bearer ${token}` } }),
@@ -1279,10 +1503,32 @@ export const api = {
   stopMercuryCalibrationSession: (token: string, sessionId: number) => request<MercurySession>(`/api/v1/mercury-calibrations/sessions/${sessionId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   analysisOptions: (token: string) => request<AnalysisOptions>('/api/v1/analyses/options', { headers: { Authorization: `Bearer ${token}` } }),
   analysisRuns: (token: string) => request<AnalysisRun[]>('/api/v1/analyses/runs', { headers: { Authorization: `Bearer ${token}` } }),
+  reportTemplates: (token: string) => request<ReportTemplate[]>('/api/v1/reports/templates', { headers: { Authorization: `Bearer ${token}` } }),
+  reportPrinters: (token: string) => request<{ printers: PrinterOption[] }>('/api/v1/reports/printers', { headers: { Authorization: `Bearer ${token}` } }),
+  reports: (token: string) => request<Report[]>('/api/v1/reports', { headers: { Authorization: `Bearer ${token}` } }),
+  report: (token: string, reportId: number) => request<Report>(`/api/v1/reports/${reportId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  createReport: (token: string, payload: { analysis_run_ids: number[]; template_key: string; report_number?: string; arrangement: 'standard' | 'exchange'; filters: Record<string, unknown> }) => request<Report>('/api/v1/reports', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  reportPreview: async (token: string, reportId: number) => (await requestRaw(`/api/v1/reports/${reportId}/preview`, { headers: { Authorization: `Bearer ${token}` } })).text(),
+  confirmReport: (token: string, reportId: number) => request<Report>(`/api/v1/reports/${reportId}/confirm`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  exportReport: (token: string, reportId: number, payload: { format: 'txt' | 'csv' | 'excel' | 'pdf' | 'print'; output_directory?: string; filename?: string; printer_name?: string; same_name_strategy: 'suffix' | 'error' | 'overwrite' }) => request<ReportExport>(`/api/v1/reports/${reportId}/exports`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   createAnalysisRun: (token: string, payload: Record<string, unknown>) => request<AnalysisRun>('/api/v1/analyses/runs', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   analysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}`, { headers: { Authorization: `Bearer ${token}` } }),
   startAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   stepAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   interveneAnalysisRun: (token: string, runId: number, payload: { action: 'accept' | 'discard'; adjusted_position?: number | null; reason: string }) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/intervene`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   cancelAnalysisRun: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/cancel`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  recalculateAnalysisQuality: (token: string, runId: number) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/quality/recalculate`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  decideAnalysisQuality: (token: string, runId: number, payload: { acquisition_task_id: number; line_id: string; action: 'accept' | 'exclude' | 'restore'; line_result_id?: number | null; reason: string }) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/quality/decisions`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  analysisCurveAction: (token: string, runId: number, lineId: string, payload: Record<string, unknown>) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/curves/${encodeURIComponent(lineId)}/actions`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  fitAnalysisCurve: (token: string, runId: number, lineId: string, payload: Record<string, unknown>) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/curves/${encodeURIComponent(lineId)}/fit`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  publishAnalysisCurve: (token: string, runId: number, lineId: string, curveSnapshotId: number, reason: string) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/curves/${encodeURIComponent(lineId)}/publish`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ curve_snapshot_id: curveSnapshotId, reason }) }),
+  mergeAnalysisResults: (token: string, runId: number, reason: string) => request<AnalysisRun>(`/api/v1/analyses/runs/${runId}/results/merge`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ reason }) }),
+  analysisCurvePreview: async (token: string, runId: number, curveSnapshotId: number, mode: 'image' | 'text') => {
+    const response = await requestRaw(`/api/v1/analyses/runs/${runId}/curves/${curveSnapshotId}/preview?mode=${mode}`, { headers: { Authorization: `Bearer ${token}` } })
+    return response.text()
+  },
+  printAnalysisCurve: async (token: string, runId: number, curveSnapshotId: number, mode: 'image' | 'text') => {
+    const response = await requestRaw(`/api/v1/analyses/runs/${runId}/curves/${curveSnapshotId}/print?mode=${mode}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+    return { blob: await response.blob(), jobId: Number(response.headers.get('X-Print-Job-Id')), sha256: response.headers.get('X-Content-SHA256') ?? '' }
+  },
 }

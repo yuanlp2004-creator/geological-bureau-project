@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import uuid
 from copy import deepcopy
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -217,7 +218,8 @@ class LegacyMigrationService:
         if packaged.exists():
             candidates.append(("dotnet-win-x86", [str(packaged)]))
         powershell = Path(os.environ.get("WINDIR", r"C:\Windows")) / "SysWOW64" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
-        script = reader_root / "read_access.ps1"
+        packaged_script = files("backend.app.resources.legacy_reader").joinpath("read_access.ps1")
+        script = Path(str(packaged_script))
         if powershell.exists() and script.exists():
             candidates.append(
                 (

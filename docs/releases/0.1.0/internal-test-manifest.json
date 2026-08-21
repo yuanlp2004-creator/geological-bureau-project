@@ -1,0 +1,111 @@
+{
+  "product": "GeoSpectrum",
+  "version": "0.1.0",
+  "channel": "internal-test",
+  "signed": false,
+  "publishable_as_formal_release": false,
+  "webview2_install_mode": "offlineInstaller",
+  "generated_at": "2026-08-19T18:53:27+00:00",
+  "plan_sha256": "B249F1C82BBE114D5CE3D535FF5AEEC4123541662F607A9859F46C308D9EBACA",
+  "module_manifest_sha256": "6DAB083159AFA21C00284CCDA308EDEE7F47E13B053D11B0D5D6B0AD682D0054",
+  "module_keys": [
+    "core",
+    "about-diagnostics",
+    "auth",
+    "methods",
+    "legacy-migration",
+    "sample-queues",
+    "spectrum-migration",
+    "result-migration",
+    "spectrum-viewer",
+    "devices",
+    "dispersion",
+    "acquisition",
+    "hardware-acquisition",
+    "mercury-calibration",
+    "analysis",
+    "postprocessing",
+    "reports",
+    "maintenance"
+  ],
+  "components": {
+    "sidecar": {
+      "path": "app/src-tauri/binaries/geospectrum-backend-x86_64-pc-windows-msvc.exe",
+      "bytes": 24673191,
+      "sha256": "F4D54A5601052889737F74D6CBE85B374311284613F7E0A27CAC2B3D5271D482"
+    },
+    "frontend": [
+      {
+        "path": "app/frontend/dist/assets/index-BXOzrDp1.css",
+        "bytes": 130140,
+        "sha256": "D25BF70D84D1926A4FA18AD1FDBC5582A217D75375AE322B017456AF2BB2E661"
+      },
+      {
+        "path": "app/frontend/dist/assets/index-eeETMH9g.js",
+        "bytes": 543328,
+        "sha256": "C2A8A55C5E3878264C589A57C88493AB81F6FEC958ADB46B773513C25ECCCAA1"
+      },
+      {
+        "path": "app/frontend/dist/index.html",
+        "bytes": 449,
+        "sha256": "9AE2FDA83A6AF77C47BFAED3D84C8758E10AC88D767CDC125060145455724E96"
+      }
+    ],
+    "module_manifest": {
+      "path": "app/manifest.generated.json",
+      "bytes": 31697,
+      "sha256": "6DAB083159AFA21C00284CCDA308EDEE7F47E13B053D11B0D5D6B0AD682D0054"
+    }
+  },
+  "installers": [
+    {
+      "path": "app/src-tauri/target/release/bundle/nsis/GeoSpectrum_0.1.0_x64-setup.exe",
+      "bytes": 242999086,
+      "sha256": "EEFEEA930A02BA28C29EDE3F0D1C9F3EACA116F83E22F0C0965BAEF2997D4702",
+      "authenticode": {
+        "status": "NotSigned",
+        "subject": ""
+      }
+    }
+  ],
+  "release_gates": {
+    "clean_windows_10_vm": "pending_external",
+    "clean_windows_11_vm": "pending_external",
+    "code_signing_certificate": "missing_external",
+    "real_turntable_hardware": "deferred_external",
+    "real_mercury_lamp_hardware": "deferred_external"
+  },
+  "software_acceptance": {
+    "S00": "passed",
+    "S01": "deferred_external",
+    "S02": "passed",
+    "S03": "passed",
+    "S04": "passed",
+    "S05": "passed",
+    "S06": "passed",
+    "S07": "passed",
+    "S08": "passed",
+    "S09": "passed",
+    "S10": "passed",
+    "S11": "passed",
+    "S12": "passed",
+    "S13": "passed",
+    "S14": "deferred_external",
+    "S15": "deferred_external",
+    "S16": "passed",
+    "S17": "passed",
+    "S18": "passed",
+    "S19": "passed",
+    "S20": "passed"
+  },
+  "software_acceptance_gate": "passed",
+  "excluded": [
+    "app/.local",
+    "tests",
+    "test output",
+    "cache",
+    "debug files",
+    "node_modules",
+    "src-tauri/target intermediates"
+  ]
+}

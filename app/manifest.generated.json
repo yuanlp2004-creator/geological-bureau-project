@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "modules": [
     {
       "key": "core",
@@ -25,6 +25,38 @@
         "health",
         "settings",
         "runtime-events"
+      ],
+      "navigation_entries": [
+        {
+          "key": "workspace.overview",
+          "group": "workspace",
+          "section_label": "",
+          "label": "工作台概览",
+          "description": "系统状态、当前方法与运行消息",
+          "page": "workspace",
+          "order": 10,
+          "required_any": [
+            "runtime-events.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
+          "key": "system.settings",
+          "group": "system",
+          "section_label": "系统配置与维护",
+          "label": "软件设置",
+          "description": "目录、显示、打印、时间与日志选项",
+          "page": "settings",
+          "order": 10,
+          "required_any": [
+            "settings.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -46,6 +78,23 @@
       "capabilities": [
         "about",
         "capabilities"
+      ],
+      "navigation_entries": [
+        {
+          "key": "help.about",
+          "group": "help",
+          "section_label": "",
+          "label": "关于与诊断",
+          "description": "版本、模块清单和本地服务诊断",
+          "page": "about",
+          "order": 20,
+          "required_any": [
+            "about.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -76,6 +125,38 @@
         "local-authentication",
         "role-management",
         "audit"
+      ],
+      "navigation_entries": [
+        {
+          "key": "system.users",
+          "group": "system",
+          "section_label": "身份与审计",
+          "label": "用户与权限",
+          "description": "本地账户、角色与授权",
+          "page": "users",
+          "order": 30,
+          "required_any": [
+            "users.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
+          "key": "system.audit",
+          "group": "system",
+          "section_label": "身份与审计",
+          "label": "审计记录",
+          "description": "登录、权限与业务事件查询",
+          "page": "audit",
+          "order": 40,
+          "required_any": [
+            "audit.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -125,6 +206,83 @@
         "method-pdf",
         "system-printers",
         "virtual-pdf-printer"
+      ],
+      "navigation_entries": [
+        {
+          "key": "methods.lifecycle",
+          "group": "methods",
+          "section_label": "方法文件",
+          "label": "方法库与当前方法",
+          "description": "新建、打开、版本、发布与当前方法",
+          "page": "methods",
+          "order": 10,
+          "required_any": [
+            "methods.read"
+          ],
+          "view": "lifecycle",
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
+          "key": "methods.print-settings",
+          "group": "methods",
+          "section_label": "方法文件",
+          "label": "页面与打印机设置",
+          "description": "纸张、边距、布局与系统打印机",
+          "page": "methods",
+          "order": 20,
+          "required_any": [
+            "methods.read"
+          ],
+          "view": "print-settings",
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
+          "key": "conditions.parameters",
+          "group": "conditions",
+          "section_label": "条件配置",
+          "label": "方法参数",
+          "description": "CCD、色散、激发、重复与转角条件",
+          "page": "methods",
+          "order": 10,
+          "required_any": [
+            "methods.read"
+          ],
+          "view": "conditions",
+          "status": "normal",
+          "required_context": "current_method"
+        },
+        {
+          "key": "conditions.lines",
+          "group": "conditions",
+          "section_label": "条件配置",
+          "label": "分析谱线",
+          "description": "谱线、内标、峰值、拟合与标准点",
+          "page": "methods",
+          "order": 20,
+          "required_any": [
+            "methods.read"
+          ],
+          "view": "lines",
+          "status": "normal",
+          "required_context": "current_method"
+        },
+        {
+          "key": "conditions.print-preview",
+          "group": "conditions",
+          "section_label": "条件配置",
+          "label": "参数预览与打印",
+          "description": "方法条件、谱线和标准点输出",
+          "page": "methods",
+          "order": 30,
+          "required_any": [
+            "methods.read"
+          ],
+          "view": "print-preview",
+          "status": "normal",
+          "required_context": "current_method"
+        }
       ]
     },
     {
@@ -152,6 +310,23 @@
         "read-only-staging",
         "atomic-commit",
         "idempotent-import"
+      ],
+      "navigation_entries": [
+        {
+          "key": "tools.legacy-methods",
+          "group": "tools",
+          "section_label": "旧版兼容迁移",
+          "label": "旧方法与配置迁移",
+          "description": "DIRECT.MTD、CFG 与 OPT 只读迁移",
+          "page": "migration",
+          "order": 30,
+          "required_any": [
+            "migration.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -181,6 +356,23 @@
         "sam-read-write",
         "repeat-expansion",
         "post-acquisition-rename"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.samples",
+          "group": "analysis-tests",
+          "section_label": "准备",
+          "label": "样号与样品队列",
+          "description": "预录样号、重复展开与 SAM",
+          "page": "samples",
+          "order": 10,
+          "required_any": [
+            "samples.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "current_method"
+        }
       ]
     },
     {
@@ -208,6 +400,23 @@
         "array-shape-validation",
         "atomic-single-file-import",
         "hash-idempotency"
+      ],
+      "navigation_entries": [
+        {
+          "key": "tools.legacy-spectra",
+          "group": "tools",
+          "section_label": "旧版兼容迁移",
+          "label": "旧谱数据迁移",
+          "description": "CDT、CMT、EDT 与 WDT 只读迁移",
+          "page": "spectrum-migration",
+          "order": 40,
+          "required_any": [
+            "spectrum-migration.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -236,6 +445,23 @@
         "read-only-staging",
         "atomic-single-file-import",
         "hash-idempotency"
+      ],
+      "navigation_entries": [
+        {
+          "key": "tools.legacy-results",
+          "group": "tools",
+          "section_label": "旧版兼容迁移",
+          "label": "旧结果迁移",
+          "description": "DAT 与 PDT 结果矩阵只读迁移",
+          "page": "result-migration",
+          "order": 50,
+          "required_any": [
+            "result-migration.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -266,6 +492,23 @@
         "raw-frame-detail",
         "reversible-view-state",
         "print-visible-range"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.spectra",
+          "group": "analysis-tests",
+          "section_label": "查看与分析",
+          "label": "谱图查看",
+          "description": "多样品、转角、CCD、定位与缩放",
+          "page": "spectra",
+          "order": 40,
+          "required_any": [
+            "spectra.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "current_method"
+        }
       ]
     },
     {
@@ -303,6 +546,23 @@
         "connection-diagnostics",
         "realtime-debug",
         "ccd-curve-interaction"
+      ],
+      "navigation_entries": [
+        {
+          "key": "tools.devices",
+          "group": "tools",
+          "section_label": "设备与光学校准",
+          "label": "设备参数与实时调试",
+          "description": "设备档案、通信诊断与实时 CCD",
+          "page": "acquisition",
+          "order": 10,
+          "required_any": [
+            "devices.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -350,6 +610,23 @@
         "pixel-wavelength-fit",
         "immutable-calibration-version",
         "method-revision-binding"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.dispersion",
+          "group": "analysis-tests",
+          "section_label": "摄谱与校准",
+          "label": "色散摄谱与校准",
+          "description": "色散采集、谱线定位、拟合与发布",
+          "page": "dispersion",
+          "order": 20,
+          "required_any": [
+            "dispersion.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     },
     {
@@ -392,6 +669,23 @@
         "interval-curve-analysis",
         "repeat-and-preheat",
         "post-acquisition-rename"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.acquisition",
+          "group": "analysis-tests",
+          "section_label": "摄谱与校准",
+          "label": "蒸发与样品摄谱",
+          "description": "平均或全时采集、重复与安全收尾",
+          "page": "sample-acquisition",
+          "order": 30,
+          "required_any": [
+            "acquisition.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "current_method"
+        }
       ]
     },
     {
@@ -439,6 +733,23 @@
         "manual-takeover",
         "safe-stop",
         "serial-protocol-gate"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.hardware",
+          "group": "analysis-tests",
+          "section_label": "摄谱与校准",
+          "label": "自动转角采集",
+          "description": "关键波段优先、异常闭环与安全停止",
+          "page": "hardware-acquisition",
+          "order": 35,
+          "required_any": [
+            "hardware-acquisition.read"
+          ],
+          "view": null,
+          "status": "deferred_external",
+          "required_context": "current_method"
+        }
       ]
     },
     {
@@ -479,19 +790,39 @@
         "rollback",
         "safe-off",
         "serial-protocol-gate"
+      ],
+      "navigation_entries": [
+        {
+          "key": "tools.mercury",
+          "group": "tools",
+          "section_label": "设备与光学校准",
+          "label": "汞灯与光学校准",
+          "description": "汞线峰位、校正建议、回滚与安全关闭",
+          "page": "mercury-calibration",
+          "order": 20,
+          "required_any": [
+            "mercury-calibration.read"
+          ],
+          "view": null,
+          "status": "deferred_external",
+          "required_context": "none"
+        }
       ]
     },
     {
       "key": "analysis",
-      "version": "0.1.0",
-      "title": "定量分析与慢进干预",
+      "version": "0.2.0",
+      "title": "定量分析、重复质控与标准曲线",
       "api_prefix": "/api/v1",
       "route": "/analysis",
       "enabled": true,
       "permissions": [
         "analysis.read",
         "analysis.execute",
-        "analysis.intervene"
+        "analysis.intervene",
+        "analysis.quality",
+        "analysis.curve",
+        "analysis.print"
       ],
       "audit_actions": [
         "analysis.run.create",
@@ -499,7 +830,22 @@
         "analysis.run.cancel",
         "analysis.run.failed",
         "analysis.intervention.accept",
-        "analysis.intervention.discard"
+        "analysis.intervention.discard",
+        "analysis.qc.recalculate",
+        "analysis.qc.accept",
+        "analysis.qc.exclude",
+        "analysis.qc.restore",
+        "analysis.curve.set_fit",
+        "analysis.curve.set_coordinate",
+        "analysis.curve.set_active",
+        "analysis.curve.adjust",
+        "analysis.curve.restore",
+        "analysis.curve.restore_all",
+        "analysis.curve.fit",
+        "analysis.curve.publish",
+        "analysis.results.merge",
+        "analysis.curve.preview",
+        "analysis.curve.print"
       ],
       "dependencies": [
         "core",
@@ -516,7 +862,258 @@
         "single-and-multi-sample-matrix",
         "slow-mode-checkpoints",
         "audited-intervention",
-        "replayable-input"
+        "replayable-input",
+        "repeat-qc-statistics",
+        "audited-repeat-exclusion",
+        "four-curve-fits",
+        "normal-and-log-coordinates",
+        "curve-adjustment-history",
+        "immutable-curve-snapshots",
+        "snapshot-bound-results",
+        "result-merge",
+        "curve-image-and-text-print"
+      ],
+      "navigation_entries": [
+        {
+          "key": "analysis-tests.raw",
+          "group": "analysis-tests",
+          "section_label": "查看与分析",
+          "label": "定量分析与慢进",
+          "description": "定量运行、峰位谱图与人工调整",
+          "page": "analysis",
+          "order": 50,
+          "required_any": [
+            "analysis.read"
+          ],
+          "view": "raw",
+          "status": "normal",
+          "required_context": "current_method"
+        },
+        {
+          "key": "analysis-tests.quality",
+          "group": "analysis-tests",
+          "section_label": "查看与分析",
+          "label": "重复性质控",
+          "description": "均值、极差、RSD、接受与剔除",
+          "page": "analysis",
+          "order": 60,
+          "required_any": [
+            "analysis.read"
+          ],
+          "view": "quality",
+          "status": "normal",
+          "required_context": "current_method"
+        },
+        {
+          "key": "analysis-tests.curve",
+          "group": "analysis-tests",
+          "section_label": "查看与分析",
+          "label": "标准曲线与样品结果",
+          "description": "拟合、标准点、曲线发布与合并结果",
+          "page": "analysis",
+          "order": 70,
+          "required_any": [
+            "analysis.read"
+          ],
+          "view": "curve",
+          "status": "normal",
+          "required_context": "current_method"
+        }
+      ]
+    },
+    {
+      "key": "postprocessing",
+      "version": "0.1.0",
+      "title": "全时处理、重算与矩阵导出",
+      "api_prefix": "/api/v1",
+      "route": "/postprocessing",
+      "enabled": true,
+      "permissions": [
+        "postprocessing.read",
+        "postprocessing.write",
+        "postprocessing.execute",
+        "postprocessing.export"
+      ],
+      "audit_actions": [
+        "postprocessing.interval.view",
+        "postprocessing.interval.export",
+        "postprocessing.edt.convert",
+        "postprocessing.recalculate",
+        "postprocessing.export"
+      ],
+      "dependencies": [
+        "core",
+        "auth",
+        "spectrum-migration",
+        "result-migration",
+        "methods",
+        "analysis",
+        "acquisition"
+      ],
+      "capabilities": [
+        "full-interval-view",
+        "interval-detail-export",
+        "edt-selection-conversion",
+        "version-bound-recompute",
+        "text-csv-excel-matrix-export",
+        "atomic-output",
+        "idempotent-batch"
+      ],
+      "navigation_entries": [
+        {
+          "key": "data.interval",
+          "group": "data",
+          "section_label": "全时与重算",
+          "label": "全时区间处理",
+          "description": "区间查看、明细平均导出与 EDT 转换",
+          "page": "postprocessing",
+          "order": 10,
+          "required_any": [
+            "postprocessing.read"
+          ],
+          "view": "interval",
+          "status": "normal",
+          "required_context": "page_scoped"
+        },
+        {
+          "key": "data.recalculate",
+          "group": "data",
+          "section_label": "全时与重算",
+          "label": "结果重算与矩阵导出",
+          "description": "版本绑定重算、强度和结果矩阵",
+          "page": "postprocessing",
+          "order": 20,
+          "required_any": [
+            "postprocessing.read"
+          ],
+          "view": "recalculate-export",
+          "status": "normal",
+          "required_context": "page_scoped"
+        }
+      ]
+    },
+    {
+      "key": "reports",
+      "version": "0.1.0",
+      "title": "报告预览、打印与多格式导出",
+      "api_prefix": "/api/v1",
+      "route": "/reports",
+      "enabled": true,
+      "permissions": [
+        "reports.read",
+        "reports.write",
+        "reports.export"
+      ],
+      "audit_actions": [
+        "report.create",
+        "report.preview",
+        "report.confirm",
+        "report.export"
+      ],
+      "dependencies": [
+        "core",
+        "auth",
+        "analysis"
+      ],
+      "capabilities": [
+        "versioned-report-model",
+        "template-rendering",
+        "standard-exchange-arrangement",
+        "batch-selection",
+        "text-csv-excel-pdf-print",
+        "atomic-output",
+        "audit-trail"
+      ],
+      "navigation_entries": [
+        {
+          "key": "data.reports",
+          "group": "data",
+          "section_label": "报告",
+          "label": "分析报告",
+          "description": "编号、模板、预览、打印与多格式导出",
+          "page": "reports",
+          "order": 30,
+          "required_any": [
+            "reports.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "page_scoped"
+        }
+      ]
+    },
+    {
+      "key": "maintenance",
+      "version": "0.1.0",
+      "title": "备份维护与离线帮助",
+      "api_prefix": "/api/v1",
+      "route": "/maintenance",
+      "enabled": true,
+      "permissions": [
+        "maintenance.read",
+        "maintenance.write",
+        "help.read"
+      ],
+      "audit_actions": [
+        "maintenance.backup",
+        "maintenance.verify",
+        "maintenance.restore.rehearsal",
+        "maintenance.checkpoint",
+        "maintenance.optimize",
+        "maintenance.reclaim",
+        "maintenance.retention",
+        "maintenance.logs",
+        "maintenance.temp",
+        "help.view"
+      ],
+      "dependencies": [
+        "core",
+        "auth"
+      ],
+      "capabilities": [
+        "online-backup",
+        "backup-verify",
+        "restore-rehearsal",
+        "retention",
+        "wal-checkpoint",
+        "optimize",
+        "controlled-reclaim",
+        "log-rotation",
+        "temp-cleanup",
+        "offline-help",
+        "about-diagnostics"
+      ],
+      "navigation_entries": [
+        {
+          "key": "system.maintenance",
+          "group": "system",
+          "section_label": "系统配置与维护",
+          "label": "备份与维护",
+          "description": "备份、恢复演练、空间和日志维护",
+          "page": "maintenance",
+          "order": 20,
+          "required_any": [
+            "maintenance.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
+          "key": "help.offline",
+          "group": "help",
+          "section_label": "",
+          "label": "离线帮助",
+          "description": "业务流程、错误码与旧格式兼容",
+          "page": "help",
+          "order": 10,
+          "required_any": [
+            "help.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
+        }
       ]
     }
   ]

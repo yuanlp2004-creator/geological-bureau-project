@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 Severity = Literal["debug", "info", "success", "warning", "error"]
@@ -29,6 +29,14 @@ class AboutResponse(BaseModel):
     runtime: str
     database: str
     modules: list[dict[str, Any]]
+    license: str = ""
+    build: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def current_stage(self) -> "AboutResponse":
+        if self.name == "geospectrum":
+            self.stage = "S21 · Windows 内部测试发布"
+        return self
 
 
 class DiagnosticsResponse(BaseModel):
@@ -43,6 +51,27 @@ class DiagnosticsResponse(BaseModel):
     manifest_valid: bool
 
 
+class BackupCreate(BaseModel):
+    output_directory: str = Field(min_length=1, max_length=500)
+    filename: str | None = Field(default=None, max_length=180)
+    retention_days: int = Field(default=30, ge=1, le=3650)
+
+
+class MaintenanceActionRequest(BaseModel):
+    mode: str = Field(default="PASSIVE", max_length=20)
+    retention_days: int = Field(default=30, ge=1, le=3650)
+
+
+class HelpTopicResponse(BaseModel):
+    slug: str
+    title: str
+    section: str
+    keywords: list[str]
+    body: str
+    related_routes: list[str]
+    updated_at: str
+
+
 class Capability(BaseModel):
     key: str
     version: str
@@ -52,6 +81,7 @@ class Capability(BaseModel):
     enabled: bool
     permissions: list[str] = Field(default_factory=list)
     audit_actions: list[str] = Field(default_factory=list)
+    navigation_entries: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class CapabilitiesResponse(BaseModel):
@@ -60,24 +90,106 @@ class CapabilitiesResponse(BaseModel):
     capabilities: list[Capability]
 
 
-class SettingsResponse(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    directories: dict[str, str]
-    logging: dict[str, Any]
-    display: dict[str, Any]
-    printing: dict[str, Any]
-    time: dict[str, Any]
+class _SettingsModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
 
 
-class SettingsPatch(BaseModel):
-    model_config = ConfigDict(extra="allow")
+class SettingsDirectories(_SettingsModel):
+    data: str = Field(min_length=1, max_length=2048)
+    methods: str = Field(min_length=1, max_length=2048)
+    samples: str = Field(min_length=1, max_length=2048)
+    exports: str = Field(min_length=1, max_length=2048)
+    backups: str = Field(min_length=1, max_length=2048)
 
-    directories: dict[str, str] | None = None
-    logging: dict[str, Any] | None = None
-    display: dict[str, Any] | None = None
-    printing: dict[str, Any] | None = None
-    time: dict[str, Any] | None = None
+
+class SettingsDirectoriesPatch(_SettingsModel):
+    data: str | None = Field(default=None, min_length=1, max_length=2048)
+    methods: str | None = Field(default=None, min_length=1, max_length=2048)
+    samples: str | None = Field(default=None, min_length=1, max_length=2048)
+    exports: str | None = Field(default=None, min_length=1, max_length=2048)
+    backups: str | None = Field(default=None, min_length=1, max_length=2048)
+
+
+class SettingsLogging(_SettingsModel):
+    level: Literal["debug", "info", "warning"]
+    max_bytes: int = Field(ge=1024, le=1_073_741_824)
+    retention_days: int = Field(ge=1, le=365)
+
+
+class SettingsLoggingPatch(_SettingsModel):
+    level: Literal["debug", "info", "warning"] | None = None
+    max_bytes: int | None = Field(default=None, ge=1024, le=1_073_741_824)
+    retention_days: int | None = Field(default=None, ge=1, le=365)
+
+
+class SettingsDisplay(_SettingsModel):
+    theme: Literal["light", "dark"]
+    density: Literal["comfortable", "compact"]
+    show_status_bar: bool
+
+
+class SettingsDisplayPatch(_SettingsModel):
+    theme: Literal["light", "dark"] | None = None
+    density: Literal["comfortable", "compact"] | None = None
+    show_status_bar: bool | None = None
+
+
+class SettingsPrinting(_SettingsModel):
+    default_printer: str = Field(min_length=1, max_length=255)
+    paper: Literal["A4", "A3", "Letter"]
+    orientation: Literal["portrait", "landscape"]
+    margin_top_mm: float = Field(ge=5, le=40)
+    margin_right_mm: float = Field(ge=5, le=40)
+    margin_bottom_mm: float = Field(ge=5, le=40)
+    margin_left_mm: float = Field(ge=5, le=40)
+    layout: Literal["standard", "compact"]
+    font_size_pt: int = Field(ge=8, le=12)
+    copies: int = Field(ge=1, le=99)
+    duplex: Literal["none", "long_edge", "short_edge"]
+    color: bool
+    preview_before_print: bool
+
+
+class SettingsPrintingPatch(_SettingsModel):
+    default_printer: str | None = Field(default=None, min_length=1, max_length=255)
+    paper: Literal["A4", "A3", "Letter"] | None = None
+    orientation: Literal["portrait", "landscape"] | None = None
+    margin_top_mm: float | None = Field(default=None, ge=5, le=40)
+    margin_right_mm: float | None = Field(default=None, ge=5, le=40)
+    margin_bottom_mm: float | None = Field(default=None, ge=5, le=40)
+    margin_left_mm: float | None = Field(default=None, ge=5, le=40)
+    layout: Literal["standard", "compact"] | None = None
+    font_size_pt: int | None = Field(default=None, ge=8, le=12)
+    copies: int | None = Field(default=None, ge=1, le=99)
+    duplex: Literal["none", "long_edge", "short_edge"] | None = None
+    color: bool | None = None
+    preview_before_print: bool | None = None
+
+
+class SettingsTime(_SettingsModel):
+    timezone: Literal["Asia/Shanghai", "UTC"]
+    format: Literal["YYYY-MM-DD HH:mm:ss"]
+
+
+class SettingsTimePatch(_SettingsModel):
+    timezone: Literal["Asia/Shanghai", "UTC"] | None = None
+    format: Literal["YYYY-MM-DD HH:mm:ss"] | None = None
+
+
+class SettingsResponse(_SettingsModel):
+    directories: SettingsDirectories
+    logging: SettingsLogging
+    display: SettingsDisplay
+    printing: SettingsPrinting
+    time: SettingsTime
+
+
+class SettingsPatch(_SettingsModel):
+    directories: SettingsDirectoriesPatch | None = None
+    logging: SettingsLoggingPatch | None = None
+    display: SettingsDisplayPatch | None = None
+    printing: SettingsPrintingPatch | None = None
+    time: SettingsTimePatch | None = None
 
 
 class RuntimeEventCreate(BaseModel):
@@ -331,6 +443,48 @@ class ResultMigrationCommitRequest(BaseModel):
     run_id: str = Field(min_length=1, max_length=64)
 
 
+class PostProcessingIntervalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ccd: int = Field(default=0, ge=0, le=255)
+    start_frame: int = Field(default=1, ge=1, le=255)
+    end_frame: int | None = Field(default=None, ge=1, le=255)
+    phase: Literal["burn", "dark"] = "burn"
+
+
+class PostProcessingConversionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record_ids: list[str] = Field(min_length=1, max_length=200)
+    start_frame: int = Field(default=1, ge=1, le=255)
+    end_frame: int | None = Field(default=None, ge=1, le=255)
+    target_ccd_layout_id: int = Field(ge=1)
+    target_ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
+    method_version_id: int | None = Field(default=None, ge=1)
+    name: str | None = Field(default=None, max_length=120)
+
+
+class PostProcessingRecalculateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_record_ids: list[str] = Field(min_length=1, max_length=200)
+    method_version_id: int = Field(ge=1)
+    calculation_profile: Literal["legacy_2_0_2", "modern_v1"] = "legacy_2_0_2"
+    curve_snapshot_ids: list[int] = Field(default_factory=list, max_length=200)
+    expected_measure_time: str | None = Field(default=None, max_length=80)
+
+
+class PostProcessingExportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record_ids: list[str] = Field(min_length=1, max_length=200)
+    kind: Literal["raw_intensity", "processed_intensity", "result_matrix"]
+    format: Literal["txt", "csv", "excel"]
+    output_directory: str = Field(min_length=1, max_length=2048)
+    filename: str = Field(default="s18-export", min_length=1, max_length=255)
+    same_name_strategy: Literal["suffix", "error", "overwrite"] = "suffix"
+
+
 class SampleQueueItemInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     pre_name: str = Field(default="", max_length=100)
@@ -483,7 +637,7 @@ class AcquisitionTaskCreate(BaseModel):
     dark_frame_count: int = Field(default=1, ge=0, le=20)
     countdown_seconds: float = Field(default=0, ge=0, le=600)
     pre_excitation_seconds: float = Field(default=1, ge=0, le=600)
-    sampling_period_seconds: float = Field(default=1, gt=0, le=60)
+    sampling_period_seconds: float = Field(default=1, ge=0.01, le=60, multiple_of=0.01)
     burn_cycle_seconds: float = Field(default=1, gt=0, le=60)
     dark_cycle_seconds: float = Field(default=1, gt=0, le=60)
     excitation_conditions: dict[str, Any] = Field(default_factory=dict)
@@ -511,7 +665,7 @@ class AcquisitionRename(BaseModel):
 class AnalysisRunCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: str = Field(default="S16 定量分析", min_length=1, max_length=120)
+    name: str = Field(default="S17 定量与曲线分析", min_length=1, max_length=120)
     acquisition_sample_ids: list[int] = Field(min_length=1, max_length=200)
     method_version_id: int | None = Field(default=None, ge=1)
     calculation_profile: Literal["legacy_2_0_2", "modern_v1"] | None = None
@@ -525,6 +679,69 @@ class AnalysisIntervention(BaseModel):
     action: Literal["accept", "discard"]
     adjusted_position: int | None = Field(default=None, ge=0, le=65_535)
     reason: str = Field(default="", max_length=500)
+
+
+class AnalysisQcDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    acquisition_task_id: int = Field(ge=1)
+    line_id: str = Field(min_length=1, max_length=100)
+    action: Literal["accept", "exclude", "restore"]
+    line_result_id: int | None = Field(default=None, ge=1)
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class AnalysisCurveAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["set_fit", "set_coordinate", "set_active", "adjust", "restore", "restore_all"]
+    point_index: int | None = Field(default=None, ge=0, le=49)
+    fit_mode: Literal["linear", "quadratic", "cubic", "spline"] | None = None
+    coordinate_type: Literal["normal", "logarithmic"] | None = None
+    active: bool | None = None
+    adjusted_intensity: float | None = None
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class AnalysisCurveFit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    fit_mode: Literal["linear", "quadratic", "cubic", "spline"] | None = None
+    coordinate_type: Literal["normal", "logarithmic"] | None = None
+    reason: str = Field(default="重新计算标准曲线", min_length=1, max_length=500)
+
+
+class AnalysisCurvePublish(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    curve_snapshot_id: int = Field(ge=1)
+    reason: str = Field(default="复核后发布曲线快照", min_length=1, max_length=500)
+
+
+class AnalysisMergeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str = Field(default="保存当前批次合并结果", min_length=1, max_length=500)
+
+
+class ReportCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    analysis_run_ids: list[int] = Field(min_length=1, max_length=200)
+    template_key: str = Field(default="analysis-standard", min_length=1, max_length=100)
+    report_number: str | None = Field(default=None, max_length=100)
+    arrangement: Literal["standard", "exchange"] = "standard"
+    filters: dict[str, Any] = Field(default_factory=dict)
+
+
+class ReportExport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    format: Literal["txt", "csv", "excel", "pdf", "print"] = "pdf"
+    output_directory: str | None = None
+    filename: str | None = None
+    printer_name: str | None = Field(default=None, max_length=255)
+    same_name_strategy: Literal["suffix", "error", "overwrite"] = "suffix"
 
 
 class HardwareTurnInput(BaseModel):

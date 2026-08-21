@@ -10,6 +10,7 @@
     "frontendDist": "../frontend/dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "GeoSpectrum",
@@ -28,7 +29,19 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
-    "externalBin": ["binaries/geospectrum-backend"]
+    "externalBin": ["binaries/geospectrum-backend"],
+    "shortDescription": "GeoSpectrum unsigned internal test build",
+    "longDescription": "Internal test package only. Formal release requires code signing, clean Windows upgrade verification, and hardware-in-the-loop evidence.",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false
+      }
+    }
   },
   "plugins": {
     "shell": {

@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import platform
+import secrets
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from . import __version__
 from .config import config
@@ -46,13 +49,18 @@ from .schemas import (
     SpectrumPrintRequest,
     ResultMigrationStageRequest,
     ResultMigrationCommitRequest,
+    PostProcessingIntervalRequest, PostProcessingConversionRequest,
+    PostProcessingRecalculateRequest, PostProcessingExportRequest,
     SampleQueueCreate, SampleQueueUpdate, SampleQueueRename, SampleQueueImport,
     DeviceProfileCreate, DeviceProfileUpdate, DeviceConnectRequest, DeviceDebugStartRequest,
     DispersionTaskCreate, DispersionLineInput, DispersionLineMoveRequest,
     DispersionCalibrationFitRequest, DispersionCalibrationBindRequest,
     AcquisitionTaskCreate, AcquisitionIntervalMark, AcquisitionRename,
     HardwareTaskCreate, HardwareIntervention, MercurySessionCreate,
-    AnalysisRunCreate, AnalysisIntervention,
+    AnalysisRunCreate, AnalysisIntervention, AnalysisQcDecision, AnalysisCurveAction,
+    AnalysisCurveFit, AnalysisCurvePublish, AnalysisMergeRequest,
+    ReportCreate, ReportExport,
+    BackupCreate, MaintenanceActionRequest, HelpTopicResponse,
 )
 from .services import AppService
 from .auth import BUILTIN_ROLES, AuthService, Session, hash_password, require_permission, require_session
@@ -71,11 +79,16 @@ from .modules.acquisition import AcquisitionError, AcquisitionService
 from .modules.hardware_acquisition import HardwareError, HardwareAcquisitionService
 from .modules.mercury_calibration import MercuryError, MercuryCalibrationService
 from .modules.analysis import AnalysisError, AnalysisService
+from .modules.postprocessing import PostProcessingError, PostProcessingService
+from .modules.reports import ReportError, ReportService
+from .modules.maintenance import MaintenanceError, MaintenanceService
+from .modules.extensions import ExtensionManifest, discover_test_extensions
 
 database = Database(config.database_path)
 service = AppService(database, config.runtime_log_path)
 auth_service = AuthService(database)
 event_subscribers: set[asyncio.Queue[dict]] = set()
+PROCESS_KEY = ""
 
 
 def methods_service() -> MethodService:
@@ -110,6 +123,10 @@ def result_migration_service() -> ResultMigrationService:
 
 def spectrum_viewer_service() -> SpectrumViewerService:
     return SpectrumViewerService(database)
+
+
+def postprocessing_service() -> PostProcessingService:
+    return PostProcessingService(database)
 
 
 _device_service_instance: DeviceService | None = None
@@ -214,6 +231,26 @@ def analysis_error(exc: AnalysisError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
+def postprocessing_error(exc: PostProcessingError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def reports_service() -> ReportService:
+    return ReportService(database)
+
+
+def report_error(exc: ReportError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
+def maintenance_service() -> MaintenanceService:
+    return MaintenanceService(database, config.runtime_log_path)
+
+
+def maintenance_error(exc: MaintenanceError) -> HTTPException:
+    return HTTPException(status_code=exc.status_code, detail=exc.detail())
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     config.ensure_directories()
@@ -225,12 +262,49 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="GeoSpectrum API", version=__version__, lifespan=lifespan)
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
+    errors = [
+        {
+            "field": ".".join(str(part) for part in error["loc"] if part not in {"body", "query", "path"}),
+            "code": str(error["type"]),
+        }
+        for error in exc.errors()
+    ]
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "request_validation_failed",
+                "message": "输入数据无效，请检查字段格式和范围",
+                "errors": errors,
+            }
+        },
+    )
+
+
+@app.middleware("http")
+async def require_process_key(request: Request, call_next):
+    if PROCESS_KEY and request.method != "OPTIONS":
+        supplied = request.headers.get("X-GeoSpectrum-Process-Key", "")
+        if not secrets.compare_digest(supplied, PROCESS_KEY):
+            return JSONResponse(status_code=403, content={"detail": {"code": "PROCESS_KEY_REQUIRED", "message": "本地进程密钥无效"}})
+    return await call_next(request)
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173", "tauri://localhost"],
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "tauri://localhost",
+        "http://tauri.localhost",
+    ],
     allow_credentials=False,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization", "X-Correlation-ID"],
+    allow_headers=["Content-Type", "Authorization", "X-Correlation-ID", "X-GeoSpectrum-Process-Key"],
     expose_headers=["X-Page-Count", "X-Field-Count", "X-Method-Version", "X-Content-SHA256", "Content-Disposition"],
 )
 
@@ -248,6 +322,7 @@ def _capabilities() -> list[Capability]:
             enabled=manifest.enabled,
             permissions=list(manifest.permissions),
             audit_actions=list(manifest.audit_actions),
+            navigation_entries=[entry.to_dict() for entry in manifest.navigation_entries],
         )
         for manifest in manifests
     ]
@@ -263,6 +338,48 @@ async def _publish(event: dict) -> None:
             pass
 
 
+def _extension_endpoint(extension: ExtensionManifest):
+    async def execute_extension(
+        session: Session = Depends(require_permission(extension.permission)),
+    ) -> dict[str, Any]:
+        created_at = utc_now()
+        payload = {"event_type": extension.event_type, "event_version": 1, "module": extension.key, "created_at": created_at}
+        table = extension.key.replace("-", "_") + "_records"
+        with database.write() as connection:
+            cursor = connection.execute(
+                f"INSERT INTO {table}(event_version, payload_json, created_at) VALUES (1, ?, ?)",
+                (json.dumps(payload, ensure_ascii=False), created_at),
+            )
+            record_id = int(cursor.lastrowid)
+            connection.execute(
+                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (session.user_id, extension.audit_action, extension.key, record_id, json.dumps(payload, ensure_ascii=False), created_at),
+            )
+            event_cursor = connection.execute(
+                "INSERT INTO runtime_events(category, severity, message, details_json, correlation_id, created_at) VALUES ('action', 'success', ?, ?, ?, ?)",
+                (extension.title, json.dumps(payload, ensure_ascii=False), extension.event_type, created_at),
+            )
+        event = {"id": int(event_cursor.lastrowid), "category": "action", "severity": "success", "message": extension.title, "details": payload, "correlation_id": extension.event_type, "created_at": created_at}
+        for queue in tuple(event_subscribers):
+            try:
+                queue.put_nowait({"type": extension.event_type, "version": 1, "event": event})
+            except asyncio.QueueFull:
+                pass
+        return {"record_id": record_id, **payload}
+
+    execute_extension.__name__ = f"execute_{extension.key.replace('-', '_')}"
+    return execute_extension
+
+
+for _extension in discover_test_extensions():
+    app.add_api_route(
+        f"/api/v1/extensions/{_extension.key}/execute",
+        _extension_endpoint(_extension),
+        methods=["POST"],
+        tags=["test-extension"],
+    )
+
+
 @app.get("/health", response_model=HealthResponse, tags=["system"])
 def health() -> HealthResponse:
     return HealthResponse(**service.health())
@@ -270,17 +387,19 @@ def health() -> HealthResponse:
 
 @app.get("/about", response_model=AboutResponse, tags=["system"])
 @app.get("/api/v1/about", response_model=AboutResponse, include_in_schema=False)
-def about() -> AboutResponse:
+def about(_: Session = Depends(require_permission("about.read"))) -> AboutResponse:
     return AboutResponse(
         name="geospectrum",
         display_name="GeoSpectrum 自动转角平面光栅光谱仪分析平台",
         version=__version__,
         api_version="v1",
-        stage="S16 · 定量分析与慢进干预",
+        stage="S21 · Windows 内部测试发布",
         description="面向 SpecDirect 2.0.2 兼容重构的本地分析工作台。",
         runtime=f"Python {platform.python_version()} · {platform.system()}",
         database=str(config.database_path),
         modules=[manifest.to_dict() for manifest in registered_manifests()],
+        license="内部测试包（未签名，不得作为正式发布）",
+        build={"version": __version__, "schema_version": 20, "api_version": "v1", "python": platform.python_version(), "channel": "internal-test", "signed": False},
     )
 
 
@@ -294,7 +413,7 @@ def capabilities() -> CapabilitiesResponse:
 
 
 @app.get("/api/v1/diagnostics", response_model=DiagnosticsResponse, tags=["system"])
-def diagnostics() -> DiagnosticsResponse:
+def diagnostics(_: Session = Depends(require_permission("about.read"))) -> DiagnosticsResponse:
     validate_manifests(registered_manifests())
     with database.read() as connection:
         integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
@@ -313,6 +432,109 @@ def diagnostics() -> DiagnosticsResponse:
         event_count=event_count,
         manifest_valid=True,
     )
+
+
+@app.get("/api/v1/maintenance/status", tags=["maintenance"])
+def maintenance_status(_: Session = Depends(require_permission("maintenance.read"))) -> dict[str, Any]:
+    return maintenance_service().status()
+
+
+@app.get("/api/v1/backups", tags=["maintenance"])
+def list_backups(_: Session = Depends(require_permission("maintenance.read"))) -> list[dict[str, Any]]:
+    return maintenance_service().list_backups()
+
+
+@app.post("/api/v1/backups", tags=["maintenance"])
+def create_backup(payload: BackupCreate, session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().backup(payload.output_directory, payload.filename, payload.retention_days, session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/backups/retention", tags=["maintenance"])
+def run_retention(session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().retention(session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/backups/{backup_id}/verify", tags=["maintenance"])
+def verify_backup(backup_id: str, _: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().verify_backup(backup_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/backups/{backup_id}/restore-rehearsal", tags=["maintenance"])
+def restore_rehearsal(backup_id: str, session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().restore_rehearsal(backup_id, session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/maintenance/checkpoint", tags=["maintenance"])
+def checkpoint(payload: MaintenanceActionRequest, session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().checkpoint(payload.mode, session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/maintenance/optimize", tags=["maintenance"])
+def optimize(session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().optimize(session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/maintenance/reclaim", tags=["maintenance"])
+def reclaim(session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().reclaim(session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/maintenance/logs/cleanup", tags=["maintenance"])
+def cleanup_logs(payload: MaintenanceActionRequest, session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().cleanup_logs(payload.retention_days, session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.post("/api/v1/maintenance/temp/cleanup", tags=["maintenance"])
+def cleanup_temp(payload: MaintenanceActionRequest, session: Session = Depends(require_permission("maintenance.write"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().cleanup_temp(payload.retention_days, session.user_id)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.get("/api/v1/help/topics", response_model=list[HelpTopicResponse], tags=["help"])
+def help_topics(q: str | None = Query(default=None, max_length=120), _: Session = Depends(require_permission("help.read"))) -> list[dict[str, Any]]:
+    return maintenance_service().help_topics(q)
+
+
+@app.get("/api/v1/help/error-codes/{code}", tags=["help"])
+def help_error_code(code: str, _: Session = Depends(require_permission("help.read"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().help_topic_for_error(code)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
+
+
+@app.get("/api/v1/help/topics/{slug}", response_model=HelpTopicResponse, tags=["help"])
+def help_topic(slug: str, _: Session = Depends(require_permission("help.read"))) -> dict[str, Any]:
+    try:
+        return maintenance_service().help_topic(slug)
+    except MaintenanceError as exc:
+        raise maintenance_error(exc) from exc
 
 
 @app.get("/api/v1/settings", response_model=SettingsResponse, tags=["settings"])
@@ -381,7 +603,10 @@ def auth_status() -> dict:
 def login(payload: LoginRequest) -> dict:
     result = auth_service.login(payload.username, payload.password)
     if not result:
-        raise HTTPException(status_code=401, detail="invalid credentials")
+        raise HTTPException(
+            status_code=401,
+            detail={"code": "auth_invalid_credentials", "message": "用户名或密码错误"},
+        )
     token, session = result
     return {"access_token": token, "token_type": "bearer", "expires_at": session.expires_at, "user": {"id": session.user_id, "username": session.username, "roles": session.roles, "permissions": sorted(session.permissions)}}
 
@@ -1119,6 +1344,158 @@ def print_spectrum_pdf(
     )
 
 
+@app.get("/api/v1/postprocessing/edt-records", tags=["postprocessing"])
+def list_postprocessing_edt_records(
+    limit: int = Query(default=200, ge=1, le=500),
+    _: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    return {"records": postprocessing_service().edt_records(limit)}
+
+
+@app.get("/api/v1/postprocessing/recalculation-options", tags=["postprocessing"])
+def get_postprocessing_recalculation_options(
+    limit: int = Query(default=300, ge=1, le=500),
+    _: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    return postprocessing_service().recalculation_options(limit)
+
+
+@app.get("/api/v1/postprocessing/raw/{record_id}/interval", tags=["postprocessing"])
+def get_postprocessing_interval(
+    record_id: str,
+    ccd: int = Query(default=0, ge=0, le=255),
+    start_frame: int = Query(default=1, ge=1, le=255),
+    end_frame: int | None = Query(default=None, ge=1, le=255),
+    phase: str = Query(default="burn"),
+    session: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    try:
+        result = postprocessing_service().interval(record_id, ccd=ccd, start_frame=start_frame, end_frame=end_frame, phase=phase)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+    with database.write() as db:
+        db.execute("INSERT INTO audit_events(actor_user_id,action,target_type,target_id,details_json,created_at) VALUES (?, 'postprocessing.interval.view', 'postprocessing', NULL, ?, ?)", (session.user_id, json.dumps({"record_id": record_id, "ccd": ccd, "start_frame": start_frame, "end_frame": end_frame, "phase": phase}, ensure_ascii=False), utc_now()))
+    return result
+
+
+@app.post("/api/v1/postprocessing/conversions", tags=["postprocessing"])
+def convert_postprocessing_edt(
+    payload: PostProcessingConversionRequest,
+    session: Session = Depends(require_permission("postprocessing.write")),
+) -> dict[str, Any]:
+    try:
+        return postprocessing_service().convert_edt(payload.model_dump(), session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
+@app.get("/api/v1/postprocessing/conversions", tags=["postprocessing"])
+def list_postprocessing_conversions(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    return {"runs": postprocessing_service().conversions(limit)}
+
+
+@app.post("/api/v1/postprocessing/recalculations", tags=["postprocessing"])
+def recalculate_postprocessing(
+    payload: PostProcessingRecalculateRequest,
+    session: Session = Depends(require_permission("postprocessing.execute")),
+) -> dict[str, Any]:
+    try:
+        return postprocessing_service().recalculate(payload.model_dump(), session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
+@app.get("/api/v1/postprocessing/recalculations", tags=["postprocessing"])
+def list_postprocessing_recalculations(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    return {"runs": postprocessing_service().recalculations(limit)}
+
+
+@app.post("/api/v1/postprocessing/exports", tags=["postprocessing"])
+def export_postprocessing_matrix(
+    payload: PostProcessingExportRequest,
+    session: Session = Depends(require_permission("postprocessing.export")),
+) -> dict[str, Any]:
+    try:
+        return postprocessing_service().export(payload.model_dump(), session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
+@app.get("/api/v1/postprocessing/exports", tags=["postprocessing"])
+def list_postprocessing_exports(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: Session = Depends(require_permission("postprocessing.read")),
+) -> dict[str, Any]:
+    return {"exports": postprocessing_service().exports(limit)}
+
+
+@app.get("/api/v1/reports/templates", tags=["reports"])
+def list_report_templates(_: Session = Depends(require_permission("reports.read"))) -> list[dict[str, Any]]:
+    return reports_service().templates()
+
+
+@app.get("/api/v1/reports", tags=["reports"])
+def list_reports(limit: int = Query(default=50, ge=1, le=200), _: Session = Depends(require_permission("reports.read"))) -> list[dict[str, Any]]:
+    return reports_service().list(limit)
+
+
+@app.get("/api/v1/reports/printers", tags=["reports"])
+def list_report_printers(_: Session = Depends(require_permission("reports.read"))) -> dict[str, Any]:
+    return {"printers": reports_service().printers()}
+
+
+@app.post("/api/v1/reports", status_code=201, tags=["reports"])
+def create_report(payload: ReportCreate, session: Session = Depends(require_permission("reports.write"))) -> dict[str, Any]:
+    try:
+        return reports_service().create(payload.model_dump(mode="json"), session.user_id)
+    except ReportError as exc:
+        raise report_error(exc) from exc
+
+
+@app.get("/api/v1/reports/{report_id}", tags=["reports"])
+def get_report(report_id: int, _: Session = Depends(require_permission("reports.read"))) -> dict[str, Any]:
+    try:
+        return reports_service().get(report_id)
+    except ReportError as exc:
+        raise report_error(exc) from exc
+
+
+@app.get("/api/v1/reports/{report_id}/preview", response_class=HTMLResponse, tags=["reports"])
+def preview_report(report_id: int, session: Session = Depends(require_permission("reports.read"))) -> HTMLResponse:
+    try:
+        return HTMLResponse(reports_service().preview(report_id, session.user_id), headers={"Cache-Control": "no-store"})
+    except ReportError as exc:
+        raise report_error(exc) from exc
+
+
+@app.post("/api/v1/reports/{report_id}/confirm", tags=["reports"])
+def confirm_report(report_id: int, session: Session = Depends(require_permission("reports.write"))) -> dict[str, Any]:
+    try:
+        return reports_service().confirm(report_id, session.user_id)
+    except ReportError as exc:
+        raise report_error(exc) from exc
+
+
+@app.post("/api/v1/reports/{report_id}/exports", tags=["reports"])
+def export_report(report_id: int, payload: ReportExport, session: Session = Depends(require_permission("reports.export"))) -> Any:
+    try:
+        result = reports_service().export(report_id, payload.model_dump(mode="json"), session.user_id)
+    except ReportError as exc:
+        raise report_error(exc) from exc
+    return result
+
+
+@app.get("/api/v1/reports/{report_id}/exports", tags=["reports"])
+def list_report_exports(report_id: int, limit: int = Query(default=50, ge=1, le=200), _: Session = Depends(require_permission("reports.read"))) -> list[dict[str, Any]]:
+    return reports_service().exports(report_id, limit)
+
+
 @app.get("/api/v1/devices/profiles", tags=["devices"])
 def list_device_profiles(_: Session = Depends(require_permission("devices.read"))) -> list[dict[str, Any]]:
     return devices_service().profiles()
@@ -1799,6 +2176,72 @@ def cancel_analysis_run(run_id: int, session: Session = Depends(require_permissi
         raise analysis_error(exc) from exc
 
 
+@app.post("/api/v1/analyses/runs/{run_id}/quality/recalculate", tags=["analysis"])
+def recalculate_analysis_quality(run_id: int, session: Session = Depends(require_permission("analysis.quality"))) -> dict[str, Any]:
+    try:
+        return analysis_service().build_quality(run_id, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/quality/decisions", tags=["analysis"])
+def decide_analysis_quality(run_id: int, payload: AnalysisQcDecision, session: Session = Depends(require_permission("analysis.quality"))) -> dict[str, Any]:
+    try:
+        return analysis_service().decide_quality(run_id, payload.model_dump(mode="json"), session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/curves/{line_id}/actions", tags=["analysis"])
+def apply_analysis_curve_action(run_id: int, line_id: str, payload: AnalysisCurveAction, session: Session = Depends(require_permission("analysis.curve"))) -> dict[str, Any]:
+    try:
+        return analysis_service().curve_action(run_id, line_id, payload.model_dump(mode="json"), session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/curves/{line_id}/fit", status_code=201, tags=["analysis"])
+def fit_analysis_curve(run_id: int, line_id: str, payload: AnalysisCurveFit, session: Session = Depends(require_permission("analysis.curve"))) -> dict[str, Any]:
+    try:
+        return analysis_service().fit_standard_curve(run_id, line_id, payload.model_dump(mode="json"), session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/curves/{line_id}/publish", tags=["analysis"])
+def publish_analysis_curve(run_id: int, line_id: str, payload: AnalysisCurvePublish, session: Session = Depends(require_permission("analysis.curve"))) -> dict[str, Any]:
+    try:
+        return analysis_service().publish_standard_curve(run_id, line_id, payload.curve_snapshot_id, payload.reason, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/results/merge", status_code=201, tags=["analysis"])
+def merge_analysis_results(run_id: int, payload: AnalysisMergeRequest, session: Session = Depends(require_permission("analysis.curve"))) -> dict[str, Any]:
+    try:
+        return analysis_service().merge_results(run_id, payload.reason, session.user_id)
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.get("/api/v1/analyses/runs/{run_id}/curves/{curve_snapshot_id}/preview", response_class=HTMLResponse, tags=["analysis"])
+def preview_analysis_curve(run_id: int, curve_snapshot_id: int, mode: str = Query(default="image", pattern="^(image|text)$"), session: Session = Depends(require_permission("analysis.read"))) -> HTMLResponse:
+    try:
+        return HTMLResponse(analysis_service().curve_preview(run_id, curve_snapshot_id, mode, session.user_id), headers={"Cache-Control": "no-store", "X-Curve-Snapshot-Id": str(curve_snapshot_id)})
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+@app.post("/api/v1/analyses/runs/{run_id}/curves/{curve_snapshot_id}/print", tags=["analysis"])
+def print_analysis_curve(run_id: int, curve_snapshot_id: int, mode: str = Query(default="image", pattern="^(image|text)$"), session: Session = Depends(require_permission("analysis.print"))) -> Response:
+    try:
+        content, metadata = analysis_service().print_curve(run_id, curve_snapshot_id, mode, session.user_id)
+        filename = quote(f"analysis-{run_id}-curve-{curve_snapshot_id}-{mode}.pdf")
+        return Response(content=content, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}", "X-Print-Job-Id": str(metadata["job_id"]), "X-Content-SHA256": metadata["sha256"]})
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
 @app.get("/api/v1/sample-queues", tags=["sample-queues"])
 def list_sample_queues(_: Session = Depends(require_permission("samples.read"))) -> list[dict]:
     return sample_queue_service().list()
@@ -1874,6 +2317,11 @@ def export_sample_queue(queue_id: int, session: Session = Depends(require_permis
 @app.websocket("/ws/events")
 async def events_socket(websocket: WebSocket) -> None:
     await websocket.accept()
+    if PROCESS_KEY:
+        supplied_key = websocket.headers.get("X-GeoSpectrum-Process-Key") or websocket.query_params.get("process_key", "")
+        if not secrets.compare_digest(supplied_key, PROCESS_KEY):
+            await websocket.close(code=4403, reason="process key required")
+            return
     session = auth_service.get_session(websocket.query_params.get("access_token"))
     if session is None:
         await websocket.close(code=4401, reason="authentication required")

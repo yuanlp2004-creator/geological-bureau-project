@@ -34,7 +34,7 @@
 .spectrum-locate input { width: 84px; }
 .spectrum-frame-actions select { width: 74px; }
 .spectrum-exposure { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12px; }
-.spectrum-exposure input[type="number"] { width: 54px; min-height: 29px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.spectrum-exposure .numeric-input { width: 54px; min-height: 29px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
 .spectrum-legend { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 10px; }
 .spectrum-legend button { display: inline-flex; align-items: center; gap: 5px; min-height: 27px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 11px; cursor: pointer; }
 .spectrum-legend button.priority { border-color: var(--blue); color: var(--ink); font-weight: 600; }

@@ -6,6 +6,7 @@ import struct
 import sys
 import tracemalloc
 import uuid
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -23,28 +24,27 @@ SAMPLES = {
     "291-299.acq": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2",
     "303-310.acq": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297",
 }
+SAMPLE_ROOT = files("backend.app.resources.simulator")
 
 
-def test_s11_real_acq_samples_match_frame_contract_and_ccd_order() -> None:
-    roots = [APP_ROOT.parent / "Spec Source" / "Res" / "模拟数据", APP_ROOT.parent / "Spec Source" / "Bin" / "DATA" / "模拟数据"]
-    for sample_root in roots:
-        for name, expected_hash in SAMPLES.items():
-            payload = (sample_root / name).read_bytes()
-            parsed = parse_acq_frame(payload)
-            assert len(payload) == 24579
-            assert hashlib.sha256(payload).hexdigest() == expected_hash
-            assert parsed["frame_size"] == 8193
-            assert parsed["headers"] == [0, 0, 0]
-            assert len(parsed["ccds"]) == 6
-            # The non-mirrored mapping follows the Delphi Acq2Ccd order: CCD1 is
-            # the second slot of the last frame and CCD6 the first slot of frame 1.
-            raw = parsed["raw_frames"]
-            assert parsed["ccds"][0]["points"][0] == raw[2][1]
-            assert parsed["ccds"][5]["points"][0] == raw[0][0]
+def test_s11_packaged_acq_samples_match_frame_contract_and_ccd_order() -> None:
+    for name, expected_hash in SAMPLES.items():
+        payload = SAMPLE_ROOT.joinpath(name).read_bytes()
+        parsed = parse_acq_frame(payload)
+        assert len(payload) == 24579
+        assert hashlib.sha256(payload).hexdigest() == expected_hash
+        assert parsed["frame_size"] == 8193
+        assert parsed["headers"] == [0, 0, 0]
+        assert len(parsed["ccds"]) == 6
+        # The non-mirrored mapping follows the Delphi Acq2Ccd order: CCD1 is
+        # the second slot of the last frame and CCD6 the first slot of frame 1.
+        raw = parsed["raw_frames"]
+        assert parsed["ccds"][0]["points"][0] == raw[2][1]
+        assert parsed["ccds"][5]["points"][0] == raw[0][0]
 
 
 def test_s11_rejects_incomplete_and_fault_headers_with_offsets() -> None:
-    payload = (APP_ROOT.parent / "Spec Source" / "Res" / "模拟数据" / "280-288.acq").read_bytes()
+    payload = SAMPLE_ROOT.joinpath("280-288.acq").read_bytes()
     with pytest.raises(DeviceError) as incomplete:
         parse_acq_frame(payload[:-1])
     assert incomplete.value.code == "acq_frame_incomplete"

@@ -35,20 +35,16 @@
 .dispersion-position-marker.expected circle { fill: #5275a8; }
 .dispersion-position-marker.located line { stroke: #d4771e; }
 .dispersion-position-marker.located circle { fill: #d4771e; }
-.dispersion-position-marker.saved line { stroke: #25865e; stroke-dasharray: 2 3; }
-.dispersion-position-marker.saved circle { fill: #25865e; }
 .dispersion-marker-label-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .dispersion-marker-label { position: absolute; z-index: 1; max-width: 190px; overflow: hidden; padding: 2px 4px; border: 1px solid currentColor; border-radius: 4px; background: color-mix(in srgb, var(--surface) 92%, transparent); font-size: 9px; font-weight: 700; line-height: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .dispersion-marker-label.align-end { transform: translateX(-100%); }
 .dispersion-marker-label.expected { color: #365c91; }
 .dispersion-marker-label.located { color: #a9570c; }
-.dispersion-marker-label.saved { color: #176d49; }
 .dispersion-marker-legend { display: inline-flex; flex-wrap: wrap; gap: 8px; }
 .dispersion-marker-legend span { display: inline-flex; align-items: center; gap: 4px; }
 .dispersion-marker-legend i { width: 12px; height: 3px; border-radius: 2px; background: currentColor; }
 .dispersion-marker-legend i.expected { color: #5275a8; }
 .dispersion-marker-legend i.located { color: #d4771e; }
-.dispersion-marker-legend i.saved { color: #25865e; }
 .dispersion-marker-empty { position: absolute; right: 10px; bottom: 8px; padding: 4px 7px; border-radius: 4px; color: var(--muted); background: color-mix(in srgb, var(--surface) 88%, transparent); font-size: 10px; }
 .dispersion-line-form, .dispersion-fit-form, .dispersion-bind { display: grid; grid-template-columns: 1fr 1.2fr .8fr auto; gap: 9px; align-items: end; margin: 12px 0; }
 .dispersion-line-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; }

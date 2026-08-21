@@ -18,6 +18,56 @@ from backend.app.modules.acquisition import AcquisitionError, AcquisitionService
 from backend.app.modules.analysis import AnalysisService
 
 
+def _complete_seeded_task(service: AcquisitionService, *, name: str, seed: int, repeat_count: int = 1) -> dict:
+    task = service.create_task(
+        {
+            "task_kind": "sample",
+            "name": f"seed-{seed}-{name}",
+            "sample_name": name,
+            "sample_kind": "standard",
+            "ccd_indices": [0],
+            "repeat_count": repeat_count,
+            "burn_frame_count": 3,
+            "dark_frame_count": 1,
+            "pre_excitation_seconds": 0,
+            "seed": seed,
+        }
+    )
+    current = service.start(task["id"])
+    for _ in range(repeat_count * 6 + 2):
+        if current["status"] == "completed":
+            return current
+        current = service.step(task["id"])
+    raise AssertionError("seeded acquisition did not complete")
+
+
+def test_s13_seeded_acquisition_is_replayable_and_varies_by_seed_repeat_and_phase(tmp_path: Path) -> None:
+    database = Database(tmp_path / "seeded-acquisition.sqlite3")
+    database.initialize()
+    service = AcquisitionService(database)
+
+    first = _complete_seeded_task(service, name="S1", seed=101, repeat_count=3)
+    replay = _complete_seeded_task(service, name="S1-replay", seed=101, repeat_count=3)
+    different = _complete_seeded_task(service, name="S2", seed=102)
+
+    def band_hashes(task: dict) -> list[str]:
+        return [service.band(sample["id"])[0]["mean_sha256"] for sample in task["samples"]]
+
+    first_hashes = band_hashes(first)
+    assert first_hashes == band_hashes(replay)
+    assert len(set(first_hashes)) == 3
+    assert different["samples"][0]["bands"][0]["mean_sha256"] != first_hashes[0]
+
+    first_sample = first["samples"][0]
+    frames = service.frames(first["id"], repeat_index=0, ccd_index=0)
+    assert len({frame["points_sha256"] for frame in frames}) == 4
+    mean_points = service.band(first_sample["id"], include_points=True)[0]["mean_points"]
+    assert max(mean_points) > 0.1
+    assert first["last_event"]["details"]["simulation_model"] == "seeded-acq-v1"
+    assert first["last_event"]["details"]["source_sha256"]
+    assert first["last_event"]["details"]["simulated_points_sha256"]
+
+
 def test_s13_float32_average_and_evaporation_interval_golden(tmp_path: Path) -> None:
     database = Database(tmp_path / "acquisition.sqlite3")
     database.initialize()
@@ -99,6 +149,33 @@ def test_s13_queue_repeats_pause_resume_and_post_name_preserve_hash(tmp_path: Pa
     assert blocked.value.code == "sample_name_invalid"
 
 
+def test_s13_queue_repeat_counts_and_sampling_period_contract(tmp_path: Path) -> None:
+    database = Database(tmp_path / "queue-repeat-contract.sqlite3")
+    database.initialize()
+    service = AcquisitionService(database)
+    queue = service.sample_queues.create(
+        "重复次数契约",
+        [{"pre_name": "R1", "repeats": 1}, {"pre_name": "R3", "repeats": 3}, {"pre_name": "R10", "repeats": 10}],
+        None,
+    )
+    for item, expected in zip(queue["items"], (1, 3, 10), strict=True):
+        task = service.create_task({
+            "task_kind": "sample",
+            "name": f"队列重复 {expected}",
+            "queue_id": queue["id"],
+            "queue_item_id": item["id"],
+            "repeat_count": 1,
+        })
+        assert task["repeat_count"] == expected
+
+    assert service.create_task({"task_kind": "sample", "name": "默认周期"})["sampling_period_seconds"] == 1
+    assert service.create_task({"task_kind": "sample", "name": "最小周期", "sampling_period_seconds": 0.01})["sampling_period_seconds"] == 0.01
+    assert service.create_task({"task_kind": "sample", "name": "最大周期", "sampling_period_seconds": 60})["sampling_period_seconds"] == 60
+    for value in (0, -1, 0.009, 0.015, 60.01, float("inf")):
+        with pytest.raises(AcquisitionError):
+            service.create_task({"task_kind": "sample", "name": "非法周期", "sampling_period_seconds": value})
+
+
 def test_s13_published_method_binding_makes_completed_sample_available_to_s16(tmp_path: Path) -> None:
     database = Database(tmp_path / "method-binding.sqlite3")
     database.initialize()
@@ -161,6 +238,21 @@ def test_s13_api_permissions_and_damaged_frame_is_marked_not_replaced(tmp_path: 
         assert options.status_code == 200
         capability = next(item for item in client.get("/api/v1/capabilities").json()["capabilities"] if item["key"] == "acquisition")
         assert {"acquisition.read", "acquisition.write", "acquisition.execute"}.issubset(capability["permissions"])
+        default_task = client.post(
+            "/api/v1/acquisitions/tasks",
+            headers=headers,
+            json={"task_kind": "sample", "name": "默认参数任务"},
+        )
+        assert default_task.status_code == 201
+        assert default_task.json()["sampling_period_seconds"] == 1
+        for period in (0, -1, 0.009, 0.015, 60.01):
+            rejected = client.post(
+                "/api/v1/acquisitions/tasks",
+                headers=headers,
+                json={"task_kind": "sample", "name": "非法周期", "sampling_period_seconds": period},
+            )
+            assert rejected.status_code == 422
+            assert rejected.json()["detail"]["code"] == "request_validation_failed"
         task = client.post("/api/v1/acquisitions/tasks", headers=headers, json={"task_kind": "sample", "name": "故障任务", "device_profile_id": 1, "ccd_layout_id": "default", "burn_frame_count": 2, "dark_frame_count": 0, "pre_excitation_seconds": 0, "fault_frame": 0}).json()
         assert client.post(f"/api/v1/acquisitions/tasks/{task['id']}/start", headers=headers).status_code == 200
         first = client.post(f"/api/v1/acquisitions/tasks/{task['id']}/step", headers=headers)

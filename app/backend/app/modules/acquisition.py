@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any
 
 from ..db import Database, utc_now
-from .devices import AcqSimulatorAdapter, AcquisitionState as DeviceAcquisitionState, DeviceError
+from .devices import AcqSimulatorAdapter, AcquisitionState as DeviceAcquisitionState, DeviceError, DeviceEvent
 from .sample_queues import SampleQueueError, SampleQueueService, normalize_name
 
 
@@ -85,6 +85,107 @@ def _unpack_uint16(blob: bytes | bytearray | memoryview | None, points_count: in
     if len(blob) != expected:
         raise AcquisitionError("acquisition_blob_invalid", "原始 CCD BLOB 长度不匹配", details={"expected": expected, "actual": len(blob)})
     return list(struct.unpack(f"<{points_count}H", blob))
+
+
+def _mix32(value: int) -> int:
+    """Stable integer mixer used by the acquisition simulator.
+
+    This deliberately avoids Python's process-randomized hash and the global
+    random generator so a saved seed remains replayable across processes.
+    """
+
+    mixed = int(value) & 0xFFFFFFFF
+    mixed ^= mixed >> 16
+    mixed = (mixed * 0x7FEB352D) & 0xFFFFFFFF
+    mixed ^= mixed >> 15
+    mixed = (mixed * 0x846CA68B) & 0xFFFFFFFF
+    mixed ^= mixed >> 16
+    return mixed & 0xFFFFFFFF
+
+
+def _seeded_acquisition_event(
+    event: DeviceEvent,
+    *,
+    repeat_index: int,
+    phase: str,
+    frame_index: int,
+    sample_kind: str,
+) -> DeviceEvent:
+    """Create a deterministic simulated acquisition frame from a real ACQ shape.
+
+    S11 replays the bundled ACQ transfer byte-for-byte.  S13 needs temporal
+    burn/dark frames and sample-to-sample variation, so it derives those frames
+    here while retaining the source transfer hash in the event details.
+    """
+
+    details = dict(event.details or {})
+    if details.get("simulation_model") == "seeded-acq-v1":
+        return event
+    effective_seed = int(details.get("seed", 0))
+    seed_fraction = _mix32(effective_seed ^ 0xA5A5A5A5) / 0xFFFFFFFF
+    if sample_kind == "blank":
+        signal_gain = 0.025 + seed_fraction * 0.015
+    else:
+        signal_gain = 0.55 + seed_fraction * 0.35
+    if phase == "dark":
+        phase_gain = 0.0125 + (_mix32(effective_seed ^ 0xD4A4C0DE) % 1251) / 100_000
+    else:
+        jitter_key = effective_seed ^ ((repeat_index + 1) * 0x9E3779B9) ^ ((frame_index + 1) * 0x85EBCA6B)
+        phase_gain = signal_gain * (0.995 + (_mix32(jitter_key) % 1001) / 100_000)
+
+    phase_key = 0xB07F1A6E if phase == "burn" else 0xDA4B5EED
+    transformed_ccds: list[dict[str, Any]] = []
+    generated_hash = hashlib.sha256()
+    for ccd in event.ccds or []:
+        ccd_index = int(ccd["ccd_index"])
+        points: list[int] = []
+        for point_index, raw_value in enumerate(ccd.get("points", [])):
+            noise_key = (
+                effective_seed
+                ^ phase_key
+                ^ ((repeat_index + 1) * 0x27D4EB2D)
+                ^ ((frame_index + 1) * 0x165667B1)
+                ^ ((ccd_index + 1) * 0x9E3779B9)
+                ^ ((point_index + 1) * 0x85EBCA6B)
+            )
+            noise = int(_mix32(noise_key) % 7) - 3
+            value = max(0, min(65_535, int(round(int(raw_value) * phase_gain)) + noise))
+            points.append(value)
+        packed = _pack_uint16(points)
+        generated_hash.update(struct.pack("<I", ccd_index))
+        generated_hash.update(packed)
+        peak = max(points) if points else 0
+        transformed_ccds.append(
+            dict(ccd)
+            | {
+                "points": points,
+                "peak": peak,
+                "peak_position": points.index(peak) if points else 0,
+            }
+        )
+
+    details.update(
+        {
+            "simulation_model": "seeded-acq-v1",
+            "source_sha256": details.get("sha256"),
+            "simulated_points_sha256": generated_hash.hexdigest(),
+            "repeat_index": int(repeat_index),
+            "phase": phase,
+            "phase_frame_index": int(frame_index),
+            "signal_gain": round(phase_gain, 9),
+        }
+    )
+    return DeviceEvent(
+        event_type=event.event_type,
+        state=event.state,
+        occurred_at=event.occurred_at,
+        correlation_id=event.correlation_id,
+        frame_index=event.frame_index,
+        frame_count=event.frame_count,
+        ccds=transformed_ccds,
+        message=event.message,
+        details=details,
+    )
 
 
 def _pack_float32(values: list[float]) -> bytes:
@@ -325,7 +426,9 @@ class AcquisitionService:
                 raise AcquisitionError("acquisition_condition_invalid", "燃烧/暗帧数量超出范围")
             countdown = _finite(payload.get("countdown_seconds", 0), "countdown_seconds", maximum=600)
             pre = _finite(payload.get("pre_excitation_seconds", 1), "pre_excitation_seconds", maximum=600)
-            period = _finite(payload.get("sampling_period_seconds", 1), "sampling_period_seconds", minimum=0.001, maximum=60)
+            period = _finite(payload.get("sampling_period_seconds", 1), "sampling_period_seconds", minimum=0.01, maximum=60)
+            if abs(period * 100 - round(period * 100)) > 1e-9 * max(1, abs(period * 100)):
+                raise AcquisitionError("sampling_period_step_invalid", "采样周期必须以 0.01 秒为步进")
             burn_cycle = _finite(payload.get("burn_cycle_seconds", 1), "burn_cycle_seconds", minimum=0.001, maximum=60)
             dark_cycle = _finite(payload.get("dark_cycle_seconds", burn_cycle), "dark_cycle_seconds", minimum=0.001, maximum=60)
             now = utc_now()
@@ -355,6 +458,13 @@ class AcquisitionService:
         simulator = json.loads(task["simulator_json"] or "{}")
         try:
             event = adapter.start_debug(sample=str(simulator.get("sample", "280-288.acq")), seed=int(simulator.get("seed", 0)) + int(task["current_repeat_index"]), fault_frame=simulator.get("fault_frame"), correlation_id=f"acquisition-{task_id}")
+            event = _seeded_acquisition_event(
+                event,
+                repeat_index=int(task["current_repeat_index"]),
+                phase="burn",
+                frame_index=0,
+                sample_kind=str(task["sample_kind"]),
+            )
         except DeviceError as exc:
             raise AcquisitionError("acquisition_start_failed", exc.message, details=exc.detail(), status_code=exc.status_code) from exc
         return adapter, event
@@ -523,16 +633,24 @@ class AcquisitionService:
         try:
             if status == AcquisitionState.PRE_EXCITATION.value:
                 event = json.loads(task["last_event_json"] or "{}")
-
-                class StoredEvent:
-                    pass
-
-                stored = StoredEvent()
-                stored.ccds = event.get("ccds", [])
-                stored.details = event.get("details", {})
-                stored.message = event.get("message", "")
-                stored.to_dict = lambda: event
                 phase, frame_index = "burn", 0
+                stored = _seeded_acquisition_event(
+                    DeviceEvent(
+                        event_type=str(event.get("event_type", "frame")),
+                        state=DeviceAcquisitionState(str(event.get("state", DeviceAcquisitionState.DEBUGGING.value))),
+                        occurred_at=str(event.get("occurred_at") or utc_now()),
+                        correlation_id=str(event.get("correlation_id", f"acquisition-{task_id}")),
+                        frame_index=event.get("frame_index"),
+                        frame_count=event.get("frame_count"),
+                        ccds=list(event.get("ccds") or []),
+                        message=str(event.get("message", "")),
+                        details=dict(event.get("details") or {}),
+                    ),
+                    repeat_index=int(task["current_repeat_index"]),
+                    phase=phase,
+                    frame_index=frame_index,
+                    sample_kind=str(task["sample_kind"]),
+                )
             else:
                 if adapter is None:
                     raise AcquisitionError("acquisition_session_lost", "采集会话已丢失，已收帧不会被替换", status_code=409)
@@ -548,6 +666,13 @@ class AcquisitionService:
                     return self._task_dict(task_id, include_points=True)
                 phase = "burn" if status == "burn" else "dark"
                 frame_index = int(task["burn_frames_captured"] if phase == "burn" else task["dark_frames_captured"])
+                event = _seeded_acquisition_event(
+                    event,
+                    repeat_index=int(task["current_repeat_index"]),
+                    phase=phase,
+                    frame_index=frame_index,
+                    sample_kind=str(task["sample_kind"]),
+                )
         except DeviceError as exc:
             self._fail_task(task_id, exc.code, exc.message, actor_user_id)
             raise AcquisitionError("acquisition_frame_failed", exc.message, details=exc.detail(), status_code=exc.status_code) from exc

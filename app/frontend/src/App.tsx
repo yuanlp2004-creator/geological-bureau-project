@@ -54,8 +54,11 @@ import {
   Wrench,
   X,
 } from 'lucide-react'
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import {
   api,
+  ApiError,
+  saveFile,
   type About,
   type AngleExposure,
   type AuditEvent,
@@ -88,6 +91,8 @@ import {
   type SpectrumRecordSummary,
   type SpectrumRecord,
   type SpectrumPoint,
+  type HelpTopic,
+  type MaintenanceStatus,
 } from './api'
 import { SpectrumPlot, type SpectrumPlotCurve, type SpectrumPlotCursor } from './SpectrumPlot'
 import { CopyableCode, ExpandableValue } from './InformationDisplay'
@@ -97,27 +102,20 @@ import { SampleAcquisitionPage } from './SampleAcquisitionPage'
 import { HardwareAcquisitionPage } from './HardwareAcquisitionPage'
 import { MercuryCalibrationPage } from './MercuryCalibrationPage'
 import { AnalysisPage } from './AnalysisPage'
-
-type Page = 'workspace' | 'methods' | 'migration' | 'spectrum-migration' | 'result-migration' | 'spectra' | 'samples' | 'acquisition' | 'dispersion' | 'sample-acquisition' | 'hardware-acquisition' | 'mercury-calibration' | 'analysis' | 'reports' | 'settings' | 'about' | 'users' | 'audit'
-
-const navItems: Array<{ id: Page; label: string; icon: typeof LayoutDashboard; enabled: boolean; hint: string }> = [
-  { id: 'workspace', label: '工作台', icon: LayoutDashboard, enabled: true, hint: '系统状态与运行消息' },
-  { id: 'methods', label: '方法', icon: SlidersHorizontal, enabled: true, hint: '方法版本、条件与分析谱线' },
-  { id: 'migration', label: '旧版迁移', icon: Archive, enabled: true, hint: '只读暂存 DIRECT.MTD、CFG 与 OPT' },
-  { id: 'spectrum-migration', label: '旧谱数据', icon: Database, enabled: true, hint: '只读暂存 .CDT、.CMT、.EDT 与 .WDT' },
-  { id: 'result-migration', label: '谱图结果', icon: FileBarChart, enabled: true, hint: '只读暂存 .DAT 与 .PDT 结果矩阵' },
-  { id: 'spectra', label: '谱图查看', icon: Activity, enabled: true, hint: '查看已导入谱带、结果矩阵和原始帧' },
-  { id: 'samples', label: '样品队列', icon: TestTube2, enabled: true, hint: '样品录入、重复展开与 SAM 文件' },
-  { id: 'acquisition', label: '采集', icon: Activity, enabled: true, hint: '设备档案、连接诊断与实时调试' },
-  { id: 'dispersion', label: '色散校准', icon: Crosshair, enabled: true, hint: '色散采集、谱线定位与方法绑定' },
-  { id: 'sample-acquisition', label: '样品采集', icon: TestTube2, enabled: true, hint: '蒸发全帧、样品队列与采集后命名' },
-  { id: 'hardware-acquisition', label: '自动转角', icon: RotateCcw, enabled: true, hint: '短波到长波转角、CCD 采集与异常安全闭环' },
-  { id: 'mercury-calibration', label: '汞灯校准', icon: Lightbulb, enabled: true, hint: '汞线选线、峰位偏移与光学调整版本' },
-  { id: 'analysis', label: '分析', icon: BarChart3, enabled: true, hint: '定量分析、结果矩阵与慢进人工干预' },
-  { id: 'reports', label: '报告', icon: FileBarChart, enabled: false, hint: '将在 S19 启用' },
-  { id: 'users', label: '用户与权限', icon: UserCog, enabled: true, hint: '本地账户、角色和权限' },
-  { id: 'audit', label: '审计记录', icon: ClipboardList, enabled: true, hint: '查看权限和账户变更记录' },
-]
+import { PostProcessingPage } from './PostProcessingPage'
+import { ReportsPage } from './ReportsPage'
+import { MaintenancePage } from './MaintenancePage'
+import { HelpPage } from './HelpPage'
+import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from './NumericInput'
+import {
+  entryForPage,
+  groupedNavigation,
+  navigationAvailability,
+  navigationEntries,
+  type NavigationEntry,
+  type NavigationGroupId,
+  type Page,
+} from './navigation'
 
 const severityLabel: Record<string, string> = {
   debug: '调试', info: '信息', success: '完成', warning: '警告', error: '错误',
@@ -151,7 +149,7 @@ const formatDateTime = (value: string | number | Date) => formatDate(value, {
 })
 
 function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser; onLogout: () => void }) {
-  const [page, setPage] = useState<Page>('workspace')
+  const [target, setTarget] = useState<{ page: Page; key: string; view: string | null }>({ page: 'workspace', key: 'workspace.overview', view: null })
   const [events, setEvents] = useState<RuntimeEvent[]>([])
   const [settings, setSettings] = useState<Settings | null>(null)
   const [about, setAbout] = useState<About | null>(null)
@@ -161,14 +159,20 @@ function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser
   const [currentMethod, setCurrentMethod] = useState<CurrentMethodState | null>(null)
   const [toast, setToast] = useState<ToastNotice | null>(null)
   const [loading, setLoading] = useState(true)
+  const [activeExtension, setActiveExtension] = useState<Capability | null>(null)
   const showToast = useCallback((message: string) => setToast({ message, tone: feedbackToneFor(message) }), [])
+  const entries = useMemo(() => navigationEntries(capabilities, user.permissions), [capabilities, user.permissions])
+  const activeEntry = entries.find((entry) => entry.key === target.key) ?? entryForPage(entries, target.page, target.view)
+  const page = target.page
 
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
       const currentPromise = user.permissions.includes('methods.read') ? api.currentMethod(token) : Promise.resolve(null)
+      const aboutPromise = user.permissions.includes('about.read') ? api.about(token) : Promise.resolve(null)
+      const diagnosticsPromise = user.permissions.includes('about.read') ? api.diagnostics(token) : Promise.resolve(null)
       const [nextHealth, nextEvents, nextSettings, nextAbout, nextCapabilities, nextDiagnostics, nextCurrentMethod] = await Promise.all([
-        api.health(), api.logs(token), api.settings(token), api.about(), api.capabilities(), api.diagnostics(),
+        api.health(), api.logs(token), api.settings(token), aboutPromise, api.capabilities(), diagnosticsPromise,
         currentPromise,
       ])
       setHealth(nextHealth.status === 'ok' ? 'online' : 'offline')
@@ -206,16 +210,32 @@ function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser
     return () => window.clearTimeout(timeout)
   }, [toast])
 
-  const handlePage = (nextPage: Page) => {
-    const item = navItems.find((nav) => nav.id === nextPage)
-    if (item && !item.enabled) {
-      showToast(`${item.label}将在后续步骤启用`)
+  const handleNavigation = (entry: NavigationEntry) => {
+    const availability = navigationAvailability(entry, currentMethod)
+    if (availability.disabled) {
+      showToast(availability.reason ?? '当前入口不可用')
       return
     }
-    setPage(nextPage)
+    if (entry.extension) setActiveExtension(entry.extension)
+    setTarget({ page: entry.page, key: entry.key, view: entry.view })
+  }
+  const handlePage = (nextPage: Page) => {
+    const entry = entryForPage(entries, nextPage)
+    if (entry) handleNavigation(entry)
+  }
+  const handleInternalView = (nextPage: Page, view: string) => {
+    const normalizedView = nextPage === 'analysis' && !['raw', 'quality'].includes(view) ? 'curve' : view
+    const entry = entryForPage(entries, nextPage, normalizedView)
+    if (entry) setTarget({ page: entry.page, key: entry.key, view: entry.view })
   }
 
   const saveSettings = async (nextSettings: Settings) => {
+    const invalid = document.querySelector<HTMLInputElement>('.settings-page [data-numeric-input]:invalid')
+    if (invalid) {
+      invalid.reportValidity()
+      showToast('请先修正设置中的无效数值')
+      return
+    }
     try {
       const saved = await api.saveSettings(token, nextSettings)
       setSettings(saved)
@@ -237,27 +257,31 @@ function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser
 
   return (
     <div className="app-shell" data-testid="app-shell" data-theme={settings?.display.theme ?? 'light'} data-density={settings?.display.density ?? 'comfortable'}>
-      {health === 'offline' && !loading && !about ? <ErrorPage onRetry={loadData} /> : <><Sidebar page={page} onNavigate={handlePage} health={health} user={user} showStatusBar={settings?.display.show_status_bar !== false} />
+      {health === 'offline' && !loading && !about ? <ErrorPage onRetry={loadData} /> : <><Sidebar activeEntry={activeEntry} entries={entries} onNavigate={handleNavigation} currentMethod={currentMethod} health={health} showStatusBar={settings?.display.show_status_bar !== false} onToast={showToast} />
         <main className="main-area">
-          <Header page={page} onRefresh={loadData} loading={loading} onNavigate={handlePage} user={user} currentMethod={currentMethod} onLogout={onLogout} />
-          {page === 'workspace' && <Workspace token={token} health={health} canClearEvents={user.permissions.includes('runtime-events.write')} events={events} currentMethod={currentMethod} diagnostics={diagnostics} capabilities={capabilities} onNavigate={handlePage} onEventsChange={setEvents} onToast={showToast} />}
-          {page === 'methods' && <MethodsPage token={token} currentUser={user} currentMethod={currentMethod} onCurrentMethodChange={setCurrentMethod} onToast={showToast} />}
+          <Header activeEntry={activeEntry} extensionTitle={activeExtension?.title} onRefresh={loadData} loading={loading} onNavigate={handlePage} user={user} currentMethod={currentMethod} onLogout={onLogout} />
+          {page === 'workspace' && <Workspace token={token} health={health} canClearEvents={user.permissions.includes('runtime-events.write')} events={events} currentMethod={currentMethod} diagnostics={diagnostics} capabilities={capabilities} entries={entries} onNavigate={handlePage} onEventsChange={setEvents} onToast={showToast} />}
+          {page === 'methods' && <MethodsPage token={token} currentUser={user} currentMethod={currentMethod} initialSection={target.view} onViewChange={(view) => handleInternalView('methods', view)} onCurrentMethodChange={setCurrentMethod} onToast={showToast} />}
           {page === 'migration' && <LegacyMigrationPage token={token} currentUser={user} onToast={showToast} />}
           {page === 'spectrum-migration' && <SpectrumMigrationPage token={token} currentUser={user} onToast={showToast} />}
           {page === 'result-migration' && <ResultMigrationPage token={token} currentUser={user} onToast={showToast} />}
           {page === 'spectra' && <SpectrumViewerPage token={token} onToast={showToast} />}
+          {page === 'postprocessing' && <PostProcessingPage token={token} initialView={target.view === 'recalculate-export' ? 'recalculate-export' : 'interval'} onViewChange={(view) => handleInternalView('postprocessing', view)} canWrite={user.permissions.includes('postprocessing.write')} canExecute={user.permissions.includes('postprocessing.execute')} canExport={user.permissions.includes('postprocessing.export')} onToast={showToast} />}
           {page === 'samples' && <SampleQueuePage token={token} onToast={showToast} />}
           {page === 'acquisition' && <AcquisitionPage token={token} canWrite={user.permissions.includes('devices.write')} canExecute={user.permissions.includes('devices.execute')} onToast={showToast} />}
           {page === 'dispersion' && <DispersionPage token={token} canWrite={user.permissions.includes('dispersion.write')} canExecute={user.permissions.includes('dispersion.execute')} onToast={showToast} />}
           {page === 'sample-acquisition' && <SampleAcquisitionPage token={token} canWrite={user.permissions.includes('acquisition.write')} canExecute={user.permissions.includes('acquisition.execute')} onToast={showToast} />}
           {page === 'hardware-acquisition' && <HardwareAcquisitionPage token={token} canWrite={user.permissions.includes('hardware-acquisition.write')} canExecute={user.permissions.includes('hardware-acquisition.execute')} onToast={showToast} />}
           {page === 'mercury-calibration' && <MercuryCalibrationPage token={token} canWrite={user.permissions.includes('mercury-calibration.write')} canExecute={user.permissions.includes('mercury-calibration.execute')} onToast={showToast} />}
-          {page === 'analysis' && <AnalysisPage token={token} canExecute={user.permissions.includes('analysis.execute')} canIntervene={user.permissions.includes('analysis.intervene')} onToast={showToast} />}
+          {page === 'analysis' && <AnalysisPage token={token} initialView={target.view === 'quality' || target.view === 'curve' ? target.view : 'raw'} onViewChange={(view) => handleInternalView('analysis', view)} canExecute={user.permissions.includes('analysis.execute')} canIntervene={user.permissions.includes('analysis.intervene')} canQuality={user.permissions.includes('analysis.quality')} canCurve={user.permissions.includes('analysis.curve')} canPrint={user.permissions.includes('analysis.print')} onToast={showToast} />}
+          {page === 'reports' && <ReportsPage token={token} canWrite={user.permissions.includes('reports.write')} canExport={user.permissions.includes('reports.export')} onToast={showToast} />}
+          {page === 'maintenance' && <MaintenancePage token={token} canWrite={user.permissions.includes('maintenance.write')} onToast={showToast} />}
+          {page === 'help' && <HelpPage token={token} onToast={showToast} />}
           {page === 'settings' && settings && <SettingsPage settings={settings} onSave={saveSettings} onReset={resetSettings} />}
           {page === 'about' && <AboutPage about={about} diagnostics={diagnostics} capabilities={capabilities} health={health} onRefresh={loadData} />}
           {page === 'users' && <UsersPage token={token} currentUser={user} onToast={showToast} />}
           {page === 'audit' && <AuditPage token={token} />}
-          {page !== 'workspace' && page !== 'methods' && page !== 'migration' && page !== 'spectrum-migration' && page !== 'result-migration' && page !== 'spectra' && page !== 'samples' && page !== 'acquisition' && page !== 'dispersion' && page !== 'sample-acquisition' && page !== 'hardware-acquisition' && page !== 'mercury-calibration' && page !== 'analysis' && page !== 'settings' && page !== 'about' && page !== 'users' && page !== 'audit' && <DisabledPage item={navItems.find((item) => item.id === page)!} />}
+          {page === 'extension' && activeExtension && <ExtensionPage token={token} extension={activeExtension} onToast={showToast} />}
         </main></>}
       {toast && <div className={`toast ${toast.tone}`} role={toast.tone === 'error' ? 'alert' : 'status'} aria-live={toast.tone === 'error' ? 'assertive' : 'polite'}>
         {toast.tone === 'success' ? <CheckCircle2 size={17} /> : toast.tone === 'error' ? <CircleX size={17} /> : toast.tone === 'warning' ? <AlertTriangle size={17} /> : <Info size={17} />}
@@ -312,7 +336,9 @@ function App() {
       setUser(result.user)
       setMode('authenticated')
     } catch (error) {
-      setAuthError(error instanceof Error ? error.message : '登录失败')
+      setAuthError(error instanceof ApiError && error.code === 'auth_invalid_credentials'
+        ? '用户名或密码错误'
+        : '登录失败，请稍后重试')
     }
   }
 
@@ -358,44 +384,123 @@ function AuthForm({ mode, error, onSubmit, onRetry }: { mode: 'login' | 'bootstr
   return <main className="auth-shell"><section className="auth-panel auth-form-panel"><div className="auth-brand"><div className="brand-mark"><Sparkles size={20} /></div><div><strong>GeoSpectrum</strong><span>本地光谱分析工作台</span></div></div><span className="section-kicker">{isBootstrap ? 'FIRST RUN' : 'LOCAL SIGN IN'}</span><h1>{isBootstrap ? '初始化本地管理员' : '登录工作台'}</h1><p>{isBootstrap ? '创建首个系统管理员账户，密码只以 Argon2id 哈希保存。' : '使用本机账户进入分析工作台。'}</p><form onSubmit={submit} className="auth-form"><label className="field"><span>用户名</span><input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required /></label><label className="field"><span>密码</span><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={isBootstrap ? 'new-password' : 'current-password'} minLength={8} required /></label>{isBootstrap && <label className="field"><span>确认密码</span><input type="password" value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" minLength={8} required /></label>}{(localError || error) && <div className="auth-error"><AlertTriangle size={15} />{localError || error}</div>}<button className="primary-button auth-submit" disabled={submitting}>{submitting ? '处理中…' : isBootstrap ? '创建管理员' : '登录'}<KeyRound size={15} /></button>{!isBootstrap && onRetry && <button type="button" className="secondary-button auth-retry" onClick={onRetry}>重新检查账户状态</button>}</form></section></main>
 }
 
-function Sidebar({ page, onNavigate, health, user, showStatusBar }: { page: Page; onNavigate: (page: Page) => void; health: 'online' | 'offline'; user: AuthUser; showStatusBar: boolean }) {
-  return <aside className="sidebar">
-    <div className="brand">
-      <div className="brand-mark"><Sparkles size={19} /></div>
-      <div><strong>GeoSpectrum</strong><span>地质光谱分析平台</span></div>
+const navigationGroupIcons: Record<NavigationGroupId, typeof LayoutDashboard> = {
+  workspace: LayoutDashboard,
+  methods: SlidersHorizontal,
+  conditions: ClipboardCheck,
+  'analysis-tests': TestTube2,
+  data: FileBarChart,
+  tools: Wrench,
+  system: Settings2,
+  help: CircleHelp,
+}
+
+function Sidebar({ activeEntry, entries, onNavigate, currentMethod, health, showStatusBar, onToast }: { activeEntry?: NavigationEntry; entries: NavigationEntry[]; onNavigate: (entry: NavigationEntry) => void; currentMethod: CurrentMethodState | null; health: 'online' | 'offline'; showStatusBar: boolean; onToast: (message: string) => void }) {
+  const [hoveredGroup, setHoveredGroup] = useState<NavigationGroupId | null>(null)
+  const [pinnedGroup, setPinnedGroup] = useState<NavigationGroupId | null>(null)
+  const sidebarRef = useRef<HTMLElement>(null)
+  const openTimer = useRef<number | null>(null)
+  const closeTimer = useRef<number | null>(null)
+  const groups = useMemo(() => groupedNavigation(entries), [entries])
+  const openGroup = pinnedGroup ?? hoveredGroup
+  const opened = groups.find((group) => group.id === openGroup)
+
+  const clearTimers = () => {
+    if (openTimer.current !== null) window.clearTimeout(openTimer.current)
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+    openTimer.current = null
+    closeTimer.current = null
+  }
+  const scheduleOpen = (group: NavigationGroupId) => {
+    if (pinnedGroup) return
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+    openTimer.current = window.setTimeout(() => setHoveredGroup(group), 250)
+  }
+  const scheduleClose = () => {
+    if (openTimer.current !== null) window.clearTimeout(openTimer.current)
+    if (!pinnedGroup) closeTimer.current = window.setTimeout(() => setHoveredGroup(null), 200)
+  }
+  const closeMenu = () => { clearTimers(); setHoveredGroup(null); setPinnedGroup(null) }
+  const toggleGroup = (group: NavigationGroupId) => {
+    clearTimers()
+    setHoveredGroup(null)
+    setPinnedGroup((current) => current === group ? null : group)
+  }
+  const activate = (entry: NavigationEntry) => {
+    const availability = navigationAvailability(entry, currentMethod)
+    if (availability.disabled) { onToast(availability.reason ?? '当前入口不可用'); return }
+    onNavigate(entry)
+    if (!pinnedGroup) setHoveredGroup(null)
+  }
+  const focusFirstEntry = (group: NavigationGroupId) => {
+    setPinnedGroup(group)
+    setHoveredGroup(null)
+    window.setTimeout(() => document.querySelector<HTMLButtonElement>(`#navigation-panel-${group} .navigation-entry`)?.focus(), 0)
+  }
+  const handleGroupKey = (event: ReactKeyboardEvent<HTMLButtonElement>, group: NavigationGroupId) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); focusFirstEntry(group) }
+    if (event.key === 'Escape') closeMenu()
+  }
+  const handleEntryKey = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    const buttons = Array.from(event.currentTarget.closest('.navigation-panel')?.querySelectorAll<HTMLButtonElement>('.navigation-entry') ?? [])
+    const index = buttons.indexOf(event.currentTarget)
+    if (event.key === 'ArrowDown') { event.preventDefault(); buttons[(index + 1) % buttons.length]?.focus() }
+    if (event.key === 'ArrowUp') { event.preventDefault(); buttons[(index - 1 + buttons.length) % buttons.length]?.focus() }
+    if (event.key === 'Escape') { event.preventDefault(); const group = openGroup; closeMenu(); document.querySelector<HTMLButtonElement>(`[data-navigation-group="${group}"]`)?.focus() }
+  }
+
+  useEffect(() => {
+    const outside = (event: PointerEvent) => { if (!sidebarRef.current?.contains(event.target as Node)) closeMenu() }
+    document.addEventListener('pointerdown', outside)
+    return () => { document.removeEventListener('pointerdown', outside); clearTimers() }
+  }, [])
+
+  return <aside className="sidebar" ref={sidebarRef}>
+    <div className="brand"><div className="brand-mark"><Sparkles size={19} /></div><div><strong>GeoSpectrum</strong><span>地质光谱分析平台</span></div></div>
+    <div className="sidebar-section-label">功能导航</div>
+    <div className="navigation-shell" onMouseEnter={() => { if (closeTimer.current !== null) window.clearTimeout(closeTimer.current) }} onMouseLeave={scheduleClose}>
+      <nav className="nav-list" aria-label="业务域导航">{groups.map((group) => {
+        const Icon = navigationGroupIcons[group.id]
+        const direct = group.id === 'workspace' ? group.entries[0] : null
+        const active = activeEntry?.group === group.id
+        const groupOpened = opened?.id === group.id && group.id !== 'workspace'
+        return <div key={group.id} className={`navigation-group-item ${groupOpened ? 'open' : ''}`}>
+          <button type="button" data-navigation-group={group.id} className={`nav-item navigation-group ${active ? 'active' : ''} ${openGroup === group.id ? 'open' : ''}`} aria-expanded={direct ? undefined : openGroup === group.id} aria-controls={direct ? undefined : `navigation-panel-${group.id}`} aria-current={direct && active ? 'page' : undefined} onMouseEnter={() => scheduleOpen(group.id)} onClick={() => direct ? activate(direct) : toggleGroup(group.id)} onKeyDown={(event) => handleGroupKey(event, group.id)} title={group.description}><Icon size={17} /><span>{group.label}</span>{!direct && <ChevronRight size={14} className="navigation-chevron" />}</button>
+          {groupOpened && <div id={`navigation-panel-${group.id}`} className="navigation-panel" role="menu" aria-label={group.label} onMouseEnter={() => { if (closeTimer.current !== null) window.clearTimeout(closeTimer.current) }}>
+            <div className="navigation-panel-scroll">{group.entries.map((entry, index) => {
+              const previous = group.entries[index - 1]
+              const availability = navigationAvailability(entry, currentMethod)
+              const sectionChanged = entry.section_label && entry.section_label !== previous?.section_label
+              return <div key={entry.key}>{sectionChanged && <div className="navigation-section-label">{entry.section_label}</div>}<button type="button" role="menuitem" className={`navigation-entry ${activeEntry?.key === entry.key ? 'active' : ''} ${availability.disabled ? 'disabled' : ''}`} aria-current={activeEntry?.key === entry.key ? 'page' : undefined} aria-disabled={availability.disabled} title={availability.reason ?? entry.description} onKeyDown={handleEntryKey} onClick={() => activate(entry)}><span><strong>{entry.label}</strong><small>{availability.reason ?? entry.description}</small></span>{entry.status === 'deferred_external' && <em>需真实设备</em>}<ChevronRight size={13} /></button></div>
+            })}</div>
+            {group.entries.some((entry) => navigationAvailability(entry, currentMethod).reason?.includes('当前方法')) && <button type="button" className="navigation-method-shortcut" onClick={() => { const methodEntry = entries.find((entry) => entry.key === 'methods.lifecycle'); if (methodEntry) { closeMenu(); onNavigate(methodEntry) } }}><SlidersHorizontal size={14} />选择当前方法</button>}
+          </div>}
+        </div>
+      })}</nav>
     </div>
-    <div className="sidebar-section-label">工作区</div>
-    <nav className="nav-list" aria-label="业务域导航">
-      {navItems.filter((item) => item.id !== 'methods' || user.permissions.includes('methods.read')).filter((item) => item.id !== 'migration' || user.permissions.includes('migration.read')).filter((item) => item.id !== 'spectrum-migration' || user.permissions.includes('spectrum-migration.read')).filter((item) => item.id !== 'result-migration' || user.permissions.includes('result-migration.read')).filter((item) => item.id !== 'spectra' || user.permissions.includes('spectra.read')).filter((item) => item.id !== 'acquisition' || user.permissions.includes('devices.read')).filter((item) => item.id !== 'dispersion' || user.permissions.includes('dispersion.read')).filter((item) => item.id !== 'sample-acquisition' || user.permissions.includes('acquisition.read')).filter((item) => item.id !== 'hardware-acquisition' || user.permissions.includes('hardware-acquisition.read')).filter((item) => item.id !== 'mercury-calibration' || user.permissions.includes('mercury-calibration.read')).filter((item) => item.id !== 'users' || user.permissions.includes('users.read')).filter((item) => item.id !== 'audit' || user.permissions.includes('audit.read')).map((item) => {
-        const Icon = item.icon
-        return <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''} ${!item.enabled ? 'disabled' : ''}`} onClick={() => onNavigate(item.id)} title={item.hint}>
-          <Icon size={17} /><span>{item.label}</span>{!item.enabled && <span className="nav-dot" />}
-        </button>
-      })}
-    </nav>
     <div className="sidebar-spacer" />
     {showStatusBar && <div className="side-status"><span className={`status-dot ${health}`} /><div><span>本地服务</span><strong>{health === 'online' ? '已连接' : '等待连接'}</strong></div><Activity size={15} /></div>}
-    <button className={`nav-item utility ${page === 'settings' ? 'active' : ''}`} onClick={() => onNavigate('settings')}><Settings2 size={17} /><span>软件设置</span></button>
-    <button className={`nav-item utility ${page === 'about' ? 'active' : ''}`} onClick={() => onNavigate('about')}><CircleHelp size={17} /><span>关于与诊断</span></button>
+    <div className="sidebar-method-state"><span>当前方法</span><strong title={currentMethod?.title ?? '尚未选择当前方法'}>{currentMethod?.method_id ? `${currentMethod.title}${currentMethod.status === 'active' ? '' : ' · 已暂停'}` : '尚未选择'}</strong></div>
     {showStatusBar && <div className="sidebar-footer"><span>桌面基础</span><span>v0.1.0</span></div>}
   </aside>
 }
 
-function Header({ page, onRefresh, loading, onNavigate, user, currentMethod, onLogout }: { page: Page; onRefresh: () => void; loading: boolean; onNavigate: (page: Page) => void; user: AuthUser; currentMethod: CurrentMethodState | null; onLogout: () => void }) {
-  const current = navItems.find((item) => item.id === page)
-  const title = page === 'settings' ? '软件设置' : page === 'about' ? '关于与诊断' : current?.label ?? '工作台'
+function Header({ activeEntry, extensionTitle, onRefresh, loading, onNavigate, user, currentMethod, onLogout }: { activeEntry?: NavigationEntry; extensionTitle?: string; onRefresh: () => void; loading: boolean; onNavigate: (page: Page) => void; user: AuthUser; currentMethod: CurrentMethodState | null; onLogout: () => void }) {
+  const title = activeEntry?.page === 'extension' ? extensionTitle ?? '测试模块' : activeEntry?.label ?? '工作台'
   return <header className="topbar">
     <div className="breadcrumbs"><span>GeoSpectrum</span><ChevronRight size={13} /><strong>{title}</strong></div>
     <div className="topbar-actions"><button className="workspace-method" onClick={() => onNavigate('methods')} disabled={!user.permissions.includes('methods.read')} title={`当前方法 · ${currentMethod?.work_type || '未选择'} · ${currentMethod?.title || '请选择已发布方法'}`}><span>当前方法 · {currentMethod?.work_type || '未选择'}</span><strong>{currentMethod?.title || '请选择已发布方法'}</strong></button><button className="icon-button" title="刷新服务状态" onClick={onRefresh} disabled={loading}><RefreshCw size={17} className={loading ? 'spin' : ''} /></button><button className="icon-button" title="退出登录" onClick={onLogout}><LogOut size={15} /></button><button className="avatar" title={`${user.username} · ${user.roles.join(' / ') || '无角色'}`} onClick={() => onNavigate('about')}>{user.username.slice(0, 2).toUpperCase()}</button></div>
   </header>
 }
 
-function Workspace({ token, health, canClearEvents, events, currentMethod, diagnostics, capabilities, onNavigate, onEventsChange, onToast }: { token: string; health: 'online' | 'offline'; canClearEvents: boolean; events: RuntimeEvent[]; currentMethod: CurrentMethodState | null; diagnostics: Diagnostics | null; capabilities: Capability[]; onNavigate: (page: Page) => void; onEventsChange: (events: RuntimeEvent[]) => void; onToast: (message: string) => void }) {
+function Workspace({ token, health, canClearEvents, events, currentMethod, diagnostics, capabilities, entries, onNavigate, onEventsChange, onToast }: { token: string; health: 'online' | 'offline'; canClearEvents: boolean; events: RuntimeEvent[]; currentMethod: CurrentMethodState | null; diagnostics: Diagnostics | null; capabilities: Capability[]; entries: NavigationEntry[]; onNavigate: (page: Page) => void; onEventsChange: (events: RuntimeEvent[]) => void; onToast: (message: string) => void }) {
   const [eventFilter, setEventFilter] = useState('all')
   const [selected, setSelected] = useState<number[]>([])
   const filteredEvents = useMemo(() => eventFilter === 'all' ? events : events.filter((event) => event.severity === eventFilter), [eventFilter, events])
   const selectAll = selected.length === filteredEvents.length && filteredEvents.length > 0
   const hasCurrentMethod = currentMethod?.method_id != null
+  const hasPage = (page: Page) => entries.some((entry) => entry.page === page)
+  const hasQuickAccess = hasPage('methods') || hasPage('settings') || hasPage('about')
 
   const clearEvents = async () => {
     if (!canClearEvents) { onToast('当前账号只有运行消息读取权限'); return }
@@ -406,12 +511,15 @@ function Workspace({ token, health, canClearEvents, events, currentMethod, diagn
     const content = (selectedEvents.length ? selectedEvents : filteredEvents).map((event) => `[${formatTime(event.created_at)}] ${event.message}`).join('\n')
     try { await navigator.clipboard.writeText(content); onToast('消息已复制到剪贴板') } catch { onToast('当前环境不支持剪贴板') }
   }
-  const saveEvents = () => {
+  const saveEvents = async () => {
     const content = filteredEvents.map((event) => `${event.created_at}\t${categoryLabel[event.category] ?? event.category}\t${event.message}`).join('\n')
-    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' })); link.download = `geospectrum-events-${new Date().toISOString().slice(0, 10)}.log`; link.click(); URL.revokeObjectURL(link.href); onToast('消息日志已保存')
+    try {
+      const path = await saveFile(new Blob([content], { type: 'text/plain;charset=utf-8' }), `geospectrum-events-${new Date().toISOString().slice(0, 10)}.log`)
+      onToast(path ? `消息日志已保存：${path}` : '已取消保存')
+    } catch (error) { onToast(error instanceof Error ? error.message : '消息日志保存失败') }
   }
   return <div className="page-content workspace-page" data-testid="workspace">
-    <section className="hero-row"><div><span className="eyebrow"><span className="eyebrow-line" />S07 · SAMPLE QUEUE</span><h1>分析工作台</h1><p>管理方法版本、样品队列与 SpecDirect 旧数据的只读迁移。</p></div><div className="hero-actions"><span className={`live-pill ${health}`}><span className={`pulse ${health}`} />{health === 'online' ? '本地运行' : '本地服务离线'}</span><button className="secondary-button" onClick={() => onNavigate('samples')}><TestTube2 size={16} />样品队列</button></div></section>
+    <section className="hero-row"><div><span className="eyebrow"><span className="eyebrow-line" />S07 · SAMPLE QUEUE</span><h1>分析工作台</h1><p>管理方法版本、样品队列与 SpecDirect 旧数据的只读迁移。</p></div><div className="hero-actions"><span className={`live-pill ${health}`}><span className={`pulse ${health}`} />{health === 'online' ? '本地运行' : '本地服务离线'}</span>{hasPage('samples') && <button className="secondary-button" onClick={() => onNavigate('samples')}><TestTube2 size={16} />样品队列</button>}</div></section>
     <section className="stat-grid">
       <StatCard icon={Database} label="SQLite 状态" value={diagnostics?.journal_mode?.toUpperCase() ?? '待诊断'} note={diagnostics?.foreign_keys === 1 ? '外键已启用' : diagnostics ? '外键未启用' : '等待数据库诊断'} tone={diagnostics?.journal_mode === 'wal' && diagnostics?.foreign_keys === 1 ? 'blue' : diagnostics ? 'red' : 'amber'} />
       <StatCard icon={ShieldCheck} label="注册模块" value={String(capabilities.length)} note={diagnostics?.manifest_valid ? '清单验证通过' : '等待清单验证'} tone={diagnostics?.manifest_valid ? 'green' : 'amber'} />
@@ -423,7 +531,7 @@ function Workspace({ token, health, canClearEvents, events, currentMethod, diagn
         <section className="surface status-surface"><div className="surface-heading"><div><span className="section-kicker">CURRENT METHOD</span><h2>{currentMethod?.title || '尚未选择运行方法'}</h2></div><span className={`ready-badge ${hasCurrentMethod ? '' : 'pending'}`}>{hasCurrentMethod ? <CheckCircle2 size={14} /> : <Clock3 size={14} />}{hasCurrentMethod ? `版本 ${currentMethod?.version}` : '等待选择'}</span></div><div className="readiness-grid"><ReadinessItem icon={Database} title="数据存储" detail={diagnostics ? `SQLite schema v${diagnostics.schema_version}` : '等待数据库诊断'} done={diagnostics?.sqlite_integrity === 'ok'} /><ReadinessItem icon={SquareTerminal} title="API 服务" detail={health === 'online' ? 'FastAPI /api/v1 · 在线' : 'FastAPI /api/v1 · 离线'} done={health === 'online'} /><ReadinessItem icon={Archive} title="模块清单" detail={`${capabilities.length} 个模块已注册`} done={diagnostics?.manifest_valid === true} /><ReadinessItem icon={SlidersHorizontal} title="运行方法" detail={hasCurrentMethod ? `${currentMethod?.work_type} · 已发布` : '打开已发布方法后就绪'} done={hasCurrentMethod} /></div><div className="surface-note"><Info size={16} /><span>方法草稿可保留字段错误；只有验证通过并发布的不可变版本才能成为当前运行方法。</span></div></section>
         <MessagePanel events={events} filteredEvents={filteredEvents} selected={selected} setSelected={setSelected} selectAll={selectAll} setSelectAll={() => setSelected(selectAll ? [] : filteredEvents.map((event) => event.id))} filter={eventFilter} setFilter={setEventFilter} onClear={clearEvents} onCopy={copyEvents} onSave={saveEvents} />
       </div>
-      <aside className="secondary-column"><section className="surface quick-surface"><div className="surface-heading"><div><span className="section-kicker">QUICK ACCESS</span><h2>常用入口</h2></div><Clipboard size={16} /></div><QuickAction icon={SlidersHorizontal} label="方法管理" detail="版本、条件与当前方法" onClick={() => onNavigate('methods')} /><QuickAction icon={Settings2} label="软件设置" detail="目录、显示、日志与打印" onClick={() => onNavigate('settings')} /><QuickAction icon={CircleHelp} label="关于与诊断" detail="版本、接口和能力清单" onClick={() => onNavigate('about')} /></section><section className="surface protocol-surface"><div className="surface-heading"><div><span className="section-kicker">SERVICE</span><h2>服务通道</h2></div><Activity size={16} /></div><div className="protocol-row"><span>REST API</span><code>127.0.0.1</code><span className={health === 'online' ? 'protocol-ok' : 'protocol-error'}>{health === 'online' ? '在线' : '离线'}</span></div><div className="protocol-row"><span>事件流</span><code>/ws/events</code><span className="protocol-pending">待连接</span></div><div className="protocol-row"><span>桌面壳</span><code>Tauri 2</code><span className="protocol-pending">构建中</span></div></section></aside>
+      <aside className="secondary-column">{hasQuickAccess && <section className="surface quick-surface"><div className="surface-heading"><div><span className="section-kicker">QUICK ACCESS</span><h2>常用入口</h2></div><Clipboard size={16} /></div>{hasPage('methods') && <QuickAction icon={SlidersHorizontal} label="方法管理" detail="版本、条件与当前方法" onClick={() => onNavigate('methods')} />}{hasPage('settings') && <QuickAction icon={Settings2} label="软件设置" detail="目录、显示、日志与打印" onClick={() => onNavigate('settings')} />}{hasPage('about') && <QuickAction icon={CircleHelp} label="关于与诊断" detail="版本、接口和能力清单" onClick={() => onNavigate('about')} />}</section>}<section className="surface protocol-surface"><div className="surface-heading"><div><span className="section-kicker">SERVICE</span><h2>服务通道</h2></div><Activity size={16} /></div><div className="protocol-row"><span>REST API</span><code>127.0.0.1</code><span className={health === 'online' ? 'protocol-ok' : 'protocol-error'}>{health === 'online' ? '在线' : '离线'}</span></div><div className="protocol-row"><span>事件流</span><code>/ws/events</code><span className="protocol-pending">待连接</span></div><div className="protocol-row"><span>桌面壳</span><code>Tauri 2</code><span className="protocol-pending">构建中</span></div></section></aside>
     </section>
   </div>
 }
@@ -496,7 +604,7 @@ function AuditPage({ token }: { token: string }) {
   return <div className="page-content auth-page"><section className="hero-row compact-hero"><div><span className="eyebrow"><span className="eyebrow-line" />AUDIT TRAIL</span><h1>审计记录</h1><p>账户、角色、权限和登录事件按时间倒序保存在本地数据库。</p></div><button className="secondary-button" onClick={() => void load()} disabled={loading}><RefreshCw size={16} className={loading ? 'spin' : ''} />{loading ? '刷新中…' : '刷新'}</button></section><section className="surface auth-section audit-section"><div className="surface-heading"><div><span className="section-kicker">LOCAL AUDIT EVENTS</span><h2>变更记录 <span className="count-badge">{events.length}</span></h2></div><ClipboardList size={17} /></div>{error ? <div className="auth-error"><AlertTriangle size={15} />{error}</div> : <div className="auth-table-wrap"><table className="auth-table audit-table"><thead><tr><th>时间</th><th>操作者</th><th>动作</th><th>目标</th><th>详情</th></tr></thead><tbody>{events.map((event) => <tr key={event.id}><td>{formatTime(event.created_at)}</td><td>{event.actor_user_id ?? 'system'}</td><td><strong>{event.action}</strong></td><td>{event.target_type} {event.target_id ?? ''}</td><td><ExpandableValue value={event.details_json} summary={event.details_json} code className="audit-details" /></td></tr>)}</tbody></table></div>}</section></div>
 }
 
-function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange, onToast }: { token: string; currentUser: AuthUser; currentMethod: CurrentMethodState | null; onCurrentMethodChange: (method: CurrentMethodState) => void; onToast: (message: string) => void }) {
+function MethodsPage({ token, currentUser, currentMethod, initialSection, onViewChange, onCurrentMethodChange, onToast }: { token: string; currentUser: AuthUser; currentMethod: CurrentMethodState | null; initialSection: string | null; onViewChange: (view: string) => void; onCurrentMethodChange: (method: CurrentMethodState) => void; onToast: (message: string) => void }) {
   const [methods, setMethods] = useState<MethodRecord[]>([])
   const [options, setOptions] = useState<MethodOptions | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -510,6 +618,12 @@ function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange,
   const [busy, setBusy] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const canWrite = currentUser.permissions.includes('methods.write')
+
+  useEffect(() => {
+    if (initialSection === 'lines') setEditorSection('lines')
+    else if (initialSection === 'print-settings' || initialSection === 'print-preview') setEditorSection('print')
+    else setEditorSection('conditions')
+  }, [initialSection])
 
   const load = useCallback(async () => {
     try {
@@ -558,6 +672,7 @@ function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange,
 
   const saveDraft = () => {
     if (!selected || !conditions) return
+    if (!reportInvalidNumericInput(document.querySelector('.methods-page'))) return onToast('请先修正方法中的无效数值')
     void runAction(() => api.updateMethod(token, selected.id, { name: draftName, description: draftDescription, work_type: draftWorkType, conditions }), '方法草稿已保存；已发布版本未改变')
   }
 
@@ -608,7 +723,7 @@ function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange,
     setCondition('angle_exposures', [...conditions.angle_exposures, { angle_deg: previousAngle + 10, storage_mode: 'averaged', start_frame: 1, end_frame: Math.max(2, conditions.frame_count) }])
   }
 
-  return <div className="page-content methods-page" data-testid="methods-page">
+  return <div className="page-content methods-page" data-testid="methods-page" data-navigation-view={initialSection ?? 'lifecycle'}>
     <section className="hero-row compact-hero"><div><span className="eyebrow"><span className="eyebrow-line" />METHODS & SPECTRAL LINES</span><h1>方法管理</h1><p>在同一个不可变版本中维护采集条件、谱线引用和标准点。</p></div><div className="hero-actions"><button className="secondary-button" onClick={() => void load()} disabled={busy}><RefreshCw size={16} />刷新</button>{canWrite && <button className="primary-button" onClick={() => { setComposer('create'); setComposerName('') }}><Plus size={16} />新建方法</button>}</div></section>
     {loadError && <div className="auth-error"><AlertTriangle size={15} />{loadError}</div>}
     {composer && <form className="surface method-composer" onSubmit={submitComposer}><div><span className="section-kicker">{composer === 'copy' ? 'COPY METHOD' : 'NEW METHOD'}</span><strong>{composer === 'copy' ? `复制“${selected?.name ?? ''}”` : '创建方法草稿'}</strong></div><label className="field"><span>新方法名称</span><input autoFocus maxLength={20} value={composerName} onChange={(event) => setComposerName(event.target.value)} placeholder="GB18030 不超过 20 字节" required /></label><button className="primary-button" disabled={busy}><Check size={15} />确认</button><button type="button" className="icon-button" title="取消" onClick={() => setComposer(null)}><X size={15} /></button></form>}
@@ -617,7 +732,7 @@ function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange,
       <main className="method-editor">
         {!selected || !conditions ? <section className="surface method-empty"><SlidersHorizontal size={30} /><h2>选择或新建方法</h2><p>方法条件、版本状态和运行操作会显示在这里。</p></section> : <>
           <section className="surface method-action-bar"><div><span className="section-kicker">SELECTED METHOD</span><h2>{selected.name} <span className={`version-chip ${selectedVersion?.state}`}>v{selectedVersion?.version} · {selectedVersion?.state === 'published' ? '已发布' : '草稿'}</span>{issues.length > 0 && <span className="issue-chip"><AlertTriangle size={13} />{issues.length} 项待修正</span>}</h2></div><div className="method-actions">{canWrite && <><button className="secondary-button" onClick={() => { setComposer('copy'); setComposerName(`${selected.name}-副本`) }} disabled={busy}><Copy size={15} />复制</button><button className="secondary-button" onClick={saveDraft} disabled={busy || selected.status === 'deleted'}><Save size={15} />保存草稿</button><button className="primary-button" onClick={() => void runAction(() => api.publishMethod(token, selected.id), '有效草稿已发布为不可变版本')} disabled={busy || selectedVersion?.state !== 'draft' || issues.length > 0}><CheckCircle2 size={15} />发布</button>{selected.published_version && !selected.is_current && selected.status === 'active' && <button className="primary-button" onClick={() => void runAction(() => api.openMethod(token, selected.id), '当前运行方法已切换')} disabled={busy}><PlayCircle size={15} />设为当前</button>}{selected.status === 'active' && <button className="icon-button" title="暂停方法" onClick={() => void runAction(() => api.pauseMethod(token, selected.id), '方法已暂停')} disabled={busy}><PauseCircle size={15} /></button>}{selected.status === 'paused' && <button className="icon-button" title="恢复方法" onClick={() => void runAction(() => api.resumeMethod(token, selected.id), '方法已恢复')} disabled={busy}><PlayCircle size={15} /></button>}<button className="icon-button danger" title="软删除方法" onClick={() => { if (window.confirm(`确认删除方法“${selected.name}”？历史版本仍会保留。`)) void runAction(() => api.deleteMethod(token, selected.id), '方法已软删除') }} disabled={busy}><Trash2 size={15} /></button></>}</div></section>
-          <div className="method-editor-tabs" role="tablist"><button className={editorSection === 'conditions' ? 'active' : ''} onClick={() => setEditorSection('conditions')}>方法条件</button><button className={editorSection === 'lines' ? 'active' : ''} onClick={() => setEditorSection('lines')}>分析谱线 <span>{selectedVersion?.lines?.length ?? 1}</span></button><button className={editorSection === 'print' ? 'active' : ''} onClick={() => setEditorSection('print')}><Printer size={13} />预览与打印</button></div>
+          <div className="method-editor-tabs" role="tablist"><button className={editorSection === 'conditions' ? 'active' : ''} onClick={() => { setEditorSection('conditions'); onViewChange('conditions') }}>方法条件</button><button className={editorSection === 'lines' ? 'active' : ''} onClick={() => { setEditorSection('lines'); onViewChange('lines') }}>分析谱线 <span>{selectedVersion?.lines?.length ?? 1}</span></button><button className={editorSection === 'print' ? 'active' : ''} onClick={() => { setEditorSection('print'); onViewChange('print-preview') }}><Printer size={13} />预览与打印</button></div>
           {editorSection === 'conditions' && <>
           {issues.length > 0 && <section className="surface method-issues"><div><AlertTriangle size={17} /><strong>草稿尚不能发布</strong><span>错误已随草稿保留，不影响当前有效版本。</span></div><ul>{issues.map((issue, index) => <li key={`${issue.field}-${index}`}><code>{issue.field}</code><span>{issue.message}</span></li>)}</ul></section>}
           <section className="surface method-section"><div className="surface-heading"><div><span className="section-kicker">IDENTITY</span><h2>基本信息</h2></div><FileText size={17} /></div><div className="method-field-grid"><label className="field"><span>方法名称</span><input value={draftName} onChange={(event) => setDraftName(event.target.value)} disabled={!canWrite} /><small>{new TextEncoder().encode(draftName).length} UTF-8 字节；保存时按 GB18030 验证 20 字节边界</small></label><label className="field"><span>工作类型</span><input value={draftWorkType} onChange={(event) => setDraftWorkType(event.target.value)} disabled={!canWrite} /></label><label className="field span-2"><span>说明</span><textarea rows={2} value={draftDescription} onChange={(event) => setDraftDescription(event.target.value)} disabled={!canWrite} /></label></div></section>
@@ -635,36 +750,7 @@ function MethodsPage({ token, currentUser, currentMethod, onCurrentMethodChange,
   </div>
 }
 
-type EmptyableNumberInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'onChange'> & {
-  value: number
-  onValueChange: (value: number) => void
-}
-
-function EmptyableNumberInput({ value, onValueChange, onBlur, ...inputProps }: EmptyableNumberInputProps) {
-  const [text, setText] = useState(() => Number.isFinite(value) ? String(value) : '')
-  const lastValue = useRef(value)
-
-  useEffect(() => {
-    if (Object.is(lastValue.current, value)) return
-    lastValue.current = value
-    setText(Number.isFinite(value) ? String(value) : '')
-  }, [value])
-
-  return <input {...inputProps} type="number" value={text} onBlur={(event) => {
-    if (text === '') setText(Number.isFinite(lastValue.current) ? String(lastValue.current) : '')
-    onBlur?.(event)
-  }} onChange={(event) => {
-    const nextText = event.target.value
-    setText(nextText)
-    if (nextText === '') return
-    const nextValue = Number(nextText)
-    if (!Number.isFinite(nextValue)) return
-    lastValue.current = nextValue
-    onValueChange(nextValue)
-  }} />
-}
-
-function NumberField({ label, value, min, max, step = 1, disabled, onChange }: { label: string; value: number; min?: number; max?: number; step?: number; disabled?: boolean; onChange: (value: number) => void }) {
+function NumberField({ label, value, min, max, step = 1, disabled, onChange }: { label: string; value: number; min?: number; max?: number; step?: number; disabled?: InputHTMLAttributes<HTMLInputElement>['disabled']; onChange: (value: number) => void }) {
   return <label className="field"><span>{label}</span><EmptyableNumberInput value={value} min={min} max={max} step={step} disabled={disabled} onValueChange={onChange} /></label>
 }
 
@@ -717,12 +803,14 @@ function MethodPrintPanel({ methodId, methodName, version, token, canWrite, onTo
 
   const preview = async () => {
     if (!settings) return
+    if (!reportInvalidNumericInput(document.querySelector('.print-settings-panel'))) return reportError(new Error('请先修正打印参数'), '请先修正打印参数')
     setBusy(true)
     try { await refreshPreview(settings) } catch (cause) { reportError(cause, '预览生成失败') } finally { setBusy(false) }
   }
 
   const saveDefaults = async () => {
     if (!settings) return
+    if (!reportInvalidNumericInput(document.querySelector('.print-settings-panel'))) return reportError(new Error('请先修正打印参数'), '请先修正打印参数')
     setBusy(true)
     try {
       const saved = await api.saveMethodPrintSettings(token, settings)
@@ -734,22 +822,19 @@ function MethodPrintPanel({ methodId, methodName, version, token, canWrite, onTo
 
   const exportPdf = async () => {
     if (!settings) return
+    if (!reportInvalidNumericInput(document.querySelector('.print-settings-panel'))) return reportError(new Error('请先修正打印参数'), '请先修正打印参数')
     setBusy(true)
     try {
       const result = await api.methodPdf(token, methodId, version, settings)
-      const url = URL.createObjectURL(result.blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${methodName}-v${version ?? 'latest'}-方法参数.pdf`
-      link.click()
-      URL.revokeObjectURL(url)
+      const path = await saveFile(result.blob, `${methodName}-v${version ?? 'latest'}-方法参数.pdf`)
       setMetrics({ pageCount: result.pageCount, fieldCount: result.fieldCount })
-      onToast(`PDF 已生成：${result.pageCount} 页、${result.fieldCount} 个字段`)
+      onToast(path ? `PDF 已保存：${path}；${result.pageCount} 页、${result.fieldCount} 个字段` : '已取消保存')
     } catch (cause) { reportError(cause, 'PDF 导出失败') } finally { setBusy(false) }
   }
 
   const submitPrint = async () => {
     if (!settings) return
+    if (!reportInvalidNumericInput(document.querySelector('.print-settings-panel'))) return reportError(new Error('请先修正打印参数'), '请先修正打印参数')
     setBusy(true)
     try {
       if (settings.preview_before_print) await refreshPreview(settings)
@@ -1496,9 +1581,9 @@ function SpectrumViewerPage({ token, onToast }: { token: string; onToast: (messa
     if (!active) return
     try {
       const result = await api.exportSpectrum(token, active.id, { ccd, line, detail: frameVisible ? 'frame' : 'summary', phase: framePhase, frame: frameIndex, exposureStart: raw && exposureEnabled ? exposureStart : undefined, exposureEnd: raw && exposureEnabled ? exposureEnd : undefined, xMin: xStart, xMax: xEnd, referenceShift })
-      const url = URL.createObjectURL(result.blob); const anchor = document.createElement('a'); anchor.href = url
-      anchor.download = result.filename.match(/filename="?([^";]+)/)?.[1] ?? `spectrum-${active.id.replace(':', '-')}.csv`; anchor.click(); URL.revokeObjectURL(url)
-      onToast('当前可见范围已导出并写入审计')
+      const filename = result.filename.match(/filename="?([^";]+)/)?.[1] ?? `spectrum-${active.id.replace(':', '-')}.csv`
+      const path = await saveFile(result.blob, filename)
+      onToast(path ? `当前可见范围已保存：${path}` : '已取消保存')
     } catch (error) { onToast(error instanceof Error ? error.message : '导出失败') }
   }
   const printVisible = async () => {
@@ -1506,15 +1591,9 @@ function SpectrumViewerPage({ token, onToast }: { token: string; onToast: (messa
     setBusy(true)
     try {
       const result = await api.printSpectrumPdf(token, active.id, { visible_x_min: xStart, visible_x_max: xEnd, visible_y_min: yStart, visible_y_max: yEnd, ccd, line, mode: frameVisible ? 'frame' : mode, reference_shift: referenceShift, selected_record_ids: displayIds, priority_record_id: priorityId ?? selectedId ?? undefined, frame_phase: framePhase, frame_index: frameIndex, exposure_start: raw && exposureEnabled ? exposureStart : undefined, exposure_end: raw && exposureEnabled ? exposureEnd : undefined })
-      const url = URL.createObjectURL(result.blob)
-      const anchor = document.createElement('a')
-      anchor.href = url
-      anchor.download = result.filename.match(/filename="?([^";]+)/)?.[1] ?? `spectrum-${active.id.replace(':', '-')}.pdf`
-      document.body.append(anchor)
-      anchor.click()
-      anchor.remove()
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-      onToast(`谱图打印 PDF 已生成：${result.curveCount} 条曲线，${result.pointCount} 个可见点`)
+      const filename = result.filename.match(/filename="?([^";]+)/)?.[1] ?? `spectrum-${active.id.replace(':', '-')}.pdf`
+      const path = await saveFile(result.blob, filename)
+      onToast(path ? `谱图 PDF 已保存：${path}；${result.curveCount} 条曲线，${result.pointCount} 个可见点` : '已取消保存')
     } catch (error) { onToast(error instanceof Error ? error.message : '打印准备失败') }
     finally { setBusy(false) }
   }
@@ -1556,6 +1635,7 @@ function SampleQueuePage({ token, onToast }: { token: string; onToast: (message:
 
   const create = async () => {
     if (!entryName.trim()) return
+    if (!reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) return onToast('请先修正重复次数')
     try {
       const next = await api.createSampleQueue(token, { name, items: [{ pre_name: entryName, repeats }] })
       setQueues((current) => [next, ...current])
@@ -1577,17 +1657,13 @@ function SampleQueuePage({ token, onToast }: { token: string; onToast: (message:
   const exportQueue = async () => {
     if (!selected) return
     const result = await api.exportSampleQueue(token, selected.id)
-    const url = URL.createObjectURL(result.blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `queue-${selected.id}.sam`
-    anchor.click()
-    URL.revokeObjectURL(url)
-    onToast('SAM 文件已导出')
+    const path = await saveFile(result.blob, `queue-${selected.id}.sam`)
+    onToast(path ? `SAM 文件已保存：${path}` : '已取消保存')
   }
 
   const addItem = async () => {
     if (!selected || !entryName.trim()) return
+    if (!reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) return onToast('请先修正重复次数')
     try {
       const next = await api.updateSampleQueue(token, selected.id, [...selected.items.map((item) => ({ pre_name: item.pre_name, repeats: item.repeats })), { pre_name: entryName, repeats }])
       setSelected(next); setQueues((current) => current.map((item) => item.id === next.id ? next : item)); setEntryName('')
@@ -1620,7 +1696,13 @@ function SampleQueuePage({ token, onToast }: { token: string; onToast: (message:
 }
 
 function AboutPage({ about, diagnostics, capabilities, health, onRefresh }: { about: About | null; diagnostics: Diagnostics | null; capabilities: Capability[]; health: 'online' | 'offline'; onRefresh: () => void }) {
-  return <div className="page-content about-page" data-testid="about-diagnostics"><section className="hero-row compact-hero"><div><span className="eyebrow"><span className="eyebrow-line" />SYSTEM INFORMATION</span><h1>关于与诊断</h1><p>验证模块注册、接口和本地运行时状态。</p></div><button className="secondary-button" onClick={onRefresh}><RefreshCw size={16} />重新诊断</button></section><div className="about-layout"><section className="surface about-intro"><div className="product-lockup"><div className="product-mark"><Sparkles size={26} /></div><div><h2>GeoSpectrum</h2><span>自动转角平面光栅光谱仪分析平台</span></div></div><p>{about?.description ?? '等待本地服务连接。'}</p><div className="version-line"><span>应用版本</span><strong>{about?.version ?? '—'}</strong><span>阶段</span><strong>{about?.stage ?? '—'}</strong></div><div className="diagnostic-result"><span className={`status-dot ${health}`} /><div><strong>{health === 'online' ? '本地服务运行正常' : '无法连接本地服务'}</strong><span>{about?.runtime ?? '启动 FastAPI 后刷新此页'}</span></div></div><div className="diagnostic-grid"><div><span>SQLite 完整性</span><strong>{diagnostics?.sqlite_integrity ?? '—'}</strong></div><div><span>日志事件</span><strong>{diagnostics?.event_count ?? '—'}</strong></div><div><span>日志模式</span><strong>{diagnostics?.journal_mode ?? '—'}</strong></div><div><span>外键约束</span><strong>{diagnostics?.foreign_keys === 1 ? '已启用' : '—'}</strong></div></div></section><section className="surface capability-surface"><div className="surface-heading"><div><span className="section-kicker">MODULE REGISTRY</span><h2>能力清单</h2></div><ClipboardCheck size={17} /></div><div className="capability-list">{capabilities.map((capability) => <div className="capability-row" key={capability.key}><span className="capability-icon"><CheckCircle2 size={16} /></span><div><strong>{capability.title}</strong><small>{capability.key} · {capability.version}</small></div><code>{capability.route}</code><span className="capability-enabled">已启用</span></div>)}</div><div className="api-note"><Info size={15} /><span>API 版本 {about?.api_version ?? 'v1'} · 能力由静态模块清单生成</span></div></section></div></div>
+  return <div className="page-content about-page" data-testid="about-diagnostics"><section className="hero-row compact-hero"><div><span className="eyebrow"><span className="eyebrow-line" />SYSTEM INFORMATION</span><h1>关于与诊断</h1><p>验证模块注册、接口和本地运行时状态。</p></div><button className="secondary-button" onClick={onRefresh}><RefreshCw size={16} />重新诊断</button></section><div className="about-layout"><section className="surface about-intro"><div className="product-lockup"><div className="product-mark"><Sparkles size={26} /></div><div><h2>GeoSpectrum</h2><span>自动转角平面光栅光谱仪分析平台</span></div></div><p>{about?.description ?? '等待本地服务连接。'}</p><div className="version-line"><span>应用版本</span><strong>{about?.version ?? '—'}</strong><span>阶段</span><strong>{about?.stage ?? '—'}</strong></div><div className="diagnostic-result"><span className={`status-dot ${health}`} /><div><strong>{health === 'online' ? '本地服务运行正常' : '无法连接本地服务'}</strong><span>{about?.runtime ?? '启动 FastAPI 后刷新此页'}</span></div></div><div className="diagnostic-grid"><div><span>SQLite 完整性</span><strong>{diagnostics?.sqlite_integrity ?? '—'}</strong></div><div><span>日志事件</span><strong>{diagnostics?.event_count ?? '—'}</strong></div><div><span>日志模式</span><strong>{diagnostics?.journal_mode ?? '—'}</strong></div><div><span>外键约束</span><strong>{diagnostics?.foreign_keys === 1 ? '已启用' : '—'}</strong></div></div><div className="build-meta"><span>许可证</span><strong>{about?.license ?? '—'}</strong><span>构建</span><code>{about?.build ? JSON.stringify(about.build) : '—'}</code></div></section><section className="surface capability-surface"><div className="surface-heading"><div><span className="section-kicker">MODULE REGISTRY</span><h2>能力清单</h2></div><ClipboardCheck size={17} /></div><div className="capability-list">{capabilities.map((capability) => <div className="capability-row" key={capability.key}><span className="capability-icon"><CheckCircle2 size={16} /></span><div><strong>{capability.title}</strong><small>{capability.key} · {capability.version}</small></div><code>{capability.route}</code><span className="capability-enabled">已启用</span></div>)}</div><div className="api-note"><Info size={15} /><span>API 版本 {about?.api_version ?? 'v1'} · 能力由静态模块清单生成</span></div></section></div></div>
+}
+
+function ExtensionPage({ token, extension, onToast }: { token: string; extension: Capability; onToast: (message: string) => void }) {
+  const [result, setResult] = useState<Record<string, unknown> | null>(null)
+  const execute = async () => { try { const next = await api.executeExtension(token, extension.key); setResult(next); onToast('测试模块事件已记录') } catch (error) { onToast(error instanceof Error ? error.message : '测试模块执行失败') } }
+  return <div className="page-content disabled-page" data-testid="test-extension-page"><div className="disabled-illustration"><Wrench size={34} /></div><span className="section-kicker">TEST BUILD MODULE</span><h1>{extension.title}</h1><p>此页面由构建期模块清单接入，仅用于验证迁移、API、导航、权限、审计、版本化事件和可选 Tauri 能力。正式包不会包含该模块。</p><button className="primary-button" onClick={() => void execute()}>执行版本化事件</button>{result && <CopyableCode value={JSON.stringify(result)} visibleLength={36} />}</div>
 }
 
 function DisabledPage({ item }: { item: { label: string; icon: typeof LayoutDashboard; hint: string } }) { const Icon = item.icon; return <div className="page-content disabled-page"><div className="disabled-illustration"><Icon size={34} /></div><span className="section-kicker">MODULE NOT ENABLED</span><h1>{item.label}</h1><p>{item.hint}。当前步骤只提供导航入口，业务数据和操作会在对应阶段交付。</p><div className="disabled-track"><span className="track-done" /><span /><span /><span /></div></div> }

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "key": "simulator.280-288",
+      "path": "simulator/280-288.acq",
+      "source": "Spec Source/Res/模拟数据/280-288.acq",
+      "bytes": 24579,
+      "sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C"
+    },
+    {
+      "key": "simulator.291-299",
+      "path": "simulator/291-299.acq",
+      "source": "Spec Source/Res/模拟数据/291-299.acq",
+      "bytes": 24579,
+      "sha256": "9CCF429C0B89E873711A400FBA9267711F0287279C39593988A2ED4CB01294E2"
+    },
+    {
+      "key": "simulator.303-310",
+      "path": "simulator/303-310.acq",
+      "source": "Spec Source/Res/模拟数据/303-310.acq",
+      "bytes": 24579,
+      "sha256": "B031F17CBC3C207A1213CBA0ABF351F3CCB011ADCDE8542E4AE9C85D322FD297"
+    },
+    {
+      "key": "legacy-reader.powershell",
+      "path": "legacy_reader/read_access.ps1",
+      "source": "app/tools/legacy-mdb-reader/read_access.ps1",
+      "bytes": 7177,
+      "sha256": "E6EAAB2BF663DD6FBF21279D3C224AD48779C5911106E91FC50214D342EE595D"
+    }
+  ]
+}

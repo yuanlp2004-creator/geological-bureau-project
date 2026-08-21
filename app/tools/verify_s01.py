@@ -7,6 +7,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from backend.app.db import SCHEMA_VERSION
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -54,7 +56,7 @@ def main() -> int:
     args = parser.parse_args()
     result = verify(args.database, args.manifest, args.dist)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    checks = [result["integrity_check"] == "ok", result["foreign_keys"] == 1, result["journal_mode"].lower() == "wal", result["schema_version"] == 1, result["required_tables"], result["frontend_asset_count"] > 0, result["frontend_assets_have_sha256"]]
+    checks = [result["integrity_check"] == "ok", result["foreign_keys"] == 1, result["journal_mode"].lower() == "wal", result["schema_version"] == SCHEMA_VERSION, result["required_tables"], result["frontend_asset_count"] > 0, result["frontend_assets_have_sha256"]]
     return 0 if all(checks) else 1
 
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, ArrowLeft, ArrowRight, Crosshair, PauseCircle, PlayCircle, Plus, RefreshCw, Save, SlidersHorizontal, Square, Trash2, Zap } from 'lucide-react'
 import { api, type DispersionCalibrationVersion, type DispersionLine, type DispersionOptions, type DispersionTask, type MethodRecord } from './api'
 import { CopyableCode } from './InformationDisplay'
+import { NumericInput, reportInvalidNumericInput } from './NumericInput'
 import { SimpleChartAxes } from './SimpleChartAxes'
 import './dispersion.css'
 
@@ -37,7 +38,7 @@ function curveGeometry(points: number[]): CurveGeometry {
 
 type PositionMarker = {
   key: string
-  kind: 'expected' | 'located' | 'saved'
+  kind: 'expected' | 'located'
   label: string
   position: number
   x: number
@@ -47,10 +48,9 @@ type PositionMarker = {
 function positionMarkers(lines: DispersionLine[], ccdIndex: number, pointsPerCcd: number): PositionMarker[] {
   if (pointsPerCcd <= 1) return []
   const markers: PositionMarker[] = []
-  const markerDefinitions: Array<{ kind: PositionMarker['kind']; field: 'expected_position' | 'located_position' | 'saved_position'; label: string; labelY: number }> = [
+  const markerDefinitions: Array<{ kind: PositionMarker['kind']; field: 'expected_position' | 'located_position'; label: string; labelY: number }> = [
     { kind: 'expected', field: 'expected_position', label: '预期', labelY: 38 },
     { kind: 'located', field: 'located_position', label: '实测', labelY: 62 },
-    { kind: 'saved', field: 'saved_position', label: '保存', labelY: 86 },
   ]
   lines.filter((line) => line.ccd_index === ccdIndex).forEach((line) => {
     markerDefinitions.forEach((definition) => {
@@ -143,6 +143,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) 
 
   const createTask = async () => {
     if (!canWrite || profileId === null || layoutId === null) return
+    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid'))) return onToast('请先修正采集帧参数')
     setBusy(true)
     try {
       const task = await api.createDispersionTask(token, {
@@ -205,6 +206,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) 
 
   const addLine = async () => {
     if (!active || !canWrite) return
+    if (!reportInvalidNumericInput(document.querySelector('.dispersion-line-form'))) return onToast('请先修正谱线波长')
     try {
       const line = await api.addDispersionLine(token, active.id, { element, wavelength_nm: wavelength, ccd_index: lineCcd })
       setActive({ ...active, lines: [...active.lines, line].sort((left, right) => left.wavelength_nm - right.wavelength_nm) })
@@ -272,7 +274,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) 
         <div className="surface-heading"><div><span className="section-kicker">TASK SETUP</span><h2>采集条件</h2></div><Zap size={17} /></div>
         <label className="field"><span>设备档案</span><select value={profileId ?? ''} onChange={(event) => setProfileId(Number(event.target.value))}>{options?.device_profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name} · {profile.transport}</option>)}</select></label>
         <label className="field"><span>CCD 布局</span><select value={layoutId ?? ''} onChange={(event) => setLayoutId(Number(event.target.value))}>{options?.ccd_layouts.map((layout) => <option key={layout.id} value={layout.id}>{layout.name} · {layout.frame_count}×{layout.ccds_per_frame}</option>)}</select></label>
-        <div className="dispersion-number-grid"><label className="field"><span>燃烧帧</span><input type="number" min="1" max="255" value={frameCount} onChange={(event) => setFrameCount(Number(event.target.value))} /></label><label className="field"><span>暗帧</span><input type="number" min="0" max="20" value={darkFrameCount} onChange={(event) => setDarkFrameCount(Number(event.target.value))} /></label></div>
+        <div className="dispersion-number-grid"><label className="field"><span>燃烧帧</span><NumericInput min={1} max={255} value={frameCount} onValueChange={setFrameCount} /></label><label className="field"><span>暗帧</span><NumericInput min={0} max={20} value={darkFrameCount} onValueChange={setDarkFrameCount} /></label></div>
         <button className="primary-button full-button" onClick={() => void createTask()} disabled={!canWrite || busy || profileId === null || layoutId === null}><Plus size={15} />新建任务</button>
         <div className="dispersion-task-list"><span className="section-kicker">TASKS</span>{tasks.length === 0 ? <small>尚无色散任务</small> : tasks.map((task) => <button key={task.id} className={active?.id === task.id ? 'active' : ''} onClick={() => setActive(task)}><span className={`dispersion-state ${task.status}`} /> <strong title={task.name}>{task.name}</strong><small>{statusLabels[task.status]} · {task.burn_frames_captured}/{task.frame_count}</small></button>)}</div>
       </aside>
@@ -281,7 +283,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) 
           <div className="surface-heading"><div><span className="section-kicker">ACQUISITION STATE</span><h2>{active?.name ?? '选择或创建任务'}</h2></div>{active && <span className={`state-chip ${active.status}`}>{statusLabels[active.status]}</span>}</div>
           {active ? <><div className="dispersion-progress"><div><span>燃烧帧</span><strong>{active.burn_frames_captured} / {active.frame_count}</strong><progress max={active.frame_count} value={active.burn_frames_captured} /></div><div><span>暗帧</span><strong>{active.dark_frames_captured} / {active.dark_frame_count}</strong><progress max={Math.max(active.dark_frame_count, 1)} value={active.dark_frames_captured} /></div><div><span>CCD</span><strong>{active.ccd_indices.length} × {active.layout.points_per_ccd}</strong><small>原始帧只读保存</small></div></div>
             <div className="dispersion-controls"><button className="primary-button" onClick={() => void start()} disabled={!canExecute || active.status !== 'draft'}><PlayCircle size={15} />开始</button><button className="secondary-button" onClick={() => void pause()} disabled={!canExecute || !runningStates.has(active.status)}><PauseCircle size={15} />暂停</button><button className="secondary-button" onClick={() => void resume()} disabled={!canExecute || active.status !== 'paused'}><PlayCircle size={15} />继续</button><button className="secondary-button" onClick={() => void step()} disabled={!canExecute || !runningStates.has(active.status) || busy}><Activity size={15} />单帧</button><button className="secondary-button danger" onClick={() => void stop()} disabled={!canExecute || ![...runningStates, 'paused'].includes(active.status)}><Square size={14} />停止</button></div>
-            <div className="dispersion-curve-toolbar"><label className="field compact-field"><span>当前 CCD</span><select value={selectedCcd} onChange={(event) => setSelectedCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option value={ccd} key={ccd}>CCD {ccd + 1}</option>)}</select></label><span><Crosshair size={14} />峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position + 1}` : '--'}</span><div className="dispersion-marker-legend" aria-label="谱线位置图例"><span><i className="expected" />预期</span><span><i className="located" />实测</span><span><i className="saved" />已保存</span></div><CopyableCode value={active.last_event?.details.sha256} visibleLength={16} empty="--" /></div>
+            <div className="dispersion-curve-toolbar"><label className="field compact-field"><span>当前 CCD</span><select value={selectedCcd} onChange={(event) => setSelectedCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option value={ccd} key={ccd}>CCD {ccd + 1}</option>)}</select></label><span><Crosshair size={14} />峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position + 1}` : '--'}</span><div className="dispersion-marker-legend" aria-label="谱线位置图例"><span><i className="expected" />预期</span><span><i className="located" />实测</span></div><CopyableCode value={active.last_event?.details.sha256} visibleLength={16} empty="--" /></div>
             <div className="dispersion-curve simple-chart-plot-host">
               <div className="simple-chart-plot">
                 <svg viewBox="0 0 1000 260" preserveAspectRatio="none" role="img" aria-label={`CCD ${selectedCcd + 1} 色散曲线与谱线定位`}><g className="dispersion-grid"><line x1="0" y1="24" x2="1000" y2="24" /><line x1="0" y1="136" x2="1000" y2="136" /><line x1="0" y1="248" x2="1000" y2="248" /></g><path className="dispersion-spectrum-line" d={curve.path} />{currentCcd && <g className="dispersion-position-markers">{markers.map((marker) => <g key={marker.key} className={`dispersion-position-marker ${marker.kind}`} data-marker-kind={marker.kind} data-marker-position={marker.position.toFixed(2)}><title>{marker.label}</title><line x1={marker.x} y1="24" x2={marker.x} y2="248" /><circle cx={marker.x} cy={marker.labelY - 5} r="5" /></g>)}</g>}</svg>
@@ -298,7 +300,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) 
         </section>
         {active && <section className="surface dispersion-lines-panel">
           <div className="surface-heading"><div><span className="section-kicker">KNOWN LINES</span><h2>谱线定位与位置</h2></div><button className="secondary-button" onClick={() => void locateAll()} disabled={!canWrite || active.lines.length === 0 || active.burn_frames_captured === 0}><Crosshair size={15} />全部定位</button></div>
-          <div className="dispersion-line-form"><label className="field"><span>元素</span><input value={element} onChange={(event) => setElement(event.target.value)} /></label><label className="field"><span>波长 (nm)</span><input type="number" step="0.0001" value={wavelength} onChange={(event) => setWavelength(Number(event.target.value))} /></label><label className="field"><span>CCD</span><select value={lineCcd} onChange={(event) => setLineCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option key={ccd} value={ccd}>CCD {ccd + 1}</option>)}</select></label><button className="primary-button" onClick={() => void addLine()} disabled={!canWrite}><Plus size={15} />添加</button></div>
+          <div className="dispersion-line-form"><label className="field"><span>元素</span><input value={element} onChange={(event) => setElement(event.target.value)} /></label><label className="field"><span>波长 (nm)</span><NumericInput min={0} step={0.0001} value={wavelength} onValueChange={setWavelength} /></label><label className="field"><span>CCD</span><select value={lineCcd} onChange={(event) => setLineCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option key={ccd} value={ccd}>CCD {ccd + 1}</option>)}</select></label><button className="primary-button" onClick={() => void addLine()} disabled={!canWrite}><Plus size={15} />添加</button></div>
           <div className="dispersion-line-table"><table><thead><tr><th>谱线</th><th>CCD</th><th>预期位置</th><th>实测 / 保存</th><th>定位操作</th></tr></thead><tbody>{active.lines.length === 0 ? <tr><td colSpan={5} className="empty-cell">添加至少 3 条已知谱线后可拟合校准。</td></tr> : active.lines.map((line) => <tr key={line.id}><td><strong>{line.element}</strong><small>{line.wavelength_nm.toFixed(4)} nm</small></td><td>CCD {line.ccd_index + 1}</td><td>{line.expected_position?.toFixed(2) ?? '越界'}</td><td><strong>{line.located_position?.toFixed(2) ?? '--'}</strong><small>保存 {line.saved_position?.toFixed(2) ?? '--'}</small></td><td><div className="line-actions"><button title="定位" onClick={() => void updateLine(line, 'locate')} disabled={!canWrite || active.burn_frames_captured === 0}><Crosshair size={14} /></button><button title="向短波移动" onClick={() => void updateLine(line, 'short')} disabled={!canWrite}><ArrowLeft size={14} /></button><button title="向长波移动" onClick={() => void updateLine(line, 'long')} disabled={!canWrite}><ArrowRight size={14} /></button><button title="保存实测位置" onClick={() => void updateLine(line, 'save')} disabled={!canWrite || line.located_position === null}><Save size={14} /></button><button title="恢复保存位置" onClick={() => void updateLine(line, 'restore')} disabled={!canWrite || line.saved_position === null}><RefreshCw size={14} /></button><button title="删除谱线" onClick={() => void removeLine(line.id)} disabled={!canWrite}><Trash2 size={14} /></button></div></td></tr>)}</tbody></table></div>
         </section>}
         {active && <section className="surface dispersion-fit-panel">

@@ -6,12 +6,14 @@ import sqlite3
 import struct
 import threading
 import zlib
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
-SCHEMA_VERSION = 16
+from .modules.extensions import apply_test_extension_migrations
+
+SCHEMA_VERSION = 20
 SCHEMA_BASELINE_VERSION = 10
 
 
@@ -188,6 +190,56 @@ def _migrate_v16(connection: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_v17(connection: sqlite3.Connection) -> None:
+    _require_tables(
+        connection,
+        17,
+        (
+            "analysis_qc_decisions",
+            "analysis_qc_snapshots",
+            "analysis_curve_actions",
+            "analysis_curve_adjustment_sets",
+            "analysis_curve_snapshots",
+            "analysis_active_curves",
+            "analysis_curve_results",
+            "analysis_result_merges",
+            "analysis_curve_print_jobs",
+        ),
+    )
+
+
+def _migrate_v18(connection: sqlite3.Connection) -> None:
+    _require_tables(
+        connection,
+        18,
+        (
+            "postprocessing_conversion_runs",
+            "postprocessing_recalculation_runs",
+            "postprocessing_exports",
+        ),
+    )
+
+
+def _migrate_v19(connection: sqlite3.Connection) -> None:
+    _require_tables(
+        connection,
+        19,
+        (
+            "report_templates",
+            "reports",
+            "report_exports",
+        ),
+    )
+
+
+def _migrate_v20(connection: sqlite3.Connection) -> None:
+    _require_tables(
+        connection,
+        20,
+        ("maintenance_backups", "maintenance_operations", "help_topics"),
+    )
+
+
 MIGRATIONS = (
     (11, "devices", _migrate_v11),
     (12, "dispersion", _migrate_v12),
@@ -195,6 +247,10 @@ MIGRATIONS = (
     (14, "hardware_acquisition", _migrate_v14),
     (15, "mercury_calibration", _migrate_v15),
     (16, "analysis", _migrate_v16),
+    (17, "analysis_quality_curves", _migrate_v17),
+    (18, "postprocessing", _migrate_v18),
+    (19, "reports", _migrate_v19),
+    (20, "maintenance", _migrate_v20),
 )
 
 
@@ -219,7 +275,7 @@ class Database:
 
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._write_lock, self.connect() as connection:
+        with self._write_lock, closing(self.connect()) as connection, connection:
             connection.execute("BEGIN IMMEDIATE")
             _execute_sql_script(
                 connection,
@@ -761,6 +817,131 @@ class Database:
                     created_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_analysis_messages_run ON analysis_messages(run_id, id);
+                CREATE TABLE IF NOT EXISTS analysis_qc_decisions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    acquisition_task_id INTEGER NOT NULL REFERENCES acquisition_tasks(id),
+                    line_id TEXT NOT NULL,
+                    line_result_id INTEGER REFERENCES analysis_line_results(id),
+                    action TEXT NOT NULL CHECK(action IN ('accept','exclude','restore')),
+                    before_included INTEGER CHECK(before_included IN (0,1)),
+                    after_included INTEGER CHECK(after_included IN (0,1)),
+                    reason TEXT NOT NULL,
+                    actor_user_id INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_qc_decisions_run ON analysis_qc_decisions(run_id, acquisition_task_id, line_id, id);
+                CREATE TABLE IF NOT EXISTS analysis_qc_snapshots (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    sequence INTEGER NOT NULL CHECK(sequence >= 1),
+                    groups_json TEXT NOT NULL,
+                    publishable INTEGER NOT NULL CHECK(publishable IN (0,1)),
+                    result_sha256 TEXT NOT NULL,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    UNIQUE(run_id, sequence)
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_qc_snapshots_run ON analysis_qc_snapshots(run_id, sequence DESC);
+                CREATE TABLE IF NOT EXISTS analysis_curve_actions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    line_id TEXT NOT NULL,
+                    qc_snapshot_id INTEGER NOT NULL REFERENCES analysis_qc_snapshots(id),
+                    action TEXT NOT NULL CHECK(action IN ('set_fit','set_coordinate','set_active','adjust','restore','restore_all')),
+                    point_index INTEGER,
+                    before_json TEXT NOT NULL,
+                    after_json TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    actor_user_id INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_curve_actions_run ON analysis_curve_actions(run_id, line_id, qc_snapshot_id, id);
+                CREATE TABLE IF NOT EXISTS analysis_curve_adjustment_sets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    line_id TEXT NOT NULL,
+                    qc_snapshot_id INTEGER NOT NULL REFERENCES analysis_qc_snapshots(id),
+                    sequence INTEGER NOT NULL CHECK(sequence >= 1),
+                    fit_mode TEXT NOT NULL CHECK(fit_mode IN ('linear','quadratic','cubic','spline')),
+                    coordinate_type TEXT NOT NULL CHECK(coordinate_type IN ('normal','logarithmic')),
+                    points_json TEXT NOT NULL,
+                    workspace_sha256 TEXT NOT NULL,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    UNIQUE(run_id, line_id, sequence)
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_curve_adjustments_run ON analysis_curve_adjustment_sets(run_id, line_id, sequence DESC);
+                CREATE TABLE IF NOT EXISTS analysis_curve_snapshots (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    line_id TEXT NOT NULL,
+                    qc_snapshot_id INTEGER NOT NULL REFERENCES analysis_qc_snapshots(id),
+                    adjustment_set_id INTEGER NOT NULL REFERENCES analysis_curve_adjustment_sets(id),
+                    sequence INTEGER NOT NULL CHECK(sequence >= 1),
+                    fit_mode TEXT NOT NULL CHECK(fit_mode IN ('linear','quadratic','cubic','spline')),
+                    coordinate_type TEXT NOT NULL CHECK(coordinate_type IN ('normal','logarithmic')),
+                    points_json TEXT NOT NULL,
+                    fit_json TEXT NOT NULL,
+                    diagnostics_json TEXT NOT NULL,
+                    chart_json TEXT NOT NULL,
+                    publishable INTEGER NOT NULL CHECK(publishable IN (0,1)),
+                    result_sha256 TEXT NOT NULL,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    UNIQUE(run_id, line_id, sequence)
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_curve_snapshots_run ON analysis_curve_snapshots(run_id, line_id, sequence DESC);
+                CREATE TABLE IF NOT EXISTS analysis_active_curves (
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    line_id TEXT NOT NULL,
+                    curve_snapshot_id INTEGER NOT NULL REFERENCES analysis_curve_snapshots(id),
+                    updated_by INTEGER REFERENCES users(id),
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY(run_id, line_id)
+                );
+                CREATE TABLE IF NOT EXISTS analysis_curve_results (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    curve_snapshot_id INTEGER NOT NULL REFERENCES analysis_curve_snapshots(id),
+                    acquisition_task_id INTEGER NOT NULL REFERENCES acquisition_tasks(id),
+                    sample_name TEXT NOT NULL,
+                    sample_kind TEXT NOT NULL,
+                    is_standard INTEGER NOT NULL CHECK(is_standard IN (0,1)),
+                    standard_value REAL,
+                    effective_count INTEGER NOT NULL CHECK(effective_count >= 0),
+                    intensity REAL NOT NULL,
+                    calculated_value REAL NOT NULL,
+                    result_sha256 TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    UNIQUE(curve_snapshot_id, acquisition_task_id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_curve_results_run ON analysis_curve_results(run_id, curve_snapshot_id, acquisition_task_id);
+                CREATE TABLE IF NOT EXISTS analysis_result_merges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    sequence INTEGER NOT NULL CHECK(sequence >= 1),
+                    curve_snapshot_ids_json TEXT NOT NULL,
+                    results_json TEXT NOT NULL,
+                    result_sha256 TEXT NOT NULL,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    UNIQUE(run_id, sequence)
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_result_merges_run ON analysis_result_merges(run_id, sequence DESC);
+                CREATE TABLE IF NOT EXISTS analysis_curve_print_jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_id INTEGER NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+                    curve_snapshot_id INTEGER NOT NULL REFERENCES analysis_curve_snapshots(id),
+                    mode TEXT NOT NULL CHECK(mode IN ('image','text')),
+                    request_json TEXT NOT NULL,
+                    content_blob BLOB NOT NULL,
+                    content_sha256 TEXT NOT NULL,
+                    byte_length INTEGER NOT NULL CHECK(byte_length > 0),
+                    actor_user_id INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_analysis_curve_print_jobs_run ON analysis_curve_print_jobs(run_id, curve_snapshot_id, id);
                 CREATE TABLE IF NOT EXISTS hardware_tasks (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
@@ -1132,6 +1313,161 @@ class Database:
                 );
                 CREATE INDEX IF NOT EXISTS idx_result_matrices_source
                     ON result_matrices(source_sha256, record_index);
+                CREATE TABLE IF NOT EXISTS postprocessing_conversion_runs (
+                    id TEXT PRIMARY KEY,
+                    input_sha256 TEXT NOT NULL UNIQUE,
+                    status TEXT NOT NULL CHECK(status IN ('converted','failed')),
+                    source_record_ids_json TEXT NOT NULL,
+                    source_hashes_json TEXT NOT NULL,
+                    interval_start INTEGER NOT NULL CHECK(interval_start >= 1),
+                    interval_end INTEGER NOT NULL CHECK(interval_end >= interval_start),
+                    target_ccd_layout_id INTEGER NOT NULL REFERENCES ccd_layouts(id),
+                    method_version_id INTEGER REFERENCES method_versions(id),
+                    sample_ids_json TEXT NOT NULL,
+                    task_ids_json TEXT NOT NULL,
+                    report_json TEXT NOT NULL,
+                    result_sha256 TEXT,
+                    error_code TEXT,
+                    error_message TEXT,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_postprocessing_conversion_created
+                    ON postprocessing_conversion_runs(created_at DESC);
+                CREATE TABLE IF NOT EXISTS postprocessing_recalculation_runs (
+                    id TEXT PRIMARY KEY,
+                    input_sha256 TEXT NOT NULL UNIQUE,
+                    status TEXT NOT NULL CHECK(status IN ('completed','blocked','failed')),
+                    source_record_ids_json TEXT NOT NULL,
+                    source_hashes_json TEXT NOT NULL,
+                    method_version_id INTEGER NOT NULL REFERENCES method_versions(id),
+                    calculation_profile TEXT NOT NULL,
+                    curve_snapshot_ids_json TEXT NOT NULL,
+                    result_json TEXT NOT NULL,
+                    report_json TEXT NOT NULL,
+                    result_sha256 TEXT,
+                    error_code TEXT,
+                    error_message TEXT,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_postprocessing_recalculation_created
+                    ON postprocessing_recalculation_runs(created_at DESC);
+                CREATE TABLE IF NOT EXISTS postprocessing_exports (
+                    id TEXT PRIMARY KEY,
+                    input_sha256 TEXT NOT NULL UNIQUE,
+                    status TEXT NOT NULL CHECK(status IN ('completed','failed')),
+                    source_record_ids_json TEXT NOT NULL,
+                    kind TEXT NOT NULL CHECK(kind IN ('raw_intensity','processed_intensity','result_matrix')),
+                    format TEXT NOT NULL CHECK(format IN ('txt','csv','excel')),
+                    output_directory TEXT NOT NULL,
+                    requested_name TEXT NOT NULL,
+                    actual_path TEXT,
+                    same_name_strategy TEXT NOT NULL CHECK(same_name_strategy IN ('suffix','error','overwrite')),
+                    content_sha256 TEXT,
+                    byte_length INTEGER NOT NULL DEFAULT 0,
+                    report_json TEXT NOT NULL,
+                    error_code TEXT,
+                    error_message TEXT,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_postprocessing_export_created
+                    ON postprocessing_exports(created_at DESC);
+                CREATE TABLE IF NOT EXISTS report_templates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    key TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    version INTEGER NOT NULL DEFAULT 1,
+                    schema_json TEXT NOT NULL,
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    report_number TEXT NOT NULL,
+                    version INTEGER NOT NULL,
+                    template_id INTEGER NOT NULL REFERENCES report_templates(id),
+                    source_run_ids_json TEXT NOT NULL,
+                    filter_json TEXT NOT NULL,
+                    arrangement TEXT NOT NULL CHECK(arrangement IN ('standard','exchange')),
+                    model_json TEXT NOT NULL,
+                    model_sha256 TEXT NOT NULL,
+                    status TEXT NOT NULL CHECK(status IN ('draft','confirmed','published')),
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(report_number, version)
+                );
+                CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at DESC);
+                CREATE TABLE IF NOT EXISTS report_exports (
+                    id TEXT PRIMARY KEY,
+                    report_id INTEGER NOT NULL REFERENCES reports(id),
+                    format TEXT NOT NULL CHECK(format IN ('txt','csv','excel','pdf','print')),
+                    status TEXT NOT NULL CHECK(status IN ('completed','failed')),
+                    output_directory TEXT,
+                    requested_name TEXT NOT NULL,
+                    actual_path TEXT,
+                    same_name_strategy TEXT NOT NULL CHECK(same_name_strategy IN ('suffix','error','overwrite')),
+                    content_sha256 TEXT,
+                    byte_length INTEGER NOT NULL DEFAULT 0,
+                    page_count INTEGER NOT NULL DEFAULT 0,
+                    report_json TEXT NOT NULL,
+                    error_code TEXT,
+                    error_message TEXT,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_report_exports_report ON report_exports(report_id, created_at DESC);
+                CREATE TABLE IF NOT EXISTS maintenance_backups (
+                    id TEXT PRIMARY KEY,
+                    kind TEXT NOT NULL CHECK(kind IN ('online','rehearsal')),
+                    source_path TEXT NOT NULL,
+                    backup_path TEXT NOT NULL,
+                    source_sha256 TEXT NOT NULL,
+                    backup_sha256 TEXT NOT NULL,
+                    byte_length INTEGER NOT NULL,
+                    integrity TEXT NOT NULL,
+                    foreign_keys INTEGER NOT NULL,
+                    entity_counts_json TEXT NOT NULL,
+                    blob_samples_json TEXT NOT NULL,
+                    retention_expires_at TEXT,
+                    status TEXT NOT NULL CHECK(status IN ('completed','verified','failed')),
+                    error_code TEXT,
+                    error_message TEXT,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_maintenance_backups_created
+                    ON maintenance_backups(created_at DESC);
+                CREATE TABLE IF NOT EXISTS maintenance_operations (
+                    id TEXT PRIMARY KEY,
+                    operation TEXT NOT NULL CHECK(operation IN ('backup','checkpoint','optimize','reclaim','logs','temp','restore_rehearsal','retention')),
+                    status TEXT NOT NULL CHECK(status IN ('completed','failed','blocked')),
+                    details_json TEXT NOT NULL,
+                    created_by INTEGER REFERENCES users(id),
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_maintenance_operations_created
+                    ON maintenance_operations(created_at DESC);
+                CREATE TABLE IF NOT EXISTS help_topics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    slug TEXT UNIQUE NOT NULL,
+                    title TEXT NOT NULL,
+                    section TEXT NOT NULL,
+                    keywords_json TEXT NOT NULL,
+                    body TEXT NOT NULL,
+                    related_routes_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    enabled INTEGER NOT NULL DEFAULT 1 CHECK(enabled IN (0,1))
+                );
+                CREATE INDEX IF NOT EXISTS idx_help_topics_section ON help_topics(section, slug);
                 """
             )
             # S03 was started against an S02 database before this column was
@@ -1180,7 +1516,12 @@ class Database:
                     (version, utc_now()),
                 )
                 applied_versions.add(version)
+            apply_test_extension_migrations(connection)
             now = utc_now()
+            connection.execute(
+                "INSERT INTO report_templates(key, name, version, schema_json, enabled, created_at, updated_at) VALUES ('analysis-standard', '分析结果报告', 1, ?, 1, ?, ?) ON CONFLICT(key) DO UPDATE SET name=excluded.name, schema_json=excluded.schema_json, enabled=1, updated_at=excluded.updated_at",
+                (json.dumps({"columns": ["report_number", "sample_name", "element", "wavelength_nm", "quantitative_signal", "calculation_profile", "qc_status"], "arrangements": ["standard", "exchange"]}, ensure_ascii=False, separators=(",", ":")), now, now),
+            )
             connection.execute(
                 "INSERT INTO ccd_layouts(name, frame_count, ccds_per_frame, points_per_ccd, point_width, gap_points_json, ccd_indices_json, wavelength_min, wavelength_max, allow_drift_um, created_at) "
                 "VALUES ('default', 3, 2, 2048, 14.0, ?, ?, 249.4941856, 331.5919579, 300, ?) "
@@ -1357,6 +1698,144 @@ class Database:
                 BEGIN
                     SELECT RAISE(ABORT, 'analysis interventions are immutable');
                 END;
+                CREATE TRIGGER IF NOT EXISTS analysis_qc_decisions_immutable_update
+                BEFORE UPDATE ON analysis_qc_decisions
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis QC decisions are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_qc_decisions_immutable_delete
+                BEFORE DELETE ON analysis_qc_decisions
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis QC decisions are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_qc_snapshots_immutable_update
+                BEFORE UPDATE ON analysis_qc_snapshots
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis QC snapshots are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_qc_snapshots_immutable_delete
+                BEFORE DELETE ON analysis_qc_snapshots
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis QC snapshots are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_actions_immutable_update
+                BEFORE UPDATE ON analysis_curve_actions
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve actions are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_actions_immutable_delete
+                BEFORE DELETE ON analysis_curve_actions
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve actions are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_adjustment_sets_immutable_update
+                BEFORE UPDATE ON analysis_curve_adjustment_sets
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve adjustment sets are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_adjustment_sets_immutable_delete
+                BEFORE DELETE ON analysis_curve_adjustment_sets
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve adjustment sets are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_snapshots_immutable_update
+                BEFORE UPDATE ON analysis_curve_snapshots
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve snapshots are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_snapshots_immutable_delete
+                BEFORE DELETE ON analysis_curve_snapshots
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve snapshots are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_results_immutable_update
+                BEFORE UPDATE ON analysis_curve_results
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve results are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_results_immutable_delete
+                BEFORE DELETE ON analysis_curve_results
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve results are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_result_merges_immutable_update
+                BEFORE UPDATE ON analysis_result_merges
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis result merges are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_result_merges_immutable_delete
+                BEFORE DELETE ON analysis_result_merges
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis result merges are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_print_jobs_immutable_update
+                BEFORE UPDATE ON analysis_curve_print_jobs
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve print jobs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS analysis_curve_print_jobs_immutable_delete
+                BEFORE DELETE ON analysis_curve_print_jobs
+                BEGIN
+                    SELECT RAISE(ABORT, 'analysis curve print jobs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_conversion_runs_immutable_update
+                BEFORE UPDATE ON postprocessing_conversion_runs
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing conversion runs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_conversion_runs_immutable_delete
+                BEFORE DELETE ON postprocessing_conversion_runs
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing conversion runs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_recalculation_runs_immutable_update
+                BEFORE UPDATE ON postprocessing_recalculation_runs
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing recalculation runs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_recalculation_runs_immutable_delete
+                BEFORE DELETE ON postprocessing_recalculation_runs
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing recalculation runs are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_exports_immutable_update
+                BEFORE UPDATE ON postprocessing_exports
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing exports are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS postprocessing_exports_immutable_delete
+                BEFORE DELETE ON postprocessing_exports
+                BEGIN
+                    SELECT RAISE(ABORT, 'postprocessing exports are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS reports_model_immutable_update
+                BEFORE UPDATE ON reports
+                WHEN OLD.report_number IS NOT NEW.report_number
+                  OR OLD.version IS NOT NEW.version
+                  OR OLD.template_id IS NOT NEW.template_id
+                  OR OLD.source_run_ids_json IS NOT NEW.source_run_ids_json
+                  OR OLD.filter_json IS NOT NEW.filter_json
+                  OR OLD.arrangement IS NOT NEW.arrangement
+                  OR OLD.model_json IS NOT NEW.model_json
+                  OR OLD.model_sha256 IS NOT NEW.model_sha256
+                BEGIN
+                    SELECT RAISE(ABORT, 'report models are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS reports_immutable_delete
+                BEFORE DELETE ON reports
+                BEGIN
+                    SELECT RAISE(ABORT, 'reports are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS report_exports_immutable_update
+                BEFORE UPDATE ON report_exports
+                BEGIN
+                    SELECT RAISE(ABORT, 'report exports are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS report_exports_immutable_delete
+                BEFORE DELETE ON report_exports
+                BEGIN
+                    SELECT RAISE(ABORT, 'report exports are immutable');
+                END;
                 CREATE TRIGGER IF NOT EXISTS hardware_frames_raw_immutable_update
                 BEFORE UPDATE ON hardware_frames
                 WHEN OLD.points_blob IS NOT NEW.points_blob
@@ -1452,7 +1931,56 @@ class Database:
                 BEGIN
                     SELECT RAISE(ABORT, 'mercury traces are immutable');
                 END;
+                CREATE TRIGGER IF NOT EXISTS maintenance_backups_immutable_update
+                BEFORE UPDATE ON maintenance_backups
+                BEGIN
+                    SELECT RAISE(ABORT, 'maintenance backup records are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS maintenance_backups_immutable_delete
+                BEFORE DELETE ON maintenance_backups
+                BEGIN
+                    SELECT RAISE(ABORT, 'maintenance backup records are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS maintenance_operations_immutable_update
+                BEFORE UPDATE ON maintenance_operations
+                BEGIN
+                    SELECT RAISE(ABORT, 'maintenance operation records are immutable');
+                END;
+                CREATE TRIGGER IF NOT EXISTS maintenance_operations_immutable_delete
+                BEFORE DELETE ON maintenance_operations
+                BEGIN
+                    SELECT RAISE(ABORT, 'maintenance operation records are immutable');
+                END;
                 """
+            )
+            help_topics = (
+                ("navigation", "导航与工作台", "基础", ["菜单", "工作台", "导航"], "从左侧菜单进入各业务模块。工作台显示本地服务、数据库完整性和最近运行消息；设置页用于本机偏好，帮助页可离线检索主题与错误码。", ["/workspace", "/settings", "/help"]),
+                ("methods", "方法与版本", "核心流程", ["方法", "版本", "谱线", "标准点"], "方法以草稿和发布版本管理。发布前检查条件、CCD 布局、谱线和标准点；发布版本用于后续采集与分析。", ["/methods"]),
+                ("samples", "样品队列", "核心流程", ["样品", "队列", "标准样品", "未知样品"], "样品队列按方法组织标准样品、未知样品与重复次数。采集前确认样品顺序、名称和方法版本，避免把旧队列误用于新版本。", ["/samples"]),
+                ("devices", "设备连接与安全", "核心流程", ["设备", "串口", "模拟器", "安全停止"], "设备连接与实时调试保留审计记录。真实协议或硬件未确认时只能使用模拟器；异常时先暂停或安全停止，不绕过设备保护。", ["/acquisition"]),
+                ("dispersion", "色散校准", "核心流程", ["色散", "校准", "CCD", "谱线"], "色散任务采集校准帧并生成不可变校准版本。方法绑定前检查 CCD、谱线位置与版本状态。", ["/dispersion"]),
+                ("sample-acquisition", "样品采集", "核心流程", ["样品采集", "重复", "帧", "暂停"], "样品采集按已发布方法和队列运行，保留帧、区间、暂停与停止记录。失败后先查看任务消息，再决定恢复或重新采集。", ["/sample-acquisition"]),
+                ("hardware-acquisition", "真实硬件采集", "核心流程", ["真实硬件", "转角", "异常", "人工干预"], "真实硬件采集执行预激发、转角和 CCD 采集计划。协议或现场硬件缺失时保持 deferred_external，不以模拟器结论替代正式验收。", ["/hardware-acquisition"]),
+                ("mercury-calibration", "汞灯校准", "核心流程", ["汞灯", "对齐", "校准", "参考线"], "汞灯校准比较参考线与采集峰位并发布对齐版本。缺少汞灯协议或真实设备时不得猜测命令。", ["/mercury-calibration"]),
+                ("analysis", "分析、质控与曲线", "核心流程", ["分析", "质控", "曲线", "合并结果"], "分析使用已发布方法和采集数据。质控排除、恢复、曲线调整与最终结果合并都产生可追溯快照；报告只使用最终合并结果。", ["/analysis"]),
+                ("postprocessing", "后处理与精确重算", "核心流程", ["后处理", "EDT", "CMT", "PDT", "重算"], "EDT/CMT 采用只读区间解析；旧 PDT 精确重算必须选择目标方法版本、计算口径和已发布曲线快照。任一来源失败时整批不提交。", ["/postprocessing"]),
+                ("spectra", "光谱查看与导出", "核心流程", ["光谱", "叠加", "缩放", "导出"], "光谱页查看已迁移或已采集的光谱，可叠加、缩放并导出。导出前确认来源、CCD 和采集区间。", ["/spectra"]),
+                ("reports", "报告、导出与打印", "核心流程", ["报告", "预览", "导出", "打印", "PDF"], "报告先建立草稿，预览确认后再导出 TXT、CSV、Excel、PDF 或打印。报表取最终合并结果，打印需要选择已枚举的 Windows 打印机。", ["/reports"]),
+                ("migration", "旧方法只读迁移", "兼容性", ["SpecDirect", "方法迁移", "DIRECT", "Access"], "旧方法文件先进入暂存区并保留原件、大小、时间和 SHA-256。迁移不会回写旧 Access 文件。", ["/migration"]),
+                ("spectrum-migration", "旧光谱只读迁移", "兼容性", ["光谱迁移", "SPC", "LIB", "原件"], "旧光谱迁移先校验格式和 BLOB，再写入新版存储；原件只读保留，解析失败不会修改源文件。", ["/spectrum-migration"]),
+                ("result-migration", "旧结果只读迁移", "兼容性", ["结果迁移", "PDT", "DAT", "CMT"], "旧结果迁移保留来源哈希与解析诊断。PDT/DAT/CMT 解析失败时修正解析器或输入副本，不修复或覆盖历史原件。", ["/result-migration"]),
+                ("administration", "用户、权限与审计", "系统管理", ["用户", "角色", "权限", "审计"], "用户页管理本地账户和角色；审计页按动作与时间查询不可变事件。权限不足时由管理员授予所需最小权限。", ["/users", "/audit"]),
+                ("errors", "稳定错误码", "故障排查", ["错误码", "error code", "权限", "校验失败"], "在帮助搜索框输入响应中的稳定错误码，系统会解析到所属业务主题。常见前缀包括 METHOD、MIGRATION、DEVICE、ACQUISITION、ANALYSIS、POSTPROCESSING、REPORT、MAINTENANCE、AUTH 和 HELP；先查看错误详情与对应主题，再重试或联系管理员。", ["/help", "/about"]),
+                ("maintenance", "备份与维护", "系统维护", ["备份", "恢复演练", "WAL", "VACUUM", "日志", "临时文件"], "在线备份使用 SQLite backup API，并执行 integrity_check、外键检查、实体计数和 BLOB 抽样哈希校验；恢复只在隔离副本中演练。空间回收、WAL checkpoint、日志轮换和临时文件清理均需要维护权限并留下操作记录。", ["/maintenance"]),
+                ("about", "关于与诊断", "系统维护", ["版本", "构建", "诊断", "许可证"], "关于页显示产品名、版本、API 版本、数据库路径、构建信息和本地诊断。版本与构建元数据来自同一个后端包，不以前端静态文本覆盖。", ["/about"]),
+            )
+            connection.executemany(
+                "INSERT INTO help_topics(slug, title, section, keywords_json, body, related_routes_json, updated_at, enabled) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 1) ON CONFLICT(slug) DO UPDATE SET title=excluded.title, section=excluded.section, keywords_json=excluded.keywords_json, body=excluded.body, related_routes_json=excluded.related_routes_json, updated_at=excluded.updated_at, enabled=1",
+                [
+                    (slug, title, section, json.dumps(keywords, ensure_ascii=False), body, json.dumps(routes, ensure_ascii=False), now)
+                    for slug, title, section, keywords, body, routes in help_topics
+                ],
             )
             connection.executemany(
                 "INSERT INTO app_metadata(key, value, updated_at) VALUES (?, ?, ?) "

@@ -20,3 +20,14 @@ def test_tauri_minimal_capability_and_lifecycle_contract() -> None:
     assert "child.kill()" in rust
     assert "RunEvent::ExitRequested" in rust
     assert "tauri_plugin_dialog::init()" in rust
+    assert "async fn save_export_file(" in rust
+    assert "validate_export(&file_name, &content_type, &bytes)?" in rust
+    assert "blocking_save_file()" in rust
+    assert "write_export_file(&path, &bytes)?" in rust
+    assert "std::fs::write(path, bytes)" in rust
+    assert "generate_handler![runtime_config, save_export_file]" in rust
+    assert '"pdf" => "application/pdf"' in rust
+    assert '"txt" | "log" | "sam" => "text/plain"' in rust
+    assert 'std::env::var("GEOSPECTRUM_DEV_API_BASE")' in rust
+    assert "#[cfg(not(debug_assertions))]\nfn development_api_base()" in rust
+    assert "let Some(port) = port else" in rust

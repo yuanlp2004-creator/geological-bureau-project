@@ -12,7 +12,7 @@ from backend.app.config import _default_data_dir
 def test_default_data_dir_uses_local_app_data(monkeypatch) -> None:
     monkeypatch.delenv("SPECTRUM_DATA_DIR", raising=False)
     monkeypatch.setenv("LOCALAPPDATA", r"C:\\Users\\test\\AppData\\Local")
-    assert _default_data_dir() == Path(r"C:\\Users\\test\\AppData\\Local") / "GeoSpectrum"
+    assert _default_data_dir() == Path(r"C:\\Users\\test\\AppData\\Local") / "cn.geospectrum.desktop"
 
 
 def test_default_data_dir_prefers_explicit_setting(monkeypatch, tmp_path: Path) -> None:

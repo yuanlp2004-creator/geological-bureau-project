@@ -68,24 +68,52 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "analysis.read",
             "analysis.execute",
             "analysis.intervene",
+            "analysis.quality",
+            "analysis.curve",
+            "analysis.print",
+            "postprocessing.read",
+            "postprocessing.write",
+            "postprocessing.execute",
+            "postprocessing.export",
+            "reports.read",
+            "reports.write",
+            "reports.export",
+            "maintenance.read",
+            "maintenance.write",
+            "help.read",
+            "about.read",
         ),
     ),
     (
         "method_administrator",
         "Method administrator",
-        ("settings.read", "runtime-events.read", "methods.read", "methods.write", "migration.read", "migration.write", "devices.read", "dispersion.read", "dispersion.write", "dispersion.execute"),
+        ("settings.read", "runtime-events.read", "methods.read", "methods.write", "migration.read", "migration.write", "devices.read", "dispersion.read", "dispersion.write", "dispersion.execute", "reports.read", "help.read", "about.read"),
     ),
     (
         "analyst",
         "Analyst",
-        ("settings.read", "runtime-events.read", "methods.read", "samples.read", "samples.write", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "acquisition.write", "acquisition.execute", "hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute", "mercury-calibration.read", "analysis.read", "analysis.execute", "analysis.intervene", "reports.write"),
+        ("settings.read", "runtime-events.read", "methods.read", "samples.read", "samples.write", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "acquisition.write", "acquisition.execute", "hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute", "mercury-calibration.read", "analysis.read", "analysis.execute", "analysis.intervene", "analysis.quality", "analysis.curve", "analysis.print", "postprocessing.read", "postprocessing.write", "postprocessing.execute", "postprocessing.export", "reports.read", "reports.write", "reports.export", "help.read", "about.read"),
     ),
     (
         "read_only_auditor",
         "Read-only auditor",
-        ("settings.read", "runtime-events.read", "audit.read", "results.read", "results.export", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "hardware-acquisition.read", "mercury-calibration.read", "analysis.read"),
+        ("settings.read", "runtime-events.read", "audit.read", "results.read", "results.export", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "hardware-acquisition.read", "mercury-calibration.read", "analysis.read", "postprocessing.read", "postprocessing.export", "reports.read", "reports.export", "maintenance.read", "help.read", "about.read"),
     ),
 )
+
+
+def _role_permissions(role_name: str, permission_keys: tuple[str, ...]) -> tuple[str, ...]:
+    if role_name != "system_administrator":
+        return permission_keys
+    from .modules.manifest import registered_manifests
+
+    extension_permissions = {
+        permission
+        for manifest in registered_manifests()
+        if manifest.key.startswith("s21-")
+        for permission in manifest.permissions
+    }
+    return tuple(sorted(set(permission_keys).union(extension_permissions)))
 
 
 def hash_password(password: str) -> str:
@@ -131,6 +159,7 @@ class AuthService:
                 return 0
             changes: list[dict[str, str]] = []
             for role_name, description, permission_keys in BUILTIN_ROLES:
+                permission_keys = _role_permissions(role_name, permission_keys)
                 db.execute(
                     "INSERT OR IGNORE INTO roles(name, description) VALUES (?, ?)",
                     (role_name, description),
@@ -189,6 +218,7 @@ class AuthService:
             user_id = cur.lastrowid
             role_ids: dict[str, int] = {}
             for role_name, description, permission_keys in BUILTIN_ROLES:
+                permission_keys = _role_permissions(role_name, permission_keys)
                 role_cursor = db.execute(
                     "INSERT INTO roles(name, description) VALUES (?, ?)",
                     (role_name, description),
@@ -219,7 +249,7 @@ class AuthService:
                     json.dumps(
                         {
                             "roles": [
-                                {"name": role[0], "permission_keys": list(role[2])}
+                                {"name": role[0], "permission_keys": list(_role_permissions(role[0], role[2]))}
                                 for role in BUILTIN_ROLES
                             ],
                             "password_scheme": "argon2id",

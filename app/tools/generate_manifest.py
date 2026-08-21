@@ -15,7 +15,7 @@ def main() -> int:
     validate_manifests(manifests)
     output = APP_ROOT / "manifest.generated.json"
     output.write_text(
-        json.dumps({"schema_version": 1, "modules": [manifest.to_dict() for manifest in manifests]}, ensure_ascii=False, indent=2) + "\n",
+        json.dumps({"schema_version": 2, "modules": [manifest.to_dict() for manifest in manifests]}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     print(f"wrote {output} ({len(manifests)} modules)")

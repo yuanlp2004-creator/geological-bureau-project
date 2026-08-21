@@ -9,6 +9,8 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
+from importlib.resources import files
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any, Iterator, Protocol
 
@@ -248,15 +250,14 @@ class DeviceAdapter(Protocol):
     def stop_debug(self, *, correlation_id: str) -> DeviceEvent: ...
 
 
-def _bundled_sample(name: str) -> Path:
+def _bundled_sample(name: str) -> Traversable:
     safe_name = Path(name).name
     if safe_name not in {"280-288.acq", "291-299.acq", "303-310.acq"}:
         raise DeviceError("acq_sample_not_allowed", "Only bundled ACQ simulator samples are available", details={"sample": safe_name})
-    root = Path(__file__).resolve().parents[4]
-    path = root / "Spec Source" / "Res" / "模拟数据" / safe_name
-    if not path.exists():
+    resource = files("backend.app.resources.simulator").joinpath(safe_name)
+    if not resource.is_file():
         raise DeviceError("acq_sample_missing", "Bundled ACQ simulator sample is missing", details={"sample": safe_name})
-    return path
+    return resource
 
 
 class AcqSimulatorAdapter:

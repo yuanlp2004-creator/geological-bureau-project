@@ -42,7 +42,7 @@ def _legacy_v10_database(path: Path, points_json: str) -> None:
         )
 
 
-def test_s11_s16_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path: Path) -> None:
+def test_s11_s17_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path: Path) -> None:
     path = tmp_path / "legacy-v10.sqlite3"
     points = [1, 2, 3, 65535]
     _legacy_v10_database(path, json.dumps(points))
@@ -51,7 +51,8 @@ def test_s11_s16_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path:
 
     with sqlite3.connect(path) as db:
         db.row_factory = sqlite3.Row
-        assert [row[0] for row in db.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(range(10, 17))
+        assert [row[0] for row in db.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(range(10, 21))
+        assert all(db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() for name in ("postprocessing_conversion_runs", "postprocessing_recalculation_runs", "postprocessing_exports", "report_templates", "reports", "report_exports", "maintenance_backups", "maintenance_operations", "help_topics"))
         columns = {row[1] for row in db.execute("PRAGMA table_info(dispersion_task_frames)")}
         assert {"points_blob", "points_count", "dtype", "endianness", "compression", "points_sha256", "raw_transfer_sha256", "raw_byte_length"}.issubset(columns)
         assert {"points_json", "sha256", "byte_length"}.isdisjoint(columns)
@@ -66,7 +67,7 @@ def test_s11_s16_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path:
             db.execute("UPDATE dispersion_task_frames SET points_count=3 WHERE id=1")
 
 
-def test_s11_s16_upgrade_failure_rolls_back_schema_and_history(tmp_path: Path) -> None:
+def test_s11_s17_upgrade_failure_rolls_back_schema_and_history(tmp_path: Path) -> None:
     path = tmp_path / "broken-v10.sqlite3"
     _legacy_v10_database(path, "not-json")
 

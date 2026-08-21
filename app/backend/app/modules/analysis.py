@@ -1,12 +1,22 @@
 from __future__ import annotations
 
 import hashlib
+import html
+import io
 import json
 import math
+import re
 import sqlite3
 import struct
 from datetime import datetime, timezone
 from typing import Any
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 from ..db import Database, utc_now
 from .methods import MethodService
@@ -14,6 +24,10 @@ from .spectral_lines import canonical_lines
 
 
 MIN_SIGNAL = 1e-5
+FIT_MODES = {"linear": 1, "quadratic": 2, "cubic": 3, "spline": 3}
+COORDINATE_TYPES = {"normal", "logarithmic"}
+_CURVE_FONT = "GeoSpectrum-Curve-CJK"
+_CURVE_FONT_READY = False
 
 
 class AnalysisError(ValueError):
@@ -43,6 +57,150 @@ def _float32(value: float) -> float:
 def _legacy_floor(value: float) -> float:
     minimum = _float32(MIN_SIGNAL)
     return minimum if value < minimum else _float32(value)
+
+
+def repeat_statistics(values: list[float]) -> dict[str, Any]:
+    """Legacy-compatible repeat statistics used by the S17 QC workflow."""
+
+    numbers = [float(value) for value in values]
+    if any(not math.isfinite(value) for value in numbers):
+        raise AnalysisError("analysis_qc_value_invalid", "重复测量值必须是有限数字", status_code=422)
+    count = len(numbers)
+    if count == 0:
+        return {"effective_count": 0, "mean": None, "minimum": None, "maximum": None, "range": None, "stddev": None, "rsd": None, "id": None}
+    minimum, maximum = min(numbers), max(numbers)
+    mean = sum(numbers) / count
+    stddev = 0.0 if count == 1 else math.sqrt(sum((value - mean) ** 2 for value in numbers) / (count - 1))
+    rsd = 0.0 if stddev == 0 else min(999.0, abs(100.0 * stddev / mean)) if mean != 0 else 999.0
+    identity = 0.0
+    if minimum <= 0:
+        identity = 999.0 if maximum > minimum else 0.0
+    elif maximum > minimum:
+        identity = 21.7147 * math.log(maximum / minimum)
+    return {
+        "effective_count": count,
+        "mean": mean,
+        "minimum": minimum,
+        "maximum": maximum,
+        "range": maximum - minimum,
+        "stddev": stddev,
+        "rsd": rsd,
+        "id": identity,
+    }
+
+
+def _solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]:
+    size = len(vector)
+    augmented = [list(matrix[row]) + [float(vector[row])] for row in range(size)]
+    scale = max((abs(value) for row in matrix for value in row), default=0.0)
+    tolerance = max(1e-14, scale * 1e-12)
+    for column in range(size):
+        pivot = max(range(column, size), key=lambda row: abs(augmented[row][column]))
+        if abs(augmented[pivot][column]) <= tolerance:
+            raise AnalysisError("analysis_curve_ill_conditioned", "标准点矩阵病态，无法稳定拟合", details={"pivot": column})
+        augmented[column], augmented[pivot] = augmented[pivot], augmented[column]
+        divisor = augmented[column][column]
+        augmented[column] = [value / divisor for value in augmented[column]]
+        for row in range(size):
+            if row == column:
+                continue
+            factor = augmented[row][column]
+            augmented[row] = [value - factor * pivot_value for value, pivot_value in zip(augmented[row], augmented[column], strict=True)]
+    return [augmented[row][-1] for row in range(size)]
+
+
+def fit_curve(x_values: list[float], y_values: list[float], mode: str, coordinate_type: str = "normal") -> dict[str, Any]:
+    if mode not in FIT_MODES:
+        raise AnalysisError("analysis_curve_fit_mode_invalid", "拟合方式无效", status_code=422)
+    if coordinate_type not in COORDINATE_TYPES:
+        raise AnalysisError("analysis_curve_coordinate_invalid", "坐标方式无效", status_code=422)
+    if len(x_values) != len(y_values):
+        raise AnalysisError("analysis_curve_shape_invalid", "标准点强度与含量数量不一致", status_code=422)
+    minimum_count = 4
+    if len(x_values) < minimum_count:
+        raise AnalysisError("analysis_curve_points_insufficient", f"{mode} 拟合至少需要 {minimum_count} 个有效标准点", details={"minimum": minimum_count, "actual": len(x_values)})
+    pairs = [(float(x), float(y)) for x, y in zip(x_values, y_values, strict=True)]
+    if any(not math.isfinite(x) or not math.isfinite(y) for x, y in pairs):
+        raise AnalysisError("analysis_curve_value_invalid", "标准点必须是有限数字", status_code=422)
+    if coordinate_type == "logarithmic":
+        if any(x <= 0 or y <= 0 for x, y in pairs):
+            raise AnalysisError("analysis_curve_log_nonpositive", "对数坐标要求强度和含量均大于零")
+        pairs = [(math.log(x), math.log(y)) for x, y in pairs]
+    pairs.sort(key=lambda item: item[0])
+    if any(math.isclose(pairs[index][0], pairs[index - 1][0], rel_tol=0.0, abs_tol=1e-12) for index in range(1, len(pairs))):
+        raise AnalysisError("analysis_curve_duplicate_x", "标准点存在重复强度，无法拟合")
+    xs, ys = map(list, zip(*pairs, strict=True))
+    if mode != "spline":
+        degree = FIT_MODES[mode]
+        matrix = [[sum(x ** (row + column) for x in xs) for column in range(degree + 1)] for row in range(degree + 1)]
+        vector = [sum(y * (x ** row) for x, y in zip(xs, ys, strict=True)) for row in range(degree + 1)]
+        coefficients = [_float32(value) for value in _solve_linear(matrix, vector)]
+        coefficients += [0.0] * (4 - len(coefficients))
+        return {"kind": "polynomial", "coefficients": coefficients, "x": xs, "y": ys}
+
+    count = len(xs)
+    h = [xs[index + 1] - xs[index] for index in range(count - 1)]
+    if any(value <= 1e-12 for value in h):
+        raise AnalysisError("analysis_curve_duplicate_x", "标准点存在重复强度，无法拟合")
+    if count == 2:
+        second = [0.0, 0.0]
+    else:
+        matrix = [[0.0] * (count - 2) for _ in range(count - 2)]
+        vector = [0.0] * (count - 2)
+        for row in range(count - 2):
+            index = row + 1
+            if row > 0:
+                matrix[row][row - 1] = h[index - 1]
+            matrix[row][row] = 2.0 * (h[index - 1] + h[index])
+            if row < count - 3:
+                matrix[row][row + 1] = h[index]
+            vector[row] = 6.0 * ((ys[index + 1] - ys[index]) / h[index] - (ys[index] - ys[index - 1]) / h[index - 1])
+        second = [0.0, *(_float32(value) for value in _solve_linear(matrix, vector)), 0.0]
+    slopes = [_float32((second[index + 1] - second[index]) / h[index]) for index in range(count - 1)]
+    dy = [_float32((ys[index + 1] - ys[index]) / h[index]) for index in range(count - 1)]
+    return {"kind": "spline", "x": xs, "y": ys, "second_derivatives": second, "segment_slopes": slopes, "dy": dy}
+
+
+def evaluate_curve(fit: dict[str, Any], x_value: float, coordinate_type: str = "normal") -> float:
+    x = float(x_value)
+    if coordinate_type == "logarithmic":
+        if x <= 0:
+            raise AnalysisError("analysis_curve_log_nonpositive", "对数坐标不能计算非正强度")
+        x = math.log(x)
+    if fit["kind"] == "polynomial":
+        c0, c1, c2, c3 = (float(value) for value in fit["coefficients"])
+        result = x * (x * (x * c3 + c2) + c1) + c0
+    else:
+        xs = [float(value) for value in fit["x"]]
+        ys = [float(value) for value in fit["y"]]
+        second = [float(value) for value in fit["second_derivatives"]]
+        index = 0
+        while index < len(xs) - 2 and x > xs[index + 1]:
+            index += 1
+        h = x - xs[index]
+        span = xs[index + 1] - xs[index]
+        dy = (ys[index + 1] - ys[index]) / span
+        slope = (second[index + 1] - second[index]) / span
+        result = ys[index] + h * (dy + (x - xs[index + 1]) * (second[index + 1] + 2.0 * second[index] + h * slope) / 6.0)
+    if coordinate_type == "logarithmic":
+        result = math.exp(result)
+    if not math.isfinite(result):
+        raise AnalysisError("analysis_curve_result_invalid", "拟合结果不是有限数字")
+    return result
+
+
+def _curve_font() -> str:
+    global _CURVE_FONT_READY
+    if _CURVE_FONT_READY:
+        return _CURVE_FONT
+    for path in ("C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simhei.ttf", "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"):
+        try:
+            pdfmetrics.registerFont(TTFont(_CURVE_FONT, path))
+            _CURVE_FONT_READY = True
+            return _CURVE_FONT
+        except (OSError, ValueError):
+            continue
+    return "Helvetica"
 
 
 def legacy_gaussian(values: list[float]) -> dict[str, float | int | bool | None]:
@@ -239,7 +397,7 @@ class AnalysisService:
             now = utc_now()
             cursor = db.execute(
                 "INSERT INTO analysis_runs(name, method_id, method_version_id, method_version, calculation_profile, slow_mode, intervention_timeout_seconds, input_snapshot_json, input_sha256, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (str(payload.get("name") or "S16 定量分析").strip(), method["id"], version["id"], version["version"], profile, int(bool(payload.get("slow_mode"))), float(payload.get("intervention_timeout_seconds", 300)), _json(snapshot), _sha(snapshot), self._actor(db, actor_user_id), now, now),
+                (str(payload.get("name") or "S17 定量与曲线分析").strip(), method["id"], version["id"], version["version"], profile, int(bool(payload.get("slow_mode"))), float(payload.get("intervention_timeout_seconds", 300)), _json(snapshot), _sha(snapshot), self._actor(db, actor_user_id), now, now),
             )
             run_id = int(cursor.lastrowid)
             for position, row in enumerate(ordered):
@@ -472,6 +630,496 @@ class AnalysisService:
             self._audit(db, self._actor(db, actor_user_id), "analysis.run.cancel", run_id, {})
         return self.run(run_id)
 
+    @staticmethod
+    def _standard_index(name: str) -> int | None:
+        match = re.fullmatch(r"S([0-9]+)", name.strip(), flags=re.IGNORECASE)
+        if match is None:
+            return None
+        number = int(match.group(1))
+        return number - 1 if 1 <= number <= 50 else None
+
+    @staticmethod
+    def _analysis_lines(payload: dict[str, Any]) -> list[dict[str, Any]]:
+        return [line for line in canonical_lines(payload.get("lines"), payload.get("conditions", {})) if line.get("enabled") and line.get("line_type") == "analysis"]
+
+    def _qc_groups(self, db: sqlite3.Connection, run_id: int, payload: dict[str, Any]) -> list[dict[str, Any]]:
+        conditions = payload.get("conditions", {})
+        latest: dict[int, sqlite3.Row] = {}
+        accepted: set[tuple[int, str]] = set()
+        for decision in db.execute("SELECT * FROM analysis_qc_decisions WHERE run_id=? ORDER BY id", (run_id,)).fetchall():
+            if decision["line_result_id"] is None:
+                if decision["action"] == "accept":
+                    accepted.add((int(decision["acquisition_task_id"]), str(decision["line_id"])))
+            else:
+                latest[int(decision["line_result_id"])] = decision
+        rows = db.execute(
+            "SELECT lr.id AS line_result_id, lr.line_id, lr.element, lr.wavelength_nm, lr.quantitative_signal, lr.result_sha256 AS source_sha256, "
+            "ars.sample_name, ars.position AS sample_position, s.repeat_index, s.sample_kind, s.task_id AS acquisition_task_id "
+            "FROM analysis_line_results lr JOIN analysis_run_samples ars ON ars.run_id=lr.run_id AND ars.position=lr.sample_position "
+            "JOIN acquisition_samples s ON s.id=ars.acquisition_sample_id "
+            "WHERE lr.run_id=? AND lr.line_type='analysis' ORDER BY s.task_id, lr.line_position, s.repeat_index",
+            (run_id,),
+        ).fetchall()
+        grouped: dict[tuple[int, str], list[sqlite3.Row]] = {}
+        for row in rows:
+            grouped.setdefault((int(row["acquisition_task_id"]), str(row["line_id"])), []).append(row)
+        groups: list[dict[str, Any]] = []
+        for (task_id, line_id), members in grouped.items():
+            member_payload: list[dict[str, Any]] = []
+            included_values: list[float] = []
+            for row in members:
+                decision = latest.get(int(row["line_result_id"]))
+                included = True if decision is None else bool(decision["after_included"])
+                value = float(row["quantitative_signal"])
+                if included:
+                    included_values.append(value)
+                member_payload.append({
+                    "line_result_id": int(row["line_result_id"]), "sample_position": int(row["sample_position"]),
+                    "repeat_index": int(row["repeat_index"]), "value": value, "included": included,
+                    "source_sha256": row["source_sha256"], "last_decision_id": int(decision["id"]) if decision else None,
+                })
+            stats = repeat_statistics(included_values)
+            warnings: list[dict[str, Any]] = []
+            if stats["effective_count"] == 0:
+                warnings.append({"code": "analysis_qc_no_effective_repeat", "message": "全部重复已剔除，无法形成有效均值"})
+            elif stats["effective_count"] == 1 and len(members) > 1:
+                warnings.append({"code": "analysis_qc_single_effective_repeat", "message": "仅剩一个有效重复，标准差和 RSD 为零"})
+            if stats["id"] is not None and stats["id"] > float(conditions.get("maximum_id_deviation", 5.0)):
+                warnings.append({"code": "analysis_qc_id_exceeded", "message": "重复测量 ID 超过方法阈值", "actual": stats["id"], "threshold": float(conditions.get("maximum_id_deviation", 5.0))})
+            if bool(conditions.get("rsd_enabled", True)) and stats["rsd"] is not None and stats["rsd"] > float(conditions.get("rsd_threshold", 5.0)):
+                warnings.append({"code": "analysis_qc_rsd_exceeded", "message": "重复测量 RSD 超过方法阈值", "actual": stats["rsd"], "threshold": float(conditions.get("rsd_threshold", 5.0))})
+            first = members[0]
+            sample_name = str(first["sample_name"])
+            groups.append({
+                "acquisition_task_id": task_id, "sample_name": sample_name, "sample_kind": first["sample_kind"],
+                "standard_index": self._standard_index(sample_name), "line_id": line_id, "element": first["element"],
+                "wavelength_nm": float(first["wavelength_nm"]), "repeat_count": len(members), "members": member_payload,
+                "statistics": stats, "warnings": warnings, "warning_accepted": (task_id, line_id) in accepted,
+            })
+        return groups
+
+    def _write_qc_snapshot(self, db: sqlite3.Connection, run_id: int, payload: dict[str, Any], actor_user_id: int | None) -> int:
+        groups = self._qc_groups(db, run_id, payload)
+        sequence = int(db.execute("SELECT COALESCE(MAX(sequence),0)+1 FROM analysis_qc_snapshots WHERE run_id=?", (run_id,)).fetchone()[0])
+        publishable = bool(groups) and all(group["statistics"]["effective_count"] > 0 for group in groups)
+        snapshot = {"sequence": sequence, "groups": groups, "publishable": publishable}
+        cursor = db.execute(
+            "INSERT INTO analysis_qc_snapshots(run_id, sequence, groups_json, publishable, result_sha256, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (run_id, sequence, _json(groups), int(publishable), _sha(snapshot), self._actor(db, actor_user_id), utc_now()),
+        )
+        return int(cursor.lastrowid)
+
+    def build_quality(self, run_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_qc_run_incomplete", "只有已完成的定量分析可以进入重复质控")
+            snapshot_id = self._write_qc_snapshot(db, run_id, payload, actor_user_id)
+            self._audit(db, self._actor(db, actor_user_id), "analysis.qc.recalculate", run_id, {"qc_snapshot_id": snapshot_id})
+        return self.run(run_id)
+
+    def decide_quality(self, run_id: int, request: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        action = str(request.get("action"))
+        task_id, line_id = int(request["acquisition_task_id"]), str(request["line_id"])
+        line_result_id = request.get("line_result_id")
+        reason = str(request.get("reason") or "").strip()
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_qc_run_incomplete", "只有已完成的定量分析可以进行重复质控")
+            groups = self._qc_groups(db, run_id, payload)
+            group = next((item for item in groups if item["acquisition_task_id"] == task_id and item["line_id"] == line_id), None)
+            if group is None:
+                raise AnalysisError("analysis_qc_group_not_found", "重复质控组不存在", status_code=404)
+            before: bool | None = None
+            after: bool | None = None
+            if action == "accept":
+                if line_result_id is not None:
+                    raise AnalysisError("analysis_qc_accept_scope_invalid", "接受提示是组级操作，不能指定重复记录", status_code=422)
+            else:
+                member = next((item for item in group["members"] if item["line_result_id"] == line_result_id), None)
+                if member is None:
+                    raise AnalysisError("analysis_qc_member_not_found", "重复测量记录不存在", status_code=404)
+                before = bool(member["included"])
+                after = action == "restore"
+                if action == "exclude" and not before:
+                    raise AnalysisError("analysis_qc_already_excluded", "该重复已经被剔除")
+                if action == "restore" and before:
+                    raise AnalysisError("analysis_qc_already_included", "该重复当前已有效")
+            cursor = db.execute(
+                "INSERT INTO analysis_qc_decisions(run_id, acquisition_task_id, line_id, line_result_id, action, before_included, after_included, reason, actor_user_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (run_id, task_id, line_id, line_result_id, action, None if before is None else int(before), None if after is None else int(after), reason, self._actor(db, actor_user_id), utc_now()),
+            )
+            snapshot_id = self._write_qc_snapshot(db, run_id, payload, actor_user_id)
+            self._audit(db, self._actor(db, actor_user_id), f"analysis.qc.{action}", run_id, {"decision_id": int(cursor.lastrowid), "qc_snapshot_id": snapshot_id, "acquisition_task_id": task_id, "line_id": line_id, "line_result_id": line_result_id, "reason": reason})
+        return self.run(run_id)
+
+    @staticmethod
+    def _latest_qc(db: sqlite3.Connection, run_id: int) -> sqlite3.Row:
+        row = db.execute("SELECT * FROM analysis_qc_snapshots WHERE run_id=? ORDER BY sequence DESC LIMIT 1", (run_id,)).fetchone()
+        if row is None:
+            raise AnalysisError("analysis_qc_missing", "请先计算重复测量质控")
+        return row
+
+    def _base_curve_points(self, line: dict[str, Any], qc: sqlite3.Row) -> list[dict[str, Any]]:
+        groups = json.loads(qc["groups_json"])
+        by_name: dict[str, dict[str, Any]] = {}
+        for group in groups:
+            if group["line_id"] == str(line.get("id")) and group.get("sample_kind") == "standard":
+                by_name[str(group.get("sample_name") or "").strip().casefold()] = group
+        points: list[dict[str, Any]] = []
+        for index, standard in enumerate(line.get("standard_points") or []):
+            name = str(standard.get("name") or f"S{index + 1}").strip()
+            group = by_name.get(name.casefold())
+            mean = group["statistics"]["mean"] if group else None
+            points.append({
+                "point_index": index, "name": name, "standard_value": float(standard["value"]),
+                "original_intensity": mean, "adjusted_intensity": mean,
+                "original_active": bool(standard.get("active", True)), "active": bool(standard.get("active", True)),
+                "qc_group": {"acquisition_task_id": group["acquisition_task_id"], "effective_count": group["statistics"]["effective_count"]} if group else None,
+            })
+        return points
+
+    def _curve_workspace(self, db: sqlite3.Connection, run_id: int, line: dict[str, Any], qc: sqlite3.Row) -> dict[str, Any]:
+        latest = db.execute("SELECT * FROM analysis_curve_adjustment_sets WHERE run_id=? AND line_id=? AND qc_snapshot_id=? ORDER BY sequence DESC LIMIT 1", (run_id, str(line["id"]), qc["id"])).fetchone()
+        if latest is None:
+            return {"fit_mode": line.get("fit_mode", "linear"), "coordinate_type": line.get("coordinate_type", "normal"), "points": self._base_curve_points(line, qc), "adjustment_set_id": None, "sequence": 0}
+        return {"fit_mode": latest["fit_mode"], "coordinate_type": latest["coordinate_type"], "points": json.loads(latest["points_json"]), "adjustment_set_id": int(latest["id"]), "sequence": int(latest["sequence"])}
+
+    def _save_workspace(self, db: sqlite3.Connection, run_id: int, line_id: str, qc_id: int, workspace: dict[str, Any], actor_user_id: int | None) -> int:
+        sequence = int(db.execute("SELECT COALESCE(MAX(sequence),0)+1 FROM analysis_curve_adjustment_sets WHERE run_id=? AND line_id=?", (run_id, line_id)).fetchone()[0])
+        stored = {"fit_mode": workspace["fit_mode"], "coordinate_type": workspace["coordinate_type"], "points": workspace["points"]}
+        cursor = db.execute(
+            "INSERT INTO analysis_curve_adjustment_sets(run_id, line_id, qc_snapshot_id, sequence, fit_mode, coordinate_type, points_json, workspace_sha256, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (run_id, line_id, qc_id, sequence, workspace["fit_mode"], workspace["coordinate_type"], _json(workspace["points"]), _sha(stored), self._actor(db, actor_user_id), utc_now()),
+        )
+        return int(cursor.lastrowid)
+
+    def curve_action(self, run_id: int, line_id: str, request: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        action, reason = str(request["action"]), str(request.get("reason") or "").strip()
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_curve_run_incomplete", "只有已完成的分析可以调整标准曲线")
+            line = next((item for item in self._analysis_lines(payload) if str(item["id"]) == line_id), None)
+            if line is None:
+                raise AnalysisError("analysis_curve_line_not_found", "分析线不存在", status_code=404)
+            qc = self._latest_qc(db, run_id)
+            workspace = self._curve_workspace(db, run_id, line, qc)
+            before = {"fit_mode": workspace["fit_mode"], "coordinate_type": workspace["coordinate_type"], "points": json.loads(_json(workspace["points"]))}
+            index = request.get("point_index")
+            point = None if index is None else next((item for item in workspace["points"] if item["point_index"] == int(index)), None)
+            if action == "set_fit":
+                if request.get("fit_mode") not in FIT_MODES:
+                    raise AnalysisError("analysis_curve_fit_mode_invalid", "拟合方式无效", status_code=422)
+                workspace["fit_mode"] = request["fit_mode"]
+            elif action == "set_coordinate":
+                if request.get("coordinate_type") not in COORDINATE_TYPES:
+                    raise AnalysisError("analysis_curve_coordinate_invalid", "坐标方式无效", status_code=422)
+                workspace["coordinate_type"] = request["coordinate_type"]
+            elif action in {"set_active", "adjust", "restore"}:
+                if point is None:
+                    raise AnalysisError("analysis_curve_point_not_found", "标准点不存在", status_code=404)
+                if action == "set_active":
+                    if request.get("active") is None:
+                        raise AnalysisError("analysis_curve_active_required", "必须提供标准点启用状态", status_code=422)
+                    point["active"] = bool(request["active"])
+                elif action == "adjust":
+                    value = request.get("adjusted_intensity")
+                    if value is None or not math.isfinite(float(value)):
+                        raise AnalysisError("analysis_curve_adjustment_invalid", "修正强度必须是有限数字", status_code=422)
+                    point["adjusted_intensity"] = float(value)
+                else:
+                    point["adjusted_intensity"] = point["original_intensity"]
+            elif action == "restore_all":
+                for item in workspace["points"]:
+                    item["adjusted_intensity"] = item["original_intensity"]
+                    item["active"] = item["original_active"]
+            else:
+                raise AnalysisError("analysis_curve_action_invalid", "曲线调整动作无效", status_code=422)
+            after = {"fit_mode": workspace["fit_mode"], "coordinate_type": workspace["coordinate_type"], "points": workspace["points"]}
+            adjustment_id = self._save_workspace(db, run_id, line_id, int(qc["id"]), workspace, actor_user_id)
+            cursor = db.execute(
+                "INSERT INTO analysis_curve_actions(run_id, line_id, qc_snapshot_id, action, point_index, before_json, after_json, reason, actor_user_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (run_id, line_id, qc["id"], action, index, _json(before), _json(after), reason, self._actor(db, actor_user_id), utc_now()),
+            )
+            self._audit(db, self._actor(db, actor_user_id), f"analysis.curve.{action}", run_id, {"line_id": line_id, "action_id": int(cursor.lastrowid), "adjustment_set_id": adjustment_id, "qc_snapshot_id": int(qc["id"]), "reason": reason})
+        return self.run(run_id)
+
+    @staticmethod
+    def _fit_diagnostics(fit: dict[str, Any], points: list[dict[str, Any]], coordinate_type: str) -> dict[str, Any]:
+        rows: list[dict[str, Any]] = []
+        for point in points:
+            calculated = evaluate_curve(fit, float(point["adjusted_intensity"]), coordinate_type)
+            expected = float(point["standard_value"])
+            rows.append({**point, "calculated_value": calculated, "residual": calculated - expected, "relative_error_percent": None if expected == 0 else 100.0 * (calculated - expected) / expected})
+        expected_values = [float(item["standard_value"]) for item in rows]
+        calculated_values = [float(item["calculated_value"]) for item in rows]
+        mean_x, mean_y = sum(expected_values) / len(rows), sum(calculated_values) / len(rows)
+        numerator = sum((x - mean_x) * (y - mean_y) for x, y in zip(expected_values, calculated_values, strict=True))
+        denominator = math.sqrt(sum((x - mean_x) ** 2 for x in expected_values) * sum((y - mean_y) ** 2 for y in calculated_values))
+        return {"points": rows, "correlation": None if denominator == 0 else numerator / denominator, "rmse": math.sqrt(sum(item["residual"] ** 2 for item in rows) / len(rows)), "maximum_absolute_error": max(abs(item["residual"]) for item in rows)}
+
+    def fit_standard_curve(self, run_id: int, line_id: str, request: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_curve_run_incomplete", "只有已完成的分析可以拟合标准曲线")
+            line = next((item for item in self._analysis_lines(payload) if str(item["id"]) == line_id), None)
+            if line is None:
+                raise AnalysisError("analysis_curve_line_not_found", "分析线不存在", status_code=404)
+            qc = self._latest_qc(db, run_id)
+            workspace = self._curve_workspace(db, run_id, line, qc)
+            fit_mode = request.get("fit_mode") or workspace["fit_mode"]
+            coordinate_type = request.get("coordinate_type") or workspace["coordinate_type"]
+            if fit_mode != workspace["fit_mode"] or coordinate_type != workspace["coordinate_type"]:
+                workspace["adjustment_set_id"] = None
+            workspace["fit_mode"] = fit_mode
+            workspace["coordinate_type"] = coordinate_type
+            active = [item for item in workspace["points"] if item["active"] and item["adjusted_intensity"] is not None]
+            fit = fit_curve([item["adjusted_intensity"] for item in active], [item["standard_value"] for item in active], workspace["fit_mode"], workspace["coordinate_type"])
+            diagnostics = self._fit_diagnostics(fit, active, workspace["coordinate_type"])
+            adjustment_id = workspace["adjustment_set_id"] or self._save_workspace(db, run_id, line_id, int(qc["id"]), workspace, actor_user_id)
+            minimum_x, maximum_x = min(float(item["adjusted_intensity"]) for item in active), max(float(item["adjusted_intensity"]) for item in active)
+            chart = [{"intensity": minimum_x + (maximum_x - minimum_x) * index / 120, "value": evaluate_curve(fit, minimum_x + (maximum_x - minimum_x) * index / 120, workspace["coordinate_type"])} for index in range(121)]
+            sequence = int(db.execute("SELECT COALESCE(MAX(sequence),0)+1 FROM analysis_curve_snapshots WHERE run_id=? AND line_id=?", (run_id, line_id)).fetchone()[0])
+            snapshot = {"run_id": run_id, "line_id": line_id, "qc_snapshot_id": int(qc["id"]), "adjustment_set_id": adjustment_id, "sequence": sequence, "fit_mode": workspace["fit_mode"], "coordinate_type": workspace["coordinate_type"], "points": workspace["points"], "fit": fit, "diagnostics": diagnostics, "chart": chart, "publishable": bool(qc["publishable"])}
+            cursor = db.execute(
+                "INSERT INTO analysis_curve_snapshots(run_id, line_id, qc_snapshot_id, adjustment_set_id, sequence, fit_mode, coordinate_type, points_json, fit_json, diagnostics_json, chart_json, publishable, result_sha256, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (run_id, line_id, qc["id"], adjustment_id, sequence, workspace["fit_mode"], workspace["coordinate_type"], _json(workspace["points"]), _json(fit), _json(diagnostics), _json(chart), int(bool(qc["publishable"])), _sha(snapshot), self._actor(db, actor_user_id), utc_now()),
+            )
+            snapshot_id = int(cursor.lastrowid)
+            self._audit(db, self._actor(db, actor_user_id), "analysis.curve.fit", run_id, {"line_id": line_id, "curve_snapshot_id": snapshot_id, "fit_mode": workspace["fit_mode"], "coordinate_type": workspace["coordinate_type"], "qc_snapshot_id": int(qc["id"]), "reason": request.get("reason")})
+        return self.run(run_id)
+
+    @staticmethod
+    def _curve_row(row: sqlite3.Row) -> dict[str, Any]:
+        item = dict(row)
+        for field in ("points_json", "fit_json", "diagnostics_json", "chart_json"):
+            item[field.removesuffix("_json")] = json.loads(item.pop(field))
+        item["publishable"] = bool(item["publishable"])
+        return item
+
+    def curve_evaluators(self, snapshot_ids: list[int], method_version_id: int, calculation_profile: str) -> dict[str, dict[str, Any]]:
+        """Return immutable, version-checked curve evaluators for another application service."""
+
+        requested = list(dict.fromkeys(int(value) for value in snapshot_ids))
+        if not requested:
+            raise AnalysisError("analysis_curve_selection_empty", "精确重算至少需要选择一个曲线快照")
+        evaluators: dict[str, dict[str, Any]] = {}
+        with self.database.read() as db:
+            for snapshot_id in requested:
+                row = db.execute(
+                    "SELECT cs.*, ar.method_version_id, ar.calculation_profile "
+                    "FROM analysis_curve_snapshots cs JOIN analysis_runs ar ON ar.id=cs.run_id WHERE cs.id=?",
+                    (snapshot_id,),
+                ).fetchone()
+                if row is None:
+                    raise AnalysisError("analysis_curve_snapshot_not_found", "曲线快照不存在", status_code=404, details={"curve_snapshot_id": snapshot_id})
+                if int(row["method_version_id"]) != int(method_version_id):
+                    raise AnalysisError(
+                        "analysis_curve_method_mismatch",
+                        "曲线快照与目标方法版本不一致",
+                        details={"curve_snapshot_id": snapshot_id, "curve_method_version_id": int(row["method_version_id"]), "method_version_id": int(method_version_id)},
+                    )
+                if str(row["calculation_profile"]) != str(calculation_profile):
+                    raise AnalysisError(
+                        "analysis_curve_profile_mismatch",
+                        "曲线快照与目标计算档案不一致",
+                        details={"curve_snapshot_id": snapshot_id, "curve_profile": row["calculation_profile"], "calculation_profile": calculation_profile},
+                    )
+                if not bool(row["publishable"]):
+                    raise AnalysisError("analysis_curve_not_publishable", "所选曲线快照不可发布", details={"curve_snapshot_id": snapshot_id})
+                line_id = str(row["line_id"])
+                if line_id in evaluators:
+                    raise AnalysisError("analysis_curve_duplicate_line", "同一谱线只能选择一个曲线快照", details={"line_id": line_id})
+                evaluators[line_id] = {
+                    "curve_snapshot_id": snapshot_id,
+                    "line_id": line_id,
+                    "fit": json.loads(row["fit_json"]),
+                    "coordinate_type": str(row["coordinate_type"]),
+                    "result_sha256": str(row["result_sha256"]),
+                }
+        return evaluators
+
+    def publish_standard_curve(self, run_id: int, line_id: str, curve_snapshot_id: int, reason: str, actor_user_id: int | None = None) -> dict[str, Any]:
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_curve_run_incomplete", "只有已完成的分析可以发布标准曲线")
+            curve = db.execute("SELECT * FROM analysis_curve_snapshots WHERE id=? AND run_id=? AND line_id=?", (curve_snapshot_id, run_id, line_id)).fetchone()
+            if curve is None:
+                raise AnalysisError("analysis_curve_snapshot_not_found", "曲线快照不存在", status_code=404)
+            latest_qc = self._latest_qc(db, run_id)
+            if int(curve["qc_snapshot_id"]) != int(latest_qc["id"]):
+                raise AnalysisError("analysis_curve_qc_stale", "质控决定已变化，请基于最新质控重新拟合")
+            if not curve["publishable"] or not latest_qc["publishable"]:
+                raise AnalysisError("analysis_curve_not_publishable", "当前质控或拟合结果不可发布")
+            fit, coordinate_type = json.loads(curve["fit_json"]), str(curve["coordinate_type"])
+            groups = [item for item in json.loads(latest_qc["groups_json"]) if item["line_id"] == line_id]
+            if not groups or any(item["statistics"]["effective_count"] <= 0 for item in groups):
+                raise AnalysisError("analysis_curve_effective_repeats_insufficient", "存在没有有效重复的样品，不能发布曲线")
+            line = next((item for item in self._analysis_lines(payload) if str(item["id"]) == line_id), None)
+            if line is None:
+                raise AnalysisError("analysis_curve_line_not_found", "分析线不存在", status_code=404)
+            standards = line.get("standard_points") or []
+            standard_values = {
+                str(item.get("name") or f"S{index + 1}").strip().casefold(): float(item["value"])
+                for index, item in enumerate(standards)
+            }
+            for group in groups:
+                intensity = float(group["statistics"]["mean"])
+                calculated = evaluate_curve(fit, intensity, coordinate_type)
+                standard_value = standard_values.get(str(group["sample_name"]).strip().casefold()) if group["sample_kind"] == "standard" else None
+                is_standard = standard_value is not None
+                result = {"curve_snapshot_id": curve_snapshot_id, "acquisition_task_id": group["acquisition_task_id"], "sample_name": group["sample_name"], "sample_kind": group["sample_kind"], "is_standard": is_standard, "standard_value": standard_value, "effective_count": group["statistics"]["effective_count"], "intensity": intensity, "calculated_value": calculated}
+                db.execute(
+                    "INSERT OR IGNORE INTO analysis_curve_results(run_id, curve_snapshot_id, acquisition_task_id, sample_name, sample_kind, is_standard, standard_value, effective_count, intensity, calculated_value, result_sha256, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (run_id, curve_snapshot_id, group["acquisition_task_id"], group["sample_name"], group["sample_kind"], int(is_standard), standard_value, group["statistics"]["effective_count"], intensity, calculated, _sha(result), utc_now()),
+                )
+            db.execute(
+                "INSERT INTO analysis_active_curves(run_id, line_id, curve_snapshot_id, updated_by, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(run_id,line_id) DO UPDATE SET curve_snapshot_id=excluded.curve_snapshot_id, updated_by=excluded.updated_by, updated_at=excluded.updated_at",
+                (run_id, line_id, curve_snapshot_id, self._actor(db, actor_user_id), utc_now()),
+            )
+            self._audit(db, self._actor(db, actor_user_id), "analysis.curve.publish", run_id, {"line_id": line_id, "curve_snapshot_id": curve_snapshot_id, "result_sha256": curve["result_sha256"], "reason": reason})
+        return self.run(run_id)
+
+    def merge_results(self, run_id: int, reason: str, actor_user_id: int | None = None) -> dict[str, Any]:
+        with self.database.write() as db:
+            run, payload, _ = self._context(db, run_id)
+            if run["status"] != "completed":
+                raise AnalysisError("analysis_merge_run_incomplete", "只有已完成的分析可以合并结果")
+            lines = self._analysis_lines(payload)
+            active_rows = db.execute("SELECT ac.line_id, ac.curve_snapshot_id FROM analysis_active_curves ac WHERE ac.run_id=?", (run_id,)).fetchall()
+            active = {str(row["line_id"]): int(row["curve_snapshot_id"]) for row in active_rows}
+            missing = [str(line["id"]) for line in lines if str(line["id"]) not in active]
+            if missing:
+                raise AnalysisError("analysis_merge_curves_missing", "所有分析线必须先发布曲线", details={"line_ids": missing})
+            candidates: dict[tuple[int, str], list[dict[str, Any]]] = {}
+            sample_meta: dict[int, dict[str, Any]] = {}
+            line_by_id = {str(line["id"]): line for line in lines}
+            for line_id, snapshot_id in active.items():
+                for row in db.execute("SELECT * FROM analysis_curve_results WHERE curve_snapshot_id=? AND is_standard=0 ORDER BY acquisition_task_id", (snapshot_id,)).fetchall():
+                    task_id = int(row["acquisition_task_id"])
+                    line = line_by_id[line_id]
+                    sample_meta[task_id] = {"acquisition_task_id": task_id, "sample_name": row["sample_name"], "sample_kind": row["sample_kind"]}
+                    candidates.setdefault((task_id, str(line["element"])), []).append({
+                        "line_id": line_id, "wavelength_nm": float(line["wavelength_nm"]), "curve_snapshot_id": snapshot_id,
+                        "value": float(row["calculated_value"]), "intensity": float(row["intensity"]),
+                        "valid_range_min": float(line.get("valid_range_min", 0)), "valid_range_max": float(line.get("valid_range_max", 9_999_999)),
+                        "line_order": int(line.get("order", 0)),
+                    })
+            merged_samples: list[dict[str, Any]] = []
+            for task_id in sorted(sample_meta):
+                values: list[dict[str, Any]] = []
+                for (candidate_task, element), items in sorted(candidates.items(), key=lambda entry: (entry[0][0], min(item["line_order"] for item in entry[1]))):
+                    if candidate_task != task_id:
+                        continue
+                    items.sort(key=lambda item: item["line_order"])
+                    selected = next((item for item in items if item["valid_range_min"] <= item["value"] <= item["valid_range_max"]), items[-1])
+                    values.append({"element": element, **{key: value for key, value in selected.items() if key != "line_order"}, "candidate_count": len(items)})
+                merged_samples.append({**sample_meta[task_id], "values": values})
+            curve_ids = [active[str(line["id"])] for line in lines]
+            sequence = int(db.execute("SELECT COALESCE(MAX(sequence),0)+1 FROM analysis_result_merges WHERE run_id=?", (run_id,)).fetchone()[0])
+            snapshot = {"sequence": sequence, "curve_snapshot_ids": curve_ids, "results": merged_samples}
+            cursor = db.execute(
+                "INSERT INTO analysis_result_merges(run_id, sequence, curve_snapshot_ids_json, results_json, result_sha256, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (run_id, sequence, _json(curve_ids), _json(merged_samples), _sha(snapshot), self._actor(db, actor_user_id), utc_now()),
+            )
+            merge_id = int(cursor.lastrowid)
+            self._audit(db, self._actor(db, actor_user_id), "analysis.results.merge", run_id, {"merge_id": merge_id, "curve_snapshot_ids": curve_ids, "sample_count": len(merged_samples), "reason": reason})
+        return self.run(run_id)
+
+    @staticmethod
+    def _curve_preview_html(curve: dict[str, Any], mode: str) -> str:
+        title = f"{curve['line_id']} · {curve['fit_mode']} / {curve['coordinate_type']}"
+        diagnostics = curve["diagnostics"]
+        if mode == "text":
+            rows = "".join(
+                f"<tr><td>{int(item['point_index']) + 1}</td><td>{html.escape(str(item['name']))}</td><td>{float(item['original_intensity']):.8g}</td><td>{float(item['adjusted_intensity']):.8g}</td><td>{float(item['standard_value']):.8g}</td><td>{float(item['calculated_value']):.8g}</td><td>{float(item['residual']):.5g}</td></tr>"
+                for item in diagnostics["points"]
+            )
+            content = f"<table><thead><tr><th>#</th><th>标准点</th><th>原始强度</th><th>修正强度</th><th>标准值</th><th>计算值</th><th>残差</th></tr></thead><tbody>{rows}</tbody></table>"
+        else:
+            chart = curve["chart"]
+            points = diagnostics["points"]
+            all_x = [float(item["intensity"]) for item in chart] + [float(item["adjusted_intensity"]) for item in points]
+            all_y = [float(item["value"]) for item in chart] + [float(item["standard_value"]) for item in points]
+            min_x, max_x = min(all_x), max(all_x); min_y, max_y = min(all_y), max(all_y)
+            span_x, span_y = max(max_x - min_x, 1e-12), max(max_y - min_y, 1e-12)
+            polyline = " ".join(f"{40 + 820 * (float(item['intensity']) - min_x) / span_x:.2f},{300 - 260 * (float(item['value']) - min_y) / span_y:.2f}" for item in chart)
+            circles = "".join(f"<circle cx='{40 + 820 * (float(item['adjusted_intensity']) - min_x) / span_x:.2f}' cy='{300 - 260 * (float(item['standard_value']) - min_y) / span_y:.2f}' r='5'/>" for item in points)
+            content = f"<svg viewBox='0 0 900 340' role='img' aria-label='标准曲线'><rect x='40' y='40' width='820' height='260'/><polyline points='{polyline}'/>{circles}</svg>"
+        return f"""<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><title>{html.escape(title)}</title><style>@page{{size:A4 landscape;margin:14mm}}*{{box-sizing:border-box}}body{{font-family:'Microsoft YaHei',sans-serif;color:#263d4d;margin:22px}}header{{border-bottom:2px solid #2b7d87;margin-bottom:18px;padding-bottom:10px}}h1{{font-size:22px;margin:0 0 5px}}small{{color:#71818d}}table{{width:100%;border-collapse:collapse}}th,td{{border-bottom:1px solid #dfe7eb;padding:8px;text-align:right}}th:nth-child(2),td:nth-child(2){{text-align:left}}svg{{width:100%;height:auto;background:#f8fafb}}svg rect{{fill:#fff;stroke:#9fb2bd}}polyline{{fill:none;stroke:#267d88;stroke-width:2.4}}circle{{fill:#ed8c4a;stroke:#fff;stroke-width:2}}footer{{margin-top:14px;color:#768590}}@media print{{body{{margin:0}}}}</style></head><body><header><h1>{html.escape(title)}</h1><small>曲线快照 #{curve['id']} · SHA-256 {curve['result_sha256']}</small></header>{content}<footer>相关系数 {diagnostics.get('correlation') if diagnostics.get('correlation') is not None else '—'} · RMSE {diagnostics['rmse']:.8g}</footer></body></html>"""
+
+    def _curve_pdf(self, curve: dict[str, Any], mode: str) -> bytes:
+        font = _curve_font()
+        output = io.BytesIO()
+        width, height = landscape(A4)
+        pdf = canvas.Canvas(output, pagesize=(width, height), pageCompression=1, invariant=1)
+        pdf.setTitle(f"GeoSpectrum 标准曲线 {curve['line_id']}")
+        pdf.setFont(font, 16); pdf.setFillColor(colors.HexColor("#245f69")); pdf.drawString(18 * mm, height - 18 * mm, "GeoSpectrum 标准曲线")
+        pdf.setFont(font, 9); pdf.setFillColor(colors.HexColor("#637986")); pdf.drawString(18 * mm, height - 25 * mm, f"{curve['line_id']}  ·  {curve['fit_mode']} / {curve['coordinate_type']}  ·  快照 #{curve['id']}")
+        if mode == "text":
+            y = height - 38 * mm
+            headers = ("#", "标准点", "原始强度", "修正强度", "标准值", "计算值", "残差")
+            xs = (18, 31, 68, 105, 142, 177, 212)
+            pdf.setFont(font, 8.5); pdf.setFillColor(colors.HexColor("#405969"))
+            for x, label in zip(xs, headers, strict=True): pdf.drawString(x * mm, y, label)
+            y -= 6 * mm
+            for item in curve["diagnostics"]["points"]:
+                values = (str(int(item["point_index"]) + 1), str(item["name"]), f"{item['original_intensity']:.8g}", f"{item['adjusted_intensity']:.8g}", f"{item['standard_value']:.8g}", f"{item['calculated_value']:.8g}", f"{item['residual']:.5g}")
+                for x, value in zip(xs, values, strict=True): pdf.drawString(x * mm, y, value)
+                y -= 6 * mm
+        else:
+            chart, points = curve["chart"], curve["diagnostics"]["points"]
+            all_x = [float(item["intensity"]) for item in chart] + [float(item["adjusted_intensity"]) for item in points]
+            all_y = [float(item["value"]) for item in chart] + [float(item["standard_value"]) for item in points]
+            min_x, max_x, min_y, max_y = min(all_x), max(all_x), min(all_y), max(all_y)
+            span_x, span_y = max(max_x - min_x, 1e-12), max(max_y - min_y, 1e-12)
+            left, bottom, plot_width, plot_height = 24 * mm, 27 * mm, width - 44 * mm, height - 70 * mm
+            pdf.setStrokeColor(colors.HexColor("#cad6dc")); pdf.rect(left, bottom, plot_width, plot_height)
+            path = pdf.beginPath()
+            for index, item in enumerate(chart):
+                x = left + (float(item["intensity"]) - min_x) / span_x * plot_width; y = bottom + (float(item["value"]) - min_y) / span_y * plot_height
+                path.moveTo(x, y) if index == 0 else path.lineTo(x, y)
+            pdf.setStrokeColor(colors.HexColor("#267d88")); pdf.setLineWidth(1.4); pdf.drawPath(path, stroke=1)
+            pdf.setFillColor(colors.HexColor("#ed8c4a"))
+            for item in points:
+                x = left + (float(item["adjusted_intensity"]) - min_x) / span_x * plot_width; y = bottom + (float(item["standard_value"]) - min_y) / span_y * plot_height
+                pdf.circle(x, y, 2.2, stroke=0, fill=1)
+        pdf.setFont(font, 7); pdf.setFillColor(colors.HexColor("#7e8e98")); pdf.drawString(18 * mm, 10 * mm, f"SHA-256 {curve['result_sha256']}")
+        pdf.showPage(); pdf.save()
+        return output.getvalue()
+
+    def curve_preview(self, run_id: int, curve_snapshot_id: int, mode: str, actor_user_id: int | None = None) -> str:
+        if mode not in {"image", "text"}:
+            raise AnalysisError("analysis_curve_print_mode_invalid", "打印模式必须是 image 或 text", status_code=422)
+        with self.database.write() as db:
+            row = db.execute("SELECT * FROM analysis_curve_snapshots WHERE id=? AND run_id=?", (curve_snapshot_id, run_id)).fetchone()
+            if row is None:
+                raise AnalysisError("analysis_curve_snapshot_not_found", "曲线快照不存在", status_code=404)
+            curve = self._curve_row(row)
+            self._audit(db, self._actor(db, actor_user_id), "analysis.curve.preview", run_id, {"curve_snapshot_id": curve_snapshot_id, "mode": mode, "result_sha256": row["result_sha256"]})
+        return self._curve_preview_html(curve, mode)
+
+    def print_curve(self, run_id: int, curve_snapshot_id: int, mode: str, actor_user_id: int | None = None) -> tuple[bytes, dict[str, Any]]:
+        if mode not in {"image", "text"}:
+            raise AnalysisError("analysis_curve_print_mode_invalid", "打印模式必须是 image 或 text", status_code=422)
+        with self.database.write() as db:
+            row = db.execute("SELECT * FROM analysis_curve_snapshots WHERE id=? AND run_id=?", (curve_snapshot_id, run_id)).fetchone()
+            if row is None:
+                raise AnalysisError("analysis_curve_snapshot_not_found", "曲线快照不存在", status_code=404)
+            content = self._curve_pdf(self._curve_row(row), mode)
+            digest = hashlib.sha256(content).hexdigest()
+            cursor = db.execute(
+                "INSERT INTO analysis_curve_print_jobs(run_id, curve_snapshot_id, mode, request_json, content_blob, content_sha256, byte_length, actor_user_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (run_id, curve_snapshot_id, mode, _json({"mode": mode, "curve_result_sha256": row["result_sha256"]}), content, digest, len(content), self._actor(db, actor_user_id), utc_now()),
+            )
+            job_id = int(cursor.lastrowid)
+            self._audit(db, self._actor(db, actor_user_id), "analysis.curve.print", run_id, {"print_job_id": job_id, "curve_snapshot_id": curve_snapshot_id, "mode": mode, "content_sha256": digest, "byte_length": len(content)})
+        return content, {"job_id": job_id, "sha256": digest, "byte_length": len(content)}
+
     def _run_dict(self, db: sqlite3.Connection, run_id: int) -> dict[str, Any]:
         row = db.execute("SELECT r.*, m.name AS method_name FROM analysis_runs r JOIN methods m ON m.id=r.method_id WHERE r.id=?", (run_id,)).fetchone()
         if row is None:
@@ -502,6 +1150,37 @@ class AnalysisService:
         result["messages"] = [{**dict(item), "details": json.loads(item["details_json"]), **{"details_json": None}} for item in db.execute("SELECT * FROM analysis_messages WHERE run_id=? ORDER BY id", (run_id,)).fetchall()]
         for message in result["messages"]:
             message.pop("details_json", None)
+        decisions = [dict(item) for item in db.execute("SELECT * FROM analysis_qc_decisions WHERE run_id=? ORDER BY id", (run_id,)).fetchall()]
+        qc_rows = db.execute("SELECT * FROM analysis_qc_snapshots WHERE run_id=? ORDER BY sequence", (run_id,)).fetchall()
+        qc_snapshots = []
+        for snapshot in qc_rows:
+            item = dict(snapshot); item["groups"] = json.loads(item.pop("groups_json")); item["publishable"] = bool(item["publishable"]); qc_snapshots.append(item)
+        result["quality"] = {"latest_snapshot": qc_snapshots[-1] if qc_snapshots else None, "snapshot_history": [{key: item[key] for key in ("id", "sequence", "publishable", "result_sha256", "created_at")} for item in qc_snapshots], "decisions": decisions}
+        version = db.execute("SELECT payload_json FROM method_versions WHERE id=?", (row["method_version_id"],)).fetchone()
+        payload = json.loads(version["payload_json"]) if version else {}
+        latest_qc_row = qc_rows[-1] if qc_rows else None
+        active = {str(item["line_id"]): int(item["curve_snapshot_id"]) for item in db.execute("SELECT * FROM analysis_active_curves WHERE run_id=?", (run_id,)).fetchall()}
+        curve_lines: list[dict[str, Any]] = []
+        for line in self._analysis_lines(payload):
+            line_id = str(line["id"])
+            snapshots = [self._curve_row(item) for item in db.execute("SELECT * FROM analysis_curve_snapshots WHERE run_id=? AND line_id=? ORDER BY sequence", (run_id, line_id)).fetchall()]
+            workspace = self._curve_workspace(db, run_id, line, latest_qc_row) if latest_qc_row is not None else {"fit_mode": line.get("fit_mode", "linear"), "coordinate_type": line.get("coordinate_type", "normal"), "points": [], "adjustment_set_id": None, "sequence": 0}
+            curve_lines.append({
+                "line_id": line_id, "element": line.get("element", ""), "wavelength_nm": float(line.get("wavelength_nm", 0)),
+                "unit": line.get("unit", ""), "workspace": workspace, "snapshots": snapshots,
+                "active_curve_snapshot_id": active.get(line_id),
+            })
+        actions: list[dict[str, Any]] = []
+        for action in db.execute("SELECT * FROM analysis_curve_actions WHERE run_id=? ORDER BY id", (run_id,)).fetchall():
+            item = dict(action); item["before"] = json.loads(item.pop("before_json")); item["after"] = json.loads(item.pop("after_json")); actions.append(item)
+        curve_results = [dict(item) | {"is_standard": bool(item["is_standard"])} for item in db.execute("SELECT * FROM analysis_curve_results WHERE run_id=? ORDER BY id", (run_id,)).fetchall()]
+        merges: list[dict[str, Any]] = []
+        for merge in db.execute("SELECT * FROM analysis_result_merges WHERE run_id=? ORDER BY sequence", (run_id,)).fetchall():
+            item = dict(merge); item["curve_snapshot_ids"] = json.loads(item.pop("curve_snapshot_ids_json")); item["results"] = json.loads(item.pop("results_json")); merges.append(item)
+        print_jobs = [dict(item) for item in db.execute("SELECT id, run_id, curve_snapshot_id, mode, request_json, content_sha256, byte_length, actor_user_id, created_at FROM analysis_curve_print_jobs WHERE run_id=? ORDER BY id", (run_id,)).fetchall()]
+        for item in print_jobs:
+            item["request"] = json.loads(item.pop("request_json"))
+        result["curves"] = {"lines": curve_lines, "actions": actions, "results": curve_results, "merges": merges, "print_jobs": print_jobs}
         return result
 
     def run(self, run_id: int) -> dict[str, Any]:

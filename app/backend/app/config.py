@@ -11,7 +11,7 @@ def _default_data_dir() -> Path:
         return Path(configured).expanduser().resolve()
     local_app_data = os.environ.get("LOCALAPPDATA")
     if local_app_data:
-        return Path(local_app_data) / "GeoSpectrum"
+        return Path(local_app_data) / "cn.geospectrum.desktop"
     return Path.home() / ".geospectrum"
 
 

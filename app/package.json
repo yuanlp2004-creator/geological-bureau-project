@@ -8,7 +8,10 @@
     "frontend:build": "npm --prefix frontend run build",
     "test": "python -m pytest -q",
     "generate:manifest": "python tools/generate_manifest.py",
-    "tauri:build": "tauri build --ci"
+    "sidecar:build": "python tools/build_sidecar.py",
+    "sidecar:verify": "python tools/verify_sidecar.py",
+    "tauri:build": "python tools/verify_sidecar.py && tauri build --ci",
+    "release:internal": "python tools/build_sidecar.py && python tools/verify_sidecar.py && tauri build --ci && python tools/build_release_manifest.py"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4"

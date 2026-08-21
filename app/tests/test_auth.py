@@ -47,6 +47,7 @@ def test_bootstrap_uses_argon2id_and_seeds_roles(auth_client) -> None:
     assert stored.startswith("$argon2id$")
     assert "correct-horse" not in stored
     assert roles == {"system_administrator", "method_administrator", "analyst", "read_only_auditor"}
+    assert all("about.read" in permission_keys for _name, _description, permission_keys in main.BUILTIN_ROLES)
     assert audit[0][0] == "bootstrap"
     assert json.loads(audit[0][1])["password_scheme"] == "argon2id"
 
@@ -95,18 +96,59 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
     assert {item["operation"] for item in changes} == {"revoke"}
 
 
+def test_existing_database_receives_about_permission_idempotently(auth_client) -> None:
+    client, main = auth_client
+    assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+    with main.database.write() as db:
+        db.execute(
+            "DELETE FROM role_permissions WHERE role_id=(SELECT id FROM roles WHERE name='system_administrator') "
+            "AND permission_id=(SELECT id FROM permissions WHERE key='about.read')"
+        )
+
+    assert main.auth_service.synchronize_builtin_permissions() == 1
+    assert main.auth_service.synchronize_builtin_permissions() == 0
+    with main.database.read() as db:
+        restored = db.execute(
+            "SELECT 1 FROM role_permissions rp JOIN roles r ON r.id=rp.role_id "
+            "JOIN permissions p ON p.id=rp.permission_id "
+            "WHERE r.name='system_administrator' AND p.key='about.read'"
+        ).fetchone()
+        changes = json.loads(
+            db.execute(
+                "SELECT details_json FROM audit_events WHERE action='role.permission.migrate' ORDER BY id DESC LIMIT 1"
+            ).fetchone()[0]
+        )["changes"]
+    assert restored is not None
+    assert changes == [{"operation": "grant", "role": "system_administrator", "permission": "about.read"}]
+
+
 def test_authentication_and_permission_matrix(auth_client) -> None:
     client, _ = auth_client
     client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})
     assert client.get("/api/v1/users").status_code == 401
     assert client.get("/api/v1/audit").status_code == 401
-    assert client.post("/api/v1/auth/login", json={"username": "operator", "password": "bad-password"}).status_code == 401
+    bad_password = client.post("/api/v1/auth/login", json={"username": "operator", "password": "bad-password"})
+    missing_user = client.post("/api/v1/auth/login", json={"username": "missing", "password": "bad-password"})
+    assert bad_password.status_code == missing_user.status_code == 401
+    assert bad_password.json()["detail"] == missing_user.json()["detail"] == {
+        "code": "auth_invalid_credentials",
+        "message": "用户名或密码错误",
+    }
 
     token = _admin_token(client)
     headers = {"Authorization": f"Bearer {token}"}
     me = client.get("/api/v1/auth/me", headers=headers)
     assert me.status_code == 200
     assert "users.write" in me.json()["permissions"]
+    capabilities = client.get("/api/v1/capabilities").json()["capabilities"]
+    visible_entries = [
+        entry
+        for capability in capabilities
+        for entry in capability["navigation_entries"]
+        if any(permission in me.json()["permissions"] for permission in entry["required_any"])
+    ]
+    assert len(visible_entries) == 28
+    assert any(entry["key"] == "help.about" for entry in visible_entries)
     roles = client.get("/api/v1/roles", headers=headers)
     assert roles.status_code == 200
     assert len(roles.json()) == 4
@@ -121,6 +163,8 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
     viewer_headers = {"Authorization": f"Bearer {viewer_token}"}
     assert client.get("/api/v1/users", headers=viewer_headers).status_code == 403
     assert client.get("/api/v1/audit", headers=viewer_headers).status_code == 403
+    assert client.get("/about", headers=viewer_headers).status_code == 403
+    assert client.get("/api/v1/diagnostics", headers=viewer_headers).status_code == 403
 
     read_only_role = next(role for role in roles.json() if role["name"] == "read_only_auditor")
     changed = client.patch("/api/v1/users/2", headers=headers, json={"role_ids": [read_only_role["id"]]})

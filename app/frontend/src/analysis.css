@@ -35,4 +35,46 @@
 .analysis-matrix table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .analysis-matrix th, .analysis-matrix td { padding: 9px 8px; border-bottom: 1px solid #e3eaef; text-align: left; white-space: nowrap; }
 .analysis-matrix th { color: #667784; background: #f7f9fa; }
+.analysis-view-tabs { margin-top: 18px; display: flex; gap: 5px; padding: 5px; background: #eef3f5; border-radius: 10px; overflow-x: auto; }
+.analysis-view-tabs button { flex: 1; min-width: 105px; border: 0; border-radius: 7px; padding: 9px 12px; color: #61727f; background: transparent; font-weight: 700; }
+.analysis-view-tabs button.active { background: #fff; color: #226d76; box-shadow: 0 2px 8px rgba(45, 74, 91, .1); }
+.analysis-line-nav { display: flex; gap: 7px; align-items: stretch; margin-top: 12px; overflow-x: auto; }
+.analysis-line-nav > span { display: grid; place-items: center; padding: 0 9px; color: #758590; font-size: 12px; white-space: nowrap; }
+.analysis-line-nav button { min-width: 115px; border: 1px solid #dce6eb; border-radius: 8px; background: #fff; padding: 8px 10px; display: grid; text-align: left; color: #405664; }
+.analysis-line-nav button.active { border-color: #2f858b; background: #ecf8f7; }
+.analysis-line-nav small, .analysis-line-nav i { color: #758590; font-size: 11px; font-style: normal; }
+.analysis-line-nav i { color: #27805c; }
+.analysis-workspace { margin-top: 14px; border: 1px solid #e0e8ed; border-radius: 10px; padding: 14px; background: #fbfcfd; overflow: auto; }
+.snapshot-state { border-radius: 99px; padding: 5px 9px; font-size: 12px; font-weight: 700; }
+.snapshot-state.ready { color: #28774f; background: #e8f6ee; }
+.snapshot-state.blocked { color: #9a4a3b; background: #feeeee; }
+.analysis-qc-groups { display: grid; gap: 10px; }
+.analysis-qc-groups article { border: 1px solid #dce8e3; border-left: 4px solid #4aa37a; border-radius: 8px; padding: 11px; background: #fff; }
+.analysis-qc-groups article.warning { border-color: #ead9aa; border-left-color: #d9a93c; }
+.analysis-qc-groups article > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.analysis-qc-groups article > header > div { display: grid; gap: 3px; }
+.analysis-qc-groups article > header span { color: #73838f; font-size: 12px; }
+.analysis-qc-groups article > header > div:last-child { justify-items: end; }
+.analysis-qc-groups article > header button, .qc-members button, .analysis-matrix td button { border: 1px solid #ccdbe1; border-radius: 6px; background: #fff; padding: 5px 8px; color: #426270; }
+.qc-warning { color: #9b631b !important; }.qc-accepted { color: #2d7a56 !important; font-weight: 700; }
+.qc-stat-grid { margin-top: 9px; display: grid; grid-template-columns: repeat(6, minmax(85px, 1fr)); border: 1px solid #e3eaee; border-radius: 7px; overflow: hidden; }
+.qc-stat-grid > div { padding: 7px 9px; display: grid; border-right: 1px solid #e3eaee; }.qc-stat-grid > div:last-child { border-right: 0; }
+.qc-stat-grid span { color: #788791; font-size: 11px; }.qc-stat-grid strong { color: #314e5e; }
+.qc-members { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+.qc-members > div { border: 1px solid #dce7eb; border-radius: 7px; padding: 6px 8px; display: grid; grid-template-columns: auto auto auto auto; gap: 8px; align-items: center; }
+.qc-members > div.excluded { opacity: .62; background: #f2f3f4; text-decoration: line-through; }.qc-members small { color: #6e807f; }
+.curve-command-row { display: flex; gap: 9px; align-items: end; flex-wrap: wrap; }.curve-command-row .field { min-width: 160px; }
+.curve-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.curve-summary > div { border: 1px solid #e0e8ec; border-radius: 8px; padding: 8px 10px; display: grid; }.curve-summary span { color: #758590; font-size: 11px; }
+.analysis-curve-chart { height: 420px; position: relative; overflow: hidden; }
+.analysis-curve-chart .simple-chart-plot > svg { width: 100%; height: 100%; }
+.analysis-curve-chart svg rect { fill: #fff; stroke: #a5b8c1; }.analysis-curve-chart svg polyline { fill: none; stroke: #287f88; stroke-width: 2.4; }.analysis-curve-chart svg circle { fill: #ed8a4b; stroke: #fff; stroke-width: 2; }
+.curve-footer-actions { margin-top: 10px; display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }.curve-footer-actions > span { margin-left: auto; color: #74858f; font-size: 12px; }
+.analysis-matrix .numeric-input { width: 120px; border: 1px solid #cad9df; border-radius: 6px; padding: 6px 7px; }.muted-row { opacity: .65; background: #f4f5f6; }
+.analysis-point-active { display: flex; gap: 6px; align-items: center; }.analysis-matrix td .analysis-actions { justify-content: flex-start; }
+.merge-history { display: grid; gap: 6px; margin-top: 12px; }.merge-history article { border: 1px solid #dfe7eb; border-radius: 7px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }.merge-history article div { display: grid; }.merge-history span { color: #758590; font-size: 12px; }.merge-history code { color: #4b6e7c; }
+.analysis-preview-modal { position: fixed; inset: 0; z-index: 80; background: rgba(18, 35, 47, .58); padding: 4vh 5vw; display: grid; place-items: center; }
+.analysis-preview-modal > div { width: min(1100px, 95vw); height: 90vh; background: #fff; border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; box-shadow: 0 20px 70px rgba(0,0,0,.25); }
+.analysis-preview-modal header { padding: 11px 14px; border-bottom: 1px solid #dfe7eb; display: flex; align-items: center; justify-content: space-between; }.analysis-preview-modal iframe { width: 100%; height: 100%; border: 0; background: #eef2f4; }
 @media (max-width: 1100px) { .analysis-layout { grid-template-columns: 1fr; } .analysis-sidebar { position: static; } .analysis-form-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 850px) { .qc-stat-grid, .curve-summary { grid-template-columns: repeat(2, 1fr); }.analysis-qc-groups article > header { flex-direction: column; }.analysis-qc-groups article > header > div:last-child { justify-items: start; } }

@@ -9,8 +9,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, ValidationError
+
 from .db import Database, utc_now
-from .schemas import RuntimeEventCreate, SettingsPatch
+from .schemas import (
+    RuntimeEventCreate,
+    SettingsDirectories,
+    SettingsDisplay,
+    SettingsLogging,
+    SettingsPatch,
+    SettingsPrinting,
+    SettingsResponse,
+    SettingsTime,
+)
 
 DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
     "directories": {
@@ -41,6 +52,13 @@ DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
 }
 
 ALLOWED_SETTING_GROUPS = frozenset(DEFAULT_SETTINGS)
+SETTING_MODELS: dict[str, type[BaseModel]] = {
+    "directories": SettingsDirectories,
+    "logging": SettingsLogging,
+    "display": SettingsDisplay,
+    "printing": SettingsPrinting,
+    "time": SettingsTime,
+}
 LOG_LEVEL_PRIORITY = {"debug": 10, "info": 20, "success": 20, "warning": 30, "error": 40}
 
 
@@ -55,14 +73,50 @@ class AppService:
         result = {group: values.copy() for group, values in DEFAULT_SETTINGS.items()}
         with self.database.read() as connection:
             rows = connection.execute("SELECT key, value_json FROM app_settings").fetchall()
+        invalid: list[tuple[str, str, str]] = []
         for row in rows:
+            key = str(row["key"])
+            raw_value = str(row["value_json"])
             try:
-                group, name = row["key"].split(".", 1)
-                if group in result:
-                    result[group][name] = json.loads(row["value_json"])
-            except (ValueError, json.JSONDecodeError):
+                group, name = key.split(".", 1)
+            except ValueError:
+                invalid.append((key, raw_value, "invalid_key"))
                 continue
-        return result
+            if group not in result or name not in DEFAULT_SETTINGS[group]:
+                invalid.append((key, raw_value, "unknown_setting"))
+                continue
+            try:
+                value = json.loads(raw_value)
+            except json.JSONDecodeError:
+                invalid.append((key, raw_value, "invalid_json"))
+                continue
+            candidate = {**result[group], name: value}
+            try:
+                result[group] = SETTING_MODELS[group].model_validate(candidate).model_dump()
+            except ValidationError:
+                invalid.append((key, raw_value, "invalid_value"))
+        if invalid:
+            self._repair_invalid_settings(invalid)
+        return SettingsResponse.model_validate(result).model_dump()
+
+    def _repair_invalid_settings(self, invalid: list[tuple[str, str, str]]) -> None:
+        """Remove only still-current invalid rows and leave an auditable repair record."""
+
+        repaired: list[dict[str, str]] = []
+        with self.database.write() as connection:
+            for key, raw_value, reason in invalid:
+                cursor = connection.execute(
+                    "DELETE FROM app_settings WHERE key=? AND value_json=?",
+                    (key, raw_value),
+                )
+                if cursor.rowcount:
+                    repaired.append({"key": key, "reason": reason})
+            if repaired:
+                connection.execute(
+                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) "
+                    "VALUES (NULL, 'settings.invalid_value.repair', 'settings', NULL, ?, ?)",
+                    (json.dumps({"repaired": repaired}, ensure_ascii=False), utc_now()),
+                )
 
     def update_settings(self, patch: SettingsPatch, actor_user_id: int | None = None) -> dict[str, dict[str, Any]]:
         update_data = patch.model_dump(exclude_none=True)

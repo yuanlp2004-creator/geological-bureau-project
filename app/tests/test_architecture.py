@@ -10,7 +10,7 @@ import pytest
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.modules.manifest import ModuleManifest, registered_manifests, validate_manifests
+from backend.app.modules.manifest import NavigationEntry, ModuleManifest, registered_manifests, validate_manifests
 from backend.app.db import Database
 from backend.app.schemas import RuntimeEventCreate, SettingsPatch
 from backend.app.services import AppService
@@ -20,7 +20,7 @@ def test_registered_manifests_have_unique_contracts() -> None:
     manifests = registered_manifests()
     validate_manifests(manifests)
     assert {manifest.key for manifest in manifests} == {
-        "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis"
+        "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis", "postprocessing", "reports", "maintenance"
     }
     assert all(manifest.api_prefix == "/api/v1" for manifest in manifests)
 
@@ -47,17 +47,67 @@ def test_generated_manifest_matches_registered_modules() -> None:
 
         assert main() == 0
     payload = json.loads(manifest_file.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == 2
     assert [module["key"] for module in payload["modules"]] == [manifest.key for manifest in registered_manifests()]
     modules_by_key = {module["key"]: module for module in payload["modules"]}
     assert modules_by_key["spectrum-migration"]["title"] == "旧谱数据迁移"
+    entries = [entry for module in payload["modules"] for entry in module["navigation_entries"]]
+    assert len(entries) == 28
+    assert len({entry["key"] for entry in entries}) == len(entries)
+    assert {entry["group"] for entry in entries} == {"workspace", "methods", "conditions", "analysis-tests", "data", "tools", "system", "help"}
+
+
+def test_invalid_navigation_contracts_are_rejected() -> None:
+    valid = NavigationEntry("entry", "tools", "", "Entry", "Description", "about", 1, ("read",))
+    base = ModuleManifest(key="base", version="1", title="Base", api_prefix="/api/v1", route="/base", permissions=("read",), navigation_entries=(valid,))
+    validate_manifests((base,))
+    invalid_group = NavigationEntry("bad-group", "unknown", "", "Entry", "Description", "about", 1, ("read",))
+    with pytest.raises(ValueError, match="invalid navigation group"):
+        validate_manifests((ModuleManifest(key="bad", version="1", title="Bad", api_prefix="/api/v1", route="/bad", permissions=("read",), navigation_entries=(invalid_group,)),))
+    invalid_permission = NavigationEntry("bad-permission", "tools", "", "Entry", "Description", "about", 1, ("other",))
+    with pytest.raises(ValueError, match="invalid navigation permission"):
+        validate_manifests((ModuleManifest(key="bad", version="1", title="Bad", api_prefix="/api/v1", route="/bad", permissions=("read",), navigation_entries=(invalid_permission,)),))
+
+
+def test_frontend_downloads_use_the_shared_adapter() -> None:
+    app_source = (APP_ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
+    api_source = (APP_ROOT / "frontend" / "src" / "api.ts").read_text(encoding="utf-8")
+    assert "document.createElement('a')" not in app_source
+    assert api_source.count("document.createElement('a')") == 1
+    assert "save_export_file" in api_source
 
 
 def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
-    source = (APP_ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
-    assert source.count('type="number"') == 1
-    assert "function EmptyableNumberInput" in source
-    assert "if (nextText === '') return" in source
-    assert "if (text === '') setText" in source
+    source_root = APP_ROOT / "frontend" / "src"
+    sources = {path.name: path.read_text(encoding="utf-8") for path in source_root.glob("*.tsx")}
+    component = sources["NumericInput.tsx"]
+    model = (source_root / "numericInputModel.ts").read_text(encoding="utf-8")
+    assert all('type="number"' not in source for source in sources.values())
+    assert "PARTIAL_NUMBER" in component and "COMPLETE_NUMBER" in model
+    assert "此项为必填项" in model
+    assert "event.key === 'Enter'" in component
+    assert "event.key === 'Escape'" in component
+    for filename in (
+        "App.tsx", "SampleAcquisitionPage.tsx", "DispersionPage.tsx", "AnalysisPage.tsx",
+        "HardwareAcquisitionPage.tsx", "MercuryCalibrationPage.tsx", "PostProcessingPage.tsx",
+    ):
+        assert "NumericInput" in sources[filename]
+
+
+def test_frontend_bugfix_accessibility_localization_and_queue_contracts() -> None:
+    source_root = APP_ROOT / "frontend" / "src"
+    app_source = (source_root / "App.tsx").read_text(encoding="utf-8")
+    api_source = (source_root / "api.ts").read_text(encoding="utf-8")
+    styles = (source_root / "styles.css").read_text(encoding="utf-8")
+    acquisition = (source_root / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
+    assert ".hidden-picker { display: none; }" in styles
+    assert 'className="hidden-picker"' in app_source
+    assert "auth_invalid_credentials" in app_source and "用户名或密码错误" in app_source
+    assert "class ApiError" in api_source
+    assert "const displayedRepeatCount = queueItem ? (queueItem.repeats || 1) : repeatCount" in acquisition
+    assert "重复次数{queueItem ? '（来自队列）' : ''}" in acquisition
+    assert "repeat_count: displayedRepeatCount" in acquisition
+    assert "step={0.01} value={samplingPeriod}" in acquisition
 
 
 def test_runtime_log_rotation_redacts_sensitive_details(tmp_path: Path) -> None:
@@ -108,20 +158,36 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
             [
                 ("not-a-group", "true", "2026-01-01T00:00:00+00:00"),
                 ("display.density", "{not-json", "2026-01-01T00:00:00+00:00"),
+                ("logging.retention_days", "0", "2026-01-01T00:00:00+00:00"),
             ],
         )
-    assert service.get_settings()["display"]["density"] == "comfortable"
+    repaired_settings = service.get_settings()
+    assert repaired_settings["display"]["density"] == "comfortable"
+    assert repaired_settings["logging"]["retention_days"] == 30
+
+    class InvalidPatch:
+        def __init__(self, payload: dict[str, object]):
+            self.payload = payload
+
+        def model_dump(self, *, exclude_none: bool = True) -> dict[str, object]:
+            return self.payload
 
     with pytest.raises(ValueError, match="unknown settings group"):
-        service.update_settings(SettingsPatch.model_construct(extra={"value": True}))
+        service.update_settings(InvalidPatch({"extra": {"value": True}}))
     with pytest.raises(ValueError, match="unknown setting"):
-        service.update_settings(SettingsPatch.model_construct(display={"missing": True}))
-    class InvalidPatch:
-        def model_dump(self, *, exclude_none: bool = True) -> dict[str, object]:
-            return {"display": "invalid"}
-
+        service.update_settings(InvalidPatch({"display": {"missing": True}}))
     with pytest.raises(ValueError, match="must be an object"):
-        service.update_settings(InvalidPatch())
+        service.update_settings(InvalidPatch({"display": "invalid"}))
+
+    with database.read() as connection:
+        assert connection.execute("SELECT COUNT(*) FROM app_settings").fetchone()[0] == 0
+        repair = connection.execute(
+            "SELECT details_json FROM audit_events WHERE action='settings.invalid_value.repair'"
+        ).fetchone()
+    assert repair is not None
+    assert {item["key"] for item in json.loads(repair[0])["repaired"]} == {
+        "not-a-group", "display.density", "logging.retention_days",
+    }
 
     event = service.append_event(
         RuntimeEventCreate(
@@ -171,6 +237,7 @@ def test_sidecar_entry_passes_host_and_port_to_uvicorn(monkeypatch) -> None:
 
     captured: dict[str, object] = {}
     monkeypatch.setattr(sidecar_entry.uvicorn, "run", lambda app, **kwargs: captured.update(kwargs))
+    monkeypatch.setattr(sidecar_entry, "_read_process_key", lambda: "0123456789abcdef0123456789abcdef")
     monkeypatch.setattr(sys, "argv", ["sidecar_entry", "--host", "0.0.0.0", "--port", "9876"])
     sidecar_entry.main()
     assert captured["host"] == "0.0.0.0"
