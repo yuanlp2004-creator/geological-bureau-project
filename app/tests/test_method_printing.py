@@ -8,6 +8,10 @@ from pathlib import Path
 import pdfplumber
 import pytest
 from fastapi.testclient import TestClient
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.modules.method_printing import MethodPrintService
+from backend.printing import SystemPrinters
 from pypdf import PdfReader
 
 APP_ROOT = Path(__file__).resolve().parents[1]
@@ -17,17 +21,13 @@ sys.path.insert(0, str(APP_ROOT))
 @pytest.fixture()
 def print_client(tmp_path, monkeypatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(
-        main_module.database, tmp_path / "logs" / "runtime.jsonl"
-    )
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         bootstrap = client.post(
             "/api/v1/auth/bootstrap",
             json={"username": "print-admin", "password": "correct-horse"},
@@ -38,7 +38,7 @@ def print_client(tmp_path, monkeypatch):
             json={"username": "print-admin", "password": "correct-horse"},
         )
         token = login.json()["access_token"]
-        yield client, main_module, {"Authorization": f"Bearer {token}"}, tmp_path
+        yield client, runtime, {"Authorization": f"Bearer {token}"}, tmp_path
 
 
 def _create_method(client: TestClient, headers: dict[str, str]) -> dict:
@@ -103,7 +103,7 @@ def _create_printable_method(client: TestClient, headers: dict[str, str]) -> dic
 
 
 def test_print_settings_persist_and_reject_unknown_printer(print_client) -> None:
-    client, main_module, headers, _ = print_client
+    client, runtime, headers, _ = print_client
     response = client.get("/api/v1/method-print/settings", headers=headers)
     assert response.status_code == 200
     settings = response.json()
@@ -129,7 +129,7 @@ def test_print_settings_persist_and_reject_unknown_printer(print_client) -> None
     assert saved.status_code == 200, saved.text
     assert saved.json() == changed
 
-    restarted_service = main_module.MethodPrintService(main_module.database)
+    restarted_service = Runtime(AppConfig(data_dir=runtime.database.path.parent), database=runtime.database).method_print_service()
     assert restarted_service.get_settings() == changed
 
     rejected = client.patch(
@@ -220,12 +220,12 @@ def test_virtual_print_retains_input_and_completed_pdf(print_client) -> None:
 def test_failed_system_dispatch_keeps_render_inputs_without_changing_defaults(
     print_client, monkeypatch
 ) -> None:
-    client, main_module, headers, _ = print_client
+    client, runtime, headers, _ = print_client
     method = _create_method(client, headers)
     original_settings = client.get("/api/v1/method-print/settings", headers=headers).json()
 
     monkeypatch.setattr(
-        main_module.MethodPrintService,
+        SystemPrinters,
         "_system_printers",
         staticmethod(
             lambda: [
@@ -244,7 +244,7 @@ def test_failed_system_dispatch_keeps_render_inputs_without_changing_defaults(
         raise RuntimeError("test spooler unavailable")
 
     monkeypatch.setattr(
-        main_module.MethodPrintService, "_dispatch_system_print", staticmethod(fail_dispatch)
+        SystemPrinters, "dispatch_pdf", staticmethod(fail_dispatch)
     )
     failed = client.post(
         f"/api/v1/methods/{method['id']}/print",

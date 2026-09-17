@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.result_migration import ResultMigrationError, ResultMigrationService
+from backend.db import Database, utc_now
+from backend.modules.result_migration import ResultMigrationError, ResultMigrationService
 
 
 def source_file(extension: str) -> Path:

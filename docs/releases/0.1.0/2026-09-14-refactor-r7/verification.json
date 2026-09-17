@@ -1,0 +1,115 @@
+{
+  "plan_sha256": "82823F09D6F27543C3A51A870FA835C3F94D3B00A43FDC20B2C9836C2733E5B3",
+  "python_tests": {
+    "passed": 163,
+    "seconds": 53.99
+  },
+  "frontend_unit_tests_passed": 4,
+  "rust_tests_passed": 3,
+  "release_tool_tests_passed": 10,
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "openapi": {
+    "equal_to_r0": true,
+    "paths": 173
+  },
+  "desktop": {
+    "layout_states": 55,
+    "errors": []
+  },
+  "native": {
+    "pdfSaved": true,
+    "saveCancel": {
+      "value": null
+    },
+    "directorySelected": {
+      "value": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\refactor-r7\\desktop-data"
+    },
+    "directoryCancel": {
+      "value": null
+    },
+    "invalidFileRejected": true,
+    "unauthorizedHttp": 403
+  },
+  "native_pdf": {
+    "pages": 2,
+    "method_text_present": true,
+    "bytes": 30290,
+    "sha256": "b50810ed9155bfef206a9f1de63986d58fbd7f49508685f8c3a59c815a9d00c3"
+  },
+  "single_instance": {
+    "secondPid": 38528,
+    "exited": true,
+    "exitCode": 0
+  },
+  "natural_exit": {
+    "naturalClose": true,
+    "remainingPids": []
+  },
+  "root_smoke": {
+    "bootstrapVisible": true,
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 20,
+      "database": "ok",
+      "uptime_seconds": 10.453
+    }
+  },
+  "root_exit": {
+    "naturalClose": true,
+    "remainingPids": []
+  },
+  "installer": {
+    "files": [
+      "$PLUGINSDIR/StartMenu.dll",
+      "$PLUGINSDIR/System.dll",
+      "$PLUGINSDIR/modern-wizard.bmp",
+      "$PLUGINSDIR/nsDialogs.dll",
+      "$PLUGINSDIR/nsis_tauri_utils.dll",
+      "$TEMP/MicrosoftEdgeWebView2RuntimeInstaller.exe",
+      "geospectrum-backend.exe",
+      "geospectrum.exe"
+    ],
+    "desktop_sha256": "1E692D3675E81AC1EB7B6E8507886307BC19910CB9D0F2DB0E78A9E3EBA3CF35",
+    "backend_sha256": "C4EA4918CA43F2FA4F864FB494D5BCE8554403CFADA8C4A96B06592BD18E30ED",
+    "installer_sha256": "91671877C38CA009159B074C4E5DCCB4175C349E0FFE7799854BEF3E51BBE488",
+    "build_hashes_match": true,
+    "offline_webview_included": true,
+    "forbidden_files_present": false
+  },
+  "delivered_files": [
+    {
+      "path": "GeoSpectrum.exe",
+      "bytes": 11770368,
+      "sha256": "1E692D3675E81AC1EB7B6E8507886307BC19910CB9D0F2DB0E78A9E3EBA3CF35"
+    },
+    {
+      "path": "geospectrum-backend.exe",
+      "bytes": 52106631,
+      "sha256": "C4EA4918CA43F2FA4F864FB494D5BCE8554403CFADA8C4A96B06592BD18E30ED"
+    },
+    {
+      "path": "app/.local/releases/2026-09-14-refactor-r7/GeoSpectrum_0.1.0_refactor-r7_x64-setup.exe",
+      "bytes": 270031419,
+      "sha256": "91671877C38CA009159B074C4E5DCCB4175C349E0FFE7799854BEF3E51BBE488"
+    }
+  ],
+  "installed_on_this_host": false,
+  "clean_windows_acceptance": false,
+  "real_hardware_acceptance": false
+}

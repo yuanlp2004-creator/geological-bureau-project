@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from backend.auth import BUILTIN_ROLES
 from starlette.websockets import WebSocketDisconnect
 
 APP_ROOT = Path(__file__).resolve().parents[1]
@@ -15,16 +16,24 @@ sys.path.insert(0, str(APP_ROOT))
 @pytest.fixture()
 def auth_client(tmp_path, monkeypatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
-        yield client, main_module
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
+        yield client, runtime
+
+
+def test_logout_has_no_body_and_revokes_session(auth_client) -> None:
+    client, _ = auth_client
+    client.post('/api/v1/auth/bootstrap', json={'username': 'operator', 'password': 'correct-horse'})
+    headers = {'Authorization': f'Bearer {_admin_token(client)}'}
+    response = client.post('/api/v1/auth/logout', headers=headers)
+    assert response.status_code == 204
+    assert response.content == b''
+    assert client.get('/api/v1/auth/me', headers=headers).status_code == 401
 
 
 def _admin_token(client: TestClient) -> str:
@@ -34,30 +43,30 @@ def _admin_token(client: TestClient) -> str:
 
 
 def test_bootstrap_uses_argon2id_and_seeds_roles(auth_client) -> None:
-    client, main = auth_client
+    client, runtime = auth_client
     assert client.get("/api/v1/auth/status").json() == {"bootstrapped": False}
     assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
     assert client.get("/api/v1/auth/status").json() == {"bootstrapped": True}
     assert client.post("/api/v1/auth/bootstrap", json={"username": "second", "password": "correct-horse"}).status_code == 409
 
-    with main.database.read() as db:
+    with runtime.database.read() as db:
         stored = db.execute("SELECT password_hash FROM users WHERE username='operator'").fetchone()[0]
         roles = {row[0] for row in db.execute("SELECT name FROM roles")}
         audit = db.execute("SELECT action, details_json FROM audit_events").fetchall()
     assert stored.startswith("$argon2id$")
     assert "correct-horse" not in stored
     assert roles == {"system_administrator", "method_administrator", "analyst", "read_only_auditor"}
-    assert all("about.read" in permission_keys for _name, _description, permission_keys in main.BUILTIN_ROLES)
+    assert all("about.read" in permission_keys for _name, _description, permission_keys in BUILTIN_ROLES)
     assert audit[0][0] == "bootstrap"
     assert json.loads(audit[0][1])["password_scheme"] == "argon2id"
 
 
 def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) -> None:
-    client, main = auth_client
+    client, runtime = auth_client
     assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
 
-    expected = {name: set(keys) for name, _description, keys in main.BUILTIN_ROLES}
-    with main.database.read() as db:
+    expected = {name: set(keys) for name, _description, keys in BUILTIN_ROLES}
+    with runtime.database.read() as db:
         actual = {
             role: {
                 row[0]
@@ -74,15 +83,15 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
     assert {"devices.write", "devices.execute"}.isdisjoint(expected["analyst"])
     assert {"acquisition.execute", "hardware-acquisition.execute", "analysis.execute", "analysis.intervene"}.issubset(expected["analyst"])
 
-    with main.database.write() as db:
+    with runtime.database.write() as db:
         for role, permission in (("method_administrator", "acquisition.execute"), ("analyst", "devices.execute")):
             db.execute(
                 "INSERT INTO role_permissions(role_id, permission_id) "
                 "SELECT r.id, p.id FROM roles r, permissions p WHERE r.name=? AND p.key=?",
                 (role, permission),
             )
-    assert main.auth_service.synchronize_builtin_permissions() == 2
-    with main.database.read() as db:
+    assert runtime.auth_service.synchronize_builtin_permissions() == 2
+    with runtime.database.read() as db:
         stale = db.execute(
             "SELECT r.name, p.key FROM role_permissions rp JOIN roles r ON r.id=rp.role_id "
             "JOIN permissions p ON p.id=rp.permission_id "
@@ -97,17 +106,17 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
 
 
 def test_existing_database_receives_about_permission_idempotently(auth_client) -> None:
-    client, main = auth_client
+    client, runtime = auth_client
     assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-    with main.database.write() as db:
+    with runtime.database.write() as db:
         db.execute(
             "DELETE FROM role_permissions WHERE role_id=(SELECT id FROM roles WHERE name='system_administrator') "
             "AND permission_id=(SELECT id FROM permissions WHERE key='about.read')"
         )
 
-    assert main.auth_service.synchronize_builtin_permissions() == 1
-    assert main.auth_service.synchronize_builtin_permissions() == 0
-    with main.database.read() as db:
+    assert runtime.auth_service.synchronize_builtin_permissions() == 1
+    assert runtime.auth_service.synchronize_builtin_permissions() == 0
+    with runtime.database.read() as db:
         restored = db.execute(
             "SELECT 1 FROM role_permissions rp JOIN roles r ON r.id=rp.role_id "
             "JOIN permissions p ON p.id=rp.permission_id "
@@ -147,7 +156,7 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
         for entry in capability["navigation_entries"]
         if any(permission in me.json()["permissions"] for permission in entry["required_any"])
     ]
-    assert len(visible_entries) == 28
+    assert len(visible_entries) == 26
     assert any(entry["key"] == "help.about" for entry in visible_entries)
     roles = client.get("/api/v1/roles", headers=headers)
     assert roles.status_code == 200
@@ -174,7 +183,7 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
 
 
 def test_permission_changes_are_audited_and_disabled_users_cannot_login(auth_client) -> None:
-    client, main = auth_client
+    client, runtime = auth_client
     client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})
     admin = _admin_token(client)
     headers = {"Authorization": f"Bearer {admin}"}
@@ -194,7 +203,7 @@ def test_permission_changes_are_audited_and_disabled_users_cannot_login(auth_cli
     assert "role.permission.change" in actions
     assert "user.create" in actions
     assert "user.permission.change" in actions
-    with main.database.read() as db:
+    with runtime.database.read() as db:
         password_hash = db.execute("SELECT password_hash FROM users WHERE username='reviewer'").fetchone()[0]
     assert password_hash.startswith("$argon2id$")
 

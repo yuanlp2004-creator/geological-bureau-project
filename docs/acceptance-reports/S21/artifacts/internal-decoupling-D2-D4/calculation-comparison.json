@@ -1,0 +1,249 @@
+{
+  "none": {
+    "equal": true,
+    "baseline": {
+      "result": {
+        "source_sha256": "source",
+        "status": "recalculated",
+        "line_count": 1,
+        "sample_count": 2,
+        "lines": [
+          {
+            "sample_index": 0,
+            "sample_name": "N1",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 9.0,
+            "calculated_value": 18.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          },
+          {
+            "sample_index": 1,
+            "sample_name": "N2",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 18.0,
+            "calculated_value": 36.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          }
+        ],
+        "diagnostics": []
+      }
+    }
+  },
+  "background": {
+    "equal": true,
+    "baseline": {
+      "result": {
+        "source_sha256": "source",
+        "status": "recalculated",
+        "line_count": 1,
+        "sample_count": 2,
+        "lines": [
+          {
+            "sample_index": 0,
+            "sample_name": "N1",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 10.0,
+            "calculated_value": 20.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          },
+          {
+            "sample_index": 1,
+            "sample_name": "N2",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 10.0,
+            "calculated_value": 20.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          }
+        ],
+        "diagnostics": []
+      }
+    }
+  },
+  "line": {
+    "equal": true,
+    "baseline": {
+      "result": {
+        "source_sha256": "source",
+        "status": "recalculated",
+        "line_count": 1,
+        "sample_count": 2,
+        "lines": [
+          {
+            "sample_index": 0,
+            "sample_name": "N1",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 3.0,
+            "calculated_value": 6.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          },
+          {
+            "sample_index": 1,
+            "sample_name": "N2",
+            "repeat_index": 1,
+            "line_id": "L1",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "quantitative_signal": 3.0,
+            "calculated_value": 6.0,
+            "curve_snapshot_id": 7,
+            "calculation_profile": "legacy_2_0_2"
+          }
+        ],
+        "diagnostics": []
+      }
+    }
+  },
+  "missing_curve": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_recalculation_no_lines",
+      "message": "没有可按所选方法和曲线重算的 PDT 谱线",
+      "details": {
+        "diagnostics": [
+          {
+            "line_id": "L1",
+            "code": "curve_snapshot_missing"
+          }
+        ]
+      },
+      "status_code": 422
+    }
+  },
+  "missing_internal": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_recalculation_no_lines",
+      "message": "没有可按所选方法和曲线重算的 PDT 谱线",
+      "details": {
+        "diagnostics": [
+          {
+            "line_id": "L1",
+            "code": "internal_standard_line_missing"
+          }
+        ]
+      },
+      "status_code": 422
+    }
+  },
+  "ambiguous_line": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_recalculation_no_lines",
+      "message": "没有可按所选方法和曲线重算的 PDT 谱线",
+      "details": {
+        "diagnostics": [
+          {
+            "line_id": "L1",
+            "code": "source_line_missing"
+          }
+        ]
+      },
+      "status_code": 422
+    }
+  },
+  "zero_background": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_recalculation_no_lines",
+      "message": "没有可按所选方法和曲线重算的 PDT 谱线",
+      "details": {
+        "diagnostics": [
+          {
+            "line_id": "L1",
+            "sample_index": 0,
+            "code": "postprocessing_background_invalid"
+          },
+          {
+            "line_id": "L1",
+            "sample_index": 1,
+            "code": "postprocessing_background_invalid"
+          }
+        ]
+      },
+      "status_code": 422
+    }
+  },
+  "matrix_invalid": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_result_matrix_invalid",
+      "message": "PDT 强度矩阵与元数据不一致",
+      "details": {
+        "line_count": 1,
+        "band_count": 2,
+        "expected_bytes": 16,
+        "actual_bytes": 15
+      },
+      "status_code": 409
+    }
+  },
+  "wrong_format": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_result_not_recalculable",
+      "message": "只有保存 Peak/Back 的 PDT 强度结果可以精确重算",
+      "details": {},
+      "status_code": 422
+    }
+  },
+  "wrong_profile": {
+    "equal": true,
+    "baseline": {
+      "error": "PostProcessingError",
+      "code": "postprocessing_result_profile_invalid",
+      "message": "旧 PDT 不含 modern_v1 所需峰面积，只能使用 legacy_2_0_2 重算",
+      "details": {},
+      "status_code": 422
+    }
+  },
+  "raw_intensity-txt": {
+    "equal": true,
+    "sha256": "d45726de583fe2306b5a06050f725b628173dd820ba605ee0d8b1c5ba2a0d55c"
+  },
+  "raw_intensity-csv": {
+    "equal": true,
+    "sha256": "af42cf9dddbc019c9d5deaacb7913df8482be5c0c47fc588f9ebf0ad4af6090b"
+  },
+  "raw_intensity-excel": {
+    "equal": true,
+    "sha256": "dd52e3d5cdea46304859a6813ceb2230566926d3b4a547655a988824986bc1bd"
+  },
+  "processed_intensity-txt": {
+    "equal": true,
+    "sha256": "125e3f8578d961064b2582391875534399e2c2e76b90f52a5177fadba494f42e"
+  },
+  "processed_intensity-csv": {
+    "equal": true,
+    "sha256": "65079d7a399ec199610e46c659789c23a662bdc51e7b61ee463a7b0e63e3448a"
+  },
+  "processed_intensity-excel": {
+    "equal": true,
+    "sha256": "8c02f60fc7ebc833e147e740dae108f2fc2f6b73f9e2e128a8bc21902d557a20"
+  }
+}

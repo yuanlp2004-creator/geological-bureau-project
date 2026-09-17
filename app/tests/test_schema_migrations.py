@@ -13,7 +13,10 @@ import pytest
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
+from backend.db import Database
+from backend import db as database_module
+from backend.migrations import MIGRATIONS, SCHEMA_VERSION
+from backend.upgrade import prepare_database_upgrade
 
 
 def _legacy_v10_database(path: Path, points_json: str) -> None:
@@ -63,6 +66,7 @@ def test_s11_s17_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path:
         assert frame["points_sha256"] == hashlib.sha256(expected_blob).hexdigest()
         assert frame["raw_transfer_sha256"] == "raw-transfer"
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
         with pytest.raises(sqlite3.IntegrityError, match="immutable"):
             db.execute("UPDATE dispersion_task_frames SET points_count=3 WHERE id=1")
 
@@ -79,3 +83,75 @@ def test_s11_s17_upgrade_failure_rolls_back_schema_and_history(tmp_path: Path) -
         columns = {row[1] for row in db.execute("PRAGMA table_info(dispersion_task_frames)")}
         assert "points_json" in columns and "points_blob" not in columns
         assert db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='device_profiles'").fetchone() is None
+
+
+@pytest.mark.parametrize("version", range(10, 21))
+def test_resume_each_recorded_version_preserves_data_and_history(tmp_path, monkeypatch, version):
+    # Synthetic checkpoints of the supported baseline, not archived release databases.
+    path = tmp_path / f"checkpoint-v{version}.sqlite3"
+    with monkeypatch.context() as patch:
+        patch.setattr(database_module, "MIGRATIONS", tuple(step for step in MIGRATIONS if step[0] <= version))
+        patch.setattr(database_module, "SCHEMA_VERSION", version)
+        patch.setattr(database_module, "utc_now", lambda: "checkpoint-time")
+        Database(path).initialize()
+    with Database(path).write() as connection:
+        connection.execute("INSERT INTO methods(id,name,description,work_type,status,created_at,updated_at) VALUES (1,'preserved','内容','spectral','active','then','then')")
+        connection.execute("INSERT INTO method_versions(method_id,version,state,payload_json,created_at) VALUES (1,1,'draft','{\"preserve\":true}','then')")
+    with Database(path).read() as connection:
+        methods = [tuple(row) for row in connection.execute("SELECT * FROM methods")]
+        revisions = [tuple(row) for row in connection.execute("SELECT * FROM method_versions")]
+        history = [tuple(row) for row in connection.execute("SELECT * FROM schema_migrations ORDER BY version")]
+    called = []
+
+    def tracked(step_version, migration):
+        def run(connection):
+            called.append(step_version)
+            migration(connection)
+        return run
+
+    monkeypatch.setattr(database_module, "MIGRATIONS", tuple((v, key, tracked(v, fn)) for v, key, fn in MIGRATIONS))
+    Database(path).initialize()
+    assert called == list(range(version + 1, SCHEMA_VERSION + 1))
+    Database(path).initialize()
+    assert called == list(range(version + 1, SCHEMA_VERSION + 1))
+    with Database(path).read() as connection:
+        assert [tuple(row) for row in connection.execute("SELECT * FROM methods")] == methods
+        assert [tuple(row) for row in connection.execute("SELECT * FROM method_versions")] == revisions
+        after = [tuple(row) for row in connection.execute("SELECT * FROM schema_migrations ORDER BY version")]
+        assert after[:len(history)] == history
+        assert [row[0] for row in after] == list(range(10, 21))
+        assert connection.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0] == "20"
+        assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
+def test_late_migration_failure_rolls_back_all_prior_steps(tmp_path, monkeypatch):
+    path = tmp_path / "late-failure.sqlite3"
+    _legacy_v10_database(path, "[1,2,65535]")
+    with sqlite3.connect(path) as connection:
+        before = list(connection.iterdump())
+
+    def fail(connection):
+        connection.execute("CREATE TABLE should_rollback(value TEXT)")
+        raise sqlite3.IntegrityError("injected v20 failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(database_module, "MIGRATIONS", MIGRATIONS[:-1] + ((20, "maintenance", fail),))
+        with pytest.raises(sqlite3.IntegrityError, match="injected v20 failure"):
+            Database(path).initialize()
+    with sqlite3.connect(path) as connection:
+        assert list(connection.iterdump()) == before
+    Database(path).initialize()
+    with sqlite3.connect(path) as connection:
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 20
+        assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
+def test_failed_staged_conversion_keeps_original_bytes(tmp_path):
+    path = tmp_path / "geospectrum.sqlite3"
+    _legacy_v10_database(path, "invalid-json")
+    before = path.read_bytes()
+    with pytest.raises(sqlite3.IntegrityError, match="cannot be migrated"):
+        prepare_database_upgrade(path)
+    assert path.read_bytes() == before

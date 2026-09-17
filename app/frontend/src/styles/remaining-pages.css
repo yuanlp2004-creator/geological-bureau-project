@@ -1,0 +1,120 @@
+/* S24: remaining business pages share S23 tokens; established three-page layouts stay scoped. */
+:root .app-shell .remaining-page { max-width: 1840px; }
+:root .app-shell .remaining-page :is(.eyebrow, .section-kicker) { font-size: 12px; letter-spacing: .3px; color: var(--ui-muted); }
+:root .app-shell .remaining-page :is(.surface, .form-disclosure, .task-layout, main, aside, section, .field) { min-width: 0; }
+:root .app-shell .remaining-page .surface { padding: var(--ui-space); }
+:root .app-shell .remaining-page :is(h2, h3, strong, p, small, code) { overflow-wrap: anywhere; }
+:root .app-shell .remaining-page :is(small, .muted-label, .surface-note, .state-chip, .task-progress, .section-kicker) { font-size: 12px; }
+:root .app-shell .remaining-page :is(p, small, .surface-note) { color: var(--ui-muted); }
+:root .app-shell .remaining-page :is(.surface-heading, .analysis-hero, .analysis-status-row, .checkpoint-heading) { flex-wrap: wrap; }
+:root .app-shell .remaining-page :is(.monitor-actions, .hardware-actions, .mercury-actions, .analysis-actions, .checkpoint-controls, .debug-toolbar, .curve-tools, .device-actions) { display: flex; flex-wrap: wrap; gap: 8px; }
+:root .app-shell .remaining-page :is(.acquisition-form, .hardware-form, .mercury-form, .analysis-form-grid, .postprocessing-version-grid, .postprocessing-export-grid, .report-export-form) { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+:root .app-shell .remaining-page :is(.span-2, .postprocessing-directory-field) { min-width: 0; }
+:root .app-shell .remaining-page select { max-width: 100%; text-overflow: ellipsis; }
+:root .app-shell .remaining-page :is(table, td, th) { font-size: 13px; font-variant-numeric: tabular-nums; }
+:root .app-shell .remaining-page :is(td, th) { padding: 10px 12px; color: var(--ui-text); border-color: var(--ui-border); }
+:root .app-shell .remaining-page th { background: var(--ui-soft); white-space: nowrap; }
+:root .app-shell .remaining-page :is([class*='table-wrap'], [class*='table-shell'], .analysis-matrix) { max-width: 100%; overflow-x: auto; }
+:root .app-shell .remaining-page table { width: 100%; }
+:root .app-shell .remaining-page :is(.auth-error, .debug-error, .analysis-failure, .hardware-alert, .mercury-alert) { font-size: 14px; overflow-wrap: anywhere; }
+:root .app-shell .remaining-page .danger { color: var(--ui-danger); }
+
+/* A single rail, with its current object retained in the collapsed context. */
+:root .app-shell .remaining-page .task-context { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; min-width: 0; }
+:root .app-shell .remaining-page .task-context strong { font-size: 14px; min-width: 0; }
+:root .app-shell .remaining-page .task-columns { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 16px; align-items: start; }
+:root .app-shell .remaining-page .task-columns > :first-child { position: static; min-width: 0; }
+:root .app-shell .remaining-page .task-columns.rail-hidden { grid-template-columns: minmax(0, 1fr); }
+:root .app-shell .remaining-page .task-columns.rail-hidden > :first-child { display: none; }
+:root .app-shell .remaining-page :is(.acquisition-task-rows, .hardware-task-rows, .mercury-session-rows, .dispersion-task-list, .analysis-run-list) { max-height: 65vh; overflow-y: auto; }
+:root .app-shell .remaining-page :is(.acquisition-task-rows, .hardware-task-rows, .mercury-session-rows, .dispersion-task-list, .analysis-run-list) button { color: var(--ui-text); background: var(--surface); border: 1px solid var(--ui-border); border-radius: 6px; text-align: left; }
+:root .app-shell .remaining-page :is(.acquisition-task-rows, .hardware-task-rows, .mercury-session-rows, .dispersion-task-list, .analysis-run-list) button.active { background: var(--ui-selected); border-color: var(--ui-accent); box-shadow: inset 3px 0 var(--ui-accent); }
+:root .app-shell .remaining-page :is(.acquisition-task-rows, .hardware-task-rows, .mercury-session-rows, .dispersion-task-list, .analysis-run-list) :is(strong, small) { white-space: normal; font-size: 13px; }
+:root .app-shell .remaining-page .form-disclosure { margin-bottom: 12px; }
+:root .app-shell .remaining-page .disclosure-toggle { justify-content: flex-start; }
+:root .app-shell .remaining-page .disclosure-body { margin-top: 12px; }
+:root .app-shell .remaining-page .disclosure-body[hidden] { display: none; }
+:root .app-shell .remaining-page :is(.sample-acquisition-main, .hardware-main, .mercury-main, .dispersion-main, .analysis-main) { display: grid; align-content: start; gap: 16px; }
+:root .app-shell .remaining-page :is(.acquisition-monitor, .hardware-monitor, .mercury-monitor) .surface-heading h2 { font-size: 17px; }
+:root .app-shell .remaining-page :is(.acquisition-progress, .acquisition-facts, .mercury-metrics, .hardware-metrics) { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+:root .app-shell .remaining-page :is(.acquisition-detail-grid, .hardware-evidence-grid, .mercury-evidence) { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+:root .app-shell .remaining-page .message-list strong { white-space: normal; }
+
+/* Infrequent object choices belong above a full-width workspace. */
+:root .app-shell .remaining-page :is(.sample-queue-grid, .acquisition-layout, .reports-grid, .auth-grid, .about-layout, .migration-top-grid) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+:root .app-shell .remaining-page .queue-context .field { max-width: 720px; }
+:root .app-shell .remaining-page .sample-entry-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+:root .app-shell .remaining-page .sample-entry-form .field { flex: 1 1 180px; }
+:root .app-shell .remaining-page .sample-entry-form .small-field { flex: 0 1 130px; }
+:root .app-shell .remaining-page .acquisition-sidebar { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+:root .app-shell .remaining-page .acquisition-sidebar > .surface-heading { margin: 0; }
+:root .app-shell .remaining-page .acquisition-sidebar > .field { flex: 1 1 220px; }
+:root .app-shell .remaining-page .device-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+:root .app-shell .remaining-page .acquisition-sidebar .diagnostic-state { margin: 0; }
+:root .app-shell .remaining-page .report-run-list { max-height: 320px; overflow: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+:root .app-shell .remaining-page .report-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end; }
+:root .app-shell .remaining-page .report-version-selector { max-width: 760px; }
+:root .app-shell .remaining-page .postprocessing-version-grid { align-items: start; }
+:root .app-shell .remaining-page .postprocessing-choice-list { max-height: 280px; overflow: auto; }
+:root .app-shell .remaining-page .postprocessing-export-footer { flex-wrap: wrap; gap: 12px; }
+:root .app-shell .remaining-page .settings-layout { grid-template-columns: minmax(0, 1fr); }
+:root .app-shell .remaining-page .settings-section .field-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+:root .app-shell .remaining-page .settings-section:first-child .field-grid { grid-template-columns: minmax(0, 1fr); }
+:root .app-shell .remaining-page .role-row { grid-template-columns: minmax(160px, .4fr) minmax(0, 1fr); }
+:root .app-shell .remaining-page .role-row code { white-space: normal; }
+:root .app-shell .remaining-page .audit-table td:last-child { min-width: 240px; }
+:root .app-shell .remaining-page .help-article { min-height: 360px; }
+:root .app-shell .remaining-page .help-article p { max-width: 76ch; font-size: 15px; line-height: 1.95; white-space: pre-wrap; }
+:root .app-shell .remaining-page .help-topic-row strong { white-space: normal; font-size: 14px; }
+:root .app-shell .remaining-page .maintenance-row > div:first-child { min-width: 0; }
+:root .app-shell .remaining-page .maintenance-row strong { white-space: normal; }
+
+/* Shared access and error surfaces use local fonts and readable feedback. */
+.auth-shell, .error-page, .toast { font-family: 'Microsoft YaHei UI', 'Segoe UI', sans-serif; }
+.auth-panel { width: min(480px, calc(100vw - 48px)); padding: 32px; }
+.auth-panel :is(p, .field > span, input, button), .error-panel p, .toast { font-size: 14px; line-height: 1.65; }
+.auth-panel input { min-height: 36px; }
+.auth-panel .auth-error, .toast span { overflow-wrap: anywhere; }
+.auth-panel :is(input, button):focus-visible, .error-panel button:focus-visible, .toast button:focus-visible { outline: 2px solid #205fc8; outline-offset: 3px; }
+.toast { max-width: min(680px, calc(100vw - 48px)); }
+.toast button { flex-shrink: 0; }
+
+@media (max-width: 1280px) {
+  :root .app-shell .remaining-page { padding: 20px 16px 32px; }
+  :root .app-shell .remaining-page .task-columns { grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
+  :root .app-shell .remaining-page :is(.hero-row, .page-intro, .analysis-hero) { flex-wrap: wrap; }
+  :root .app-shell .remaining-page :is(.acquisition-form, .hardware-form, .mercury-form, .analysis-form-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :root .app-shell .remaining-page :is(.maintenance-grid, .postprocessing-interval-grid, .postprocessing-version-grid) { grid-template-columns: minmax(0, 1fr); }
+}
+
+:root .app-shell .remaining-page .surface :is(span, code, small) { font-size: 12px; }
+:root .app-shell .remaining-page .surface strong { font-size: 14px; color: var(--ui-text); }
+:root .app-shell .remaining-page :is(.acquisition-progress, .acquisition-facts, .curve-meta, .hardware-metrics, .mercury-metrics) span { color: var(--ui-muted); }
+:root .app-shell .remaining-page .task-columns > :first-child { order: 0; }
+:root .app-shell .remaining-page .simple-chart-axes { font-size: 12px; }
+:root .app-shell .remaining-page :is(.simple-axis-tick, .simple-axis-title, .curve-empty) { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .remaining-page .runtime-source { margin-bottom: 12px; padding: 8px 12px; color: var(--ui-text); background: var(--ui-soft); border-left: 3px solid var(--ui-accent); font-size: 13px; }
+:root .app-shell .remaining-page .form-disclosure { margin-bottom: 0; }
+:root[data-theme='dark'] .remaining-page :is(.curve-path, .spectrum-line) { stroke: #83baff; }
+
+:root .app-shell .remaining-page .settings-section:last-child { grid-column: auto; }
+:root .app-shell .remaining-page :is(.settings-effect-note, .migration-note, .surface-note, .curve-empty span) { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .remaining-page .zoom-presets button { min-height: var(--ui-control); font-size: 12px; }
+:root .app-shell .remaining-page .curve-empty > svg { width: 28px; height: 28px; }
+
+:root .app-shell .remaining-page :is(.analysis-view-tabs, .analysis-workspace, .analysis-switch, .analysis-sample-groups > div, .analysis-sample-groups label, .analysis-curve-toolbar, .analysis-curve-chart) { background: var(--ui-soft); border-color: var(--ui-border); color: var(--ui-text); }
+:root .app-shell .remaining-page .analysis-view-tabs button { color: var(--ui-muted); background: transparent; min-height: var(--ui-control); font-size: 13px; }
+:root .app-shell .remaining-page .analysis-view-tabs button.active { background: var(--ui-selected); color: var(--ui-accent); box-shadow: inset 0 -2px var(--ui-accent); }
+:root .app-shell .remaining-page .reader-facts :is(dt, dd) { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .remaining-page :is(.acquisition-progress, .acquisition-facts, .curve-meta) strong { font-variant-numeric: tabular-nums; }
+:root .app-shell .remaining-page .simple-chart-plot-host:is(.curve-frame, .acquisition-curve) { height: auto; }
+:root .app-shell .remaining-page :is(.curve-frame, .acquisition-curve) .simple-chart-plot { position: relative; inset: auto; margin: var(--chart-top) var(--chart-right) var(--chart-bottom) var(--chart-left); aspect-ratio: 1000 / 260; }
+:root .app-shell .remaining-page :is(.curve-frame, .acquisition-curve) .simple-chart-plot > svg { position: absolute; inset: 0; }
+:root .app-shell .remaining-page .analysis-curve-chart .simple-chart-plot { overflow: visible; }
+
+:root .app-shell .remaining-page .sample-table-wrap :is(td, th):is(:nth-child(1), :nth-child(3), :nth-child(4)),
+:root .app-shell .remaining-page .hardware-table :is(td, th):is(:nth-child(1), :nth-child(2), :nth-child(3), :nth-child(4), :last-child),
+:root .app-shell .remaining-page .mercury-table-wrap :is(td, th):nth-child(n+2):nth-child(-n+6),
+:root .app-shell .remaining-page .analysis-matrix :is(td, th):nth-child(n+4) { text-align: right; }
+
+:root .app-shell .remaining-page .auth-section > .form-disclosure + .form-disclosure { margin-top: 8px; }

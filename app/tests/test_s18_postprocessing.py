@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import sqlite3
 import struct
 import sys
 from pathlib import Path
@@ -11,8 +12,10 @@ import pytest
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.postprocessing import PostProcessingError, PostProcessingService
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database, utc_now
+from backend.modules.postprocessing import PostProcessingError, PostProcessingService
 
 
 def _fixture(tmp_path: Path) -> tuple[Database, PostProcessingService]:
@@ -34,7 +37,7 @@ def _fixture(tmp_path: Path) -> tuple[Database, PostProcessingService]:
             "INSERT INTO spectrum_bands(import_run_id,source_sha256,record_index,format,sample_name,band_name,measure_time,frame_count,ccds_per_frame,points_per_ccd,ccd_count,ccd_indices_json,layout_json,ignition_json,bad_frame_indices_json,mean_blob,burn_adcs_blob,dark_adcs_blob,sampled_values_json,details_json) VALUES ('s18-run','source-sha',0,'edt','S18 sample','band','2026-08-14T08:00:00+08:00',3,1,3,2,'[0,1]','{\"ccd_indices\":[0,1]}','{\"burn_count\":3,\"dark_count\":0}','[]',NULL,?,NULL,'{}','{}')",
             (blob,),
         )
-    return database, PostProcessingService(database)
+    return database, Runtime(AppConfig(data_dir=database.path.parent), database=database).postprocessing_service()
 
 
 def _seed_method_curve(database: Database) -> tuple[int, int, int]:
@@ -143,6 +146,92 @@ def test_conversion_maps_non_leading_ccd_by_source_index(tmp_path: Path) -> None
     assert bytes(band["burn_frames_blob"]) == struct.pack("<6H", 4, 5, 6, 5, 6, 7)
 
 
+def test_conversion_audit_failure_rolls_back_all_created_records(tmp_path: Path) -> None:
+    database, service = _fixture(tmp_path)
+    payload = {"record_ids": ["raw:1"], "start_frame": 1, "end_frame": 2, "target_ccd_layout_id": 2, "target_ccd_indices": [0, 1]}
+    with database.write() as db:
+        db.execute("CREATE TRIGGER reject_conversion_audit BEFORE INSERT ON audit_events WHEN NEW.action='postprocessing.edt.convert' BEGIN SELECT RAISE(ABORT, 'injected conversion audit failure'); END")
+    with database.read() as db:
+        before = list(db.iterdump())
+    with pytest.raises(sqlite3.IntegrityError, match="injected conversion audit failure"):
+        service.convert_edt(payload)
+    with database.read() as db:
+        assert list(db.iterdump()) == before
+    with database.write() as db:
+        db.execute("DROP TRIGGER reject_conversion_audit")
+    assert service.convert_edt(payload)["status"] == "converted"
+    with database.read() as db:
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
+def test_conversion_second_band_failure_rolls_back_without_nested_writes(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+
+    database, service = _fixture(tmp_path)
+    with database.write() as db:
+        db.execute("CREATE TRIGGER reject_second_band BEFORE INSERT ON acquisition_sample_bands WHEN NEW.ccd_index=1 BEGIN SELECT RAISE(ABORT, 'second band failed'); END")
+    with database.read() as db:
+        before = list(db.iterdump())
+    real_write = database.write
+    writes = []
+    active = False
+
+    @contextmanager
+    def guarded_write():
+        nonlocal active
+        assert not active, "nested Database.write would deadlock"
+        active = True
+        writes.append("write")
+        try:
+            with real_write() as connection:
+                yield connection
+        finally:
+            active = False
+
+    monkeypatch.setattr(database, "write", guarded_write)
+    payload = {"record_ids": ["raw:1"], "target_ccd_layout_id": 2, "target_ccd_indices": [0, 1]}
+    with pytest.raises(sqlite3.IntegrityError, match="second band failed"):
+        service.convert_edt(payload)
+    assert writes == ["write"]
+    with database.read() as db:
+        assert list(db.iterdump()) == before
+    with real_write() as db:
+        db.execute("DROP TRIGGER reject_second_band")
+    result = service.convert_edt(payload)
+    assert writes == ["write", "write"]
+    assert service.convert_edt(payload)["id"] == result["id"]
+    with database.read() as db:
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
+def test_export_replace_failure_keeps_existing_file_and_cleans_temporary(tmp_path: Path, monkeypatch) -> None:
+    from backend.modules.postprocessing import exporting
+
+    database, service = _fixture(tmp_path)
+    output = tmp_path / "exports"
+    output.mkdir()
+    target = output / "matrix.csv"
+    target.write_bytes(b"preserved existing export")
+    payload = {"record_ids": ["raw:1"], "kind": "processed_intensity", "format": "csv", "output_directory": str(output), "filename": "matrix", "same_name_strategy": "overwrite"}
+    with database.read() as db:
+        before = list(db.iterdump())
+
+    def reject_replace(*args):
+        raise PermissionError("injected replace failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(exporting.os, "replace", reject_replace)
+        with pytest.raises(PermissionError, match="injected replace failure"):
+            service.export(payload)
+    assert target.read_bytes() == b"preserved existing export"
+    assert list(output.iterdir()) == [target]
+    with database.read() as db:
+        assert list(db.iterdump()) == before
+    service.export(payload)
+    assert target.read_bytes().startswith(b"\xef\xbb\xbf")
+
+
 def test_export_formats_have_stable_columns_and_atomic_same_name(tmp_path: Path) -> None:
     _, service = _fixture(tmp_path)
     csv_export = service.export({"record_ids": ["raw:1"], "kind": "processed_intensity", "format": "csv", "output_directory": str(tmp_path), "filename": "matrix", "same_name_strategy": "suffix"})
@@ -194,3 +283,81 @@ def test_recalculation_uses_exact_curve_and_preserves_pdt_source(tmp_path: Path)
     with database.read() as db:
         source = db.execute("SELECT source_sha256, matrix_blob FROM result_matrices WHERE id=1").fetchone()
         assert source["source_sha256"] == "pdt-source" and bytes(source["matrix_blob"]) == matrix
+
+
+@pytest.mark.parametrize("fail_step", [False, True])
+def test_recalculation_uses_one_injected_analysis_and_preserves_failures(tmp_path, fail_step):
+    from backend.modules.analysis import AnalysisError
+
+    database, original = _fixture(tmp_path)
+    _, version_id, curve_id = _seed_method_curve(database)
+    converted = original.convert_edt({"record_ids": ["raw:1"], "target_ccd_layout_id": 2,
+                                     "target_ccd_indices": [0], "method_version_id": version_id})
+    sample_id = converted["sample_ids"][0]
+    calls = []
+
+    class ControlledAnalysis:
+        def curve_evaluators(self, ids, version, profile):
+            calls.append("curves")
+            return {"L1": {"fit": {"kind": "polynomial", "coefficients": [0, 2, 0, 0]},
+                           "coordinate_type": "normal", "curve_snapshot_id": curve_id}}
+
+        def create_run(self, payload, actor):
+            calls.append("create")
+            assert payload["method_version_id"] == version_id
+            assert payload["acquisition_sample_ids"] == [sample_id]
+            return {"id": 98765}
+
+        def start(self, run_id, actor):
+            calls.append("start")
+            assert run_id == 98765
+            return {"id": run_id, "status": "running"}
+
+        def step(self, run_id, actor):
+            calls.append("step")
+            if fail_step:
+                raise AnalysisError("controlled_failure", "controlled failure", details={"phase": "step"})
+            return {"id": run_id, "status": "completed", "samples": [{"position": 0, "sample_name": "N1"}],
+                    "line_results": [{"line_type": "analysis", "line_id": "L1", "quantitative_signal": 9.0,
+                                      "sample_position": 0, "element": "Cu", "wavelength_nm": 324.754}]}
+
+    service = PostProcessingService(database, analysis=ControlledAnalysis(), methods=original.methods, acquisitions=original.conversion.work.acquisitions)
+    result = service.recalculate({"source_record_ids": [f"sample:{sample_id}"], "method_version_id": version_id,
+                                  "curve_snapshot_ids": [curve_id]})
+    assert calls == ["curves", "create", "start", "step"]
+    if fail_step:
+        assert result["status"] == "blocked"
+        assert result["result"]["blocked"][0]["code"] == "controlled_failure"
+        assert result["result"]["blocked"][0]["details"] == {"phase": "step"}
+    else:
+        assert result["status"] == "completed"
+        assert result["result"]["sources"][0]["lines"][0]["calculated_value"] == 18.0
+
+
+def test_recalculation_audit_failure_retains_already_committed_analysis(tmp_path, monkeypatch):
+    from tests.test_s16_analysis import _seed
+
+    database = Database(tmp_path / "commits.sqlite3")
+    version_id, sample_ids = _seed(database)
+    service = Runtime(AppConfig(data_dir=tmp_path), database=database).postprocessing_service()
+    evaluators = {line_id: {"fit": {"kind": "polynomial", "coefficients": [0, 2, 0, 0]},
+                            "coordinate_type": "normal", "curve_snapshot_id": 7}
+                  for line_id in ("A-none", "A-background", "A-gaussian")}
+    monkeypatch.setattr(service.recalculation.analysis, "curve_evaluators", lambda *_: evaluators)
+    with database.write() as db:
+        db.execute("CREATE TRIGGER reject_recalculation_audit BEFORE INSERT ON audit_events WHEN NEW.action='postprocessing.recalculate' BEGIN SELECT RAISE(ABORT, 'recalculation audit failed'); END")
+    payload = {"source_record_ids": [f"sample:{sample_ids[0]}"], "method_version_id": version_id,
+               "calculation_profile": "modern_v1", "curve_snapshot_ids": [7]}
+    with pytest.raises(sqlite3.IntegrityError, match="recalculation audit failed"):
+        service.recalculate(payload)
+    with database.read() as db:
+        runs = db.execute("SELECT id,status FROM analysis_runs").fetchall()
+        assert len(runs) == 1 and runs[0]["status"] == "completed"
+        assert db.execute("SELECT COUNT(*) FROM analysis_line_results").fetchone()[0] > 0
+        assert db.execute("SELECT COUNT(*) FROM postprocessing_recalculation_runs").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM audit_events WHERE action='postprocessing.recalculate'").fetchone()[0] == 0
+    with database.write() as db:
+        db.execute("DROP TRIGGER reject_recalculation_audit")
+    assert service.recalculate(payload)["status"] == "completed"
+    with database.read() as db:
+        assert db.execute("SELECT COUNT(*) FROM analysis_runs WHERE status='completed'").fetchone()[0] == 2

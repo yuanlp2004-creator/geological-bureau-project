@@ -1,0 +1,211 @@
+{
+  "status": "passed",
+  "date": "2026-09-14",
+  "scope": [
+    "D2",
+    "D3a",
+    "D3b",
+    "D4"
+  ],
+  "authorization": "continuous D2-D4",
+  "plan_sha256": "FA35C1537BDA7A84DD433899303AD0634559E75C09EA39FC6F5EB87FCFAB5E0E",
+  "root_plan_sha256": "8E02D2A9FD89A6D4C3640CF006A06697C32A4841EABE82AA376AB0DAC09469D9",
+  "stages": [
+    {
+      "stage": "D2",
+      "status": "passed",
+      "targeted": 30,
+      "full": 176,
+      "seconds": 49.14,
+      "compileall": 0,
+      "openapi_and_outputs": "9 byte-identical",
+      "constructors": "runtime explicit, no fallback",
+      "plan_sha256": "FA35C1537BDA7A84DD433899303AD0634559E75C09EA39FC6F5EB87FCFAB5E0E"
+    },
+    {
+      "stage": "D3a",
+      "status": "passed",
+      "targeted": 32,
+      "full": 178,
+      "seconds": 49.97,
+      "outputs": "9 byte-identical",
+      "scope": "no target method SQL/private snapshot helpers; transaction binding; batched version reads"
+    },
+    {
+      "stage": "D3b",
+      "status": "passed",
+      "full": 180,
+      "seconds": 49.95,
+      "outputs": "9 byte-identical; acquisition/conversion/audit rows and BLOBs identical",
+      "transaction": "single write; audit and mid-band rollback; retry; idempotence",
+      "targeted_runs": [
+        17,
+        15
+      ]
+    },
+    {
+      "stage": "D4",
+      "status": "passed",
+      "targeted_runs": [
+        21,
+        20
+      ],
+      "full": 188,
+      "seconds": 50.63,
+      "compileall_exit_code": 0,
+      "legacy_comparison_cases": 10,
+      "export_comparisons": 6
+    }
+  ],
+  "conversion_comparison": {
+    "before": "9389db8eeb0e4d95353d64897c34b965b6136d455504e42d36c7eea37b2fd075",
+    "after": "9389db8eeb0e4d95353d64897c34b965b6136d455504e42d36c7eea37b2fd075"
+  },
+  "source_changes": [
+    {
+      "path": "app/backend/runtime.py",
+      "status": "modified",
+      "sha256": "a0dca5f75f8fd50b03beedf6997ec4cf93048e8b7f1011ea7e4df290e934916b"
+    },
+    {
+      "path": "app/backend/modules/acquisition_import.py",
+      "status": "added",
+      "sha256": "1f920576a505b6fd2daad5d17590b9f832902dd6d101cd8a8266752368144a61"
+    },
+    {
+      "path": "app/backend/modules/reports.py",
+      "status": "modified",
+      "sha256": "c17f2369aa57b800e68e0ed67ad4ae299ff4331b7efeb8a4daa5746bc9238478"
+    },
+    {
+      "path": "app/backend/modules/analysis/contracts.py",
+      "status": "added",
+      "sha256": "2ab43333b474e9b29e1afeffab1c5f925bcc5cfe368bf7cdeb0924a70ac26d1e"
+    },
+    {
+      "path": "app/backend/modules/analysis/repository.py",
+      "status": "modified",
+      "sha256": "4aae731512463dd60daf0712578aa92c069b3fe443e68a375360946e18c8309c"
+    },
+    {
+      "path": "app/backend/modules/analysis/service.py",
+      "status": "modified",
+      "sha256": "cad0c94e7209599811340c1798cb9e5d4916c2847ca04dd4c736f91765d81f16"
+    },
+    {
+      "path": "app/backend/modules/methods/service.py",
+      "status": "modified",
+      "sha256": "9ca184db4ad1d99c8e0e115a43d16c48bb7a442ee2fb032688815088e40bd043"
+    },
+    {
+      "path": "app/backend/modules/methods/snapshots.py",
+      "status": "added",
+      "sha256": "86f6daac160a663ed349cb9af6f366bfac69c8dac4ef967f54505dad5b064478"
+    },
+    {
+      "path": "app/backend/modules/method_printing/document.py",
+      "status": "modified",
+      "sha256": "78b4059d324281c34b2a6fa46575ac2eb159c524cc867fd1d788411515c8d353"
+    },
+    {
+      "path": "app/backend/modules/method_printing/rendering.py",
+      "status": "modified",
+      "sha256": "2befbb906b841067bb0832b53039d8e6356e4742cc229924f3912d27ab62ecda"
+    },
+    {
+      "path": "app/backend/modules/method_printing/service.py",
+      "status": "modified",
+      "sha256": "c0a76e18ed2cd1d3d3356750b49c03c297873a58abd5313d2db0f161d1d17e20"
+    },
+    {
+      "path": "app/backend/modules/method_printing/settings.py",
+      "status": "added",
+      "sha256": "d332b7ae2d76cad0bf69055269d2f94882637e87b0cc3508b8db6f751153413e"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/conversion.py",
+      "status": "modified",
+      "sha256": "a95ea21dbd0100a1e1e164ea264ce661976b8fdacec5ea2138c71c0e9f3208ad"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/conversion_uow.py",
+      "status": "added",
+      "sha256": "03815b68ec1defdf704643872051c3bb91d84327e481b79fef715692d5923bfd"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/legacy_calculation.py",
+      "status": "added",
+      "sha256": "1be0d00df8c38f7e53ba1de85137d156fd222b48ed93f592af8a804f11190828"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/recalculation.py",
+      "status": "modified",
+      "sha256": "0f903e2a79eb6824d1b12acf33da1ae9dc2c567d2d4042d9c1297b06ce173d3b"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/repository.py",
+      "status": "modified",
+      "sha256": "1bd8ad3a83b5763b0a32320ebb233e3af336b38a99c3df27553765dba3e19840"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/service.py",
+      "status": "modified",
+      "sha256": "3e4c1e9244841c4b9eb49b081539116db7ee418fc7699c8c5878b50bfe3987cf"
+    },
+    {
+      "path": "app/tests/test_decoupled_calculation.py",
+      "status": "added",
+      "sha256": "43df12f62ab1d318ce3367d5c000ccf265ce052dd94ae36aff4697d7197c0209"
+    },
+    {
+      "path": "app/tests/test_method_printing.py",
+      "status": "modified",
+      "sha256": "2a77808049044a85d1d02af4edfeec0587dda0f11ab39d09ed3b757a589f2769"
+    },
+    {
+      "path": "app/tests/test_method_snapshot_boundary.py",
+      "status": "added",
+      "sha256": "fddd5b2399537b2e20d06e53580bb1c97da6c3e1686205db59725cf868c93af5"
+    },
+    {
+      "path": "app/tests/test_runtime_isolation.py",
+      "status": "modified",
+      "sha256": "65ec9000d0c6cb1789572af26860f4ca4e5555a62addfbd236ba63b2766c60ad"
+    },
+    {
+      "path": "app/tests/test_s13_acquisition.py",
+      "status": "modified",
+      "sha256": "3a89ebc3ab40cd8d36976b5b7df83aed0da5e1081540622e30ee7f10b4518ffc"
+    },
+    {
+      "path": "app/tests/test_s16_analysis.py",
+      "status": "modified",
+      "sha256": "9ef8f802211877c25e250c49d33d3332351960a6832d1aef20893937392456cf"
+    },
+    {
+      "path": "app/tests/test_s17_quality_curves.py",
+      "status": "modified",
+      "sha256": "b36684597ba314825168bed304c8972615874e2e09ce1a46f13ff28e0c4a1f94"
+    },
+    {
+      "path": "app/tests/test_s18_postprocessing.py",
+      "status": "modified",
+      "sha256": "a5d1ba469b7d90a03fe70188d5707e7d7f0684cbc62746dbc67f330be843d9c3"
+    },
+    {
+      "path": "app/tests/test_s19_reports.py",
+      "status": "modified",
+      "sha256": "40474a1c3c751a5777188c75bffedc90ccc9bb7243c2b5b4b327417bda9a946b"
+    },
+    {
+      "path": "app/tools/generate_s05_sample.py",
+      "status": "modified",
+      "sha256": "4b773003bacdc883abb05c82f8a0209798dc3e380f18721011ee72bcd836e606"
+    }
+  ],
+  "executable_updated": false,
+  "installer_updated": false,
+  "physical_printer_tested": false,
+  "native_dialog_tested": false,
+  "detailed_evidence": "app/.local/internal-decoupling/D2, D3a, D3b, D4"
+}

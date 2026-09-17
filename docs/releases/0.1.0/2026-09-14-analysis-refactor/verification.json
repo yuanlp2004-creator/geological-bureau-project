@@ -1,0 +1,73 @@
+{
+  "plan_sha256": "596AE6054E9FE5830C963090336981E1773D0FAB8DB63BABE488EF655CDE25A0",
+  "backend_sha256": "5A1F52BA15372974C8ED556A26F8CDCA8763CA804D25C931A77E9D370517EE02",
+  "desktop_and_installer_unchanged": true,
+  "tests": {
+    "full_python": 166,
+    "final_targeted": 24
+  },
+  "contract": {
+    "methods_preserved": 39,
+    "functions_preserved": 12,
+    "mapping": {
+      "_actor": "repository",
+      "_audit": "repository",
+      "_message": "repository",
+      "_operational_lines": "repository",
+      "_context": "repository",
+      "_analysis_lines": "repository",
+      "_latest_qc": "repository",
+      "_base_curve_points": "repository",
+      "_curve_workspace": "repository",
+      "_curve_row": "repository",
+      "_run_dict": "repository",
+      "run": "repository",
+      "_standard_index": "quality",
+      "_qc_groups": "quality",
+      "_write_qc_snapshot": "quality",
+      "build_quality": "quality",
+      "decide_quality": "quality",
+      "_save_workspace": "curves",
+      "curve_action": "curves",
+      "_fit_diagnostics": "curves",
+      "fit_standard_curve": "curves",
+      "curve_evaluators": "curves",
+      "publish_standard_curve": "curves",
+      "merge_results": "curves",
+      "_curve_preview_html": "printing",
+      "_curve_pdf": "printing",
+      "curve_preview": "printing",
+      "print_curve": "printing",
+      "_profile": "service",
+      "options": "service",
+      "create_run": "service",
+      "list_runs": "service",
+      "_line_candidate": "service",
+      "_write_result": "service",
+      "_advance": "service",
+      "start": "service",
+      "step": "service",
+      "intervene": "service",
+      "cancel": "service"
+    },
+    "error_and_constants_preserved": true,
+    "lines": {
+      "algorithms.py": 262,
+      "curves.py": 256,
+      "errors.py": 17,
+      "printing.py": 134,
+      "quality.py": 139,
+      "repository.py": 160,
+      "serialization.py": 15,
+      "service.py": 343,
+      "__init__.py": 7
+    }
+  },
+  "frozen_analysis": {
+    "status": "passed",
+    "quality_fit_publish_merge_preview_print_replay": true,
+    "missing_line_rejected": true,
+    "pdf_bytes": 23204,
+    "pdf_sha256": "c91080473a27bfdadda8b3b990bba0f1e65a07795f43183875d427168ddc4e7e"
+  }
+}

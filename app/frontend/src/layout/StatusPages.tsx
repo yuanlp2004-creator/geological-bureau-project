@@ -1,0 +1,5 @@
+import { AlertTriangle, LayoutDashboard, RefreshCw } from 'lucide-react'
+
+function DisabledPage({ item }: { item: { label: string; icon: typeof LayoutDashboard; hint: string } }) { const Icon = item.icon; return <div className="page-content disabled-page"><div className="disabled-illustration"><Icon size={34} /></div><span className="section-kicker">MODULE NOT ENABLED</span><h1>{item.label}</h1><p>{item.hint}。当前步骤只提供导航入口，业务数据和操作会在对应阶段交付。</p><div className="disabled-track"><span className="track-done" /><span /><span /><span /></div></div> }
+
+export function ErrorPage({ onRetry }: { onRetry: () => void }) { return <main className="error-page"><div className="error-panel"><div className="error-icon"><AlertTriangle size={25} /></div><span className="section-kicker">LOCAL SERVICE UNAVAILABLE</span><h1>无法连接本地服务</h1><p>GeoSpectrum 工作台需要本机 FastAPI 服务完成健康握手。请检查服务进程后重试。</p><button className="primary-button" onClick={onRetry}><RefreshCw size={16} />重新连接</button><div className="error-code"><span>诊断端点</span><code>http://127.0.0.1:&lt;random&gt;/health</code></div></div></main> }

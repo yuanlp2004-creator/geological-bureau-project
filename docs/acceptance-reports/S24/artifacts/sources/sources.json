@@ -1,0 +1,65 @@
+[
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.MTD",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\DIRECT.MTD",
+    "bytes": 339968,
+    "mtime_ns": 1787726422507817800,
+    "sha256": "527ae25c08dcf3afb8365b4177cf5d5b113eb417649b6803ad7de2f27c43f83d"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.CFG",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\DIRECT.CFG",
+    "bytes": 144,
+    "mtime_ns": 1787726422442391600,
+    "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.OPT",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\DIRECT.OPT",
+    "bytes": 379,
+    "mtime_ns": 1787726422494468400,
+    "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cdt",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\sample.cdt",
+    "bytes": 5578752,
+    "mtime_ns": 1787726454767321800,
+    "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\生产用方法_20170526_1135.cmt",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\sample.cmt",
+    "bytes": 13471744,
+    "mtime_ns": 1787726463411120600,
+    "sha256": "f4b29b1f341bd04a612948abc6a4ed2ff1c681864525e7b9180bf4b9741ea353"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\result.dat",
+    "bytes": 2105,
+    "mtime_ns": 1787726451809604100,
+    "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec2.02\\DIRECT.MTD",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\runtime-DIRECT.MTD",
+    "bytes": 339968,
+    "mtime_ns": 1787726420201583000,
+    "sha256": "2f7c09324b4f9320506f2a198a1e2abdd6e9d31a5ef92b2ac4b4e9cb9279a3f8"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec2.02\\DIRECT.CFG",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\runtime-DIRECT.CFG",
+    "bytes": 125,
+    "mtime_ns": 1787726419881753300,
+    "sha256": "51406d2f036ca8e9a7aa4f0b8d14362689695a19793df58a2f90913179d5c4c2"
+  },
+  {
+    "source": "C:\\Users\\Leo\\Desktop\\地质局\\Spec2.02\\DIRECT.OPT",
+    "copy": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\tmp\\s24-sources\\runtime-DIRECT.OPT",
+    "bytes": 395,
+    "mtime_ns": 1787726420080352500,
+    "sha256": "3ceb8d73484687a2b83cfb64ceac6cdecfb8c0e68e5a04497b3501c624de63dc"
+  }
+]

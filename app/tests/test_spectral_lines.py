@@ -14,17 +14,13 @@ sys.path.insert(0, str(APP_ROOT))
 @pytest.fixture()
 def line_client(tmp_path, monkeypatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(
-        main_module.database, tmp_path / "logs" / "runtime.jsonl"
-    )
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         bootstrap = client.post(
             "/api/v1/auth/bootstrap",
             json={"username": "line-admin", "password": "correct-horse"},
@@ -35,7 +31,7 @@ def line_client(tmp_path, monkeypatch):
             json={"username": "line-admin", "password": "correct-horse"},
         )
         token = login.json()["access_token"]
-        yield client, main_module, {"Authorization": f"Bearer {token}"}
+        yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 
 def _method(client: TestClient, headers: dict[str, str]) -> dict:
@@ -351,19 +347,19 @@ def test_reorder_priority_publish_and_version_immutability(line_client) -> None:
 
 
 def test_cycle_and_maximum_count_have_stable_codes(line_client) -> None:
-    _, main, _ = line_client
-    from backend.app.modules.methods import DEFAULT_CONDITIONS, MethodService
-    from backend.app.modules.spectral_lines import (
+    _, runtime, _ = line_client
+    from backend.modules.methods import DEFAULT_CONDITIONS, MethodService
+    from backend.modules.spectral_lines import (
         canonical_lines,
         validate_spectral_lines,
     )
 
-    service = MethodService(main.database)
+    service = MethodService(runtime.database)
     first = _line(254.0, line_type="positioning", element="Ne")
     second = _line(255.0, line_type="positioning", element="Ar")
     first.update({"id": "first", "order": 1, "alignment_line_id": "second"})
     second.update({"id": "second", "order": 2, "alignment_line_id": "first"})
-    with main.database.read() as db:
+    with runtime.database.read() as db:
         cycle_errors = validate_spectral_lines(
             service, db, DEFAULT_CONDITIONS, canonical_lines([first, second], DEFAULT_CONDITIONS)
         )

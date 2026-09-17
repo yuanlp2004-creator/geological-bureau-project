@@ -8,11 +8,13 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = APP_ROOT.parent
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
-from backend.app.modules.method_printing import MethodPrintService
-from backend.app.modules.methods import MethodDomainError, MethodService
-from backend.app.modules.spectral_lines import SpectralLineService
-from backend.app.schemas import MethodCreate, MethodPrintSettings, SpectralLineInput
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database
+from backend.modules.method_printing import MethodPrintService
+from backend.modules.methods import MethodDomainError, MethodService
+from backend.modules.spectral_lines import SpectralLineService
+from backend.schemas import MethodCreate, MethodPrintSettings, SpectralLineInput
 
 
 def line(element: str, wavelength_nm: float) -> SpectralLineInput:
@@ -87,7 +89,7 @@ def main() -> int:
             except MethodDomainError as exc:
                 raise RuntimeError(f"sample line {element} failed: {exc.detail()}") from exc
 
-        pdf_bytes, document = MethodPrintService(database).pdf(
+        pdf_bytes, document = Runtime(AppConfig(data_dir=database.path.parent), database=database).method_print_service().pdf(
             method_id,
             None,
             MethodPrintSettings(

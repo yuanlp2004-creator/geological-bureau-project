@@ -23,12 +23,12 @@ METADATA = TARGET.with_suffix(".build.json")
 def main() -> int:
     resource_manifest = load_runtime_resources()
     resource_data: list[tuple[Path, str]] = [
-        (RESOURCE_MANIFEST, "backend/app/resources"),
+        (RESOURCE_MANIFEST, "backend/resources"),
     ]
     resource_data.extend(
         (
             RESOURCE_ROOT / item["path"],
-            f"backend/app/resources/{Path(item['path']).parent.as_posix()}",
+            f"backend/resources/{Path(item['path']).parent.as_posix()}",
         )
         for item in resource_manifest["resources"]
     )

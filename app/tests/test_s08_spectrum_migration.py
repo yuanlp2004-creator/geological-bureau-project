@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from backend.app.db import Database
-from backend.app.modules.legacy_migration import LegacyMigrationError
-from backend.app.modules.spectrum_migration import SpectrumMigrationService
+from backend.db import Database
+from backend.modules.legacy_migration import LegacyMigrationError
+from backend.modules.spectrum_migration import SpectrumMigrationService
 
 
 def blob(raw: bytes) -> dict[str, object]:

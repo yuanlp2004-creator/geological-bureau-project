@@ -31,7 +31,7 @@ def main() -> int:
     env["SPECTRUM_DATA_DIR"] = str(data_dir)
     stdout_path = data_dir / "stdout.log"
     stderr_path = data_dir / "stderr.log"
-    command = [str(PYTHON), "-m", "uvicorn", "backend.app.main:app", "--host", "127.0.0.1", "--port", str(port)]
+    command = [str(PYTHON), "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", str(port)]
     started = time.perf_counter()
     with stdout_path.open("w", encoding="utf-8") as stdout, stderr_path.open("w", encoding="utf-8") as stderr:
         process = subprocess.Popen(command, cwd=APP_ROOT, env=env, stdout=stdout, stderr=stderr)

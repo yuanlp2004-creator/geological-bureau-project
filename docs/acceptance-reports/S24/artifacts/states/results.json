@@ -1,0 +1,149 @@
+{
+  "observations": [
+    {
+      "key": "migration-missing-source",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "migration-already-committed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "spectrum-migration-missing-source",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "spectrum-migration-already-committed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "result-migration-missing-source",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "result-migration-already-committed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "settings-failed-preserved",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "maintenance-invalid-directory",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "help-empty",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "about-capabilities",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-cmt-interval",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-invalid-interval",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "users-read-only",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "maintenance-read-only",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "service-offline",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "login",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "login-error",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "bootstrap-mismatch-mocked-status",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    }
+  ],
+  "errors": []
+}

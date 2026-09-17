@@ -12,8 +12,8 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
-from backend.app.modules.dispersion import DispersionError, DispersionService, _evaluate, _fit_polynomial
+from backend.db import Database
+from backend.modules.dispersion import DispersionError, DispersionService, _evaluate, _fit_polynomial
 
 
 def test_s12_polynomial_fit_reproduces_golden_probe() -> None:
@@ -80,24 +80,20 @@ def test_s12_duplicate_insufficient_and_residual_failures_keep_draft(tmp_path: P
 @pytest.fixture()
 def dispersion_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    main_module._device_service_instance = None
-    main_module._dispersion_service_instance = None
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
-        yield client, main_module, {"Authorization": f"Bearer {token}"}
+        yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 
 def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -> None:
-    client, main_module, headers = dispersion_client
+    client, runtime, headers = dispersion_client
     assert client.get("/api/v1/dispersion/tasks").status_code == 401
     options = client.get("/api/v1/dispersion/options", headers=headers)
     assert options.status_code == 200
@@ -174,10 +170,10 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     timings = {(frame["phase"], frame["frame_index"], frame["virtual_time_ms"]) for frame in frames.json()}
     assert timings == {("burn", 0, 2000.0), ("burn", 1, 3000.0), ("dark", 0, 4000.0)}
     with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        with main_module.database.write() as db:
+        with runtime.database.write() as db:
             db.execute("UPDATE dispersion_task_frames SET points_count=1 WHERE task_id=?", (task_id,))
     with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        with main_module.database.write() as db:
+        with runtime.database.write() as db:
             db.execute("DELETE FROM dispersion_task_frames WHERE task_id=?", (task_id,))
 
     added_line = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines", headers=headers, json={"element": "Hg", "wavelength_nm": 253.65, "ccd_index": 0})
@@ -212,9 +208,9 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert repeated_binding.json()["id"] == binding.json()["id"]
 
     with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        with main_module.database.write() as db:
+        with runtime.database.write() as db:
             db.execute("UPDATE dispersion_calibration_versions SET name='mutated' WHERE id=?", (calibration_version_id,))
-    with main_module.database.read() as db:
+    with runtime.database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM sample_queues").fetchone()[0] == 0
         assert db.execute("SELECT COUNT(*) FROM spectrum_bands").fetchone()[0] == 0
         assert db.execute("SELECT COUNT(*) FROM method_calibration_bindings").fetchone()[0] == 1

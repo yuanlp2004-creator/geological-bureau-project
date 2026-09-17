@@ -7,7 +7,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-from backend.app.db import SCHEMA_VERSION
+from backend.db import SCHEMA_VERSION
 
 
 def sha256(path: Path) -> str:

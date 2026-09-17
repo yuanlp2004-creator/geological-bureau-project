@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "date": "2026-09-14",
+  "files_before": 127,
+  "files_after": 125,
+  "small_files_reviewed": 60,
+  "merged": 2,
+  "retained": 58,
+  "unchanged_backend_files": 122,
+  "targeted_tests": 27,
+  "full_tests": 188,
+  "full_seconds": 50.21,
+  "compileall_exit_code": 0,
+  "openapi_equal": true,
+  "conversion_data": {
+    "before": "9389db8eeb0e4d95353d64897c34b965b6136d455504e42d36c7eea37b2fd075",
+    "after": "9389db8eeb0e4d95353d64897c34b965b6136d455504e42d36c7eea37b2fd075"
+  },
+  "changes": [
+    {
+      "path": "app/backend/modules/postprocessing/codec.py",
+      "action": "deleted",
+      "baseline_sha256": "0a6dbd458db599bbfbe615c0fe2c838be3318900996dcc285b5df4fbdddf6b12"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/conversion.py",
+      "action": "modified",
+      "sha256": "89219f01e03b9b05dbf0c777c129b2b39f47f50dc00997251f1917dbabfe17fd"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/conversion_uow.py",
+      "action": "deleted",
+      "baseline_sha256": "03815b68ec1defdf704643872051c3bb91d84327e481b79fef715692d5923bfd"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/repository.py",
+      "action": "modified",
+      "sha256": "ea0261ea0a7e9e403b0b3c1d54d1a9b9c959f23e255ff262f0d5324330f9a9b9"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/__init__.py",
+      "action": "modified",
+      "sha256": "96e189583e7bb8eaf8868a672c1d2ec3db80d464bdced57328fb0d699ccbe0a3"
+    }
+  ],
+  "root_plan_sha256": "E1B744DF328E942E7DDD3F5FC695AE20D295E9ABD1B94E647EFDCE1D3C7797AD",
+  "decoupling_plan_sha256": "937CF622C9559C8B63271DB9AC1D85E3BECF31A32636CA20DF532339F6DF0F32",
+  "executable_updated": false,
+  "installer_updated": false
+}

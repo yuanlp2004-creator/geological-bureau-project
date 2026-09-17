@@ -1,0 +1,268 @@
+/* S23 pilot: visual tokens and layout apply only to the three approved pages. */
+.refined-page {
+  --ui-text: #23374d;
+  --ui-muted: #53677d;
+  --ui-soft: #f5f8fc;
+  --ui-border: #d8e2ec;
+  --ui-control-border: #8193a7;
+  --ui-accent: #205fc8;
+  --ui-selected: #edf4ff;
+  --ui-success: #176b50;
+  --ui-success-bg: #eaf7f0;
+  --ui-warning: #895719;
+  --ui-warning-bg: #fff4e2;
+  --ui-danger: #a53636;
+  --ui-danger-bg: #fff2f1;
+  --ui-space: 20px;
+  --ui-control: 36px;
+  --ink: var(--ui-text);
+  --muted: var(--ui-muted);
+  --line-strong: var(--ui-control-border);
+  --surface-soft: var(--ui-soft);
+  font-family: 'Microsoft YaHei UI', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+:root[data-theme='dark'] .refined-page {
+  --ui-text: #e2ebf5;
+  --ui-muted: #afbed0;
+  --ui-soft: #122235;
+  --ui-border: #3d5168;
+  --ui-control-border: #71869f;
+  --ui-accent: #9ac2ff;
+  --ui-selected: #203e61;
+  --ui-success: #95e0be;
+  --ui-success-bg: #183d34;
+  --ui-warning: #f0cc91;
+  --ui-warning-bg: #47361f;
+  --ui-danger: #ffb4b0;
+  --ui-danger-bg: #47282d;
+}
+:root[data-density='compact'] .refined-page { --ui-space: 16px; --ui-control: 32px; }
+
+/* Shared hierarchy. The explicit scope also wins over the legacy dark overrides. */
+:root .app-shell .refined-page { max-width: 1840px; padding: 24px 28px 40px; color: var(--ui-text); }
+:root .app-shell .refined-page :is(.hero-row, .page-intro) { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 24px; }
+:root .app-shell .refined-page :is(.hero-row, .page-intro) > div:first-child { min-width: 0; }
+:root .app-shell .refined-page h1 { margin: 0 0 6px; color: var(--ui-text); font-size: 24px; line-height: 1.4; }
+:root .app-shell .refined-page :is(.hero-row, .page-intro) p { margin: 0; color: var(--ui-muted); font-size: 13px; line-height: 1.65; }
+:root .app-shell .refined-page :is(.hero-actions, .page-intro-actions) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-shrink: 0; }
+:root .app-shell .refined-page .surface { border-color: var(--ui-border); border-radius: 8px; box-shadow: none; }
+:root .app-shell .refined-page .surface-heading { gap: 12px; align-items: center; }
+:root .app-shell .refined-page .surface-heading h2 { margin: 0; font-size: 17px; color: var(--ui-text); }
+:root .app-shell .refined-page :is(.primary-button, .secondary-button, .tool-button, .segmented-control button, .icon-button) { min-height: var(--ui-control); font-size: 13px; border-radius: 6px; justify-content: center; flex-shrink: 0; }
+:root .app-shell .refined-page :is(.primary-button, .secondary-button) { padding: 0 14px; box-shadow: none; }
+:root .app-shell .refined-page .primary-button { color: #fff; background: #205fc8; }
+:root .app-shell .refined-page .primary-button:hover:not(:disabled) { background: #194da4; }
+:root .app-shell .refined-page :is(.secondary-button, .tool-button, .icon-button) { color: var(--ui-text); border: 1px solid var(--ui-control-border); background: var(--surface); }
+:root .app-shell .refined-page :is(.secondary-button, .tool-button, .icon-button):hover:not(:disabled) { color: var(--ui-accent); background: var(--ui-selected); border-color: var(--ui-accent); }
+:root .app-shell .refined-page .icon-button { width: var(--ui-control); height: var(--ui-control); }
+:root .app-shell .refined-page .icon-button.danger { color: var(--ui-danger); }
+:root .app-shell .refined-page :is(button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+:root .app-shell .refined-page button:disabled { cursor: not-allowed; box-shadow: none; }
+:root .app-shell .refined-page :is(.field > span, .toggle-row strong) { color: var(--ui-text); font-size: 13px; }
+:root .app-shell .refined-page :is(input:not([type='checkbox']), select, textarea) { min-width: 0; min-height: var(--ui-control); color: var(--ui-text); border-color: var(--ui-control-border); background: var(--surface); font-size: 14px; }
+:root .app-shell .refined-page :is(input:not([type='checkbox']), select) { height: var(--ui-control); }
+:root .app-shell .refined-page textarea { line-height: 1.6; }
+:root .app-shell .refined-page input.numeric-input { text-align: right; font-variant-numeric: tabular-nums; }
+:root .app-shell .refined-page :is(input, select, textarea):disabled { color: var(--ui-muted); background: var(--ui-soft); }
+:root .app-shell .refined-page :is(input, textarea)::placeholder { color: var(--ui-muted); }
+:root .app-shell .refined-page .field small { color: var(--ui-muted); font-size: 12px; line-height: 1.6; }
+:root .app-shell .refined-page input.numeric-input:invalid { border-color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .refined-page .field .numeric-input-error { color: var(--ui-danger); }
+:root .app-shell .refined-page :is(.auth-error, .method-issues) { color: var(--ui-danger); border-color: var(--ui-danger); background: var(--ui-danger-bg); font-size: 13px; overflow-wrap: anywhere; }
+:root .app-shell .refined-page :is(.count-badge, .version-chip, .issue-chip, .current-chip, .ready-badge, .protocol-ok, .protocol-pending, .protocol-error, .live-pill) { font-size: 12px; line-height: 1.5; }
+:root .app-shell .refined-page :is(.current-chip, .version-chip.published, .ready-badge, .protocol-ok, .live-pill.online) { color: var(--ui-success); background: var(--ui-success-bg); }
+:root .app-shell .refined-page :is(.version-chip.draft, .ready-badge.pending, .protocol-pending) { color: var(--ui-warning); background: var(--ui-warning-bg); }
+:root .app-shell .refined-page :is(.issue-chip, .protocol-error, .live-pill.offline) { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .refined-page :is(.count-badge, .empty-state, .method-empty) { color: var(--ui-muted); background: var(--ui-soft); }
+:root .app-shell .refined-page :is(.empty-state small, .method-empty p) { font-size: 12px; }
+
+/* Home: the current method and messages lead, diagnostics sit in the side column. */
+:root .app-shell .workspace-page .workspace-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, 350px); gap: 20px; }
+:root .app-shell .workspace-page :is(.primary-column, .secondary-column) { min-width: 0; gap: 20px; }
+:root .app-shell .workspace-page :is(.status-surface, .message-surface, .quick-surface, .protocol-surface) { padding: var(--ui-space); }
+:root .app-shell .workspace-page .status-surface { border-top: 3px solid var(--ui-accent); }
+:root .app-shell .workspace-page .current-method-label { display: block; margin-bottom: 6px; color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .workspace-page .status-surface h2 { font-size: 22px; overflow-wrap: anywhere; }
+:root .app-shell .workspace-page .ready-badge { white-space: nowrap; }
+:root .app-shell .workspace-page .readiness-grid { margin-top: 20px; gap: 12px; }
+:root .app-shell .workspace-page .readiness-item { min-height: 70px; border: 0; background: var(--ui-soft); padding: 12px; }
+:root .app-shell .workspace-page .readiness-item strong { font-size: 13px; color: var(--ui-text); }
+:root .app-shell .workspace-page .readiness-item span { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .workspace-page .surface-note { margin-top: 16px; color: var(--ui-muted); font-size: 12px; line-height: 1.6; }
+:root .app-shell .workspace-page .workspace-diagnostics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+:root .app-shell .workspace-page .stat-card { min-width: 0; min-height: 100px; gap: 8px; padding: 14px 12px; border-color: var(--ui-border); box-shadow: none; }
+:root .app-shell .workspace-page .stat-icon { width: 26px; height: 26px; flex-shrink: 0; }
+:root .app-shell .workspace-page .stat-card strong { font-size: 20px; color: var(--ui-text); }
+:root .app-shell .workspace-page .stat-card :is(span, small) { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .workspace-page .quick-action { min-height: 74px; gap: 12px; }
+:root .app-shell .workspace-page .quick-action strong { color: var(--ui-text); font-size: 14px; }
+:root .app-shell .workspace-page .quick-action small { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .workspace-page .protocol-row { min-height: 44px; font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .workspace-page .protocol-row code { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .workspace-page .message-heading { flex-wrap: wrap; }
+:root .app-shell .workspace-page .message-tools { gap: 6px; }
+:root .app-shell .workspace-page .message-tools select { font-size: 12px; }
+:root .app-shell .workspace-page .message-toolbar { color: var(--ui-muted); background: var(--ui-soft); font-size: 12px; padding: 10px 12px; flex-wrap: wrap; }
+:root .app-shell .workspace-page .checkbox-row { color: var(--ui-muted); }
+:root .app-shell .workspace-page .message-list { max-height: 430px; }
+:root .app-shell .workspace-page .message-row { min-height: 64px; gap: 12px; }
+:root .app-shell .workspace-page .message-main strong { font-size: 13px; color: var(--ui-text); }
+:root .app-shell .workspace-page .message-main small { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .workspace-page :is(.severity-label, .message-row time) { font-size: 12px; }
+:root .app-shell .workspace-page .message-row time { width: 66px; color: var(--ui-muted); font-variant-numeric: tabular-nums; }
+:root .app-shell .workspace-page .severity-label.success { color: var(--ui-success); }
+:root .app-shell .workspace-page .severity-label.info { color: var(--ui-accent); }
+:root .app-shell .workspace-page .severity-label.warning { color: var(--ui-warning); }
+:root .app-shell .workspace-page .severity-label.error { color: var(--ui-danger); }
+
+/* Method workspace: one local list, with method selection in the top toolbar. */
+:root .app-shell .methods-page .method-workbench { display: block; }
+:root .app-shell .methods-page :is(.method-section, .spectral-list-surface, .spectral-editor-surface, .print-settings-panel, .print-preview-panel) { padding: var(--ui-space); }
+:root .app-shell .methods-page .spectral-line-card.active { border-color: var(--ui-accent); background: var(--ui-selected); box-shadow: inset 3px 0 var(--ui-accent); }
+:root .app-shell .methods-page :is(.line-main strong, .line-main strong b) { font-size: 14px; color: var(--ui-text); }
+:root .app-shell .methods-page .line-main small { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .methods-page .method-editor { gap: 16px; }
+:root .app-shell .methods-page .method-context-bar { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 14px 24px; padding: 16px 20px; margin-bottom: 12px; }
+:root .app-shell .methods-page .method-context-main { flex: 1 1 340px; min-width: 0; }
+:root .app-shell .methods-page .method-picker { display: flex; align-items: center; gap: 14px; }
+:root .app-shell .methods-page .method-picker h1 { margin: 0; font-size: 16px; white-space: nowrap; color: var(--ui-muted); }
+:root .app-shell .methods-page .method-picker select { width: 300px; max-width: 100%; min-width: 0; height: 38px; font-size: 16px; font-weight: 700; color: var(--ui-text); background: var(--surface); border: 1px solid var(--ui-control-border); border-radius: 6px; padding: 0 10px; }
+:root .app-shell .methods-page .method-context-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+:root .app-shell .methods-page .method-context-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+:root .app-shell .methods-page :is(.method-actions, .method-library-actions) { display: flex; flex-wrap: wrap; gap: 8px; }
+:root .app-shell .methods-page .method-library-actions { border-left: 1px solid var(--ui-border); padding-left: 12px; }
+:root .app-shell .methods-page .method-version-details { position: relative; color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .methods-page .method-version-details summary { cursor: pointer; padding: 4px; }
+:root .app-shell .methods-page .method-version-details > div { position: absolute; z-index: 4; top: 100%; left: 0; width: 260px; padding: 14px; display: grid; gap: 10px; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--surface); box-shadow: 0 6px 20px #14263b20; }
+:root .app-shell .methods-page .method-version-details > div > span:last-of-type { display: flex; align-items: center; gap: 6px; }
+:root .app-shell .methods-page .method-editor-tabs { width: 100%; padding: 0; border: 0; border-bottom: 1px solid var(--ui-border); border-radius: 0; background: transparent; flex-wrap: wrap; }
+:root .app-shell .methods-page .method-editor-tabs button { min-width: 120px; min-height: 44px; padding: 10px 18px; border-bottom: 3px solid transparent; border-radius: 0; color: var(--ui-muted); font-size: 14px; background: transparent; box-shadow: none; }
+:root .app-shell .methods-page .method-editor-tabs button.active { color: var(--ui-accent); border-bottom-color: var(--ui-accent); font-weight: 700; }
+:root .app-shell .methods-page .method-editor-tabs button span { color: var(--ui-muted); background: var(--ui-soft); font-size: 12px; }
+:root .app-shell .methods-page :is(.method-field-grid, .numeric-grid) { margin-top: 16px; gap: 16px; }
+:root .app-shell .methods-page .numeric-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+:root .app-shell .methods-page :is(.ccd-selector label, .ccd-ranges > div, .spectral-toggle-grid > label:not(.field)) { border-color: var(--ui-border); background: var(--ui-soft); }
+:root .app-shell .methods-page :is(.ccd-selector label.selected, .ccd-ranges > div.active) { border-color: var(--ui-accent); background: var(--ui-selected); }
+:root .app-shell .methods-page :is(.ccd-selector strong, .ccd-ranges strong, .spectral-toggle-grid strong) { color: var(--ui-text); font-size: 13px; }
+:root .app-shell .methods-page :is(.ccd-selector small, .ccd-ranges span, .spectral-toggle-grid small, .rule-note) { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .methods-page :is(.angle-table th, .standard-points-table th) { color: var(--ui-muted); font-size: 12px; padding-top: 8px; padding-bottom: 10px; background: var(--ui-soft); }
+:root .app-shell .methods-page :is(.angle-table td, .standard-points-table td) { border-color: var(--ui-border); }
+:root .app-shell .methods-page .standard-points-table { min-width: 420px; }
+:root .app-shell .methods-page :is(.method-save-footer, .spectral-savebar) { padding: 12px 16px; gap: 12px; border-color: var(--ui-border); background: var(--surface); box-shadow: 0 4px 16px #14263b14; flex-wrap: wrap; }
+:root .app-shell .methods-page :is(.method-save-footer span, .spectral-savebar span) { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .methods-page .method-issues :is(div, li, code, span) { color: var(--ui-danger); font-size: 13px; }
+:root .app-shell .methods-page .method-issues > div { flex-wrap: wrap; }
+:root .app-shell .methods-page .method-issues li { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+:root .app-shell .methods-page .spectral-workbench { grid-template-columns: 280px minmax(0, 1fr); gap: 16px; }
+:root .app-shell .methods-page .spectral-list-surface { top: 20px; padding: 16px; }
+:root .app-shell .methods-page .spectral-list-surface[hidden] { display: none; }
+:root .app-shell .methods-page .spectral-workbench.list-collapsed { grid-template-columns: minmax(0, 1fr); }
+:root .app-shell .methods-page .spectral-heading { flex-wrap: wrap; gap: 12px; }
+:root .app-shell .methods-page .spectral-heading > button { width: 100%; }
+:root .app-shell .methods-page .spectral-line-list { display: grid; grid-template-columns: minmax(0, 1fr); max-height: calc(100vh - 390px); overflow-y: auto; }
+:root .app-shell .methods-page .spectral-editor-surface > .surface-heading { justify-content: flex-start; flex-wrap: wrap; gap: 12px; }
+:root .app-shell .methods-page .spectral-editor-surface > .surface-heading > .line-toolbar { margin-left: auto; }
+:root .app-shell .methods-page .spectral-list-toggle { font-size: 12px; min-height: 32px; padding: 6px 9px; }
+:root .app-shell .methods-page .spectral-workbench > .auth-error { grid-column: 1 / -1; }
+:root .app-shell .methods-page .spectral-line-card { min-height: 68px; background: var(--ui-soft); border-color: var(--ui-border); }
+:root .app-shell .methods-page .spectral-sortbar { flex-wrap: wrap; background: var(--ui-soft); gap: 6px; }
+:root .app-shell .methods-page .spectral-sortbar :is(span, button) { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .methods-page .spectral-sortbar button { min-height: 30px; background: var(--surface); border-color: var(--ui-control-border); }
+:root .app-shell .methods-page .line-badges { max-width: 88px; }
+:root .app-shell .methods-page .line-badges i { font-size: 12px; color: var(--ui-muted); background: var(--surface); }
+:root .app-shell .methods-page .line-badges i.critical { color: var(--ui-warning); background: var(--ui-warning-bg); }
+:root .app-shell .methods-page .line-badges i.off { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .methods-page :is(.baseline-notice, .print-fact-note) { font-size: 12px; color: var(--ui-muted); border-color: var(--ui-border); background: var(--ui-soft); }
+:root .app-shell .methods-page .spectral-section-title > strong { color: var(--ui-text); font-size: 14px; }
+:root .app-shell .methods-page .spectral-section-title > :is(span, strong i) { font-size: 12px; color: var(--ui-muted); }
+:root .app-shell .methods-page .detectability-card.detectable { color: var(--ui-success); background: var(--ui-success-bg); }
+:root .app-shell .methods-page .detectability-card.undetectable { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .methods-page .detectability-card.checking { color: var(--ui-accent); background: var(--ui-selected); }
+:root .app-shell .methods-page .detectability-card :is(strong, span, code) { color: inherit; font-size: 12px; overflow-wrap: anywhere; }
+:root .app-shell .methods-page .print-workbench { grid-template-columns: 270px minmax(0, 1fr); }
+:root .app-shell .methods-page .print-settings-panel { top: 20px; }
+:root .app-shell .methods-page :is(.print-jobs-heading span, .print-jobs-heading strong, .print-job strong, .print-job small, .print-job code, .preview-actions > span, .print-job .job-status, .empty-job) { color: var(--ui-muted); font-size: 12px; }
+
+/* Spectrum: grouped tools, restrained metadata, and a plot with exact SVG aspect. */
+:root .app-shell .spectrum-viewer-page .spectrum-viewer-layout { grid-template-columns: 260px minmax(0, 1fr); gap: 20px; }
+:root .app-shell .spectrum-viewer-page :is(.spectrum-records, .spectrum-workbench) { padding: var(--ui-space); min-height: 0; }
+:root .app-shell .spectrum-viewer-page .spectrum-records { position: sticky; top: 20px; }
+:root .app-shell .spectrum-viewer-page .spectrum-angle-filter { margin: 18px 0 12px; font-size: 13px; }
+:root .app-shell .spectrum-viewer-page .spectrum-record-list { display: flex; max-height: 52vh; overflow-y: auto; gap: 8px; }
+:root .app-shell .spectrum-viewer-page .spectrum-record-row { min-height: 74px; border-color: var(--ui-border); background: var(--ui-soft); }
+:root .app-shell .spectrum-viewer-page .spectrum-record-row.active { border-color: var(--ui-accent); background: var(--ui-selected); box-shadow: inset 3px 0 var(--ui-accent); }
+:root .app-shell .spectrum-viewer-page .spectrum-record-list button { grid-template-columns: 34px minmax(0, 1fr) 12px; gap: 8px; padding: 10px 8px; font-size: 14px; }
+:root .app-shell .spectrum-viewer-page .spectrum-record-list small { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .spectrum-viewer-page :is(.spectrum-kind, .spectrum-overlay-note) { font-size: 12px; }
+:root .app-shell .spectrum-viewer-page .spectrum-kind { color: var(--ui-accent); background: var(--ui-selected); letter-spacing: 0; }
+:root .app-shell .spectrum-viewer-page .spectrum-kind.result { color: var(--ui-success); background: var(--ui-success-bg); }
+:root .app-shell .spectrum-viewer-page .spectrum-toolbar { grid-template-columns: 1fr; gap: 12px; }
+:root .app-shell .spectrum-viewer-page .spectrum-toolbar-group { flex-wrap: wrap; gap: 6px; }
+:root .app-shell .spectrum-viewer-page .spectrum-toolbar > .spectrum-toolbar-group:last-child { justify-content: flex-start; }
+:root .app-shell .spectrum-viewer-page .spectrum-toolbar .toolbar-rule { margin-left: 10px; margin-right: 10px; }
+:root .app-shell .spectrum-viewer-page .spectrum-controls { gap: 12px 16px; padding: 14px 0; }
+:root .app-shell .spectrum-viewer-page .segmented-control { border-color: var(--ui-control-border); }
+:root .app-shell .spectrum-viewer-page .segmented-control button { border-radius: 0; color: var(--ui-muted); background: var(--surface); font-size: 13px; }
+:root .app-shell .spectrum-viewer-page .segmented-control button.active { color: #fff; background: #205fc8; }
+:root .app-shell .spectrum-viewer-page .spectrum-frame-actions select { width: 88px; }
+:root .app-shell .spectrum-viewer-page .spectrum-legend { gap: 8px; }
+:root .app-shell .spectrum-viewer-page .spectrum-legend button { min-height: 30px; font-size: 12px; border-radius: 5px; color: var(--ui-muted); border-color: var(--ui-border); }
+:root .app-shell .spectrum-viewer-page .spectrum-legend button.priority { color: var(--ui-text); border-color: var(--ui-accent); background: var(--ui-selected); }
+:root .app-shell .spectrum-viewer-page .spectrum-legend span { font-size: 12px; color: var(--ui-accent); }
+:root .app-shell .spectrum-viewer-page .spectrum-plot-wrap { min-height: 0; background: var(--surface); border-color: var(--ui-border); }
+/* Pointer conversion uses 960x380; avoid letterboxing from a fixed CSS height. */
+:root .app-shell .spectrum-viewer-page .spectrum-plot { width: 100%; height: auto; min-height: 0; aspect-ratio: 960 / 380; }
+:root .app-shell .spectrum-viewer-page .plot-background { fill: var(--surface); }
+:root .app-shell .spectrum-viewer-page .plot-grid { stroke: var(--ui-border); }
+:root .app-shell .spectrum-viewer-page .plot-axis { stroke: var(--ui-control-border); }
+:root .app-shell .spectrum-viewer-page .plot-label { fill: var(--ui-muted); font-size: 12px; }
+:root .app-shell .spectrum-viewer-page .plot-axis-title { fill: var(--ui-text); font-size: 12px; }
+:root[data-theme='dark'] .app-shell .spectrum-viewer-page :is(.spectrum-line, .spectrum-legend i) { filter: brightness(1.65); }
+:root .app-shell .spectrum-viewer-page .spectrum-cursor-readout { max-width: calc(100% - 24px); flex-wrap: wrap; pointer-events: none; color: var(--ui-warning); background: var(--ui-warning-bg); border-color: var(--ui-warning); font-size: 12px; }
+:root .app-shell .spectrum-viewer-page .spectrum-pan { gap: 8px; font-size: 12px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+:root .app-shell .spectrum-viewer-page .spectrum-facts { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 4px; border-top: 1px solid var(--ui-border); }
+:root .app-shell .spectrum-viewer-page .spectrum-facts > div { padding: 4px 0; border: 0; background: transparent; color: var(--ui-text); }
+:root .app-shell .spectrum-viewer-page .spectrum-facts :is(span, strong, code, summary) { font-size: 12px; }
+:root .app-shell .spectrum-viewer-page .expandable-value > div { color: var(--ui-text); }
+
+@media (max-width: 1550px) {
+  :root .app-shell .methods-page .print-workbench { grid-template-columns: 1fr; }
+  :root .app-shell .methods-page .print-settings-panel { position: static; }
+}
+@media (max-width: 1350px) {
+  :root .app-shell .refined-page { padding: 20px; }
+  :root .app-shell .refined-page :is(.hero-row, .page-intro) { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  :root .app-shell .workspace-page .workspace-grid { grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; }
+  :root .app-shell .workspace-page .readiness-grid { grid-template-columns: 1fr; }
+  :root .app-shell .spectrum-viewer-page .spectrum-viewer-layout { grid-template-columns: 1fr; gap: 16px; }
+  :root .app-shell .spectrum-viewer-page .spectrum-records { position: static; }
+  :root .app-shell .spectrum-viewer-page .spectrum-record-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); max-height: 165px; }
+  :root .app-shell .spectrum-viewer-page .spectrum-angle-filter { max-width: 310px; margin-top: 12px; }
+}
+@media (max-width: 1120px) {
+  :root .app-shell .workspace-page .workspace-grid { grid-template-columns: 1fr; }
+  :root .app-shell .workspace-page .readiness-grid { grid-template-columns: 1fr 1fr; }
+  :root .app-shell .workspace-page .secondary-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :root .app-shell .workspace-page .workspace-diagnostics { align-content: start; }
+}
+@media (min-width: 2400px) {
+  :root .app-shell .refined-page { max-width: 2300px; padding: 28px 36px 48px; }
+  :root .app-shell .workspace-page .workspace-grid { grid-template-columns: minmax(0, 1fr) 400px; }
+  :root .app-shell .spectrum-viewer-page .spectrum-viewer-layout { grid-template-columns: 300px minmax(0, 1fr); }
+}
+@media print {
+  :root .app-shell .spectrum-viewer-page { max-width: none; margin: 0; padding: 0; }
+  :root .app-shell .spectrum-viewer-page .spectrum-viewer-layout,
+  :root .app-shell .spectrum-viewer-page .spectrum-workbench { display: block; padding: 0; border: 0; }
+}
+
+@media (max-width: 1350px) {
+  :root .app-shell .methods-page .spectral-workbench { grid-template-columns: 240px minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  :root .app-shell .methods-page .spectral-workbench { grid-template-columns: minmax(0, 1fr); }
+  :root .app-shell .methods-page .spectral-list-surface { position: static; }
+  :root .app-shell .methods-page .spectral-line-list { max-height: 150px; }
+}

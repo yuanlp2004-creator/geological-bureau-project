@@ -1,0 +1,17 @@
+[
+  {
+    "path": "GeoSpectrum.exe",
+    "size": 11769856,
+    "sha256": "814AAE132FEA062B19C85124A8FD407EB98202CE11635F3A31E283DB3BFECEC2"
+  },
+  {
+    "path": "geospectrum-backend.exe",
+    "size": 52053299,
+    "sha256": "A4B7254D2AFD0143EDEBB0F3FA03969B2195C0C9B15EE4B05911DBF6E3D29255"
+  },
+  {
+    "path": "app/.local/releases/GeoSpectrum_0.1.0_legacy-discovery_x64-setup.exe",
+    "size": 269983799,
+    "sha256": "D8F2C666104AEBDB28044BE65C9585EB63D69E1B340ED42A00B829EBFA1298CB"
+  }
+]

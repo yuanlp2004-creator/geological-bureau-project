@@ -5,9 +5,9 @@
   "signed": false,
   "publishable_as_formal_release": false,
   "webview2_install_mode": "offlineInstaller",
-  "generated_at": "2026-08-19T18:53:27+00:00",
-  "plan_sha256": "B249F1C82BBE114D5CE3D535FF5AEEC4123541662F607A9859F46C308D9EBACA",
-  "module_manifest_sha256": "6DAB083159AFA21C00284CCDA308EDEE7F47E13B053D11B0D5D6B0AD682D0054",
+  "generated_at": "2026-09-11T11:55:20+00:00",
+  "plan_sha256": "85D0D26BA20D8C467D5D68D317E057A9AA0608027816BF74CFA09A657CA810B2",
+  "module_manifest_sha256": "5B7DBEFC7C0354F000C0A69DE653D001B49176D3C32F7D35A101E9D65122072F",
   "module_keys": [
     "core",
     "about-diagnostics",
@@ -31,37 +31,37 @@
   "components": {
     "sidecar": {
       "path": "app/src-tauri/binaries/geospectrum-backend-x86_64-pc-windows-msvc.exe",
-      "bytes": 24673191,
-      "sha256": "F4D54A5601052889737F74D6CBE85B374311284613F7E0A27CAC2B3D5271D482"
+      "bytes": 52053299,
+      "sha256": "A4B7254D2AFD0143EDEBB0F3FA03969B2195C0C9B15EE4B05911DBF6E3D29255"
     },
     "frontend": [
       {
-        "path": "app/frontend/dist/assets/index-BXOzrDp1.css",
-        "bytes": 130140,
-        "sha256": "D25BF70D84D1926A4FA18AD1FDBC5582A217D75375AE322B017456AF2BB2E661"
+        "path": "app/frontend/dist/assets/index-CW9WBD88.js",
+        "bytes": 549699,
+        "sha256": "49AC11D3D702E5B4A4CA3E91610A30398E24F392602903F2E12F63F417723EED"
       },
       {
-        "path": "app/frontend/dist/assets/index-eeETMH9g.js",
-        "bytes": 543328,
-        "sha256": "C2A8A55C5E3878264C589A57C88493AB81F6FEC958ADB46B773513C25ECCCAA1"
+        "path": "app/frontend/dist/assets/index-HrSiltEa.css",
+        "bytes": 166155,
+        "sha256": "5376EDD930D94B964553C3B771CEF86E940C84A4AED1EFB252BEBD82CDBE8F2F"
       },
       {
         "path": "app/frontend/dist/index.html",
         "bytes": 449,
-        "sha256": "9AE2FDA83A6AF77C47BFAED3D84C8758E10AC88D767CDC125060145455724E96"
+        "sha256": "7316EC076BE1C1B44ACC830D1B428BE660BE7502B0E1BFB28645BD8C88D6246E"
       }
     ],
     "module_manifest": {
       "path": "app/manifest.generated.json",
-      "bytes": 31697,
-      "sha256": "6DAB083159AFA21C00284CCDA308EDEE7F47E13B053D11B0D5D6B0AD682D0054"
+      "bytes": 31913,
+      "sha256": "5B7DBEFC7C0354F000C0A69DE653D001B49176D3C32F7D35A101E9D65122072F"
     }
   },
   "installers": [
     {
       "path": "app/src-tauri/target/release/bundle/nsis/GeoSpectrum_0.1.0_x64-setup.exe",
-      "bytes": 242999086,
-      "sha256": "EEFEEA930A02BA28C29EDE3F0D1C9F3EACA116F83E22F0C0965BAEF2997D4702",
+      "bytes": 269983799,
+      "sha256": "D8F2C666104AEBDB28044BE65C9585EB63D69E1B340ED42A00B829EBFA1298CB",
       "authenticode": {
         "status": "NotSigned",
         "subject": ""

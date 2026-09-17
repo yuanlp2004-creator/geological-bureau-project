@@ -1,0 +1,100 @@
+{
+  "status": "passed",
+  "modules": {
+    "postprocessing": {
+      "codec.py": 16,
+      "conversion.py": 115,
+      "errors.py": 17,
+      "exporting.py": 153,
+      "recalculation.py": 263,
+      "repository.py": 182,
+      "serialization.py": 17,
+      "service.py": 83,
+      "__init__.py": 7
+    },
+    "method_printing": {
+      "document.py": 262,
+      "printers.py": 94,
+      "rendering.py": 166,
+      "service.py": 225,
+      "__init__.py": 6
+    }
+  },
+  "backend_tests": "171 passed in 57.22s",
+  "browser_test_pages": "passed; nativeDialogTested=false",
+  "compileall": "passed",
+  "other_backend_files_unchanged": 113,
+  "output_comparison": {
+    "signatures_functions_errors_constants_unchanged": true,
+    "printing": [
+      {
+        "paper": "A4",
+        "orientation": "portrait",
+        "pages": 2,
+        "fields": 44,
+        "document_html_pdf_identical": true,
+        "fixed_pdf_metadata": true,
+        "pdf_sha256": "b15e9011f13bf2792e82f0fe9fbc492c4d626bdf35e0da4574d5decf15d99b72"
+      },
+      {
+        "paper": "A3",
+        "orientation": "landscape",
+        "pages": 2,
+        "fields": 44,
+        "document_html_pdf_identical": true,
+        "fixed_pdf_metadata": true,
+        "pdf_sha256": "bfd4707034d5bb58f4f4db3ece70da7a0b28c7d684d89243304cd41b6c167d93"
+      }
+    ],
+    "export_formats": [
+      {
+        "kind": "raw_intensity",
+        "format": "csv",
+        "identical": true
+      },
+      {
+        "kind": "raw_intensity",
+        "format": "txt",
+        "identical": true
+      },
+      {
+        "kind": "raw_intensity",
+        "format": "excel",
+        "identical": true
+      },
+      {
+        "kind": "processed_intensity",
+        "format": "csv",
+        "identical": true
+      },
+      {
+        "kind": "processed_intensity",
+        "format": "txt",
+        "identical": true
+      },
+      {
+        "kind": "processed_intensity",
+        "format": "excel",
+        "identical": true
+      }
+    ],
+    "openapi_unchanged": true
+  },
+  "frozen_check": {
+    "status": "passed",
+    "conversion_idempotent": true,
+    "interval_values": true,
+    "csv_export": true,
+    "recalculation_values": [
+      18.0,
+      36.0
+    ],
+    "virtual_pdf_print": true,
+    "sqlite_integrity_and_foreign_keys": true
+  },
+  "verify_sidecar": "passed",
+  "root_backend_sha256": "73756f64f12e85e7b63d7a203f3813a854b7a8dbabf967dd59d0e23a9cf4fff0",
+  "desktop_sha256": "1e692d3675e81ac1eb7b6e8507886307bc19910cb9d0f2db0e78a9e3eba3cf35",
+  "desktop_and_r7_installer_rebuilt": false,
+  "plan_sha256": "2ddb12a668bd13f4a0b2d87fa03c96b8fdf6d19896a1170d2c8231d79fcbb039"
+}

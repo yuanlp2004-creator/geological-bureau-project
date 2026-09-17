@@ -1,0 +1,116 @@
+{
+  "product": "GeoSpectrum",
+  "version": "0.1.0",
+  "channel": "internal-test",
+  "signed": false,
+  "publishable_as_formal_release": false,
+  "webview2_install_mode": "offlineInstaller",
+  "generated_at": "2026-09-13T16:39:56+00:00",
+  "plan_sha256": "82823F09D6F27543C3A51A870FA835C3F94D3B00A43FDC20B2C9836C2733E5B3",
+  "module_manifest_sha256": "D31D05CEBF3E7FBAD9430DD9621575D092CEDCFE9763B51EA981D08F1D19455E",
+  "module_keys": [
+    "core",
+    "about-diagnostics",
+    "auth",
+    "methods",
+    "legacy-migration",
+    "sample-queues",
+    "spectrum-migration",
+    "result-migration",
+    "spectrum-viewer",
+    "devices",
+    "dispersion",
+    "acquisition",
+    "hardware-acquisition",
+    "mercury-calibration",
+    "analysis",
+    "postprocessing",
+    "reports",
+    "maintenance"
+  ],
+  "components": {
+    "desktop": {
+      "path": "app/src-tauri/target/release/geospectrum.exe",
+      "bytes": 11770368,
+      "sha256": "1E692D3675E81AC1EB7B6E8507886307BC19910CB9D0F2DB0E78A9E3EBA3CF35"
+    },
+    "sidecar": {
+      "path": "app/src-tauri/binaries/geospectrum-backend-x86_64-pc-windows-msvc.exe",
+      "bytes": 52106631,
+      "sha256": "C4EA4918CA43F2FA4F864FB494D5BCE8554403CFADA8C4A96B06592BD18E30ED"
+    },
+    "frontend": [
+      {
+        "path": "app/frontend/dist/assets/index-BUbDHHcV.js",
+        "bytes": 549811,
+        "sha256": "E5A66B8C1B7D5D5678851595BCDBF249401FFC9088595982AB3B189F08861C8A"
+      },
+      {
+        "path": "app/frontend/dist/assets/index-HrSiltEa.css",
+        "bytes": 166155,
+        "sha256": "5376EDD930D94B964553C3B771CEF86E940C84A4AED1EFB252BEBD82CDBE8F2F"
+      },
+      {
+        "path": "app/frontend/dist/index.html",
+        "bytes": 449,
+        "sha256": "4AE69C545AC7EA89C62122EAF0A2E65A11561FC413C4CBC7241DBE07C76C5A81"
+      }
+    ],
+    "module_manifest": {
+      "path": "app/manifest.generated.json",
+      "bytes": 30852,
+      "sha256": "D31D05CEBF3E7FBAD9430DD9621575D092CEDCFE9763B51EA981D08F1D19455E"
+    }
+  },
+  "installers": [
+    {
+      "path": "app/src-tauri/target/release/bundle/nsis/GeoSpectrum_0.1.0_x64-setup.exe",
+      "bytes": 270031419,
+      "sha256": "91671877C38CA009159B074C4E5DCCB4175C349E0FFE7799854BEF3E51BBE488",
+      "authenticode": {
+        "status": "NotSigned",
+        "subject": ""
+      }
+    }
+  ],
+  "release_gates": {
+    "clean_windows_10_vm": "pending_external",
+    "clean_windows_11_vm": "pending_external",
+    "code_signing_certificate": "missing_external",
+    "real_turntable_hardware": "deferred_external",
+    "real_mercury_lamp_hardware": "deferred_external"
+  },
+  "software_acceptance": {
+    "S00": "passed",
+    "S01": "deferred_external",
+    "S02": "passed",
+    "S03": "passed",
+    "S04": "passed",
+    "S05": "passed",
+    "S06": "passed",
+    "S07": "passed",
+    "S08": "passed",
+    "S09": "passed",
+    "S10": "passed",
+    "S11": "passed",
+    "S12": "passed",
+    "S13": "passed",
+    "S14": "deferred_external",
+    "S15": "deferred_external",
+    "S16": "passed",
+    "S17": "passed",
+    "S18": "passed",
+    "S19": "passed",
+    "S20": "passed"
+  },
+  "software_acceptance_gate": "passed",
+  "excluded": [
+    "app/.local",
+    "tests",
+    "test output",
+    "cache",
+    "debug files",
+    "node_modules",
+    "src-tauri/target intermediates"
+  ]
+}

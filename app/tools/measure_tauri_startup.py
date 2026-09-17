@@ -1,3 +1,5 @@
+"""Observe debug-process survival; this is not a UI-ready or natural-exit check."""
+
 from __future__ import annotations
 
 import json
@@ -5,8 +7,8 @@ import os
 import shutil
 import signal
 import subprocess
-import sys
 import time
+import tempfile
 from pathlib import Path
 
 
@@ -18,23 +20,24 @@ def main() -> int:
     if not TAURI_EXE.exists():
         print(json.dumps({"status": "missing", "path": str(TAURI_EXE)}, ensure_ascii=False))
         return 1
-    data_dir = APP_ROOT / "data" / "tauri-startup-check"
-    shutil.rmtree(data_dir, ignore_errors=True)
-    data_dir.mkdir(parents=True)
+    output_root = APP_ROOT / ".local" / "test-runs"
+    output_root.mkdir(parents=True, exist_ok=True)
+    data_dir = Path(tempfile.mkdtemp(prefix="tauri-startup-", dir=output_root))
     env = os.environ.copy()
     env["SPECTRUM_DATA_DIR"] = str(data_dir)
     started = time.perf_counter()
-    process = subprocess.Popen(
-        [str(TAURI_EXE)],
-        cwd=APP_ROOT,
-        env=env,
-        stdout=(data_dir / "stdout.log").open("w", encoding="utf-8"),
-        stderr=(data_dir / "stderr.log").open("w", encoding="utf-8"),
-        creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
-    )
+    with (data_dir / "stdout.log").open("w", encoding="utf-8") as stdout, (data_dir / "stderr.log").open("w", encoding="utf-8") as stderr:
+        process = subprocess.Popen(
+            [str(TAURI_EXE)],
+            cwd=APP_ROOT,
+            env=env,
+            stdout=stdout,
+            stderr=stderr,
+            creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
+        )
     while time.perf_counter() - started < 8 and process.poll() is None:
         time.sleep(0.1)
-    startup_seconds = round(time.perf_counter() - started, 3)
+    observation_seconds = round(time.perf_counter() - started, 3)
     running = process.poll() is None
     if running:
         try:
@@ -47,14 +50,15 @@ def main() -> int:
         process.kill()
         process.wait(timeout=5)
     result = {
-        "startup_seconds": startup_seconds,
+        "observation_seconds": observation_seconds,
         "running_after_start_window": running,
-        "clean_exit": process.returncode is not None,
+        "test_process_terminated": process.returncode is not None,
+        "natural_window_close_tested": False,
         "process_returncode": process.returncode,
         "log_dir_created": (data_dir / "logs").exists(),
         "stderr_path": str(data_dir / "stderr.log"),
     }
-    success = running and result["clean_exit"] and startup_seconds <= 8
+    success = running and result["test_process_terminated"]
     if success:
         shutil.rmtree(data_dir, ignore_errors=True)
     print(json.dumps(result, ensure_ascii=False, indent=2))

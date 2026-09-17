@@ -12,8 +12,12 @@ from pypdf import PdfReader
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.reports import ReportError, ReportService
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database, utc_now
+from backend.modules.reports import ReportError, ReportService
+from backend.printing import SystemPrinters
+from backend.modules.method_printing import MethodPrintService
 
 
 def _seed(tmp_path: Path, result_count: int = 1) -> tuple[Database, int]:
@@ -41,7 +45,7 @@ def _seed(tmp_path: Path, result_count: int = 1) -> tuple[Database, int]:
 
 def test_report_model_and_outputs_are_consistent(tmp_path: Path) -> None:
     database, run_id = _seed(tmp_path)
-    service = ReportService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).reports_service()
     report = service.create({"analysis_run_ids": [run_id], "template_key": "analysis-standard", "arrangement": "standard", "filters": {}}, None)
     assert report["version"] == 1 and report["model"]["rows"][0]["report_number"] == report["report_number"]
     assert report["model"]["rows"][0]["calculated_value"] == 42.75
@@ -69,7 +73,7 @@ def test_report_model_and_outputs_are_consistent(tmp_path: Path) -> None:
 
 def test_report_filter_and_same_name_error(tmp_path: Path) -> None:
     database, run_id = _seed(tmp_path)
-    service = ReportService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).reports_service()
     with pytest.raises(ReportError) as error:
         service.create({"analysis_run_ids": [run_id], "template_key": "analysis-standard", "arrangement": "standard", "filters": {"element": "missing"}}, None)
     assert error.value.code == "report_rows_empty"
@@ -92,7 +96,7 @@ def test_report_filter_and_same_name_error(tmp_path: Path) -> None:
 
 def test_report_pdf_paginates_without_dropping_last_row(tmp_path: Path) -> None:
     database, run_id = _seed(tmp_path, result_count=45)
-    service = ReportService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).reports_service()
     report = service.create({"analysis_run_ids": [run_id], "template_key": "analysis-standard", "arrangement": "standard", "filters": {}}, None)
     report = service.confirm(report["id"], None)
     result = service.export(report["id"], {"format": "pdf", "output_directory": str(tmp_path), "filename": "many", "same_name_strategy": "suffix"}, None)
@@ -100,3 +104,54 @@ def test_report_pdf_paginates_without_dropping_last_row(tmp_path: Path) -> None:
     assert result["page_count"] == 3 == len(reader.pages)
     extracted = "\n".join(page.extract_text() or "" for page in reader.pages)
     assert "S19 sample 45" in extracted
+
+
+def test_report_system_dispatch_failure_retains_pdf_record_and_defaults(tmp_path, monkeypatch):
+    database, run_id = _seed(tmp_path)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).reports_service()
+    methods = Runtime(AppConfig(data_dir=database.path.parent), database=database).method_print_service()
+    defaults = methods.get_settings()
+    printer = {"name": "Failing-Printer", "display_name": "Failing Printer",
+               "virtual": False, "system": True, "default": False}
+    monkeypatch.setattr(SystemPrinters, "_system_printers", staticmethod(lambda: [printer]))
+    assert service.printers() == methods.printers()
+    assert service.printers()[0]["name"] == "geospectrum-pdf"
+    report = service.create({"analysis_run_ids": [run_id], "template_key": "analysis-standard",
+                             "arrangement": "standard", "filters": {}}, None)
+    report = service.confirm(report["id"], None)
+    calls = []
+
+    def fail_dispatch(pdf_path, printer_name):
+        assert pdf_path.read_bytes().startswith(b"%PDF")
+        calls.append((pdf_path, printer_name))
+        raise RuntimeError("test spooler unavailable")
+
+    monkeypatch.setattr(SystemPrinters, "dispatch_pdf", staticmethod(fail_dispatch))
+    payload = {"format": "print", "printer_name": printer["name"]}
+    with pytest.raises(ReportError) as failed:
+        service.export(report["id"], payload, None)
+    error = failed.value
+    assert error.code == "print_dispatch_failed" and error.status_code == 500
+    pdf_path = Path(error.details["pdf_path"])
+    assert calls == [(pdf_path, printer["name"])]
+    assert pdf_path.is_file()
+    with database.read() as db:
+        job = dict(db.execute("SELECT * FROM report_exports WHERE report_id=?", (report["id"],)).fetchone())
+        audit = dict(db.execute("SELECT * FROM audit_events WHERE action='report.print'").fetchone())
+    assert job["status"] == "failed"
+    assert job["error_code"] == error.code
+    assert job["error_message"] == "test spooler unavailable"
+    assert job["actual_path"] == str(pdf_path)
+    assert job["content_sha256"] == hashlib.sha256(pdf_path.read_bytes()).hexdigest()
+    assert job["byte_length"] == pdf_path.stat().st_size
+    assert job["page_count"] == len(PdfReader(pdf_path).pages)
+    assert json.loads(job["report_json"]) == {"printer_name": printer["name"], "model_sha256": report["model_sha256"]}
+    assert json.loads(audit["details_json"]) == {"export_id": job["id"], "printer_name": printer["name"],
+                                              "status": "failed", "error_code": error.code}
+    assert service.get(report["id"]) == report
+    assert methods.get_settings() == defaults
+    monkeypatch.setattr(SystemPrinters, "dispatch_pdf", staticmethod(lambda path, name: calls.append((path, name))))
+    retried = service.export(report["id"], payload, None)
+    assert retried["dispatch_status"] == "queued"
+    assert retried["id"] != job["id"]
+    assert pdf_path.is_file()

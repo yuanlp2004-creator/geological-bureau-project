@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import io
-import importlib
 import json
 import sqlite3
 from pathlib import Path
@@ -10,10 +9,11 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.auth import AuthService
-from backend.app.db import Database, SCHEMA_VERSION
-from backend.app.modules.manifest import registered_manifests
-from backend.app.upgrade import UpgradeError, prepare_database_upgrade, prepare_legacy_data_directory
+from backend.config import AppConfig
+from backend.runtime import Runtime
+from backend.db import Database, SCHEMA_VERSION
+from backend.modules.manifest import registered_manifests
+from backend.upgrade import UpgradeError, prepare_database_upgrade, prepare_legacy_data_directory
 from backend.sidecar_entry import _read_process_key
 from tools import build_release_manifest
 
@@ -119,12 +119,9 @@ def test_manifest_only_test_module_connects_every_contract(tmp_path: Path, monke
     with database.read() as connection:
         assert connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='s21_example_records'").fetchone()
 
-    import backend.app.main as main_module
-    main_module = importlib.reload(main_module)
-    main_module.database = database
-    main_module.service = main_module.AppService(database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = AuthService(database)
-    with TestClient(main_module.app) as client:
+    import backend.main as main_module
+    runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
+    with TestClient(main_module.create_app(runtime=runtime)) as client:
         assert client.post("/api/v1/auth/bootstrap", json={"username": "admin", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "admin", "password": "correct-horse"}).json()["access_token"]
         response = client.post("/api/v1/extensions/s21-example/execute", headers={"Authorization": f"Bearer {token}"})
@@ -138,28 +135,28 @@ def test_manifest_only_test_module_connects_every_contract(tmp_path: Path, monke
     monkeypatch.delenv("GEOSPECTRUM_TEST_MODULES_DIR")
     formal = json.loads((Path(__file__).parents[1] / "manifest.generated.json").read_text(encoding="utf-8"))
     assert "s21-example" not in {item["key"] for item in formal["modules"]}
+    # Importing the test extension must not retain its route in later normal apps.
+    normal_app = main_module.create_app(AppConfig(data_dir=tmp_path / "normal"))
+    assert "/api/v1/extensions/s21-example/execute" not in normal_app.openapi()["paths"]
 
 
 def test_process_key_blocks_untrusted_loopback_requests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    import backend.app.main as main_module
-    monkeypatch.setattr(main_module, "PROCESS_KEY", "one-time-key")
-    main_module.database = Database(tmp_path / "key.sqlite3")
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    import backend.main as main_module
+    runtime = Runtime(AppConfig(data_dir=tmp_path), process_key="one-time-key")
+    with TestClient(main_module.create_app(runtime=runtime)) as client:
         assert client.get("/health").status_code == 403
         assert client.get("/health", headers={"X-GeoSpectrum-Process-Key": "one-time-key"}).status_code == 200
 
 
-def test_windows_tauri_origin_can_reach_login_preflight_while_unknown_origins_are_rejected() -> None:
-    import backend.app.main as main_module
+def test_windows_tauri_origin_can_reach_login_preflight_while_unknown_origins_are_rejected(tmp_path: Path) -> None:
+    import backend.main as main_module
 
     preflight_headers = {
         "Origin": "http://tauri.localhost",
         "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "content-type,x-geospectrum-process-key",
     }
-    with TestClient(main_module.app) as client:
+    with TestClient(main_module.create_app(AppConfig(data_dir=tmp_path))) as client:
         response = client.options("/api/v1/auth/login", headers=preflight_headers)
         assert response.status_code == 200
         assert response.headers["access-control-allow-origin"] == "http://tauri.localhost"

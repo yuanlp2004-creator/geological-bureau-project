@@ -1,0 +1,123 @@
+{
+  "plan_sha256": "F8F012259F32B9767D40C6CC70A5786E9C470EF4096438E95FE0855EF16DF2DC",
+  "backend_sha256": "E54D9F7E6D9AD16B57B3127E71DB79826E270F944EF28B5C4880D968085F2378",
+  "desktop_and_installer_unchanged": true,
+  "tests": {
+    "full_python": 169,
+    "combined_targeted": 31
+  },
+  "methods": {
+    "methods_preserved": 32,
+    "mapping": {
+      "_layout_geometry": "geometry",
+      "_wave_to_step": "geometry",
+      "_step_to_wave": "geometry",
+      "_reference_position": "geometry",
+      "_valid_actor": "repository",
+      "_next_version": "repository",
+      "_latest_row": "repository",
+      "_published_row": "repository",
+      "_layout": "repository",
+      "_dispersion": "repository",
+      "_version_dict": "repository",
+      "_method_dict": "repository",
+      "_duplicate_name": "repository",
+      "list": "repository",
+      "get": "repository",
+      "versions": "repository",
+      "_calibration_option": "repository",
+      "options": "repository",
+      "_audit": "repository",
+      "_issue": "validation",
+      "validate_conditions": "validation",
+      "open": "runtime",
+      "pause": "runtime",
+      "delete": "runtime",
+      "current": "runtime",
+      "_canonical_payload": "service",
+      "_validate_payload": "service",
+      "_insert_payload_draft": "service",
+      "create": "service",
+      "update": "service",
+      "publish": "service",
+      "copy": "service"
+    },
+    "all_original_signatures_preserved": true,
+    "top_level_functions_errors_constants_preserved": true,
+    "lines": {
+      "errors.py": 31,
+      "geometry.py": 63,
+      "repository.py": 239,
+      "runtime.py": 148,
+      "service.py": 300,
+      "validation.py": 179,
+      "values.py": 110,
+      "__init__.py": 5
+    }
+  },
+  "legacy": {
+    "methods_preserved": 17,
+    "mapping": {
+      "_reader_candidates": "reader",
+      "diagnostics": "reader",
+      "_read_access": "reader",
+      "_standard_blob": "records",
+      "_wstc": "records",
+      "_normalize_access": "normalization",
+      "resolve_method_id": "service",
+      "_fingerprint": "service",
+      "_run_dict": "service",
+      "stage": "service",
+      "_unique_name": "service",
+      "_record_entity": "service",
+      "_after_entity_insert": "service",
+      "_assert_sources_current": "service",
+      "commit": "service",
+      "get": "service",
+      "list": "service"
+    },
+    "reader_parent_depth": 3,
+    "all_original_signatures_preserved": true,
+    "top_level_functions_errors_constants_preserved": true,
+    "lines": {
+      "configuration.py": 97,
+      "errors.py": 24,
+      "normalization.py": 261,
+      "reader.py": 111,
+      "records.py": 98,
+      "service.py": 301,
+      "sources.py": 34,
+      "__init__.py": 9
+    }
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "frozen": {
+    "status": "passed",
+    "method_lifecycle": true,
+    "invalid_name_rejected": true,
+    "migration_counts": {
+      "dispersion_curves": 5,
+      "methods": 3,
+      "spectral_lines": 20,
+      "users_ignored": 0
+    },
+    "idempotent": true,
+    "source_size_mtime_hash_preserved": true,
+    "sqlite_integrity_and_foreign_keys": true
+  },
+  "openapi_unchanged": true
+}

@@ -9,9 +9,11 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.spectrum_viewer import SpectrumViewerError, SpectrumViewerService
-from backend.app.main import app
+from backend.db import Database, utc_now
+from backend.modules.spectrum_viewer import SpectrumViewerError, SpectrumViewerService
+from backend.main import create_app
+from backend.config import AppConfig
+from backend.runtime import Runtime
 
 
 def seed_database(path: Path) -> Database:
@@ -118,20 +120,18 @@ def test_s10_full_six_ccd_first_view_is_not_sampled(tmp_path: Path) -> None:
     assert elapsed < 0.5
 
 
-def test_s10_api_requires_view_permission() -> None:
-    with TestClient(app) as client:
+def test_s10_api_requires_view_permission(tmp_path: Path) -> None:
+    with TestClient(create_app(AppConfig(data_dir=tmp_path))) as client:
         response = client.get("/api/v1/spectra/records")
     assert response.status_code == 401
 
 
 def test_s10_api_audits_view_export_and_print_visible_range(tmp_path: Path) -> None:
-    import backend.app.main as main_module
+    import backend.main as main_module
 
     database = seed_database(tmp_path / "api.sqlite3")
-    main_module.database = database
-    main_module.service = main_module.AppService(database, tmp_path / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(database)
-    with TestClient(main_module.app) as client:
+    runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
+    with TestClient(main_module.create_app(runtime=runtime)) as client:
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}

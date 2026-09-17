@@ -1,0 +1,22 @@
+[
+  {
+    "path": "GeoSpectrum.exe",
+    "size": 11757568,
+    "sha256": "AFD71F7766077E3788385754FDDDD986BB610ECA8B1A851B9FC6D2E7C07AA556"
+  },
+  {
+    "path": "geospectrum-backend.exe",
+    "size": 24840959,
+    "sha256": "978590C3E95381CD8C789FE86B9DF58A241EA22AB664B5D9F75A4416B2628592"
+  },
+  {
+    "path": "app\\.local\\releases\\GeoSpectrum_0.1.0_s24_x64-setup.exe",
+    "size": 289465110,
+    "sha256": "4B6E9B2BD895A0BC303B47DBC769B22D16757FF6364D581B56E07E20B50455BE"
+  },
+  {
+    "path": "app\\.local\\ui-s24\\previous\\GeoSpectrum.exe",
+    "size": 11756032,
+    "sha256": "C2B77FE962A32B67645CD067DB249C3036D95F7927D39EE8C6AAA57ECC570135"
+  }
+]

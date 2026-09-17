@@ -1,0 +1,68 @@
+{
+  "stage": "D1",
+  "date": "2026-09-14",
+  "status": "passed",
+  "baseline_plan_sha256": {
+    "PLAN.md": "B58BF0A1850D4441E6F4973773971C1D850D7010CD27B99EE31F2EC5E463F35D",
+    "INTERNAL_DECOUPLING_PLAN.md": "CCED391AF1DC5964437FC041CB5591482F364EE6D2A81317BBDF31721E4031D4"
+  },
+  "tests": {
+    "before_targeted": 8,
+    "after_targeted": 10,
+    "full": 173,
+    "full_seconds": 50.69,
+    "compileall_exit_code": 0
+  },
+  "comparison": {
+    "A3.html": {
+      "before_sha256": "e276ceda4949a6d32fefad388158a06fdfaed1af245bc5cb327bc042203c84ca",
+      "after_sha256": "e276ceda4949a6d32fefad388158a06fdfaed1af245bc5cb327bc042203c84ca",
+      "equal": true
+    },
+    "A3.json": {
+      "before_sha256": "cd7314c713ddb163f489705ad64694c2a72d4be500786e8e85e342bab615ed7e",
+      "after_sha256": "cd7314c713ddb163f489705ad64694c2a72d4be500786e8e85e342bab615ed7e",
+      "equal": true
+    },
+    "A3.pdf": {
+      "before_sha256": "05db61ffb98a09f2a728dd88fea2e31e838e2e7bba81ab067420f0ace127e141",
+      "after_sha256": "05db61ffb98a09f2a728dd88fea2e31e838e2e7bba81ab067420f0ace127e141",
+      "equal": true
+    },
+    "A4.html": {
+      "before_sha256": "603bb3d129b607cf319e58db56d2c96301fa8048b97744e19a59cf1e25ac9226",
+      "after_sha256": "603bb3d129b607cf319e58db56d2c96301fa8048b97744e19a59cf1e25ac9226",
+      "equal": true
+    },
+    "A4.json": {
+      "before_sha256": "5811f4c15bbb999e97f5c3cdeadb3ab19def9a37e65152d893c1bdef7ba0e91e",
+      "after_sha256": "5811f4c15bbb999e97f5c3cdeadb3ab19def9a37e65152d893c1bdef7ba0e91e",
+      "equal": true
+    },
+    "A4.pdf": {
+      "before_sha256": "dd667d444d5545cfb459d144bcffcec1cfd5a4c8bc90af48346d7cb1391147b5",
+      "after_sha256": "dd667d444d5545cfb459d144bcffcec1cfd5a4c8bc90af48346d7cb1391147b5",
+      "equal": true
+    },
+    "openapi.json": {
+      "before_sha256": "59e31ac75a522ae8259f4bda7ec23c3b528ea28fdc1a5f136c0e4117b681be34",
+      "after_sha256": "59e31ac75a522ae8259f4bda7ec23c3b528ea28fdc1a5f136c0e4117b681be34",
+      "equal": true
+    },
+    "report.html": {
+      "before_sha256": "c4666ea6ef33dcde81540f39443e55ba3a3b79efc6d7bd42634a9a7da67808df",
+      "after_sha256": "c4666ea6ef33dcde81540f39443e55ba3a3b79efc6d7bd42634a9a7da67808df",
+      "equal": true
+    },
+    "report.pdf": {
+      "before_sha256": "34cea804a8ccc63e96a0eb10ad4e6d1f8b46a75555a667b4f8d843b722a28f9d",
+      "after_sha256": "34cea804a8ccc63e96a0eb10ad4e6d1f8b46a75555a667b4f8d843b722a28f9d",
+      "equal": true
+    }
+  },
+  "comparison_script": "app/.local/internal-decoupling/D1/compare.py",
+  "baseline": "app/.local/internal-decoupling/D1/baseline",
+  "executable_updated": false,
+  "installer_updated": false,
+  "physical_printer_tested": false
+}

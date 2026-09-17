@@ -14,12 +14,16 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.analysis import AnalysisError, AnalysisService, _search_peak, legacy_gaussian
-from backend.app.modules.methods import MethodService
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database, utc_now
+from backend.modules.analysis import AnalysisError, AnalysisService, legacy_gaussian
+from backend.modules.analysis.algorithms import _search_peak
+from backend.modules.methods import MethodService
+from backend.schemas import MethodCondition
 
 
-def _seed(database: Database, *, flat_gaussian: bool = False) -> tuple[int, list[int]]:
+def _seed(database: Database, *, flat_gaussian: bool = False, complete_conditions: bool = False) -> tuple[int, list[int]]:
     database.initialize()
     with database.write() as db:
         layout = db.execute("SELECT * FROM ccd_layouts WHERE name='default'").fetchone()
@@ -41,6 +45,8 @@ def _seed(database: Database, *, flat_gaussian: bool = False) -> tuple[int, list
             {"id": "A-gaussian", "order": 5, "line_type": "analysis", "element": "Ni", "wavelength_nm": wave(1300), "actual_wavelength_nm": wave(1300), "enabled": True, "scan_width_points": 9, "background_offset_points": 20, "peak_mode": "gaussian", "peak_width_points": 5, "lower_peak": 100, "minimum_peak_ratio": 1.1, "internal_standard_mode": "line", "internal_standard_line_id": "IS", "standard_points": []},
         ]
         conditions = {"ccd_layout_id": layout["id"], "dispersion_calibration_id": calibration["id"], "selected_ccds": [0], "reference_wavelength_nm": wave(500), "actual_reference_wavelength_nm": wave(500), "reference_width_points": 21, "analysis_unit": "ug/g", "calculation_profile": "modern_v1"}
+        if complete_conditions:
+            conditions = {**MethodCondition().model_dump(mode='json'), **conditions}
         payload = {"payload_schema": "method-v2-lines", "conditions": conditions, "lines": lines}
         now = utc_now()
         method_id = db.execute("INSERT INTO methods(name, description, work_type, status, current_version, created_at, updated_at) VALUES ('S16 测试方法', '', 'spectral', 'active', 1, ?, ?)", (now, now)).lastrowid
@@ -142,7 +148,7 @@ def test_s16_independent_gaussian_cross_check_and_legacy_peak_boundaries() -> No
 def test_s16_multi_sample_profiles_internal_standards_and_replay(tmp_path: Path) -> None:
     database = Database(tmp_path / "analysis.sqlite3")
     version_id, sample_ids = _seed(database)
-    service = AnalysisService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
     modern = _finish(service, service.create_run({"name": "modern", "acquisition_sample_ids": sample_ids, "method_version_id": version_id, "calculation_profile": "modern_v1"}))
     assert modern["status"] == "completed"
     assert [sample["sample_name"] for sample in modern["samples"]] == ["S16-A", "S16-B"]
@@ -176,7 +182,7 @@ def test_s16_multi_sample_profiles_internal_standards_and_replay(tmp_path: Path)
 def test_s16_slow_checkpoint_adjust_continue_cancel_and_timeout(tmp_path: Path) -> None:
     database = Database(tmp_path / "slow.sqlite3")
     version_id, sample_ids = _seed(database)
-    service = AnalysisService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
     run = service.create_run({"name": "slow", "acquisition_sample_ids": sample_ids[:1], "method_version_id": version_id, "slow_mode": True, "intervention_timeout_seconds": 60})
     service.start(run["id"])
     paused = service.step(run["id"])
@@ -216,7 +222,7 @@ def test_s16_slow_checkpoint_adjust_continue_cancel_and_timeout(tmp_path: Path) 
 def test_s16_failure_has_stable_code_intermediates_and_immutable_results(tmp_path: Path) -> None:
     database = Database(tmp_path / "failure.sqlite3")
     version_id, sample_ids = _seed(database, flat_gaussian=True)
-    service = AnalysisService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
     failed = _finish(service, service.create_run({"name": "fail", "acquisition_sample_ids": sample_ids[:1], "method_version_id": version_id}))
     assert failed["status"] == "failed"
     assert failed["failure_code"] == "analysis_gaussian_fit_failed"
@@ -229,20 +235,18 @@ def test_s16_failure_has_stable_code_intermediates_and_immutable_results(tmp_pat
 
 def test_s16_api_permissions_and_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.get("/api/v1/analyses/options").status_code == 401
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
-        version_id, sample_ids = _seed(main_module.database)
+        version_id, sample_ids = _seed(runtime.database)
         created = client.post("/api/v1/analyses/runs", headers=headers, json={"name": "api", "acquisition_sample_ids": sample_ids[:1], "method_version_id": version_id})
         assert created.status_code == 201
         run_id = created.json()["id"]

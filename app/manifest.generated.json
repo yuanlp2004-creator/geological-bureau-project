@@ -211,39 +211,9 @@
         {
           "key": "methods.lifecycle",
           "group": "methods",
-          "section_label": "方法文件",
-          "label": "方法库与当前方法",
-          "description": "新建、打开、版本、发布与当前方法",
-          "page": "methods",
-          "order": 10,
-          "required_any": [
-            "methods.read"
-          ],
-          "view": "lifecycle",
-          "status": "normal",
-          "required_context": "none"
-        },
-        {
-          "key": "methods.print-settings",
-          "group": "methods",
-          "section_label": "方法文件",
-          "label": "页面与打印机设置",
-          "description": "纸张、边距、布局与系统打印机",
-          "page": "methods",
-          "order": 20,
-          "required_any": [
-            "methods.read"
-          ],
-          "view": "print-settings",
-          "status": "normal",
-          "required_context": "none"
-        },
-        {
-          "key": "conditions.parameters",
-          "group": "conditions",
-          "section_label": "条件配置",
-          "label": "方法参数",
-          "description": "CCD、色散、激发、重复与转角条件",
+          "section_label": "",
+          "label": "方法管理与参数",
+          "description": "选择、管理方法与编辑方法参数",
           "page": "methods",
           "order": 10,
           "required_any": [
@@ -251,12 +221,12 @@
           ],
           "view": "conditions",
           "status": "normal",
-          "required_context": "current_method"
+          "required_context": "none"
         },
         {
-          "key": "conditions.lines",
-          "group": "conditions",
-          "section_label": "条件配置",
+          "key": "methods.lines",
+          "group": "methods",
+          "section_label": "",
           "label": "分析谱线",
           "description": "谱线、内标、峰值、拟合与标准点",
           "page": "methods",
@@ -266,14 +236,14 @@
           ],
           "view": "lines",
           "status": "normal",
-          "required_context": "current_method"
+          "required_context": "none"
         },
         {
-          "key": "conditions.print-preview",
-          "group": "conditions",
-          "section_label": "条件配置",
-          "label": "参数预览与打印",
-          "description": "方法条件、谱线和标准点输出",
+          "key": "methods.print-preview",
+          "group": "methods",
+          "section_label": "",
+          "label": "预览与打印",
+          "description": "页面、打印机设置与方法预览输出",
           "page": "methods",
           "order": 30,
           "required_any": [
@@ -281,7 +251,7 @@
           ],
           "view": "print-preview",
           "status": "normal",
-          "required_context": "current_method"
+          "required_context": "none"
         }
       ]
     },
@@ -306,6 +276,8 @@
         "methods"
       ],
       "capabilities": [
+        "legacy-source-discovery",
+        "legacy-directory-dialog",
         "jet-access-win-x86",
         "read-only-staging",
         "atomic-commit",
@@ -395,6 +367,8 @@
         "auth"
       ],
       "capabilities": [
+        "legacy-source-discovery",
+        "legacy-directory-dialog",
         "cdt-cmt-edt-wdt",
         "read-only-access",
         "array-shape-validation",
@@ -439,6 +413,8 @@
         "auth"
       ],
       "capabilities": [
+        "legacy-source-discovery",
+        "legacy-directory-dialog",
         "pdt-dat",
         "binary-parser",
         "orphan-results",

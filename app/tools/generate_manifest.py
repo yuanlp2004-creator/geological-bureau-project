@@ -7,7 +7,7 @@ from pathlib import Path
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.modules.manifest import registered_manifests, validate_manifests  # noqa: E402
+from backend.modules.manifest import registered_manifests, validate_manifests  # noqa: E402
 
 
 def main() -> int:

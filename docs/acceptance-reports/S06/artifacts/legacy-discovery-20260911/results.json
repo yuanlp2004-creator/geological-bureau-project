@@ -1,0 +1,23 @@
+[
+  {
+    "endpoint": "legacy-migration",
+    "selected": "C:\\Users\\Leo\\Desktop\\地质局\\Spec2.02\\DIRECT.MTD",
+    "stage": "passed",
+    "commit": "passed",
+    "invalidDirectory": "passed"
+  },
+  {
+    "endpoint": "spectrum-migration",
+    "selected": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cdt",
+    "stage": "passed",
+    "commit": "passed",
+    "invalidDirectory": "passed"
+  },
+  {
+    "endpoint": "result-migration",
+    "selected": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+    "stage": "passed",
+    "commit": "passed",
+    "invalidDirectory": "passed"
+  }
+]

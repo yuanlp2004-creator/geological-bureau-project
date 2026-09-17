@@ -12,8 +12,9 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = APP_ROOT.parent
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
-from backend.app.modules.legacy_migration import LegacyMigrationError, LegacyMigrationService
+from backend.db import Database
+from backend.modules.legacy_migration import LegacyMigrationError, LegacyMigrationService
+from backend.modules.legacy_migration.reader import LegacyAccessReader
 
 
 SOURCES = {
@@ -120,7 +121,7 @@ def test_commit_failure_rolls_back_every_target_record(tmp_path: Path, monkeypat
 
 
 def test_missing_jet_is_stable_and_does_not_affect_api_startup(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setattr(LegacyMigrationService, "_reader_candidates", staticmethod(lambda: []))
+    monkeypatch.setattr(LegacyAccessReader, "_reader_candidates", staticmethod(lambda: []))
     database = Database(tmp_path / "no-jet.sqlite3")
     database.initialize()
     diagnostic = LegacyMigrationService(database).diagnostics()
@@ -128,15 +129,13 @@ def test_missing_jet_is_stable_and_does_not_affect_api_startup(tmp_path: Path, m
     assert diagnostic["code"] == "legacy_reader_unavailable"
 
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path / "api"))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path / "api")
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, config_module.config.runtime_log_path)
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path / "api")
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.get("/health").status_code == 200
         assert client.get("/api/v1/legacy-migration/diagnostics").status_code == 401
         assert client.post(

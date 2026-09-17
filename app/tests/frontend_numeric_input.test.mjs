@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { COMPLETE_NUMBER, PARTIAL_NUMBER, validateNumericText } from '../frontend/src/numericInputModel.ts'
+import { COMPLETE_NUMBER, PARTIAL_NUMBER, validateNumericText } from '../frontend/src/components/numericInputModel.ts'
 
 test('required blank stays blank and is not coerced to zero', () => {
   assert.deepEqual(validateNumericText('', { required: true }), { value: null, message: '此项为必填项' })

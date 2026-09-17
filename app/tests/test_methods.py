@@ -15,17 +15,13 @@ sys.path.insert(0, str(APP_ROOT))
 @pytest.fixture()
 def method_client(tmp_path, monkeypatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(
-        main_module.database, tmp_path / "logs" / "runtime.jsonl"
-    )
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert (
             client.post(
                 "/api/v1/auth/bootstrap",
@@ -38,7 +34,7 @@ def method_client(tmp_path, monkeypatch):
             json={"username": "operator", "password": "correct-horse"},
         )
         token = login.json()["access_token"]
-        yield client, main_module, {"Authorization": f"Bearer {token}"}
+        yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 
 def _create(client: TestClient, headers: dict[str, str], name: str = "测试方法") -> dict:
@@ -51,6 +47,41 @@ def _publish(client: TestClient, headers: dict[str, str], method_id: int) -> dic
     response = client.post(f"/api/v1/methods/{method_id}/publish", headers=headers)
     assert response.status_code == 200, response.text
     return response.json()
+
+
+@pytest.mark.parametrize("operation", ["create", "publish", "open"])
+def test_composed_method_transactions_roll_back_on_audit_failure(method_client, monkeypatch, operation):
+    from backend.modules.methods import MethodService
+    from backend.schemas.methods import MethodCreate
+
+    client, runtime, headers = method_client
+    method_id = _create(client, headers)["id"]
+    if operation == "open":
+        _publish(client, headers, method_id)
+    database = runtime.database
+    service = MethodService(database)
+    with database.read() as db:
+        actor = db.execute("SELECT id FROM users WHERE username='operator'").fetchone()[0]
+        before = list(db.iterdump())
+    operations = {
+        "create": lambda: service.create(MethodCreate(name="回滚新方法"), actor),
+        "publish": lambda: service.publish(method_id, actor),
+        "open": lambda: service.open(method_id, actor),
+    }
+
+    def fail_audit(*args, **kwargs):
+        raise sqlite3.IntegrityError("injected method audit failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(service.repository, "_audit", fail_audit)
+        with pytest.raises(sqlite3.IntegrityError, match="injected method audit failure"):
+            operations[operation]()
+    with database.read() as db:
+        assert list(db.iterdump()) == before
+    operations[operation]()
+    with database.read() as db:
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
 
 
 def test_method_permissions_name_boundary_and_layout_options(method_client) -> None:
@@ -78,7 +109,7 @@ def test_method_permissions_name_boundary_and_layout_options(method_client) -> N
 
 
 def test_invalid_draft_is_retained_without_rewriting_current_version(method_client) -> None:
-    client, main, headers = method_client
+    client, runtime, headers = method_client
     method = _create(client, headers)
     method_id = method["id"]
     published = _publish(client, headers, method_id)
@@ -134,13 +165,13 @@ def test_invalid_draft_is_retained_without_rewriting_current_version(method_clie
 
     versions = client.get(f"/api/v1/methods/{method_id}/versions", headers=headers).json()
     assert [revision["version"] for revision in versions] == [3, 2, 1]
-    with main.database.write() as db:
+    with runtime.database.write() as db:
         revision_id = db.execute(
             "SELECT id FROM method_versions WHERE method_id=? AND version=2", (method_id,)
         ).fetchone()[0]
         with pytest.raises(sqlite3.IntegrityError, match="immutable"):
             db.execute("UPDATE method_versions SET payload_json='{}' WHERE id=?", (revision_id,))
-    with main.database.write() as db:
+    with runtime.database.write() as db:
         with pytest.raises(sqlite3.IntegrityError, match="immutable"):
             db.execute("DELETE FROM method_versions WHERE id=?", (revision_id,))
 
@@ -190,7 +221,7 @@ def test_reference_ccd_dispersion_and_angle_rules_are_field_specific(method_clie
 
 
 def test_lifecycle_current_actions_soft_delete_and_atomic_duplicate_failure(method_client) -> None:
-    client, main, headers = method_client
+    client, runtime, headers = method_client
     source = _create(client, headers, "生命周期")
     method_id = source["id"]
     _publish(client, headers, method_id)
@@ -210,14 +241,14 @@ def test_lifecycle_current_actions_soft_delete_and_atomic_duplicate_failure(meth
     assert copied.status_code == 201
     assert copied.json()["current_version"] is None
 
-    with main.database.read() as db:
+    with runtime.database.read() as db:
         method_count = db.execute("SELECT COUNT(*) FROM methods").fetchone()[0]
         version_count = db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0]
     duplicate = client.post(
         f"/api/v1/methods/{method_id}/copy", headers=headers, json={"name": "生命周期-副本"}
     )
     assert duplicate.status_code == 409
-    with main.database.read() as db:
+    with runtime.database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM methods").fetchone()[0] == method_count
         assert db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0] == version_count
 

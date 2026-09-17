@@ -12,16 +12,14 @@ sys.path.insert(0, str(APP_ROOT))
 
 def test_s01_api_contract(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
+    import backend.config as config_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    import backend.app.main as main_module
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    import backend.main as main_module
 
-    main_module.config = config_module.config
-    main_module.database = main_module.Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -33,7 +31,7 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
                 "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis", "postprocessing", "reports", "maintenance"
         }
         navigation = [entry for item in capabilities.json()["capabilities"] for entry in item["navigation_entries"]]
-        assert len(navigation) == 28
+        assert len(navigation) == 26
         assert next(entry for entry in navigation if entry["key"] == "analysis-tests.hardware")["status"] == "deferred_external"
         diagnostics = client.get("/api/v1/diagnostics", headers=headers)
         assert diagnostics.status_code == 200
@@ -69,7 +67,7 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
         assert unchanged["display"]["density"] == "compact"
         assert unchanged["logging"]["retention_days"] == 30
         assert unchanged["logging"]["max_bytes"] == 5_242_880
-        with main_module.database.read() as connection:
+        with runtime.database.read() as connection:
             assert connection.execute(
                 "SELECT COUNT(*) FROM audit_events WHERE action='settings.update'"
             ).fetchone()[0] == 1
@@ -88,3 +86,4 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
             pushed = websocket.receive_json()
             assert pushed["type"] == "runtime_event"
             assert pushed["event"]["message"] == "推送事件"
+

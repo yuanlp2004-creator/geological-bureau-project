@@ -15,8 +15,8 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
-from backend.app.modules.devices import AcqSimulatorAdapter, DeviceError, parse_acq_frame, screen_conversion, validate_profile
+from backend.db import Database
+from backend.modules.devices import AcqSimulatorAdapter, DeviceError, parse_acq_frame, screen_conversion, validate_profile
 
 
 SAMPLES = {
@@ -24,7 +24,7 @@ SAMPLES = {
     "291-299.acq": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2",
     "303-310.acq": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297",
 }
-SAMPLE_ROOT = files("backend.app.resources.simulator")
+SAMPLE_ROOT = files("backend.resources.simulator")
 
 
 def test_s11_packaged_acq_samples_match_frame_contract_and_ccd_order() -> None:
@@ -97,23 +97,20 @@ def test_s11_ten_thousand_frames_cover_thirty_virtual_minutes_with_bounded_memor
 @pytest.fixture()
 def device_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    main_module._device_service_instance = None
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
-        yield client, main_module, {"Authorization": f"Bearer {token}"}
+        yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 
 def test_s11_api_debug_is_audited_and_does_not_create_records(device_client) -> None:
-    client, main_module, headers = device_client
+    client, runtime, headers = device_client
     assert client.get("/api/v1/devices/profiles").status_code == 401
     profiles = client.get("/api/v1/devices/profiles", headers=headers)
     assert profiles.status_code == 200
@@ -128,7 +125,7 @@ def test_s11_api_debug_is_audited_and_does_not_create_records(device_client) -> 
     assert stepped.status_code == 200
     stopped = client.post("/api/v1/devices/debug/stop", headers=headers)
     assert stopped.status_code == 200
-    with main_module.database.read() as db:
+    with runtime.database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM sample_queues").fetchone()[0] == 0
         assert db.execute("SELECT COUNT(*) FROM spectrum_bands").fetchone()[0] == 0
         actions = {row[0] for row in db.execute("SELECT action FROM audit_events WHERE target_type='device'")}

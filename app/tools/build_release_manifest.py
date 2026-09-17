@@ -42,7 +42,7 @@ def package_version() -> str:
     frontend = json.loads((APP_ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))["version"]
     cargo_text = (APP_ROOT / "src-tauri" / "Cargo.toml").read_text(encoding="utf-8")
     cargo = re.search(r'^version\s*=\s*"([^"]+)"', cargo_text, re.MULTILINE)
-    backend_text = (APP_ROOT / "backend" / "app" / "__init__.py").read_text(encoding="utf-8")
+    backend_text = (APP_ROOT / "backend" / "__init__.py").read_text(encoding="utf-8")
     backend = re.search(r'__version__\s*=\s*"([^"]+)"', backend_text)
     versions = {"package": package, "tauri": tauri, "frontend": frontend, "cargo": cargo.group(1) if cargo else "", "backend": backend.group(1) if backend else ""}
     if len(set(versions.values())) != 1:
@@ -143,6 +143,7 @@ def validate_sidecar_build(sidecar: Path, sidecar_metadata: Path) -> dict[str, A
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate the auditable internal-test release manifest")
     parser.add_argument("--allow-missing-installer", action="store_true")
+    parser.add_argument("--output-dir", type=Path, help="Archive this delivery separately from earlier manifests")
     args = parser.parse_args()
     version = package_version()
     tauri_config = json.loads((APP_ROOT / "src-tauri" / "tauri.conf.json").read_text(encoding="utf-8"))
@@ -150,10 +151,11 @@ def main() -> int:
     if webview_install_mode != "offlineInstaller":
         raise RuntimeError("S21 Windows package must embed the WebView2 offline installer")
     frontend_dist = APP_ROOT / "frontend" / "dist"
+    desktop = APP_ROOT / "src-tauri" / "target" / "release" / "geospectrum.exe"
     sidecar = APP_ROOT / "src-tauri" / "binaries" / "geospectrum-backend-x86_64-pc-windows-msvc.exe"
     sidecar_metadata = sidecar.with_suffix(".build.json")
     generated_manifest = APP_ROOT / "manifest.generated.json"
-    required = [sidecar, sidecar_metadata, generated_manifest, frontend_dist / "index.html"]
+    required = [desktop, sidecar, sidecar_metadata, generated_manifest, frontend_dist / "index.html"]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing release input: {missing}")
@@ -195,6 +197,7 @@ def main() -> int:
         "module_manifest_sha256": sha256(generated_manifest),
         "module_keys": module_keys,
         "components": {
+            "desktop": artifact(desktop),
             "sidecar": artifact(sidecar),
             "frontend": [artifact(path) for path in frontend_assets],
             "module_manifest": artifact(generated_manifest),
@@ -205,7 +208,7 @@ def main() -> int:
         "software_acceptance_gate": "passed",
         "excluded": ["app/.local", "tests", "test output", "cache", "debug files", "node_modules", "src-tauri/target intermediates"],
     }
-    output_dir = REPO_ROOT / "docs" / "releases" / version
+    output_dir = args.output_dir or REPO_ROOT / "docs" / "releases" / version
     output_dir.mkdir(parents=True, exist_ok=True)
     output = output_dir / "internal-test-manifest.json"
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

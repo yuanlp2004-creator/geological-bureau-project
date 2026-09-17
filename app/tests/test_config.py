@@ -6,7 +6,7 @@ from pathlib import Path
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.config import _default_data_dir
+from backend.config import _default_data_dir
 
 
 def test_default_data_dir_uses_local_app_data(monkeypatch) -> None:

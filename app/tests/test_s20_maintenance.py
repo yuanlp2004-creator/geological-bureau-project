@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from backend.app.db import Database
-from backend.app.modules.maintenance import MaintenanceService
+from backend.db import Database
+from backend.modules.maintenance import MaintenanceService
 
 
 def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
@@ -30,6 +30,22 @@ def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
         "/sample-acquisition", "/hardware-acquisition", "/mercury-calibration", "/analysis",
         "/reports", "/maintenance", "/help", "/settings", "/about", "/users", "/audit",
     } <= covered_routes
+
+
+def test_relative_backup_directory_is_independent_of_working_directory(tmp_path: Path, monkeypatch) -> None:
+    database = Database(tmp_path / 'user-data' / 'geospectrum.sqlite3')
+    database.initialize()
+    launch_dir = tmp_path / 'launch'
+    launch_dir.mkdir()
+    monkeypatch.chdir(launch_dir)
+    service = MaintenanceService(database, database.path.parent / 'logs' / 'runtime.jsonl')
+    backup = service.backup('backups')
+    assert Path(backup['backup_path']).parent == database.path.parent / 'backups'
+    assert Path(backup['backup_path']).is_absolute()
+    assert not (launch_dir / 'backups').exists()
+    monkeypatch.chdir(tmp_path)
+    assert service.verify_backup(backup['id'])['verification']['integrity'] == 'ok'
+    assert service.restore_rehearsal(backup['id'])['status'] == 'verified'
 
 
 def test_s20_log_temp_cleanup_and_error_code_topics(tmp_path: Path) -> None:

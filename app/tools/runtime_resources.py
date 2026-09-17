@@ -8,7 +8,7 @@ from typing import Any
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = APP_ROOT.parent
-RESOURCE_ROOT = APP_ROOT / "backend" / "app" / "resources"
+RESOURCE_ROOT = APP_ROOT / "backend" / "resources"
 RESOURCE_MANIFEST = RESOURCE_ROOT / "resource-manifest.json"
 
 

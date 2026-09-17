@@ -4,8 +4,23 @@ import hashlib
 from importlib.resources import files
 from pathlib import Path
 
-from backend.app.modules.legacy_migration import LegacyMigrationService
+from backend.modules.legacy_migration import LegacyMigrationService
 from tools.runtime_resources import REPO_ROOT, RESOURCE_ROOT, load_runtime_resources
+
+
+def test_native_reader_is_resolved_from_app_tools(tmp_path, monkeypatch) -> None:
+    from backend.modules.legacy_migration import reader as legacy_reader
+
+    app_root = tmp_path / "app"
+    module = app_root / "backend" / "modules" / "legacy_migration" / "reader.py"
+    module.parent.mkdir(parents=True)
+    reader = app_root / "tools" / "legacy-mdb-reader" / "GeoSpectrum.LegacyReader.exe"
+    reader.parent.mkdir(parents=True)
+    reader.write_bytes(b"path resolution fixture")
+    monkeypatch.setattr(legacy_reader, "__file__", str(module))
+    monkeypatch.delenv("GEOSPECTRUM_LEGACY_READER", raising=False)
+    candidates = dict(LegacyMigrationService._reader_candidates())
+    assert candidates["dotnet-win-x86"] == [str(reader)]
 
 
 def test_runtime_resource_manifest_matches_packaged_files_and_read_only_sources() -> None:
@@ -24,8 +39,8 @@ def test_runtime_resource_manifest_matches_packaged_files_and_read_only_sources(
 
 
 def test_runtime_modules_resolve_only_app_owned_resources() -> None:
-    sample = files("backend.app.resources.simulator").joinpath("280-288.acq")
-    reader = files("backend.app.resources.legacy_reader").joinpath("read_access.ps1")
+    sample = files("backend.resources.simulator").joinpath("280-288.acq")
+    reader = files("backend.resources.legacy_reader").joinpath("read_access.ps1")
     assert sample.is_file() and reader.is_file()
 
     devices_source = (RESOURCE_ROOT.parent / "modules" / "devices.py").read_text(encoding="utf-8")

@@ -12,10 +12,12 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.acquisition import AcquisitionService
-from backend.app.modules.analysis import AnalysisError, AnalysisService, evaluate_curve, fit_curve, repeat_statistics
-from backend.app.modules.methods import MethodService
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database, utc_now
+from backend.modules.acquisition import AcquisitionService
+from backend.modules.analysis import AnalysisError, AnalysisService, evaluate_curve, fit_curve, repeat_statistics
+from backend.modules.methods import MethodService
 
 
 def test_s17_seeded_acquisition_produces_distinct_standard_and_repeat_intensities(tmp_path: Path) -> None:
@@ -95,7 +97,7 @@ def test_s17_seeded_acquisition_produces_distinct_standard_and_repeat_intensitie
         assert current["status"] == "completed"
         sample_ids.extend(int(sample["id"]) for sample in current["samples"])
 
-    analysis = AnalysisService(database)
+    analysis = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
     run = analysis.start(
         analysis.create_run(
             {
@@ -213,7 +215,7 @@ def test_s17_four_fits_coordinates_and_failure_boundaries() -> None:
 def test_s17_quality_adjust_fit_publish_merge_and_print_replay(tmp_path: Path) -> None:
     database = Database(tmp_path / "s17.sqlite3")
     run_id, _ = _seed_completed_run(database)
-    service = AnalysisService(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
     run = service.build_quality(run_id)
     assert run["quality"]["latest_snapshot"]["publishable"] is True
     s1 = next(item for item in run["quality"]["latest_snapshot"]["groups"] if item["sample_name"] == "S1")
@@ -276,22 +278,51 @@ def test_s17_quality_adjust_fit_publish_merge_and_print_replay(tmp_path: Path) -
     assert all(item["adjusted_intensity"] == item["original_intensity"] and item["active"] == item["original_active"] for item in run["curves"]["lines"][0]["workspace"]["points"])
 
 
+@pytest.mark.parametrize("operation", ["quality", "fit", "print"])
+def test_analysis_composed_services_roll_back_with_audit_failure(tmp_path, monkeypatch, operation):
+    database = Database(tmp_path / "analysis-rollback.sqlite3")
+    run_id, _ = _seed_completed_run(database)
+    service = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
+    service.build_quality(run_id)
+    fitted = service.fit_standard_curve(run_id, "L1", {"reason": "prepare rollback test"})
+    snapshot_id = fitted["curves"]["lines"][0]["snapshots"][-1]["id"]
+    calls = {
+        "quality": lambda: service.build_quality(run_id),
+        "fit": lambda: service.fit_standard_curve(run_id, "L1", {"reason": "rollback test"}),
+        "print": lambda: service.print_curve(run_id, snapshot_id, "image"),
+    }
+    with database.read() as db:
+        before = list(db.iterdump())
+
+    def reject_audit(*args, **kwargs):
+        raise sqlite3.IntegrityError("injected analysis audit failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(service.repository, "_audit", reject_audit)
+        with pytest.raises(sqlite3.IntegrityError, match="injected analysis audit failure"):
+            calls[operation]()
+    with database.read() as db:
+        assert list(db.iterdump()) == before
+    calls[operation]()
+    with database.read() as db:
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
 def test_s17_api_permissions_manifest_and_print(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.post("/api/v1/analyses/runs/1/quality/recalculate").status_code == 401
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
-        run_id, _ = _seed_completed_run(main_module.database)
+        run_id, _ = _seed_completed_run(runtime.database)
         quality = client.post(f"/api/v1/analyses/runs/{run_id}/quality/recalculate", headers=headers)
         assert quality.status_code == 200, quality.text
         fitted = client.post(f"/api/v1/analyses/runs/{run_id}/curves/L1/fit", headers=headers, json={"reason": "API 拟合"})

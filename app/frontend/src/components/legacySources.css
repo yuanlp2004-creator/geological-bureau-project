@@ -1,0 +1,15 @@
+.legacy-source-picker { margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.legacy-source-actions, .legacy-source-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.legacy-source-actions > span, .legacy-source-summary > span { font-size: 12px; color: var(--muted); }
+.legacy-source-picker input { min-width: 0; flex: 1; }
+.legacy-source-custom { margin: 10px 0; font-size: 12px; }
+.legacy-source-custom summary { cursor: pointer; margin-bottom: 8px; }
+.legacy-source-custom p { overflow-wrap: anywhere; }
+.legacy-source-list { display: grid; gap: 6px; max-height: 265px; overflow: auto; margin-top: 10px; }
+.legacy-source-list button { text-align: left; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: inherit; min-width: 0; }
+.legacy-source-list button:hover, .legacy-source-list button.selected { border-color: #438ed0; background: rgba(67, 142, 208, .12); }
+.legacy-source-list strong { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
+.legacy-source-list small, .legacy-source-list span, .legacy-source-list em { font-size: 12px; font-weight: normal; overflow-wrap: anywhere; display: block; margin-top: 4px; }
+.legacy-source-list em { color: #bf7825; }
+
+.legacy-source-picker input { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--surface); }

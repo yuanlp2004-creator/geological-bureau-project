@@ -13,9 +13,11 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database, utc_now
-from backend.app.modules.acquisition import AcquisitionError, AcquisitionService, average_points
-from backend.app.modules.analysis import AnalysisService
+from backend.runtime import Runtime
+from backend.config import AppConfig
+from backend.db import Database, utc_now
+from backend.modules.acquisition import AcquisitionError, AcquisitionService, average_points
+from backend.modules.analysis import AnalysisService
 
 
 def _complete_seeded_task(service: AcquisitionService, *, name: str, seed: int, repeat_count: int = 1) -> dict:
@@ -210,7 +212,7 @@ def test_s13_published_method_binding_makes_completed_sample_available_to_s16(tm
     service.start(task["id"])
     completed = service.step(task["id"])
     assert completed["status"] == "completed"
-    analysis_sample = next(item for item in AnalysisService(database).options()["samples"] if item["acquisition_task_id"] == task["id"])
+    analysis_sample = next(item for item in Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service().options()["samples"] if item["acquisition_task_id"] == task["id"])
     assert analysis_sample["method_version_id"] == method_version_id
     assert analysis_sample["method_id"] == method_id
     assert analysis_sample["method_version"] == 3
@@ -218,18 +220,13 @@ def test_s13_published_method_binding_makes_completed_sample_available_to_s16(tm
 
 def test_s13_api_permissions_and_damaged_frame_is_marked_not_replaced(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    main_module._device_service_instance = None
-    main_module._dispersion_service_instance = None
-    main_module._acquisition_service_instance = None
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.get("/api/v1/acquisitions/tasks").status_code == 401
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
@@ -263,7 +260,7 @@ def test_s13_api_permissions_and_damaged_frame_is_marked_not_replaced(tmp_path: 
         assert len(frames) == 10
         assert sum(int(frame["damaged"]) for frame in frames) == 5
         assert sum(1 for frame in frames if not frame["damaged"]) == 5
-        with main_module.database.read() as db:
+        with runtime.database.read() as db:
             assert db.execute("SELECT COUNT(*) FROM acquisition_sample_bands").fetchone()[0] == 0
             actions = {row[0] for row in db.execute("SELECT action FROM audit_events WHERE target_type='acquisition'")}
         assert {"acquisition.task.create", "acquisition.task.start", "acquisition.frame.capture", "acquisition.task.failed"}.issubset(actions)

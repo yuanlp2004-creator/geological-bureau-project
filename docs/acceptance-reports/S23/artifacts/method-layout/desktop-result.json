@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "observations": [
+    {
+      "width": "desktop",
+      "dark": false,
+      "list": {
+        "x": 274,
+        "y": 281.1875,
+        "width": 280,
+        "height": 613.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 281.1875,
+        "width": 827,
+        "height": 1082.0625
+      },
+      "context": {
+        "x": 274,
+        "y": 100,
+        "width": 1123,
+        "height": 106.59375
+      }
+    },
+    {
+      "width": "desktop",
+      "dark": true,
+      "list": {
+        "x": 274,
+        "y": 267.1875,
+        "width": 280,
+        "height": 609.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 267.1875,
+        "width": 827,
+        "height": 1032.8046875
+      },
+      "context": {
+        "x": 274,
+        "y": 86,
+        "width": 1123,
+        "height": 106.59375
+      }
+    }
+  ],
+  "checks": [
+    "single local sidebar",
+    "fold/unfold",
+    "create and select",
+    "save persistence",
+    "invalid numeric zero writes",
+    "no page errors"
+  ]
+}

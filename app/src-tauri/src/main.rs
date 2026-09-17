@@ -1,5 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+//! GeoSpectrum 桌面边界：启动和停止本地 API sidecar，只暴露运行时握手与
+//! 已校验的文件保存命令，并将后端限制在 IPv4 回环地址。
+//! 项目根目录的《项目阅读指南.md》说明了该边界与 Python、React 层的关系。
+
 use std::net::TcpListener;
 use std::path::Path;
 use std::sync::Mutex;
@@ -28,6 +32,8 @@ fn write_export_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
 }
 
 fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<String, String> {
+    // 显示原生对话框前先校验调用方可控的元数据。
+    // 目录由用户选择，WebView 只能提供安全的叶子文件名。
     let trimmed = file_name.trim();
     let leaf_name = Path::new(trimmed)
         .file_name()
@@ -89,6 +95,14 @@ async fn save_export_file(
         .map_err(|error| format!("无法解析保存路径：{error}"))?;
     write_export_file(&path, &bytes)?;
     Ok(Some(path.to_string_lossy().into_owned()))
+}
+
+#[tauri::command]
+async fn select_legacy_directory(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    let selected = app.dialog().file().set_title("选择旧版程序或数据目录").blocking_pick_folder();
+    selected.map(|value| value.into_path()
+        .map(|path| path.to_string_lossy().into_owned())
+        .map_err(|error| format!("无法读取目录路径：{error}"))).transpose()
 }
 
 fn reserve_loopback_port() -> Result<u16, std::io::Error> {
@@ -160,6 +174,8 @@ fn main() {
     let (port, process_key, api_base) = match development_api_base {
         Some(api_base) => (None, String::new(), api_base),
         None => {
+            // 绑定端口 0 让 Windows 分配空闲回环端口。监听器会在启动 sidecar 前释放，
+            // 因此即使其他进程在短暂竞态中先占用端口，进程密钥仍是授权边界。
             let port = reserve_loopback_port().expect("unable to reserve a loopback port");
             (
                 Some(port),
@@ -175,7 +191,7 @@ fn main() {
     tauri::Builder::default()
         .manage(SidecarState(Mutex::new(None)))
         .manage(runtime)
-        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file])
+        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_legacy_directory])
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
@@ -206,6 +222,7 @@ fn main() {
             }
             match sidecar_command.spawn() {
                 Ok((_receiver, mut child)) => {
+                    // 通过标准输入传递本次启动的密钥，避免它出现在进程命令行或持久化配置中。
                     if let Err(error) = child.write(format!("{process_key}\n").as_bytes()) {
                         let _ = child.kill();
                         return Err(error.into());

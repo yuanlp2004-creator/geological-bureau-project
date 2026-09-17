@@ -1,0 +1,173 @@
+{
+  "observations": [
+    {
+      "key": "sample-acquisition-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "samples-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "analysis-raw",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "analysis-quality",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "analysis-curve",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-interval",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-recalculate-export",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "reports-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "migration-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "spectrum-migration-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "result-migration-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "settings-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "users-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "audit-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1440,
+      "overflow": []
+    },
+    {
+      "key": "maintenance-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "help-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    },
+    {
+      "key": "about-main",
+      "width": 1440,
+      "height": 920,
+      "dpr": 2,
+      "scroll": 1425,
+      "overflow": []
+    }
+  ],
+  "errors": []
+}

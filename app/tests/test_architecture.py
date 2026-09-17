@@ -10,10 +10,10 @@ import pytest
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.modules.manifest import NavigationEntry, ModuleManifest, registered_manifests, validate_manifests
-from backend.app.db import Database
-from backend.app.schemas import RuntimeEventCreate, SettingsPatch
-from backend.app.services import AppService
+from backend.modules.manifest import NavigationEntry, ModuleManifest, registered_manifests, validate_manifests
+from backend.db import Database
+from backend.schemas import RuntimeEventCreate, SettingsPatch
+from backend.services import AppService
 
 
 def test_registered_manifests_have_unique_contracts() -> None:
@@ -52,9 +52,9 @@ def test_generated_manifest_matches_registered_modules() -> None:
     modules_by_key = {module["key"]: module for module in payload["modules"]}
     assert modules_by_key["spectrum-migration"]["title"] == "旧谱数据迁移"
     entries = [entry for module in payload["modules"] for entry in module["navigation_entries"]]
-    assert len(entries) == 28
+    assert len(entries) == 26
     assert len({entry["key"] for entry in entries}) == len(entries)
-    assert {entry["group"] for entry in entries} == {"workspace", "methods", "conditions", "analysis-tests", "data", "tools", "system", "help"}
+    assert {entry["group"] for entry in entries} == {"workspace", "methods", "analysis-tests", "data", "tools", "system", "help"}
 
 
 def test_invalid_navigation_contracts_are_rejected() -> None:
@@ -70,8 +70,8 @@ def test_invalid_navigation_contracts_are_rejected() -> None:
 
 
 def test_frontend_downloads_use_the_shared_adapter() -> None:
-    app_source = (APP_ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
-    api_source = (APP_ROOT / "frontend" / "src" / "api.ts").read_text(encoding="utf-8")
+    app_source = "\n".join(path.read_text(encoding="utf-8") for path in (APP_ROOT / "frontend" / "src").rglob("*.tsx"))
+    api_source = (APP_ROOT / "frontend" / "src" / "platform" / "files.ts").read_text(encoding="utf-8")
     assert "document.createElement('a')" not in app_source
     assert api_source.count("document.createElement('a')") == 1
     assert "save_export_file" in api_source
@@ -79,16 +79,16 @@ def test_frontend_downloads_use_the_shared_adapter() -> None:
 
 def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
     source_root = APP_ROOT / "frontend" / "src"
-    sources = {path.name: path.read_text(encoding="utf-8") for path in source_root.glob("*.tsx")}
+    sources = {path.name: path.read_text(encoding="utf-8") for path in source_root.rglob("*.tsx")}
     component = sources["NumericInput.tsx"]
-    model = (source_root / "numericInputModel.ts").read_text(encoding="utf-8")
+    model = (source_root / "components" / "numericInputModel.ts").read_text(encoding="utf-8")
     assert all('type="number"' not in source for source in sources.values())
     assert "PARTIAL_NUMBER" in component and "COMPLETE_NUMBER" in model
     assert "此项为必填项" in model
     assert "event.key === 'Enter'" in component
     assert "event.key === 'Escape'" in component
     for filename in (
-        "App.tsx", "SampleAcquisitionPage.tsx", "DispersionPage.tsx", "AnalysisPage.tsx",
+        "MethodsPage.tsx", "SampleAcquisitionPage.tsx", "DispersionPage.tsx", "AnalysisPage.tsx",
         "HardwareAcquisitionPage.tsx", "MercuryCalibrationPage.tsx", "PostProcessingPage.tsx",
     ):
         assert "NumericInput" in sources[filename]
@@ -97,11 +97,12 @@ def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
 def test_frontend_bugfix_accessibility_localization_and_queue_contracts() -> None:
     source_root = APP_ROOT / "frontend" / "src"
     app_source = (source_root / "App.tsx").read_text(encoding="utf-8")
-    api_source = (source_root / "api.ts").read_text(encoding="utf-8")
-    styles = (source_root / "styles.css").read_text(encoding="utf-8")
-    acquisition = (source_root / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
+    api_source = (source_root / "api" / "client.ts").read_text(encoding="utf-8")
+    styles = (source_root / "styles" / "global.css").read_text(encoding="utf-8")
+    acquisition = (source_root / "pages" / "acquisition" / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
+    settings = (source_root / "pages" / "settings" / "SettingsPage.tsx").read_text(encoding="utf-8")
     assert ".hidden-picker { display: none; }" in styles
-    assert 'className="hidden-picker"' in app_source
+    assert 'className="hidden-picker"' in settings
     assert "auth_invalid_credentials" in app_source and "用户名或密码错误" in app_source
     assert "class ApiError" in api_source
     assert "const displayedRepeatCount = queueItem ? (queueItem.repeats || 1) : repeatCount" in acquisition

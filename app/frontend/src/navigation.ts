@@ -1,5 +1,7 @@
 import type { Capability, CurrentMethodState } from './api'
 
+/** 根据后端清单推导可见导航及其运行期可用状态。 */
+
 export type Page =
   | 'workspace' | 'methods' | 'migration' | 'spectrum-migration' | 'result-migration'
   | 'spectra' | 'postprocessing' | 'samples' | 'acquisition' | 'dispersion'
@@ -7,7 +9,7 @@ export type Page =
   | 'reports' | 'maintenance' | 'help' | 'settings' | 'about' | 'users' | 'audit'
   | 'extension'
 
-export type NavigationGroupId = 'workspace' | 'methods' | 'conditions' | 'analysis-tests' | 'data' | 'tools' | 'system' | 'help'
+export type NavigationGroupId = 'workspace' | 'methods' | 'analysis-tests' | 'data' | 'tools' | 'system' | 'help'
 export type NavigationContext = 'none' | 'current_method' | 'current_method_exp_seg' | 'page_scoped'
 export type NavigationStatus = 'normal' | 'deferred_external' | 'test_only'
 
@@ -40,8 +42,7 @@ export type NavigationAvailability = {
 
 export const navigationGroups: NavigationGroup[] = [
   { id: 'workspace', label: '工作台', order: 10, description: '运行状态与常用操作' },
-  { id: 'methods', label: '光谱方法', order: 20, description: '方法文件与输出设置' },
-  { id: 'conditions', label: '分析条件', order: 30, description: '当前方法的测量与计算条件' },
+  { id: 'methods', label: '光谱方法', order: 20, description: '方法管理、参数、谱线与打印' },
   { id: 'analysis-tests', label: '分析测试', order: 40, description: '准备、摄谱、查看、分析与质控' },
   { id: 'data', label: '数据处理', order: 50, description: '全时、重算、矩阵与报告' },
   { id: 'tools', label: '工具', order: 60, description: '设备校准与旧版迁移' },
@@ -52,6 +53,9 @@ export const navigationGroups: NavigationGroup[] = [
 const validGroups = new Set(navigationGroups.map((group) => group.id))
 
 export function navigationEntries(capabilities: Capability[], permissions: string[]): NavigationEntry[] {
+  // 可见性属于授权决策：当前角色无权读取的入口直接省略。
+  // 临时的方法或页面前置条件由 navigationAvailability 单独处理，
+  // 让用户能够看到已获授权的操作为何暂不可用。
   const keys = new Set<string>()
   const entries: NavigationEntry[] = []
   for (const capability of capabilities) {
@@ -97,6 +101,7 @@ function currentMethodUnavailableReason(currentMethod: CurrentMethodState | null
 }
 
 export function navigationAvailability(entry: NavigationEntry, currentMethod: CurrentMethodState | null): NavigationAvailability {
+  // 此处只负责界面反馈，不构成安全强制；对应 API 路由仍会自行检查权限和领域状态。
   if (entry.required_context === 'current_method') {
     const reason = currentMethodUnavailableReason(currentMethod)
     if (reason) return { disabled: true, reason }

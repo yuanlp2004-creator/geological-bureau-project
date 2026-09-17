@@ -1,3 +1,12 @@
+# Only publish project entry files, application sources, and documentation.
+/*
+!/.gitignore
+!/README.md
+!/AGENTS.md
+!/PLAN.md
+!/app/
+!/docs/
+
 # Explicitly excluded from the public repository.
 /Spec Source/
 /Spec2.02/
@@ -20,8 +29,32 @@
 /app/frontend/node_modules/
 /app/frontend/dist/
 /app/src-tauri/target/
+/app/frontend/*.tsbuildinfo
 
-# Local build and accidentally named test-cache outputs.
-/GeoSpectrum.exe
-/geospectrum-backend.exe
+# Accidentally named test-cache outputs.
 /app/v/
+
+# Dependencies, compiler outputs, and local configuration at any depth.
+node_modules/
+__pycache__/
+bin/
+obj/
+.env
+.env.*
+!.env.example
+*.exe
+*.dll
+*.msi
+*.msix
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Keep release documentation, but not the portable demo's runtime data.
+/docs/releases/**/demo-data/

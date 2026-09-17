@@ -1,0 +1,719 @@
+{
+  "backend_files_scanned": 127,
+  "small_file_threshold": 80,
+  "small_files_reviewed": 60,
+  "files": [
+    {
+      "path": "__init__.py",
+      "lines_before": 3,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "api/__init__.py",
+      "lines_before": 46,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "api/dependencies.py",
+      "lines_before": 27,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/acquisition.py",
+        "backend/api/analysis.py",
+        "backend/api/auth.py",
+        "backend/api/devices.py",
+        "backend/api/dispersion.py",
+        "backend/api/events.py",
+        "backend/api/extensions.py",
+        "backend/api/hardware_acquisition.py",
+        "backend/api/legacy_migration.py",
+        "backend/api/maintenance.py",
+        "backend/api/mercury_calibration.py",
+        "backend/api/methods.py",
+        "backend/api/postprocessing.py",
+        "backend/api/reports.py",
+        "backend/api/result_migration.py",
+        "backend/api/sample_queues.py",
+        "backend/api/spectrum_migration.py",
+        "backend/api/spectrum_viewer.py",
+        "backend/api/system.py"
+      ]
+    },
+    {
+      "path": "api/events.py",
+      "lines_before": 38,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "api/extensions.py",
+      "lines_before": 51,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "api/legacy_migration.py",
+      "lines_before": 74,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "api/middleware.py",
+      "lines_before": 55,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/main.py"
+      ]
+    },
+    {
+      "path": "api/reports.py",
+      "lines_before": 80,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "api/result_migration.py",
+      "lines_before": 77,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "api/spectrum_migration.py",
+      "lines_before": 72,
+      "action": "keep",
+      "target": null,
+      "reason": "独立 API、WebSocket、中间件、鉴权依赖或扩展注册职责。",
+      "importers": [
+        "backend/api/__init__.py"
+      ]
+    },
+    {
+      "path": "config.py",
+      "lines_before": 42,
+      "action": "keep",
+      "target": null,
+      "reason": "应用启动入口、冻结入口或环境配置，具有明确独立职责。",
+      "importers": [
+        "backend/main.py",
+        "backend/runtime.py",
+        "backend/sidecar_entry.py",
+        "tests/test_api.py",
+        "tests/test_auth.py",
+        "tests/test_auth_transactions.py",
+        "tests/test_config.py",
+        "tests/test_legacy_migration.py",
+        "tests/test_legacy_sources.py",
+        "tests/test_method_printing.py",
+        "tests/test_methods.py",
+        "tests/test_runtime_isolation.py",
+        "tests/test_s10_spectrum_viewer.py",
+        "tests/test_s11_devices.py",
+        "tests/test_s12_dispersion.py",
+        "tests/test_s13_acquisition.py",
+        "tests/test_s14_hardware_acquisition.py",
+        "tests/test_s15_mercury_calibration.py",
+        "tests/test_s16_analysis.py",
+        "tests/test_s17_quality_curves.py",
+        "tests/test_s18_postprocessing.py",
+        "tests/test_s19_reports.py",
+        "tests/test_s21_release.py",
+        "tests/test_sample_queues.py",
+        "tests/test_spectral_lines.py",
+        "tools/generate_s05_sample.py"
+      ]
+    },
+    {
+      "path": "main.py",
+      "lines_before": 44,
+      "action": "keep",
+      "target": null,
+      "reason": "应用启动入口、冻结入口或环境配置，具有明确独立职责。",
+      "importers": [
+        "tests/test_api.py",
+        "tests/test_auth.py",
+        "tests/test_auth_transactions.py",
+        "tests/test_legacy_migration.py",
+        "tests/test_legacy_sources.py",
+        "tests/test_method_printing.py",
+        "tests/test_methods.py",
+        "tests/test_runtime_isolation.py",
+        "tests/test_s10_spectrum_viewer.py",
+        "tests/test_s11_devices.py",
+        "tests/test_s12_dispersion.py",
+        "tests/test_s13_acquisition.py",
+        "tests/test_s14_hardware_acquisition.py",
+        "tests/test_s15_mercury_calibration.py",
+        "tests/test_s16_analysis.py",
+        "tests/test_s17_quality_curves.py",
+        "tests/test_s21_release.py",
+        "tests/test_sample_queues.py",
+        "tests/test_spectral_lines.py"
+      ]
+    },
+    {
+      "path": "migrations/__init__.py",
+      "lines_before": 28,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "migrations/sql.py",
+      "lines_before": 32,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/db.py",
+        "backend/migrations/baseline.py",
+        "backend/migrations/defaults.py",
+        "backend/migrations/v11_devices.py",
+        "backend/migrations/v12_dispersion.py",
+        "backend/migrations/v13_acquisition.py",
+        "backend/migrations/v14_hardware_acquisition.py",
+        "backend/migrations/v15_mercury_calibration.py",
+        "backend/migrations/v16_analysis.py",
+        "backend/migrations/v17_analysis_quality_curves.py",
+        "backend/migrations/v18_postprocessing.py",
+        "backend/migrations/v19_reports.py",
+        "backend/migrations/v20_maintenance.py"
+      ]
+    },
+    {
+      "path": "migrations/v11_devices.py",
+      "lines_before": 9,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v13_acquisition.py",
+      "lines_before": 20,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v14_hardware_acquisition.py",
+      "lines_before": 20,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v15_mercury_calibration.py",
+      "lines_before": 22,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v16_analysis.py",
+      "lines_before": 20,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v17_analysis_quality_curves.py",
+      "lines_before": 23,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v18_postprocessing.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v19_reports.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "migrations/v20_maintenance.py",
+      "lines_before": 13,
+      "action": "keep",
+      "target": null,
+      "reason": "独立历史版本或共用迁移辅助；保持升级边界及失败定位。",
+      "importers": [
+        "backend/migrations/__init__.py"
+      ]
+    },
+    {
+      "path": "modules/__init__.py",
+      "lines_before": 1,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/analysis/__init__.py",
+      "lines_before": 7,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/analysis/contracts.py",
+      "lines_before": 10,
+      "action": "keep",
+      "target": null,
+      "reason": "跨模块公开能力契约，独立于服务实现。",
+      "importers": [
+        "backend/modules/postprocessing/recalculation.py",
+        "backend/modules/postprocessing/service.py"
+      ]
+    },
+    {
+      "path": "modules/analysis/errors.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "多个服务/计算/适配组件共用错误类型，避免消费者相互依赖。",
+      "importers": [
+        "backend/modules/analysis/__init__.py",
+        "backend/modules/analysis/algorithms.py",
+        "backend/modules/analysis/curves.py",
+        "backend/modules/analysis/printing.py",
+        "backend/modules/analysis/quality.py",
+        "backend/modules/analysis/repository.py",
+        "backend/modules/analysis/service.py",
+        "backend/modules/postprocessing/legacy_calculation.py"
+      ]
+    },
+    {
+      "path": "modules/analysis/serialization.py",
+      "lines_before": 15,
+      "action": "keep",
+      "target": null,
+      "reason": "多个组件共享的稳定序列化和哈希；保留各模块既有编码差异。",
+      "importers": [
+        "backend/modules/analysis/curves.py",
+        "backend/modules/analysis/printing.py",
+        "backend/modules/analysis/quality.py",
+        "backend/modules/analysis/repository.py",
+        "backend/modules/analysis/service.py"
+      ]
+    },
+    {
+      "path": "modules/legacy_migration/__init__.py",
+      "lines_before": 9,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/legacy_migration/errors.py",
+      "lines_before": 24,
+      "action": "keep",
+      "target": null,
+      "reason": "多个服务/计算/适配组件共用错误类型，避免消费者相互依赖。",
+      "importers": [
+        "backend/modules/legacy_migration/__init__.py",
+        "backend/modules/legacy_migration/configuration.py",
+        "backend/modules/legacy_migration/normalization.py",
+        "backend/modules/legacy_migration/reader.py",
+        "backend/modules/legacy_migration/records.py",
+        "backend/modules/legacy_migration/service.py",
+        "backend/modules/legacy_migration/sources.py"
+      ]
+    },
+    {
+      "path": "modules/legacy_migration/sources.py",
+      "lines_before": 34,
+      "action": "keep",
+      "target": null,
+      "reason": "旧方法服务、记录解码器、读取器共享源快照与指纹。",
+      "importers": [
+        "backend/modules/legacy_migration/__init__.py",
+        "backend/modules/legacy_migration/reader.py",
+        "backend/modules/legacy_migration/records.py",
+        "backend/modules/legacy_migration/service.py"
+      ]
+    },
+    {
+      "path": "modules/method_printing/__init__.py",
+      "lines_before": 5,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/method_printing/settings.py",
+      "lines_before": 20,
+      "action": "keep",
+      "target": null,
+      "reason": "服务、文档、渲染共用的内部值类型，隔离 HTTP 请求模型。",
+      "importers": [
+        "backend/modules/method_printing/document.py",
+        "backend/modules/method_printing/rendering.py",
+        "backend/modules/method_printing/service.py",
+        "tests/test_decoupled_calculation.py"
+      ]
+    },
+    {
+      "path": "modules/methods/__init__.py",
+      "lines_before": 5,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/methods/errors.py",
+      "lines_before": 31,
+      "action": "keep",
+      "target": null,
+      "reason": "多个服务/计算/适配组件共用错误类型，避免消费者相互依赖。",
+      "importers": [
+        "backend/modules/method_printing/document.py",
+        "backend/modules/methods/__init__.py",
+        "backend/modules/methods/repository.py",
+        "backend/modules/methods/runtime.py",
+        "backend/modules/methods/service.py",
+        "backend/modules/methods/snapshots.py",
+        "backend/modules/methods/values.py",
+        "tests/test_decoupled_calculation.py"
+      ]
+    },
+    {
+      "path": "modules/methods/geometry.py",
+      "lines_before": 63,
+      "action": "keep",
+      "target": null,
+      "reason": "仓储、校验和服务共享的几何计算职责。",
+      "importers": [
+        "backend/modules/methods/repository.py",
+        "backend/modules/methods/service.py",
+        "backend/modules/methods/validation.py"
+      ]
+    },
+    {
+      "path": "modules/postprocessing/__init__.py",
+      "lines_before": 7,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "modules/postprocessing/codec.py",
+      "lines_before": 16,
+      "action": "merge",
+      "target": "modules/postprocessing/repository.py",
+      "reason": "仅仓储实际调用编解码函数，包级导出可从仓储继续提供。",
+      "importers": [
+        "backend/modules/postprocessing/__init__.py",
+        "backend/modules/postprocessing/repository.py"
+      ]
+    },
+    {
+      "path": "modules/postprocessing/conversion_uow.py",
+      "lines_before": 26,
+      "action": "merge",
+      "target": "modules/postprocessing/conversion.py",
+      "reason": "仅转换流程拥有并使用工作单元；合并位置，保留事务类型和原提交机制。",
+      "importers": [
+        "backend/modules/postprocessing/conversion.py"
+      ]
+    },
+    {
+      "path": "modules/postprocessing/errors.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "多个服务/计算/适配组件共用错误类型，避免消费者相互依赖。",
+      "importers": [
+        "backend/modules/postprocessing/__init__.py",
+        "backend/modules/postprocessing/codec.py",
+        "backend/modules/postprocessing/conversion.py",
+        "backend/modules/postprocessing/exporting.py",
+        "backend/modules/postprocessing/legacy_calculation.py",
+        "backend/modules/postprocessing/recalculation.py",
+        "backend/modules/postprocessing/repository.py",
+        "tests/test_decoupled_calculation.py"
+      ]
+    },
+    {
+      "path": "modules/postprocessing/serialization.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "多个组件共享的稳定序列化和哈希；保留各模块既有编码差异。",
+      "importers": [
+        "backend/modules/postprocessing/__init__.py",
+        "backend/modules/postprocessing/conversion.py",
+        "backend/modules/postprocessing/exporting.py",
+        "backend/modules/postprocessing/recalculation.py",
+        "backend/modules/postprocessing/repository.py"
+      ]
+    },
+    {
+      "path": "resources/__init__.py",
+      "lines_before": 1,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "resources/legacy_reader/__init__.py",
+      "lines_before": 1,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "resources/simulator/__init__.py",
+      "lines_before": 1,
+      "action": "keep",
+      "target": null,
+      "reason": "包标识、运行资源发现或明确公共导出/注册入口。",
+      "importers": []
+    },
+    {
+      "path": "schemas/acquisition.py",
+      "lines_before": 50,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/acquisition.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/analysis.py",
+      "lines_before": 66,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/analysis.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/auth.py",
+      "lines_before": 36,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/auth.py",
+        "backend/auth.py",
+        "backend/schemas/__init__.py",
+        "tests/test_auth_transactions.py"
+      ]
+    },
+    {
+      "path": "schemas/devices.py",
+      "lines_before": 54,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/devices.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/dispersion.py",
+      "lines_before": 54,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/dispersion.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/hardware_acquisition.py",
+      "lines_before": 43,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/hardware_acquisition.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/legacy_migration.py",
+      "lines_before": 17,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/legacy_migration.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/maintenance.py",
+      "lines_before": 24,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/maintenance.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/mercury_calibration.py",
+      "lines_before": 20,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/mercury_calibration.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/postprocessing.py",
+      "lines_before": 46,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/postprocessing.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/reports.py",
+      "lines_before": 24,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/reports.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/result_migration.py",
+      "lines_before": 15,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/result_migration.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/sample_queues.py",
+      "lines_before": 34,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/sample_queues.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/spectrum_migration.py",
+      "lines_before": 15,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/spectrum_migration.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "schemas/spectrum_viewer.py",
+      "lines_before": 23,
+      "action": "keep",
+      "target": null,
+      "reason": "按业务域组织的 HTTP 契约，与 API 对应；不为减少文件数混合不同业务。",
+      "importers": [
+        "backend/api/spectrum_viewer.py",
+        "backend/schemas/__init__.py"
+      ]
+    },
+    {
+      "path": "sidecar_entry.py",
+      "lines_before": 67,
+      "action": "keep",
+      "target": null,
+      "reason": "应用启动入口、冻结入口或环境配置，具有明确独立职责。",
+      "importers": [
+        "tests/test_architecture.py",
+        "tests/test_s21_release.py"
+      ]
+    }
+  ]
+}

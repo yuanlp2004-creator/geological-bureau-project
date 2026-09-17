@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>GeoSpectrum 使用手册</title>
+<style>
+:root{--blue:#176499;--deep:#16466a;--ink:#223549;--muted:#607387;--line:#dce5ec;--wash:#f3f7fa;--article-size:16px}*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);background:white}button,input{font:inherit}button,a,input,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{color:var(--blue);text-underline-offset:3px}a:hover{color:#104770}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #dfab40;outline-offset:3px}button:disabled{opacity:.4;cursor:default}.app-header{height:75px;display:flex;align-items:center;justify-content:space-between;padding:0 29px;border-bottom:1px solid var(--line);gap:20px}.identity{display:flex;align-items:center;gap:13px;white-space:nowrap}.book-icon{height:39px;width:39px;display:grid;place-items:center;color:white;background:var(--deep);border-radius:9px;font-size:21px}.identity strong{font-size:19px;letter-spacing:.4px}.identity small{display:block;font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:1px}.version{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:6px 11px}.toolbar{display:flex;align-items:center;gap:5px}.toolbar button,.small-button{border:1px solid transparent;background:white;color:#466177;border-radius:5px;padding:7px 10px;font-size:13px}.toolbar button:hover:not(:disabled),.small-button:hover{background:var(--wash);border-color:var(--line)}.toolbar .divider{height:23px;width:1px;background:var(--line);margin:0 7px}.shell{height:calc(100% - 75px);display:grid;grid-template-columns:288px minmax(0,1fr)}.sidebar{border-right:1px solid var(--line);background:#f7f9fb;display:flex;flex-direction:column;min-height:0}.search-area{padding:20px 19px 10px}.search-wrap{display:flex;align-items:center;gap:8px;background:white;border:1px solid #cfdbe5;border-radius:7px;padding:0 10px;height:41px}.search-icon{color:#70869a;font-size:20px}.search-wrap input{border:0;outline:none!important;width:100%;min-width:0;font-size:13px;background:transparent;color:var(--ink)}.search-wrap:focus-within{outline:2px solid var(--blue);outline-offset:1px}.clear-search{border:0;background:transparent;color:var(--muted);font-size:20px;padding:1px 3px}.tabs{display:flex;padding:0 19px;border-bottom:1px solid var(--line);gap:20px}.tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:11px 1px;font-size:13px}.tab[aria-selected=true]{border-bottom-color:var(--blue);color:var(--blue);font-weight:700}.sidebar-scroll{padding:13px 12px;overflow:auto;flex:1;scrollbar-width:thin;min-height:0}.tree-group{margin-bottom:5px}.tree-group>summary{list-style:none;display:flex;align-items:center;gap:9px;padding:10px 8px;cursor:pointer;font-size:14px;font-weight:650;border-radius:5px}.tree-group>summary::-webkit-details-marker,.tree-subgroup>summary::-webkit-details-marker{display:none}.tree-group>summary:hover,.tree-subgroup>summary:hover{background:#eaf0f5}.tree-group>summary:before,.tree-subgroup>summary:before{content:'›';font-family:Arial;font-size:18px;width:9px;display:inline-block;color:#72899c;transform:rotate(0deg)}.tree-group[open]>summary:before,.tree-subgroup[open]>summary:before{transform:rotate(90deg)}.group-number{font-size:11px;font-weight:400;color:#788ea0;letter-spacing:.6px}.tree-children{margin-left:20px;border-left:1px solid #d6e0e8;padding:2px 0 4px 8px}.tree-link{display:block;padding:8px 9px;font-size:13px;text-decoration:none;color:#53687b;border-radius:5px;line-height:1.5;margin-bottom:2px}.tree-link:hover{background:#eaf0f5}.tree-link[aria-current=page]{background:#e0edf7;color:#125b8d;font-weight:650;box-shadow:inset 3px 0 #287aaa}.tree-subgroup>summary{font-size:12px;color:#667e92;list-style:none;cursor:pointer;padding:8px 5px;display:flex;align-items:center;gap:8px}.tree-subgroup>.tree-children{margin-left:12px;padding-left:5px}.sidebar-footer{padding:12px 18px;border-top:1px solid var(--line);color:#7890a2;font-size:11px;display:flex;align-items:center;justify-content:space-between}.sidebar-footer button{border:0;background:none;font-size:11px;color:#55728a;cursor:pointer;padding:4px}.search-status{padding:6px 7px 12px;font-size:12px;color:var(--muted)}.search-result{display:block;background:white;border:1px solid var(--line);padding:12px;border-radius:6px;margin:0 1px 9px;text-decoration:none}.search-result strong{font-size:13px;display:block;line-height:1.6}.search-result small{font-size:11px;color:var(--muted);display:block;margin:4px 0}.search-result p{font-size:12px;line-height:1.7;color:#607387;margin:6px 0 0;overflow-wrap:anywhere}.empty{font-size:13px;line-height:1.9;padding:13px 8px;color:var(--muted)}.main-scroll{overflow:auto;scrollbar-width:thin;min-width:0;scroll-behavior:auto}.reading-layout{max-width:1310px;padding:28px 45px 50px;margin:auto;display:grid;grid-template-columns:minmax(0,860px) 160px;gap:40px}.reading{min-width:0}.breadcrumbs{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#8191a0;line-height:1.7;margin:0 0 26px}.breadcrumbs a{text-decoration:none;color:#5c7e99}.breadcrumbs .current{color:#3d5c73}.article-header{border-bottom:1px solid var(--line);padding-bottom:23px;margin-bottom:25px}.eyebrow{display:flex;gap:9px;align-items:center;font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--blue);margin-bottom:13px}.eyebrow:before{content:'';display:block;width:22px;height:2px;background:var(--blue)}h1{font-size:30px;font-weight:650;line-height:1.4;letter-spacing:.4px;margin:0 0 12px;color:#1d405c}.lead{font-size:16px;line-height:1.9;color:var(--muted);margin:0}.entry{font-size:13px;line-height:1.9;background:#eef5fa;border-left:3px solid #8bb7d5;padding:11px 14px;border-radius:0 4px 4px 0;margin:19px 0 0}.entry strong{color:#355875;margin-right:9px}.article-body{font-size:var(--article-size);line-height:1.95;overflow-wrap:anywhere}.article-body p{margin:0 0 18px}.article-body h2{font-size:21px;font-weight:650;color:#284e6a;line-height:1.5;margin:31px 0 16px;scroll-margin-top:25px}.article-body h3{font-size:18px;margin:24px 0 13px;color:#355a76}.article-body ul,.article-body ol{padding-left:25px;margin:0 0 21px}.article-body li{padding-left:3px;margin:8px 0}.article-body li p{margin:0 0 9px}.article-body strong{font-weight:650;color:#294a62}.article-body code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:.88em;border:1px solid #e1e8ee;padding:2px 5px;border-radius:4px;background:#f6f8fa;overflow-wrap:anywhere}.article-body table{border-collapse:collapse;width:100%;font-size:.88em;line-height:1.8;margin:18px 0 25px}.article-body th{text-align:left;background:#edf3f7;color:#345a75;font-weight:600}.article-body td,.article-body th{border:1px solid var(--line);padding:10px 12px;vertical-align:top}.article-body tr:nth-child(even) td{background:#fafcfd}.article-body blockquote{margin:20px 0;padding:12px 17px;background:var(--wash);border-left:3px solid #91b5cc}.article-body blockquote p:last-child{margin-bottom:0}.page-outline{align-self:start;position:sticky;top:28px;padding-top:3px;font-size:12px;border-left:1px solid var(--line);padding-left:19px}.page-outline strong{font-size:11px;color:#69849b;letter-spacing:1px;display:block;margin:0 0 14px}.page-outline a{display:block;text-decoration:none;color:#657b8e;font-size:12px;line-height:1.7;margin:11px 0}.page-outline a:hover{color:var(--blue)}.topic-meta{font-size:11px;color:#8496a5;line-height:1.9;border-top:1px solid var(--line);padding-top:15px;margin-top:24px}.related{border-top:1px solid var(--line);margin-top:35px;padding-top:21px}.related h2{font-size:13px;font-weight:650;letter-spacing:1px;color:#668198;margin:0 0 12px}.related-links{display:flex;flex-wrap:wrap;gap:9px}.related-links a{font-size:13px;text-decoration:none;border:1px solid var(--line);padding:8px 11px;border-radius:5px}.related-links a:hover{background:var(--wash)}.page-nav{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:28px}.page-nav a{border:1px solid var(--line);border-radius:7px;padding:14px;text-decoration:none;display:flex;flex-direction:column;gap:5px;min-height:70px}.page-nav a:last-child{text-align:right}.page-nav a:hover{border-color:#96b8d0;background:#f8fbfd}.page-nav span{font-size:11px;color:#7c91a2}.page-nav strong{font-size:13px;font-weight:500}.mobile-menu{display:none!important}.skip-link{position:fixed;top:-60px;left:15px;z-index:20;background:white;padding:12px}.skip-link:focus{top:10px}.hidden,[hidden]{display:none!important}.not-found{padding:13px 16px;background:#fff4d8;border:1px solid #e9d08b;color:#725f24;border-radius:5px;line-height:1.8;margin-bottom:20px}.welcome .article-header{border-top:4px solid var(--blue);padding-top:24px}.welcome h1{font-size:34px}.welcome .article-body h2:first-of-type{margin-top:26px}
+@media(min-width:1650px){.reading-layout{padding-top:38px;gap:60px}.shell{grid-template-columns:310px minmax(0,1fr)}.sidebar-scroll{padding:16px}.app-header{padding-left:33px}}
+@media(max-width:1180px){.reading-layout{grid-template-columns:minmax(0,1fr);padding:26px 35px}.page-outline{display:none}.shell{grid-template-columns:267px minmax(0,1fr)}.version{display:none}}
+@media(max-width:760px){.app-header{height:66px;padding:0 13px;gap:8px}.identity strong{font-size:15px}.identity small{font-size:10px;letter-spacing:0}.book-icon{display:none}.toolbar{gap:0}.toolbar button{font-size:12px;padding:7px}.toolbar .divider,.font-control{display:none!important}.mobile-menu{display:inline-block!important}.shell{height:calc(100% - 66px);display:block}.sidebar{display:none;position:fixed;top:66px;left:0;bottom:0;width:min(315px,88vw);z-index:10;box-shadow:10px 0 30px #15385022}.sidebar.open{display:flex}.main-scroll{height:100%}.reading-layout{padding:20px 21px 35px}.breadcrumbs{margin-bottom:21px}h1{font-size:25px}.welcome h1{font-size:29px}.article-body{font-size:var(--article-size)}.article-body h2{font-size:20px}.page-nav{gap:9px}.page-nav a{padding:11px}.article-body td,.article-body th{padding:7px}.entry{font-size:12px}}
+@media(max-width:760px){.app-header{height:100px;display:block;padding:10px 14px}.toolbar{justify-content:space-between;margin-top:9px;gap:3px}.toolbar button{white-space:nowrap;font-size:12px;padding:6px 8px}.shell{height:calc(100% - 100px)}.sidebar{top:100px}}
+@media print{@page{margin:18mm 16mm}html,body{height:auto}.app-header,.sidebar,.page-outline,.related,.page-nav,.skip-link,.breadcrumbs{display:none!important}.shell,.main-scroll,.reading-layout{display:block;height:auto;overflow:visible;max-width:none;padding:0}.article-body{font-size:11pt;line-height:1.7}.article-body h2{font-size:15pt;break-after:avoid}.article-body h3{break-after:avoid}.article-body tr{break-inside:avoid}.article-header{padding-top:0!important}h1{font-size:23pt!important}.article-body a{color:#16466a}.article-body table{font-size:10pt}.topic-meta{display:block}.not-found{display:none}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#welcome" id="skip">跳到正文</a>
+<header class="app-header">
+ <div class="identity"><div class="book-icon" aria-hidden="true">▤</div><div><strong>GeoSpectrum</strong><small>使用手册 · 离线帮助</small></div><span class="version">0.1.0 · 内部测试版</span></div>
+ <nav class="toolbar" aria-label="阅读工具">
+  <button type="button" id="menu-toggle" class="mobile-menu" aria-expanded="false" aria-controls="sidebar">目录</button>
+  <button type="button" id="back" title="返回上一条阅读记录" disabled>← 后退</button><button type="button" id="forward" title="前往下一条阅读记录" disabled>前进 →</button>
+  <span class="divider"></span><button type="button" id="home">首页</button>
+  <span class="divider font-control"></span><button type="button" id="font-smaller" class="font-control" aria-label="缩小字号">A−</button><button type="button" id="font-larger" class="font-control" aria-label="放大字号">A＋</button>
+  <button type="button" id="print">打印本页</button>
+ </nav>
+</header>
+<div class="shell">
+ <aside id="sidebar" class="sidebar" aria-label="手册导航">
+  <div class="search-area"><div class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索操作、菜单或关键词" aria-label="搜索手册全文" autocomplete="off"><button type="button" id="clear-search" class="clear-search" aria-label="清空搜索" hidden>×</button></div></div>
+  <div class="tabs" role="tablist" aria-label="导航方式"><button type="button" id="toc-tab" class="tab" role="tab" aria-selected="true" aria-controls="toc">目录</button><button type="button" id="search-tab" class="tab" role="tab" aria-selected="false" aria-controls="search-results" tabindex="-1">全文搜索</button></div>
+  <div class="sidebar-scroll"><nav id="toc" role="tabpanel" aria-labelledby="toc-tab"></nav><section id="search-results" role="tabpanel" aria-labelledby="search-tab" hidden><div id="search-status" class="search-status" role="status" aria-live="polite">输入关键词，搜索标题和正文。</div><div id="result-list"></div></section></div>
+  <div class="sidebar-footer"><span id="topic-count"></span><button type="button" id="expand-all">全部展开</button></div>
+ </aside>
+ <main class="main-scroll" id="main" tabindex="-1">
+  <div class="reading-layout"><div class="reading">
+   <nav class="breadcrumbs" id="breadcrumbs" aria-label="当前位置"></nav>
+   <div id="not-found" class="not-found" hidden>未找到此主题，已显示手册首页。请使用左侧目录或搜索继续浏览。</div>
+   <article id="article" aria-labelledby="topic-title"></article>
+   <section class="related" id="related" aria-label="相关主题"></section>
+   <nav class="page-nav" id="page-nav" aria-label="顺序阅读"></nav>
+   <div class="topic-meta">GeoSpectrum 使用手册 · 适用版本 0.1.0 · 校订日期 2026-09-05<br>独立离线阅读 · 内容以当前版本和实际任务提示为准</div>
+  </div><aside id="outline" class="page-outline" aria-label="本页目录"></aside></div>
+ </main>
+</div>
+<noscript><p style="padding:30px">本手册的分层目录和搜索需要浏览器启用 JavaScript。请使用 Microsoft Edge 等现代浏览器打开此本地文件。</p></noscript>
+<script>
+'use strict';
+const DATA=/*__MANUAL_DATA__*/;
+const topics=DATA.topics, groups=DATA.groups, byId=new Map(topics.map(t=>[t.id,t]));
+const $=id=>document.getElementById(id);
+const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const plain=html=>{const d=document.createElement('div');d.innerHTML=html;return(d.textContent||'').replace(/\s+/g,' ').trim()};
+const searchable=topics.map(t=>({...t,text:plain(t.html)}));
+let position=0, maximum=0, fontSize=16, current='welcome', expanded=false;
+history.replaceState({manual:true,position:0},'',location.href);
+const groupName=id=>groups.find(g=>g.id===id).title;
+const topicLink=t=>`<a class="tree-link" href="#${t.id}" data-topic="${t.id}">${escapeHtml(t.title)}</a>`;
+function buildTree(){
+ $('toc').innerHTML=groups.map((g,i)=>{
+  const list=topics.filter(t=>t.group===g.id);let children='',section='';
+  for(const t of list){
+   if((t.section||'')!==section){if(section)children+='</div></details>';section=t.section||'';if(section)children+=`<details class="tree-subgroup"><summary>${escapeHtml(section)}</summary><div class="tree-children">`;}
+   children+=topicLink(t);
+  }
+  if(section)children+='</div></details>';
+  return `<details class="tree-group" data-group="${g.id}"${g.id==='start'?' open':''}><summary><span class="group-number">${String(i+1).padStart(2,'0')}</span>${escapeHtml(g.title)}</summary><div class="tree-children">${children}</div></details>`;
+ }).join('');
+ $('topic-count').textContent=`${groups.length} 章 · ${topics.length} 个主题`;
+}
+function showTab(search){
+ $('toc').hidden=search;$('search-results').hidden=!search;
+ for(const [id,active] of [['toc-tab',!search],['search-tab',search]]){$(id).setAttribute('aria-selected',String(active));$(id).tabIndex=active?0:-1;}
+}
+function route(){let value;try{value=decodeURIComponent(location.hash.slice(1))}catch{value='invalid'};const [id,anchor]=value.split('~');return{id:id||'welcome',anchor};}
+function navigate(id){
+ if(location.hash==='#'+id){render();return;}
+ position++;maximum=position;history.pushState({manual:true,position},'','#'+id);render();
+}
+function closeMenu(){$('sidebar').classList.remove('open');$('menu-toggle').setAttribute('aria-expanded','false');}
+function render(){
+ const r=route();let t=byId.get(r.id);$('not-found').hidden=!!t;if(!t)t=byId.get('welcome');current=t.id;
+ document.title=t.title+' — GeoSpectrum 使用手册';
+ $('breadcrumbs').innerHTML=`<a href="#welcome">使用手册</a><span>›</span><a href="#${topics.find(x=>x.group===t.group).id}">${escapeHtml(groupName(t.group))}</a>${t.section?`<span>›</span><span>${escapeHtml(t.section)}</span>`:''}<span>›</span><span class="current">${escapeHtml(t.title)}</span>`;
+ $('article').className=t.id==='welcome'?'welcome':'';
+ const body=(!/<h[23][ >]/.test(t.html)&&t.id!=='welcome'?'<h2>操作说明</h2>':'')+t.html;
+ $('article').innerHTML=`<header class="article-header"><div class="eyebrow">${escapeHtml(groupName(t.group))} / GEOSPECTRUM GUIDE</div><h1 id="topic-title">${escapeHtml(t.title)}</h1>${t.lead?`<p class="lead">${escapeHtml(t.lead)}</p>`:''}${t.entry?`<div class="entry"><strong>软件入口</strong>${escapeHtml(t.entry)}</div>`:''}</header><div class="article-body">${body}</div>`;
+ const headings=[...$('article').querySelectorAll('.article-body h2,.article-body h3')];
+ headings.forEach((h,i)=>h.id='section-'+i);
+ $('outline').innerHTML='<strong>本页内容</strong>'+headings.map((h,i)=>`<a href="#${t.id}~section-${i}">${escapeHtml(h.textContent)}</a>`).join('');
+ $('outline').hidden=!headings.length;
+ $('related').innerHTML='<h2>继续阅读</h2><div class="related-links">'+(t.related||[]).map(id=>`<a href="#${id}">${escapeHtml(byId.get(id).title)} <span aria-hidden="true">↗</span></a>`).join('')+'</div>';
+ $('related').hidden=!(t.related||[]).length;
+ const index=topics.indexOf(t),prev=topics[index-1],next=topics[index+1];
+ $('page-nav').innerHTML=(prev?`<a href="#${prev.id}"><span>← 上一页</span><strong>${escapeHtml(prev.title)}</strong></a>`:'<span></span>')+(next?`<a href="#${next.id}"><span>下一页 →</span><strong>${escapeHtml(next.title)}</strong></a>`:'<span></span>');
+ document.querySelectorAll('.tree-link').forEach(a=>a.removeAttribute('aria-current'));
+ const selected=document.querySelector(`.tree-link[data-topic="${t.id}"]`);
+ if(selected){selected.setAttribute('aria-current','page');let ancestor=selected.parentElement;while(ancestor&&ancestor!==$('toc')){if(ancestor.tagName==='DETAILS')ancestor.open=true;ancestor=ancestor.parentElement;}}
+ $('back').disabled=position<=0;$('forward').disabled=position>=maximum;
+ $('main').scrollTop=0;closeMenu();
+ if(r.anchor){const heading=headings.find(h=>h.id===r.anchor);if(heading)requestAnimationFrame(()=>heading.scrollIntoView({block:'start'}));}
+}
+function search(){
+ const q=$('search').value.trim().toLocaleLowerCase();$('clear-search').hidden=!q;
+ if(!q){$('result-list').innerHTML='';$('search-status').textContent='输入关键词，搜索标题和正文。';showTab(false);return;}
+ showTab(true);const words=q.split(/\s+/).filter(Boolean);
+ const results=searchable.map(t=>{const title=t.title.toLocaleLowerCase(),body=t.text.toLocaleLowerCase();return{t,score:words.every(w=>(title+' '+body).includes(w))?words.reduce((s,w)=>s+(title.includes(w)?10:1),0):0}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+ $('search-status').textContent=`找到 ${results.length} 个主题`;
+ $('result-list').innerHTML='';
+ if(!results.length){const p=document.createElement('p');p.className='empty';p.textContent='没有匹配主题。试试更短的关键词，例如“方法”“曲线”或“备份”。';$('result-list').append(p);return;}
+ for(const {t} of results){const a=document.createElement('a');a.href='#'+t.id;a.className='search-result';const title=document.createElement('strong');title.textContent=t.title;const group=document.createElement('small');group.textContent=groupName(t.group)+(t.section?' / '+t.section:'');const snippet=document.createElement('p');const start=Math.max(0,t.text.toLocaleLowerCase().indexOf(words[0])-22);snippet.textContent=(start?'…':'')+t.text.slice(start,start+95)+(start+95<t.text.length?'…':'');a.append(title,group,snippet);$('result-list').append(a);}
+}
+document.addEventListener('click',event=>{
+ const link=event.target.closest('a[href^="#"]');if(!link||link.id==='skip'||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+ event.preventDefault();navigate(link.getAttribute('href').slice(1));
+});
+window.addEventListener('popstate',()=>{position=history.state?.manual?history.state.position:0;render()});
+window.addEventListener('hashchange',()=>{if(!history.state?.manual){position++;maximum=position;history.replaceState({manual:true,position},'',location.href);}render()});
+$('back').onclick=()=>history.back();$('forward').onclick=()=>history.forward();$('home').onclick=()=>navigate('welcome');$('print').onclick=()=>window.print();
+$('font-smaller').onclick=()=>{fontSize=Math.max(14,fontSize-1);document.documentElement.style.setProperty('--article-size',fontSize+'px')};
+$('font-larger').onclick=()=>{fontSize=Math.min(22,fontSize+1);document.documentElement.style.setProperty('--article-size',fontSize+'px')};
+$('search').addEventListener('input',search);$('clear-search').onclick=()=>{$('search').value='';search();$('search').focus()};
+$('toc-tab').onclick=()=>showTab(false);$('search-tab').onclick=()=>{showTab(true);$('search').focus()};
+document.querySelector('.tabs').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const toSearch=event.key==='End'||(event.key!=='Home'&&$('toc-tab').getAttribute('aria-selected')==='true');showTab(toSearch);$(toSearch?'search-tab':'toc-tab').focus()});
+$('expand-all').onclick=()=>{expanded=!expanded;document.querySelectorAll('#toc details').forEach(d=>d.open=expanded);$('expand-all').textContent=expanded?'全部收起':'全部展开'};
+$('menu-toggle').onclick=()=>{const open=$('sidebar').classList.toggle('open');$('menu-toggle').setAttribute('aria-expanded',String(open))};
+$('main').addEventListener('click',closeMenu);$('skip').onclick=event=>{event.preventDefault();$('main').focus()};
+document.addEventListener('keydown',event=>{if(event.key==='/'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){event.preventDefault();if(innerWidth<=760){$('sidebar').classList.add('open');$('menu-toggle').setAttribute('aria-expanded','true')}$('search').focus()}if(event.key==='Escape'){closeMenu()}});
+buildTree();render();
+</script>
+</body>
+</html>

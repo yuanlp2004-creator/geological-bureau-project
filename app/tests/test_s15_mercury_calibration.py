@@ -10,8 +10,8 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.app.db import Database
-from backend.app.modules.mercury_calibration import MercuryCalibrationService, MercuryError
+from backend.db import Database
+from backend.modules.mercury_calibration import MercuryCalibrationService, MercuryError
 
 
 def _create(service: MercuryCalibrationService, **overrides) -> dict:
@@ -115,16 +115,13 @@ def test_s15_immutable_frames_versions_and_control_lock(tmp_path: Path) -> None:
 
 def test_s15_api_permissions_and_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
-    import backend.app.config as config_module
-    import backend.app.main as main_module
+    import backend.config as config_module
+    import backend.main as main_module
 
-    config_module.config = config_module.AppConfig(data_dir=tmp_path)
-    main_module.config = config_module.config
-    main_module.database = Database(config_module.config.database_path)
-    main_module.service = main_module.AppService(main_module.database, tmp_path / "logs" / "runtime.jsonl")
-    main_module.auth_service = main_module.AuthService(main_module.database)
-    main_module._mercury_calibration_service_instance = None
-    with TestClient(main_module.app) as client:
+    test_config = config_module.AppConfig(data_dir=tmp_path)
+    application = main_module.create_app(test_config)
+    runtime = application.state.runtime
+    with TestClient(application) as client:
         assert client.get("/api/v1/mercury-calibrations/options").status_code == 401
         assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
         token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]

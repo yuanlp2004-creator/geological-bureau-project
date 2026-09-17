@@ -8,8 +8,16 @@ const string Provider = "Microsoft.Jet.OLEDB.4.0";
 
 if (args.Contains("--probe", StringComparer.OrdinalIgnoreCase))
 {
-    var available = OleDbEnumerator.GetRootEnumerator().AsEnumerable()
-        .Any(row => string.Equals(row.Field<string>("SOURCES_NAME"), Provider, StringComparison.OrdinalIgnoreCase));
+    using var sources = OleDbEnumerator.GetRootEnumerator();
+    var sourceNameOrdinal = sources.GetOrdinal("SOURCES_NAME");
+    var available = false;
+    while (sources.Read())
+    {
+        var sourceName = Convert.ToString(sources.GetValue(sourceNameOrdinal), CultureInfo.InvariantCulture);
+        if (!string.Equals(sourceName, Provider, StringComparison.OrdinalIgnoreCase)) continue;
+        available = true;
+        break;
+    }
     Console.WriteLine(JsonSerializer.Serialize(new
     {
         available,

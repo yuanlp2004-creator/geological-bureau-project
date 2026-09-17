@@ -1,1 +1,3 @@
-"""Backend package marker for local development and tests."""
+"""GeoSpectrum local application service."""
+
+__version__ = "0.1.0"

@@ -25,7 +25,7 @@ def test_tauri_minimal_capability_and_lifecycle_contract() -> None:
     assert "blocking_save_file()" in rust
     assert "write_export_file(&path, &bytes)?" in rust
     assert "std::fs::write(path, bytes)" in rust
-    assert "generate_handler![runtime_config, save_export_file]" in rust
+    assert "generate_handler![runtime_config, save_export_file, select_legacy_directory]" in rust
     assert '"pdf" => "application/pdf"' in rust
     assert '"txt" | "log" | "sam" => "text/plain"' in rust
     assert 'std::env::var("GEOSPECTRUM_DEV_API_BASE")' in rust
