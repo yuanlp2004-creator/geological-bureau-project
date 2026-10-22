@@ -19,9 +19,9 @@ try{
  await page.goto(url);
  await page.locator('#topic-title').waitFor();
  assert.equal(await page.locator('#topic-title').innerText(),'手册首页');
- assert.equal(await page.locator('.tree-group').count(),10);
+ assert.equal(await page.locator('.tree-group').count(),9);
  const routes=await page.locator('.tree-link').evaluateAll(links=>links.map(a=>({id:a.dataset.topic,title:a.textContent})));
- assert.equal(routes.length,54);
+ assert.equal(routes.length,55);
  // 逐页验证路由、目录定位、正文、所有相关主题与页内锚点。
  const ids=new Set(routes.map(r=>r.id));
  for(const r of routes){
@@ -77,7 +77,7 @@ try{
  await page.screenshot({path:path.join(output,'home-1920.png')});
  // 刷新深链接和无效主题兜底。
  await page.goto(url+'#backup');await page.reload();
- assert.equal(await page.locator('#topic-title').innerText(),'在线备份与恢复演练');
+ assert.equal(await page.locator('#topic-title').innerText(),'备份数据库与校验');
  await page.screenshot({path:path.join(output,'backup-1920.png')});
  await page.goto(url+'#missing-topic');
  assert.equal(await page.locator('#not-found').isVisible(),true);
@@ -100,5 +100,5 @@ try{
  await page.keyboard.press('Escape');
  assert.equal(await page.locator('#sidebar').isVisible(),false);
  assert.deepEqual(errors,[]);assert.deepEqual(externalRequests,[]);
- console.log(JSON.stringify({status:'passed',topics:routes.length,checks:['54 routes and body links','tree nesting and selected topic','body and section jumps','back and forward','next page','full text search and empty result','input escaping','deep link reload','invalid route fallback','font size','print media','mobile navigation','keyboard search','zero external requests','zero page errors'],screenshots:output},null,2));
+ console.log(JSON.stringify({status:'passed',topics:routes.length,checks:['55 routes and body links','tree nesting and selected topic','body and section jumps','back and forward','next page','full text search and empty result','input escaping','deep link reload','invalid route fallback','font size','print media','mobile navigation','keyboard search','zero external requests','zero page errors'],screenshots:output},null,2));
 }finally{await browser.close()}

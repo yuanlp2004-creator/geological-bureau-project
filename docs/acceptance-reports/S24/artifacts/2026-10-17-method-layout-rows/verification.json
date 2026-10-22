@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "batch": "2026-10-17-method-layout-rows",
+  "execution_plan_sha256": "a34d1db8919bd4514f7b4c1e5677a6e57022470219b8127b96d3e60e21c5bd50",
+  "task_start_plan_sha256": "a0852c025f46fdb85433a2b2525febe2f276dfa884fff37495cc3a4b6beda0fd",
+  "product_files_changed": [
+    "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/methods/MethodsPage.tsx"
+  ],
+  "tests": {
+    "frontend": 15,
+    "existing_layout_regression_checks": 9,
+    "existing_layout_regression_observations": 12,
+    "browser_checks": 6,
+    "desktop_checks": 6,
+    "browser_layouts": 4,
+    "desktop_layouts": 4,
+    "typecheck_vite": true,
+    "tauri_production": true,
+    "tauri_qa": true,
+    "sidecar_verify": true
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "1eaa5bb5a78010c9547f9ceb74baf240348fb2810016ce6503270ff30eb76f63",
+    "geospectrum-backend.exe": "c7add8f9dae8be593dbaf5dbe2d4f572e173e121fc06eff258d35983f6b6fb42"
+  },
+  "previous_root_pair": {
+    "GeoSpectrum.exe": "3f1622f457116bfd7032c46284a38a51f89858d78cce14a3abcacd950a9aac88",
+    "geospectrum-backend.exe": "c7add8f9dae8be593dbaf5dbe2d4f572e173e121fc06eff258d35983f6b6fb42"
+  },
+  "backup": "app/.local/releases/2026-10-17-method-layout-rows/previous",
+  "backend_source_and_binary_unchanged": true,
+  "schema_version": 23,
+  "api_schema_migration_changed": false,
+  "production_qa_sources_equal": true,
+  "verified_product_source_count": 350,
+  "current_sources_match_build": true,
+  "production_qa_frontend_equal": true,
+  "frontend_assets": {
+    "index.html": "df346b5a8bd1e5b428de87724ebf1636524c92fe219edb7ede5b259669f329c9",
+    "assets/index-B731F5aM.css": "c578b081c15a7dc8019674b133ffc2ee1635200a153747964048529089ffd6a4",
+    "assets/index-V7Nmeu9X.js": "ef2d9aef563ea5c3c6688da806f4783331e7a723ed04f016cb405fadfe16f430"
+  },
+  "user_database_exists": true,
+  "selected_user_business_files_preserved": {
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3": "be17573964932a9e78995823383c58944f894d3315c6a85967df8c82d82d0001",
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\last-upgrade.json": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39"
+  },
+  "root_app_entry_lists_unchanged": true,
+  "desktop_cleanup": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-17-method-layout-rows\\qa\\GeoSpectrum.exe",
+    "pid": 16152,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "preserve_existing_ccd_on_read_and_unrelated_save": true,
+  "explicit_curve_selection_derives_layout_and_installed_ccds": true,
+  "range_and_safety_checks_retained": true,
+  "installer_updated": false,
+  "user_running_window_preserved": true
+}

@@ -1,0 +1,267 @@
+/* Repeatability quality control uses the existing workspace visual tokens. */
+:root .app-shell .analysis-quality-page .hero-row {
+  margin-bottom: 0;
+}
+:root .app-shell .analysis-quality-page .analysis-layout {
+  grid-template-columns: minmax(0, 1fr) 260px;
+}
+:root .app-shell .analysis-quality-page .analysis-sidebar {
+  grid-column: 2;
+  grid-row: 1;
+}
+:root .app-shell .analysis-quality-page .analysis-main {
+  grid-column: 1;
+  grid-row: 1;
+}
+:root .app-shell .analysis-quality-page .analysis-layout.rail-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+:root .app-shell .analysis-quality-page .analysis-line-nav {
+  padding: 12px 0;
+  gap: 8px;
+}
+:root .app-shell .analysis-quality-page .analysis-line-nav button {
+  color: var(--ui-text);
+  background: var(--surface);
+  border-color: var(--ui-control-border);
+  border-radius: 6px;
+  min-height: var(--ui-control);
+}
+:root .app-shell .analysis-quality-page .analysis-line-nav button.active {
+  color: var(--ui-accent);
+  background: var(--ui-selected);
+  border-color: var(--ui-accent);
+}
+:root .app-shell .analysis-quality-page .analysis-line-nav :is(span, small, i) {
+  color: var(--ui-muted);
+}
+:root .app-shell .analysis-quality-page .analysis-status {
+  color: var(--ui-muted);
+  background: var(--ui-soft);
+}
+:root .app-shell .analysis-quality-page .analysis-status.completed {
+  color: var(--ui-success);
+  background: var(--ui-success-bg);
+}
+:root .app-shell .analysis-quality-page .analysis-status:is(.failed, .cancelled) {
+  color: var(--ui-danger);
+  background: var(--ui-danger-bg);
+}
+.analysis-setup {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.analysis-legacy-import {
+  display: grid;
+  gap: 12px;
+}
+.analysis-legacy-import p {
+  margin: 0;
+}
+.analysis-legacy-import select {
+  border-radius: 6px;
+  padding-inline: 10px;
+}
+.analysis-legacy-list {
+  min-width: 0;
+  border: 1px solid var(--ui-control-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+:root .app-shell .analysis-legacy-list select[multiple] {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 72px;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 10px;
+  outline: none;
+}
+.analysis-legacy-list:focus-within {
+  border-color: var(--ui-accent);
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+.analysis-legacy-import .primary-button {
+  justify-self: start;
+}
+:root .app-shell .analysis-quality-page .analysis-quality-panel {
+  container-type: inline-size;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+}
+:root .app-shell .analysis-quality-panel > .surface-heading {
+  margin-bottom: 16px;
+}
+:root .app-shell .analysis-quality-panel h3 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--ui-text);
+}
+:root .app-shell .analysis-quality-panel .surface-heading p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ui-muted);
+}
+:root .app-shell .analysis-quality-panel .snapshot-state,
+:root .app-shell .analysis-quality-panel .qc-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-muted);
+  background: var(--ui-soft);
+}
+:root .app-shell .analysis-quality-panel :is(.snapshot-state.ready, .qc-state.ready, .qc-state.accepted) {
+  color: var(--ui-success);
+  background: var(--ui-success-bg);
+}
+:root .app-shell .analysis-quality-panel :is(.snapshot-state.blocked, .qc-state.warning) {
+  color: var(--ui-warning);
+  background: var(--ui-warning-bg);
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups {
+  gap: 16px;
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article {
+  border: 1px solid var(--ui-border);
+  border-top: 3px solid var(--ui-accent);
+  border-radius: 8px;
+  padding: var(--ui-space);
+  background: var(--surface);
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article.warning {
+  border-top-color: var(--ui-warning);
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article > header {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article > header strong {
+  font-size: 16px;
+  color: var(--ui-text);
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article > header > div:first-child > span {
+  color: var(--ui-muted);
+}
+:root .app-shell .analysis-quality-panel .analysis-qc-groups article > header .qc-group-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+:root .app-shell .analysis-quality-panel .qc-warning-list {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  border: 1px solid var(--ui-warning);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--ui-warning);
+  background: var(--ui-warning-bg);
+}
+.qc-warning-list > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+:root .app-shell .analysis-quality-panel .qc-warning-list p {
+  margin: 0;
+  color: var(--ui-warning);
+  font-size: 13px;
+}
+:root .app-shell .analysis-quality-panel .qc-stat-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+  border: 0;
+  overflow: visible;
+}
+:root .app-shell .analysis-quality-panel .qc-stat-grid > div {
+  min-width: 0;
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  gap: 3px;
+  background: var(--ui-soft);
+}
+:root .app-shell .analysis-quality-panel .qc-stat-grid span {
+  font-size: 12px;
+  color: var(--ui-muted);
+}
+:root .app-shell .analysis-quality-panel .qc-stat-grid strong {
+  font-size: 17px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text);
+}
+:root .app-shell .analysis-quality-panel .qc-members {
+  display: block;
+  margin-top: 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.qc-members table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+:root .app-shell .analysis-quality-panel .qc-members :is(th, td) {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.qc-members th,
+.qc-members tr:not(:last-child) td {
+  border-bottom: 1px solid var(--ui-border);
+}
+.qc-members :is(th, td):is(:nth-child(2), :last-child) {
+  text-align: right;
+}
+:root .app-shell .analysis-quality-panel .qc-measurement {
+  font-weight: 600;
+}
+:root .app-shell .analysis-quality-panel .qc-members tr.excluded {
+  color: var(--ui-muted);
+  background: var(--ui-soft);
+}
+.qc-members tr.excluded .qc-measurement {
+  text-decoration: line-through;
+}
+:root .app-shell .analysis-quality-panel .qc-member-state.included {
+  color: var(--ui-success);
+}
+:root .app-shell .analysis-quality-panel .qc-member-state.excluded {
+  color: var(--ui-muted);
+}
+@container (min-width: 1000px) {
+  :root .app-shell .analysis-quality-panel .qc-stat-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@container (max-width: 470px) {
+  :root .app-shell .analysis-quality-panel .qc-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1100px) {
+  :root .app-shell .analysis-quality-page .analysis-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :root .app-shell .analysis-quality-page .analysis-sidebar {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}

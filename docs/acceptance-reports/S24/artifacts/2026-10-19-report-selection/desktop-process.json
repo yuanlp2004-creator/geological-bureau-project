@@ -1,0 +1,12 @@
+{
+  "mode": "desktop",
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-19-report-selection\\qa\\GeoSpectrum.exe",
+  "sha256": "2354d2762eaf7847d73d1949539853eeaac415d5ff5aecb49962ff9eb68986b6",
+  "pid": 18048,
+  "returncodes": [
+    0
+  ],
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

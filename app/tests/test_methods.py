@@ -227,26 +227,20 @@ def test_lifecycle_current_actions_soft_delete_and_atomic_duplicate_failure(meth
     _publish(client, headers, method_id)
     assert client.post(f"/api/v1/methods/{method_id}/open", headers=headers).status_code == 200
 
-    renamed = client.patch(
-        f"/api/v1/methods/{method_id}", headers=headers, json={"name": "生命周期-重命名"}
-    )
+    renamed = client.patch(f"/api/v1/methods/{method_id}", headers=headers, json={"name": "生命周期-重命名"})
     assert renamed.status_code == 200
     current = client.get("/api/v1/workspace/state", headers=headers).json()
     assert current["title"] == "生命周期-重命名"
     assert current["actions"]["can_acquire"] is True
 
-    copied = client.post(
-        f"/api/v1/methods/{method_id}/copy", headers=headers, json={"name": "生命周期-副本"}
-    )
+    copied = client.post(f"/api/v1/methods/{method_id}/copy", headers=headers, json={"name": "生命周期-副本"})
     assert copied.status_code == 201
     assert copied.json()["current_version"] is None
 
     with runtime.database.read() as db:
         method_count = db.execute("SELECT COUNT(*) FROM methods").fetchone()[0]
         version_count = db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0]
-    duplicate = client.post(
-        f"/api/v1/methods/{method_id}/copy", headers=headers, json={"name": "生命周期-副本"}
-    )
+    duplicate = client.post(f"/api/v1/methods/{method_id}/copy", headers=headers, json={"name": "生命周期-副本"})
     assert duplicate.status_code == 409
     with runtime.database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM methods").fetchone()[0] == method_count
@@ -267,7 +261,9 @@ def test_lifecycle_current_actions_soft_delete_and_atomic_duplicate_failure(meth
     assert deleted.status_code == 200 and deleted.json()["deleted"] is True
     assert client.get("/api/v1/methods/current", headers=headers).json()["method_id"] is None
     assert client.get(f"/api/v1/methods/{method_id}", headers=headers).status_code == 404
-    assert any(item["id"] == method_id for item in client.get("/api/v1/methods?include_deleted=true", headers=headers).json())
+    assert any(
+        item["id"] == method_id for item in client.get("/api/v1/methods?include_deleted=true", headers=headers).json()
+    )
 
     audit = client.get("/api/v1/audit", headers=headers).json()
     actions = {event["action"] for event in audit}
@@ -293,13 +289,10 @@ def test_analyst_can_read_methods_but_cannot_change_them(method_client) -> None:
         json={"username": "analyst", "password": "analyst-pass", "role_ids": [analyst["id"]]},
     )
     assert created.status_code == 201
-    token = client.post(
-        "/api/v1/auth/login", json={"username": "analyst", "password": "analyst-pass"}
-    ).json()["access_token"]
+    token = client.post("/api/v1/auth/login", json={"username": "analyst", "password": "analyst-pass"}).json()[
+        "access_token"
+    ]
     analyst_headers = {"Authorization": f"Bearer {token}"}
     assert client.get("/api/v1/methods", headers=analyst_headers).status_code == 200
     assert client.get("/api/v1/methods/current", headers=analyst_headers).status_code == 200
-    assert (
-        client.post("/api/v1/methods", headers=analyst_headers, json={"name": "越权"}).status_code
-        == 403
-    )
+    assert client.post("/api/v1/methods", headers=analyst_headers, json={"name": "越权"}).status_code == 403

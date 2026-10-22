@@ -1,0 +1,387 @@
+{
+  "status": "passed",
+  "checks": [
+    "All eight toolbar images render at 20px, centered in unchanged 36x34px buttons with hover titles",
+    "All expanded-menu icons render at 20px with intact labels and menu click areas; other branding and home icons keep their sizes",
+    "Light/dark and wide/minimum-window layouts fit, retain one toolbar row and keep all click areas",
+    "The smaller Open shortcut still immediately invokes its method chooser and can be cancelled"
+  ],
+  "errors": [],
+  "runtimeApi": "http://127.0.0.1:53220",
+  "networkErrors": [],
+  "toolbar": [
+    {
+      "name": "新建方法",
+      "text": "",
+      "title": "新建方法 · 填写名称，建立新方法",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "打开方法",
+      "text": "",
+      "title": "打开方法 · 选择并载入方法，设为当前运行方法",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "方法另存为",
+      "text": "",
+      "title": "方法另存为 · 将选中的方法保存为副本",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "方法参数",
+      "text": "",
+      "title": "方法参数 · 查看与编辑方法条件",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "分析谱线",
+      "text": "",
+      "title": "分析谱线 · 设置谱线、内标、峰值与标准点",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "预录样号",
+      "text": "",
+      "title": "预录样号 · 请先选择已发布的当前方法",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "样品摄谱",
+      "text": "",
+      "title": "样品摄谱 · 请先选择已发布的当前方法",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    },
+    {
+      "name": "样品分析",
+      "text": "",
+      "title": "样品分析 · 请先选择已发布的当前方法",
+      "buttonWidth": 36,
+      "buttonHeight": 34,
+      "imageWidth": 20,
+      "imageHeight": 20,
+      "centerOffsetX": 0,
+      "centerOffsetY": 0,
+      "naturalWidth": 256
+    }
+  ],
+  "menu": [
+    {
+      "group": "methods",
+      "name": "方法管理与参数",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "methods",
+      "name": "分析谱线",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "methods",
+      "name": "预览与打印",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "样号与样品队列",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "色散摄谱",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "蒸发摄谱",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "样品摄谱",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "自动转角采集",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "谱图查看",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "色散曲线",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "蒸发曲线",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "analysis-tests",
+      "name": "样品分析",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "data",
+      "name": "重新计算",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "data",
+      "name": "打印与导出",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "tools",
+      "name": "设备参数与实时调试",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "tools",
+      "name": "汞灯与光学校准",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "tools",
+      "name": "旧方法与配置迁移",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "tools",
+      "name": "旧谱数据迁移",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "tools",
+      "name": "旧结果迁移",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "system",
+      "name": "软件设置",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "system",
+      "name": "备份与维护",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "system",
+      "name": "用户与权限",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "system",
+      "name": "审计记录",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "help",
+      "name": "离线帮助",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    },
+    {
+      "group": "help",
+      "name": "关于与诊断",
+      "width": 20,
+      "height": 20,
+      "buttonHeight": 44.9921875,
+      "overlap": false,
+      "loaded": true
+    }
+  ],
+  "layouts": [
+    {
+      "file": "icons-1440-1000-light.png",
+      "theme": "light",
+      "density": "comfortable",
+      "left": 245,
+      "right": 585,
+      "top": 8,
+      "bottom": 502,
+      "width": 1440,
+      "height": 1000,
+      "documentWidth": 1425
+    },
+    {
+      "file": "icons-1060-680-light.png",
+      "theme": "light",
+      "density": "comfortable",
+      "left": 214,
+      "right": 554,
+      "top": 45.80078125,
+      "bottom": 440.19921875,
+      "width": 1060,
+      "height": 680,
+      "documentWidth": 1045
+    },
+    {
+      "file": "icons-1440-1000-dark.png",
+      "theme": "dark",
+      "density": "compact",
+      "left": 245,
+      "right": 585,
+      "top": 8,
+      "bottom": 502,
+      "width": 1440,
+      "height": 1000,
+      "documentWidth": 1440
+    },
+    {
+      "file": "icons-1060-680-dark.png",
+      "theme": "dark",
+      "density": "compact",
+      "left": 214,
+      "right": 554,
+      "top": 7.99609375,
+      "bottom": 402.39453125,
+      "width": 1060,
+      "height": 680,
+      "documentWidth": 1045
+    }
+  ]
+}

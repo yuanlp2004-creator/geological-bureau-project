@@ -1,0 +1,93 @@
+{
+  "icons": [
+    {
+      "name": "acquisition.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "analysis.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "conditions.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "lines.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "new-method.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "open-method.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "samples.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "name": "save-as.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "canonical_workflow_unchanged": true
+}

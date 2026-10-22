@@ -1,0 +1,639 @@
+{
+  "observations": [
+    {
+      "key": "sample-acquisition-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "samples-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-raw",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-quality",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-curve",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-interval",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-recalculate-export",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "reports-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "migration-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "spectrum-migration-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "result-migration-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "settings-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "users-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "audit-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "maintenance-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "help-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "about-main",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "sample-paused-collapsed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "sample-completed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-data-raw",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-data-quality",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-data-curve",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "analysis-fitted-curve",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "report-preview",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "hardware-running-collapsed",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "mercury-applied-rollback",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-paused",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "debug-stopped",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "maintenance-verified",
+      "width": 1920,
+      "height": 1080,
+      "dpr": 1,
+      "scroll": 1920,
+      "overflow": []
+    },
+    {
+      "key": "sample-acquisition-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "analysis-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "reports-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "settings-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "users-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "help-1280-light",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "sample-acquisition-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "analysis-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "reports-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "postprocessing-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "settings-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "users-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "help-1280-dark",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1,
+      "scroll": 1280,
+      "overflow": []
+    },
+    {
+      "key": "sample-acquisition-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "analysis-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "reports-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "key": "postprocessing-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "settings-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "users-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "help-1060-light",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "sample-acquisition-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "acquisition-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "analysis-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "reports-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "dispersion-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "hardware-acquisition-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "mercury-calibration-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "key": "postprocessing-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "settings-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "users-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    },
+    {
+      "key": "help-1060-dark",
+      "width": 1060,
+      "height": 680,
+      "dpr": 1,
+      "scroll": 1060,
+      "overflow": []
+    }
+  ],
+  "errors": []
+}

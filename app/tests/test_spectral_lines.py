@@ -1,11 +1,13 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import sys
 from copy import deepcopy
 from pathlib import Path
+import sqlite3
 
 import pytest
 from fastapi.testclient import TestClient
+
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
@@ -407,3 +409,21 @@ def test_spectral_line_permissions_follow_method_roles(line_client) -> None:
         ).status_code
         == 403
     )
+
+
+def test_line_edit_audit_failure_rolls_back_method_version(line_client):
+    from backend.schemas.methods import SpectralLineInput
+
+    client, runtime, headers = line_client
+    method = _method(client, headers)
+    before = runtime.methods_service().get(method["id"])
+    with runtime.database.write() as db:
+        db.execute("CREATE TRIGGER fail_line_audit BEFORE INSERT ON audit_events "
+                   "WHEN NEW.target_type='spectral_line' BEGIN SELECT RAISE(ABORT, 'line audit rejected'); END")
+    with pytest.raises(sqlite3.IntegrityError, match="line audit rejected"):
+        runtime.spectral_lines_service().create(method["id"], SpectralLineInput(**_line(254.0)), 1)
+    assert runtime.methods_service().get(method["id"]) == before
+    with runtime.database.write() as db:
+        db.execute("DROP TRIGGER fail_line_audit")
+    result = runtime.spectral_lines_service().create(method["id"], SpectralLineInput(**_line(254.0)), 1)
+    assert result["latest_version"] == before["latest_version"] + 1

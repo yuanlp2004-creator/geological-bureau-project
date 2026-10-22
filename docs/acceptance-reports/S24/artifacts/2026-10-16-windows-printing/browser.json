@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "checks": [
+    "系统打印机与驱动纸张列表，旧版五档字号，无应用虚拟打印机",
+    "A5横向与13pt保存并重载保持",
+    "真实Microsoft驱动连接、纸型方向验证；零任务提交",
+    "明暗主题、1440与1060窗口检查"
+  ],
+  "errors": [],
+  "layouts": [],
+  "driver": {
+    "connected": true,
+    "printer_name": "Microsoft Print to PDF",
+    "driver": "Microsoft Print To PDF",
+    "paper_id": 11,
+    "orientation": 2,
+    "dpi": [
+      600,
+      600
+    ],
+    "printable_pixels": [
+      4961,
+      3496
+    ],
+    "submitted": false
+  }
+}

@@ -101,7 +101,11 @@ def apply_test_extension_migrations(connection: sqlite3.Connection) -> None:
     if not extensions:
         return
     connection.execute(
-        "CREATE TABLE IF NOT EXISTS extension_schema_migrations(module_key TEXT NOT NULL, version INTEGER NOT NULL, applied_at TEXT NOT NULL, PRIMARY KEY(module_key, version))"
+        (
+            "CREATE TABLE IF NOT EXISTS extension_schema_migrations(module_key TEXT NOT "
+            "NULL, version INTEGER NOT NULL, applied_at TEXT NOT NULL, PRIMARY "
+            "KEY(module_key, version))"
+        )
     )
     for extension in extensions:
         applied = connection.execute(

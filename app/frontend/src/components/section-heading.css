@@ -1,0 +1,6 @@
+:root .app-shell .section-heading { min-width: 0; }
+:root .app-shell .refined-page .surface .section-heading h2 { margin: 0; color: var(--ink); font-size: 17px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+:root .app-shell .refined-page .section-heading-description { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+:root .app-shell .surface-heading > .section-heading { flex: 1 1 180px; }
+:root .app-shell .surface-heading:has(> .section-heading) { flex-wrap: wrap; gap: 12px 16px; margin-bottom: 16px; }
+:root .app-shell .surface-heading > .section-heading + .file-actions { margin-left: auto; }

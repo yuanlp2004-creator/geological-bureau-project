@@ -59,10 +59,10 @@ try {
     await page.getByRole('button',{name:'清空搜索',exact:true}).click();
     assert.equal(await page.getByLabel('搜索帮助主题').inputValue(),'');
   });
-  await check('备份创建、校验与隔离恢复',async()=>{
+  await check('备份创建与校验',async()=>{
     await go(entries.find(e=>e.page==='maintenance'));
     await page.getByLabel('备份目录',{exact:true}).fill('click-sweep-backups');
-    for(const [button,toast] of [['创建备份','在线备份已完成'],['校验','备份校验通过'],['恢复演练','恢复演练通过']]) {
+    for(const [button,toast] of [['创建备份','数据库备份及校验已完成'],['校验','备份校验通过']]) {
       await page.getByRole('button',{name:button,exact:true}).first().click();
       await page.getByText(toast,{exact:true}).waitFor();
     }

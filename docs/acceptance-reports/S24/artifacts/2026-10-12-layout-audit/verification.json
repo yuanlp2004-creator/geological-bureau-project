@@ -1,0 +1,74 @@
+{
+  "status": "completed_with_findings",
+  "scope": "只读巡视地质局，重点检查文字贴卡片边界及字段挤入标题/图标区",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "page_count": 21,
+  "navigation_entry_count": 26,
+  "observations": 108,
+  "reused_same_source_initial_or_empty_observations": 52,
+  "loaded_page_observations_this_run": 56,
+  "display_settings": [
+    "light/comfortable/1440x1000",
+    "dark/compact/1060x1000"
+  ],
+  "layout_candidates": 0,
+  "page_errors": [
+    "Cannot read properties of undefined (reading 'rows')"
+  ],
+  "functional_findings": [
+    {
+      "page": "reports",
+      "trigger": "选择已有报告版本",
+      "observed": "React 页面报错并清空主体",
+      "errors": [
+        "Cannot read properties of undefined (reading 'rows')"
+      ],
+      "excluded": "所选报告摘要和导出表单因页面错误无法作真实布局检查"
+    },
+    {
+      "page": "analysis",
+      "trigger": "从曲线图首次点击标准点",
+      "expected": "standards",
+      "actual": "raw",
+      "observed": "子视图被父组件重新初始化，点击后返回原始结果",
+      "evidence": "analysis-tab-standards-first-click-light.png"
+    },
+    {
+      "page": "analysis",
+      "trigger": "从曲线图首次点击标准点",
+      "expected": "standards",
+      "actual": "raw",
+      "observed": "子视图被父组件重新初始化，点击后返回原始结果",
+      "evidence": "analysis-tab-standards-first-click-dark.png"
+    }
+  ],
+  "product_sources_unchanged": true,
+  "frontend_source_files_verified": 131,
+  "root_binaries_unchanged": {
+    "GeoSpectrum.exe": "0D458CF7F4F5C922268DD10F475EB864B6D18F5C672D5624305FB89258A5A450",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "root_and_app_entries_unchanged": true,
+  "method": "真实临时API数据及无头Edge浏览器；选择任务/队列并等待加载；抽查关键截图",
+  "limits": [
+    "报告选中后白屏，其报告摘要不能记为已通过布局检查；报告版本列表与输出控件可见初始状态已检查",
+    "标准点首次切换返回raw，第二次点击可打开；已检查真实打开后的标准点与样品结果布局",
+    "空/初始状态来自同源码较早观察，不宣称其均为加载完成后的业务数据状态",
+    "未覆盖每个故障、权限、旧迁移结果及弹窗分支；自动转角仅无任务表单",
+    "本轮浏览器宽度检查不替代实际EXE、其他DPI、真实设备或完整人工视觉验收",
+    "标准点表格在窄窗口使用现有横向滚动，不以整张表未同屏显示判为页面溢出"
+  ],
+  "evidence": [
+    "workspace-main-populated-dark-1060.png",
+    "methods-lines-populated-dark-1060.png",
+    "methods-conditions-populated-light-1440.png",
+    "mercury-calibration-main-populated-light-1440.png",
+    "sample-acquisition-main-populated-light-1440.png",
+    "sample-acquisition-main-populated-dark-1060.png",
+    "analysis-standards-populated-dark-1060.png",
+    "analysis-samples-populated-dark-1060.png",
+    "reports-before-selection.png",
+    "reports-after-selection-error.png",
+    "analysis-tab-standards-first-click-light.png"
+  ]
+}

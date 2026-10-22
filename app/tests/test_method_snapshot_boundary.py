@@ -53,9 +53,13 @@ def test_snapshots_preserve_draft_old_version_and_same_transaction(tmp_path):
 
 def test_selected_consumers_do_not_read_method_tables_or_private_snapshots():
     backend = Path(__file__).resolve().parents[1] / "backend/modules"
-    files = [backend / "method_printing/service.py", *(backend / "analysis").glob("*.py"),
-             *(backend / "postprocessing").glob("*.py")]
+    files = [
+        backend / "method_printing/service.py",
+        *(backend / "analysis").glob("*.py"),
+        *(backend / "postprocessing").glob("*.py"),
+    ]
     import re
+
     for path in files:
         source = path.read_text(encoding="utf-8")
         assert not re.search(r"\b(?:FROM|JOIN)\s+(?:methods|method_versions)\b", source, re.I), path

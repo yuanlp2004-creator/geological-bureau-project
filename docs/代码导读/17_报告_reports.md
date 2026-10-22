@@ -6,7 +6,7 @@
 
 ## 2. 代码入口
 
-- 服务：[`modules/reports.py`](../../app/backend/modules/reports.py)
+- 服务：[`modules/reports/service.py`](../../app/backend/modules/reports/service.py)
 - 打印边界：[`printing/__init__.py`](../../app/backend/printing/__init__.py)，报告直接使用公共打印适配，不再依赖方法打印服务。
 - API：[`api/reports.py`](../../app/backend/api/reports.py)；`/api/v1/reports`
 - 请求模型：[`schemas/reports.py`](../../app/backend/schemas/reports.py)。
@@ -59,3 +59,9 @@
 - 预览、TXT、CSV、Excel、PDF 是否来自同一模型。
 - 原子写和同名策略是否安全，打印是否完整留痕。
 - 运行 S19 测试，并人工检查一份中文 PDF/预览。
+
+## 实现分工
+
+Runtime 显式向报告注入 AnalysisService。报告在原事务内调用 `bind_report_inputs(db)`，通过 [AnalysisReportReader](../../app/backend/modules/analysis/report_inputs.py) 读取运行、质控/合并/曲线快照及方法版本数据。报告不再直接查询分析和方法内部表；完成状态、过期结果拒绝、筛选、舍入与输出仍由报告服务负责。读取器不新开连接或提交，返回普通数据；原未使用的样品查询已去除。
+
+报告入口改为 `reports/service.py::ReportService`，保留模型准入、版本、确认、文件发布、打印调度与数据库记账。`reports/rendering.py` 拥有表头/表格、TXT/CSV/Excel 编码、PDF 和 HTML 呈现，只消费冻结报告数据，不访问分析库；`values.py` 保留错误及稳定 JSON/哈希。AnalysisReportReader 仍是报告输入边界。

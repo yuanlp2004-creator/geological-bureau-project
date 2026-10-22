@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "changed_source": "app/frontend/src/components/spectrum-inspector.css",
+  "browser_checks": 21,
+  "desktop_checks": 20,
+  "radius": "6px",
+  "border_width": "1px",
+  "qa_frontend_matches_production": true,
+  "root_files": {
+    "GeoSpectrum.exe": "DB276CA1803CE1B155A8A9042C8427C8779A872A53DF260ABC5943BD9D55B8D5",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "previous_files": {
+    "GeoSpectrum.exe": "AB7D24DB7C50BDAF9137D977FA221DD4272BCBD85E90FB08EDB6C7A2BC4CFF1B",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "normal_qa_exit": true,
+  "remaining_qa_pids": [],
+  "root_app_entries_preserved": true
+}

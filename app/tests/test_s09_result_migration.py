@@ -15,7 +15,9 @@ def source_file(extension: str) -> Path:
 
 
 @pytest.mark.parametrize(("extension", "expected"), [("dat", (90, 3, 90)), ("pdt", (100, 10, 120))])
-def test_s09_stage_commit_preserves_matrix_shape_and_metadata(tmp_path: Path, extension: str, expected: tuple[int, int, int]) -> None:
+def test_s09_stage_commit_preserves_matrix_shape_and_metadata(
+    tmp_path: Path, extension: str, expected: tuple[int, int, int]
+) -> None:
     database = Database(tmp_path / "app.sqlite3")
     database.initialize()
     service = ResultMigrationService(database)
@@ -70,8 +72,22 @@ def test_s09_resolves_matching_legacy_method_without_reading_method_tables(tmp_p
     database.initialize()
     now = utc_now()
     with database.write() as db:
-        db.execute("INSERT INTO legacy_migration_runs(id, fingerprint, status, source_files_json, reader_json, staging_json, report_json, created_at, updated_at) VALUES ('legacy-run', 'legacy-fingerprint', 'committed', '{}', '{}', '{}', '{}', ?, ?)", (now, now))
-        db.execute("INSERT INTO legacy_import_entities(run_id, source_sha256, entity_type, legacy_key, target_id, payload_sha256, details_json, created_at) VALUES ('legacy-run', 'legacy-fingerprint', 'method', '24', 77, 'payload', '{}', ?)", (now,))
+        db.execute(
+            (
+                "INSERT INTO legacy_migration_runs(id, fingerprint, status, source_files_json, "
+                "reader_json, staging_json, report_json, created_at, updated_at) VALUES "
+                "('legacy-run', 'legacy-fingerprint', 'committed', '{}', '{}', '{}', '{}', ?, ?)"
+            ),
+            (now, now),
+        )
+        db.execute(
+            (
+                "INSERT INTO legacy_import_entities(run_id, source_sha256, entity_type, "
+                "legacy_key, target_id, payload_sha256, details_json, created_at) VALUES "
+                "('legacy-run', 'legacy-fingerprint', 'method', '24', 77, 'payload', '{}', ?)"
+            ),
+            (now,),
+        )
     staged = ResultMigrationService(database).stage(str(source_file("pdt")), None)  # type: ignore[arg-type]
     record = staged["staging"]["records"][0]
     assert record["method_legacy_id"] == 24

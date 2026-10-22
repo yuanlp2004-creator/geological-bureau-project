@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "completed": "2026-10-19",
+  "batch": "2026-10-18-open-file-layout",
+  "plan_sha256": "876f9d1ac0506cd572fc1550993ef3f3762fa2920b77573eece5831980abb45a",
+  "schema": 23,
+  "tests": {
+    "backend": 10,
+    "frontend": 15,
+    "rust": 5,
+    "browser_checks": 24,
+    "browser_final_open_layouts": 22,
+    "packaged_checks": 24,
+    "packaged_layouts": 33
+  },
+  "frontend_production_qa_identical": true,
+  "backend_bytes_unchanged": true,
+  "user_database_sha256_unchanged": true,
+  "original_files": 9,
+  "reading_copies": 10,
+  "all_checked_sources_size_mtime_sha256_unchanged": true,
+  "products": {
+    "GeoSpectrum.exe": {
+      "size": 11931648,
+      "sha256": "fde8286667a8ca1dab9853a473f810fa598d08934ca0e29d6773cf8d994c5ee2"
+    },
+    "geospectrum-backend.exe": {
+      "size": 56180662,
+      "sha256": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+    },
+    "app\\.local\\releases\\2026-10-18-open-file-layout\\qa\\GeoSpectrum.exe": {
+      "size": 11947008,
+      "sha256": "560c5949a1d74c75e4fbe8cd3dc6f7f33b30fe53246015820e30bbdab670b71c"
+    }
+  },
+  "native_os_picker_point_and_cancel_manually_verified": false,
+  "notes": [
+    "原生选择框选取结果在 IPC 边界模拟；实际 Windows 文件框点选未实测。目录持久化、中文路径、取消保留、无效目录回退由 Rust 测试覆盖。",
+    "新版方法使用现有数据库列表；当前没有独立的新版便携方法文件格式。",
+    "本批初始日期为 2026-10-18，验证和交付完成于 2026-10-19。"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "checks": [
+    "单一菜单入口，共用批次及两条谱线；曲线与重复性检查同时可用",
+    "当前样品重复值剔除、恢复、接受预警走真实API，统计重新计算",
+    "标准点保存失败保留输入，重试可保存，原始强度保持且可恢复",
+    "逐线拟合、保存、下一条及最后合并串联完成，原分析结果哈希保持",
+    "1440/1060及680高窗口、明暗主题紧凑布局无页面横向溢出",
+    "质控变化后旧曲线不能继续完成流程；历史曲线和已保存合并结果保留",
+    "真实存储谱图的慢进启动、峰位接受及完成后自动进入同一工作区复核"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "analysis-1440-1000-light.png",
+      "width": 1440,
+      "document": 1440,
+      "pageWidth": 1194,
+      "pageScroll": 1194,
+      "qcWidth": 288,
+      "chartWidth": 650,
+      "reviewColumns": "650px 288px"
+    },
+    {
+      "name": "analysis-1060-1000-dark.png",
+      "width": 1060,
+      "document": 1060,
+      "pageWidth": 845,
+      "pageScroll": 845,
+      "qcWidth": 256,
+      "chartWidth": 361,
+      "reviewColumns": "361px 256px"
+    },
+    {
+      "name": "analysis-1060-680-light.png",
+      "width": 1060,
+      "document": 1060,
+      "pageWidth": 845,
+      "pageScroll": 845,
+      "qcWidth": 256,
+      "chartWidth": 361,
+      "reviewColumns": "361px 256px"
+    }
+  ]
+}

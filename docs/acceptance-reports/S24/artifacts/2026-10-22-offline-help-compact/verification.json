@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-offline-help-compact",
+  "plan_sha256_at_start": "8cd20d923253df349eefc32fe2e58d2e2cd5170a8316a324baf47975027b5043",
+  "product_changes": [
+    "app/backend/migrations/defaults.py",
+    "app/backend/modules/maintenance.py",
+    "app/backend/modules/offline_help.py"
+  ],
+  "topics": 33,
+  "previous_topics": 36,
+  "body_characters": 8065,
+  "previous_characters": 19242,
+  "reduction_percent": 58.1,
+  "retired_aliases": {
+    "startup": "quickstart",
+    "exposure": "method-parameters",
+    "standards": "spectral-lines",
+    "method-print": "printing",
+    "alignment": "analysis",
+    "quality": "analysis",
+    "final-results": "analysis",
+    "hardware-acquisition": "devices",
+    "mercury-calibration": "devices",
+    "spectrum-migration": "migration",
+    "result-migration": "migration",
+    "messages": "navigation",
+    "administration": "about"
+  },
+  "backend_tests": 5,
+  "browser_checks": 5,
+  "desktop_checks": 5,
+  "layouts_each": 2,
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-offline-help-compact\\qa\\GeoSpectrum.exe",
+    "pid": 37148,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "schema_version": 23,
+  "new_schema_migrations": false,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "frontend_sources_unchanged": true,
+  "original_chm_preserved": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_fresh_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "0f35d7e6666627846f0d4384cc8a6156487c4e0ea1a6233185005c954ebfa971",
+    "geospectrum-backend.exe": "24d1c77ec5b9f6ee8319c43a018b7e7fa5aaad54410d82fe8d223df908165087"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-offline-help-compact\\previous",
+  "installer_rebuilt": false
+}

@@ -11,7 +11,12 @@ from .v18_postprocessing import _migrate_v18
 from .v19_reports import _migrate_v19
 from .v20_maintenance import _migrate_v20
 
-SCHEMA_VERSION = 20
+from .v21_calibration_metadata import _migrate_v21
+
+from .v22_contract_samples import _migrate_v22
+from .v23_contract_closure import _migrate_v23
+
+SCHEMA_VERSION = 23
 SCHEMA_BASELINE_VERSION = 10
 
 MIGRATIONS = (
@@ -25,4 +30,7 @@ MIGRATIONS = (
     (18, "postprocessing", _migrate_v18),
     (19, "reports", _migrate_v19),
     (20, "maintenance", _migrate_v20),
+    (21, "calibration_metadata", _migrate_v21),
+    (22, "contract_samples", _migrate_v22),
+    (23, "contract_closure", _migrate_v23),
 )

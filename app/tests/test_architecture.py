@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 import sqlite3
 from pathlib import Path
@@ -20,7 +21,24 @@ def test_registered_manifests_have_unique_contracts() -> None:
     manifests = registered_manifests()
     validate_manifests(manifests)
     assert {manifest.key for manifest in manifests} == {
-        "core", "about-diagnostics", "auth", "methods", "legacy-migration", "sample-queues", "spectrum-migration", "result-migration", "spectrum-viewer", "devices", "dispersion", "acquisition", "hardware-acquisition", "mercury-calibration", "analysis", "postprocessing", "reports", "maintenance"
+        "core",
+        "about-diagnostics",
+        "auth",
+        "methods",
+        "legacy-migration",
+        "sample-queues",
+        "spectrum-migration",
+        "result-migration",
+        "spectrum-viewer",
+        "devices",
+        "dispersion",
+        "acquisition",
+        "hardware-acquisition",
+        "mercury-calibration",
+        "analysis",
+        "postprocessing",
+        "reports",
+        "maintenance",
     }
     assert all(manifest.api_prefix == "/api/v1" for manifest in manifests)
 
@@ -32,10 +50,14 @@ def test_duplicate_keys_routes_permissions_and_missing_dependencies_are_rejected
     same_route = ModuleManifest(key="other", version="1", title="B", api_prefix="/api/v1", route="/a")
     with pytest.raises(ValueError, match="duplicate module route"):
         validate_manifests((base, same_route))
-    same_permission = ModuleManifest(key="other", version="1", title="B", api_prefix="/api/v1", route="/b", permissions=("read",))
+    same_permission = ModuleManifest(
+        key="other", version="1", title="B", api_prefix="/api/v1", route="/b", permissions=("read",)
+    )
     with pytest.raises(ValueError, match="duplicate permission"):
         validate_manifests((base, same_permission))
-    missing = ModuleManifest(key="other", version="1", title="B", api_prefix="/api/v1", route="/b", dependencies=("missing",))
+    missing = ModuleManifest(
+        key="other", version="1", title="B", api_prefix="/api/v1", route="/b", dependencies=("missing",)
+    )
     with pytest.raises(ValueError, match="unregistered"):
         validate_manifests((base, missing))
 
@@ -52,21 +74,69 @@ def test_generated_manifest_matches_registered_modules() -> None:
     modules_by_key = {module["key"]: module for module in payload["modules"]}
     assert modules_by_key["spectrum-migration"]["title"] == "旧谱数据迁移"
     entries = [entry for module in payload["modules"] for entry in module["navigation_entries"]]
-    assert len(entries) == 26
+    assert len(entries) == 25
+    device_entry = next(entry for entry in entries if entry["key"] == "tools.devices")
+    assert device_entry["label"] == "设备调试"
+    assert set(device_entry["required_any"]) == {"devices.read", "settings.read", "mercury-calibration.read"}
+    assert not any(entry["key"] == "tools.mercury" for entry in entries)
+    assert next(entry for entry in entries if entry["key"] == "analysis-tests.dispersion-curves")["view"] == "curve"
+    assert next(entry for entry in entries if entry["key"] == "analysis-tests.evaporation-curves")["page"] == "evaporation-curves"
+    assert [(entry["label"], entry["page"]) for entry in entries if entry["group"] == "data"] == [
+        ("重新计算", "postprocessing"), ("打印与导出", "reports")]
     assert len({entry["key"] for entry in entries}) == len(entries)
-    assert {entry["group"] for entry in entries} == {"workspace", "methods", "analysis-tests", "data", "tools", "system", "help"}
+    assert {entry["group"] for entry in entries} == {
+        "workspace",
+        "methods",
+        "analysis-tests",
+        "data",
+        "tools",
+        "system",
+        "help",
+    }
 
 
 def test_invalid_navigation_contracts_are_rejected() -> None:
     valid = NavigationEntry("entry", "tools", "", "Entry", "Description", "about", 1, ("read",))
-    base = ModuleManifest(key="base", version="1", title="Base", api_prefix="/api/v1", route="/base", permissions=("read",), navigation_entries=(valid,))
+    base = ModuleManifest(
+        key="base",
+        version="1",
+        title="Base",
+        api_prefix="/api/v1",
+        route="/base",
+        permissions=("read",),
+        navigation_entries=(valid,),
+    )
     validate_manifests((base,))
     invalid_group = NavigationEntry("bad-group", "unknown", "", "Entry", "Description", "about", 1, ("read",))
     with pytest.raises(ValueError, match="invalid navigation group"):
-        validate_manifests((ModuleManifest(key="bad", version="1", title="Bad", api_prefix="/api/v1", route="/bad", permissions=("read",), navigation_entries=(invalid_group,)),))
+        validate_manifests(
+            (
+                ModuleManifest(
+                    key="bad",
+                    version="1",
+                    title="Bad",
+                    api_prefix="/api/v1",
+                    route="/bad",
+                    permissions=("read",),
+                    navigation_entries=(invalid_group,),
+                ),
+            )
+        )
     invalid_permission = NavigationEntry("bad-permission", "tools", "", "Entry", "Description", "about", 1, ("other",))
     with pytest.raises(ValueError, match="invalid navigation permission"):
-        validate_manifests((ModuleManifest(key="bad", version="1", title="Bad", api_prefix="/api/v1", route="/bad", permissions=("read",), navigation_entries=(invalid_permission,)),))
+        validate_manifests(
+            (
+                ModuleManifest(
+                    key="bad",
+                    version="1",
+                    title="Bad",
+                    api_prefix="/api/v1",
+                    route="/bad",
+                    permissions=("read",),
+                    navigation_entries=(invalid_permission,),
+                ),
+            )
+        )
 
 
 def test_frontend_downloads_use_the_shared_adapter() -> None:
@@ -88,8 +158,13 @@ def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
     assert "event.key === 'Enter'" in component
     assert "event.key === 'Escape'" in component
     for filename in (
-        "MethodsPage.tsx", "SampleAcquisitionPage.tsx", "DispersionPage.tsx", "AnalysisPage.tsx",
-        "HardwareAcquisitionPage.tsx", "MercuryCalibrationPage.tsx", "PostProcessingPage.tsx",
+        "MethodGeometry.tsx",
+        "SampleAcquisitionForm.tsx",
+        "DispersionSetup.tsx",
+        "AnalysisIntervention.tsx",
+        "HardwareAcquisitionForm.tsx",
+        "MercuryCalibrationForm.tsx",
+        "PostProcessingIntervalPanel.tsx",
     ):
         assert "NumericInput" in sources[filename]
 
@@ -100,15 +175,18 @@ def test_frontend_bugfix_accessibility_localization_and_queue_contracts() -> Non
     api_source = (source_root / "api" / "client.ts").read_text(encoding="utf-8")
     styles = (source_root / "styles" / "global.css").read_text(encoding="utf-8")
     acquisition = (source_root / "pages" / "acquisition" / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
+    acquisition += (source_root / "pages" / "acquisition" / "AcquisitionWorkspace.tsx").read_text(encoding="utf-8")
+    acquisition += (source_root / "pages" / "acquisition" / "SampleAcquisitionForm.tsx").read_text(encoding="utf-8")
+    acquisition += (source_root / "pages" / "acquisition" / "AcquisitionConditionFields.tsx").read_text(encoding="utf-8")
     settings = (source_root / "pages" / "settings" / "SettingsPage.tsx").read_text(encoding="utf-8")
-    assert ".hidden-picker { display: none; }" in styles
+    assert re.search(r"\.hidden-picker\s*\{\s*display:\s*none;\s*\}", styles)
     assert 'className="hidden-picker"' in settings
     assert "auth_invalid_credentials" in app_source and "用户名或密码错误" in app_source
     assert "class ApiError" in api_source
-    assert "const displayedRepeatCount = queueItem ? (queueItem.repeats || 1) : repeatCount" in acquisition
+    assert "const displayedRepeatCount = queueItem ? queueItem.repeats || 1 : repeatCount" in acquisition
     assert "重复次数{queueItem ? '（来自队列）' : ''}" in acquisition
-    assert "repeat_count: displayedRepeatCount" in acquisition
-    assert "step={0.01} value={samplingPeriod}" in acquisition
+    assert "repeat_count: isSample ? displayedRepeatCount : 1" in acquisition
+    assert re.search(r"step=\{0\.01\}\s+value=\{samplingPeriod\}", acquisition)
 
 
 def test_runtime_log_rotation_redacts_sensitive_details(tmp_path: Path) -> None:
@@ -187,7 +265,9 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
         ).fetchone()
     assert repair is not None
     assert {item["key"] for item in json.loads(repair[0])["repaired"]} == {
-        "not-a-group", "display.density", "logging.retention_days",
+        "not-a-group",
+        "display.density",
+        "logging.retention_days",
     }
 
     event = service.append_event(
@@ -208,8 +288,7 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
 
     with database.write() as connection:
         connection.execute(
-            "INSERT INTO runtime_events(category, severity, message, details_json, created_at) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO runtime_events(category, severity, message, details_json, created_at) VALUES (?, ?, ?, ?, ?)",
             ("system", "info", "malformed details", "{not-json", "2026-01-01T00:00:00+00:00"),
         )
     assert service.list_events()[0]["details"] is None

@@ -1,0 +1,415 @@
+{
+  "status": "passed",
+  "checks": [
+    "方法页直接打开真实方法库，自动读取同目录配置并保存方法",
+    "打开旧方法库保留当前未保存的方法编辑内容",
+    "谱图页直接打开真实CDT并显示；重复打开复用相同记录",
+    "样品分析直接打开真实CMT；方法不唯一时展开对应方法选择",
+    "色散曲线直接打开真实WDT并建立完成任务，可继续定位和拟合",
+    "蒸发曲线直接打开真实EDT并显示峰值和积分时间数据",
+    "重新计算直接打开真实PDT并选中来源",
+    "报告页直接打开DAT并选中来源，缺失单位仍需明确填写",
+    "强度页直接打开PDT并预览，错误格式拒绝且保留当前表",
+    "迁移页面支持PDT和DAT多文件顺序批量迁移",
+    "样号页直接打开SAM，重复选择同一文件仍可读取",
+    "实际旧原件及读取副本的大小、修改时间与SHA-256均保持",
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 1193,
+          "right": 1324
+        },
+        {
+          "left": 1332,
+          "right": 1412
+        },
+        {
+          "left": 274,
+          "right": 445
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 1167,
+          "right": 1298
+        },
+        {
+          "left": 1306,
+          "right": 1412
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 810,
+          "right": 941
+        },
+        {
+          "left": 949,
+          "right": 1029
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 784,
+          "right": 915
+        },
+        {
+          "left": 923,
+          "right": 1029
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 825,
+          "right": 956
+        },
+        {
+          "left": 964,
+          "right": 1044
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 799,
+          "right": 930
+        },
+        {
+          "left": 938,
+          "right": 1044
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    }
+  ],
+  "source_preservation": {
+    "copies": 10,
+    "originals": 9,
+    "size_mtime_sha256_unchanged": true
+  },
+  "recalculationLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "file": "recalculate-1440-1000-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1425,
+      "w": 1440,
+      "controls": [
+        {
+          "top": 279.5625,
+          "bottom": 305.90625
+        },
+        {
+          "top": 274.734375,
+          "bottom": 310.734375
+        },
+        {
+          "top": 274.734375,
+          "bottom": 310.734375
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "file": "recalculate-1060-680-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 275.5625,
+          "bottom": 301.90625
+        },
+        {
+          "top": 270.734375,
+          "bottom": 306.734375
+        },
+        {
+          "top": 270.734375,
+          "bottom": 306.734375
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "file": "recalculate-1060-1000-dark.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 255.0625,
+          "bottom": 281.40625
+        },
+        {
+          "top": 250.234375,
+          "bottom": 286.234375
+        },
+        {
+          "top": 250.234375,
+          "bottom": 286.234375
+        }
+      ]
+    }
+  ]
+}

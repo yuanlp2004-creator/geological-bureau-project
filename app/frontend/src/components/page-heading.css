@@ -1,0 +1,18 @@
+:root .app-shell { --page-heading-content-gap: 24px; }
+:root .app-shell .app-page-heading { max-width: 1840px; margin: 0 auto; padding: 24px 28px 0; color: var(--ink); }
+:root .app-shell .app-page-heading-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+:root .app-shell .app-page-heading-title { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 240px; }
+:root .app-shell .app-page-heading-actions { min-width: 0; max-width: 100%; margin-left: auto; }
+:root .app-shell .app-page-heading-actions:empty { display: none; }
+:root .app-shell .app-page-heading-actions .file-actions { margin: 0; }
+:root .app-shell .app-page-heading-icon { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+:root .app-shell .app-page-heading-copy { min-width: 0; }
+:root .app-shell .app-page-heading h1 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.35; }
+:root .app-shell .app-page-heading p { margin: 5px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+:root .app-shell .main-area:has(> .app-page-heading) > .page-content { padding-top: var(--page-heading-content-gap); }
+@media (max-width: 1350px) { :root .app-shell .app-page-heading { padding: 20px 20px 0; } }
+@media (max-width: 1280px) { :root .app-shell .main-area:has(> .remaining-page) > .app-page-heading { padding-inline: 16px; } }
+@media (min-width: 2400px) {
+  :root .app-shell .app-page-heading { max-width: 2300px; padding: 28px 36px 0; }
+  :root .app-shell .main-area:has(> .remaining-page) > .app-page-heading { max-width: 1840px; }
+}

@@ -43,7 +43,7 @@ def test_runtime_modules_resolve_only_app_owned_resources() -> None:
     reader = files("backend.resources.legacy_reader").joinpath("read_access.ps1")
     assert sample.is_file() and reader.is_file()
 
-    devices_source = (RESOURCE_ROOT.parent / "modules" / "devices.py").read_text(encoding="utf-8")
+    devices_source = (RESOURCE_ROOT.parent / "modules" / "devices" / "simulator.py").read_text(encoding="utf-8")
     assert "Spec Source" not in devices_source
     candidates = dict(LegacyMigrationService._reader_candidates())
     if "windows-powershell-x86" in candidates:

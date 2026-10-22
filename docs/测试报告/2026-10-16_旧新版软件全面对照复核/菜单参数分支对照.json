@@ -1,0 +1,3922 @@
+[
+  {
+    "id": "M01",
+    "legacy_item": "光谱方法(&M) → 新建方法(&N)",
+    "legacy_behavior": "Ctrl+N；输入方法名并校验；初始化新方法后顺序进入方法参数、分析谱线。；FmMain.ActNewExecute → FmMtdCfg.ActOkExecute",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "方法管理新建/草稿发布",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:399",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:151"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:9"
+  },
+  {
+    "id": "M02",
+    "legacy_item": "光谱方法(&M) → 打开方法(&O)",
+    "legacy_behavior": "Ctrl+O；按库记录 ID 加载方法、谱板布局与谱线，并检查与硬件布局差异；随后采集/分析使用该当前方法。；FmMain.ActOpenExecute → FmMain.DoAcqCdtCmt → FmMain.DoAna",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "当前方法/版本选择",
+    "current_consumers": [
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:424",
+      "Spec Source/Source/Main/FmMain.pas:908",
+      "Spec Source/Source/Main/FmMain.pas:1047"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:10"
+  },
+  {
+    "id": "M03",
+    "legacy_item": "光谱方法(&M) → 另存为(&S)",
+    "legacy_behavior": "Ctrl+S；选择新名或已有目标，经重名确认复制方法及谱线；不等同于单个 DAT 文件另存。；FmMain.ActSaveAsExecute → FmSelect.ActSaveExecute",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "复制方法，重名不原地覆盖",
+    "current_consumers": [
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:631",
+      "Spec Source/Source/Main/mmMethod/FmSelect.pas:70"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:11"
+  },
+  {
+    "id": "M04",
+    "legacy_item": "光谱方法(&M) → 打印设置(&G) → 页面设置(&T)",
+    "legacy_behavior": "—；字体、每行元素、每页样品、分析/系统时间；保存后作用于报告和打印分页。；FmPageSetup.BtnOkClick → FmPrintDat.PrintLines",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F06"
+    ],
+    "new_entry": "方法参数打印设置；最终报告未完整消费",
+    "current_consumers": [
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/schemas/system.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmPageSetup.pas:46",
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:143"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:12"
+  },
+  {
+    "id": "M05",
+    "legacy_item": "光谱方法(&M) → 打印设置(&G) → 打印设置(&U)",
+    "legacy_behavior": "—；调用 Windows 打印机设置；读取并保存打印机纸型/方向参数，供后续打印。；FmMain.ActPrintSetupExecute → uOptions.GetPrinter",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "原生打印机列表/纸型设置及打印分发",
+    "current_consumers": [
+      "app/backend/printing/__init__.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:543",
+      "Spec Source/Source/Common/uOptions.pas:163"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:13"
+  },
+  {
+    "id": "M06",
+    "legacy_item": "光谱方法(&M) → 退出(&X)",
+    "legacy_behavior": "—；关闭主窗口，经 FormDestroy 释放线程、事件、连接与方法对象并保存配置。；FmMain.ActExitExecute → FmMain.FormDestroy",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "Tauri退出及sidecar收尾",
+    "current_consumers": [
+      "app/src-tauri/src/main.rs"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:313",
+      "Spec Source/Source/Main/FmMain.pas:1211"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:14"
+  },
+  {
+    "id": "M07",
+    "legacy_item": "分析条件(&E) → 方法参数(&M)",
+    "legacy_behavior": "Ctrl+M；激发/谱板/谱带三页；分别设置采样、色散参考与单位、重复次数和误差控制。；FmMain.ActMtdCfgExecute → FmMtdCfg.ActOkExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "方法条件编辑",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:376",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:151"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:15"
+  },
+  {
+    "id": "M08",
+    "legacy_item": "分析条件(&E) → 分析谱线(&L)",
+    "legacy_behavior": "Ctrl+L；谱线增加/删除/复位/确认/取消；五个下拉、背景/寻峰/曝光区间/标准浓度参与后续算法。；FmMain.CallFrmMtdLines → FmMtdLines.ActOkExecute → uAnaThread.AnaLine",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "谱线编辑及方法版本",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:686",
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:406",
+      "Spec Source/Source/Common/uAnaThread.pas:208"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:16"
+  },
+  {
+    "id": "M09",
+    "legacy_item": "分析条件(&E) → 参数打印(&P)",
+    "legacy_behavior": "—；仅“打印到文件”复选决定 TXT 或 GDI；固定打印完整方法条件、谱线与标准表，隐藏字段由 IsPrintUnseen 控制。；FmMain.ActMtdPrintExecute → FmMtdPrint.ButtonOkClick → FmMtdPrint.PrintMtd",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F09"
+    ],
+    "new_entry": "方法参数HTML/PDF/打印",
+    "current_consumers": [
+      "app/backend/modules/method_printing/service.py",
+      "app/frontend/src/pages/methods/MethodPrintPanel.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:387",
+      "Spec Source/Source/Main/mmMethod/FmMtdPrint.pas:30",
+      "Spec Source/Source/Main/mmMethod/FmMtdPrint.pas:74"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:17"
+  },
+  {
+    "id": "M10",
+    "legacy_item": "分析测试(&A) → 色散摄谱(&W)",
+    "legacy_behavior": "—；无当前方法也可启动色散摄谱；单独输入激发条件，用设备布局建 WDT，后用于色散制作。；FmMain.DoAcqEdtWdt → FmWstc.CalWstc",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "色散任务、独立默认、原始帧",
+    "current_consumers": [
+      "app/backend/modules/dispersion/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:994",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:165"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:18"
+  },
+  {
+    "id": "M11",
+    "legacy_item": "分析测试(&A) → 蒸发摄谱(&E)",
+    "legacy_behavior": "—；需当前有效方法；独立激发条件 + 方法布局，采集 EDT 含分时记录，后可观察或转样品。；FmMain.DoAcqEdtWdt → FmViewDetail.Display → FmImportPre.BtnImportClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "蒸发任务及原始积分观察",
+    "current_consumers": [
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:994",
+      "Spec Source/Source/Main/mmAnalyze/FmViewDetail.pas:86",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:19"
+  },
+  {
+    "id": "M12",
+    "legacy_item": "分析测试(&A) → 样品摄谱(&C)",
+    "legacy_behavior": "Ctrl+C；按方法 ExpSegMode 自动选 CDT/CMT；命名文件，复制模板，加载布局/条件后摄谱，正式完成才存记录。；FmMain.GetAnaFileType → FmMain.DoAcqCdtCmt → FmDockGuideIgnit.PerformOK",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "样品任务和平均/全时存储",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1299",
+      "Spec Source/Source/Main/FmMain.pas:908",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:328"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:20"
+  },
+  {
+    "id": "M13",
+    "legacy_item": "分析测试(&A) → 色散曲线(&D)",
+    "legacy_behavior": "—；加载 WDT 后打开单样谱图，重置色散系数；加已知线/定位/输入波长/修正间隔/拟合/保存成曲线库记录。；FmMain.DoAna → FmViewSingle.ActFitWstcExecute → FmWstc.ActSaveExecute",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F01",
+      "F02",
+      "F03",
+      "D05"
+    ],
+    "new_entry": "WDT再制作、已知线、校准拟合与绑定",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/repository.py",
+      "app/backend/api/dispersion.py",
+      "app/backend/modules/dispersion/service.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1047",
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:225",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:141"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:21"
+  },
+  {
+    "id": "M14",
+    "legacy_item": "分析测试(&A) → 蒸发曲线(&V)",
+    "legacy_behavior": "—；加载 EDT 以单谱带观察；鼠标点位驱动分时数据，支持打印和横/纵复制；不是样品含量计算入口。；FmMain.DoAna → FmViewSingle.IenCurveMouseMove → FmViewDetail.Display",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "谱图/任意点原始积分明细",
+    "current_consumers": [
+      "app/frontend/src/components/SpectrumPointDetails.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1047",
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:534",
+      "Spec Source/Source/Main/mmAnalyze/FmViewDetail.pas:86"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:22"
+  },
+  {
+    "id": "M15",
+    "legacy_item": "分析测试(&A) → 查看谱图(&L)",
+    "legacy_behavior": "—；设 FViewMulti=True 加载当前模式样品文件；Ctrl 多选最多 8 条并叠加，比较同点强度及曝光区间。；FmMain.ActAnaMultiExecute → FmMain.CreateShowObjs → FmDockAwareSam.ActLoadMultiExecute",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F12",
+      "F13"
+    ],
+    "new_entry": "谱图查看、多样叠加、定位、区间和打印",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx",
+      "app/frontend/src/pages/spectra/SpectrumRecordList.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:274",
+      "Spec Source/Source/Main/FmMain.pas:817",
+      "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.pas:78"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:23"
+  },
+  {
+    "id": "M16",
+    "legacy_item": "分析测试(&A) → 预录样号(&I)",
+    "legacy_behavior": "Ctrl+I；imPre 模式预录样号并保存 SAM；供摄谱与摄谱后录入使用，不直接启动分析。；FmMain.ActInputSampExecute → FmSampInput.ActOkExecute",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F10",
+      "F14"
+    ],
+    "new_entry": "样号队列及SAM读写",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+      "app/frontend/src/api/sampleQueues.ts"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:328",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:180"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:24"
+  },
+  {
+    "id": "M17",
+    "legacy_item": "分析测试(&A) → 样品分析(&A)",
+    "legacy_behavior": "Ctrl+A；读取当前方法所需 CDT/CMT → 校参考/校全部线 → 样号 → 逐线测量 → PDT 输出 → 重复性检查/工作曲线 → DAT。；FmMain.DoAna → FmViewSingle.AclPageUpdate → uAnaThread.AnaBand → FmAnaCurve.ActNextExecute",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F04",
+      "D08"
+    ],
+    "new_entry": "分析/日常校线/质控/标准曲线/合并",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/analysis/printing.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1047",
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:103",
+      "Spec Source/Source/Common/uAnaThread.pas:150",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:200"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:25"
+  },
+  {
+    "id": "M18",
+    "legacy_item": "分析测试(&A) → 导出全时数据(&S)",
+    "legacy_behavior": "—；仅区间曝光方法启用；安装 TXlsCmtBandObs 后复用单样分析流程，输出各线逐周期峰点强度及可选均值到 _SP.xls。；FmMain.ActOutCmtSegExecute → FmViewSingle.ActStartExecute → uCmtBandObs.WriteBandLine",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "分析谱线全时CSV观察表",
+    "current_consumers": [
+      "app/backend/modules/analysis/daily_operations.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:487",
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:315",
+      "Spec Source/Source/Common/uCmtBandObs.pas:222"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:26"
+  },
+  {
+    "id": "M19",
+    "legacy_item": "数据处理(&D) → 重新计算(&R)",
+    "legacy_behavior": "—；读 PDT，严查方法 ID、区间模式、谱线数/符号/波长及修改时间，再重走强度选项、质控、曲线和报告；不重新采集。；FmMain.ActReCalExecute → FmAnaCheck.PdtToBlack → FmAnaCurve.Execute",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "PDT严格校验及曲线快照重算",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/recalculation.py",
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:550",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:254",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:862"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:27"
+  },
+  {
+    "id": "M20",
+    "legacy_item": "数据处理(&D) → 打印报告(&P)",
+    "legacy_behavior": "—；选择已有 DAT，LoadDat 后 Execute(文件名) 直接 PrintData；该分支不先显示新结果保存对话框。；FmMain.ActPrintDatExecute → FmPrintDat.Execute → FmPrintDat.PrintData",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D08"
+    ],
+    "new_entry": "旧DAT导入报告、预览确认与打印",
+    "current_consumers": [
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:516",
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:93",
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:110"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:28"
+  },
+  {
+    "id": "M21",
+    "legacy_item": "数据处理(&D) → 导出报告(&D)",
+    "legacy_behavior": "—；三步批量选 DAT、目标目录、TXT/XLS + 标准/转置布局，矩阵读取器生成导出。；FmMain.ActExportDatExecute → FmExport.ActOkExecute → uExport.TNormalDatReader.Read",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F07"
+    ],
+    "new_entry": "报告TXT/CSV/Excel/PDF导出",
+    "current_consumers": [
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/modules/reports/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:318",
+      "Spec Source/Source/Main/mmData/FmExport.pas:101",
+      "Spec Source/Source/Common/uExport.pas:395"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:29"
+  },
+  {
+    "id": "M22",
+    "legacy_item": "数据处理(&D) → 导出强度(&B)",
+    "legacy_behavior": "—；三步批量选 PDT、目录和 TXT/XLS；按重复读峰，非零背景位置的线增加背景列；本阅读器不导出 Black 净值或最终浓度，也不是 DAT 转置。；FmMain.ActExportPdtExecute → FmExport.ActOkExecute → uExport.TPdtReader.Read",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F08"
+    ],
+    "new_entry": "批量原强度/处理强度/结果长表导出",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/exporting.py",
+      "app/backend/api/analysis.py",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:323",
+      "Spec Source/Source/Main/mmData/FmExport.pas:101",
+      "Spec Source/Source/Common/uExport.pas:491"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:30"
+  },
+  {
+    "id": "M23",
+    "legacy_item": "工具(&T) → 软件参数(&S)",
+    "legacy_behavior": "—；监控测量谱带、暂停等待 ms、显示测量信息、空白传输秒；保存 DIRECT.CFG，后被分析/采集读。；FmCfgSoftWare.BtnOkClick → uAnaThread.WaitMain",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "软件设置及任务级慢进",
+    "current_consumers": [
+      "app/frontend/src/pages/settings/SettingsPage.tsx",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmCfgSoftWare.pas:40",
+      "Spec Source/Source/Common/uAnaThread.pas:493"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:31"
+  },
+  {
+    "id": "M24",
+    "legacy_item": "工具(&T) → 设备参数(&H)",
+    "legacy_behavior": "—；电脑设置与 CCD 设置；端口/显示尺寸/安装槽位/允许漂移，部分参数只读；配置属于 DIRECT.OPT。；FmOptHardWare.BtnOkClick → FmMain.ActOptHardWareExecute",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "设备档案/CCD布局/屏幕参数",
+    "current_consumers": [
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmOptHardWare.pas:77",
+      "Spec Source/Source/Main/FmMain.pas:471"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:32"
+  },
+  {
+    "id": "M25",
+    "legacy_item": "工具(&T) → 调试对中(&D)",
+    "legacy_behavior": "—；连续调试采集、多 CCD 实时曲线及缩放；退出 SoftStop 并等待收尾，不是汞灯专用流程。；FmDebug.Execute → FmDebug.ActCloseExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "设备实时调试工作区；物理设备本轮排除",
+    "current_consumers": [
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:417",
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:213"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:33"
+  },
+  {
+    "id": "M26",
+    "legacy_item": "工具(&T) → 方法管理(&M)",
+    "legacy_behavior": "—；先 DisableMtd；方法及色散曲线两个页签均能多选删除、直接改名，未见用户角色/方法启禁开关。；FmMain.ActManageExecute → FmMtdManage.ButtonDeleteMethodClick → FmMtdManage.ButtonRenameWstcClick",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "方法版本及色散库管理",
+    "current_consumers": [
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:353",
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:67",
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:108"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:34"
+  },
+  {
+    "id": "M27",
+    "legacy_item": "工具(&T) → 备份压缩数据库(&B)",
+    "legacy_behavior": "—；先解除当前方法，再按三个复选项备份 MTD、Jet 压缩、清除 DIRECT.LOG；不是 SQLite 维护。；FmMain.ActMtdBackupExecute → FmMtdBackup.ButtonOkClick",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01",
+      "D09"
+    ],
+    "new_entry": "新版SQLite维护，不写旧Access",
+    "current_consumers": [
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/postprocessing/conversion.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:363",
+      "Spec Source/Source/Main/mmTool/FmMtdBackup.pas:67"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:35"
+  },
+  {
+    "id": "M28",
+    "legacy_item": "工具(&T) → 导入蒸发摄谱文件(&I)",
+    "legacy_behavior": "—；FullDebug 显示的隐藏工具；EDT 选记录、区间、目标布局、方法标识，转 CDT/CMT。；FmMain.AcmMainUpdate → FmImportPre.BtnImportClick",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "EDT区间转换为新版样品",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:201",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:36"
+  },
+  {
+    "id": "M29",
+    "legacy_item": "帮助(&H) → 帮助主题(&C)",
+    "legacy_behavior": "—；打开 EXE 同目录 DIRECT.CHM；帮助主体调用在 FmMain，FmHint 是处理进度提示窗体。；FmMain.ActContentsExecute",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "内置帮助和错误码导航",
+    "current_consumers": [
+      "app/frontend/src/pages/help/HelpPage.tsx",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:296"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:37"
+  },
+  {
+    "id": "M30",
+    "legacy_item": "帮助(&H) → 关于(&A)",
+    "legacy_behavior": "—；读取 EXE 文件版本并显示版权/名称；关闭后返回主窗口。；FmMain.ActAboutExecute → FmAbout.FormShow",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "关于及模块诊断",
+    "current_consumers": [
+      "app/frontend/src/pages/about/AboutPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:235",
+      "Spec Source/Source/Main/Others/FmAbout.pas:54"
+    ],
+    "index_evidence": "Spec2.02功能研究/04_主菜单与隐藏入口使用链.md:38"
+  },
+  {
+    "id": "P01",
+    "legacy_item": "区间曝光 / ExpSegMode",
+    "legacy_behavior": "确认写 MTD_PRIM；GetAnaFileType 选 CDT 或 CMT；CreateSdMtdMap 选简单/区间映射；改开关后样品文件模式、逐线曝光区间和内标匹配一起变化，不能只是勾选外观",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:13"
+  },
+  {
+    "id": "P02",
+    "legacy_item": "预激时间 / IgnitCon.PreBurn",
+    "legacy_behavior": "写 MTD_BURN；采集线程 SetIgnitCon 按时间计数执行预激发；范围 1–10 秒；改变值应改变实际等待/指令时序",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:14"
+  },
+  {
+    "id": "P03",
+    "legacy_item": "采样周期 / IgnitCon.BurnCyc",
+    "legacy_behavior": "写 MTD_BURN；采集线程决定每周期读取和计时；分时详情显示周期；范围 1–2 秒；变化影响采样时间，不是重复样品次数",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:15"
+  },
+  {
+    "id": "P04",
+    "legacy_item": "采样次数 / IgnitCon.BurnCount",
+    "legacy_behavior": "写 MTD_BURN；分配燃烧周期记录；默认整段范围为 1..BurnCount；范围 1–255；区间曝光最少两次；区间边界随次数调整",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:16"
+  },
+  {
+    "id": "P05",
+    "legacy_item": "空白次数 / DarkCount、DarkCyc",
+    "legacy_behavior": "方法窗体中控件和标签 Visible=false；当前实现从空白传输秒和采样周期推算 DarkCount；不能把隐藏字段写成普通操作员随时可编辑；EDT/WDT 的独立条件窗另有可见空白次数",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:17"
+  },
+  {
+    "id": "P06",
+    "legacy_item": "确定 / 取消",
+    "legacy_behavior": "ActOk 分别提交主参数、激发、色散修改；取消执行MtdCancel，不提交这些数据库草稿；修改后保存与重新打开核对；偏移清零会先改全局对象，不能据取消推断所有内存副作用回滚，见P12",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:18"
+  },
+  {
+    "id": "P07",
+    "legacy_item": "当前色散曲线 / WsName",
+    "legacy_behavior": "显示当前方法所保存的曲线名；不是下拉候选列表自身；切换确认后核对布局、曲线名及WsModifyTime；方法ModifyTime与曲线时间分别处理，见12 U05",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:26"
+  },
+  {
+    "id": "P08",
+    "legacy_item": "选择色散曲线 / CbWstc",
+    "legacy_behavior": "按候选记录 ID 读取布局及系数，保存到方法；波长和点位互换、CCD 边界、采集文件头及分析布局检查都使用它；全部候选按库生成；同名项/ID/布局关联不可丢失；详见 C02",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:27"
+  },
+  {
+    "id": "P09",
+    "legacy_item": "基线波长 / RefWave",
+    "legacy_behavior": "方法参考线的理论波长；在内部谱线第 0 条；校参考线以它为起点；界面“基线”在这里是参考谱线，不是背景扣除值或独立谱线类型",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:28"
+  },
+  {
+    "id": "P10",
+    "legacy_item": "扫描宽度 / RefWidth",
+    "legacy_behavior": "参考线定位的寻峰窗口，SetRefLine 写入参考对象；11–50 点，默认 21；宽度变化应影响参考寻峰范围",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:29"
+  },
+  {
+    "id": "P11",
+    "legacy_item": "基线偏移 / RealRefWave−RefWave",
+    "legacy_behavior": "当前理论/实际参考位置的差，界面同时显示 nm 和点位差；与实际参考线位置一致，不能仅显示固定文本",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:30"
+  },
+  {
+    "id": "P12",
+    "legacy_item": "偏移清零 / BtnClear",
+    "legacy_behavior": "立即把 G_SdMtd.RealRefWave 设为 RefWave，更新偏移显示及主参数修改标志；一次操作恢复参考位置；后续确认保存。此处写全局对象，不能未经运行证明断言“取消会回滚所有副作用”",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:31"
+  },
+  {
+    "id": "P13",
+    "legacy_item": "分析单位 / MtdUnit",
+    "legacy_behavior": "预设 ug/g、mg/g、%，也可自定义；参数打印和报告标题读取当前方法单位；不做自动数值换算；旧 DAT 自身未保存单位，不能把报告单位当作历史结果可靠快照",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D04"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/methods/units.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:32"
+  },
+  {
+    "id": "P14",
+    "legacy_item": "普通样品重复数 / RepOfSam",
+    "legacy_behavior": "写 MTD_PRIM；样号输入根据普通样类型初始化重复数；1–10；摄谱按队列重复数推进，分析按同一样号分组",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:40"
+  },
+  {
+    "id": "P15",
+    "legacy_item": "标准样品重复数 / RepOfStd",
+    "legacy_behavior": "S 样号识别后初始化重复数；标准的重复测量进入均值/有效值选择；与普通样及管理样分别保存、分别应用",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:41"
+  },
+  {
+    "id": "P16",
+    "legacy_item": "管理样重复数 / RepOfDiag",
+    "legacy_behavior": "D 样号识别后初始化重复数；工作曲线表单还显示管理样计算结果；管理样不是参与拟合的标准浓度点",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:42"
+  },
+  {
+    "id": "P17",
+    "legacy_item": "重复摄谱最大允许误差[^P] / LimitIda",
+    "legacy_behavior": "质控比较 `21.7147 × ln(max/min)`，对应 `50 × log10(max/min)`；不应实现为原始 ADC 强度的绝对差；超过阈值进入有效/无效选择",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:43"
+  },
+  {
+    "id": "P18",
+    "legacy_item": "相对偏差校验 / CheckRsd",
+    "legacy_behavior": "开关控制 CheckSampOver 是否叠加 RSD 判断；不勾选时 Delta-P 判断仍然存在，不能关闭全部重复性检查",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:44"
+  },
+  {
+    "id": "P19",
+    "legacy_item": "最大允许 Rsd[%] / LimitRsd",
+    "legacy_behavior": "重复测量的有效值均值及样本标准差生成 RSD，与阈值比较；0–20%；人工剔除/恢复后统计和结果要重算，不丢弃原峰/背景矩阵",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:45"
+  },
+  {
+    "id": "L01",
+    "legacy_item": "元素 + 理论波长",
+    "legacy_behavior": "增加谱线检查近似重复；普通模式检查 CCD/漂移边界，FullDebug 仅检查通用波长范围；元素同名多条谱线最终合并，符号大小写须一致",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:55"
+  },
+  {
+    "id": "L02",
+    "legacy_item": "实际波长",
+    "legacy_behavior": "理论±0.3 nm 内并通过 CCD 漂移边界；转为当前 CCD 点位供寻峰、校正和保存位置使用",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:56"
+  },
+  {
+    "id": "L03",
+    "legacy_item": "复位谱线",
+    "legacy_behavior": "RealWave=Wave；区别于谱图右键“还原实际位置”读取已保存的 RealWave",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:57"
+  },
+  {
+    "id": "L04",
+    "legacy_item": "谱线类型",
+    "legacy_behavior": "三种类型改变可编辑参数和分析处理先后；内部参考线另建，详见 C05",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:58"
+  },
+  {
+    "id": "L05",
+    "legacy_item": "内标选择",
+    "legacy_behavior": "无内标、背景做内标、当前方法内标线；区间内标需要匹配同一曝光区间，详见 C06",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:59"
+  },
+  {
+    "id": "L06",
+    "legacy_item": "定位选择",
+    "legacy_behavior": "参考线定位、内标线、定位线；先测定位偏移，再移动分析线窗口，详见 C07",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:60"
+  },
+  {
+    "id": "L07",
+    "legacy_item": "扫描点数 / SeekWidth",
+    "legacy_behavior": "5–31；寻峰窗口和峰顶候选检查，不是高斯计算点数",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:61"
+  },
+  {
+    "id": "L08",
+    "legacy_item": "背景位置 / Back",
+    "legacy_behavior": "0 不扣背景；负向短波、正向长波，绝对值≤100；峰位偏移后取背景中心周围 7 点最小值",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:62"
+  },
+  {
+    "id": "L09",
+    "legacy_item": "峰值方式 + 计算点数",
+    "legacy_behavior": "最大值固定 1；高斯 3/5/7/9 等符合条件奇数且不超扫描窗口；拟合失败保持寻峰值，不计算面积",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/schemas/methods.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:63"
+  },
+  {
+    "id": "L10",
+    "legacy_item": "最低峰值 / LowPeak",
+    "legacy_behavior": "100–600，默认 300；三点极大候选还需超过这个强度阈值",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:64"
+  },
+  {
+    "id": "L11",
+    "legacy_item": "最小倍数 / LowRatio",
+    "legacy_behavior": "1.1–2.5，默认 1.5；候选峰须大于窗口最低值×倍数；未找到合格峰时回退当前位置强度",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:65"
+  },
+  {
+    "id": "L12",
+    "legacy_item": "拟合方式",
+    "legacy_behavior": "方法默认四类函数，首次工作曲线读取；曲线界面的临时模式与方法默认持久化不同",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:66"
+  },
+  {
+    "id": "L13",
+    "legacy_item": "对数坐标 / CoordType",
+    "legacy_behavior": "强度和浓度同时 Ln；最终含量 Reverse；不是只把图轴改为对数显示",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F05"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:67"
+  },
+  {
+    "id": "L14",
+    "legacy_item": "小数位数 / Digit",
+    "legacy_behavior": "最大 6；标准曲线数据预览、合并结果矩阵及报告格式读取",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:68"
+  },
+  {
+    "id": "L15",
+    "legacy_item": "单线曝光区间 / ExpSeg",
+    "legacy_behavior": "仅区间曝光可编辑，须包含于 1..BurnCount 且至少 2 次；[0,0] 表示继承方法全区间",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:69"
+  },
+  {
+    "id": "L16",
+    "legacy_item": "标准浓度网格 / Stds.Content",
+    "legacy_behavior": "最少 4 个正浓度，当前源码最多 50 个；确认拒绝相同浓度；浓度变化会清除该标准旧强度，避免复用失效曲线",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:70"
+  },
+  {
+    "id": "L17",
+    "legacy_item": "确定 / 取消 / 退出",
+    "legacy_behavior": "确定提交当前线；取消回滚编辑；退出取消未提交编辑并重新载入已提交谱线。修改方法时间影响 PDT 重算警告",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:71"
+  },
+  {
+    "id": "S01",
+    "legacy_item": "预录 / 摄谱输入 / 分析输入",
+    "legacy_behavior": "同一 FmSampInput，imPre/imBurn/imAna 三模式；确定按钮的保存与标准有效性检查不同",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:99"
+  },
+  {
+    "id": "S02",
+    "legacy_item": "SAM 打开/保存",
+    "legacy_behavior": "名称与重复次数同时保存；载入后用实际重复数计算所占谱带位置",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F10",
+      "D07"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+      "app/frontend/src/api/sampleQueues.ts"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:100"
+  },
+  {
+    "id": "S03",
+    "legacy_item": "回车递增",
+    "legacy_behavior": "GetInputText 从最后数值样号找到下一个正整数；不要笼统称任何字母数字尾号均自动递增",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F14"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:101"
+  },
+  {
+    "id": "S04",
+    "legacy_item": "逗号 / 点 / 斜杠",
+    "legacy_behavior": "源码判断 ASCII `,` 插入空项、`.` 确认结束、`/` 删除；空输入走 SampSet('')。手册的中文逗号与实现不同，见 08",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F14"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:102"
+  },
+  {
+    "id": "S05",
+    "legacy_item": "标准样 / 管理样",
+    "legacy_behavior": "当前标准输入是 S+十进制索引 0..49；旧 SA..SF 在分析模式转换；D 前缀管理样另有重复规则和结果显示",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D07"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:103"
+  },
+  {
+    "id": "S06",
+    "legacy_item": "摄谱后命名",
+    "legacy_behavior": "DockAwareSam.InputSamps 写样号与顺序，并进入 AnaMode；原始谱带不需要重新采集",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:104"
+  },
+  {
+    "id": "S07",
+    "legacy_item": "空样位置",
+    "legacy_behavior": "插空/删项/重复数改动会影响后面物理谱带对应；不是任意排序样品标签",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F14"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:105"
+  },
+  {
+    "id": "S08",
+    "legacy_item": "锁定记录",
+    "legacy_behavior": "禁用记录表浏览；与采集按钮的鼠标锁定不同",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F13"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/spectra/SpectrumRecordList.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:106"
+  },
+  {
+    "id": "S09",
+    "legacy_item": "多样查看",
+    "legacy_behavior": "Ctrl 多选，最多 8 条；同点强度表与多曲线共享 CCD 和曝光区间",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:107"
+  },
+  {
+    "id": "S10",
+    "legacy_item": "上/下谱带，上/下 CCD",
+    "legacy_behavior": "更新曲线、样号、参考/谱线位置；固定视图/优先显示改变跳转策略",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:108"
+  },
+  {
+    "id": "S11",
+    "legacy_item": "谱图工具",
+    "legacy_behavior": "查看、滚动、区域放大、适合、一线一点、一线四点、十倍 CCD、横/纵缩放及还原；不仅有“缩放”一个功能",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F12"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:109"
+  },
+  {
+    "id": "S12",
+    "legacy_item": "波长定位输入",
+    "legacy_behavior": "EdtWave 回车通过 Wave2Point 定位显示；不能把它当成保存方法理论波长",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:110"
+  },
+  {
+    "id": "S13",
+    "legacy_item": "曝光区间输入",
+    "legacy_behavior": "EdtExpSeg 只在有分时数据时有效；范围变化重新求区间均值并更新视图；CDT 无法还原已丢失的帧",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:111"
+  },
+  {
+    "id": "S14",
+    "legacy_item": "查看工具与 Ctrl",
+    "legacy_behavior": "鼠标显示点强度/坐标/波长；按 Ctrl 可保持当前位置再移到加线按钮，方便色散点录入",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:112"
+  },
+  {
+    "id": "S15",
+    "legacy_item": "分时数据",
+    "legacy_behavior": "EDT 默认显示；鼠标对应点驱动逐周期燃烧/空白强度；右键横向/纵向复制及打印",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:113"
+  },
+  {
+    "id": "S16",
+    "legacy_item": "打印 CCD",
+    "legacy_behavior": "当前 CCD/当前图像；灰度/峰形至少一项；十倍/宽边/窄边三比例；纸张窄边至少 10 cm，部分视图至少 512 点",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D06"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/backend/modules/spectrum_pdf.py",
+      "app/backend/modules/spectrum_viewer.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:114"
+  },
+  {
+    "id": "D01",
+    "legacy_item": "增加/删除色散点",
+    "legacy_behavior": "TWdtLine，来源是鼠标 CCD 坐标；与方法分析谱线分开",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:124"
+  },
+  {
+    "id": "D02",
+    "legacy_item": "逐点波长及谱峰位置修正",
+    "legacy_behavior": "当前网格仅允许波长第1列编辑，CheckWave写回谱线；步数来自谱图指针/CCD间隔修正。手册称直接改单元格“测量步数”，但本源码网格未允许此操作",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F01",
+      "F03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/service.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:125"
+  },
+  {
+    "id": "D03",
+    "legacy_item": "CCD 间隔与调节增量",
+    "legacy_behavior": "C12/C13；布局间隔改变 CorrectRealStep，拟合结果与可检测范围随之变化",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/repository.py",
+      "app/backend/api/dispersion.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:126"
+  },
+  {
+    "id": "D04",
+    "legacy_item": "拟合、允许误差",
+    "legacy_behavior": "CalWstc 求 A/B/C/WavePerStep，显示校正步数与最大误差；超 AllowGapError/PointWidth 提示",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F01",
+      "D05"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:127"
+  },
+  {
+    "id": "D05",
+    "legacy_item": "保存曲线",
+    "legacy_behavior": "新名或覆盖 WSTC 记录，保存布局+系数+时间；没有自动将任意新曲线设为全部方法默认",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D05"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:128"
+  },
+  {
+    "id": "D06",
+    "legacy_item": "手册验收口径",
+    "legacy_behavior": "手册提出迭代校正后误差≤3步再存盘；源码的允许阈值是可配置换算，不能把手册建议当成源码写死常量",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:129"
+  },
+  {
+    "id": "N01",
+    "legacy_item": "校参考线",
+    "legacy_behavior": "校正内部第 0 条，统一相对位置；偏移较大有 awOutRef 提示路径",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:139"
+  },
+  {
+    "id": "N02",
+    "legacy_item": "校正全部谱线",
+    "legacy_behavior": "ctLocateScanLines 改当前线峰位；开始门禁 FLinesLocated，不能用独立汞灯校准替代日常校谱线",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:140"
+  },
+  {
+    "id": "N03",
+    "legacy_item": "保存全部位置",
+    "legacy_behavior": "AnaLineSetPointsToRealWaves → SaveAllWaves → 方法参考实际波长 + 全谱线 RealWave",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:141"
+  },
+  {
+    "id": "N04",
+    "legacy_item": "当前/全部实际位置还原",
+    "legacy_behavior": "已保存实际波长反投影，区别于理论复位；可反复校正再保存",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:142"
+  },
+  {
+    "id": "N05",
+    "legacy_item": "开始门禁",
+    "legacy_behavior": "当前方法有效、匹配布局、有效数据、AnaMode、参考/全线校正；色散和蒸发窗口可见某控件不等于允许开始样品测量",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:143"
+  },
+  {
+    "id": "N06",
+    "legacy_item": "慢进 / 监控测量谱带",
+    "legacy_behavior": "IsLookBand=true 时逐线显示、等待 WaitTime，可人工暂停；不是每条线都必定等待点击“继续”",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:144"
+  },
+  {
+    "id": "N07",
+    "legacy_item": "暂停 / 继续 / 停止分析",
+    "legacy_behavior": "空格在暂停/继续间切换；暂停时可操作谱图，恢复后继续矩阵；停止唤醒等待事件，避免挂起",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:145"
+  },
+  {
+    "id": "N08",
+    "legacy_item": "寻峰和背景",
+    "legacy_behavior": "LowPeak/LowRatio/SeekWidth/PeakMode/Back 都影响结果；无合格峰、区间越界、高斯失败有不同回退/提示",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/schemas/methods.py",
+      "app/backend/modules/analysis/legacy_curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:146"
+  },
+  {
+    "id": "N09",
+    "legacy_item": "内标计算",
+    "legacy_behavior": "普通净强度 Peak−Back；背景内标 Peak/Back；普通内标还要除以内标对应值；最低净值保护后进入拟合",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/schemas/methods.py",
+      "app/backend/modules/analysis/legacy_curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:147"
+  },
+  {
+    "id": "N10",
+    "legacy_item": "重复性检查",
+    "legacy_behavior": "Delta-P/RSD 超差进入有效/无效逐次选择；统计是当前有效重复，接受后标准和普通样写入不同位置",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:148"
+  },
+  {
+    "id": "N11",
+    "legacy_item": "未测标准复用",
+    "legacy_behavior": "本次选中且含量为正的标准不足4个时使用旧Valid标准集；达到4个时使用本次选择集，并不是始终把新旧标准合并补足。完成时未进入新集的旧强度可被清除，见12 U08–U09",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:149"
+  },
+  {
+    "id": "N12",
+    "legacy_item": "标准点 / 标尺",
+    "legacy_behavior": "C14/C15；点选择与移点步长分开，Ctrl左右选点，Ctrl上下改强度，Insert切步长",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F04"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:150"
+  },
+  {
+    "id": "N13",
+    "legacy_item": "参与拟合 / 恢复原值",
+    "legacy_behavior": "至少 4 个参与点；原始值与修正值分别保存；单点/全部还原后重拟合",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:151"
+  },
+  {
+    "id": "N14",
+    "legacy_item": "方法默认 / 当前计算方式",
+    "legacy_behavior": "C09/C16 两处；后者立即重算但不直接持久化方法默认，不能合并成一个控件",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:152"
+  },
+  {
+    "id": "N15",
+    "legacy_item": "结果线随机切换",
+    "legacy_behavior": "C17；只允许切到已处理线，未处理线逐条推进",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/reports/service.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:153"
+  },
+  {
+    "id": "N16",
+    "legacy_item": "标准列表 / 数据预览",
+    "legacy_behavior": "显示原强度、修正强度、浓度、反算浓度、相对误差、参与状态；普通样和管理样显示计算结果",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:154"
+  },
+  {
+    "id": "N17",
+    "legacy_item": "工作曲线的坐标",
+    "legacy_behavior": "图像横轴浓度、纵轴强度；计算内部以强度为 X 反算浓度，需区分显示轴与数学输入",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F04",
+      "F05"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:155"
+  },
+  {
+    "id": "N18",
+    "legacy_item": "范围外结果",
+    "legacy_behavior": "CalResult 超上限按最高标准浓度封顶/回退；低于范围时直线外推，其他拟合头两点外推并限制约1/3首标准浓度至首标准浓度；对数下限采用-1.10再Reverse。保留源码中的比较条件，精确分支见10 R38–R39",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/schemas/methods.py",
+      "app/backend/modules/analysis/legacy_curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:156"
+  },
+  {
+    "id": "N19",
+    "legacy_item": "高低线对合并",
+    "legacy_behavior": "当前代码 FStdUp 取最后两个标准浓度的均值作为切换边界；与手册“最高标准浓度”为界有差异，见 08",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/schemas/methods.py",
+      "app/backend/modules/analysis/legacy_curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:157"
+  },
+  {
+    "id": "N20",
+    "legacy_item": "下一谱线与完成",
+    "legacy_behavior": "保存标准修正和启停，结束后 MtdLinesUpdateStds、MergeDatas，再报告保存/打印",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02",
+      "D08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py",
+      "app/backend/modules/reports/service.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:158"
+  },
+  {
+    "id": "N21",
+    "legacy_item": "曲线/参数打印",
+    "legacy_behavior": "标准文本和曲线图分别打印；没有因此自动产生 PDF 原生导出",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F04",
+      "F05"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/analysis/quality.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:159"
+  },
+  {
+    "id": "O01",
+    "legacy_item": "强度处理的四个输出开关",
+    "legacy_behavior": "波长写回、PDT保存、GDI打印、TXT打印分别执行；“默认”接收四个内存值，但SaveMethod仅持久化PrintPdt/SavePdt/SaveWave，未写PrintToTxt。保存偏好不代替本次输出，见10 R30",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F08",
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/postprocessing/exporting.py",
+      "app/backend/api/analysis.py",
+      "app/backend/modules/analysis/printing.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:167"
+  },
+  {
+    "id": "O02",
+    "legacy_item": "PDT 重算",
+    "legacy_behavior": "检查方法 ID、区间模式、谱线数、元素/波长一致、方法修改时间；复用强度，再做质控和曲线",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:168"
+  },
+  {
+    "id": "O03",
+    "legacy_item": "全时独立输出",
+    "legacy_behavior": "CMT 分析链上的 TXlsCmtBandObs，逐周期在定位后的峰点取值，输出 _SP.xls；不是全 CCD 原始帧无差别导出",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:169"
+  },
+  {
+    "id": "O04",
+    "legacy_item": "CmtBandObsAvg",
+    "legacy_behavior": "CFG 隐藏配置决定是否额外输出均值行；没有普通软件参数页复选框，不能据此发明界面",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:170"
+  },
+  {
+    "id": "O05",
+    "legacy_item": "EDT → CDT/CMT",
+    "legacy_behavior": "输入记录选择/反选/全选、区间、“使用方法ID”；C20决定均值或全时。“保存色散←”是把方法谱板/色散写回源EDT，不是EDT→方法；同名目标可覆盖或保留追加，追加校验布局/CMT条件。见10 R31–R34",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:171"
+  },
+  {
+    "id": "O06",
+    "legacy_item": "新结果保存/打印",
+    "legacy_behavior": "FmPrintDat.Execute('') 显示对话框，可同时勾保存/打印；名称影响 DAT 文件名及打印标题",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01",
+      "D08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/postprocessing/conversion.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:172"
+  },
+  {
+    "id": "O07",
+    "legacy_item": "既有 DAT 打印",
+    "legacy_behavior": "主菜单选择文件、LoadDat、Execute(文件名) 直接打印；不要求已有 analysis_run，不先展示新结果对话框",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:173"
+  },
+  {
+    "id": "O08",
+    "legacy_item": "报告/强度批量导出",
+    "legacy_behavior": "C18/C19；TXT/XLS，DAT 标准/转置，PDT 按重复输出峰及按需背景列，未输出 Black 净值/浓度；同名策略与错误中止分别处理",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F07",
+      "F08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/modules/postprocessing/exporting.py",
+      "app/backend/api/analysis.py",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:174"
+  },
+  {
+    "id": "O09",
+    "legacy_item": "页面设置",
+    "legacy_behavior": "字体五值、每行元素、每页样品、分析/系统时间；纸型/方向来自系统打印设置，不见可调页边距控件",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F06",
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/schemas/system.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:175"
+  },
+  {
+    "id": "O10",
+    "legacy_item": "方法参数打印",
+    "legacy_behavior": "唯一“打印到文件”复选：TXT/GDI；完整打印条件、谱线、标准浓度。PrintUnSeen 还加系数、坐标、原始/修正值；字体固定 FixedSys/12",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+      "app/backend/modules/method_printing/service.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:176"
+  },
+  {
+    "id": "O11",
+    "legacy_item": "软件参数",
+    "legacy_behavior": "CFG ANALYZE：LogAna、LookBand、WaitTime、RoundDarkTime；最后一个由采样周期换算方法暗周期次数，默认8秒、允许6–20秒",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:177"
+  },
+  {
+    "id": "O12",
+    "legacy_item": "设备参数",
+    "legacy_behavior": "OPT：Port、ScreenWidth、CcdIndexs、AllowCcdDrift；镜像/容量/点数/点宽/尾首间隔默认禁用，确认函数也未写所有显示字段",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:178"
+  },
+  {
+    "id": "O13",
+    "legacy_item": "隐藏 CCD 编辑键",
+    "legacy_behavior": "Ctrl+Alt+W 仅启用安装插槽和允许漂移两个输入；不能称“解锁全部设备参数”",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:179"
+  },
+  {
+    "id": "O14",
+    "legacy_item": "调试对中",
+    "legacy_behavior": "连续采集、多 CCD 视图、点值、缩放；SoftStop 等待退出；没有专用汞灯选择/谱线流程的完整证据",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:180"
+  },
+  {
+    "id": "O15",
+    "legacy_item": "方法管理",
+    "legacy_behavior": "分析方法/色散曲线页分别改名、删除；修改按钮运行时换处理函数，DFM 无 OnClick 不表示无功能",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:181"
+  },
+  {
+    "id": "O16",
+    "legacy_item": "备份压缩",
+    "legacy_behavior": "Access MTD 复制备份及 Jet 压缩；清除记录仅 DIRECT.LOG；当前方法先禁用以释放对象",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01",
+      "D09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/postprocessing/conversion.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:182"
+  },
+  {
+    "id": "O17",
+    "legacy_item": "消息面板",
+    "legacy_behavior": "分析记录和动态出现的通信命令两组；右键保存/清除/复制/全选针对当前页；隐藏时LoginAna/LoginCmd不继续积累界面记录；另有DIRECT.LOG错误追加链。见10 R08–R09，不替代数据输出",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:183"
+  },
+  {
+    "id": "O18",
+    "legacy_item": "帮助 / 关于",
+    "legacy_behavior": "FmMain 打开同目录 CHM；FmHint 用于进度信息；关于从 EXE 读版本，不应只据源码名固定写2.0.2.5",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [],
+    "index_evidence": "Spec2.02功能研究/06_业务流程与参数消费矩阵.md:184"
+  },
+  {
+    "id": "R01",
+    "legacy_item": "方法/曲线/谱带名称校验",
+    "legacy_behavior": "通用 CheckNameValid 限制字节长度、空名及列出的非法字符；方法/曲线名称上限为 20 字节，新建还查重。手册“20字符或10中文字”应落实为字节口径；样号另用10字节限制；uGlobal.CheckNameValid；FmMain.CheckMtdName",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uGlobal.pas:410",
+      "Spec Source/Source/Main/FmMain.pas:699"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:22"
+  },
+  {
+    "id": "R02",
+    "legacy_item": "重复启动与已有窗口唤起",
+    "legacy_behavior": "用 EXE 文件名创建互斥对象；发现同名实例时提示正在运行，广播消息唤起已有程序并结束新实例。不是以安装目录区分两个同名 EXE；UniqueInstanceUnit.CheckPreviousInstance；UniqueInstanceUnit.ApplicationWndProc",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/src-tauri/src/main.rs"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/UniqueInstanceUnit.pas:67",
+      "Spec Source/Source/Common/UniqueInstanceUnit.pas:35"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:23"
+  },
+  {
+    "id": "R03",
+    "legacy_item": "新建/打开前的方法库升级",
+    "legacy_behavior": "CheckUpgradeDbMtd 检查库版本；需要升级时先复制为同目录 .~mtd 再升级、复查；错误阻止后续操作。这里记录旧软件会修改旧库的事实，本次研究未执行升级；FmMain.CheckUpgradeDbMtd",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:763"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:24"
+  },
+  {
+    "id": "R04",
+    "legacy_item": "打开方法后的布局提示",
+    "legacy_behavior": "方法和当前硬件布局不同时显示警告；这里不是立即拒绝加载。正常加载后建立参考线并读全方法谱线；不能将提示统一写成阻断；FmMain.ActOpenExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:424"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:25"
+  },
+  {
+    "id": "R05",
+    "legacy_item": "选择方法/色散曲线列表",
+    "legacy_behavior": "右键按记录ID/名称排序；双击等同确定。保存时不区分大小写查找同名，已有项弹覆盖提示；保存目标ID决定新增/覆盖。取消打开方法时主处理仍可能重新加载当前ID；FmSelect.LvNameCompare；FmSelect.ActSaveExecute；FmSelect.LvNameDblClick；FmMain.ActOpenExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmSelect.pas:162",
+      "Spec Source/Source/Main/mmMethod/FmSelect.pas:70",
+      "Spec Source/Source/Main/mmMethod/FmSelect.pas:171",
+      "Spec Source/Source/Main/FmMain.pas:424"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:26"
+  },
+  {
+    "id": "R06",
+    "legacy_item": "方法可用性和区间映射限制",
+    "legacy_behavior": "至少一条分析线；每条非默认区间必须在方法区间内；额外内标曝光区间总数上限20；全部波长通过布局/漂移检查。这些门禁用于单样分析入口，不能只看方法存在或 Enabled；FmMain.CheckMtdValid；uMethodMap.TExpSegMap.Build",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:717",
+      "Spec Source/Source/Common/uMethodMap.pas:342"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:27"
+  },
+  {
+    "id": "R07",
+    "legacy_item": "默认数据目录和空模板",
+    "legacy_behavior": "默认目录是 EXE 下 Data；样品/预备摄谱新文件复制对应 blk 模板，再写布局、参考波长、方法ID及适用的激发条件。缺模板不是单纯路径框问题；备份默认进入“我的文档”并按日期避同名；uGlobal.GetDefaultDatPath；uGlobal.GetMethodBackFileName；FmMain.DoAcqCdtCmt",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uGlobal.pas:199",
+      "Spec Source/Source/Common/uGlobal.pas:209",
+      "Spec Source/Source/Main/FmMain.pas:908"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:28"
+  },
+  {
+    "id": "R08",
+    "legacy_item": "信息窗口的两组记录",
+    "legacy_behavior": "FMemos[0/1] 对应分析/通信；通信日志首次写入时动态增加“通信命令”标签页。LoginAna/LoginCmd 只在窗口 Visible 时追加，隐藏时不是后台仍完整积累所有显示记录；FmMessage.FormCreate；FmMessage.LoginAna；FmMessage.LoginCmd；FmMessage.TabSetMsgChange",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/Others/FmMessage.pas:59",
+      "Spec Source/Source/Main/Others/FmMessage.pas:96",
+      "Spec Source/Source/Main/Others/FmMessage.pas:109",
+      "Spec Source/Source/Main/Others/FmMessage.pas:149"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:29"
+  },
+  {
+    "id": "R09",
+    "legacy_item": "记录复制、保存、清除",
+    "legacy_behavior": "清除/全选/复制针对当前标签页；CopyToClipboard 复制选中文本。保存当前页全部 Lines 为文本，“我的文档”为初始目录；无内容时禁用保存/清除。这与采集错误追加 DIRECT.LOG 是不同链；FmMessage.ItemCopyClick；FmMessage.ItemSaveClick；FmMessage.PopupMenuPopup；FmDockGuideIgnit.SaveLog",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/Others/FmMessage.pas:73",
+      "Spec Source/Source/Main/Others/FmMessage.pas:81",
+      "Spec Source/Source/Main/Others/FmMessage.pas:131",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:480"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:30"
+  },
+  {
+    "id": "R10",
+    "legacy_item": "定位输入不只有波长",
+    "legacy_behavior": "输入带逗号的文本会按 CCD 坐标解析；普通波长转点位。超CCD提示、清空；成功可切CCD、居中、更新强度。它不修改方法理论波长；FmView.EdtWaveKeyPress",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1016"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:36"
+  },
+  {
+    "id": "R11",
+    "legacy_item": "图内方向键逐点查看",
+    "legacy_behavior": "无修饰键时左右各移动一个有效点，边界停止；上下触发纵向缩放，随后更新点位读数。这是图控件事件，上一轮07筛选漏了入口；FmView.IenCurveSpecialKey",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1208"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:37"
+  },
+  {
+    "id": "R12",
+    "legacy_item": "运行时谱线指针按钮",
+    "legacy_behavior": "CreateAnaBtn 动态生成指针、绑定鼠标移动/抬起和右键菜单；移动读当前谱线点值，抬起选择该谱线。TAnaBtn 关联真实 TAnaLine，并非 DFM 里固定一组图标；FmView.CreateAnaBtn；FmView.AnaBtnMouseUp；uAnaBtn.TAnaBtn.Move",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:661",
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:530",
+      "Spec Source/Source/Common/uAnaBtn.pas:101"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:38"
+  },
+  {
+    "id": "R13",
+    "legacy_item": "选谱线同时切曝光区间",
+    "legacy_behavior": "SelectLine 设置所选线的 ExpSeg；空区间回默认。必要时切到该CCD并居中，重算图和点值。即使谱线下拉只“定位显示”，也必须带动区间，不能只移动竖线；FmView.SelectLine；FmView.SetCurrentExpSeg",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1427",
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:610"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:39"
+  },
+  {
+    "id": "R14",
+    "legacy_item": "多样同点比较",
+    "legacy_behavior": "同一当前CCD点驱动各样品强度表；多条曲线共享点位/波长查看。无有效点时清读数。FullDebug 追加缩放/视图坐标，不改变分析结果；FmViewMulti.DisplayCcdPointText",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmViewMulti.pas:136"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:40"
+  },
+  {
+    "id": "R15",
+    "legacy_item": "分时详情的两个阶段",
+    "legacy_behavior": "当前点分别列出每次燃烧积分强度和空白积分强度，并列预激时间、积分周期/次数。显示原始分时点值，不是最终含量，也不是只有一条均值；FmViewDetail.Display",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/components/SpectrumPointDetails.tsx",
+      "app/backend/modules/analysis/daily_operations.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmViewDetail.pas:86"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:41"
+  },
+  {
+    "id": "R16",
+    "legacy_item": "光谱与方法相符的不同级别",
+    "legacy_behavior": "DoAna 中样品方法ID不同只提示“可能不正确”；布局差异拒绝；色散差异超过 WavePerStep 容差0.0005或C偏移×点宽超过允许漂移也拒绝；较小差异询问是否使用方法系数。WDT另重置系数用于制作；FmMain.DoAna",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1047"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:42"
+  },
+  {
+    "id": "R17",
+    "legacy_item": "CMT帧数门禁",
+    "legacy_behavior": "CMT采样次数少于方法设定时拒绝加载分析；不是看扩展名正确就可分析。EDT转CMT也要求所取区间长度不少于方法采样次数；FmMain.DoAna；FmImportPre.BtnImportClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:1047",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:43"
+  },
+  {
+    "id": "R18",
+    "legacy_item": "参考线偏移过大提示",
+    "legacy_behavior": "awOutRef 弹出“基线偏移过大/可能飞样”，带样号及重复序号，然后唤醒线程等待链。此提示不等于旧版自动识别全部电弧异常并自动重采；FmViewSingle.WmAna",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:656"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:44"
+  },
+  {
+    "id": "R19",
+    "legacy_item": "色散拟合/保存按钮门禁",
+    "legacy_behavior": "各色散点波长都大于0才允许拟合；ActSave 要求 FCurved 且 FMaxDif < FAllowDif。拟合时提示使用 >，因此刚好等于允许误差可能不弹该超差提示、但仍不能保存，不能写成“≤允许误差一定可保存”；FmWstc.AclWstcUpdate；FmWstc.ActFitExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:94",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:116"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:50"
+  },
+  {
+    "id": "R20",
+    "legacy_item": "调间隔后的重新拟合",
+    "legacy_behavior": "间隔变化改 CcdGapPoints、CorrectRealStep 并刷新网格；该事件自身没有重拟合，也没有清除 FCurved/FMaxDif。准确记录旧行为，需重新拟合获取新结果；不能凭刷新网格认定保存的系数已自动更新；FmWstc.SpeGapChange；FmWstc.CalWstc",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/dispersion/calibration.py",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/repository.py",
+      "app/backend/api/dispersion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:445",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:165"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:51"
+  },
+  {
+    "id": "R21",
+    "legacy_item": "质控至少保留一个有效重复",
+    "legacy_behavior": "有效/无效按钮和网格双击改变 FValid，重新计算统计；FValidCount>1 才允许再次剔除，不能全删光再接受一个空均值；FmAnaCheck.SetValid；FmAnaCheck.SgCheckDblClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/quality.py",
+      "app/frontend/src/pages/analysis/AnalysisQuality.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:325",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:350"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:52"
+  },
+  {
+    "id": "R22",
+    "legacy_item": "质控确认与超差容许",
+    "legacy_behavior": "确认将当前有效均值写入标准强度或样品Black，再检查下个样品；确认函数未再次以本样品^P/RSD是否低于阈值拒绝接受。超差触发人工选择，不等于必须剔除到合格才允许继续；FmAnaCheck.ButtonOkClick；FmAnaCheck.SetBlackData",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/quality.py",
+      "app/frontend/src/pages/analysis/AnalysisQuality.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:99",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:310"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:53"
+  },
+  {
+    "id": "R23",
+    "legacy_item": "标准曲线点击点和右键",
+    "legacy_behavior": "图上标准点是运行时TShape；点击选择其标准序号，右键弹该点“参与拟合”菜单。miActiveClick本身只给CbActive.Checked赋值；真正更新G_StdLoader.Actives、点状态和重拟合的逻辑在CbActiveClick。没有直接调用关系时，右键是否触发同样回调需部署VCL/EXE核验，不能只见勾选变化就断定曲线重算。下拉以外的选点入口保留；FmAnaCurve.ShapeMouseDown；FmAnaCurve.miActiveClick；FmAnaCurve.CbActiveClick",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F04"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/frontend/src/pages/analysis/CurveChart.tsx",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:1199",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:1157",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:524"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:54"
+  },
+  {
+    "id": "R24",
+    "legacy_item": "修改标准后必须重算",
+    "legacy_behavior": "SetActionEnabled(Modified) 在修改时只开放重算，禁用下一线、两种打印及谱线切换；重算后恢复。不能先改值、再不重算就打印/推进；FmAnaCurve.SetActionEnabled；FmAnaCurve.MoveStdPoint",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:1189",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:1162"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:55"
+  },
+  {
+    "id": "R25",
+    "legacy_item": "关闭曲线窗口不是完成分析",
+    "legacy_behavior": "FormClose 调 AbortCal，清显示、标准曲线对象及会话状态；正式更新标准库、合并DAT和报告入口属于 ActNext 的正常完成链。退出不等于自动走完成链；FmAnaCurve.FormClose；FmAnaCurve.AbortCal；FmAnaCurve.ActNextExecute",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:943",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:279",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:200"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:56"
+  },
+  {
+    "id": "R26",
+    "legacy_item": "丢帧并非一律终止或一律忽略",
+    "legacy_behavior": "RecData 检查应收/实收。燃烧/空白阶段仅当N>0、此前无ErrIndex、对应次数>1时允许记录一个错误索引；样品类型且非致命时发mwLost，否则mwErr。零数据/第二处错误/转换阶段等走致命路径；包检查还可列出异常板组；uCcdThread.RecData；uCcdThread.CheckAcqCyc",
+    "status": "已定位软件入口/模拟器；物理通讯、时序和硬件执行排除",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uCcdThread.pas:524",
+      "Spec Source/Source/Common/uCcdThread.pas:115"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:62"
+  },
+  {
+    "id": "R27",
+    "legacy_item": "成功收尾修补与已注释保存区别",
+    "legacy_behavior": "PerformOK 调 FillErrCcdCyc：燃烧首/尾用相邻帧，中间用前后均值；空白坏帧用相邻帧。SaveLostBand 整段在块注释中，不是现行可用的“自动另存丢帧EDT”功能。07解析已排除该函数；FmDockGuideIgnit.PerformOK；uCcdBand.TCcdBand.FillErrCcdCyc",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:328",
+      "Spec Source/Source/Common/uCcdBand.pas:1080"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:63"
+  },
+  {
+    "id": "R28",
+    "legacy_item": "错误日志与队列推进",
+    "legacy_behavior": "mwLost 收集含时间、方法、样号的错误；mwErr收尾、弹提示、SaveLog追加DIRECT.LOG。只有PerformOK中的正式保存链才推进重复/样号；成功保存的前提和真实硬件状态应分开；FmDockGuideIgnit.WmAcq；FmDockGuideIgnit.SaveLog；FmDockGuideIgnit.PerformOK",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:616",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:480",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:328"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:64"
+  },
+  {
+    "id": "R29",
+    "legacy_item": "预备摄谱条件与方法条件分开",
+    "legacy_behavior": "EDT/WDT条件窗可选择“保存激发条件”；本次输入的条件写入新文件，勾选项控制后续预备摄谱默认条件的保存。样品采集直接复制当前方法激发条件。预备输入预激时间在FullDebug有额外分支，不能统一套方法页允许范围；FmIgnitCon.EdtPreBurnExit；FmIgnitCon.BtnOkClick；FmMain.DoAcqCdtCmt",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmIgnitCon.pas:156",
+      "Spec Source/Source/Main/mmAnalyze/FmIgnitCon.pas:69",
+      "Spec Source/Source/Main/FmMain.pas:908"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:65"
+  },
+  {
+    "id": "R30",
+    "legacy_item": "强度输出“默认”的持久化缺项",
+    "legacy_behavior": "BtOkClick勾默认时更新四个内存字段；SaveMethod仅写 PrintPdt、SavePdt、SaveWave，未写 PrintToTxt；Load仍读PrintToTxt。会话记忆和跨重启默认不等价，上一轮“默认保存偏好”需限定；FmAnaPdt.BtOkClick；uConfigs.TSdCfgs.SaveMethod；uConfigs.TSdCfgs.Load",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/service.py",
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/services.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:93",
+      "Spec Source/Source/Common/uConfigs.pas:132",
+      "Spec Source/Source/Common/uConfigs.pas:72"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:66"
+  },
+  {
+    "id": "R31",
+    "legacy_item": "保存色散←的实际写入方向",
+    "legacy_behavior": "BtnSetLayClick把当前方法 G_SdMtd.CcdLay 经 EditCcdLay/PostLay 写入左侧源EDT文件；不是导入源EDT色散到方法。选择EDT时还先检查布局，内存系数换成当前方法值。旧软件确会写源文件；本次未执行该动作；FmImportPre.BtnSetLayClick；FmImportPre.BtnInClick",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:324",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:217"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:67"
+  },
+  {
+    "id": "R32",
+    "legacy_item": "EDT目标同名：替换或追加",
+    "legacy_behavior": "点导入时如果目标存在，选择替换会关闭/删除后复制空模板；拒绝替换保留目标并尝试追加，不是直接取消导入。追加还校验布局，CMT另校验激发条件；FmImportPre.BtnImportClick；FmImportPre.ChkExistFileLayOut",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:449"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:68"
+  },
+  {
+    "id": "R33",
+    "legacy_item": "“使用方法ID”的适用范围",
+    "legacy_behavior": "仅目标无布局时使用此复选框把源对象MtdId改成当前方法ID再赋给目标，并写参考波长/布局；已有目标不会在此分支重设ID。不能描述成任何追加都会改已有目标ID；FmImportPre.BtnImportClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:69"
+  },
+  {
+    "id": "R34",
+    "legacy_item": "转换区间输入与全选/反选",
+    "legacy_behavior": "区间经 String2ExpSeg校验，无效/越上界回原值；源记录全选和反选使用 SelectedRows，按所选记录依次TransCcdBand。输出类型切换清输出路径，避免沿用上次目标；FmImportPre.CheckExpSeg；FmImportPre.BtnSelAllClick；FmImportPre.BtnReverseClick；FmImportPre.CbSdFileTypeChange",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:432",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:302",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:279",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:341"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:70"
+  },
+  {
+    "id": "R35",
+    "legacy_item": "隐藏采集安全时间设置",
+    "legacy_behavior": "CFG SAFETIME.TimerDelay/SafeTotal/SafePre 无普通软件页入口；默认25/200/100ms，主窗读后写采集线程 SafeTime，参与超时与CorrectTimer。属于运行配置消费者，不能伪造界面输入框或当新设备安全协议；uConfigs.TSdCfgs.LoadCcdSafe；FmMain.FormCreate；uCcdThread.CorrectTimer",
+    "status": "已定位软件入口/模拟器；物理通讯、时序和硬件执行排除",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/services.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/frontend/src/pages/settings/SettingsPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uConfigs.pas:99",
+      "Spec Source/Source/Main/FmMain.pas:1165",
+      "Spec Source/Source/Common/uCcdThread.pas:139"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:76"
+  },
+  {
+    "id": "R36",
+    "legacy_item": "调试“扣除背景”复选框",
+    "legacy_behavior": "CbSubBack在每次刷新读取，取本CCD最小ADC作为绘图基线或0；实际点读数仍是原始ADC，不改采集数据、方法Back或分析背景算法。上一轮只概括多CCD曲线遗漏了这项消费者；FmDebug.UpdateAllIens；FmDebug.DisplayCcdPoint",
+    "status": "已定位软件入口/模拟器；物理通讯、时序和硬件执行排除",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/devices/profiles.py",
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:791",
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:299"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:77"
+  },
+  {
+    "id": "R37",
+    "legacy_item": "连接测试与连续对中",
+    "legacy_behavior": "设备页“连接测试”Execute(False)只采一次，mwOk提示连接测试成功并关闭；工具“调试对中”Execute(True)把BurnCount设0进入连续刷新。关闭走SoftStop等待；两种调用不能合并成同一模式；FmOptHardWare.BtnLinkClick；FmDebug.Execute；FmDebug.WmAcq",
+    "status": "已定位软件入口/模拟器；物理通讯、时序和硬件执行排除",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/devices/profiles.py",
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmOptHardWare.pas:68",
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:417",
+      "Spec Source/Source/Main/mmTool/FmDebug.pas:872"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:78"
+  },
+  {
+    "id": "R38",
+    "legacy_item": "曲线范围上方的结果处理",
+    "legacy_behavior": "转换后强度超过最大标准强度时，直线计算后以最高标准浓度封顶；其他拟合捕异常，并按源码条件回退到最高浓度。源码还比较计算后的D与SdcX末项，此为实现事实，不能暗中改写成另一更合理公式；FmAnaCurve.CalResult",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/schemas/methods.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:449"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:79"
+  },
+  {
+    "id": "R39",
+    "legacy_item": "曲线范围下方的结果处理",
+    "legacy_behavior": "直线直接外推；其他拟合用头两个标准线性外推，再限制到首标准浓度的约1/3至首标准浓度：普通坐标下限SdcY[0]/3，对数坐标下限SdcY[0]-1.10，最后Reverse。并非统一置零或统一外推；FmAnaCurve.CalResult",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/schemas/methods.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:449"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:80"
+  },
+  {
+    "id": "R40",
+    "legacy_item": "同元素多线合并细节",
+    "legacy_behavior": "MergeDatas排除标准样，保留管理样；同元素后续线合入首条结果线，依据各线FStdUp及结果切换；最终小数位来自方法的保留线。不是简单平均全部同名谱线含量；FmAnaCurve.MergeDatas；FmAnaCurve.DisplayMemo",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D03"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/backend/schemas/methods.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:1040",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:670"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:81"
+  },
+  {
+    "id": "R41",
+    "legacy_item": "定位线寻峰与分析线不同",
+    "legacy_behavior": "ltAlign 强制 smTri/pmMax，不应用分析线smTriChk的LowPeak/LowRatio判据；分析线才根据AlignLineIndex移动。不能看到同组参数就假定各线型完全同算；uAnaThread.AnaLine；uAnaThread.SeekPeak",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uAnaThread.pas:208",
+      "Spec Source/Source/Common/uAnaThread.pas:371"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:82"
+  },
+  {
+    "id": "R42",
+    "legacy_item": "按方法样号检查标准集",
+    "legacy_behavior": "输入S/s会规范为十进制S序号并拒绝重复标准；分析模式确认逐条分析线检查至少4个有效标准（含已有可复用强度），不等于每轮必须重采四个全部新标准。空样/重复0按占一个物理谱带计算容量；FmSampInput.EdtSamp；FmSampInput.ActOkExecute；FmSampInput.SampSet",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/sample_queues.py",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:372",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:180",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:544"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:83"
+  },
+  {
+    "id": "R43",
+    "legacy_item": "新报告取消保存仍可打印",
+    "legacy_behavior": "BtnOkClick先收尾窗口；保存DAT选择框取消后，若打印仍勾选，继续PrintData。保存异常也提示后继续到打印判断；不能描述成“取消保存即取消所有输出”；FmPrintDat.BtnOkClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/reports/rendering.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:67"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:84"
+  },
+  {
+    "id": "R44",
+    "legacy_item": "报告真实分页与数字格式",
+    "legacy_behavior": "打印先按纸面可用区域限制每行元素/每页样品，设定值不保证全部塞进页面。FormatData会依数值宽度减少小数位，Digit是上限意图，不能宣称所有输出永远固定相同位数；FmPrintDat.PrintData；uGlobal.FormatData",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F06"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/reports/service.py",
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/schemas/system.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:110",
+      "Spec Source/Source/Common/uGlobal.pas:286"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:85"
+  },
+  {
+    "id": "R45",
+    "legacy_item": "安装CCD序号的归一化",
+    "legacy_behavior": "输入1..容量，Str2CcdIndexs用布尔数组去重并按插槽升序，丢弃无效序号；不是保留输入任意顺序。参数页回显规范序号，下游No/Index映射、动态菜单和串行数据映射使用它；uOptions.TSdOpts.Str2CcdIndexs；FmOptHardWare.EdtCcdIndexsExit",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/devices/profiles.py",
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uOptions.pas:337",
+      "Spec Source/Source/Main/mmTool/FmOptHardWare.pas:98"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:86"
+  },
+  {
+    "id": "R46",
+    "legacy_item": "软件参数等待与屏幕实际尺寸",
+    "legacy_behavior": "WaitTime是ms，加载上限5000，界面退出有自身校验；ScreenWidth是屏幕物理cm，用来推导微米/屏幕像素和“十倍CCD”显示比例，不是应用窗口宽度。11逐项列出全部CFG/OPT读取字段及消费者；uConfigs.TSdCfgs.Load；FmCfgSoftWare.EdtWaitTimeExit；FmOptHardWare.FormatScreenWidth",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F11",
+      "F12"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/services.py",
+      "app/backend/modules/legacy_migration/configuration.py",
+      "app/frontend/src/pages/settings/SettingsPage.tsx",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uConfigs.pas:72",
+      "Spec Source/Source/Main/mmTool/FmCfgSoftWare.pas:64",
+      "Spec Source/Source/Main/mmTool/FmOptHardWare.pas:139"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:87"
+  },
+  {
+    "id": "R47",
+    "legacy_item": "方法管理多选删除",
+    "legacy_behavior": "删除循环处理所选方法/所选色散曲线；改名针对选中项，校验后写库；按钮由ApplicationEventsIdle随页签重新绑定。不是在DFM找不到OnClick就认为没有实现，也不应另添不存在的启禁按钮；FmMtdManage.ApplicationEventsIdle；FmMtdManage.ButtonDeleteMethodClick；FmMtdManage.ButtonDeleteWstcClick",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D09"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:46",
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:67",
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:84"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:88"
+  },
+  {
+    "id": "R48",
+    "legacy_item": "浮动/停靠窗与聚焦门禁",
+    "legacy_behavior": "浏览/摄谱工具窗有停靠、浮动和关闭协调；主窗在子流程占用期间按FHasFocus禁用菜单/工具栏，防止另开冲突任务；图/样号窗亦有DockOver/GetSiteInfo控制允许区域。上轮07遗漏容器事件，现完整列出，不能把这些事件各自夸大为独立分析算法；FmMain.AcmMainUpdate；FmMain.SlaveClose；FmView.PnlLeftDockOver",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:201",
+      "Spec Source/Source/Main/FmMain.pas:1357",
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1297"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:89"
+  },
+  {
+    "id": "R49",
+    "legacy_item": "预备摄谱文件名失败分支的不确定性",
+    "legacy_behavior": "BtnOkClick在空名/非法名/拒绝替换等处设置ModalResult=mrNone，却没有立即Exit，后面仍有TFile.Copy调用。因此不能只凭弹框宣称“取消/校验失败一定零写入”；应保留这个旧实现风险，不把它当新版应照搬的业务要求；FmIgnitCon.BtnOkClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmIgnitCon.pas:69"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:90"
+  },
+  {
+    "id": "R50",
+    "legacy_item": "燃烧/空白的周期归一化",
+    "legacy_behavior": "CalAllAvgs/CalMinAvgs将选定燃烧帧均值除BurnCyc，再减全部空白帧均值/DarkCyc，并将结果下限保护到LowAvg；CMT区间只限制燃烧帧，暗帧均值仍使用全部暗帧。不是只把燃烧平均值减暗帧平均值；该值后面才进入寻峰、背景、内标和曲线；uCcdBand.TCcdBand.CalAllAvgs；uCcdBand.TCcdBand.CalMinAvgs；uAnaThread.SeekPeak",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uCcdBand.pas:939",
+      "Spec Source/Source/Common/uCcdBand.pas:990",
+      "Spec Source/Source/Common/uAnaThread.pas:371"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:91"
+  },
+  {
+    "id": "R51",
+    "legacy_item": "删除内标/定位谱线后的依赖清理",
+    "legacy_behavior": "MtdLinesDelete删除当前谱线后重排Order；若删掉的是非分析线，遍历其余记录，把RelyFields中指向被删波长的字段清成0并Post。内标/定位下拉的保存值及下轮映射因此变化，不能只删列表显示；uDbPack.MtdLinesDelete；FmMtdLines.ActDelExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/legacy_migration/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uDbPack.pas:915",
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:396"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:92"
+  },
+  {
+    "id": "R52",
+    "legacy_item": "修改谱线类型后的依赖清理",
+    "legacy_behavior": "CbLineTypeChange即时调整编辑组、排除自身候选、定位线改最大值模式；提交时若原类型非分析线且类型改变，MtdLinesPost清理其他谱线对其旧波长的依赖。界面联动与库中引用清理是两步，不能只切换下拉文字；FmMtdLines.CbLineTypeChange；uDbPack.MtdLinesPost",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/legacy_migration/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:548",
+      "Spec Source/Source/Common/uDbPack.pas:1099"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:93"
+  },
+  {
+    "id": "R53",
+    "legacy_item": "质控和曲线的颜色状态",
+    "legacy_behavior": "质控表有效重复用clLime、无效用clRed，选中行背景另高亮；只能选重复行。曲线谱线下拉已处理项为黑色、未处理项为灰色，和FCalOks拒绝跳转一致。颜色是状态提示，是否纳入计算仍由FValid/G_StdLoader.Actives/FCalOks等数据决定；FmAnaCheck.SgCheckDrawCell；FmAnaCheck.SgCheckSelectCell；FmAnaCurve.CboLinesDrawItem",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/quality.py",
+      "app/frontend/src/pages/analysis/AnalysisQuality.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:362",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:406",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:830"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:94"
+  },
+  {
+    "id": "R54",
+    "legacy_item": "打印CCD图层不能全部取消",
+    "legacy_behavior": "灰度/峰形任一复选框点击后，CbIenBlackClick检查整组，如果全未选就重新勾上刚点击的项；BtnPrintClick还做一次至少选一层的检查。即时交互保护与提交检查都存在，不应只实现一个打印时报错；FmPrintCcd.CbIenBlackClick；FmPrintCcd.BtnPrintClick",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/spectrum_pdf.py",
+      "app/backend/modules/spectrum_viewer.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmPrintCcd.pas:213",
+      "Spec Source/Source/Main/mmAnalyze/FmPrintCcd.pas:63"
+    ],
+    "index_evidence": "Spec2.02功能研究/10_缺漏复查与功能补充.md:95"
+  },
+  {
+    "id": "U01",
+    "legacy_item": "新建方法的分步门禁",
+    "legacy_behavior": "新建先显示激发参数，按钮绑定ActSelTsLine，再进入谱板参数；未选色散曲线或参考波长不合法时不能进入谱带参数。已有方法没有可用色散系数时也锁住页面选择。正常编辑的左侧三页切换与新建向导不同。；FmMain.TFrmMain.ActNewExecute；FmMtdCfg.TFrmMtdCfg.DisplayModal；FmMtdCfg.TFrmMtdCfg.ActSelTsLineExecute；FmMtdCfg.TFrmMtdCfg.ActSelTsBandExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:399",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:304",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:247",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:224"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:31"
+  },
+  {
+    "id": "U02",
+    "legacy_item": "新建默认值不能从示例截图推断",
+    "legacy_behavior": "InitPrim将普通/标准/管理样重复均设为1，CheckRsd=False，LimitIda=5、LimitRsd=5、RefWidth=21、ExpSegMode=False、单位ug/g；新线默认分析线、实际=理论、SeekWidth=9、Back=0、最大值、PeakWidth=1、直线拟合、Digit=2、对数坐标。截图的标准重复3和已勾RSD是该方法状态，不能当作全局默认。；uMethod.TSdMtd.InitPrim；uMethod.TSdLine.Init",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:787",
+      "Spec Source/Source/Common/uMethod.pas:682"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:32"
+  },
+  {
+    "id": "U03",
+    "legacy_item": "改标准含量会使旧强度失效",
+    "legacy_behavior": "分析谱线确认逐项用SameValue(...,9.5E-7)比较含量；判为变化的标准先ClearBlack，再写Content。ClearBlack同时清RawBlack、CurBlack、Valid、Active。至少4个正含量且不允许完全相等；后续可复用标准数和工作曲线因此改变。不能只改浓度表继续沿用该点旧强度。；FmMtdLines.TFrmMtdLines.ActOkExecute；uMethod.TStd.ClearBlack；uMethod.TStdLoader.CalStdCount",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/legacy_migration/service.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:406",
+      "Spec Source/Source/Common/uMethod.pas:447",
+      "Spec Source/Source/Common/uMethod.pas:503"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:33"
+  },
+  {
+    "id": "U04",
+    "legacy_item": "标准含量输入的归一化与回退",
+    "legacy_behavior": "网格非空输入用StrToFloatDef解析；小于9.9E-7归0，超过1E7-1或解析失败回该点原含量，再FormatStdContent回显。空单元按CellToContent处理。完全相等的正含量在确认时拒绝；手册还要求避免相近含量，源码没有同等强度的近似重复拦截。；FmMtdLines.TFrmMtdLines.CheckStringGrid；FmMtdLines.TFrmMtdLines.CellToContent；FmMtdLines.TFrmMtdLines.ActOkExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/legacy_migration/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:609",
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:596",
+      "Spec Source/Source/Main/mmMethod/FmMtdLines.pas:406"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:34"
+  },
+  {
+    "id": "U05",
+    "legacy_item": "参考波长与两种修改时间",
+    "legacy_behavior": "确认修改RefWave时把RealRefWave一并设为新理论值；参考合法性检查按2倍AllowCcdDrift留边界。方法ModifyTime仅在FPrimModified或FBurnModified时设Now，单独FWstcModified更新布局、WsName、WsModifyTime并写MTD_WSTC。不能把两个时间字段合并，也不能假定仅换色散曲线一定触发PDT重算时间警告。；FmMtdCfg.TFrmMtdCfg.ActOkExecute；FmMtdCfg.TFrmMtdCfg.CheckRefWaveValid；FmMain.TFrmMain.ActReCalExecute",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:151",
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:298",
+      "Spec Source/Source/Main/FmMain.pas:550"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:35"
+  },
+  {
+    "id": "U06",
+    "legacy_item": "寻峰边界移动与点位移动不是同一种处理",
+    "legacy_behavior": "SetRange在CCD边缘平移窗口以尽量保持扫描宽度并返回False；TAnaLine.Move则仅在目标点仍在当前CCD内时移动，否则返回0而不跨到相邻CCD。保存全部位置反算实际波长，还逐线检查相对理论偏差不超过0.3nm；区间内标重复映射仅InterOrder<=1负责写实际波长。；uAnaThread.TAnaThread.SetRange；uAnaLine.TAnaLine.Move；uAnaLine.AnaLineSetPointsToRealWaves",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uAnaThread.pas:454",
+      "Spec Source/Source/Common/uAnaLine.pas:344",
+      "Spec Source/Source/Common/uAnaLine.pas:165"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:41"
+  },
+  {
+    "id": "U07",
+    "legacy_item": "从当前谱带开始但仍测量前面的谱带",
+    "legacy_behavior": "开始测量把当前RecNo-1写BandIndexMark。AnaSamps先保存线的定位点，从当前记录正向到末尾；若起点不是第一条，恢复所保存定位点，再从起点前一条倒序测到第一条。结果按谱带索引写原矩阵，不能把选择当前行解释为只计算当前行或只计算后半段。；FmViewSingle.TFrmViewSingle.ActStartExecute；uAnaThread.TAnaThread.AnaSamps；uAnaLine.TPdtLine.PointIndexToMark；uAnaLine.TPdtLine.MarkToPointIndex",
+    "status": "证据不足，完整遍历及状态恢复待专项对照，见V02",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas:315",
+      "Spec Source/Source/Common/uAnaThread.pas:288",
+      "Spec Source/Source/Common/uAnaLine.pas:414",
+      "Spec Source/Source/Common/uAnaLine.pas:409"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:42"
+  },
+  {
+    "id": "U14",
+    "legacy_item": "SAM文本及超容量尾部删减",
+    "legacy_behavior": "SAM读写以制表符分隔样号与重复次数，允许重复普通名称；载入Trim样号，重复字段非整数默认0，没有逐条复用手输的完整名称/重复范围校验。载入后若BandCount超过当前BandVolume，先提示，再从末尾删除整条样号直到符合容量，而不是只截一个重复次数。ActOpen最后转换旧标准编号；源码未提供编码下拉，应保留旧Delphi环境的文本编码边界。；uMethod.TSampList.LoadFromFile；uMethod.TSampList.SaveToFile；FmSampInput.TFrmSampInput.ActOpenExecute；FmSampInput.TFrmSampInput.ChangeOldStdName",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F10",
+      "D07"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+      "app/frontend/src/api/sampleQueues.ts",
+      "app/backend/modules/sample_queues.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:953",
+      "Spec Source/Source/Common/uMethod.pas:976",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:140",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:242"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:43"
+  },
+  {
+    "id": "U15",
+    "legacy_item": "分析样号与记录的分组、回写和过滤",
+    "legacy_behavior": "GetSamps按相邻相同正SampNo汇成重复，不按样号文字全库聚合；0形成空样，遇-1停止恢复后续队列。确认新队列时SetSamps按重复数依次写SampNo/SampName，剩余记录清成-1和空名称。ClearSamps也回写旧样品文件；AnaMode仅显示SampNo>0。这里是原软件行为，不能据此授权新版迁移回写历史原件。；uDbPack.TDbCcdCdt.GetSamps；uDbPack.TDbCcdCdt.SetSamps；uDbPack.TDbCcdCdt.ClearSamps；uDbPack.TDbCcdCdt.SetAnaMode",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/legacy_migration/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uDbPack.pas:1922",
+      "Spec Source/Source/Common/uDbPack.pas:2024",
+      "Spec Source/Source/Common/uDbPack.pas:1893",
+      "Spec Source/Source/Common/uDbPack.pas:1998"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:44"
+  },
+  {
+    "id": "U08",
+    "legacy_item": "固定曲线复用与新标准集的选择条件",
+    "legacy_behavior": "CalStdCount统计本次Selected且Content>0的标准，少于4时FUseOld=True，GetFromStds复制方法里旧Valid标准；达到4时只组织本次选中且含量为正的标准，设Valid/Active。它不是把少量新标准与旧标准无条件拼成一个集。标准随后按Content升序排序，界面曲线点索引也不是原S编号的恒等映射。；uMethod.TStdLoader.CalStdCount；uMethod.TStdLoader.GetFromStds；uMethod.TStdLoader.Sort；FmAnaCurve.TFrmAnaCurve.CalLineCurve",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:503",
+      "Spec Source/Source/Common/uMethod.pas:574",
+      "Spec Source/Source/Common/uMethod.pas:660",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:424"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:50"
+  },
+  {
+    "id": "U09",
+    "legacy_item": "完成后的标准覆盖及未选旧点清理",
+    "legacy_behavior": "下一谱线把当前FStds写回该线的Stds；SetToStds对当前集Valid项覆盖整个标准对象，其余项ClearBlack而保留Content。全部谱线完成后才MtdLinesUpdateStds持久化。因此以新标准集完成可能清除未选旧点的强度、有效和参与状态；中止与正常完成的保存范围仍按R25区分。；uMethod.TStdLoader.SetToStds；FmAnaCurve.TFrmAnaCurve.ActNextExecute；uDbPack.TDbMtd.MtdLinesUpdateStds",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D02"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/methods/service.py",
+      "app/backend/modules/methods/snapshots.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:647",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:200",
+      "Spec Source/Source/Common/uDbPack.pas:1276"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:51"
+  },
+  {
+    "id": "U10",
+    "legacy_item": "对数非直线曲线的16点平滑",
+    "legacy_behavior": "ReCalStdCurve令Smooth=LnCoord；TCurver.Fit仅在Smooth且拟合不是直线、参与点数<16时做SdcSmoothX。先以浓度Y反插值强度X，在首末浓度之间等距生成16点，再对X做5点3次平滑（端点用不同公式），最后交给所选拟合器。线性坐标、直线或参与点>=16时直接使用原参与点。没有独立平滑开关；这是坐标和拟合下拉的下游算法。；FmAnaCurve.TFrmAnaCurve.ReCalStdCurve；uFitMode.TCurver.Fit；uFitMode.TCurver.SdcSmoothX",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:322",
+      "Spec Source/Source/Common/uFitMode.pas:137",
+      "Spec Source/Source/Common/uFitMode.pas:185"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:52"
+  },
+  {
+    "id": "U11",
+    "legacy_item": "多项式退化和样条边界条件",
+    "legacy_behavior": "TLsFiter.Fit在Abs(A)<1E-19时走直线系数分支，即使选二次/三次；所选名称不能保证最终一定算出对应阶数。直线本身分母异常不保证被完全消除。样条采用首末二阶导为0的边界，CalY使用对应区间多项式；用户范围外浓度还要再经过CalResult限制，见R38–R39。；uFitMode.TLsFiter.Fit；uFitMode.TSdcFiter.Fit；uFitMode.TSdcFiter.CalY；FmAnaCurve.TFrmAnaCurve.CalResult",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py",
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uFitMode.pas:243",
+      "Spec Source/Source/Common/uFitMode.pas:333",
+      "Spec Source/Source/Common/uFitMode.pas:315",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:449"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:53"
+  },
+  {
+    "id": "U12",
+    "legacy_item": "高斯峰顶计算的内部点数和失败条件",
+    "legacy_behavior": "界面PeakWidth=3时在原3点间线性加点形成7个计算点，5时形成9点，7/9直接使用原点；以强度作权重，对ln(强度)作二次拟合。非正强度、退化分母、非向下二次项或计算异常返回失败，AnaLine保留寻峰最大值。输出是峰顶高度，不是峰面积；界面的计算点数也不是内部加密后的点数。；uPeakMode.TGaussCur.Cal；uAnaThread.TAnaThread.AnaLine",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uPeakMode.pas:36",
+      "Spec Source/Source/Common/uAnaThread.pas:208"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:54"
+  },
+  {
+    "id": "U13",
+    "legacy_item": "内标扣背景的具体分支及最低值",
+    "legacy_behavior": "PdtToBlack从PDT的当前分析线Backs读取BackPos；普通内标分母也把这个BackPos传给PdtToTemp，不是另读内标行自己的Backs作开关。当前线扣背景时分母也扣其保存背景，当前线不扣时分母直接取峰值。背景内标用Peak/Back，其他扣背景用Peak-Back；中间及最终净值按代码保护到1E-5。这些值才进入重复性和曲线，不能用原ADC绝对差替代。；FmAnaCheck.TFrmAnaCheck.PdtToBlack；FmAnaCheck.TFrmAnaCheck.CheckSampOver；FmAnaCheck.TFrmAnaCheck.SetBlackData",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/quality.py",
+      "app/frontend/src/pages/analysis/AnalysisQuality.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:254",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:207",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas:310"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:55"
+  },
+  {
+    "id": "U16",
+    "legacy_item": "PDT重新计算的全部拒绝和提示条件",
+    "legacy_behavior": "先验证PDT头和读取，再要求MtdId相同、区间/简单模式相同、映射线数相同；从第1条开始逐行要求元素符号及理论波长完全相同（不是模糊匹配）。任一不符拒绝。仅MeasureTime<方法ModifyTime属于可选继续警告；它不等价于任何配置不一致都可继续。普通CDT/CMT打开时方法ID只是提示，不能复用那条规则替代重算门禁。；FmMain.TFrmMain.ActReCalExecute；uMethodMap.TSdMatrix.LoadPdt；FmMain.TFrmMain.DoAna",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/layout/WorkspaceApp.tsx",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/analysis/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/FmMain.pas:550",
+      "Spec Source/Source/Common/uMethodMap.pas:614",
+      "Spec Source/Source/Main/FmMain.pas:1047"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:61"
+  },
+  {
+    "id": "U17",
+    "legacy_item": "新分析与重算的强度输出选项",
+    "legacy_behavior": "NewPdt=True读取四个软件默认，允许默认保存及保存波长。重算把打印强度、打印文本、保存强度、保存波长全置False，并禁用默认保存和保存波长。确定时按保存默认→保存位置→可选PDT→打印强度→文本输出执行；保存位置异常关闭退出，取消PDT保存或其写入异常仍可继续打印/计算。PrintToTxt默认持久化缺口仍见R30。；FmAnaPdt.TFrmAnaPdt.DisplayModal；FmAnaPdt.TFrmAnaPdt.BtOkClick；uConfigs.TSdCfgs.SaveMethod",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F08"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/backend/modules/postprocessing/service.py",
+      "app/backend/modules/postprocessing/exporting.py",
+      "app/backend/api/analysis.py",
+      "app/backend/modules/analysis/printing.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:142",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:93",
+      "Spec Source/Source/Common/uConfigs.pas:132"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:62"
+  },
+  {
+    "id": "U18",
+    "legacy_item": "强度文本重复调用是旧实现风险",
+    "legacy_behavior": "PrintToTxt在选定目标后先无保护调用一次Pdt2Txt，再在try内调用一次同函数。同路径可能连续生成两次；第一次异常不由后面的try捕获。它是已发现的旧源实现风险，不定义为应新增的“双份导出”功能，也不能声称所有文本失败都会进入同一个提示收尾。；FmAnaPdt.TFrmAnaPdt.PrintToTxt",
+    "status": "旧实现风险或非产品分支，不作为应复制的功能",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/legacy_curves.py",
+      "app/backend/modules/postprocessing/service.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:38"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:63"
+  },
+  {
+    "id": "U19",
+    "legacy_item": "DAT/PDT实际字段和读取保护范围",
+    "legacy_behavior": "DAT保存版本头、测量时间、样品数/线数、样号、元素、小数位及含量；没有单位、方法ID或重复明细。PDT另保存方法ID、重复数、理论波长、背景位置以及区间头对应的曝光段和各次TPdt。LoadDat/LoadPdt先查头、再ReadBuffer；计数直接用于固定数组读入，未发现完整的输入计数/文件长度交叉校验。文件错误分支须区分版本头错误、截断异常和计数可信性风险，不能将旧读器标成任意文件安全解析器。；uMethodMap.TSdMatrix.SaveDat；uMethodMap.TSdMatrix.SavePdt；uMethodMap.TSdMatrix.LoadDat；uMethodMap.TSdMatrix.LoadPdt",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/legacy_calculation.py",
+      "app/backend/modules/spectrum_migration/parsing.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethodMap.pas:655",
+      "Spec Source/Source/Common/uMethodMap.pas:678",
+      "Spec Source/Source/Common/uMethodMap.pas:588",
+      "Spec Source/Source/Common/uMethodMap.pas:614"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:64"
+  },
+  {
+    "id": "U20",
+    "legacy_item": "全时观察表中的峰点和背景列",
+    "legacy_behavior": "WriteBandLine在本线定位出的同一个PeakIndex上逐燃烧周期算单周期归一化强度，写峰列；可选均值行加粗。背景列只在该线区块首行写一次PDT保存的背景值，不是每周期重新寻峰或逐周期重新输出7点背景。分时详情窗Display显示当前点每次燃烧/空白原ADC；两种窗口/输出不能当作相同数值含义。；uCmtBandObs.TXlsCmtBandObs.WriteBandLine；FmViewDetail.TFrmViewDetail.Display；uCcdBand.TCcdBand.CalMinAvgs",
+    "status": "有对应实现；不等于旧EXE逐分支运行等价",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/analysis/daily_operations.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uCmtBandObs.pas:144",
+      "Spec Source/Source/Main/mmAnalyze/FmViewDetail.pas:86",
+      "Spec Source/Source/Common/uCcdBand.pas:990"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:65"
+  },
+  {
+    "id": "U21",
+    "legacy_item": "CMT追加时不比较预激时间",
+    "legacy_behavior": "ChkExistFileLayOut比较CCD布局，CMT还用TIgnitCon.IsSame比较BurnCount、DarkCount、BurnCyc、DarkCyc；该函数明确不比较PreBurn。预激时间不同不能单凭“激发条件一致”概括为一定拒绝，输出其他覆盖行为仍按R31–R34。；FmImportPre.TFrmImportPre.ChkExistFileLayOut；uCcdBand.TIgnitCon.IsSame",
+    "status": "明确的流程或兼容差异",
+    "findings": [
+      "D01"
+    ],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:449",
+      "Spec Source/Source/Common/uCcdBand.pas:378"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:66"
+  },
+  {
+    "id": "U22",
+    "legacy_item": "取消备份文件框不等于取消整个维护操作",
+    "legacy_behavior": "BackupMethod取消另存框后仍返回True，因此ButtonOkClick会继续执行已勾选的压缩及清日志。CopyFile返回值没有检查，普通Win32复制失败不必然抛异常；ButtonOkClick也不使用CompactMethod的返回值决定是否继续清日志。文档记录执行顺序及风险，不保证未核实的备份成功，也不把这些行为作为新版要求。；FmMtdBackup.TFrmMtdBackup.BackupMethod；FmMtdBackup.TFrmMtdBackup.ButtonOkClick；FmMtdBackup.TFrmMtdBackup.CompactMethod",
+    "status": "旧实现风险或非产品分支，不作为应复制的功能",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/maintenance.py",
+      "app/backend/modules/methods/runtime.py",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmMtdBackup.pas:34",
+      "Spec Source/Source/Main/mmTool/FmMtdBackup.pas:67",
+      "Spec Source/Source/Main/mmTool/FmMtdBackup.pas:92"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:72"
+  },
+  {
+    "id": "U23",
+    "legacy_item": "Debug模拟采集和Release分开记录",
+    "legacy_behavior": "dproj默认配置Release，其定义RELEASE；Debug定义DEBUG和ACQ_MOCK。ACQ_MOCK通过LoadMockAcq选择.ACQ并读入周期缓冲，燃烧周期复制模拟数据、暗周期填常量，按模拟定时器结束，不走真实串口采集。OPT的FullDebug是另一种运行时开关；它不能证明部署EXE含ACQ_MOCK。配置与可执行文件的实际编译对应仍待验证。；FmDockGuideIgnit.LoadMockAcq；FmDockGuideIgnit.TFrmDockGuideIgnit.BtnIgnitClick；FmDockGuideIgnit.TFrmDockGuideIgnit.TmMockTimer；编译配置:6；编译配置:32；编译配置:35",
+    "status": "已定位软件入口/模拟器；物理通讯、时序和硬件执行排除",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/backend/modules/acquisition/service.py",
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:88",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:155",
+      "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:610",
+      "Spec Source/Source/Main/SpecDirect.dproj:6",
+      "Spec Source/Source/Main/SpecDirect.dproj:32",
+      "Spec Source/Source/Main/SpecDirect.dproj:35"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:73"
+  },
+  {
+    "id": "U24",
+    "legacy_item": "残留声明和DLL接口不增加功能数",
+    "legacy_behavior": "uIgnit仅有uses和空implementation，uMethod的WorkMode/SortMode/AllowLongName等成员已注释，不能作为可选功能。PCOMM的53个external声明是DLL接口集合，不证明软件调用了每个传输协议。FmSampView未找到当前创建调用、旧FmViewSingleOld没有配套PAS，这些身份继续保留。类函数/运算符6项及嵌套辅助例程另入索引，不能按例程数计算产品功能。；uMethod.TSdMtd.InitPrim；uIgnit.pas:1；PCOMM.PAS:1；uMethod.pas:162",
+    "status": "旧实现风险或非产品分支，不作为应复制的功能",
+    "findings": [],
+    "new_entry": "",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "app/backend/modules/methods/validation.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:787",
+      "Spec Source/Source/Common/uIgnit.pas:1",
+      "Spec Source/Source/Common/PCOMM.PAS:1",
+      "Spec Source/Source/Common/uMethod.pas:162"
+    ],
+    "index_evidence": "Spec2.02功能研究/12_系统功能复核与补充.md:74"
+  },
+  {
+    "id": "C01",
+    "legacy_item": "页面设置 → 字体大小",
+    "legacy_behavior": "\n控件：`FmPageSetup.CboFontSize`；FmPageSetup.dfm:42。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 固定五项：9、10、11、12、13。打开时取 DIRECT.OPT 中 FontSize；找不到对应项回退下标 2，即 11。 |\n| 选择及保存 | 确认按钮写 G_SdOpts.FontSize，SavePage 保存 PAGESETUP。 |\n| 后面在哪里使用 | 报告 PrintLines、强度及分时数据打印读取字体大小；方法参数 PrintMtd 另有 FixedSys/12 的固定字体设置。不是分析计算精度。 |\n| 联动与边界 | 同页还含每行元素数、每页样品数、分析时间/系统时间；它们也必须影响实际输出。 |\n\n源码链：FmPageSetup.FormShow → FmPageSetup.BtnOkClick → FmPrintDat.PrintLines。\n",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F06"
+    ],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/backend/modules/method_printing/service.py",
+      "app/backend/modules/reports/rendering.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C02",
+    "legacy_item": "方法参数 → 谱板参数 → 选择色散曲线",
+    "legacy_behavior": "\n控件：`FmMtdCfg.CbWstc`；FmMtdCfg.dfm:203。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态项：方法库 Wstc 记录。显示曲线名称，Items.Objects 保存记录 ID；不是固定几种仪器型号。当前方法名与所有可选曲线应分开记录。 |\n| 选择及保存 | CbWstcChange 按 ID 加载 FCcdLay、FWsName、FWsModifyTime；确认时写入方法的 CcdLay/WsName/WsModifyTime，并调用 MtdWstcInsert/Update。 |\n| 后面在哪里使用 | 摄谱将该布局写入样品文件；分析时 DoAna 比对文件布局及色散系数；Wave2Point/Point2Wave 用它把波长与 CCD 点位互换。 |\n| 联动与边界 | 改曲线后重新检查参考波长。它不是仅改界面的名称；新建方法必须有有效色散曲线。 |\n\n源码链：FmMtdCfg.DisplayModal → FmMtdCfg.CbWstcChange → FmMtdCfg.ActOkExecute → FmMain.DoAna。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodGeometry.tsx",
+      "app/backend/modules/methods/geometry.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C03",
+    "legacy_item": "方法参数 → 谱板参数 → 分析单位",
+    "legacy_behavior": "\n控件：`FmMtdCfg.CbMtdUnit`；FmMtdCfg.dfm:322。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 预置三项：ug/g、mg/g、%。DFM 未设 csDropDownList，允许输入自定义单位文字；手册也明确支持自定单位。 |\n| 选择及保存 | MtdPrimChange 标记修改；确认读 Text 写 TSdMtd.MtdUnit → MtdPrimPost。 |\n| 后面在哪里使用 | 报告 PrintLines 与方法参数 PrintMtd 的单位标题读取它。TSdMatrix/DAT 无独立单位字段，旧 DAT 打印读取当前 G_SdMtd 的单位；TXT/XLS 矩阵导出未见消费 MtdUnit。没有按单位自动折算数值的分支。 |\n| 联动与边界 | 必须保留自定义文字。不能只实现三个枚举，也不能把切换单位误写成数值换算。 |\n\n源码链：FmMtdCfg.FormCreate → FmMtdCfg.ActOkExecute → uDbPack.MtdPrimPost → FmPrintDat.PrintLines。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/MethodGeometry.tsx",
+      "app/backend/modules/methods/units.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C04",
+    "legacy_item": "分析谱线 → 增加谱线 → 元素符号",
+    "legacy_behavior": "\n控件：`FmMtdLinesAdd.ComboBoxEle`；FmMtdLinesAdd.dfm:83。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 从 EXE 同目录 ELEMENTS.SYM 加载，允许手输。当前 Spec Source/Bin 文件含 87 个非空符号，完整顺序见下方专表；不是由元素下拉自动提供波长库。 |\n| 选择及保存 | 确定时读元素 Text 和单独输入的 EditWave，检查近似谱线重复，再 TSdLine.Init → MtdLinesAppend。 |\n| 后面在哪里使用 | Ele/Wave 进入方法谱线、谱线映射、曲线下拉、结果矩阵和报告列。相同元素多线合并按符号匹配，大小写一致有业务意义。 |\n| 联动与边界 | 输入限制是字母/数字及控制键，首字符必须字母。普通模式的 EditWaveExit 做 CCD/漂移边界检查；FullDebug 仅 CheckWaveRange，不检查当前 CCD 布局。不要把 ELEMENTS.SYM 误当作谱线波长数据库。 |\n\n源码链：FmMtdLinesAdd.CreateElementStrings → FmMtdLinesAdd.GetLine → FmMtdLinesAdd.ButtonOkClick → FmAnaCurve.MergeDatas。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C05",
+    "legacy_item": "分析谱线 → 谱线类型",
+    "legacy_behavior": "\n控件：`FmMtdLines.CbLineType`；FmMtdLines.dfm:487。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 下标 0 分析线 ltAna；1 内标线 ltInter；2 定位线 ltAlign。没有第四项独立“基线线型”。方法的基线/参考线另由 SetRefLine 建立在内部第 0 条。 |\n| 选择及保存 | 切换暂存 FLineType 并改变可编辑项，确认写 FSdLine.LineType → MtdLinesPost。 |\n| 后面在哪里使用 | 方法映射把分析线输出为结果列；先测内标/定位线，再测分析线。定位线强制最大值模式，为分析线提供偏移。 |\n| 联动与边界 | 仅分析线允许内标/定位/拟合/小数位/对数坐标；定位线禁止背景位置、强制最大值；改类型会删除当前线在候选列表中的自引用。 |\n\n源码链：FmMtdLines.CbLineTypeChange → FmMtdLines.SetGbMea → FmMtdLines.ActOkExecute → uAnaThread.AnaBand → uAnaThread.AnaLine。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C06",
+    "legacy_item": "分析谱线 → 内标谱线",
+    "legacy_behavior": "\n控件：`FmMtdLines.CbInterWave`；FmMtdLines.dfm:359。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 所有项：第 0 项 无内标，值 0；第 1 项 背景做内标，值 -100；后续为当前方法 LineType=ltInter 的谱线，显示“记录序号 + 元素 + 理论波长”，按波长排序。 |\n| 选择及保存 | FInterWaves 与显示项一一对应；确认读选中项的波长/哨兵写 FSdLine.InterWave。 |\n| 后面在哪里使用 | SimpleMap/ExpSegMap 生成 IntLineIndex；Check.PdtToBlack 按无内标、背景比值、普通内标比值三条分支计算，再送重复性检查和拟合。 |\n| 联动与边界 | 背景内标必须设置非零背景位置，否则确认拒绝。普通内标在区间曝光下按被分析线的曝光区间匹配，不可只按波长找一个全时平均内标。 |\n\n源码链：FmMtdLines.LoadCbEleWaves → uDbPack.GetLinesDescribes → FmMtdLines.ActOkExecute → uMethodMap.TSimpleMap.Build → uMethodMap.TExpSegMap.Build → FmAnaCheck.PdtToBlack。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C07",
+    "legacy_item": "分析谱线 → 定位谱线",
+    "legacy_behavior": "\n控件：`FmMtdLines.CbAlignWave`；FmMtdLines.dfm:452。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 第 0 项 参考线定位，值 0；后续为当前方法的内标线 + 定位线（ltInter/ltAlign），按波长排序。不是只允许“定位线”类型。 |\n| 选择及保存 | 确认把 FAlignWaves 对应值写 FSdLine.AlignWave。 |\n| 后面在哪里使用 | 方法映射生成 AlignLineIndex；分析线寻峰前调用 Move，将已测定位谱线的 Offset 加到分析线当前位置。 |\n| 联动与边界 | 仅分析线可选；不允许当前谱线自引用。区间曝光下，定位线若与内标相同，复用同区间内标索引。缺少候选目标时映射报错。 |\n\n源码链：FmMtdLines.LoadCbEleWaves → FmMtdLines.TryDelStrWave → uMethodMap.TExpSegMap.Build → uAnaThread.AnaLine。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C08",
+    "legacy_item": "分析谱线 → 峰值方式",
+    "legacy_behavior": "\n控件：`FmMtdLines.CbPeakMode`；FmMtdLines.dfm:478。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 下标 0 最大值 pmMax；下标 1 高斯曲线 pmGauss。 |\n| 选择及保存 | 确认写 FSdLine.PeakMode 和 PeakWidth。 |\n| 后面在哪里使用 | AnaLine 先寻峰；高斯模式按 PeakWidth 取奇数点拟合，成功时用 FGaussCur.Peak 替换峰值，失败保留已寻得峰值。GetPeak 返回拟合峰顶 FPeak，未做峰面积积分。 |\n| 联动与边界 | 最大值计算点数固定 1；高斯至少 3、奇数、不超过扫描点数及 MaxMeaWidth。定位线强制最大值。 |\n\n源码链：FmMtdLines.AckPeakWidth → FmMtdLines.CbPeakModeChange → uAnaThread.AnaLine → uPeakMode.Cal → uPeakMode.GetPeak。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/backend/modules/analysis/algorithms.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C09",
+    "legacy_item": "分析谱线 → 拟合方式",
+    "legacy_behavior": "\n控件：`FmMtdLines.CbFitMode`；FmMtdLines.dfm:401。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 下标 0 直线函数 fmSimple；1 二次曲线 fmQuadratic；2 三次曲线 fmCubic；3 样条函数 fmSdc。 |\n| 选择及保存 | 确认写 TSdLine.FitMode → MtdLinesPost，作为本谱线的默认拟合方式。 |\n| 后面在哪里使用 | CalLineCurve 首次处理该谱线时读取方法默认；TCurver.SetFitMode 选最小二乘或样条实现；CalResult 将净强度/比值转换为含量。 |\n| 联动与边界 | 四类函数在正常和对数坐标下生效；对数坐标且非直线、参与点少于16时先插值成16点并做5点3次平滑，再拟合。退化回退和外推/截断见12 U10–U12及CalResult，不能只比较画出的曲线。 |\n\n源码链：FmMtdLines.FormCreate → FmMtdLines.ActOkExecute → FmAnaCurve.CalLineCurve → uFitMode.TCurver.SetFitMode → FmAnaCurve.CalResult。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "app/backend/modules/spectral_lines.py",
+      "app/backend/modules/analysis/algorithms.py",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C10",
+    "legacy_item": "样品摄谱 → 摄谱窗口 → 样品编号",
+    "legacy_behavior": "\n控件：`FmDockGuideIgnit.CbNames`；FmDockGuideIgnit.dfm:114。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态项：预录/本次输入的 TSampList.Samps；Items.Objects 存每个样品重复摄谱次数。可插入、清除，并在完成重复次数后推进到下一项。空样是一种有效队列位置。 |\n| 选择及保存 | CbNamesChange 更新 FAnaNo、FRepCount；开始摄谱把名字写 SampName、顺序写 SampNo；有效完成时保存谱带。 |\n| 后面在哪里使用 | 谱带列表、样号录入、重复性分组、标准样识别、最终报告样品顺序使用这些字段。 |\n| 联动与边界 | 未输入编号 SampNo=-1；队列中的空样 SampNo=0；预热 SampNo=-2 且不存正式谱带。重复数不是界面文字后缀。 |\n\n源码链：FmDockGuideIgnit.SetSamps → FmDockGuideIgnit.UpdateGbSamp → FmDockGuideIgnit.BtnIgnitClick → FmDockGuideIgnit.PerformOK。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+      "app/backend/modules/sample_queues.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C11",
+    "legacy_item": "色散/蒸发/样品分析/多样查看 → 选择谱线",
+    "legacy_behavior": "\n控件：`FmView.CbLines`；FmView.dfm:424。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态项：FAnaBtnSet/G_AnaLineSet 的谱线描述，带序号；样品分析含内部参考线及映射的分析/内标/定位线，区间模式还可能带曝光区间；色散模式可增加/删除实测点。 |\n| 选择及保存 | 选择只写当前视图的 FLineIndex；并非重新选择分析方法，也不直接写入方法库。 |\n| 后面在哪里使用 | SelectLine 定位到相应 CCD 和点位、调整当前显示；同期操作校参考线、移动点位、保存/还原位置、查看分时。单/多样窗体继承本下拉。 |\n| 联动与边界 | 列表由当前文件类型和方法映射决定，不能写死元素名。只有特定单样分析路径才允许保存全部位置。 |\n\n源码链：FmView.CreateAnaLineAndBtnSet → FmView.CbLinesSelect → FmView.SelectLine → FmViewSingle.ActAddLineExecute → FmViewSingle.BeforeShow。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C12",
+    "legacy_item": "色散曲线 → CCD 间隔",
+    "legacy_behavior": "\n控件：`FmWstc.CbGaps`；FmWstc.dfm:39。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态公式：I=0..CcdVolume-2，显示 CCD: [I+1,I+2]。容量 6 时完整项为 [1,2]、[2,3]、[3,4]、[4,5]、[5,6]；按容量生成，不按安装插槽子集生成。 |\n| 选择及保存 | 选择读取 CcdGapPoints 对应值乘 PointWidth，以 um 显示；调数值后按 PointWidth 除回点数，修改当前谱板布局。 |\n| 后面在哪里使用 | 所有实测谱线重新 CorrectRealStep → DisplayGrid；拟合色散曲线并保存时把修订间隔与系数一起存入曲线记录，方法可随后选用。 |\n| 联动与边界 | 未选间隔项时调节框不可用；只选择一个间隔不会重新拟合。需“调间隔 → 拟合 → 保存”完成闭环。 |\n\n源码链：FmWstc.DisplayModal → FmWstc.CbGapsSelect → FmWstc.SpeGapChange → FmWstc.ActSaveExecute。\n",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F02"
+    ],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/repository.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C13",
+    "legacy_item": "色散曲线 → 间隔调节增量",
+    "legacy_behavior": "\n控件：`FmWstc.CbInc`；FmWstc.dfm:68。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 固定三项：1um、5um、10um。初始化选第 0 项，1um。 |\n| 选择及保存 | CbIncSelect 写 SpeGap.Increment，供上下调节按钮使用；不直接写方法或曲线。 |\n| 后面在哪里使用 | 随后每次调 SpeGap 的步长改变，间隔值写回 CcdGapPoints 后才能影响实测步数及拟合。 |\n| 联动与边界 | 这是 CCD 间隔的物理长度调节步长，不是拟合多项式阶数，也不是曝光采样周期。 |\n\n源码链：FmWstc.FormCreate → FmWstc.CbIncSelect → FmWstc.SpeGapChange。\n",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F02"
+    ],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+      "app/backend/modules/dispersion/calibration.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C14",
+    "legacy_item": "标准曲线 → 标准点",
+    "legacy_behavior": "\n控件：`FmAnaCurve.CboSwitch`；FmAnaCurve.dfm:50。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态项：0..StdCount-1 转十六进制显示。16 个点时为 0..9,A..F；当前源码最多 50 个标准时最后显示 31。此处显示索引不同于新式样号 S0..S49。 |\n| 选择及保存 | 选择写 FStdIndex，显示该标准点、强度和参与拟合状态；选择本身不改标准值。 |\n| 后面在哪里使用 | 该索引决定随后上/下移动、黑度还原、参与拟合开关作用于哪一点；修改后的 CurBlack/Active 最终写回 Stds。 |\n| 联动与边界 | Ctrl+左右循环切换；数字/A..F 快捷选择只覆盖前 16 项，不能据此把全部标准数限制成 16。 |\n\n源码链：FmAnaCurve.ReCalStdCurve → FmAnaCurve.CboSwitchChange → FmAnaCurve.FormKeyDown → FmAnaCurve.ActNextExecute。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/frontend/src/components/legacyObservation.ts"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C15",
+    "legacy_item": "标准曲线 → 标尺",
+    "legacy_behavior": "\n控件：`FmAnaCurve.CboInc`；FmAnaCurve.dfm:69。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 固定两项：1、5。ReCalStdCurve 会重设为第 1 项，即 5；Insert 键可切换两项。 |\n| 选择及保存 | CboIncChange 写 FIncTimes=1 或 5，只在当前曲线会话中使用。 |\n| 后面在哪里使用 | Ctrl+上下用 FIncBlack×FIncTimes 改 CurBlack；对数坐标时先转换、加步长，再逆转换。移点后必须重新拟合，再查看管理样结果。 |\n| 联动与边界 | 并非强度直接加 1 或 5；也不是拟合次数。未重新拟合时“下一谱线”受 SetActionEnabled 门禁限制。 |\n\n源码链：FmAnaCurve.CboIncChange → FmAnaCurve.FormKeyDown → FmAnaCurve.SetActionEnabled → FmAnaCurve.ActReCalExecute。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+      "app/frontend/src/components/legacyObservation.ts"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C16",
+    "legacy_item": "标准曲线 → 计算方式",
+    "legacy_behavior": "\n控件：`FmAnaCurve.CboFitMode`；FmAnaCurve.dfm:127。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 四项与方法谱线相同：直线函数、二次曲线、三次曲线、样条函数。初值为本条方法谱线 FitMode，后续可记住本会话此条已选模式。 |\n| 选择及保存 | 切换写 FCurver.FitMode 和 FFitMode[当前结果线]，立即 ReCalStdCurve；不能声称此事件直接改了方法默认 FitMode。 |\n| 后面在哪里使用 | 重新拟合更新图形、标准校正含量和样品结果；通过下一谱线保存标准强度并最终合并报告。 |\n| 联动与边界 | MtdLinesUpdateStds 只持久化标准对象；方法默认FitMode由分析谱线确认链保存。计算还受对数坐标、16点插值平滑和退化回退影响，见12 U10–U12；两处下拉分别复刻。 |\n\n源码链：FmAnaCurve.CboFitModeChange → FmAnaCurve.ReCalStdCurve → FmAnaCurve.DisplayMemo → FmAnaCurve.ActNextExecute → uDbPack.MtdLinesUpdateStds。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C17",
+    "legacy_item": "标准曲线 → 谱线切换",
+    "legacy_behavior": "\n控件：`FmAnaCurve.CboLines`；FmAnaCurve.dfm:142。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态项：TDatLineIterator 提供的分析结果线；显示元素 + 理论波长，区间曝光追加区间。排除只作为参考、内标、定位的非结果线。 |\n| 选择及保存 | 选中已处理条目时，先把当前标准对象暂存，切换迭代器与 FSdLineIndex，再计算该条曲线；无写入新方法名。 |\n| 后面在哪里使用 | 各结果线保有自身拟合方式、标准启停与强度；最后 MergeDatas 按元素合并高低线对、排除标准样，输出 DAT。 |\n| 联动与边界 | FCalOks 为 false 的未处理条目不允许任意跳转，下拉恢复原值；“下一谱线”负责首次逐条处理。不能把随机切换概括成任意跳过未拟合项。 |\n\n源码链：FmAnaCurve.Execute → FmAnaCurve.CboLinesChange → FmAnaCurve.FindDatLine → FmAnaCurve.MergeDatas。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "app/backend/modules/analysis/curves.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C18",
+    "legacy_item": "导出报告/导出强度 → 目标目录",
+    "legacy_behavior": "\n控件：`FmExport.CboOut`；FmExport.dfm:149。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 动态目录列表：初始化的默认数据目录及本窗口浏览/手输过的目录；Sorted=True；可编辑文字。不是一组业务计算模式。 |\n| 选择及保存 | 第二步验证 DirectoryExists，再加入 Items；导出时读 Text 拼出文件路径。未见本下拉历史目录持久化配置。 |\n| 后面在哪里使用 | ExportFile 用所选目录、输入文件基名及 TXT/XLS 扩展名生成输出路径，同名覆盖由提示设置控制。 |\n| 联动与边界 | 无选中文件和目录不存在分别阻止进入后一步；批量操作首个异常会记录并中止，不可写成必定全批成功。 |\n\n源码链：FmExport.ActNext2ndExecute → FmExport.ExportFile → FmExport.ActOkExecute。\n",
+    "status": "已确认缺口或不一致",
+    "findings": [
+      "F07"
+    ],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+      "app/backend/modules/postprocessing/exporting.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C19",
+    "legacy_item": "导出报告/导出强度 → 导出类型",
+    "legacy_behavior": "\n控件：`FmExport.CboType`；FmExport.dfm:215。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 两项原文：文本文件(*.txt)、电子表格(*.xls)。FormShow 默认下标 1，即电子表格。无 PDF/CSV/XLSX 原生选项。 |\n| 选择及保存 | 完成时分别创建 TTxtExporter 或 TXlsExporter；这是输出策略，不改原 DAT/PDT。 |\n| 后面在哪里使用 | DAT 配标准方式或行列转置矩阵读取器；PDT 固定 TPdtReader，不受 DAT 纵横布局选项控制。XLS 使用 Excel OLE，依赖本机 Excel。 |\n| 联动与边界 | “打印到文本”是另一条打印路径，不等于本导出下拉。布局单选两项及自动文字前缀规则见本页后附表。 |\n\n源码链：FmExport.FormShow → FmExport.ActOkExecute → FmExport.CboTypeChange → uExport.TXlsExporter.Create。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/backend/modules/reports/rendering.py",
+      "app/backend/modules/postprocessing/exporting.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C20",
+    "legacy_item": "导入蒸发摄谱文件 → 输出样品类型",
+    "legacy_behavior": "\n控件：`FmImportPre.CbSdFileType`；FmImportPre.dfm:211。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 两项：均值样品（.cdt）、全时样品（.cmt）。界面只显示 FileDescribes 的中文名；初始化默认均值样品。此入口只在 FullDebug 下显示。 |\n| 选择及保存 | 切换写 FOutType，清空上一次输出文件选择；开始导入按类型建 TDbCcdCdt 或 TDbCcdCmt。 |\n| 后面在哪里使用 | TransCcdBand 按选定 FExpSeg 将 EDT 记录写为平均样品或保留时序的全时样品；后续分别由 CDT/CMT 分析路径读取。 |\n| 联动与边界 | 全时输出取样区间长度不得小于方法采样次数；已有目标还要校验布局。此旧版功能会写文件，研究不执行原件导入。 |\n\n源码链：FmImportPre.FormCreate → FmImportPre.CbSdFileTypeChange → FmImportPre.BtnImportClick → FmMain.AcmMainUpdate。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/backend/modules/postprocessing/conversion.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  },
+  {
+    "id": "C21",
+    "legacy_item": "设备参数 → 电脑设置 → 通讯口",
+    "legacy_behavior": "\n控件：`FmOptHardWare.CbbPort`；FmOptHardWare.dfm:59。\n\n| 核对项 | 逐项结果 |\n|---|---|\n| 全部选项 / 初值 | 源码 PortCount=16，动态循环产生 COM1、COM2、COM3、COM4、COM5、COM6、COM7、COM8、COM9、COM10、COM11、COM12、COM13、COM14、COM15、COM16。不是枚举系统实际存在的端口。 |\n| 选择及保存 | 确认仅 ItemIndex!=-1 时写 Port=ItemIndex+1 → G_SdOpts.Save；连接测试也取同样索引写 G_SioLinkCom.Port。 |\n| 后面在哪里使用 | 返回主窗体后同步 Port/Baud 到串口对象；采集线程的 Open/Send/Rec 使用该连接。 |\n| 联动与边界 | DFM 未设 csDropDownList，但源码按索引保存，手输非列表名称不会成为一个有效新端口。波特率是 OPT 配置值，本设备页未见波特率下拉。 |\n\n源码链：FmOptHardWare.FormCreate → FmOptHardWare.BtnLinkClick → FmOptHardWare.BtnOkClick → FmMain.ActOptHardWareExecute。\n",
+    "status": "有对应实现；选项及消费者另见原研究",
+    "findings": [],
+    "new_entry": "对应工作区",
+    "current_consumers": [
+      "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+      "app/backend/modules/devices/profiles.py"
+    ],
+    "index_evidence": "Spec2.02功能研究/05_下拉选项与参数使用链.md"
+  }
+]

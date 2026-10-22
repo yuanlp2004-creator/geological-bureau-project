@@ -1,0 +1,572 @@
+[
+  {
+    "id": "F01",
+    "title": "色散自动定位采用最后一帧而非平均谱带",
+    "classification": "计算行为不一致",
+    "priority": "高",
+    "old_behavior": "旧色散在归一化CcdAvgs上定位，燃烧及空白共同参与谱带计算。",
+    "current_behavior": "locate_line直接取最后一帧burn，在预期点±24范围找原始ADC最大点；没有用全部燃烧/空白平均谱带。",
+    "impact": "同组两帧的旧口径平均峰在107，新版自动定位117，差10点；随后拟合系数可能改变。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:386",
+      "Spec Source/Source/Common/uAnaThread.pas:352",
+      "Spec Source/Source/Common/uCcdBand.pas:990"
+    ],
+    "current_evidence": [
+      "app/backend/modules/dispersion/calibration.py:120"
+    ],
+    "checkpoints": [
+      "M13",
+      "D02",
+      "D04"
+    ],
+    "evidence": "服务探针dispersion_last_frame_vs_mean：两帧峰107=(1000,1)，峰117=(1,900)，等周期、无暗帧；按旧源码平均口径求峰，再调用实际新版服务。不是旧EXE对跑。"
+  },
+  {
+    "id": "F02",
+    "title": "色散制作缺少CCD间隔整体修正",
+    "classification": "旧操作未实现",
+    "priority": "高",
+    "old_behavior": "CbGaps选择CCD间隔，SpeGap配合1/2/5/10增量修改CcdGapPoints，所有已知线CorrectRealStep后重拟合。",
+    "current_behavior": "制作页能单线移点；布局gap_points可读取、迁移，但制作API和页面没有间隔编辑/同步重算消费者。",
+    "impact": "无法在制作色散时沿用旧流程校正CCD拼接间隔，单独移动一条谱线不等价。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:216",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:445"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx:17",
+      "app/backend/modules/dispersion/repository.py:102",
+      "app/backend/api/dispersion.py:1"
+    ],
+    "checkpoints": [
+      "M13",
+      "D03",
+      "C12",
+      "C13",
+      "R20"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F03",
+    "title": "色散已知谱线的波长不能原位编辑",
+    "classification": "旧操作未实现",
+    "priority": "中",
+    "old_behavior": "色散网格允许修改波长列，CheckWave写回当前已知线；实测点由谱图/间隔校正。",
+    "current_behavior": "已有行显示波长文字，只提供定位、移点、保存/恢复位置和删除；API无更新既有行波长的命令。",
+    "impact": "输错波长需删除重建，原保存点及来源联系不能按旧操作保留。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:229"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx:105",
+      "app/backend/modules/dispersion/service.py:379"
+    ],
+    "checkpoints": [
+      "M13",
+      "D02"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F04",
+    "title": "标准曲线轴向与上下微调方向相反",
+    "classification": "图形操作不一致",
+    "priority": "高",
+    "old_behavior": "显示横轴为含量、纵轴为强度，Ctrl上下改变标准强度并上下移动点。",
+    "current_behavior": "屏幕及曲线打印以强度为X、含量为Y；上移标准点改变强度，图点向右移动，Y不变。",
+    "impact": "操作员不能按旧图形理解上下微调；不表示此项已经证明反算含量公式错误。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:407",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:591",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:965"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/analysis/CurveChart.tsx:10",
+      "app/frontend/src/pages/analysis/AnalysisCurves.tsx:54",
+      "app/backend/modules/analysis/printing.py:78"
+    ],
+    "checkpoints": [
+      "M17",
+      "N12",
+      "N17",
+      "N21",
+      "R23"
+    ],
+    "evidence": "真实浏览器：上移前(cx,cy)=(313.333333,213.333333)，后=(325.251938,213.333333)。"
+  },
+  {
+    "id": "F05",
+    "title": "对数计算没有对应的对数图显示",
+    "classification": "图形显示未完整实现",
+    "priority": "中",
+    "old_behavior": "FCoordTransform同时变换显示含量和显示强度，再绘制标准点与曲线。",
+    "current_behavior": "拟合算法接受logarithmic；CurveChart及HTML/PDF绘图始终按原始数值线性缩放。",
+    "impact": "勾选对数坐标后图上1、2、3、4仍等距，图形不能与旧版对数标准曲线等价。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:348",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:415"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/analysis/CurveChart.tsx:10",
+      "app/backend/modules/analysis/printing.py:78"
+    ],
+    "checkpoints": [
+      "L13",
+      "N17",
+      "N21"
+    ],
+    "evidence": "浏览器切换对数并重新拟合后，标准点Y步长均约-86.472684，图仍显示原始线性数值；计算口径变化本身不判缺失。"
+  },
+  {
+    "id": "F06",
+    "title": "报告页面设置未接入报告渲染",
+    "classification": "参数消费者缺失",
+    "priority": "高",
+    "old_behavior": "字体9/10/11/12/13、每行元素数、每页样品数、分析/系统时间进入PrintLines分页和标题。",
+    "current_behavior": "方法参数打印有独立纸型/字体消费者；分析报告_pdf固定A4横向、每页20条数据行，表格7pt，HTML也固定A4横向。没有旧版元素数/样品数/时间方式设置链。",
+    "impact": "软件打印设置不能统一控制最终分析报告；改变纸张/字号可能不生效。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmPageSetup.pas:46",
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:110"
+    ],
+    "current_evidence": [
+      "app/backend/modules/reports/rendering.py:71",
+      "app/backend/modules/reports/service.py:352",
+      "app/backend/schemas/system.py:120"
+    ],
+    "checkpoints": [
+      "M04",
+      "O09",
+      "R44",
+      "C01"
+    ],
+    "evidence": "实际渲染器探针：设置A3竖向、12pt后，25条行仍生成2页A4横向，前后PDF字节一致，字体仍7/8/15pt。"
+  },
+  {
+    "id": "F07",
+    "title": "DAT标准矩阵及转置矩阵导出未等价实现",
+    "classification": "输出布局缺失",
+    "priority": "中",
+    "old_behavior": "DAT导出支持样品×元素标准矩阵及行列互换的转置矩阵。",
+    "current_behavior": "报告standard/exchange是长表的行排序和部分列换序；_table不将样品/元素交叉展开。",
+    "impact": "能导出数值，但既有按样品×元素矩阵处理的下游Excel模板不能直接照用。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uExport.pas:327",
+      "Spec Source/Source/Common/uExport.pas:395",
+      "Spec Source/Source/Main/mmData/FmExport.pas:1"
+    ],
+    "current_evidence": [
+      "app/backend/modules/reports/service.py:195",
+      "app/backend/modules/reports/rendering.py:32"
+    ],
+    "checkpoints": [
+      "M21",
+      "O08",
+      "C18"
+    ],
+    "evidence": "实际编码表探针：3个样品×2个元素，standard和exchange均为7×3长表；旧版含表头标准矩阵为4×3，转置矩阵为3×4。"
+  },
+  {
+    "id": "F08",
+    "title": "PDT逐重复强度宽表和打印输出未对应",
+    "classification": "输出功能部分缺失",
+    "priority": "中",
+    "old_behavior": "导出强度按每个样品的重复读取峰值及需要时的背景列，另有分析后的强度表打印/文本选项。",
+    "current_behavior": "后处理可以批量导出旧PDT峰和背景，但为来源/样号/谱线的长表；分析页有原始结果和全时CSV，未找到旧PDT宽表专用打印及四输出开关组合。",
+    "impact": "不能把原始CCD逐点导出、曲线文本打印和旧PDT强度表视为同一输出。数据可取，旧布局和输出组合仍缺。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uExport.pas:491",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:93"
+    ],
+    "current_evidence": [
+      "app/backend/modules/postprocessing/exporting.py:31",
+      "app/backend/api/analysis.py:52",
+      "app/backend/modules/analysis/printing.py:52"
+    ],
+    "checkpoints": [
+      "M22",
+      "O01",
+      "O08",
+      "U17"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F09",
+    "title": "方法完整参数的TXT导出入口缺失",
+    "classification": "输出功能未实现",
+    "priority": "中",
+    "old_behavior": "参数打印勾打印到文件后生成包含方法、谱线、标准表的文本文件。",
+    "current_behavior": "MethodPrintPanel和服务提供HTML预览、PDF导出及打印作业，没有对应完整参数TXT导出。",
+    "impact": "PDF/HTML包含配置不能替代用户需要的纯文本方法参数文件。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdPrint.pas:30"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/methods/MethodPrintPanel.tsx:107",
+      "app/backend/modules/method_printing/service.py:86"
+    ],
+    "checkpoints": [
+      "M09",
+      "O10"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F10",
+    "title": "旧SAM中文导入损坏且原件哈希改变",
+    "classification": "文件读取缺陷",
+    "priority": "高",
+    "old_behavior": "SAM为旧Windows文本，名称及重复次数以制表符保存；原名字节应正确解码。",
+    "current_behavior": "界面file.text()固定按UTF-8解码后以字符串上传；后台虽可接字节但也先猜UTF-8，某些GB18030字节恰好是合法UTF-8。",
+    "impact": "样1经实际界面导入变成��1；铅1的原始GB18030字节会被后台误认成Ǧ1；上传后记录哈希也不再是原SAM字节哈希。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:953",
+      "Spec Source/Source/Common/uMethod.pas:976"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx:81",
+      "app/frontend/src/api/sampleQueues.ts:78",
+      "app/backend/modules/sample_queues.py:52"
+    ],
+    "checkpoints": [
+      "M16",
+      "S02",
+      "U14"
+    ],
+    "evidence": "GB18030实际文件经浏览器file input提交返回201，实际名称��1；服务字节探针另复现铅1→Ǧ1。"
+  },
+  {
+    "id": "F11",
+    "title": "导入旧CFG和OPT偏好后未进入运行消费者",
+    "classification": "迁移能力部分缺失",
+    "priority": "中",
+    "old_behavior": "旧版启动读取空白秒数、监控/等待、WDT/EDT默认条件和页面设置等配置并使用。",
+    "current_behavior": "迁移保存configuration_profile(active=0)作为档案；当前AppService和分析表单从新版设置/页面初值取默认，未提供激活该旧档案的链。WDT/EDT旧分节及强度输出偏好亦未完整转换。",
+    "impact": "不能把配置已解析或已留档等同已恢复旧操作偏好；需人工重设，部分原设置暂无消费者。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uConfigs.pas:80",
+      "Spec Source/Source/Common/uOptions.pas:1"
+    ],
+    "current_evidence": [
+      "app/backend/modules/legacy_migration/configuration.py:40",
+      "app/backend/modules/legacy_migration/service.py:385",
+      "app/backend/services.py:27"
+    ],
+    "checkpoints": [
+      "M23",
+      "M24",
+      "O01",
+      "O04",
+      "O09",
+      "O11",
+      "O12",
+      "R30",
+      "R46"
+    ],
+    "evidence": "真实旧MTD/CFG/OPT副本迁移成功：档案记录RoundDarkTime=12、LookBand=true、WaitTime=1234，运行设置空白时间仍8；档案active=0。"
+  },
+  {
+    "id": "F12",
+    "title": "谱图屏幕的像素及物理比例工具未对应",
+    "classification": "图形操作部分缺失",
+    "priority": "中",
+    "old_behavior": "一线一点、一线四点、十倍CCD屏幕显示结合绘图区像素、点宽和屏幕物理尺寸决定范围。",
+    "current_behavior": "100%/400%只是全范围zoomX=1/4；屏幕图不读取point_width或screen_width决定这两档比例，十倍CCD仅进入新增打印流程。",
+    "impact": "放大能力已有，但不能把100%/400%当作旧版的实际像素密度和屏幕十倍物理比例。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1",
+      "Spec Source/Source/Common/uOptions.pas:1"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx:74",
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx:195"
+    ],
+    "checkpoints": [
+      "M15",
+      "S11",
+      "R46"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F13",
+    "title": "锁定谱带记录的操作缺失",
+    "classification": "旧操作未实现",
+    "priority": "低",
+    "old_behavior": "谱带列表可锁定当前记录，禁止记录表浏览，避免误切样品；与光标锁定分开。",
+    "current_behavior": "现有锁定主要锁十字线点位，谱图记录列表仍能切换，没有记录锁定状态及禁用消费者。",
+    "impact": "光标锁定不能替代旧版防止记录误切换的功能。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.pas:1"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx:40",
+      "app/frontend/src/pages/spectra/SpectrumRecordList.tsx:1"
+    ],
+    "checkpoints": [
+      "M15",
+      "S08"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "F14",
+    "title": "预录样号的快捷录入语言和数字递增缺失",
+    "classification": "旧操作部分未实现",
+    "priority": "低",
+    "old_behavior": "回车递增纯数字样号；ASCII逗号插空、点结束、斜杠删除，分析输入还受文件容量约束。",
+    "current_behavior": "当前样号字段无该键盘处理，插入后清空文本；点号会成为普通名称，斜杠被名称校验拒绝，空名在前端被拦截。逗号经插入按钮可解析为空项，但没有旧回车快捷执行链。",
+    "impact": "常规命名与SAM导出已有，旧批量录入效率和空样快捷路径仍不完整。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:374",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:546"
+    ],
+    "current_evidence": [
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx:65",
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx:219",
+      "app/backend/modules/sample_queues.py:24"
+    ],
+    "checkpoints": [
+      "M16",
+      "S03",
+      "S04",
+      "S07"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D01",
+    "title": "旧文件以只读迁移替代原格式回写",
+    "classification": "已批准兼容边界",
+    "priority": "信息",
+    "old_behavior": "旧版写MTD/CFG/OPT/CDT/CMT/EDT/WDT/PDT/DAT，EDT转换还可覆盖/追加旧目标及回写源EDT色散。",
+    "current_behavior": "新版除SAM外主要导入旧格式，保存新版SQLite版本/原始帧及TXT/CSV/XLS/PDF；不生成对应旧Access文件。",
+    "impact": "若需要新旧软件互相编辑同一旧文件，当前不具备；这是明确的保护原件设计，不能作为擅自回写的理由。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uDbPack.pas:1",
+      "Spec Source/Source/Common/uMethodMap.pas:655",
+      "Spec Source/Source/Main/mmTool/FmImportPre.pas:82"
+    ],
+    "current_evidence": [
+      "AGENTS.md:49",
+      "PLAN.md:8",
+      "app/backend/modules/postprocessing/conversion.py:1"
+    ],
+    "checkpoints": [
+      "M12",
+      "M19",
+      "M27",
+      "M28",
+      "O05",
+      "O06",
+      "O16",
+      "R31",
+      "R32",
+      "U21"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D02",
+    "title": "方法发布与重新计算采用不可变快照",
+    "classification": "已批准流程差异",
+    "priority": "信息",
+    "old_behavior": "修改方法/保存位置/完成标准曲线会写当前旧方法库，较旧PDT有时间提示。",
+    "current_behavior": "修改写新草稿，需验证发布；任务绑定固定版本，既有结果和发布方法不追改。",
+    "impact": "修改后生效时机与旧版不同，保存位置也不直接改已发布方法。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uDbPack.pas:1276"
+    ],
+    "current_evidence": [
+      "app/backend/modules/methods/service.py:249",
+      "app/backend/modules/methods/snapshots.py:56"
+    ],
+    "checkpoints": [
+      "M01",
+      "M02",
+      "M03",
+      "P06",
+      "N03",
+      "N20",
+      "U09",
+      "R24",
+      "R25",
+      "U03"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D03",
+    "title": "新版计算与旧兼容计算长期并存",
+    "classification": "明确算法差异",
+    "priority": "信息",
+    "old_behavior": "旧最大值/高斯峰顶、旧内标保护、平滑、范围外限制和高低线切换。",
+    "current_behavior": "legacy_2_0_2保留相应旧算法；新建方法默认modern_v1，现代高斯口径/多线有效范围等规则不同。",
+    "impact": "对照旧结果必须明确选择旧版兼容档案，不能拿modern_v1结果主张旧版数值一致。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uPeakMode.pas:36",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:449"
+    ],
+    "current_evidence": [
+      "app/backend/schemas/methods.py:27",
+      "app/backend/modules/analysis/legacy_curves.py:96",
+      "app/backend/modules/analysis/curves.py:545"
+    ],
+    "checkpoints": [
+      "L09",
+      "N08",
+      "N09",
+      "N18",
+      "N19",
+      "R38",
+      "R39",
+      "R40"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D04",
+    "title": "单位转换会同步改变数值而旧版只改标签",
+    "classification": "用户明确批准的差异",
+    "priority": "信息",
+    "old_behavior": "更换MtdUnit主要改变打印/显示单位，没有自动重算标准含量。",
+    "current_behavior": "ug/g、mg/g、%显式切换同步换算标准值、有效范围和精度，保持质量比含义。",
+    "impact": "界面数值会改变；此差异来自已批准的单位闭环，不应当作算法缺陷撤销。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdCfg.pas:151"
+    ],
+    "current_evidence": [
+      "app/backend/modules/methods/units.py:24",
+      "PLAN.md:1"
+    ],
+    "checkpoints": [
+      "P13"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D05",
+    "title": "色散点保存状态及残差发布门禁不同",
+    "classification": "流程和阈值差异",
+    "priority": "中",
+    "old_behavior": "直接修改RealStep参与拟合；超AllowGapError/PointWidth主要提示。",
+    "current_behavior": "有saved_position时优先拟合保存值，即使located_position已移动；页面默认残差门限2点，超限不能发布。",
+    "impact": "移动200→250但不点保存时，拟合仍用200且系数不变；旧默认150微米/14微米约10.714点，不能当作同一个2点门限。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:116",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:337"
+    ],
+    "current_evidence": [
+      "app/backend/modules/dispersion/calibration.py:300",
+      "app/frontend/src/pages/dispersion/DispersionPage.tsx:196"
+    ],
+    "checkpoints": [
+      "M13",
+      "D04",
+      "D05"
+    ],
+    "evidence": "实际服务探针dispersion_move_requires_save已复现，界面分别显示实测/保存位置。"
+  },
+  {
+    "id": "D06",
+    "title": "打印CCD边界和纸张不足策略不同",
+    "classification": "规则差异",
+    "priority": "低",
+    "old_behavior": "十倍CCD少于512点拒绝；纸张不足提示后可按长边缩放。",
+    "current_behavior": "较小可见区间允许按十倍导出，纸张不足明确拒绝，要求换纸型/范围/比例。",
+    "impact": "十倍物理尺寸已验证，边界提示与回退行为仍不完全复刻旧版。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmPrintCcd.pas:85",
+      "Spec Source/Source/Main/mmAnalyze/FmPrintCcd.pas:148"
+    ],
+    "current_evidence": [
+      "app/backend/modules/spectrum_pdf.py:79",
+      "app/backend/modules/spectrum_viewer.py:719"
+    ],
+    "checkpoints": [
+      "S16"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D07",
+    "title": "旧SAM及样号容量异常采用更严格拒绝",
+    "classification": "兼容校验差异",
+    "priority": "低",
+    "old_behavior": "无效重复文字默认0；超谱带容量从尾部删整条样号；旧样号10字节。",
+    "current_behavior": "非法SAM整批拒绝，新版支持12/20位；SAM导出仍限制旧10字节，避免生成不可读文件。",
+    "impact": "旧文件中被旧版容忍的错误行可能无法导入；原件保留，不能自动删尾当成功。",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:953"
+    ],
+    "current_evidence": [
+      "app/backend/modules/sample_queues.py:52",
+      "app/backend/modules/sample_queues.py:425"
+    ],
+    "checkpoints": [
+      "S02",
+      "S05",
+      "U14"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D08",
+    "title": "完成与文件输出增加审核步骤",
+    "classification": "流程差异",
+    "priority": "低",
+    "old_behavior": "已有DAT可直接打印；新结果保存/打印可同时选择，曲线处理按下一线推进。",
+    "current_behavior": "导入DAT→建立报告→确认→输出；所有曲线发布后再合并；原样计算结果保持不可变。",
+    "impact": "菜单目标已有对应，但步骤更多，不能用旧点击顺序直接操作新版。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:93",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:200"
+    ],
+    "current_evidence": [
+      "app/backend/modules/reports/service.py:227",
+      "app/backend/modules/reports/service.py:352",
+      "app/backend/modules/analysis/curves.py:471"
+    ],
+    "checkpoints": [
+      "M17",
+      "M20",
+      "N15",
+      "N20",
+      "O06",
+      "O07"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  },
+  {
+    "id": "D09",
+    "title": "管理维护和帮助更换对象及组织",
+    "classification": "替代实现与证据边界",
+    "priority": "信息",
+    "old_behavior": "旧方法/色散库可改名多选删除；Access备份/Jet压缩；原CHM42主题。",
+    "current_behavior": "方法版本软删除/归档、色散草稿删除/已发布归档、SQLite备份/校验/恢复演练；内置新版帮助和错误码导航。",
+    "impact": "维护目标已替换，不能把SQLite压缩说成已能维护旧MTD；CHM图示和42主题逐段内容并未证明全部等价。",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmTool/FmMtdManage.pas:1",
+      "Spec Source/Source/Main/mmTool/FmMtdBackup.pas:1",
+      "Spec Source/Source/Main/FmMain.pas:344"
+    ],
+    "current_evidence": [
+      "app/backend/modules/maintenance.py:203",
+      "app/backend/modules/dispersion/calibration.py:531"
+    ],
+    "checkpoints": [
+      "M26",
+      "M27",
+      "M29",
+      "O15",
+      "O16",
+      "O18",
+      "R03",
+      "R47"
+    ],
+    "evidence": "源码入口与完整消费者核对"
+  }
+]

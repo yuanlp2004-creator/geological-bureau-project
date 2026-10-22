@@ -1,0 +1,338 @@
+{
+  "status": "passed",
+  "checks": [
+    "CCD controls, layout display and unit hint removed; opening causes zero version writes",
+    "Unrelated save preserves existing subset, curve, layout, lines and immutable published snapshot",
+    "Cross-layout curve selection derives and persists exact installed CCDs and layout across reload",
+    "Automatic added-line feedback and API coverage/safety rejection remain active without writing invalid drafts",
+    "Always visible error controls validate empty input with zero writes; error values and three angles save without changing published data",
+    "Switching back restores CCD set; four layouts keep equal panels, full-width two-column angles, and expanded error fields without overflow",
+    "Single save request publishes valid edits; repeated clicks blocked; open selects method; current updates while old task/version stay unchanged",
+    "Invalid numeric input causes zero writes; duplicate-name and stale-version refusals preserve local input and database versions",
+    "Open reenables an existing paused method without rewriting history; Save As preserves source versions and current selection",
+    "Readonly method view exposes no mutation controls; light/wide and dark/narrow layouts keep the simplified operations visible without overflow"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 295,
+          "right": 814
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "扫描宽度",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 295,
+          "right": 548.5
+        }
+      ],
+      "geometry": {
+        "x": 274,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "excitation": {
+        "x": 851,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 811.421875,
+        "width": 1138,
+        "height": 292.3125
+      },
+      "entries": [
+        {
+          "x": 295,
+          "y": 920.453125,
+          "width": 543,
+          "height": 76.140625
+        },
+        {
+          "x": 848,
+          "y": 920.453125,
+          "width": 543,
+          "height": 76.140625
+        },
+        {
+          "x": 295,
+          "y": 1006.59375,
+          "width": 543,
+          "height": 76.140625
+        }
+      ]
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 252,
+          "right": 612.5
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 252,
+          "right": 426.25
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 438.25,
+          "right": 612.5
+        },
+        {
+          "label": "扫描宽度",
+          "x": 252,
+          "right": 426.25
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 438.25,
+          "right": 612.5
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 252,
+          "right": 426.25
+        }
+      ],
+      "geometry": {
+        "x": 235,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "excitation": {
+        "x": 645.5,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "angles": {
+        "x": 235,
+        "y": 862.609375,
+        "width": 805,
+        "height": 276.3125
+      },
+      "entries": [
+        {
+          "x": 252,
+          "y": 967.640625,
+          "width": 380.5,
+          "height": 72.140625
+        },
+        {
+          "x": 642.5,
+          "y": 967.640625,
+          "width": 380.5,
+          "height": 72.140625
+        },
+        {
+          "x": 252,
+          "y": 1049.78125,
+          "width": 380.5,
+          "height": 72.140625
+        }
+      ]
+    },
+    {
+      "theme": "light",
+      "density": "compact",
+      "width": 1060,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 252,
+          "right": 612.5
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 252,
+          "right": 426.25
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 438.25,
+          "right": 612.5
+        },
+        {
+          "label": "扫描宽度",
+          "x": 252,
+          "right": 426.25
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 438.25,
+          "right": 612.5
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 252,
+          "right": 426.25
+        }
+      ],
+      "geometry": {
+        "x": 235,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "excitation": {
+        "x": 645.5,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "angles": {
+        "x": 235,
+        "y": 862.609375,
+        "width": 805,
+        "height": 276.3125
+      },
+      "entries": [
+        {
+          "x": 252,
+          "y": 967.640625,
+          "width": 380.5,
+          "height": 72.140625
+        },
+        {
+          "x": 642.5,
+          "y": 967.640625,
+          "width": 380.5,
+          "height": 72.140625
+        },
+        {
+          "x": 252,
+          "y": 1049.78125,
+          "width": 380.5,
+          "height": 72.140625
+        }
+      ]
+    },
+    {
+      "theme": "dark",
+      "density": "comfortable",
+      "width": 1440,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 295,
+          "right": 814
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "扫描宽度",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 295,
+          "right": 548.5
+        }
+      ],
+      "geometry": {
+        "x": 274,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "excitation": {
+        "x": 851,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 811.421875,
+        "width": 1138,
+        "height": 292.3125
+      },
+      "entries": [
+        {
+          "x": 295,
+          "y": 920.453125,
+          "width": 543,
+          "height": 76.140625
+        },
+        {
+          "x": 848,
+          "y": 920.453125,
+          "width": 543,
+          "height": 76.140625
+        },
+        {
+          "x": 295,
+          "y": 1006.59375,
+          "width": 543,
+          "height": 76.140625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "method_save": true,
+      "desktop": false
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "method_save": true,
+      "desktop": false
+    }
+  ]
+}

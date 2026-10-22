@@ -1,0 +1,150 @@
+{
+  "status": "passed",
+  "checks": [
+    "样品入口：历史记录、方法与全时保存、非法输入零写入、暂停恢复及模拟完成",
+    "蒸发入口：独立条件、单次完整全时帧和暂停恢复，无手工区间标记、样品配置或定量面板",
+    "两个任务列表独立，共用工作台切换保留各自实例，不污染另一业务模式",
+    "两个页面在暗色紧凑1060宽窗口无横向溢出",
+    "只读角色可见两个入口；无当前方法时禁用，既有采集读写权限边界保持",
+    "dispersion: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "sample-acquisition: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "mercury-calibration: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "hardware-acquisition: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "dispersion: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "sample-acquisition: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "mercury-calibration: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "hardware-acquisition: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "色散人工定位：缩放后零起点坐标123原样提交，无一位偏移",
+    "色散已保存单帧与燃烧区间观察均值符合原始帧，观察不改拟合输入",
+    "切换空任务清空锁定与谱图，禁止旧点位提交",
+    "历史帧失败明确提示且不冒充实时帧，刷新可恢复",
+    "观察点位空输入清除定位锁定，不阻断有效采集条件的新建任务",
+    {
+      "id": 5,
+      "message": "空白传输时间保存，9/2 按旧版偶数舍入得到4；原发布版本保持"
+    },
+    {
+      "id": 6,
+      "message": "色散和蒸发独立保存、重新进入自动载入；非法值零提交"
+    },
+    {
+      "id": 2,
+      "message": "选谱线同步1–2帧及CCD，原第903点显示490，定量和查看一致"
+    },
+    {
+      "id": 4,
+      "message": "任意点完整燃烧/空白原值、周期信息、横纵复制格式和真实PDF输出"
+    },
+    {
+      "id": 7,
+      "message": "标准点表显示反算含量/相对误差，文本预览带百分误差列"
+    },
+    {
+      "id": 10,
+      "message": "图上选点，Ctrl方向键/Insert/1和5标尺微调，修改后禁止旧拟合打印，重新拟合恢复"
+    },
+    {
+      "id": 3,
+      "message": "两份原始谱图叠加，同一CCD/点位并列读取全部样品强度"
+    },
+    {
+      "id": 9,
+      "message": "CCD,点位跨CCD定位、锁定、方向键逐点移动及纵向缩放"
+    },
+    {
+      "id": 8,
+      "message": "当前CCD/当前图像、灰度/峰形至少一层、纸张窄边的真实PDF输出；十倍物理尺寸由黄金测试验证"
+    },
+    {
+      "id": 1,
+      "message": "当前项全部重复完成后自动带出下一样号及次数，保留结果哈希，不自动激发下一项"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "target": "analysis-tests.spectra",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "analysis",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "sample-acquisition",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "dispersion",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "evaporation-acquisition",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "settings",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "dark",
+      "target": "analysis-tests.spectra",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "analysis",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "sample-acquisition",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "dispersion",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "evaporation-acquisition",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "settings",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    }
+  ]
+}

@@ -45,11 +45,26 @@ export type DeviceEvent = {
   frame_count: number | null
   ccds: DeviceCcd[]
   message: string
-  details: { sha256?: string; frame_size?: number; byte_length?: number; headers?: number[]; mirror?: boolean; ccd_indices?: number[]; seed?: number; [key: string]: unknown }
+  details: {
+    sha256?: string
+    frame_size?: number
+    byte_length?: number
+    headers?: number[]
+    mirror?: boolean
+    ccd_indices?: number[]
+    seed?: number
+    [key: string]: unknown
+  }
 }
 
 export type DeviceDiagnostics = {
-  adapter: { adapter: string; state: string; session_id: string | null; connected: boolean; contract: Record<string, number> }
+  adapter: {
+    adapter: string
+    state: string
+    session_id: string | null
+    connected: boolean
+    contract: Record<string, number>
+  }
   profiles: DeviceProfile[]
 }
 
@@ -62,13 +77,53 @@ export type DeviceDebugResult = {
 }
 
 export const devicesApi = {
-  deviceProfiles: (token: string) => request<DeviceProfile[]>('/api/v1/devices/profiles', { headers: { Authorization: `Bearer ${token}` } }),
-  deviceDiagnostics: (token: string) => request<DeviceDiagnostics>('/api/v1/devices/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
-  createDeviceProfile: (token: string, payload: Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>) => request<DeviceProfile>('/api/v1/devices/profiles', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  updateDeviceProfile: (token: string, profileId: number, payload: Partial<Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>>) => request<DeviceProfile>(`/api/v1/devices/profiles/${profileId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  connectDevice: (token: string, profileId: number) => request<{ profile: DeviceProfile; diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/connect', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }),
-  disconnectDevice: (token: string) => request<{ diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/disconnect', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  startDeviceDebug: (token: string, payload: { sample?: string; seed?: number; fault_frame?: number | null }) => request<DeviceDebugResult>('/api/v1/devices/debug/start', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  stepDeviceDebug: (token: string) => request<DeviceDebugResult>('/api/v1/devices/debug/step', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  stopDeviceDebug: (token: string) => request<Omit<DeviceDebugResult, 'session_id'>>('/api/v1/devices/debug/stop', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  deviceProfiles: (token: string) =>
+    request<DeviceProfile[]>('/api/v1/devices/profiles', { headers: { Authorization: `Bearer ${token}` } }),
+  deviceDiagnostics: (token: string) =>
+    request<DeviceDiagnostics>('/api/v1/devices/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
+  createDeviceProfile: (
+    token: string,
+    payload: Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>
+  ) =>
+    request<DeviceProfile>('/api/v1/devices/profiles', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  updateDeviceProfile: (
+    token: string,
+    profileId: number,
+    payload: Partial<Omit<DeviceProfile, 'id' | 'created_at' | 'updated_at' | 'screen_conversion'>>
+  ) =>
+    request<DeviceProfile>(`/api/v1/devices/profiles/${profileId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  connectDevice: (token: string, profileId: number) =>
+    request<{ profile: DeviceProfile; diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>(
+      '/api/v1/devices/connect',
+      { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }
+    ),
+  disconnectDevice: (token: string) =>
+    request<{ diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/disconnect', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  startDeviceDebug: (token: string, payload: { sample?: string; seed?: number; fault_frame?: number | null }) =>
+    request<DeviceDebugResult>('/api/v1/devices/debug/start', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  stepDeviceDebug: (token: string) =>
+    request<DeviceDebugResult>('/api/v1/devices/debug/step', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stopDeviceDebug: (token: string) =>
+    request<Omit<DeviceDebugResult, 'session_id'>>('/api/v1/devices/debug/stop', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

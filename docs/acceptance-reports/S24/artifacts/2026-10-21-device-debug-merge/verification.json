@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "batch": "2026-10-21-device-debug-merge",
+  "executed_plan_sha256": "6ce109ccd24260d5ab0377b21b92c283969f86b761307f1d099b1d9ed363f438",
+  "navigation_entries": 25,
+  "tabs": [
+    "软件参数",
+    "设备参数",
+    "调试对中",
+    "汞灯调试"
+  ],
+  "modified_existing_sources": [
+    "app/backend/modules/manifest.py",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx",
+    "app/frontend/src/pages/mercuryCalibration/mercuryView.tsx",
+    "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "PLAN.md",
+    "app/manifest.generated.json",
+    "app/tests/test_architecture.py"
+  ],
+  "new_product_files": [
+    "app/frontend/src/pages/devices/DeviceDebugPage.tsx",
+    "app/frontend/src/pages/devices/SoftwareParameters.tsx",
+    "app/frontend/src/pages/devices/DeviceParameters.tsx",
+    "app/frontend/src/pages/devices/device-debug.css"
+  ],
+  "tests": {
+    "backend_targeted": 32,
+    "frontend": 15,
+    "typescript_vite": "passed",
+    "sidecar_build_verify": "passed",
+    "production_tauri": "passed",
+    "qa_tauri": "passed",
+    "browser_checks": 9,
+    "actual_packaged_desktop_checks": 9,
+    "layouts_per_run": 16
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "common_source_files": 416,
+  "staged_pair": {
+    "GeoSpectrum.exe": "b325ec354330b7f19b21332618d181d005ac88719cb9e33e9d655554a4371c1e",
+    "geospectrum-backend.exe": "36f9c19c154309661ddce6aba0bed0ad0322a1c511d3aacd5aed5ac14fc45779"
+  },
+  "root_pair_updated": true,
+  "delivery": "completed",
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-device-debug-merge\\previous",
+  "desktop": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-device-debug-merge\\qa\\GeoSpectrum.exe",
+    "pid": 32996,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "database": {
+    "path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "main_sha256_before": "b030e4c6a95a3c8195bdcd36e0e6dd352c0f09354bdf6e3e6be781cfe057dff4",
+    "main_sha256_after": "b030e4c6a95a3c8195bdcd36e0e6dd352c0f09354bdf6e3e6be781cfe057dff4",
+    "main_hash_matches_start": true,
+    "tests_use_isolated_databases": true,
+    "user_database_written_by_this_task": false,
+    "schema_version": 23
+  },
+  "legacy_source_files_preserved": 105,
+  "all_icons_preserved": true,
+  "business_backend_unchanged": true,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "root_pair": {
+    "GeoSpectrum.exe": "b325ec354330b7f19b21332618d181d005ac88719cb9e33e9d655554a4371c1e",
+    "geospectrum-backend.exe": "36f9c19c154309661ddce6aba0bed0ad0322a1c511d3aacd5aed5ac14fc45779"
+  },
+  "modified_test_files": [
+    "app/tests/test_architecture.py",
+    "app/tests/test_api.py",
+    "app/tests/test_auth.py",
+    "app/tests/frontend_api_browser.mjs"
+  ],
+  "new_test_file": "app/tests/device_debug_workflow.mjs",
+  "all_other_baseline_product_sources_preserved": true,
+  "temporary_diagnostic_backups_retained": "recursive cleanup rejected by automatic approval: blocked by policy"
+}

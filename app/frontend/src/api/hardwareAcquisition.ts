@@ -1,9 +1,25 @@
-/** hardwareAcquisition requests and models; moved without changing payloads or responses. */
 import { request } from './client'
-
-export type HardwareTaskState = 'draft' | 'connecting' | 'connected' | 'pre_excitation' | 'turning' | 'collecting' | 'anomaly' | 'manual_intervention' | 'paused' | 'stopping' | 'completed' | 'failed' | 'stopped' | 'safety_stopped' | 'deferred_external'
-
+export type HardwareTaskState =
+  | 'draft'
+  | 'connecting'
+  | 'connected'
+  | 'pre_excitation'
+  | 'turning'
+  | 'collecting'
+  | 'anomaly'
+  | 'manual_intervention'
+  | 'paused'
+  | 'stopping'
+  | 'completed'
+  | 'failed'
+  | 'stopped'
+  | 'safety_stopped'
+  | 'deferred_external'
 export type HardwarePlanStep = {
+  storage_mode: 'averaged' | 'full_interval'
+  start_frame: number
+  end_frame: number
+  captured_frames: number
   id: number
   task_id: number
   order_index: number
@@ -18,8 +34,19 @@ export type HardwarePlanStep = {
   last_attempt: number
   correction_offset: number
 }
-
 export type HardwareTask = {
+  method_id: number | null
+  method_version: number | null
+  analysis_sample?: HardwareAnalysisSample | null
+  exposures: Array<{
+    id: number
+    ccd_index: number
+    storage_mode: string
+    start_frame: number
+    end_frame: number
+    confirmed: boolean
+    mean_sha256: string
+  }>
   id: number
   name: string
   status: HardwareTaskState
@@ -60,28 +87,105 @@ export type HardwareTask = {
   created_at: string
   updated_at: string
 }
-
+export type HardwareAnalysisSample = {
+  acquisition_task_id: number
+  acquisition_sample_id: number
+  sample_name: string
+  source_sha256: string
+  already_saved?: boolean
+}
 export type HardwareOptions = {
+  methods: Array<{
+    method_id: number
+    version: number
+    name: string
+  }>
   states: HardwareTaskState[]
   strategies: Array<'short_to_long' | 'key_first'>
   anomaly_policies: Array<'retry_then_stop' | 'manual'>
   anomaly_kinds: string[]
-  profiles: Array<{ id: number; name: string; transport: string; port: number; baud_rate: number; ccd_indices: number[]; points_per_ccd: number }>
+  profiles: Array<{
+    id: number
+    name: string
+    transport: string
+    port: number
+    baud_rate: number
+    ccd_indices: number[]
+    points_per_ccd: number
+  }>
   layouts: Array<Record<string, unknown>>
 }
-
 export const hardwareAcquisitionApi = {
-  hardwareAcquisitionOptions: (token: string) => request<HardwareOptions>('/api/v1/hardware-acquisitions/options', { headers: { Authorization: `Bearer ${token}` } }),
-  hardwareAcquisitionTasks: (token: string) => request<HardwareTask[]>('/api/v1/hardware-acquisitions/tasks', { headers: { Authorization: `Bearer ${token}` } }),
-  createHardwareAcquisitionTask: (token: string, payload: Record<string, unknown>) => request<HardwareTask>('/api/v1/hardware-acquisitions/tasks', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  hardwareAcquisitionTask: (token: string, taskId: number, includePoints = false) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
-  startHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  stepHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  pauseHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  resumeHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  stopHardwareAcquisitionTask: (token: string, taskId: number) => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  interveneHardwareAcquisitionTask: (token: string, taskId: number, action: 'accept' | 'retry' | 'stop', note = '') => request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/intervene`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ action, note }) }),
-  hardwareAcquisitionFrames: (token: string, taskId: number, includePoints = false) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/frames${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
-  hardwareAcquisitionTraces: (token: string, taskId: number) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/traces`, { headers: { Authorization: `Bearer ${token}` } }),
-  hardwareAcquisitionDecisions: (token: string, taskId: number) => request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/decisions`, { headers: { Authorization: `Bearer ${token}` } }),
+  saveHardwareAnalysisSample: (token: string, taskId: number, payload: { sample_name: string; sample_kind: 'test' | 'standard'; name_length: 12 | 20 }) =>
+    request<HardwareAnalysisSample>(`/api/v1/hardware-acquisitions/tasks/${taskId}/analysis-sample`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
+    }),
+  hardwareAcquisitionOptions: (token: string) =>
+    request<HardwareOptions>('/api/v1/hardware-acquisitions/options', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  hardwareAcquisitionTasks: (token: string) =>
+    request<HardwareTask[]>('/api/v1/hardware-acquisitions/tasks', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  createHardwareAcquisitionTask: (token: string, payload: Record<string, unknown>) =>
+    request<HardwareTask>('/api/v1/hardware-acquisitions/tasks', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  hardwareAcquisitionTask: (token: string, taskId: number, includePoints = false) =>
+    request<HardwareTask>(
+      `/api/v1/hardware-acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+  startHardwareAcquisitionTask: (token: string, taskId: number) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/start`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stepHardwareAcquisitionTask: (token: string, taskId: number) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/step`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  pauseHardwareAcquisitionTask: (token: string, taskId: number) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/pause`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  resumeHardwareAcquisitionTask: (token: string, taskId: number) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/resume`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stopHardwareAcquisitionTask: (token: string, taskId: number) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/stop`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  interveneHardwareAcquisitionTask: (
+    token: string,
+    taskId: number,
+    action: 'accept' | 'retry' | 'stop',
+    note = ''
+  ) =>
+    request<HardwareTask>(`/api/v1/hardware-acquisitions/tasks/${taskId}/intervene`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ action, note })
+    }),
+  hardwareAcquisitionFrames: (token: string, taskId: number, includePoints = false) =>
+    request<Array<Record<string, unknown>>>(
+      `/api/v1/hardware-acquisitions/tasks/${taskId}/frames${includePoints ? '?include_points=true' : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+  hardwareAcquisitionTraces: (token: string, taskId: number) =>
+    request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/traces`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  hardwareAcquisitionDecisions: (token: string, taskId: number) =>
+    request<Array<Record<string, unknown>>>(`/api/v1/hardware-acquisitions/tasks/${taskId}/decisions`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

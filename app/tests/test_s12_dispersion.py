@@ -87,8 +87,15 @@ def dispersion_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     application = main_module.create_app(test_config)
     runtime = application.state.runtime
     with TestClient(application) as client:
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 
@@ -97,7 +104,17 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert client.get("/api/v1/dispersion/tasks").status_code == 401
     options = client.get("/api/v1/dispersion/options", headers=headers)
     assert options.status_code == 200
-    assert options.json()["states"] == ["draft", "pre_excitation", "burn", "dark", "paused", "stopping", "completed", "failed", "stopped"]
+    assert options.json()["states"] == [
+        "draft",
+        "pre_excitation",
+        "burn",
+        "dark",
+        "paused",
+        "stopping",
+        "completed",
+        "failed",
+        "stopped",
+    ]
 
     method = client.post("/api/v1/methods", headers=headers, json={"name": "S12方法"})
     assert method.status_code == 201, method.text
@@ -165,8 +182,15 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert frames.status_code == 200
     assert len(frames.json()) == 15
     assert all(len(frame["points"]) == 2048 and frame["byte_length"] == 24579 for frame in frames.json())
-    assert all(frame["dtype"] == "uint16" and frame["endianness"] == "little" and frame["compression"] == "zlib" for frame in frames.json())
-    assert all(frame["points_sha256"] == hashlib.sha256(bytes().join(int(point).to_bytes(2, "little") for point in frame["points"])).hexdigest() for frame in frames.json())
+    assert all(
+        frame["dtype"] == "uint16" and frame["endianness"] == "little" and frame["compression"] == "zlib"
+        for frame in frames.json()
+    )
+    assert all(
+        frame["points_sha256"]
+        == hashlib.sha256(bytes().join(int(point).to_bytes(2, "little") for point in frame["points"])).hexdigest()
+        for frame in frames.json()
+    )
     timings = {(frame["phase"], frame["frame_index"], frame["virtual_time_ms"]) for frame in frames.json()}
     assert timings == {("burn", 0, 2000.0), ("burn", 1, 3000.0), ("dark", 0, 4000.0)}
     with pytest.raises(sqlite3.IntegrityError, match="immutable"):
@@ -176,17 +200,29 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
         with runtime.database.write() as db:
             db.execute("DELETE FROM dispersion_task_frames WHERE task_id=?", (task_id,))
 
-    added_line = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines", headers=headers, json={"element": "Hg", "wavelength_nm": 253.65, "ccd_index": 0})
+    added_line = client.post(
+        f"/api/v1/dispersion/tasks/{task_id}/lines",
+        headers=headers,
+        json={"element": "Hg", "wavelength_nm": 253.65, "ccd_index": 0},
+    )
     assert added_line.status_code == 201, added_line.text
     line_id = added_line.json()["id"]
     located = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/locate", headers=headers)
     assert located.status_code == 200, located.text
     assert located.json()["located_position"] is not None
-    moved = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move", headers=headers, json={"direction": "short", "steps": 1})
+    moved = client.post(
+        f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move",
+        headers=headers,
+        json={"direction": "short", "steps": 1},
+    )
     assert moved.json()["located_position"] == pytest.approx(located.json()["located_position"] - 1)
     saved = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position/save", headers=headers)
     assert saved.json()["position_state"] == "saved"
-    client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move", headers=headers, json={"direction": "long", "steps": 3})
+    client.post(
+        f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move",
+        headers=headers,
+        json={"direction": "long", "steps": 3},
+    )
     restored = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position/restore", headers=headers)
     assert restored.json()["located_position"] == pytest.approx(saved.json()["saved_position"])
     located_all = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/locate-all", headers=headers)
@@ -194,25 +230,48 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert any(line["id"] == line_id for line in located_all.json()["located"])
     assert client.delete(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}", headers=headers).status_code == 200
 
-    fitted = client.post(f"/api/v1/dispersion/tasks/{task_id}/calibrations/fit", headers=headers, json={"name": "S12 API calibration", "degree": 2})
+    fitted = client.post(
+        f"/api/v1/dispersion/tasks/{task_id}/calibrations/fit",
+        headers=headers,
+        json={"name": "S12 API calibration", "degree": 2},
+    )
     assert fitted.status_code == 201, fitted.text
     assert fitted.json()["publishable"] is True
     calibration_version_id = fitted.json()["id"]
     published = client.post(f"/api/v1/dispersion/calibrations/{calibration_version_id}/publish", headers=headers)
     assert published.status_code == 200, published.text
     assert published.json()["state"] == "published"
-    binding = client.post(f"/api/v1/dispersion/calibrations/{calibration_version_id}/bind", headers=headers, json={"method_id": method_id, "method_version": method_version})
+    binding = client.post(
+        f"/api/v1/dispersion/calibrations/{calibration_version_id}/bind",
+        headers=headers,
+        json={"method_id": method_id, "method_version": method_version},
+    )
     assert binding.status_code == 200, binding.text
-    repeated_binding = client.post(f"/api/v1/dispersion/calibrations/{calibration_version_id}/bind", headers=headers, json={"method_id": method_id, "method_version": method_version})
+    repeated_binding = client.post(
+        f"/api/v1/dispersion/calibrations/{calibration_version_id}/bind",
+        headers=headers,
+        json={"method_id": method_id, "method_version": method_version},
+    )
     assert repeated_binding.status_code == 200
     assert repeated_binding.json()["id"] == binding.json()["id"]
 
     with pytest.raises(sqlite3.IntegrityError, match="immutable"):
         with runtime.database.write() as db:
-            db.execute("UPDATE dispersion_calibration_versions SET name='mutated' WHERE id=?", (calibration_version_id,))
+            db.execute(
+                "UPDATE dispersion_calibration_versions SET name='mutated' WHERE id=?", (calibration_version_id,)
+            )
     with runtime.database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM sample_queues").fetchone()[0] == 0
         assert db.execute("SELECT COUNT(*) FROM spectrum_bands").fetchone()[0] == 0
         assert db.execute("SELECT COUNT(*) FROM method_calibration_bindings").fetchone()[0] == 1
         actions = {row[0] for row in db.execute("SELECT action FROM audit_events WHERE target_type='dispersion'")}
-    assert {"dispersion.task.create", "dispersion.task.start", "dispersion.task.pause", "dispersion.task.resume", "dispersion.frame.capture", "dispersion.calibration.fit", "dispersion.calibration.publish", "dispersion.calibration.bind"}.issubset(actions)
+    assert {
+        "dispersion.task.create",
+        "dispersion.task.start",
+        "dispersion.task.pause",
+        "dispersion.task.resume",
+        "dispersion.frame.capture",
+        "dispersion.calibration.fit",
+        "dispersion.calibration.publish",
+        "dispersion.calibration.bind",
+    }.issubset(actions)

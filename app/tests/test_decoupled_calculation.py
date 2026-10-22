@@ -11,23 +11,45 @@ from backend.modules.postprocessing.errors import PostProcessingError
 from backend.modules.postprocessing.legacy_calculation import LegacyIntensity, legacy_net, recalculate_legacy
 
 
-@pytest.mark.parametrize("pair,back,ratio,expected", [
-    ((10, 1), 1, False, 9.0), ((10, 1), 0, False, 10.0),
-    ((10, 2), 1, True, 5.0), ((1, 5), 1, False, 1e-5),
-])
+@pytest.mark.parametrize(
+    "pair,back,ratio,expected",
+    [
+        ((10, 1), 1, False, 9.0),
+        ((10, 1), 0, False, 10.0),
+        ((10, 2), 1, True, 5.0),
+        ((1, 5), 1, False, 1e-5),
+    ],
+)
 def test_net_intensity_runs_on_values_without_storage(pair, back, ratio, expected):
     assert legacy_net(pair, {"back": back}, background_ratio=ratio) == expected
 
 
 def test_pure_legacy_curve_calculation_keeps_internal_standard_and_diagnostics():
-    source = LegacyIntensity("source", [{"element": "Cu", "wavelength_nm": 324.754, "back": 1},
-                                       {"element": "Fe", "wavelength_nm": 250.0, "back": 1}],
-                             [], [[(10, 1), (20, 2)], [(5, 2), (10, 4)]], 2)
-    lines = [{"id": "L1", "line_type": "analysis", "element": "Cu", "wavelength_nm": 324.754,
-              "internal_standard_mode": "line", "internal_standard_line_id": "IS"},
-             {"id": "IS", "line_type": "internal_standard", "element": "Fe", "wavelength_nm": 250.0}]
-    evaluators = {"L1": {"fit": {"kind": "polynomial", "coefficients": [0, 2, 0, 0]},
-                          "coordinate_type": "normal", "curve_snapshot_id": 7}}
+    source = LegacyIntensity(
+        "source",
+        [{"element": "Cu", "wavelength_nm": 324.754, "back": 1}, {"element": "Fe", "wavelength_nm": 250.0, "back": 1}],
+        [],
+        [[(10, 1), (20, 2)], [(5, 2), (10, 4)]],
+        2,
+    )
+    lines = [
+        {
+            "id": "L1",
+            "line_type": "analysis",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "internal_standard_mode": "line",
+            "internal_standard_line_id": "IS",
+        },
+        {"id": "IS", "line_type": "internal_standard", "element": "Fe", "wavelength_nm": 250.0},
+    ]
+    evaluators = {
+        "L1": {
+            "fit": {"kind": "polynomial", "coefficients": [0, 2, 0, 0]},
+            "coordinate_type": "normal",
+            "curve_snapshot_id": 7,
+        }
+    }
     result = recalculate_legacy(source, lines, evaluators, "legacy_2_0_2")
     assert [line["quantitative_signal"] for line in result["lines"]] == [3, 3]
     assert [line["calculated_value"] for line in result["lines"]] == [6, 6]
@@ -42,8 +64,7 @@ def test_pure_legacy_curve_calculation_keeps_internal_standard_and_diagnostics()
 
 
 def test_document_geometry_and_pagination_accept_internal_settings():
-    settings = PrintSettings("geospectrum-pdf", "A4", "portrait", 12, 12, 12, 12,
-                             "standard", 9, 1, "none", False, True)
+    settings = PrintSettings("geospectrum-pdf", "A4", "portrait", 12, 12, 12, 12, "standard", 9, 1, "none", False, True)
     document = MethodDocument()
     rows = [{"kind": "item", "label": str(index), "value": "x"} for index in range(100)]
     result = document._paginate(rows, settings)
@@ -58,11 +79,21 @@ def test_document_geometry_and_pagination_accept_internal_settings():
 
 def test_calculation_modules_do_not_import_storage_requests_or_renderers():
     root = Path(__file__).resolve().parents[1] / "backend/modules"
-    for relative in ("postprocessing/legacy_calculation.py", "method_printing/document.py", "method_printing/settings.py"):
+    for relative in (
+        "postprocessing/legacy_calculation.py",
+        "method_printing/document.py",
+        "method_printing/settings.py",
+    ):
         tree = ast.parse((root / relative).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 modules = [item.name for item in node.names] if isinstance(node, ast.Import) else [node.module or ""]
-                assert all(not any(part in name.split(".") for part in ("sqlite3", "db", "schemas", "fastapi", "reportlab", "subprocess", "pathlib")) for name in modules), relative
+                assert all(
+                    not any(
+                        part in name.split(".")
+                        for part in ("sqlite3", "db", "schemas", "fastapi", "reportlab", "subprocess", "pathlib")
+                    )
+                    for name in modules
+                ), relative
             elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 assert node.func.id not in {"open", "Database"}, relative

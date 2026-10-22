@@ -18,7 +18,6 @@ READER_FORMAT_VERSION = 1
 
 
 class LegacyAccessReader:
-
     @staticmethod
     def _reader_candidates() -> list[tuple[str, list[str]]]:
         app_root = Path(__file__).resolve().parents[3]
@@ -30,7 +29,9 @@ class LegacyAccessReader:
         packaged = reader_root / "GeoSpectrum.LegacyReader.exe"
         if packaged.exists():
             candidates.append(("dotnet-win-x86", [str(packaged)]))
-        powershell = Path(os.environ.get("WINDIR", r"C:\Windows")) / "SysWOW64" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+        powershell = (
+            Path(os.environ.get("WINDIR", r"C:\Windows")) / "SysWOW64" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+        )
         packaged_script = files("backend.resources.legacy_reader").joinpath("read_access.ps1")
         script = Path(str(packaged_script))
         if powershell.exists() and script.exists():
@@ -42,12 +43,18 @@ class LegacyAccessReader:
             )
         return candidates
 
+    def streaming_command(self) -> tuple[str, list[str]] | None:
+        """Return the available command supporting streamed BLOB files."""
+        return next((item for item in self._reader_candidates() if item[0] == "windows-powershell-x86"), None)
+
     def diagnostics(self) -> dict[str, Any]:
         attempts: list[dict[str, Any]] = []
         for name, command in self._reader_candidates():
             probe = [*command, "-Probe"] if name == "windows-powershell-x86" else [*command, "--probe"]
             try:
-                result = subprocess.run(probe, capture_output=True, text=True, encoding="utf-8", timeout=10, check=False)
+                result = subprocess.run(
+                    probe, capture_output=True, text=True, encoding="utf-8", timeout=10, check=False
+                )
                 payload = json.loads(result.stdout.strip().splitlines()[-1]) if result.stdout.strip() else {}
             except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as exc:
                 attempts.append({"reader": name, "available": False, "message": str(exc)})
@@ -83,9 +90,15 @@ class LegacyAccessReader:
         with tempfile.TemporaryDirectory(prefix="geospectrum-s06-") as temporary:
             copied = Path(temporary) / source.name
             shutil.copy2(source, copied)
-            command = [*candidate[1], "-Path", str(copied)] if candidate[0] == "windows-powershell-x86" else [*candidate[1], "--path", str(copied)]
+            command = (
+                [*candidate[1], "-Path", str(copied)]
+                if candidate[0] == "windows-powershell-x86"
+                else [*candidate[1], "--path", str(copied)]
+            )
             try:
-                result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", timeout=60, check=False)
+                result = subprocess.run(
+                    command, capture_output=True, text=True, encoding="utf-8", timeout=60, check=False
+                )
             except (OSError, subprocess.TimeoutExpired) as exc:
                 raise LegacyMigrationError(
                     "legacy_reader_failed", "旧方法读取器执行失败", status_code=503, details={"reason": str(exc)}
@@ -103,9 +116,10 @@ class LegacyAccessReader:
         after = _source_snapshot(source)
         if before != after:
             raise LegacyMigrationError(
-                "legacy_source_changed", "读取期间旧方法源文件发生变化，已中止暂存", details={"before": before, "after": after}
+                "legacy_source_changed",
+                "读取期间旧方法源文件发生变化，已中止暂存",
+                details={"before": before, "after": after},
             )
         if payload.get("format_version") != READER_FORMAT_VERSION:
             raise LegacyMigrationError("legacy_reader_version_invalid", "旧方法读取器输出版本不兼容")
         return payload, diagnostic
-

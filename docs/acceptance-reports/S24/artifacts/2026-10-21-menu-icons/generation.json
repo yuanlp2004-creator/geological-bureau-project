@@ -1,0 +1,155 @@
+[
+  {
+    "batch": "legacy",
+    "columns": 3,
+    "size": [
+      1152,
+      768
+    ],
+    "items": [
+      {
+        "name": "print",
+        "label": "打印",
+        "description": "灰色打印机，顶部伸出白色纸张，浅蓝灰轮廓",
+        "legacy_index": 7
+      },
+      {
+        "name": "dispersion-acquisition",
+        "label": "色散摄谱",
+        "description": "金黄色棱镜/光学片与金色闪电，右下方少量红色光谱曲线，沿用旧图金色主色",
+        "legacy_index": 8
+      },
+      {
+        "name": "evaporation-acquisition",
+        "label": "蒸发摄谱",
+        "description": "青蓝色三角形光学底座上一个橙黄色闪电，沿用旧图蓝金配色",
+        "legacy_index": 9
+      },
+      {
+        "name": "dispersion-curve",
+        "label": "色散曲线",
+        "description": "浅蓝色正方形坐标框内，一条深蓝色平滑S形色散曲线，不是字母文字",
+        "legacy_index": 11
+      },
+      {
+        "name": "evaporation-curve",
+        "label": "蒸发曲线",
+        "description": "浅蓝灰色填充的单个平滑宽钟形曲线，曲线下方一条深蓝色水平基线",
+        "legacy_index": 12
+      },
+      {
+        "name": "spectra",
+        "label": "谱图查看",
+        "description": "深蓝边框的小型图表窗口，内部红绿金三条光谱折线和尖峰",
+        "legacy_index": 13
+      }
+    ],
+    "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d"
+  },
+  {
+    "batch": "system",
+    "columns": 4,
+    "size": [
+      1536,
+      768
+    ],
+    "items": [
+      {
+        "name": "workspace",
+        "label": "工作台",
+        "description": "一个深蓝色仪器工作台面板，由四个大小协调的蓝青金色方块组成",
+        "legacy_index": null
+      },
+      {
+        "name": "settings",
+        "label": "软件设置",
+        "description": "蓝灰色圆齿轮，中心白色圆孔，少量青蓝高光",
+        "legacy_index": null
+      },
+      {
+        "name": "users",
+        "label": "用户与权限",
+        "description": "两个蓝色用户头像，右下方一个小型金色盾牌",
+        "legacy_index": null
+      },
+      {
+        "name": "audit",
+        "label": "审计记录",
+        "description": "白色竖向清单纸，三条蓝色记录线，右下方一个简洁金色时钟",
+        "legacy_index": null
+      },
+      {
+        "name": "import-methods",
+        "label": "旧方法与配置迁移",
+        "description": "金黄色文件夹上有深蓝色参数列表，右侧绿色向内箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "import-spectra",
+        "label": "旧谱文件迁移",
+        "description": "白色文件纸内有红绿光谱尖峰，右侧绿色向内箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "import-results",
+        "label": "旧结果迁移",
+        "description": "白色文件纸内有蓝色小表格，右侧绿色向内箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "devices",
+        "label": "设备参数与实时调试",
+        "description": "蓝灰色小型示波器屏幕，内部一条青绿色波形，右下方一个小金色调节旋钮",
+        "legacy_index": null
+      }
+    ],
+    "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499"
+  },
+  {
+    "batch": "tools",
+    "columns": 3,
+    "size": [
+      1152,
+      768
+    ],
+    "items": [
+      {
+        "name": "rotation",
+        "label": "自动转角采集",
+        "description": "蓝色圆形转台，上方一根竖立金色光学组件，外侧一段清晰绿色旋转箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "mercury",
+        "label": "汞灯与光学校准",
+        "description": "蓝灰色灯座上一根青蓝玻璃灯管，两侧简短金色光芒",
+        "legacy_index": null
+      },
+      {
+        "name": "recalculate",
+        "label": "重新计算",
+        "description": "蓝灰色小计算器，白色显示屏，四个小按键，右上方一个绿色循环箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "maintenance",
+        "label": "备份与维护",
+        "description": "蓝灰色数据库圆柱，前方绿色环形备份箭头",
+        "legacy_index": null
+      },
+      {
+        "name": "help",
+        "label": "离线帮助",
+        "description": "打开的白色书本，深蓝色封面和书页边线，中间少量金色书签",
+        "legacy_index": null
+      },
+      {
+        "name": "tools",
+        "label": "工具",
+        "description": "一把简洁深蓝色扳手与一根金色螺丝刀交叉放置",
+        "legacy_index": null
+      }
+    ],
+    "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c"
+  }
+]

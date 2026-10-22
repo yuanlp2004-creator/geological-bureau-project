@@ -26,7 +26,10 @@ def main() -> int:
     env = os.environ.copy()
     env["SPECTRUM_DATA_DIR"] = str(data_dir)
     started = time.perf_counter()
-    with (data_dir / "stdout.log").open("w", encoding="utf-8") as stdout, (data_dir / "stderr.log").open("w", encoding="utf-8") as stderr:
+    with (
+        (data_dir / "stdout.log").open("w", encoding="utf-8") as stdout,
+        (data_dir / "stderr.log").open("w", encoding="utf-8") as stderr,
+    ):
         process = subprocess.Popen(
             [str(TAURI_EXE)],
             cwd=APP_ROOT,

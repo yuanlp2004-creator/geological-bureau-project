@@ -16,6 +16,7 @@ class DispersionLineInput(BaseModel):
 class DispersionTaskCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    source_record_id: int | None = Field(default=None, ge=1)
     name: str = Field(default="S12 色散校准", min_length=1, max_length=120)
     device_profile_id: int = Field(default=1, ge=1)
     ccd_layout_id: str | int = "default"
@@ -27,7 +28,7 @@ class DispersionTaskCreate(BaseModel):
     dark_frame_count: int = Field(default=1, ge=0, le=20)
     pre_excitation_seconds: float = Field(default=3.0, ge=0, le=600)
     sampling_period_seconds: float = Field(default=1.0, gt=0, le=60)
-    residual_limit_points: float = Field(default=2.0, gt=0, le=1000)
+    residual_limit_points: float | None = Field(default=None, gt=0, le=1000)
     ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
     lines: list[DispersionLineInput] = Field(default_factory=list, max_length=100)
 
@@ -45,6 +46,7 @@ class DispersionCalibrationFitRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=120)
     degree: int = Field(default=2, ge=1, le=3)
     residual_limit_points: float | None = Field(default=None, gt=0, le=1000)
+    use_legacy_limit: bool = False
 
 
 class DispersionCalibrationBindRequest(BaseModel):

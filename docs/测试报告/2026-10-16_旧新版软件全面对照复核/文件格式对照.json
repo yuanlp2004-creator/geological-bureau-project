@@ -1,0 +1,104 @@
+[
+  {
+    "extension": ".MTD",
+    "purpose": "方法/谱线/色散库",
+    "current": "读取迁移、版本绑定/标准复用已实现；不回写旧库",
+    "finding": "D01/D02"
+  },
+  {
+    "extension": ".CFG",
+    "purpose": "分析、预备默认、输出偏好",
+    "current": "解析与留档；运行偏好不完整迁移",
+    "finding": "F11"
+  },
+  {
+    "extension": ".OPT",
+    "purpose": "CCD/设备/屏幕/页面/保护",
+    "current": "布局能迁移；页面/运行偏好不完整激活",
+    "finding": "F06/F11/F12"
+  },
+  {
+    "extension": ".CDT",
+    "purpose": "平均谱带",
+    "current": "读取迁移/观察/分析；新版保存自己数据，不输出旧CDT",
+    "finding": "D01"
+  },
+  {
+    "extension": ".CMT",
+    "purpose": "全时样品",
+    "current": "读取完整帧/区间、逐线分析/CSV；无旧CMT写回",
+    "finding": "D01"
+  },
+  {
+    "extension": ".EDT",
+    "purpose": "蒸发完整时序",
+    "current": "迁移/原点明细/区间转新版样品；不覆盖追加旧CDT/CMT，不回写源EDT色散",
+    "finding": "D01"
+  },
+  {
+    "extension": ".WDT",
+    "purpose": "色散时序",
+    "current": "迁移后可创建再制作任务，已有入口；自动定位均值口径不同",
+    "finding": "F01/F02/F03"
+  },
+  {
+    "extension": ".PDT",
+    "purpose": "峰/背景及方法映射",
+    "current": "严格读取/旧口径重算/长表导出；无旧PDT写出/专用强度宽表链",
+    "finding": "D01/F08"
+  },
+  {
+    "extension": ".DAT",
+    "purpose": "最终含量矩阵",
+    "current": "读取/报告/打印/导出；非直接生成旧DAT；标准/转置矩阵不对应",
+    "finding": "D01/F07"
+  },
+  {
+    "extension": ".SAM",
+    "purpose": "样号与重复",
+    "current": "GB18030导出可用，输入文字/编码有缺陷；非法行策略更严格",
+    "finding": "F10/F14/D07"
+  },
+  {
+    "extension": "ELEMENTS.SYM",
+    "purpose": "元素候选文本",
+    "current": "随包资源校验与元素候选；不是固定波长库",
+    "finding": "对应实现"
+  },
+  {
+    "extension": "DIRECT.CHM",
+    "purpose": "42个历史帮助主题",
+    "current": "替换为内置帮助/错误码；旧图文逐段等价证据不足",
+    "finding": "D09/V03"
+  },
+  {
+    "extension": "DIRECT.LOG",
+    "purpose": "旧错误记录",
+    "current": "新版运行JSONL/事件/审计替代；不清改旧日志",
+    "finding": "D09"
+  },
+  {
+    "extension": "TXT/XLS",
+    "purpose": "报表与强度输出",
+    "current": "TXT/CSV/SpreadsheetML XLS已有，旧二维矩阵和方法TXT有缺口",
+    "finding": "F07/F08/F09"
+  },
+  {
+    "extension": ".cdt_/.cmt_/.edt_/.wdt_",
+    "purpose": "旧建文件模板",
+    "current": "旧程序内部模板依赖，新版独立建记录；不作为独立待补用户格式",
+    "finding": "设计替代"
+  },
+  {
+    "extension": ".qct/.qct_",
+    "purpose": "遗留资料",
+    "current": "未确认旧菜单产品格式，不能因文件存在虚构用户功能",
+    "finding": "未证实格式"
+  },
+  {
+    "extension": ".ACQ/PCOMM.DLL",
+    "purpose": "回放及通讯依赖",
+    "current": "模拟样本回放已测；DLL硬件协议本轮排除",
+    "finding": "排除物理I/O"
+  }
+]

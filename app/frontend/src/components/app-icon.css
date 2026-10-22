@@ -1,0 +1,11 @@
+.app-icon,
+.brand-mark.app-icon,
+.auth-brand .brand-mark.app-icon,
+.product-mark.app-icon {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}

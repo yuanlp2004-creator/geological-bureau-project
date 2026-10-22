@@ -39,7 +39,7 @@
 - 研究旧功能：先读 `Spec2.02功能研究/01_功能树_源码整理版.md`，再到 `Spec Source/Source/` 核对 `.pas/.dfm`。
 - 研究 API 或业务规则：先读 `Spec2.02功能研究/`，再用 `Spec Source/` 和 `Spec2.02/` 交叉验证。
 - 解析旧文件：先读 `SpecFile/README.md` 和来源清单，回到原件，再搜索 `Spec Source/Source/Common/` 的读写实现。
-- 核对旧界面：查看 `Spec2.02功能研究/screenshots/` 和 `Spec2.02/spec2.02截图/`。新版视觉以 `docs/ui-test-homepage-reference.png` 为项目级参考；即使查看 `UI测试/`，也不得从中推断功能或架构。
+- 核对旧界面：查看 `Spec2.02功能研究/screenshots/` 和 `Spec2.02/spec2.02截图/`。初始视觉基线 `docs/ui-test-homepage-reference.png` 当前缺失，后续现状以 S23/S24 对应批次截图和实际程序核对；即使查看 `UI测试/`，也不得从中推断功能或架构。
 - 排查运行配置：读取 `Spec2.02/DIRECT.CFG`、`DIRECT.OPT` 并核对旧源码；不得参考 `UI测试/backend/` 的演示适配代码。
 
 ## 正式实现约束

@@ -1,0 +1,96 @@
+{
+  "dispersion_last_frame_vs_mean": {
+    "wavelength_nm": 250.10000000000002,
+    "expected_position": 111.9156280205425,
+    "source_frames": [
+      {
+        "107": 1000,
+        "117": 1
+      },
+      {
+        "107": 1,
+        "117": 900
+      }
+    ],
+    "legacy_mean_peak_index": 107,
+    "current_located_position": 117.0,
+    "different": true,
+    "oracle": "old source loads normalized CcdAvgs; equal periods and zero dark make peak equal to arithmetic-mean peak"
+  },
+  "dispersion_move_requires_save": {
+    "stored_position": 200.0,
+    "new_located_position": 250.0,
+    "fit_used_position": 200.0,
+    "coefficients_unchanged": true
+  },
+  "sam_encoding": {
+    "original_name": "样1",
+    "raw_hex": "d1f93109310d0a",
+    "original_sha256": "6247db6ebd6bc7d8ec84ad04fa98049d162e96c19d2c4b8910a3e7d581c30a7d",
+    "backend_original_bytes_name": "样1",
+    "browser_file_text_name": "��1",
+    "ambiguous_gb18030_name": "铅1",
+    "ambiguous_backend_name": "Ǧ1"
+  },
+  "report_settings": {
+    "requested_paper": "A3 portrait",
+    "requested_font": 12,
+    "rows": 25,
+    "pages_before": 2,
+    "pages_after": 2,
+    "bytes_identical": true,
+    "actual_page_mm": [
+      297.0,
+      210.0
+    ],
+    "actual_text_font_sizes": [
+      7.0,
+      8.0,
+      15.0
+    ]
+  },
+  "report_exchange_not_matrix_transpose": {
+    "standard_dimensions": [
+      7,
+      3
+    ],
+    "exchange_dimensions": [
+      7,
+      3
+    ],
+    "exchange_header": [
+      "元素",
+      "样品名称",
+      "分析结果"
+    ],
+    "sample_count": 3,
+    "element_count": 2,
+    "legacy_standard_matrix_dimensions": [
+      4,
+      3
+    ],
+    "legacy_exchange_matrix_dimensions": [
+      3,
+      4
+    ],
+    "legacy_exchange_header": [
+      "样品号",
+      "N1",
+      "N2",
+      "N3"
+    ]
+  },
+  "imported_cfg_runtime": {
+    "source_dark_seconds": 12,
+    "source_wait_ms": 1234,
+    "configuration_profile_id": 1,
+    "profile_active": 0,
+    "archived_cfg": {
+      "dark_round_time": 12,
+      "log_analysis": true,
+      "look_band": true,
+      "wait_time_ms": 1234
+    },
+    "runtime_dark_seconds": 8
+  }
+}

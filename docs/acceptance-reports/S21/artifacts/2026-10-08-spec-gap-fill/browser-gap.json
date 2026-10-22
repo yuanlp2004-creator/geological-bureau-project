@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "reference delta in nm/pixels; clear and theoretical change update only the draft",
+    "single-line exposure interval is available in the existing spectral-line editor",
+    "method excitation/type defaults, explicit repeat override, and full-frame retention",
+    "daily calibration preview/save creates a new draft and retains the published method",
+    "normalized fixed-peak time table CSV; desktop save bytes captured without testing a physical file dialog",
+    "EDT storage choice and explicit older-PDT confirmation are present",
+    "real DAT report selection, explicit unit/provenance, preview, confirmation, and PDF export"
+  ],
+  "desktop": false
+}

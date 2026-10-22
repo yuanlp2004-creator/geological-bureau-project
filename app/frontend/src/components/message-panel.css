@@ -1,0 +1,50 @@
+.app-shell.with-runtime-messages { height: 100dvh; min-height: 0; overflow: hidden; }
+.app-shell.with-runtime-messages > .main-area { display: flex; flex-direction: column; min-height: 0; }
+.with-runtime-messages .main-area > :is(.topbar, .quick-access-bar) { flex: 0 0 auto; }
+.with-runtime-messages .page-scroll-region { flex: 1; min-height: 0; overflow: auto; }
+.with-runtime-messages > .toast { bottom: calc(var(--runtime-dock-height, 184px) + 12px); }
+:root .with-runtime-messages .page-scroll-region > .analysis-workbench.remaining-page:not(.analysis-preparing) { height: 100%; }
+:root .with-runtime-messages .analysis-workbench.remaining-page.analysis-preparing { min-height: calc(100dvh - var(--workspace-header-height, 76px) - var(--runtime-dock-height, 184px)); }
+:root .with-runtime-messages .spectroscopy-workbench .spectroscopy-console { height: max(320px, calc(100dvh - 240px - var(--runtime-dock-height, 184px))); }
+.runtime-message-panel { flex: 0 0 auto; min-height: 0; display: flex; flex-direction: column; background: var(--surface); border-top: 1px solid var(--line); color: var(--ink); font-size: 12px; }
+.runtime-message-resizer { flex: 0 0 6px; display: flex; align-items: center; justify-content: center; background: var(--surface-soft, #f5f8fb); cursor: ns-resize; touch-action: none; }
+.runtime-message-resizer::after { content: ''; height: 2px; width: 28px; border-radius: 2px; background: var(--muted); opacity: .45; }
+.runtime-message-toolbar { display: flex; align-items: center; flex: 0 0 auto; gap: 10px; padding: 6px 12px; border-bottom: 1px solid var(--line); min-height: 45px; }
+.runtime-message-tabs { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; }
+.runtime-message-panel button, .runtime-message-panel select, .runtime-message-panel input { font: inherit; color: inherit; }
+.runtime-message-panel button { min-height: 29px; padding: 4px 9px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); white-space: nowrap; }
+.runtime-message-panel button:hover { background: var(--surface-soft, #f5f8fb); }
+.runtime-message-tabs button { border-color: transparent; background: transparent; }
+.runtime-message-tabs button[aria-selected='true'] { color: var(--blue); background: var(--surface-soft, #f1f6fc); }
+.runtime-message-tabs span { margin-left: 4px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.runtime-message-level { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; color: var(--muted); white-space: nowrap; }
+.runtime-message-level select { height: 29px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); }
+.runtime-message-filter { flex: 1; width: 120px; min-width: 60px; max-width: 300px; height: 29px; padding: 4px 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); }
+.runtime-message-filter::placeholder { color: var(--muted); }
+.runtime-message-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.runtime-message-actions button[aria-pressed='true'] { color: var(--amber); }
+.runtime-message-actions .runtime-message-collapse { border-color: transparent; padding: 4px; display: inline-flex; align-items: center; justify-content: center; }
+.runtime-message-panel :is(button, input, select, .runtime-message-resizer):focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.runtime-message-list { flex: 1; min-height: 0; overflow: auto; padding: 5px 13px 8px; font: 12px/1.65 Consolas, 'Microsoft YaHei UI', monospace; }
+.runtime-message-list[hidden] { display: none; }
+.runtime-message-row { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 12px; padding: 2px 0; min-height: 24px; }
+.runtime-message-row time { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.runtime-message-row > span { white-space: pre-wrap; overflow-wrap: anywhere; }
+.runtime-message-context { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.runtime-message-row.warning > span { color: #95600d; }
+.runtime-message-row.error > span { color: #b63e46; }
+.runtime-message-empty { min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: 'Microsoft YaHei UI', sans-serif; }
+.runtime-message-panel.is-collapsed .runtime-message-toolbar { border-bottom: 0; }
+:root[data-theme='dark'] .runtime-message-panel { background: #132235; color: #e2ebf5; border-color: #3d5168; --surface: #132235; --surface-soft: #1d344e; --line: #3d5168; --muted: #afbed0; --blue: #9ac2ff; --amber: #f0cc91; }
+:root[data-theme='dark'] .runtime-message-row.warning > span { color: #f0cc91; }
+:root[data-theme='dark'] .runtime-message-row.error > span { color: #ffb4b0; }
+@media(max-width: 1150px) {
+  .runtime-message-toolbar { gap: 6px; padding: 6px 9px; }
+  .runtime-message-panel button { padding: 4px 7px; }
+  .runtime-message-level { gap: 4px; }
+}
+@media(max-width: 900px) {
+  .runtime-message-toolbar { flex-wrap: wrap; }
+  .runtime-message-tabs { margin-right: auto; }
+  .runtime-message-filter { max-width: none; }
+}

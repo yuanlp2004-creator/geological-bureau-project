@@ -1,0 +1,90 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "plan_before_sha256": "4bd43f4029ead8ceaca82f5201bac2d83428694fd0db89b138cb15a8767ac7d6",
+  "execution_plan_sha256": "f8a853bd20b5fdf5f449d3d4a6418c4a39453d0eb1453b7e2dec608ca66337db",
+  "changed_product_files": [
+    "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "audited_entries": 27,
+  "browser_layout_states": 54,
+  "actual_desktop_layout_states": 54,
+  "checks": [
+    "All authorized navigation entries: visible forms and no viewport overflow",
+    "Five targeted forms: compact rows and narrow-window adaptation",
+    "Settings save/reload; blank number stays blank and causes zero writes",
+    "User draft inputs and role choice remain available in compact rows",
+    "Report source switch preserves its unit draft and warning",
+    "Dispersion task receives the four compact acquisition inputs unchanged"
+  ],
+  "frontend_tests": 15,
+  "row_comparison": [
+    {
+      "page": "settings",
+      "view": null,
+      "fields_unchanged": 7,
+      "short_field_rows_before": 4,
+      "short_field_rows_after": 1
+    },
+    {
+      "page": "users",
+      "view": null,
+      "fields_unchanged": 4,
+      "short_field_rows_before": 3,
+      "short_field_rows_after": 1
+    },
+    {
+      "page": "methods",
+      "view": "print-preview",
+      "fields_unchanged": 5,
+      "short_field_rows_before": 3,
+      "short_field_rows_after": 2
+    },
+    {
+      "page": "dispersion",
+      "view": null,
+      "fields_unchanged": 7,
+      "short_field_rows_before": 5,
+      "short_field_rows_after": 2
+    }
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "0c87c75fdf7bf2bb92a3abe7a631aa84084d5049b0784232f5484f64551bceb7",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "backend_bytes_unchanged": true,
+  "user_data_files_preserved": 2,
+  "user_data_hashes": {
+    "geospectrum.sqlite3": "47e2481b31d232d192d226d7bd1054ad899dd3db6eb26ab3de6bbbf34923d44f",
+    "last-upgrade.json": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39"
+  },
+  "root_and_app_listing_unchanged": true,
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-conservative-density\\previous",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-conservative-density\\qa\\GeoSpectrum.exe",
+    "pid": 2216,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "limits": [
+    "Only existing short fields were rearranged. Long paths, warnings, source lists and result tables retain their width.",
+    "Actual Windows desktop tested at current devicePixelRatio 2; other system scaling settings were not changed.",
+    "Hardware, physical printing, signing, clean-Windows and formal acceptance gates remain unchanged."
+  ],
+  "plan_after_documentation_sha256": "275230794676d50f61105f91aa1f8ce802731c0d41e565be50a856b5e61014d1",
+  "actual_application_theme_and_density_verified_in_all_states": true,
+  "diagnostic_repairs": [
+    "Use complete S24 fixtures and a valid API-published current method before gated navigation.",
+    "Scope select locators to their field container.",
+    "Apply theme/density through settings API and refresh the real app state; assert actual app-shell attributes in every layout state."
+  ]
+}

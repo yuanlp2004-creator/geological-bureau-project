@@ -5,6 +5,47 @@ from __future__ import annotations
 import json
 import math
 import sqlite3
+from typing import NamedTuple
+
+
+class LinePosition(NamedTuple):
+    ccd_index: int
+    point: float
+    within_margin: bool
+
+
+class MethodLineLocator:
+    """方法模块公开的定位快照；调用方不接触布局表或数据库行。"""
+
+    def __init__(self, layout: sqlite3.Row, dispersion: sqlite3.Row, geometry: MethodGeometry):
+        self._layout = layout
+        self._dispersion = dispersion
+        self._geometry = geometry
+
+    @property
+    def layout_id(self) -> int:
+        return int(self._layout['id'])
+
+    def accepts_legacy_layout(self, source: dict) -> bool:
+        gaps = json.loads(self._layout['gap_points_json'])
+        coefficients = json.loads(self._dispersion['coefficients_json'])
+        indices = json.loads(self._layout['ccd_indices_json'])
+        return (source.get('points_per_ccd') == self._layout['points_per_ccd']
+                and set(source.get('ccd_indices', [])) <= set(indices)
+                and len(gaps) == len(source.get('gap_points', []))
+                and all(math.isclose(a,b,rel_tol=0,abs_tol=1e-4) for a,b in zip(gaps,source['gap_points']))
+                and len(source.get('ws_cof', [])) >= 3 and len(coefficients) >= 3
+                and all(math.isclose(a,b,rel_tol=0,abs_tol=1e-4) for a,b in zip(coefficients[:3],source['ws_cof'][:3])))
+
+    def locate(self, wavelength_nm: float) -> LinePosition | None:
+        """沿用方法的波长换算和 CCD 边界规则，越界返回 None。"""
+        position = self._geometry._reference_position(wavelength_nm, self._layout, self._dispersion)
+        return LinePosition(*position) if position is not None else None
+
+    def wavelength_at(self, ccd_index: int, point: float) -> float:
+        geometry = next(item for item in self._geometry._layout_geometry(self._layout) if item['ccd_index'] == ccd_index)
+        coefficients = json.loads(self._dispersion['coefficients_json'])
+        return self._geometry._step_to_wave(float(geometry['left_step']) + point, coefficients)
 
 
 class MethodGeometry:

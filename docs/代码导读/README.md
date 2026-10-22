@@ -1,8 +1,10 @@
 # GeoSpectrum 代码导读索引
 
+更新日期：2026-10-16。当前18个模块、七组导航、27个正式入口，schema23；近期操作补齐见 [最新实施清单](../acceptance-reports/S24/artifacts/2026-10-16-legacy-ten-completion/实施清单.md)。本目录只描述现存代码入口、实现分工和当前行为。
+
 本目录用于帮助开发者从“知道文件在哪”进一步走到“理解模块为什么这样工作”。文档全部依据当前 `app/` 实现编写，描述实际代码，不把规划目标误写成已经存在的物理分层。
 
-执行修改前仍须先读项目根目录的 [`AGENTS.md`](../../AGENTS.md)、[`PLAN.md`](../PLAN.md) 和 [`项目阅读指南.md`](../项目阅读指南.md)。本目录是代码导读，不替代事实来源、步骤门禁或验收报告。
+执行修改前仍须先读项目根目录的 [`AGENTS.md`](../../AGENTS.md)、[`PLAN.md`](../../PLAN.md) 和 [`项目阅读指南.md`](../项目阅读指南.md)。本目录是代码导读，不替代事实来源、步骤门禁或验收报告。
 
 ## 推荐使用方式
 
@@ -12,7 +14,7 @@
 模块导读
   → modules/manifest.py 中的模块清单
   → api/<module>.py 中对应 API 路由
-  → modules/<module>.py 中的应用服务
+  → modules/<module>/ 或同名单文件中的应用服务
   → migrations/ 中对应表、索引和不可变触发器（db.py 调度）
   → frontend/src/api/<business>.ts 中的类型与请求
   → 页面组件
@@ -42,7 +44,7 @@
 | 09 | `spectrum-viewer` | [`09_光谱查看_spectrum-viewer.md`](09_光谱查看_spectrum-viewer.md) | S10 |
 | 10 | `devices` | [`10_设备配置与模拟器_devices.md`](10_设备配置与模拟器_devices.md) | S11 |
 | 11 | `dispersion` | [`11_色散校准_dispersion.md`](11_色散校准_dispersion.md) | S12 |
-| 12 | `acquisition` | [`12_样品采集_acquisition.md`](12_样品采集_acquisition.md) | S13 |
+| 12 | `acquisition` | [蒸发与样品摄谱](12_样品采集_acquisition.md) | S13 |
 | 13 | `hardware-acquisition` | [`13_硬件转角采集_hardware-acquisition.md`](13_硬件转角采集_hardware-acquisition.md) | S14 |
 | 14 | `mercury-calibration` | [`14_汞灯校准_mercury-calibration.md`](14_汞灯校准_mercury-calibration.md) | S15 |
 | 15 | `analysis` | [`15_分析与标准曲线_analysis.md`](15_分析与标准曲线_analysis.md) | S16–S17 |
@@ -69,3 +71,7 @@
 - 文档中的函数名、表名和枚举值属于定位锚点，重命名后必须同步更新。
 - 旧版事实发生变化时，先更新证据和计划，再更新本目录的解释。
 - 文档只能解释真实实现，不能用“预期”“以后会有”掩盖尚未实现的能力。
+
+---
+
+[文档维护](../参考资料/文档维护.md)

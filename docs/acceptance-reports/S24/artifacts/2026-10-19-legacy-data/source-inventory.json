@@ -1,0 +1,290 @@
+[
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\blk.qct_",
+    "relative": "Spec Source\\Bin\\blk.qct_",
+    "format": "qct_",
+    "size": 176128,
+    "mtime_ns": "1787726422125773300",
+    "sha256": "900ab4c99a37b532ea9ede5851854af4740d3514794790148052d61b457404ca"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.CFG",
+    "relative": "Spec Source\\Bin\\DIRECT.CFG",
+    "format": "cfg",
+    "size": 144,
+    "mtime_ns": "1787726422442391600",
+    "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.MTD",
+    "relative": "Spec Source\\Bin\\DIRECT.MTD",
+    "format": "mtd",
+    "size": 339968,
+    "mtime_ns": "1787726422507817800",
+    "sha256": "527ae25c08dcf3afb8365b4177cf5d5b113eb417649b6803ad7de2f27c43f83d"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.OPT",
+    "relative": "Spec Source\\Bin\\DIRECT.OPT",
+    "format": "opt",
+    "size": 379,
+    "mtime_ns": "1787726422494468400",
+    "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\化验DIRECT.MTD",
+    "relative": "Spec Source\\Bin\\化验DIRECT.MTD",
+    "format": "mtd",
+    "size": 536576,
+    "mtime_ns": "1787726422510818000",
+    "sha256": "f049c2012e276ff10f6b0ed040ee542b4f23827c5e950fa5ff8b22b957695ed5"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\方成DIRECT.MTD",
+    "relative": "Spec Source\\Bin\\方成DIRECT.MTD",
+    "format": "mtd",
+    "size": 512000,
+    "mtime_ns": "1787726422514846600",
+    "sha256": "04a5e8212439deb4f7bc9e5526c568de0acad55c5b85d090edbf377b3c5b94c6"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+    "relative": "Spec Source\\Bin\\DATA\\20141029_测试.edt",
+    "format": "edt",
+    "size": 57708544,
+    "mtime_ns": "1787726459101784000",
+    "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.qct",
+    "relative": "Spec Source\\Bin\\DATA\\20141029_测试.qct",
+    "format": "qct",
+    "size": 57708544,
+    "mtime_ns": "1787726458870758900",
+    "sha256": "46fd673257e37ba182d309971c209575b182246d9934b5bac8355cf6125cfdd7"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+    "relative": "Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+    "format": "wdt",
+    "size": 57708544,
+    "mtime_ns": "1787726457515434800",
+    "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5-960.sam",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5-960.sam",
+    "format": "sam",
+    "size": 9600,
+    "mtime_ns": "1787726450774552800",
+    "sha256": "353a67ca7855cafaef62fac9c25f965d95624202e19cb03e06a8626e7b544be0"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5.sam",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5.sam",
+    "format": "sam",
+    "size": 1200,
+    "mtime_ns": "1787726451125330700",
+    "sha256": "dcb9daac1b17d1ed33ae8fd35127faab17bbfd6fd7debde3b9e91e11e39a8626"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cdt",
+    "format": "cdt",
+    "size": 43491328,
+    "mtime_ns": "1787726459746791600",
+    "sha256": "a45f5fd4b8c4ebd06eadb2bf11161b36a66a81d24a9234ff3ee47392f7cfbd54"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+    "format": "cmt",
+    "size": 460529664,
+    "mtime_ns": "1787726480178533200",
+    "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cdt",
+    "format": "cdt",
+    "size": 5578752,
+    "mtime_ns": "1787726454767321800",
+    "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cmt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cmt",
+    "format": "cmt",
+    "size": 50323456,
+    "mtime_ns": "1787726465899101200",
+    "sha256": "db09294199d9f49ee2dfb7e17e9dd58f35048b742c06cea2caf93f4f1329f3aa"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170517_[1-18]ErrIndex.cmt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170517_[1-18]ErrIndex.cmt",
+    "format": "cmt",
+    "size": 57696256,
+    "mtime_ns": "1787726465981484300",
+    "sha256": "dc40bbebedc5f8905ef31e5c5257c27e69a8786a7e2922eae52c3fb91fdf8d6e"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20180403_1227.pdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20180403_1227.pdt",
+    "format": "pdt",
+    "size": 11068,
+    "mtime_ns": "1787726451565180800",
+    "sha256": "d5c5771531742e3a8e7bd21acf5acbbf4e84893e2f4d4079ffa6554db57cd8b4"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+    "format": "dat",
+    "size": 2105,
+    "mtime_ns": "1787726451809604100",
+    "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.pdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.pdt",
+    "format": "pdt",
+    "size": 11068,
+    "mtime_ns": "1787726451765671900",
+    "sha256": "d13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.dat",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.dat",
+    "format": "dat",
+    "size": 2105,
+    "mtime_ns": "1787726451975805100",
+    "sha256": "bb4b15f4de52a47f6aefcfe5f3f0ff660c38c94566676a915800822c7a4e0356"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.pdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.pdt",
+    "format": "pdt",
+    "size": 11068,
+    "mtime_ns": "1787726452015588600",
+    "sha256": "0ab4ccae7f04ca8d876e55dc3feb557ec6335ce0dbfcf360333ad186f898fd78"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.dat",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.dat",
+    "format": "dat",
+    "size": 2105,
+    "mtime_ns": "1787726452217918000",
+    "sha256": "b7a6b0e6f808fc208d67bd36a8d7cd4493f501cc868a3b1d3718b188b98bbd93"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.pdt",
+    "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.pdt",
+    "format": "pdt",
+    "size": 8143,
+    "mtime_ns": "1787726452648528200",
+    "sha256": "355beb4f90e6b998f0b33e7e89a7346b7a0e5e62d2d3b70c67ad6ed27eaccd81"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\生产用方法_20170526_1135.cmt",
+    "relative": "Spec Source\\Bin\\DATA\\生产用方法_20170526_1135.cmt",
+    "format": "cmt",
+    "size": 13471744,
+    "mtime_ns": "1787726463411120600",
+    "sha256": "f4b29b1f341bd04a612948abc6a4ed2ff1c681864525e7b9180bf4b9741ea353"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\模拟数据\\280-288.acq",
+    "relative": "Spec Source\\Bin\\DATA\\模拟数据\\280-288.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726472967485100",
+    "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\模拟数据\\291-299.acq",
+    "relative": "Spec Source\\Bin\\DATA\\模拟数据\\291-299.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726472973684300",
+    "sha256": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\模拟数据\\303-310.acq",
+    "relative": "Spec Source\\Bin\\DATA\\模拟数据\\303-310.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726472965431600",
+    "sha256": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\DIRECT.MTD",
+    "relative": "Spec Source\\Res\\DIRECT.MTD",
+    "format": "mtd",
+    "size": 307200,
+    "mtime_ns": "1787726427684092300",
+    "sha256": "d4466f0b73ab5edd0efb2d6da20f0cd16f284c2b014891c85504c71220a5825e"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\20140915测试数据\\标准系列.wdt",
+    "relative": "Spec Source\\Res\\20140915测试数据\\标准系列.wdt",
+    "format": "wdt",
+    "size": 3633152,
+    "mtime_ns": "1787726454312201200",
+    "sha256": "29689046cc06565d21208bffdb3e10f050aef7abd0a391678f09a9a795dffcf3"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\20140915测试数据\\标准系列S10.wdt",
+    "relative": "Spec Source\\Res\\20140915测试数据\\标准系列S10.wdt",
+    "format": "wdt",
+    "size": 1003520,
+    "mtime_ns": "1787726453389149100",
+    "sha256": "f509b26d78f1fa4bc9f52e1dcacbf5bd5ed539497e2d0acde6337d20d4a43a43"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\模拟数据\\280-288.acq",
+    "relative": "Spec Source\\Res\\模拟数据\\280-288.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726454430607300",
+    "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\模拟数据\\291-299.acq",
+    "relative": "Spec Source\\Res\\模拟数据\\291-299.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726454628080500",
+    "sha256": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\模拟数据\\303-310.acq",
+    "relative": "Spec Source\\Res\\模拟数据\\303-310.acq",
+    "format": "acq",
+    "size": 24579,
+    "mtime_ns": "1787726454873812200",
+    "sha256": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\tests\\fixtures\\legacy_runtime\\DIRECT.CFG",
+    "relative": "app\\tests\\fixtures\\legacy_runtime\\DIRECT.CFG",
+    "format": "cfg",
+    "size": 125,
+    "mtime_ns": "1787726419881753300",
+    "sha256": "51406d2f036ca8e9a7aa4f0b8d14362689695a19793df58a2f90913179d5c4c2"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\tests\\fixtures\\legacy_runtime\\DIRECT.MTD",
+    "relative": "app\\tests\\fixtures\\legacy_runtime\\DIRECT.MTD",
+    "format": "mtd",
+    "size": 339968,
+    "mtime_ns": "1787726420201583000",
+    "sha256": "2f7c09324b4f9320506f2a198a1e2abdd6e9d31a5ef92b2ac4b4e9cb9279a3f8"
+  },
+  {
+    "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\tests\\fixtures\\legacy_runtime\\DIRECT.OPT",
+    "relative": "app\\tests\\fixtures\\legacy_runtime\\DIRECT.OPT",
+    "format": "opt",
+    "size": 395,
+    "mtime_ns": "1787726420080352500",
+    "sha256": "3ceb8d73484687a2b83cfb64ceac6cdecfb8c0e68e5a04497b3501c624de63dc"
+  }
+]

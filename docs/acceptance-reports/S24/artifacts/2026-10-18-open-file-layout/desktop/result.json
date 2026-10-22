@@ -1,0 +1,780 @@
+{
+  "status": "passed",
+  "checks": [
+    "方法页直接打开真实方法库，自动读取同目录配置并保存方法",
+    "打开方法保留当前未保存的方法编辑内容",
+    "谱图页直接打开真实CDT并显示；重复打开复用相同记录",
+    "样品分析直接打开真实CMT；方法不唯一时展开对应方法选择",
+    "色散曲线直接打开真实WDT并建立完成任务，可继续定位和拟合",
+    "蒸发曲线直接打开真实EDT并显示峰值和积分时间数据",
+    "重新计算直接打开真实PDT并选中来源",
+    "报告页直接打开DAT并选中来源，缺失单位仍需明确填写",
+    "强度页直接打开PDT并预览，错误格式拒绝且保留当前表",
+    "迁移页面支持PDT和DAT多文件顺序批量迁移",
+    "样号页直接打开SAM，重复选择同一文件仍可读取",
+    "实际旧原件及读取副本的大小、修改时间与SHA-256均保持",
+    "11 个打开入口统一在标题栏操作区，1440/1060宽度及明暗主题无越界；浏览器路径入口共用最近目录",
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    },
+    "Single save request publishes valid edits; repeated clicks blocked; open selects method; current updates while old task/version stay unchanged",
+    "Invalid numeric input causes zero writes; duplicate-name and stale-version refusals preserve local input and database versions",
+    "Open reenables an existing paused method without rewriting history; Save As preserves source versions and current selection",
+    "Readonly method view exposes no mutation controls; light/wide and dark/narrow layouts keep the simplified operations visible without overflow"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 274,
+          "right": 445
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "method_save": true,
+      "desktop": true
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "method_save": true,
+      "desktop": true
+    }
+  ],
+  "source_preservation": {
+    "copies": 10,
+    "originals": 9,
+    "size_mtime_sha256_unchanged": true
+  },
+  "openLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "methods",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1071,
+      "right": 1176,
+      "top": 135.296875,
+      "bottom": 171.296875,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 206.59375,
+      "headerRight": 1397,
+      "actionsRight": 1376,
+      "text": "打开方法"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "spectra",
+      "w": 1440,
+      "doc": 1425,
+      "left": 936.0390625,
+      "right": 1054.0390625,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1397,
+      "actionsRight": 1397,
+      "text": "打开谱文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "analysis",
+      "w": 1440,
+      "doc": 1440,
+      "left": 1125,
+      "right": 1242,
+      "top": 100.9921875,
+      "bottom": 132.9921875,
+      "actions": true,
+      "header": true,
+      "headerTop": 92,
+      "headerBottom": 141.9921875,
+      "headerRight": 1420,
+      "actionsRight": 1420,
+      "text": "打开样品文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "dispersion",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1063,
+      "right": 1194,
+      "top": 103.09375,
+      "bottom": 139.09375,
+      "actions": true,
+      "header": true,
+      "headerTop": 92,
+      "headerBottom": 161.1875,
+      "headerRight": 1397,
+      "actionsRight": 1281,
+      "text": "打开色散文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "evaporation",
+      "w": 1440,
+      "doc": 1440,
+      "left": 1194,
+      "right": 1325,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1412,
+      "actionsRight": 1412,
+      "text": "打开蒸发文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "recalculate",
+      "w": 1440,
+      "doc": 1440,
+      "left": 1065.84375,
+      "right": 1196.84375,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1412,
+      "actionsRight": 1412,
+      "text": "打开强度文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "reports",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1178,
+      "right": 1309,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1397,
+      "actionsRight": 1397,
+      "text": "打开报告文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "batch-methods",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1028,
+      "right": 1172,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1397,
+      "actionsRight": 1397,
+      "text": "批量迁移方法库"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "batch-spectra",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1028,
+      "right": 1172,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1397,
+      "actionsRight": 1397,
+      "text": "批量迁移谱文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "batch-results",
+      "w": 1440,
+      "doc": 1425,
+      "left": 1153,
+      "right": 1310,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1397,
+      "actionsRight": 1397,
+      "text": "批量迁移结果文件"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "purpose": "samples",
+      "w": 1440,
+      "doc": 1440,
+      "left": 972.1640625,
+      "right": 1090.1640625,
+      "top": 112.515625,
+      "bottom": 148.515625,
+      "actions": true,
+      "header": true,
+      "headerTop": 100,
+      "headerBottom": 161.0390625,
+      "headerRight": 1412,
+      "actionsRight": 1412,
+      "text": "打开样品号"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "methods",
+      "w": 1060,
+      "doc": 1060,
+      "left": 714,
+      "right": 819,
+      "top": 199.59375,
+      "bottom": 235.59375,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 252.59375,
+      "headerRight": 1040,
+      "actionsRight": 1019,
+      "text": "打开方法"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "spectra",
+      "w": 1060,
+      "doc": 1045,
+      "left": 564.0390625,
+      "right": 682.0390625,
+      "top": 169.0390625,
+      "bottom": 205.0390625,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 205.0390625,
+      "headerRight": 1025,
+      "actionsRight": 1025,
+      "text": "打开谱文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "analysis",
+      "w": 1060,
+      "doc": 1060,
+      "left": 751,
+      "right": 868,
+      "top": 96.9921875,
+      "bottom": 128.9921875,
+      "actions": true,
+      "header": true,
+      "headerTop": 88,
+      "headerBottom": 137.9921875,
+      "headerRight": 1046,
+      "actionsRight": 1046,
+      "text": "打开样品文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "dispersion",
+      "w": 1060,
+      "doc": 1045,
+      "left": 695,
+      "right": 826,
+      "top": 103.09375,
+      "bottom": 139.09375,
+      "actions": true,
+      "header": true,
+      "headerTop": 92,
+      "headerBottom": 161.1875,
+      "headerRight": 1029,
+      "actionsRight": 913,
+      "text": "打开色散文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "evaporation",
+      "w": 1060,
+      "doc": 1060,
+      "left": 826,
+      "right": 957,
+      "top": 96,
+      "bottom": 132,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 157.0390625,
+      "headerRight": 1044,
+      "actionsRight": 1044,
+      "text": "打开蒸发文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "recalculate",
+      "w": 1060,
+      "doc": 1045,
+      "left": 682.84375,
+      "right": 813.84375,
+      "top": 96,
+      "bottom": 132,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 157.0390625,
+      "headerRight": 1029,
+      "actionsRight": 1029,
+      "text": "打开强度文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "reports",
+      "w": 1060,
+      "doc": 1045,
+      "left": 810,
+      "right": 941,
+      "top": 96,
+      "bottom": 132,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 157.0390625,
+      "headerRight": 1029,
+      "actionsRight": 1029,
+      "text": "打开报告文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "batch-methods",
+      "w": 1060,
+      "doc": 1045,
+      "left": 660,
+      "right": 804,
+      "top": 169.0390625,
+      "bottom": 205.0390625,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 205.0390625,
+      "headerRight": 1029,
+      "actionsRight": 1029,
+      "text": "批量迁移方法库"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "batch-spectra",
+      "w": 1060,
+      "doc": 1045,
+      "left": 660,
+      "right": 804,
+      "top": 169.0390625,
+      "bottom": 205.0390625,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 205.0390625,
+      "headerRight": 1029,
+      "actionsRight": 1029,
+      "text": "批量迁移谱文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "batch-results",
+      "w": 1060,
+      "doc": 1045,
+      "left": 785,
+      "right": 942,
+      "top": 96,
+      "bottom": 132,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 157.0390625,
+      "headerRight": 1029,
+      "actionsRight": 1029,
+      "text": "批量迁移结果文件"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "purpose": "samples",
+      "w": 1060,
+      "doc": 1060,
+      "left": 604.1640625,
+      "right": 722.1640625,
+      "top": 169.0390625,
+      "bottom": 205.0390625,
+      "actions": true,
+      "header": true,
+      "headerTop": 96,
+      "headerBottom": 205.0390625,
+      "headerRight": 1044,
+      "actionsRight": 1044,
+      "text": "打开样品号"
+    }
+  ],
+  "recalculationLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "file": "recalculate-1440-1000-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1425,
+      "w": 1440,
+      "controls": [
+        {
+          "top": 274.734375,
+          "bottom": 301.078125
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "file": "recalculate-1060-680-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 250.234375,
+          "bottom": 276.578125
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "file": "recalculate-1060-1000-dark.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 250.234375,
+          "bottom": 276.578125
+        }
+      ]
+    }
+  ]
+}

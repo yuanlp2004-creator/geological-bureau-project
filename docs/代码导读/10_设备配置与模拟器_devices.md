@@ -8,7 +8,7 @@
 
 ## 2. 代码入口
 
-- 服务与适配器：[`modules/devices.py`](../../app/backend/modules/devices.py)
+- 服务与适配器：[`modules/devices/service.py`](../../app/backend/modules/devices/service.py)
 - API：[`api/devices.py`](../../app/backend/api/devices.py)；`/api/v1/devices`
 - 请求模型：[`schemas/devices.py`](../../app/backend/schemas/devices.py)。
 - 前端：[`frontend/src/pages/devices/AcquisitionPage.tsx`](../../app/frontend/src/pages/devices/AcquisitionPage.tsx)
@@ -57,3 +57,7 @@
 - 非法状态调用是否拒绝，而不是偷偷重置适配器。
 - 停止、断开和异常是否留下可诊断事件与审计。
 - 不得把模拟器通过描述成真实设备验收通过。
+
+## 实现分工
+
+`devices/values.py` 定义帧常量、状态、事件和错误；`protocol.py` 保留 ACQ 帧解析及适配器协议；`profiles.py` 负责档案校验和屏幕换算；`simulator.py` 负责捆绑样本和模拟回放。`service.py::DeviceService` 仍唯一持有调试适配器，负责档案/调试应用入口及审计。模块公开入口保持 `backend.modules.devices`，不存在同名旧文件并行实现。

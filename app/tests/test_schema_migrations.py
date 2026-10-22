@@ -40,7 +40,11 @@ def _legacy_v10_database(path: Path, points_json: str) -> None:
             """
         )
         db.execute(
-            "INSERT INTO dispersion_task_frames(task_id, phase, frame_index, ccd_index, points_json, sha256, headers_json, byte_length, captured_at) VALUES (1, 'burn', 0, 0, ?, 'raw-transfer', '[0,0,0]', 24579, 'legacy')",
+            (
+                "INSERT INTO dispersion_task_frames(task_id, phase, frame_index, ccd_index, "
+                "points_json, sha256, headers_json, byte_length, captured_at) VALUES (1, 'burn', "
+                "0, 0, ?, 'raw-transfer', '[0,0,0]', 24579, 'legacy')"
+            ),
             (points_json,),
         )
 
@@ -54,10 +58,34 @@ def test_s11_s17_ordered_upgrade_converts_dispersion_frames_atomically(tmp_path:
 
     with sqlite3.connect(path) as db:
         db.row_factory = sqlite3.Row
-        assert [row[0] for row in db.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(range(10, 21))
-        assert all(db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() for name in ("postprocessing_conversion_runs", "postprocessing_recalculation_runs", "postprocessing_exports", "report_templates", "reports", "report_exports", "maintenance_backups", "maintenance_operations", "help_topics"))
+        assert [row[0] for row in db.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(
+            range(10, SCHEMA_VERSION + 1)
+        )
+        assert all(
+            db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone()
+            for name in (
+                "postprocessing_conversion_runs",
+                "postprocessing_recalculation_runs",
+                "postprocessing_exports",
+                "report_templates",
+                "reports",
+                "report_exports",
+                "maintenance_backups",
+                "maintenance_operations",
+                "help_topics",
+            )
+        )
         columns = {row[1] for row in db.execute("PRAGMA table_info(dispersion_task_frames)")}
-        assert {"points_blob", "points_count", "dtype", "endianness", "compression", "points_sha256", "raw_transfer_sha256", "raw_byte_length"}.issubset(columns)
+        assert {
+            "points_blob",
+            "points_count",
+            "dtype",
+            "endianness",
+            "compression",
+            "points_sha256",
+            "raw_transfer_sha256",
+            "raw_byte_length",
+        }.issubset(columns)
         assert {"points_json", "sha256", "byte_length"}.isdisjoint(columns)
         frame = db.execute("SELECT * FROM dispersion_task_frames WHERE id=1").fetchone()
         expected_blob = struct.pack("<4H", *points)
@@ -82,10 +110,12 @@ def test_s11_s17_upgrade_failure_rolls_back_schema_and_history(tmp_path: Path) -
         assert db.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall() == [(10,)]
         columns = {row[1] for row in db.execute("PRAGMA table_info(dispersion_task_frames)")}
         assert "points_json" in columns and "points_blob" not in columns
-        assert db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='device_profiles'").fetchone() is None
+        assert (
+            db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='device_profiles'").fetchone() is None
+        )
 
 
-@pytest.mark.parametrize("version", range(10, 21))
+@pytest.mark.parametrize("version", range(10, SCHEMA_VERSION + 1))
 def test_resume_each_recorded_version_preserves_data_and_history(tmp_path, monkeypatch, version):
     # Synthetic checkpoints of the supported baseline, not archived release databases.
     path = tmp_path / f"checkpoint-v{version}.sqlite3"
@@ -95,8 +125,18 @@ def test_resume_each_recorded_version_preserves_data_and_history(tmp_path, monke
         patch.setattr(database_module, "utc_now", lambda: "checkpoint-time")
         Database(path).initialize()
     with Database(path).write() as connection:
-        connection.execute("INSERT INTO methods(id,name,description,work_type,status,created_at,updated_at) VALUES (1,'preserved','内容','spectral','active','then','then')")
-        connection.execute("INSERT INTO method_versions(method_id,version,state,payload_json,created_at) VALUES (1,1,'draft','{\"preserve\":true}','then')")
+        connection.execute(
+            (
+                "INSERT INTO methods(id,name,description,work_type,status,created_at,updated_at) "
+                "VALUES (1,'preserved','内容','spectral','active','then','then')"
+            )
+        )
+        connection.execute(
+            (
+                "INSERT INTO method_versions(method_id,version,state,payload_json,created_at) "
+                "VALUES (1,1,'draft','{\"preserve\":true}','then')"
+            )
+        )
     with Database(path).read() as connection:
         methods = [tuple(row) for row in connection.execute("SELECT * FROM methods")]
         revisions = [tuple(row) for row in connection.execute("SELECT * FROM method_versions")]
@@ -107,6 +147,7 @@ def test_resume_each_recorded_version_preserves_data_and_history(tmp_path, monke
         def run(connection):
             called.append(step_version)
             migration(connection)
+
         return run
 
     monkeypatch.setattr(database_module, "MIGRATIONS", tuple((v, key, tracked(v, fn)) for v, key, fn in MIGRATIONS))
@@ -118,9 +159,11 @@ def test_resume_each_recorded_version_preserves_data_and_history(tmp_path, monke
         assert [tuple(row) for row in connection.execute("SELECT * FROM methods")] == methods
         assert [tuple(row) for row in connection.execute("SELECT * FROM method_versions")] == revisions
         after = [tuple(row) for row in connection.execute("SELECT * FROM schema_migrations ORDER BY version")]
-        assert after[:len(history)] == history
-        assert [row[0] for row in after] == list(range(10, 21))
-        assert connection.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0] == "20"
+        assert after[: len(history)] == history
+        assert [row[0] for row in after] == list(range(10, SCHEMA_VERSION + 1))
+        assert connection.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0] == str(
+            SCHEMA_VERSION
+        )
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
 
@@ -136,14 +179,16 @@ def test_late_migration_failure_rolls_back_all_prior_steps(tmp_path, monkeypatch
         raise sqlite3.IntegrityError("injected v20 failure")
 
     with monkeypatch.context() as patch:
-        patch.setattr(database_module, "MIGRATIONS", MIGRATIONS[:-1] + ((20, "maintenance", fail),))
+        patch.setattr(
+            database_module, "MIGRATIONS", MIGRATIONS[:-1] + ((SCHEMA_VERSION, "calibration_metadata", fail),)
+        )
         with pytest.raises(sqlite3.IntegrityError, match="injected v20 failure"):
             Database(path).initialize()
     with sqlite3.connect(path) as connection:
         assert list(connection.iterdump()) == before
     Database(path).initialize()
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 20
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == SCHEMA_VERSION
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
 

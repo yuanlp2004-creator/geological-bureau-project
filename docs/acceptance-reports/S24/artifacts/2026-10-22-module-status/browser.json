@@ -1,0 +1,161 @@
+{
+  "status": "passed",
+  "checks": [
+    "build/license panel removed; real local API probes return 18 software-available modules with timestamp and hardware notes",
+    "expanded module list fits large light and minimum dark windows",
+    "UI distinguishes available, failed, disabled, restricted and unchecked states",
+    "failed refresh clears old module statuses; retry restores actual results without maintenance writes"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "module-list",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "module-list",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false
+    }
+  ],
+  "maintenancePosts": [],
+  "diagnosticRequests": 4,
+  "checked_at": "2026-10-22T12:59:32.092512Z",
+  "module_results": [
+    {
+      "key": "core",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/health",
+      "note": ""
+    },
+    {
+      "key": "about-diagnostics",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/about",
+      "note": ""
+    },
+    {
+      "key": "auth",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/auth/me",
+      "note": ""
+    },
+    {
+      "key": "methods",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/methods?limit=1",
+      "note": ""
+    },
+    {
+      "key": "legacy-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/legacy-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "sample-queues",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/sample-queues",
+      "note": ""
+    },
+    {
+      "key": "spectrum-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/spectrum-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "result-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/result-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "spectrum-viewer",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/spectra/records?limit=1",
+      "note": ""
+    },
+    {
+      "key": "devices",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/devices/profiles",
+      "note": "只检测设备管理软件；设备连接和通信需另行验证。"
+    },
+    {
+      "key": "dispersion",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/dispersion/tasks?limit=1",
+      "note": ""
+    },
+    {
+      "key": "acquisition",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/acquisitions/tasks?limit=1",
+      "note": ""
+    },
+    {
+      "key": "hardware-acquisition",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/hardware-acquisitions/tasks?limit=1",
+      "note": "只检测软件接口；真实转角协议与硬件仍待验收。"
+    },
+    {
+      "key": "mercury-calibration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/mercury-calibrations/sessions?limit=1",
+      "note": "只检测软件接口；汞灯与光学系统仍需实机验证。"
+    },
+    {
+      "key": "analysis",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/analyses/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "postprocessing",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/postprocessing/recalculations?limit=1",
+      "note": ""
+    },
+    {
+      "key": "reports",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/reports?limit=1",
+      "note": ""
+    },
+    {
+      "key": "maintenance",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/help/topics",
+      "note": ""
+    }
+  ]
+}

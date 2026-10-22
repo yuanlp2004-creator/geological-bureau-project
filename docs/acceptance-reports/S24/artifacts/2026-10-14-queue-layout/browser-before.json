@@ -1,0 +1,255 @@
+{
+  "phase": "before",
+  "status": "passed",
+  "target": "地质局",
+  "checks": [
+    "无当前方法时队列入口保持前置条件禁用",
+    "默认次数S/D/普通样及手动覆盖 light/1440",
+    "真实创建/追加、非法次数零提交且保留输入 light/1440",
+    "默认次数S/D/普通样及手动覆盖 dark/1060",
+    "真实创建/追加、非法次数零提交且保留输入 dark/1060"
+  ],
+  "layouts": [
+    {
+      "key": "create-light-1440",
+      "card": {
+        "x": 274,
+        "y": 366.21875,
+        "width": 1138,
+        "height": 234,
+        "right": 1412,
+        "bottom": 600.21875
+      },
+      "inputs": [
+        {
+          "x": 295,
+          "y": 524.21875,
+          "width": 413.5,
+          "height": 36,
+          "right": 708.5,
+          "bottom": 560.21875
+        },
+        {
+          "x": 720.5,
+          "y": 524.21875,
+          "width": 413.5,
+          "height": 36,
+          "right": 1134,
+          "bottom": 560.21875
+        },
+        {
+          "x": 1146,
+          "y": 459.15625,
+          "width": 130,
+          "height": 36,
+          "right": 1276,
+          "bottom": 495.15625
+        }
+      ],
+      "checkbox": {
+        "x": 1150,
+        "y": 510.1875,
+        "width": 58.90625,
+        "height": 35,
+        "right": 1208.90625,
+        "bottom": 545.1875
+      },
+      "nestedLabels": 1,
+      "footer": null,
+      "label": {
+        "x": 1146,
+        "y": 495.15625,
+        "width": 130,
+        "height": 65.0625,
+        "right": 1276,
+        "bottom": 560.21875
+      },
+      "button": {
+        "x": 1288,
+        "y": 524.21875,
+        "width": 103,
+        "height": 36,
+        "right": 1391,
+        "bottom": 560.21875
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing-light-1440",
+      "card": {
+        "x": 274,
+        "y": 366.21875,
+        "width": 1138,
+        "height": 358.796875,
+        "right": 1412,
+        "bottom": 725.015625
+      },
+      "inputs": [
+        {
+          "x": 295,
+          "y": 533.875,
+          "width": 839,
+          "height": 36,
+          "right": 1134,
+          "bottom": 569.875
+        },
+        {
+          "x": 1146,
+          "y": 468.8125,
+          "width": 130,
+          "height": 36,
+          "right": 1276,
+          "bottom": 504.8125
+        }
+      ],
+      "checkbox": {
+        "x": 1150,
+        "y": 519.84375,
+        "width": 58.90625,
+        "height": 35,
+        "right": 1208.90625,
+        "bottom": 554.84375
+      },
+      "nestedLabels": 1,
+      "footer": null,
+      "label": {
+        "x": 1146,
+        "y": 504.8125,
+        "width": 130,
+        "height": 65.0625,
+        "right": 1276,
+        "bottom": 569.875
+      },
+      "button": {
+        "x": 1288,
+        "y": 533.875,
+        "width": 103,
+        "height": 36,
+        "right": 1391,
+        "bottom": 569.875
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "create-dark-1060",
+      "card": {
+        "x": 231,
+        "y": 376.21875,
+        "width": 813,
+        "height": 222,
+        "right": 1044,
+        "bottom": 598.21875
+      },
+      "inputs": [
+        {
+          "x": 248,
+          "y": 530.21875,
+          "width": 255,
+          "height": 32,
+          "right": 503,
+          "bottom": 562.21875
+        },
+        {
+          "x": 515,
+          "y": 530.21875,
+          "width": 255,
+          "height": 32,
+          "right": 770,
+          "bottom": 562.21875
+        },
+        {
+          "x": 782,
+          "y": 465.15625,
+          "width": 130,
+          "height": 32,
+          "right": 912,
+          "bottom": 497.15625
+        }
+      ],
+      "checkbox": {
+        "x": 786,
+        "y": 514.1875,
+        "width": 58.90625,
+        "height": 31,
+        "right": 844.90625,
+        "bottom": 545.1875
+      },
+      "nestedLabels": 1,
+      "footer": null,
+      "label": {
+        "x": 782,
+        "y": 497.15625,
+        "width": 130,
+        "height": 65.0625,
+        "right": 912,
+        "bottom": 562.21875
+      },
+      "button": {
+        "x": 924,
+        "y": 530.21875,
+        "width": 103,
+        "height": 32,
+        "right": 1027,
+        "bottom": 562.21875
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing-dark-1060",
+      "card": {
+        "x": 231,
+        "y": 376.21875,
+        "width": 813,
+        "height": 338.796875,
+        "right": 1044,
+        "bottom": 715.015625
+      },
+      "inputs": [
+        {
+          "x": 248,
+          "y": 535.875,
+          "width": 522,
+          "height": 32,
+          "right": 770,
+          "bottom": 567.875
+        },
+        {
+          "x": 782,
+          "y": 470.8125,
+          "width": 130,
+          "height": 32,
+          "right": 912,
+          "bottom": 502.8125
+        }
+      ],
+      "checkbox": {
+        "x": 786,
+        "y": 519.84375,
+        "width": 58.90625,
+        "height": 31,
+        "right": 844.90625,
+        "bottom": 550.84375
+      },
+      "nestedLabels": 1,
+      "footer": null,
+      "label": {
+        "x": 782,
+        "y": 502.8125,
+        "width": 130,
+        "height": 65.0625,
+        "right": 912,
+        "bottom": 567.875
+      },
+      "button": {
+        "x": 924,
+        "y": 535.875,
+        "width": 103,
+        "height": 32,
+        "right": 1027,
+        "bottom": 567.875
+      },
+      "horizontalOverflow": false
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "physical_width_mm_in_pdf": 286.71999354892307,
+  "expected_width_mm": 286.72,
+  "paper": "A3 landscape",
+  "pdf_bytes": 37809,
+  "relative_error_pdf_bytes": 29820,
+  "point_width_um": 14,
+  "inclusive_pixel_count": 2048,
+  "scale": 10,
+  "legacy_formula": "(right-left+1) * point_width_um * 10 / 1000",
+  "grayscale_max": 5000
+}

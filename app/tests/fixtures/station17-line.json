@@ -1,0 +1,49 @@
+{
+  "line_type": "analysis",
+  "element": "Cu",
+  "wavelength_nm": 254.35556536221358,
+  "actual_wavelength_nm": 254.35556536221358,
+  "enabled": true,
+  "critical_band": false,
+  "priority": 0,
+  "background_line_id": null,
+  "alignment_line_id": null,
+  "internal_standard_mode": "none",
+  "internal_standard_line_id": null,
+  "scan_width_points": 9,
+  "background_offset_points": 0,
+  "peak_mode": "max_single_point",
+  "peak_width_points": 1,
+  "fit_mode": "linear",
+  "coordinate_type": "normal",
+  "unit": "ug/g",
+  "value_kind": "content",
+  "decimal_places": 2,
+  "lower_peak": 300,
+  "minimum_peak_ratio": 1.5,
+  "valid_range_min": 0,
+  "valid_range_max": 1000,
+  "over_limit_tolerance_percent": 5,
+  "standard_points": [
+    {
+      "name": "S1",
+      "value": 1,
+      "active": true
+    },
+    {
+      "name": "S2",
+      "value": 2,
+      "active": true
+    },
+    {
+      "name": "S3",
+      "value": 3,
+      "active": true
+    },
+    {
+      "name": "S4",
+      "value": 4,
+      "active": true
+    }
+  ]
+}

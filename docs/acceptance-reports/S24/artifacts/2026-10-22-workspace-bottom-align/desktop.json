@@ -1,0 +1,1704 @@
+{
+  "status": "passed",
+  "checks": [
+    "Left message card and right service card share a bottom edge at 1440 and 1280 widths",
+    "Empty, few and many messages keep a bounded, independently scrollable list",
+    "Light/dark density and footer expanded/folded preserve alignment",
+    "1060 minimum window retains the original stacked layout without horizontal overflow"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 280,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 280,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 280,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 280,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 211.6953125,
+        "width": 350,
+        "height": 773.0625,
+        "bottom": 984.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 556.578125,
+        "width": 753,
+        "height": 428.1796875,
+        "bottom": 984.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 770.4140625,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 984.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 211.6953125,
+        "width": 753,
+        "height": 324.8828125,
+        "bottom": 536.578125
+      },
+      "listHeight": 280,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 135,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 135,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 132.6953125,
+        "width": 290,
+        "height": 791.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 641.578125,
+        "width": 673,
+        "height": 282.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 710.0078125,
+        "width": 290,
+        "height": 214.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 132.6953125,
+        "width": 673,
+        "height": 488.8828125,
+        "bottom": 621.578125
+      },
+      "listHeight": 135,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 658.8828125,
+        "bottom": 791.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 807.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1346.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 314,
+        "bottom": 791.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1131.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1346.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 170,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 620.8828125,
+        "bottom": 753.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 769.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1308.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 276,
+        "bottom": 753.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1093.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1308.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 132,
+      "listScrollHeight": 132,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 918.8828125,
+        "bottom": 1051.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 1067.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1606.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 574,
+        "bottom": 1051.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1391.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1606.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 430,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 658.8828125,
+        "bottom": 791.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 807.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1346.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 314,
+        "bottom": 791.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1131.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1346.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 170,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 620.8828125,
+        "bottom": 753.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 769.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1308.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 276,
+        "bottom": 753.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1093.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1308.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 132,
+      "listScrollHeight": 132,
+      "rows": 2,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 918.8828125,
+        "bottom": 1051.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 1067.578125,
+        "width": 790,
+        "height": 538.6875,
+        "bottom": 1606.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 477.578125,
+        "width": 790,
+        "height": 574,
+        "bottom": 1051.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1391.921875,
+        "width": 385,
+        "height": 214.34375,
+        "bottom": 1606.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 132.6953125,
+        "width": 790,
+        "height": 324.8828125,
+        "bottom": 457.578125
+      },
+      "listHeight": 430,
+      "listScrollHeight": 2580,
+      "rows": 38,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 284,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 284,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 284,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 284,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "secondary": {
+        "x": 1047,
+        "y": 207.6953125,
+        "width": 350,
+        "height": 757.0625,
+        "bottom": 964.7578125
+      },
+      "messages": {
+        "x": 274,
+        "y": 544.578125,
+        "width": 753,
+        "height": 420.1796875,
+        "bottom": 964.7578125
+      },
+      "protocol": {
+        "x": 1047,
+        "y": 758.4140625,
+        "width": 350,
+        "height": 206.34375,
+        "bottom": 964.7578125
+      },
+      "method": {
+        "x": 274,
+        "y": 207.6953125,
+        "width": 753,
+        "height": 316.8828125,
+        "bottom": 524.578125
+      },
+      "listHeight": 284,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 200,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 200,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1280,
+      "height": 800,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "secondary": {
+        "x": 955,
+        "y": 148.6953125,
+        "width": 290,
+        "height": 775.65625,
+        "bottom": 924.3515625
+      },
+      "messages": {
+        "x": 266,
+        "y": 649.578125,
+        "width": 673,
+        "height": 274.7734375,
+        "bottom": 924.3515625
+      },
+      "protocol": {
+        "x": 955,
+        "y": 718.0078125,
+        "width": 290,
+        "height": 206.34375,
+        "bottom": 924.3515625
+      },
+      "method": {
+        "x": 266,
+        "y": 148.6953125,
+        "width": 673,
+        "height": 480.8828125,
+        "bottom": 629.578125
+      },
+      "listHeight": 139,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "error",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 638.8828125,
+        "bottom": 787.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 803.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1326.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 302,
+        "bottom": 787.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1119.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1326.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 170,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "success",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 668.8828125,
+        "bottom": 817.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 833.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1356.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 332,
+        "bottom": 817.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1149.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1356.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 200,
+      "listScrollHeight": 200,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": false,
+      "status": "all",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 898.8828125,
+        "bottom": 1047.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 1063.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1586.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 562,
+        "bottom": 1047.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1379.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1586.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 430,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "error",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 638.8828125,
+        "bottom": 787.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 803.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1326.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 302,
+        "bottom": 787.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1119.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1326.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 170,
+      "listScrollHeight": 170,
+      "rows": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "success",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 668.8828125,
+        "bottom": 817.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 833.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1356.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 332,
+        "bottom": 817.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1149.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1356.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 200,
+      "listScrollHeight": 200,
+      "rows": 3,
+      "horizontalOverflow": false
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "expanded": true,
+      "status": "all",
+      "primary": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 898.8828125,
+        "bottom": 1047.578125
+      },
+      "secondary": {
+        "x": 235,
+        "y": 1063.578125,
+        "width": 790,
+        "height": 522.6875,
+        "bottom": 1586.265625
+      },
+      "messages": {
+        "x": 235,
+        "y": 485.578125,
+        "width": 790,
+        "height": 562,
+        "bottom": 1047.578125
+      },
+      "protocol": {
+        "x": 235,
+        "y": 1379.921875,
+        "width": 385,
+        "height": 206.34375,
+        "bottom": 1586.265625
+      },
+      "method": {
+        "x": 235,
+        "y": 148.6953125,
+        "width": 790,
+        "height": 316.8828125,
+        "bottom": 465.578125
+      },
+      "listHeight": 430,
+      "listScrollHeight": 2648,
+      "rows": 39,
+      "horizontalOverflow": false
+    }
+  ]
+}

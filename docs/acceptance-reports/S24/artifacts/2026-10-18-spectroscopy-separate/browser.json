@@ -1,0 +1,440 @@
+{
+  "status": "passed",
+  "checks": [
+    "三个菜单/模式共用同一工作台与控制区；切换保留各自草稿",
+    "样品实际模拟采集完成并产生结果哈希；请求未返回、运行与暂停时均阻止菜单/模式切换，完成后解锁",
+    "蒸发非法输入零写入；独立任务完成并保存全时帧，已移除手工区间标记，任务列表与样品结果隔离",
+    "色散共用控制、暂停继续、燃烧/暗帧完成与停止收尾通过；返回样品保留任务和谱图",
+    "三模式1440/1060宽及680高、明暗紧凑三栏通过；主图占主宽度与高度，条件独立滚动且控制区位置固定",
+    "只读角色不能创建或执行摄谱；当前方法前置条件在共用模式入口继续生效",
+    "三个摄谱页只有采集与观察，均无手工区间卡片或色散曲线编辑区",
+    "采后重命名位于右侧，20位名称保存且哈希保持；失败留稿、请求期间禁止重复和换任务，即时结果与异常删除保留",
+    "独立色散曲线可定位编辑、拟合、发布并绑定；摄谱与曲线切换保留同一任务及草稿，曲线页没有采集按钮",
+    "独立蒸发曲线读取实际保存的燃烧帧，峰值/积分及时间与API一致，查看和切换零业务写入",
+    "蒸发帧读取失败清空旧曲线，刷新恢复，不将旧任务数据冒充新结果",
+    "两个独立曲线入口在1440明色/1060暗色下可用且无整页横向溢出"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "mode": "sample-acquisition",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 485,
+          "y": 230.1875,
+          "width": 606,
+          "height": 758,
+          "bottom": 988.1875,
+          "right": 1091
+        },
+        "operator": {
+          "x": 1091,
+          "y": 230.1875,
+          "width": 292,
+          "height": 758,
+          "bottom": 988.1875,
+          "right": 1383
+        },
+        "controls": {
+          "x": 1104,
+          "y": 723.078125,
+          "width": 267,
+          "height": 120,
+          "bottom": 843.078125,
+          "right": 1371
+        },
+        "setup": {
+          "x": 1092,
+          "y": 299.21875,
+          "width": 291,
+          "height": 414.859375,
+          "bottom": 714.078125,
+          "right": 1383
+        },
+        "plotFill": 0.8146070878274269
+      }
+    },
+    {
+      "mode": "evaporation-acquisition",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 485,
+          "y": 230.1875,
+          "width": 606,
+          "height": 758,
+          "bottom": 988.1875,
+          "right": 1091
+        },
+        "operator": {
+          "x": 1091,
+          "y": 230.1875,
+          "width": 292,
+          "height": 758,
+          "bottom": 988.1875,
+          "right": 1383
+        },
+        "controls": {
+          "x": 1104,
+          "y": 723.078125,
+          "width": 267,
+          "height": 120,
+          "bottom": 843.078125,
+          "right": 1371
+        },
+        "setup": {
+          "x": 1092,
+          "y": 299.21875,
+          "width": 291,
+          "height": 414.859375,
+          "bottom": 714.078125,
+          "right": 1383
+        },
+        "plotFill": 0.8146070878274269
+      }
+    },
+    {
+      "mode": "dispersion",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 485,
+          "y": 246.1875,
+          "width": 606,
+          "height": 758,
+          "bottom": 1004.1875,
+          "right": 1091
+        },
+        "operator": {
+          "x": 1091,
+          "y": 246.1875,
+          "width": 292,
+          "height": 758,
+          "bottom": 1004.1875,
+          "right": 1383
+        },
+        "controls": {
+          "x": 1104,
+          "y": 739.078125,
+          "width": 267,
+          "height": 120,
+          "bottom": 859.078125,
+          "right": 1371
+        },
+        "setup": {
+          "x": 1092,
+          "y": 310.5625,
+          "width": 291,
+          "height": 419.515625,
+          "bottom": 730.078125,
+          "right": 1383
+        },
+        "plotFill": 0.8363260420067472
+      }
+    },
+    {
+      "mode": "sample-acquisition",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 208.1875,
+          "width": 515,
+          "height": 758,
+          "bottom": 966.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 208.1875,
+          "width": 264,
+          "height": 758,
+          "bottom": 966.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 713.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 821.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 277.21875,
+          "width": 263,
+          "height": 426.859375,
+          "bottom": 704.078125,
+          "right": 1027
+        },
+        "plotFill": 0.7596868259167532
+      }
+    },
+    {
+      "mode": "evaporation-acquisition",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 208.1875,
+          "width": 515,
+          "height": 758,
+          "bottom": 966.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 208.1875,
+          "width": 264,
+          "height": 758,
+          "bottom": 966.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 713.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 821.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 277.21875,
+          "width": 263,
+          "height": 426.859375,
+          "bottom": 704.078125,
+          "right": 1027
+        },
+        "plotFill": 0.7596868259167532
+      }
+    },
+    {
+      "mode": "dispersion",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 1000,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 224.1875,
+          "width": 515,
+          "height": 758,
+          "bottom": 982.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 224.1875,
+          "width": 264,
+          "height": 758,
+          "bottom": 982.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 729.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 837.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 288.5625,
+          "width": 263,
+          "height": 431.515625,
+          "bottom": 720.078125,
+          "right": 1027
+        },
+        "plotFill": 0.8064723669819212
+      }
+    },
+    {
+      "mode": "sample-acquisition",
+      "theme": "light",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 208.1875,
+          "width": 515,
+          "height": 438,
+          "bottom": 646.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 208.1875,
+          "width": 264,
+          "height": 438,
+          "bottom": 646.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 393.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 501.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 277.21875,
+          "width": 263,
+          "height": 106.859375,
+          "bottom": 384.078125,
+          "right": 1027
+        },
+        "plotFill": 0.5727272727272728
+      }
+    },
+    {
+      "mode": "evaporation-acquisition",
+      "theme": "light",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 208.1875,
+          "width": 515,
+          "height": 438,
+          "bottom": 646.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 208.1875,
+          "width": 264,
+          "height": 438,
+          "bottom": 646.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 393.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 501.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 277.21875,
+          "width": 263,
+          "height": 106.859375,
+          "bottom": 384.078125,
+          "right": 1027
+        },
+        "plotFill": 0.5727272727272728
+      }
+    },
+    {
+      "mode": "dispersion",
+      "theme": "light",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "overflow": 0,
+      "controlOverflow": 0,
+      "geometry": {
+        "view": {
+          "x": 248,
+          "y": 224.1875,
+          "width": 515,
+          "height": 438,
+          "bottom": 662.1875,
+          "right": 763
+        },
+        "operator": {
+          "x": 763,
+          "y": 224.1875,
+          "width": 264,
+          "height": 438,
+          "bottom": 662.1875,
+          "right": 1027
+        },
+        "controls": {
+          "x": 776,
+          "y": 409.078125,
+          "width": 239,
+          "height": 108,
+          "bottom": 517.078125,
+          "right": 1015
+        },
+        "setup": {
+          "x": 764,
+          "y": 288.5625,
+          "width": 263,
+          "height": 111.515625,
+          "bottom": 400.078125,
+          "right": 1027
+        },
+        "plotFill": 0.5727272727272728
+      }
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "width": 1440,
+      "theme": "light",
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "width": 1440,
+      "theme": "light",
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "width": 1060,
+      "theme": "dark",
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "width": 1060,
+      "theme": "dark",
+      "overflow": 0
+    }
+  ]
+}

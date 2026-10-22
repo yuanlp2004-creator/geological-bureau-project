@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-intensity-report-layout",
+  "executed_plan_sha256": "7d97110f3e5db9d35ac90305ab102574c206390fc46df31e0bdcf04a8c88e4c0",
+  "product_changes": [
+    "app/frontend/src/pages/analysis/IntensityOutput.tsx",
+    "app/frontend/src/pages/postprocessing/AnalysisIntensityOutput.tsx",
+    "app/frontend/src/pages/postprocessing/data-processing.css"
+  ],
+  "tests": {
+    "frontend": 16,
+    "browser": 9,
+    "desktop": 7
+  },
+  "layouts": {
+    "browser": 6,
+    "desktop": 6
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "root_pair": {
+    "GeoSpectrum.exe": "852b67b0455a7dc505d5383b0e3d6c6782b68089633360189cbffba87a07f068",
+    "geospectrum-backend.exe": "6f6d396f36db3311a8bb3ce59ce42b584ab98605949a0cac25532e9ad9c461ad"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-intensity-report-layout\\previous\\root-entry-20261018-142731",
+  "frozen_sources": 355,
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "schema_version": 23,
+  "backend_byte_unchanged": true,
+  "api_algorithms_and_role_grants_changed": false,
+  "preservation": {
+    "selected_user_files": 10,
+    "byte_unchanged_user_files": 10,
+    "data_differences": [],
+    "legacy_files_unchanged": 106,
+    "root_app_inventory_unchanged": true
+  },
+  "preview": "existing intensity API with all four output flags false; escaped HTML and generation guard",
+  "output_formats": "existing JSON snapshot and TXT; printing uses existing default-printer route; no new Excel/PDF download format",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-intensity-report-layout\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "9464e1c8abeafb0f633d20607413aadb62721adeac6d927c592e5cd369347a1e",
+    "pid": 24580,
+    "shown_window_handles": [
+      2233536
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "physical_print_tested": false
+}

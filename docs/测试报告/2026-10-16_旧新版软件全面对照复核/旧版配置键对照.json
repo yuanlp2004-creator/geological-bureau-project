@@ -1,0 +1,371 @@
+[
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 80,
+    "key": "ANALYZE.LogAna",
+    "field": "IsLogAna",
+    "value": "True",
+    "note": "软件页可保存；控制消息窗显示和分析日志写入，10 R08/R09",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 81,
+    "key": "ANALYZE.LookBand",
+    "field": "IsLookBand",
+    "value": "True",
+    "note": "软件页保存；分析监控显示/逐线等待 vs 进度窗，06 N06",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 82,
+    "key": "ANALYZE.WaitTime",
+    "field": "WaitTime",
+    "value": "DefaultWaitPauseTime",
+    "note": "软件页保存；默认100ms，上限5000，界面按10ms取整；分析WaitMain",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 84,
+    "key": "ANALYZE.RoundDarkTime",
+    "field": "RoundDarkTime",
+    "value": "DefRoundDarkTime",
+    "note": "软件页保存；默认8s，6–20；方法周期换算暗次数，06 P05",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 87,
+    "key": "ANALYZE.CmtBandObsAvg",
+    "field": "IsCmtBandObsAvg",
+    "value": "false",
+    "note": "配置文件读取；全时观察输出是否加均值行；无软件页控件，06 O04",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 90,
+    "key": "METHOD.PrintPdt",
+    "field": "IsPrintPdt",
+    "value": "True",
+    "note": "强度处理默认保存；控制GDI打印，06 O01",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 91,
+    "key": "METHOD.PrintToTxt",
+    "field": "IsPrintToTxt",
+    "value": "False",
+    "note": "加载/会话读取；SaveMethod未写该项，不能称跨重启保存，10 R30",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 92,
+    "key": "METHOD.SavePdt",
+    "field": "IsSavePdt",
+    "value": "True",
+    "note": "强度处理默认保存；控制PDT文件输出，06 O01",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 93,
+    "key": "METHOD.SaveWave",
+    "field": "IsSaveWave",
+    "value": "True",
+    "note": "强度处理默认保存；控制校正波长写方法库，06 O01/N03",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 107,
+    "key": "SAFETIME.TimerDelay",
+    "field": "CcdSafe.TimerDelay",
+    "value": "DefCcdDelay",
+    "note": "只读运行配置，默认25ms；采集线程计时/读超时，10 R35",
+    "status": "物理通讯时序排除；软件配置只留档"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 108,
+    "key": "SAFETIME.SafeTotal",
+    "field": "CcdSafe.SafeTotal",
+    "value": "DefCcdSafeTotal",
+    "note": "只读运行配置，默认200ms；采集接收留量，10 R35",
+    "status": "物理通讯时序排除；软件配置只留档"
+  },
+  {
+    "path": "Common/uConfigs.pas",
+    "line": 109,
+    "key": "SAFETIME.SafePre",
+    "field": "CcdSafe.SafePre",
+    "value": "DefCcdSafePre",
+    "note": "只读运行配置，默认100ms；CorrectTimer校正留量，10 R35",
+    "status": "物理通讯时序排除；软件配置只留档"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 198,
+    "key": "PCOMM.Port",
+    "field": "Port",
+    "value": "3",
+    "note": "设备页COM1–16；载入默认3、无效改1；连接及采集使用，05 C21",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 201,
+    "key": "PCOMM.Baud",
+    "field": "Baud",
+    "value": "Bauds[0]",
+    "note": "无设备页下拉；460800/921600；异常回首值；串口打开使用",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 211,
+    "key": "SCREEN.ScreenWidth",
+    "field": "ScreenWidth",
+    "value": "DefaultScreenWidth",
+    "note": "屏幕物理cm输入；范围25.4–122.76，默认40.92；物理比例，10 R46",
+    "status": "屏幕参数可配置；旧谱图物理比例未完整消费，见F12"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 219,
+    "key": "CCD.FrameCount",
+    "field": "FrameCount",
+    "value": "DefaultCcdFrame",
+    "note": "从OPT加载/保存，无此方法页编辑；帧板组与容量计算，06 O12",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 220,
+    "key": "CCD.Mirror",
+    "field": "Mirror",
+    "value": "False",
+    "note": "OPT读取；设备页禁用且Save不写Mirror；CCD点向映射，06 O12",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 221,
+    "key": "CCD.CcdsPerFrame",
+    "field": "CcdsPerFrame",
+    "value": "DefaultCcdsPerFrame",
+    "note": "加载/保存；容量=FrameCount×CcdsPerFrame；串口帧拆分",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 223,
+    "key": "CCD.PointsPerCcd",
+    "field": "PointsPerCcd",
+    "value": "DefaultPointsPerCcd",
+    "note": "加载/保存；设备页禁用；每CCD缓冲长度/点边界/绘图",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 224,
+    "key": "CCD.PointWidth",
+    "field": "PointWidth",
+    "value": "DefaultPointWidth",
+    "note": "加载/保存；设备页禁用；um与步数/漂移/间隔转换",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 225,
+    "key": "CCD.CcdGap",
+    "field": "CcdGap",
+    "value": "DefaultCcdGap",
+    "note": "加载，无Save写入；设备页禁用；布局基础间隔；色散调间隔另外存WSTC",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 226,
+    "key": "CCD.CcdIndexs",
+    "field": "CcdIndexs",
+    "value": "''",
+    "note": "隐藏键启用输入；去重升序/去无效；安装插槽/菜单/串口数据映射，10 R45",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 228,
+    "key": "CCD.AllowGapError",
+    "field": "AllowGapError",
+    "value": "DefCcdGapError",
+    "note": "加载/保存，无普通页输入；色散容许步误差=值/PointWidth，10 R19",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 229,
+    "key": "CCD.AllowCcdDrift",
+    "field": "AllowCcdDrift",
+    "value": "DefaultAllowDrift",
+    "note": "隐藏键启用输入；加载至少200、界面200–500；CCD可用边界及文件系数检查",
+    "status": "设备/布局有对应；导入与原运行配置并非完整自动激活，见F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 233,
+    "key": "PRINTER.PaperSize",
+    "field": "PaperSize",
+    "value": "DMPAPER_A4",
+    "note": "系统打印设置读回并保存；GDI纸面布局；自定义纸型读回回退A4",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 234,
+    "key": "PRINTER.Orientation",
+    "field": "Orientation",
+    "value": "0",
+    "note": "系统打印设置读回并保存；打印方向和纸面尺寸",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 237,
+    "key": "PAGESETUP.FontSize",
+    "field": "FontSize",
+    "value": "FontSizes[2]",
+    "note": "页面设置9/10/11/12/13；加载异常回11；报告字体",
+    "status": "最终报告参数消费者缺失，见F06/F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 241,
+    "key": "PAGESETUP.ElePerLine",
+    "field": "ElePerLine",
+    "value": "11",
+    "note": "页面设置5–50；默认11；实际受纸面空间进一步限制，10 R44",
+    "status": "最终报告参数消费者缺失，见F06/F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 242,
+    "key": "PAGESETUP.SampPerPage",
+    "field": "SampPerPage",
+    "value": "60",
+    "note": "页面设置20–100；默认60；实际受纸面空间限制，10 R44",
+    "status": "最终报告参数消费者缺失，见F06/F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 243,
+    "key": "PAGESETUP.TimeMode",
+    "field": "TimeMode",
+    "value": "0",
+    "note": "分析时间/系统时间；打印读取测量时间或Now，06 O09",
+    "status": "最终报告参数消费者缺失，见F06/F11"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 246,
+    "key": "PROTECT.LogCmd",
+    "field": "IsLogCmd",
+    "value": "False",
+    "note": "只从OPT读取；通信标签/指令收发时间记录；不在普通软件页，10 R08",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 247,
+    "key": "PROTECT.FullDebug",
+    "field": "IsFullDebug",
+    "value": "False",
+    "note": "只从OPT读取；隐藏EDT转换入口、波长范围分支和诊断详情，05 C20/06 O13",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Common/uOptions.pas",
+    "line": 248,
+    "key": "PROTECT.PrintUnseen",
+    "field": "IsPrintUnseen",
+    "value": "false",
+    "note": "只从OPT读取；方法参数打印增加系数/标准原修正值，06 O10",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 241,
+    "key": "IgnitWst.PreBurn",
+    "field": "FIgnitCon.PreBurn",
+    "value": "MinPreBurnTime",
+    "note": "WDT色散摄谱默认PreBurn；勾保存条件写CFG，再开色散摄谱读回；10 R29",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 241,
+    "key": "IgnitEva.PreBurn",
+    "field": "FIgnitCon.PreBurn",
+    "value": "MinPreBurnTime",
+    "note": "EDT蒸发摄谱默认PreBurn；与WDT分节保存，不覆写方法PreBurn；10 R29",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 242,
+    "key": "IgnitWst.BurnCyc",
+    "field": "FIgnitCon.BurnCyc",
+    "value": "MinCycTime",
+    "note": "WDT色散摄谱默认燃烧周期，DarkCyc跟随；采集计时/归一化；10 R29/R50",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 242,
+    "key": "IgnitEva.BurnCyc",
+    "field": "FIgnitCon.BurnCyc",
+    "value": "MinCycTime",
+    "note": "EDT蒸发摄谱默认燃烧周期，DarkCyc跟随；分时数据/归一化；10 R29/R50",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 244,
+    "key": "IgnitWst.BurnCount",
+    "field": "FIgnitCon.BurnCount",
+    "value": "DefBurnCount",
+    "note": "WDT色散摄谱默认燃烧次数；帧分配/进度；10 R29",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 244,
+    "key": "IgnitEva.BurnCount",
+    "field": "FIgnitCon.BurnCount",
+    "value": "DefBurnCount",
+    "note": "EDT蒸发摄谱默认燃烧次数；全时帧容量/区间；10 R29/R34",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 245,
+    "key": "IgnitWst.BackCount",
+    "field": "FignitCon.DarkCount",
+    "value": "DefDarkCount",
+    "note": "WDT色散摄谱默认空白次数，实际字段DarkCount；10 R29",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.pas",
+    "line": 245,
+    "key": "IgnitEva.BackCount",
+    "field": "FignitCon.DarkCount",
+    "value": "DefDarkCount",
+    "note": "EDT蒸发摄谱默认空白次数，实际字段DarkCount；10 R29",
+    "status": "对应新版设置或任务参数存在；旧偏好导入不自动生效，见F11，输出组合见F08"
+  }
+]

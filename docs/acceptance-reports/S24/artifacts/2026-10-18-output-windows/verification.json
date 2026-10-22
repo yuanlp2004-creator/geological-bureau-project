@@ -1,0 +1,156 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-output-windows",
+  "executed_plan_sha256": "b1ac410fa6e4ef5edde8c187e3cb34d3fe53de6bfc0d97f422746891981d43b4",
+  "product_changes": [
+    "app/backend/table_output.py",
+    "app/backend/api/analysis.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/analysis/intensity_output.py",
+    "app/backend/modules/reports/service.py",
+    "app/backend/schemas/analysis.py",
+    "app/backend/schemas/reports.py",
+    "app/frontend/src/api/reports.ts",
+    "app/frontend/src/components/PrintExportPanel.tsx",
+    "app/frontend/src/pages/postprocessing/AnalysisIntensityOutput.tsx",
+    "app/frontend/src/pages/postprocessing/data-processing.css",
+    "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx",
+    "app/frontend/src/pages/postprocessing/IntensityExportPanel.tsx",
+    "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+    "app/frontend/src/pages/reports/ReportOutput.tsx",
+    "app/frontend/src/pages/reports/ReportsPage.tsx"
+  ],
+  "manifest_regenerated": true,
+  "tests": {
+    "backend": 55,
+    "frontend": 16,
+    "browser": 9,
+    "desktop": 7
+  },
+  "layouts": {
+    "browser": 6,
+    "desktop": 6
+  },
+  "builds": [
+    "sidecar",
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "root_pair": {
+    "GeoSpectrum.exe": "99a94a56645de167e5c61797533feb46cff5787f7a1653f74e0ec5b6542d0548",
+    "geospectrum-backend.exe": "103eda616aa10d9909e1b189712dc0b0a6ace9d51b9fbd7c10d284bccdb931fa"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-output-windows\\previous\\root-entry-20261018-150227",
+  "schema_version": 23,
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "native_windows": {
+    "files": [
+      {
+        "id": 1,
+        "button": "Excel",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.xls",
+        "bytes": 492,
+        "sha256": "9d582243ae129c3545d781ac3190f96e62f3fa952a69b727b29b07c475f56cfa"
+      },
+      {
+        "id": 2,
+        "button": "PDF",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.pdf",
+        "bytes": 3050,
+        "sha256": "30b1054f93c01bd89581831c95e2607cd6f404721b215b62be25ca23169bcfb5"
+      },
+      {
+        "id": 4,
+        "button": "打印",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report-windows-driver.pdf",
+        "bytes": 86741,
+        "sha256": "227c1700b4a600f875be046e22b184780f6ab2731b3e715ce3b6e537ca0d558e",
+        "driver_pdf": {
+          "producer": "Microsoft: Print To PDF",
+          "pages": 1
+        }
+      },
+      {
+        "id": 5,
+        "button": "Excel",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.xls",
+        "bytes": 599,
+        "sha256": "3b430b4c2a641ce3a94b61a205bf8182e06fdaeb1481dd5fe5a6253eedc7b9a2"
+      },
+      {
+        "id": 6,
+        "button": "PDF",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.pdf",
+        "bytes": 2768,
+        "sha256": "bc287a76edb7adef721c1e123b0a0a0f8051089199edf7333df93a620c445d2a"
+      },
+      {
+        "id": 8,
+        "button": "打印",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity-windows-driver.pdf",
+        "bytes": 79381,
+        "sha256": "9d42b963f22a86543c02fead525da2b18cc31d79974ff07c7cbf53caaadc1572",
+        "driver_pdf": {
+          "producer": "Microsoft: Print To PDF",
+          "pages": 1
+        }
+      }
+    ],
+    "driver": {
+      "connected": true,
+      "printer_name": "Microsoft Print to PDF",
+      "driver": "Microsoft Print To PDF",
+      "paper_id": 9,
+      "orientation": 1,
+      "dpi": [
+        600,
+        600
+      ],
+      "printable_pixels": [
+        4961,
+        7016
+      ],
+      "submitted": false
+    },
+    "cancelled": [
+      {
+        "id": 3,
+        "button": "PDF",
+        "file": "cancelled-report.pdf"
+      },
+      {
+        "id": 7,
+        "button": "打印",
+        "file": "cancelled-intensity-print.pdf"
+      }
+    ],
+    "status": "passed"
+  },
+  "native_dialog_count": 8,
+  "computer_use_helper": "unavailable native pipe; isolated owned-process Windows integration harness used",
+  "preservation": {
+    "selected_user_files": 10,
+    "byte_unchanged_user_files": 10,
+    "data_differences": [],
+    "legacy_files_unchanged": 106,
+    "root_app_inventory_unchanged": true
+  },
+  "legacy_apis_and_history_retained": true,
+  "report_download_audit": "prepared bytes only; cancelled Save As is never marked as saved",
+  "installer_updated": false,
+  "physical_printer_output_tested": false,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-output-windows\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "cd6dff6d7aa8288c3facca7c90f7831f039e6e8836c85f01781effcaef761176",
+    "pid": 21636,
+    "shown_window_handles": [
+      8126788
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  }
+}

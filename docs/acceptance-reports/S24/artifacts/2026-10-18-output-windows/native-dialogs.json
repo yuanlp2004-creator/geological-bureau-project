@@ -1,0 +1,1010 @@
+[
+  {
+    "id": 1,
+    "pid": 21636,
+    "title": "保存 GeoSpectrum 文件",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 13175386,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 1902120,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 1966538,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 1577636,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 2626358,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 11079686,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 2756094,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 1311482,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 1508456,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 8457140,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 7999354,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 15207960,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 5311246,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 3085378,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 1774640,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.xls"
+  },
+  {
+    "id": 2,
+    "pid": 21636,
+    "title": "保存 GeoSpectrum 文件",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 18353362,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 1441986,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 1774806,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 1902182,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 1573992,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 1377018,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 8522676,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 3409560,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 3738062,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.pdf"
+  },
+  {
+    "id": 3,
+    "pid": 21636,
+    "title": "保存 GeoSpectrum 文件",
+    "class": "#32770",
+    "mode": "cancel",
+    "controls": [
+      {
+        "hwnd": 5442318,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 3215802,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 1839910,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 1836608,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 1639528,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 8588212,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 3085508,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 5900978,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 1839842,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 8261498,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 3018238,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 1573058,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 18484434,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 3540632,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 19535094,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 2033254,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 15339032,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 8721506,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      },
+      {
+        "hwnd": 4920468,
+        "class": "msctls_progress32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 3085356,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "pid": 32368,
+    "title": "将打印输出另存为 — Microsoft Print to PDF",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 1705064,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 1902144,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 4523470,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 1905446,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 3281338,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 2295336,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 3278476,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 8259798,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 4064814,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 3277026,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 3540712,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 4128954,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 3216580,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 3149310,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 8392570,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 5573390,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 5116604,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 2755284,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report-windows-driver.pdf"
+  },
+  {
+    "id": 5,
+    "pid": 21636,
+    "title": "保存 GeoSpectrum 文件",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 3342562,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 2359754,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 2033094,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 8852578,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 5051540,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 19666166,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 2363212,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 4326272,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 2426408,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 27790282,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 2426412,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 6555042,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 4327072,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 2364052,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 20189270,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 7277062,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2036950,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 4067604,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      },
+      {
+        "hwnd": 4723394,
+        "class": "msctls_progress32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 1970916,
+        "class": "Breadcrumb Parent",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 8064538,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 1001
+      },
+      {
+        "hwnd": 19860182,
+        "class": "ToolbarWindow32",
+        "text": "地址区段",
+        "id": 0
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.xls"
+  },
+  {
+    "id": 6,
+    "pid": 21636,
+    "title": "保存 GeoSpectrum 文件",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 4330198,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 4393758,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 3671784,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 2491944,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 5117076,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 10621066,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 3802776,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 5706826,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 2950022,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 2557484,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 27921354,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2164166,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2490826,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 3473634,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 4457344,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 8983650,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 4396094,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 13568602,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      },
+      {
+        "hwnd": 1705490,
+        "class": "msctls_progress32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2757318,
+        "class": "ToolbarWindow32",
+        "text": "地址区段",
+        "id": 0
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.pdf"
+  },
+  {
+    "id": 7,
+    "pid": 32368,
+    "title": "将打印输出另存为 — Microsoft Print to PDF",
+    "class": "#32770",
+    "mode": "cancel",
+    "controls": [
+      {
+        "hwnd": 8589178,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 8915892,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 2754718,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 6165446,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 3015558,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 21434008,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 2559820,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 6686114,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 5313212,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 28052426,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 2688556,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 3802856,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 4524830,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 4461270,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 5837898,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 5248148,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 3345918,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 2295398,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      },
+      {
+        "hwnd": 4325562,
+        "class": "msctls_progress32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 7934356,
+        "class": "ToolbarWindow32",
+        "text": "地址区段",
+        "id": 0
+      },
+      {
+        "hwnd": 1115620,
+        "class": "Breadcrumb Parent",
+        "text": "",
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "pid": 32368,
+    "title": "将打印输出另存为 — Microsoft Print to PDF",
+    "class": "#32770",
+    "mode": "save",
+    "controls": [
+      {
+        "hwnd": 5378748,
+        "class": "Static",
+        "text": "",
+        "id": 1092
+      },
+      {
+        "hwnd": 2621898,
+        "class": "Static",
+        "text": "",
+        "id": 1091
+      },
+      {
+        "hwnd": 3081094,
+        "class": "Static",
+        "text": "",
+        "id": 1093
+      },
+      {
+        "hwnd": 6230982,
+        "class": "ListBox",
+        "text": "",
+        "id": 1120
+      },
+      {
+        "hwnd": 2820254,
+        "class": "Static",
+        "text": "",
+        "id": 1095
+      },
+      {
+        "hwnd": 28117962,
+        "class": "Button",
+        "text": "",
+        "id": 1028
+      },
+      {
+        "hwnd": 4264212,
+        "class": "Button",
+        "text": "保存(&S)",
+        "id": 1
+      },
+      {
+        "hwnd": 2295238,
+        "class": "Button",
+        "text": "取消",
+        "id": 2
+      },
+      {
+        "hwnd": 2033108,
+        "class": "Button",
+        "text": "帮助(&H)",
+        "id": 1038
+      },
+      {
+        "hwnd": 3937498,
+        "class": "ScrollBar",
+        "text": "",
+        "id": -1
+      },
+      {
+        "hwnd": 16122182,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 6817186,
+        "class": "WorkerW",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2690892,
+        "class": "ReBarWindow32",
+        "text": "",
+        "id": 40965
+      },
+      {
+        "hwnd": 2819628,
+        "class": "TravelBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 19993846,
+        "class": "ToolbarWindow32",
+        "text": "导航按钮",
+        "id": 0
+      },
+      {
+        "hwnd": 9046964,
+        "class": "UpBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2295326,
+        "class": "ToolbarWindow32",
+        "text": "上区段",
+        "id": 0
+      },
+      {
+        "hwnd": 4916618,
+        "class": "Address Band Root",
+        "text": "",
+        "id": 41477
+      },
+      {
+        "hwnd": 15732248,
+        "class": "msctls_progress32",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 8521942,
+        "class": "Breadcrumb Parent",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 2491936,
+        "class": "ToolbarWindow32",
+        "text": "",
+        "id": 1001
+      },
+      {
+        "hwnd": 1578288,
+        "class": "ToolbarWindow32",
+        "text": "地址区段",
+        "id": 0
+      },
+      {
+        "hwnd": 9114722,
+        "class": "SeparatorBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 7670252,
+        "class": "UniversalSearchBand",
+        "text": "",
+        "id": 0
+      },
+      {
+        "hwnd": 21565080,
+        "class": "Search Box",
+        "text": "",
+        "id": 0
+      }
+    ],
+    "uia_filename": {
+      "id": "1001",
+      "name": "文件名:",
+      "class": "Edit"
+    },
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity-windows-driver.pdf"
+  }
+]

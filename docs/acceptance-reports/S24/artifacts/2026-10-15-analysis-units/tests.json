@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-15",
+  "unit_specific_pytest": {
+    "command": "python -m pytest -q tests/test_analysis_units.py",
+    "passed": 18,
+    "exit_code": 0
+  },
+  "related_regressions": {
+    "command": "python -m pytest -q tests/test_methods.py tests/test_spectral_lines.py tests/test_s16_analysis.py tests/test_s17_quality_curves.py tests/test_s18_postprocessing.py tests/test_s19_reports.py tests/test_method_printing.py tests/test_contract_additions.py tests/test_spec_gap_closure.py tests/test_architecture.py",
+    "passed": 94,
+    "exit_code": 0
+  },
+  "legacy_and_standard_supplement": {
+    "command": "python -m pytest -q tests/test_analysis_units.py tests/test_s17_quality_curves.py tests/test_legacy_migration.py",
+    "passed": 31,
+    "exit_code": 0
+  },
+  "final_postprocessing": {
+    "command": "python -m pytest -q tests/test_s18_postprocessing.py",
+    "passed": 17,
+    "exit_code": 0
+  },
+  "frontend": {
+    "command": "npm.cmd --prefix frontend test",
+    "passed": 11,
+    "exit_code": 0
+  },
+  "frontend_build": {
+    "command": "npm.cmd --prefix frontend run build",
+    "exit_code": 0
+  },
+  "sidecar_build": {
+    "command": "python tools/build_sidecar.py",
+    "exit_code": 0
+  },
+  "sidecar_verify": {
+    "command": "python tools/verify_sidecar.py",
+    "exit_code": 0
+  },
+  "test_sets_overlap": true,
+  "real_hardware_tested": false
+}

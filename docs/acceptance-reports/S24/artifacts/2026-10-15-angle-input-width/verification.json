@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "date": "2026-10-15",
+  "plan_snapshot_sha256": "931FE242A992268F7B5F17627CA85CEB7745163E5F7B027F6E1CA9F746427B4A",
+  "product_changed_files": [
+    "app/frontend/src/pages/methods/methods.css"
+  ],
+  "width_measurements": [
+    {
+      "theme": "light",
+      "viewport": 1440,
+      "old_input_width": 732,
+      "input_width": 166,
+      "storage_gap": 14,
+      "reduction_percent": 77.3224043715847
+    },
+    {
+      "theme": "dark",
+      "viewport": 1060,
+      "old_input_width": 426,
+      "input_width": 166,
+      "storage_gap": 14,
+      "reduction_percent": 61.03286384976525
+    }
+  ],
+  "browser_checks": 14,
+  "actual_desktop_groups": 9,
+  "exposure_disabled_in_simple_mean": true,
+  "exposure_enabled_after_mode_saved": true,
+  "per_line_exposure_edit_and_save_verified": true,
+  "exposure_logic_changed": false,
+  "backend_changed": false,
+  "same_frontend_resources": true,
+  "qa_closed_normally": true,
+  "qa_owned_processes_remaining": [],
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "current_executables": {
+    "GeoSpectrum.exe": "05222093E5018C383C71AA85FF079B16FF336C0959D3CA405C41CDCB84462A0D",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "previous_executables": {
+    "GeoSpectrum.exe": "092073290819A6E7E2AB85404842899BE1395D458C774597DCB9E0F2DD2C01AA",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-15-angle-input-width\\previous"
+}

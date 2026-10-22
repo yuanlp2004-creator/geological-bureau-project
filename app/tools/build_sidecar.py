@@ -13,6 +13,7 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 if str(APP_ROOT) not in sys.path:
     sys.path.insert(0, str(APP_ROOT))
 
+from backend.migrations import SCHEMA_VERSION
 from tools.runtime_resources import RESOURCE_MANIFEST, RESOURCE_ROOT, load_runtime_resources, sha256
 
 
@@ -81,7 +82,7 @@ def main() -> int:
         METADATA.write_text(
             json.dumps(
                 {
-                    "schema_version": 20,
+                    "schema_version": SCHEMA_VERSION,
                     "stage": "S21",
                     "sha256": sha256(TARGET),
                     "bytes": TARGET.stat().st_size,

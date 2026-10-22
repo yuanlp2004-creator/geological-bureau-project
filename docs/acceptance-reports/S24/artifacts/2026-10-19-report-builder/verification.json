@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "batch": "2026-10-19-report-builder",
+  "executed_plan_sha256": "2c30ac8c52eb686b7f7e3fcd24ba1d04f2ab96ac31f30dc21fa03d14c92aec4b",
+  "product_changes": [
+    "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "root_pair": {
+    "GeoSpectrum.exe": "69be8d34c85c15fb376316c6134d22cd0f28afc485ae4b29a5c3a8ce5cf64589",
+    "geospectrum-backend.exe": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-builder\\previous\\root-entry-20261018-175133",
+  "tests": {
+    "frontend": 15,
+    "browser": 8,
+    "desktop": 8
+  },
+  "report_layouts": {
+    "browser": 5,
+    "desktop": 5
+  },
+  "regression_layouts": {
+    "browser": 9,
+    "desktop": 9
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "backend_byte_unchanged": true,
+  "api_algorithms_and_permissions_changed": false,
+  "schema_version": 23,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-builder\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "f8c2f6103dd54b6aa21b30b0b8c5c746eb1256fe1a0dc72f7ec6c6b75e5ac16f",
+    "pid": 23104,
+    "shown_window_handles": [
+      8455788
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "desktop_startup_retry": {
+    "first_attempt": "Blank renderer; no login, QA process stopped after timeout",
+    "final_attempt": "Fresh isolated QA run passed all checks and exited normally"
+  },
+  "preservation": {
+    "selected_user_files": 10,
+    "byte_unchanged_user_files": 10,
+    "data_differences": [],
+    "legacy_files_unchanged": 106,
+    "root_app_inventory_unchanged": true
+  },
+  "installer_updated": false
+}

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-16",
+  "scope": "software menus/parameters/files/calculations; physical hardware excluded",
+  "status": "audit_complete_with_confirmed_gaps",
+  "old_source_files": 107,
+  "old_active_forms": 41,
+  "old_dfm_objects": 846,
+  "old_dfm_event_bindings": 439,
+  "old_runtime_event_bindings": 59,
+  "old_main_menu_leaves": 30,
+  "old_combo_boxes": 21,
+  "old_config_keys": 41,
+  "old_independent_inputs": 82,
+  "checkpoints": 226,
+  "checkpoint_counts": {
+    "M": 30,
+    "P": 19,
+    "L": 17,
+    "S": 16,
+    "D": 6,
+    "N": 21,
+    "O": 18,
+    "R": 54,
+    "U": 24,
+    "C": 21
+  },
+  "backend_tests": 310,
+  "frontend_tests": 14,
+  "browser_diagnostic_groups": 3,
+  "confirmed_gap_groups": 14,
+  "other_difference_groups": 9,
+  "protected_file_count": 1051,
+  "protected_unchanged_count": 1050,
+  "protected_product_and_legacy_files_unchanged": true,
+  "concurrent_document_changes": [
+    "PLAN.md"
+  ],
+  "plan_hash_before": "d22e5923f8ab4ba097ec3f78d2210c2011ae5b3cf4279e66dbe9ba652d34c208",
+  "plan_hash_after": "28bc0a81c27c6fd5677c11c8878ee2caa38f6f2eca663f7487f969fb8aa2abe8",
+  "old_sources_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_exes": {
+    "GeoSpectrum.exe": "81634a6678652a1a654c7cf136d50293997cf0c3c5330965d6fa031b946dda9e",
+    "geospectrum-backend.exe": "767708e5c434311276685d3138446af0a133d4da87fad9e01f433601fce020f5"
+  },
+  "product_modified": false,
+  "old_exe_run": false,
+  "user_database_opened": false,
+  "independent_old_exe_numerical_oracle": false,
+  "current_modules": 18,
+  "current_navigation_entries": 27
+}

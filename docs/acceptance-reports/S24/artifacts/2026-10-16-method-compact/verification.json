@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "plan_before_sha256": "87ef485c29b61eb8b52dd781681fd4c5f416f3618749b0719ed073e74e36bde5",
+  "execution_plan_sha256": "500c9fe6a7092b64735c57648be1354bdc71112b0fdaa12cd3ce0b757bb2f5fc",
+  "scope": "Compact same-page method editing; error settings and CCD ranges can be expanded.",
+  "changed_method_files": [
+    "app/frontend/src/pages/methods/MethodAngles.tsx",
+    "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "app/frontend/src/pages/methods/MethodIdentity.tsx",
+    "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/methods/MethodsPage.tsx"
+  ],
+  "test_changed": "app/tests/s23_method_layout_regression.mjs",
+  "browser_layout_states": 12,
+  "desktop_layout_states": 6,
+  "checks": [
+    "single local sidebar",
+    "fold/unfold",
+    "create and select",
+    "save persistence",
+    "compact parameter groups",
+    "folded input preservation and persistence",
+    "invalid collapsed field revealed with zero writes",
+    "invalid numeric zero writes",
+    "no page errors"
+  ],
+  "frontend_tests": 15,
+  "build_reused_from": "2026-10-16-spectroscopy-workbench",
+  "root_pair": {
+    "GeoSpectrum.exe": "abdc88569e9f1cd30515397a647c5b354f076ca394469fd80d940dcbc60dd53b",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "all_product_sources_current": true,
+  "method_sources_match_initial_successful_build": true,
+  "user_data_files_preserved_during_resumed_verification": 3,
+  "user_data_hashes": {
+    "geospectrum.sqlite3": "acd2e860efa895ce2d4a8ddfbfac1ef531cdb1b8289c7b985e091f43ce959c7d",
+    "backups\\pre-upgrade-v20-to-v21-20260925T164327Z-164f8c9d.sqlite3": "b1903dcc0d42d0dd036bcb498a74129ad157a2b9abab77e40be0673494f6d1a4",
+    "backups\\pre-upgrade-v21-to-v23-20261007T101301Z-75fa3350.sqlite3": "58aa133625a200331647e003d894cd774a24335ccda697f3ab5acbdc9270108e"
+  },
+  "initial_to_resumed_interval_hash_changes": [
+    "geospectrum.sqlite3",
+    "EBWebView\\Crashpad\\settings.dat"
+  ],
+  "root_and_app_listings_unchanged": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-spectroscopy-workbench\\qa\\GeoSpectrum.exe",
+    "pid": 33672,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "computer_use": "Native helper unavailable; actual isolated QA EXE/WebView2 verified through CDP.",
+  "limits": [
+    "Initial task snapshot and resumed baseline differ for the live user database and WebView cache. No whole-task byte-preservation claim is made; all tests used temporary isolated data. Resumed verification separately preserved the user business-data hashes.",
+    "Actual desktop devicePixelRatio 2; other system scaling settings were not changed or tested.",
+    "Real device, physical printing, signing and clean-Windows release gates remain unchanged."
+  ],
+  "plan_after_documentation_sha256": "4bd43f4029ead8ceaca82f5201bac2d83428694fd0db89b138cb15a8767ac7d6"
+}

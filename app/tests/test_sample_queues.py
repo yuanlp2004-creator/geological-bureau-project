@@ -36,7 +36,11 @@ def test_old_standard_names_empty_samples_and_invalid_import(tmp_path: Path) -> 
     database = Database(tmp_path / "samples.sqlite3")
     database.initialize()
     service = SampleQueueService(database)
-    queue = service.create("standards", [{"pre_name": "sa", "repeats": 3}, {"pre_name": ",", "repeats": 0}, {"pre_name": "unknown", "repeats": 0}], None)
+    queue = service.create(
+        "standards",
+        [{"pre_name": "sa", "repeats": 3}, {"pre_name": ",", "repeats": 0}, {"pre_name": "unknown", "repeats": 0}],
+        None,
+    )
     assert [item["pre_name"] for item in queue["items"]] == ["S10", "", "unknown"]
     assert queue["expanded_bands"] == 5
 
@@ -57,7 +61,11 @@ def test_post_acquisition_rename_preserves_spectrum_hash_and_audits(tmp_path: Pa
     renamed = service.rename(queue["id"], item_id, "B", None)
     assert renamed["items"][0]["post_name"] == "B"
     assert renamed["items"][0]["spectrum_hash"] == "a" * 64
-    audit = database.connect().execute("SELECT action, details_json FROM audit_events WHERE action='sample_queue.rename'").fetchone()
+    audit = (
+        database.connect()
+        .execute("SELECT action, details_json FROM audit_events WHERE action='sample_queue.rename'")
+        .fetchone()
+    )
     assert audit[0] == "sample_queue.rename"
     assert '"spectrum_hash"' in audit[1]
 
@@ -72,13 +80,22 @@ def test_sample_queue_api_contract(tmp_path: Path, monkeypatch) -> None:
     runtime = application.state.runtime
     with TestClient(application) as client:
         assert client.get("/api/v1/sample-queues").status_code == 401
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
         login = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"})
         headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
-        created = client.post("/api/v1/sample-queues", headers=headers, json={"name": "api", "items": [{"pre_name": "A", "repeats": 2}]})
+        created = client.post(
+            "/api/v1/sample-queues", headers=headers, json={"name": "api", "items": [{"pre_name": "A", "repeats": 2}]}
+        )
         assert created.status_code == 201
         queue_id = created.json()["id"]
-        imported = client.post("/api/v1/sample-queues/import", headers=headers, json={"filename": "upload.sam", "content": "S0\t1\n,\t0\n"})
+        imported = client.post(
+            "/api/v1/sample-queues/import", headers=headers, json={"filename": "upload.sam", "content": "S0\t1\n,\t0\n"}
+        )
         assert imported.status_code == 201
         assert imported.json()["expanded_bands"] == 2
         exported = client.get(f"/api/v1/sample-queues/{queue_id}/export", headers=headers)

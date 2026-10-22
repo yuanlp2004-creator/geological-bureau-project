@@ -6,12 +6,12 @@
 
 ## 2. 代码入口
 
-- 服务：[`modules/mercury_calibration.py`](../../app/backend/modules/mercury_calibration.py)
+- 服务：[`modules/mercury_calibration/service.py`](../../app/backend/modules/mercury_calibration/service.py)
 - API：[`api/mercury_calibration.py`](../../app/backend/api/mercury_calibration.py)；`/api/v1/mercury-calibrations`
 - 请求模型：[`schemas/mercury_calibration.py`](../../app/backend/schemas/mercury_calibration.py)。
-- 前端：`App.tsx` 中的 `MercuryCalibrationPage`
+- 前端：[`MercuryCalibrationPage.tsx`](../../app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx)
 - 测试：[`tests/test_s15_mercury_calibration.py`](../../app/tests/test_s15_mercury_calibration.py)
-- 验收状态：[`acceptance-reports/S15/验收报告.md`](../acceptance-reports/S15/验收报告.md)
+- 验收状态：[当前验收状态](../acceptance-reports/README.md)
 
 ## 3. 适配器边界
 
@@ -65,3 +65,7 @@ rollback → rolled_back
 - 对齐版本发布后是否不可变，活动版本切换是否可回滚。
 - 安全关闭是否在异常和用户停止两类路径中执行。
 - 运行 S15 自动化测试；真实汞灯验证仍需协议和现场硬件证据。
+
+## 实现分工
+
+`mercury_calibration/adapters.py` 拥有汞灯模拟/串口能力；`calculation.py` 保留峰位、期望点位及 offset_statistics 纯计算；`repository.py::MercuryRepository` 拥有会话、帧、轨迹与候选版本入库。`service.py` 仍唯一管理会话锁、适配器和 start/step/apply/rollback/stop；应用、回退及安全关闭次序保持。前端 `MercuryCalibrationForm/Monitor/Results` 负责表单、会话控制呈现和谱线结果，父页保持加载身份与共享状态。

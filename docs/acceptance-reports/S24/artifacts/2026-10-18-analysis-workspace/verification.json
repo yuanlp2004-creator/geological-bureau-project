@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-analysis-workspace",
+  "executed_plan_sha256": "7d3f169002f12f45328a01599f8addecfdf299c601c55c5fae9f59bdc16bfd0c",
+  "product_changes": [
+    "app/backend/modules/manifest.py",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/analysis/analysis-workspace.css",
+    "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/AnalysisQuality.tsx",
+    "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "app/frontend/src/styles/index.ts"
+  ],
+  "navigation": {
+    "modules": 18,
+    "groups": 7,
+    "entries": 27,
+    "entry": "analysis-tests.raw",
+    "label": "样品分析",
+    "replaced_entries": [
+      "analysis-tests.quality",
+      "analysis-tests.curve"
+    ]
+  },
+  "workflow": [
+    "create/select one batch",
+    "measure and review slow checkpoints",
+    "initial repeat statistics automatically calculated with QC permission",
+    "same-line repeat review beside curve/standards/results",
+    "fit and save immutable curve",
+    "next line",
+    "final merge and saved results"
+  ],
+  "preserved": [
+    "slow manual intervention and timeout",
+    "repeat warnings, acceptance, exclusion and restoration",
+    "four fitting modes and logarithmic coordinates",
+    "management-sample adaptation and original/adjusted standard intensities",
+    "image/text preview and PDF output",
+    "permissions and immutable history",
+    "pending request and duplicate operation protection",
+    "standard intensity draft retained after failed save"
+  ],
+  "tests": {
+    "backend_analysis_and_navigation": 27,
+    "backend_contract_and_units": 26,
+    "frontend": 15,
+    "browser_workflows": 7,
+    "desktop_workflows": 7,
+    "layouts_each": 3,
+    "existing_regression": 28,
+    "regression_layouts": 12,
+    "contract_ui": 8,
+    "manual_topics": 55
+  },
+  "build": {
+    "matched_product_sources": 353,
+    "frontend_assets_match": true,
+    "root_pair_sha256": {
+      "GeoSpectrum.exe": "d854ca16a1e6c98f0ab59ece8c167e559f8ccc53fdcf142ca04b96f81536b99b",
+      "geospectrum-backend.exe": "125cc66f68b927e9a546a3436c847aa4fcb1f54046bf245bd977cfaeffa1a693"
+    },
+    "previous_pair_backup": "app/.local/releases/2026-10-18-analysis-workspace/previous/root-entry-20261018-101132",
+    "sidecar_rebuilt_for_navigation": true
+  },
+  "data_preservation": {
+    "business_files_including_main_db": 10,
+    "legacy_source_files": 106,
+    "all_hashes_match": true,
+    "schema": 23,
+    "root_and_app_entries_unchanged": true
+  },
+  "desktop_exit": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-analysis-workspace\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "0c1c7d155171a31c1af7abee31dc20db9eec9ab18b55255bb99fea4f2c09b0fd",
+    "pid": 24368,
+    "shown_window_handles": [
+      397112
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "external_acceptance_gates_unchanged": true
+}

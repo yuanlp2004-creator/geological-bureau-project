@@ -64,9 +64,28 @@ export type ResultMigrationRun = {
 }
 
 export const resultMigrationApi = {
-  resultMigrationDiagnostics: (token: string) => request<ResultMigrationDiagnostic>('/api/v1/result-migration/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
-  resultMigrationRuns: (token: string) => request<{ runs: ResultMigrationRun[] }>('/api/v1/result-migration/runs', { headers: { Authorization: `Bearer ${token}` } }),
-  stageResultMigration: (token: string, path: string) => request<ResultMigrationRun>('/api/v1/result-migration/stage', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ path }) }),
-  commitResultMigration: (token: string, runId: string) => request<ResultMigrationRun>('/api/v1/result-migration/commit', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ run_id: runId }) }),
-  resultMigrationRun: (token: string, runId: string) => request<ResultMigrationRun>(`/api/v1/result-migration/runs/${runId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  resultMigrationDiagnostics: (token: string) =>
+    request<ResultMigrationDiagnostic>('/api/v1/result-migration/diagnostics', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  resultMigrationRuns: (token: string) =>
+    request<{ runs: ResultMigrationRun[] }>('/api/v1/result-migration/runs', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stageResultMigration: (token: string, path: string) =>
+    request<ResultMigrationRun>('/api/v1/result-migration/stage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ path })
+    }),
+  commitResultMigration: (token: string, runId: string) =>
+    request<ResultMigrationRun>('/api/v1/result-migration/commit', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ run_id: runId })
+    }),
+  resultMigrationRun: (token: string, runId: string) =>
+    request<ResultMigrationRun>(`/api/v1/result-migration/runs/${runId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

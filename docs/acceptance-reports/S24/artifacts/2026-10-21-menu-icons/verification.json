@@ -1,0 +1,117 @@
+{
+  "status": "passed",
+  "batch": "2026-10-21-menu-icons",
+  "executed_plan_sha256": "4232eac25310419d1d4ed5bd2ed88a579e94f29acf4f8c433ca516030aeb0105",
+  "modified_product_files": [
+    "app/frontend/src/layout/quick-access.css",
+    "app/frontend/src/layout/QuickAccessBar.tsx",
+    "app/frontend/src/layout/Sidebar.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "app/frontend/src/styles/index.ts"
+  ],
+  "added_product_files": [
+    "app/frontend/src/assets/menu/audit.png",
+    "app/frontend/src/assets/menu/devices.png",
+    "app/frontend/src/assets/menu/dispersion-acquisition.png",
+    "app/frontend/src/assets/menu/dispersion-curve.png",
+    "app/frontend/src/assets/menu/evaporation-acquisition.png",
+    "app/frontend/src/assets/menu/evaporation-curve.png",
+    "app/frontend/src/assets/menu/help.png",
+    "app/frontend/src/assets/menu/import-methods.png",
+    "app/frontend/src/assets/menu/import-results.png",
+    "app/frontend/src/assets/menu/import-spectra.png",
+    "app/frontend/src/assets/menu/maintenance.png",
+    "app/frontend/src/assets/menu/mercury.png",
+    "app/frontend/src/assets/menu/print.png",
+    "app/frontend/src/assets/menu/recalculate.png",
+    "app/frontend/src/assets/menu/rotation.png",
+    "app/frontend/src/assets/menu/settings.png",
+    "app/frontend/src/assets/menu/spectra.png",
+    "app/frontend/src/assets/menu/tools.png",
+    "app/frontend/src/assets/menu/users.png",
+    "app/frontend/src/assets/menu/workspace.png",
+    "app/frontend/src/components/FunctionIcon.tsx",
+    "app/frontend/src/components/function-icons.css"
+  ],
+  "navigation_entries": 26,
+  "navigation_groups": 7,
+  "new_icons": {
+    "legacy_menu_redraws": 6,
+    "new_function_designs": 14,
+    "size": [
+      256,
+      256
+    ],
+    "transparent": true
+  },
+  "tests": {
+    "typescript_vite": "passed",
+    "production_tauri": "passed",
+    "qa_tauri": "passed",
+    "browser_checks": 7,
+    "actual_packaged_desktop_checks": 7,
+    "menu_layouts_per_run": 24,
+    "resize_with_open_menu": "passed",
+    "limited_account": "passed"
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "fcb11c23d25257490193ee0b1a14961b770a9d284e6179b3e2a137d92ee7e5c8",
+    "geospectrum-backend.exe": "f575bcc5586979a9fdc5c5206b7c1fc0c22cc8de982896367f783de13e3ade09"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-menu-icons\\previous\\root-entry-20261021-003452",
+  "desktop": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-menu-icons\\qa\\GeoSpectrum.exe",
+    "sha256": "cc142281e200fd32a6d9e2cfbb5270b52f843a938ace33154d9640928b1ee96c",
+    "pid": 24084,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "generation": {
+    "provider": "local ComfyUI Qwen Image 2.1",
+    "jobs": [
+      {
+        "batch": "legacy",
+        "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d",
+        "status": "success",
+        "node_errors": {}
+      },
+      {
+        "batch": "system",
+        "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499",
+        "status": "success",
+        "node_errors": {}
+      },
+      {
+        "batch": "tools",
+        "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c",
+        "status": "success",
+        "node_errors": {}
+      }
+    ],
+    "steps": 30,
+    "cfg": 1,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "canonical_workflow_unchanged": true
+  },
+  "data": {
+    "tests_use_fresh_isolated_databases": true,
+    "live_database_overwritten": false,
+    "live_main_file_hash_matches_start": true,
+    "temporary_test_data_removed": true
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "legacy_source_files_preserved": 106,
+  "toolbar_png_bytes_preserved": true,
+  "prism_app_icon_bytes_preserved": true,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false
+}

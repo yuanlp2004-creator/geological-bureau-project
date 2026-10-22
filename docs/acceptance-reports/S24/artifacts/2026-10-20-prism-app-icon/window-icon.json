@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "pid": 31496,
+  "visible_window_found": true,
+  "window_icon_present": true,
+  "window_icon_source_size": [
+    256,
+    256
+  ],
+  "render_size": [
+    64,
+    64
+  ],
+  "mean_absolute_rgb_difference": {
+    "selected": 4.7431640625,
+    "previous": 115.014404296875
+  }
+}

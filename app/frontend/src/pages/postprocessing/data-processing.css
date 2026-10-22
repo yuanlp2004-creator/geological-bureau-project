@@ -1,0 +1,38 @@
+.data-processing-page { max-width: 1760px; }
+.data-processing-page > [role='tabpanel'] { min-width: 0; }
+.data-processing-page .page-content { padding: 0; max-width: none; }
+.data-processing-page .postprocessing-page > .hero-row h1,
+.data-processing-page .postprocessing-page > .hero-row p { display: none; }
+.data-processing-page .postprocessing-page > .hero-row { justify-content: flex-end; }
+.data-processing-page .reports-page > .hero-row { justify-content: flex-end; }
+.data-processing-page .postprocessing-view-tabs { margin-bottom: 16px; }
+.data-processing-page details.postprocessing-subsection > summary { cursor: pointer; font-weight: 600; }
+.data-processing-page details.postprocessing-subsection > p { margin: 10px 0; }
+.data-processing-page .postprocessing-workbench > div:empty { display: none; }
+.data-processing-page .postprocessing-export-surface { margin-top: 16px; }
+.intensity-report-page .intensity-run-selector { margin-top: 16px; }
+.intensity-report-page .intensity-output-note { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.intensity-report-page .intensity-more-options { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.intensity-report-page .intensity-more-options > summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.intensity-report-page .intensity-more-options .analysis-actions { flex-wrap: wrap; margin: 12px 0; }
+.intensity-report-page .intensity-table-scroll { max-width: 100%; overflow: auto; margin-top: 16px; }
+.intensity-report-page .intensity-table-scroll table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.intensity-report-page .intensity-table-scroll :is(th, td) { padding: 10px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.intensity-report-page .intensity-table-scroll :is(th, td):first-child { text-align: left; }
+.intensity-report-page .intensity-preview .report-format-actions { align-items: center; }
+:root .app-shell .intensity-report-page .report-summary { background: var(--surface); border-color: var(--line); }
+:root .app-shell .intensity-report-page .report-summary strong { color: var(--ink); }
+:root .app-shell .intensity-report-page .report-summary span { color: var(--muted); }
+:root .app-shell .intensity-report-page .state-chip { background: var(--surface); color: var(--muted); border-color: var(--line); }
+.intensity-report-page .report-preview-modal > div { background: var(--surface); }
+:root .app-shell .data-processing-page > [role='tabpanel'] > .page-content { padding: 0; }
+:root .app-shell .data-processing-page > [role='tabpanel'] .reports-page { position: relative; }
+:root .app-shell .data-processing-page .postprocessing-view-tabs { margin-bottom: 8px; }
+:root .app-shell .data-processing-page .reports-grid { gap: 12px; }
+:root .app-shell .data-processing-page .reports-page .empty-state { min-height: 64px; padding: 12px; }
+:root .app-shell .data-processing-page .report-summary { margin: 12px 0 0; }
+:root .app-shell .data-processing-page .report-export { margin-top: 12px; }
+:root .app-shell .data-processing-page .report-export-form { margin-top: 12px; }
+:root .app-shell .data-processing-recalculate .postprocessing-page { padding: 0; }
+:root .app-shell .data-processing-page.data-processing-recalculate > .hero-row { margin-bottom: 12px; }
+:root .app-shell .data-processing-recalculate .postprocessing-recalculation-surface .surface-heading { flex-wrap: wrap; gap: 8px; }

@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "changed_frontend": [
+    "app/frontend/src/components/NumericInput.tsx",
+    "app/frontend/src/components/SpectrumInspector.tsx",
+    "app/frontend/src/components/SpectrumPlot.tsx",
+    "app/frontend/src/components/spectrum-inspector.css",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx",
+    "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx"
+  ],
+  "browser_checks": 13,
+  "desktop_checks": 12,
+  "frontend_unit_tests": 8,
+  "existing_browser_checks": 23,
+  "root_files": {
+    "GeoSpectrum.exe": "AB7D24DB7C50BDAF9137D977FA221DD4272BCBD85E90FB08EDB6C7A2BC4CFF1B",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "previous_files": {
+    "GeoSpectrum.exe": "51FF8770839A65D34727B49E00AF849E756D1DF2F2A9EC61E8B56052DFBDDF3F",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "qa_frontend_matches_production": true,
+  "root_entries_preserved": true,
+  "app_entries_preserved": true,
+  "desktop_closed_normally": true,
+  "remaining_qa_pids": [],
+  "known_limits": [
+    "模拟帧软件验证，不替代真实硬件验收",
+    "未更新安装包",
+    "既有报告与标准点导航缺陷不在本批修改范围"
+  ]
+}

@@ -1,0 +1,23 @@
+[
+  "app/frontend/src/components/open-legacy-file.css",
+  "app/frontend/src/components/OpenLegacyFile.tsx",
+  "app/frontend/src/pages/acquisition/EvaporationCurvesPage.tsx",
+  "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+  "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+  "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+  "app/frontend/src/pages/methods/methods.css",
+  "app/frontend/src/pages/methods/MethodsPage.tsx",
+  "app/frontend/src/pages/migration/LegacyMigrationPage.tsx",
+  "app/frontend/src/pages/migration/ResultMigrationPage.tsx",
+  "app/frontend/src/pages/migration/SpectrumMigrationPage.tsx",
+  "app/frontend/src/pages/postprocessing/AnalysisIntensityOutput.tsx",
+  "app/frontend/src/pages/postprocessing/data-processing.css",
+  "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx",
+  "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+  "app/frontend/src/pages/reports/ReportsPage.tsx",
+  "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+  "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+  "app/src-tauri/src/main.rs",
+  "app/frontend/src/components/PageFileActions.tsx",
+  "app/src-tauri/src/open_location.rs"
+]

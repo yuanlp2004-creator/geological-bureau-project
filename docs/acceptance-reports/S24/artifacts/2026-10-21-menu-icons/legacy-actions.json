@@ -1,0 +1,152 @@
+[
+  {
+    "action": "ActNew",
+    "caption": "新建方法(&N)",
+    "image_index": 0
+  },
+  {
+    "action": "ActOpen",
+    "caption": "打开方法(&O)",
+    "image_index": 1
+  },
+  {
+    "action": "ActSaveAs",
+    "caption": "另存为(&S)",
+    "image_index": 2
+  },
+  {
+    "action": "ActPageSetup",
+    "caption": "页面设置(&T)",
+    "image_index": null
+  },
+  {
+    "action": "ActPrintSetup",
+    "caption": "打印设置(&U)",
+    "image_index": null
+  },
+  {
+    "action": "ActExit",
+    "caption": "退出(&X)",
+    "image_index": 3
+  },
+  {
+    "action": "ActMtdCfg",
+    "caption": "方法参数(&M)",
+    "image_index": 5
+  },
+  {
+    "action": "ActMtdLines",
+    "caption": "分析谱线(&L)",
+    "image_index": 6
+  },
+  {
+    "action": "ActMtdPrint",
+    "caption": "参数打印(&P)",
+    "image_index": 7
+  },
+  {
+    "action": "ActAcqWdt",
+    "caption": "色散摄谱(&W)",
+    "image_index": 8
+  },
+  {
+    "action": "ActAcqEdt",
+    "caption": "蒸发摄谱(&E)",
+    "image_index": 9
+  },
+  {
+    "action": "ActAcqSam",
+    "caption": "样品摄谱(&C)",
+    "image_index": 10
+  },
+  {
+    "action": "ActAnaWdt",
+    "caption": "色散曲线(&D)",
+    "image_index": 11
+  },
+  {
+    "action": "ActAnaEdt",
+    "caption": "蒸发曲线(&V)",
+    "image_index": 12
+  },
+  {
+    "action": "ActAnaMulti",
+    "caption": "查看谱图(&L)",
+    "image_index": 13
+  },
+  {
+    "action": "ActInputSamp",
+    "caption": "预录样号(&I)",
+    "image_index": 14
+  },
+  {
+    "action": "ActAnaSam",
+    "caption": "样品分析(&A)",
+    "image_index": 15
+  },
+  {
+    "action": "ActReCal",
+    "caption": "重新计算(&R)",
+    "image_index": null
+  },
+  {
+    "action": "ActPrintDat",
+    "caption": "打印报告(&P)",
+    "image_index": null
+  },
+  {
+    "action": "ActExportDat",
+    "caption": "导出报告(&D)",
+    "image_index": null
+  },
+  {
+    "action": "ActExportPdt",
+    "caption": "导出强度(&B)",
+    "image_index": null
+  },
+  {
+    "action": "ActCfgtSoftWare",
+    "caption": "软件参数(&S)",
+    "image_index": null
+  },
+  {
+    "action": "ActOptHardWare",
+    "caption": "设备参数(&H)",
+    "image_index": null
+  },
+  {
+    "action": "ActDebug",
+    "caption": "调试对中(&D)",
+    "image_index": null
+  },
+  {
+    "action": "ActManage",
+    "caption": "方法管理(&M)",
+    "image_index": null
+  },
+  {
+    "action": "ActContents",
+    "caption": "帮助主题(&C)",
+    "image_index": null
+  },
+  {
+    "action": "ActAbout",
+    "caption": "关于(&A)",
+    "image_index": null
+  },
+  {
+    "action": "ActMtdBackup",
+    "caption": "备份压缩数据库(&B)",
+    "image_index": null
+  },
+  {
+    "action": "ActImportPre",
+    "caption": "导入蒸发摄谱文件(&I)",
+    "image_index": null
+  },
+  {
+    "action": "ActOutCmtSeg",
+    "caption": "导出全时数据(&S)",
+    "image_index": null
+  }
+]

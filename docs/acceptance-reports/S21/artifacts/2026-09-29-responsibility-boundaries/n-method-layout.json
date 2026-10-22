@@ -1,0 +1,145 @@
+{
+  "status": "passed",
+  "observations": [
+    {
+      "width": 1920,
+      "dark": false,
+      "list": {
+        "x": 274,
+        "y": 281.1875,
+        "width": 280,
+        "height": 613.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 281.1875,
+        "width": 1322,
+        "height": 1081.96875
+      },
+      "context": {
+        "x": 274,
+        "y": 100,
+        "width": 1618,
+        "height": 106.59375
+      }
+    },
+    {
+      "width": 1920,
+      "dark": true,
+      "list": {
+        "x": 274,
+        "y": 267.1875,
+        "width": 280,
+        "height": 609.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 267.1875,
+        "width": 1322,
+        "height": 1032.703125
+      },
+      "context": {
+        "x": 274,
+        "y": 86,
+        "width": 1618,
+        "height": 106.59375
+      }
+    },
+    {
+      "width": 1280,
+      "dark": false,
+      "list": {
+        "x": 266,
+        "y": 327.1875,
+        "width": 240,
+        "height": 505.34375
+      },
+      "editor": {
+        "x": 522,
+        "y": 327.1875,
+        "width": 738,
+        "height": 1232.25
+      },
+      "context": {
+        "x": 266,
+        "y": 96,
+        "width": 994,
+        "height": 156.59375
+      }
+    },
+    {
+      "width": 1280,
+      "dark": true,
+      "list": {
+        "x": 266,
+        "y": 309.1875,
+        "width": 240,
+        "height": 501.34375
+      },
+      "editor": {
+        "x": 522,
+        "y": 309.1875,
+        "width": 738,
+        "height": 1174.984375
+      },
+      "context": {
+        "x": 266,
+        "y": 82,
+        "width": 994,
+        "height": 152.59375
+      }
+    },
+    {
+      "width": 1060,
+      "dark": false,
+      "list": {
+        "x": 235,
+        "y": 327.1875,
+        "width": 240,
+        "height": 505.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 327.1875,
+        "width": 549,
+        "height": 1232.25
+      },
+      "context": {
+        "x": 235,
+        "y": 96,
+        "width": 805,
+        "height": 156.59375
+      }
+    },
+    {
+      "width": 1060,
+      "dark": true,
+      "list": {
+        "x": 235,
+        "y": 309.1875,
+        "width": 240,
+        "height": 501.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 309.1875,
+        "width": 549,
+        "height": 1174.984375
+      },
+      "context": {
+        "x": 235,
+        "y": 82,
+        "width": 805,
+        "height": 152.59375
+      }
+    }
+  ],
+  "checks": [
+    "single local sidebar",
+    "fold/unfold",
+    "create and select",
+    "save persistence",
+    "invalid numeric zero writes",
+    "no page errors"
+  ]
+}

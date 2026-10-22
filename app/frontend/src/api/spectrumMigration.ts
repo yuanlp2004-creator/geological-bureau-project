@@ -31,9 +31,28 @@ export type SpectrumMigrationRun = {
     format: string
     record_count: number
     table_counts: Record<string, number>
-    layout: { frame_count: number; ccds_per_frame: number; points_per_ccd: number; ccd_count: number; ccd_indices: number[]; endianness: string }
-    ignition: { present: boolean; pre_burn: number | null; burn_cyc: number | null; dark_cyc: number | null; burn_count: number; dark_count: number }
-    records: Array<{ layout: Record<string, unknown>; sampled_values: Record<string, unknown>; bad_frame_indices: Array<Record<string, unknown>>; [key: string]: unknown }>
+    layout: {
+      frame_count: number
+      ccds_per_frame: number
+      points_per_ccd: number
+      ccd_count: number
+      ccd_indices: number[]
+      endianness: string
+    }
+    ignition: {
+      present: boolean
+      pre_burn: number | null
+      burn_cyc: number | null
+      dark_cyc: number | null
+      burn_count: number
+      dark_count: number
+    }
+    records: Array<{
+      layout: Record<string, unknown>
+      sampled_values: Record<string, unknown>
+      bad_frame_indices: Array<Record<string, unknown>>
+      [key: string]: unknown
+    }>
     checks: Record<string, boolean>
     issues: Array<{ level: string; code: string; message: string }>
     parser_version: string
@@ -46,9 +65,28 @@ export type SpectrumMigrationRun = {
 }
 
 export const spectrumMigrationApi = {
-  spectrumMigrationDiagnostics: (token: string) => request<SpectrumMigrationDiagnostic>('/api/v1/spectrum-migration/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
-  spectrumMigrationRuns: (token: string) => request<{ runs: SpectrumMigrationRun[] }>('/api/v1/spectrum-migration/runs', { headers: { Authorization: `Bearer ${token}` } }),
-  stageSpectrumMigration: (token: string, path: string) => request<SpectrumMigrationRun>('/api/v1/spectrum-migration/stage', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ path }) }),
-  commitSpectrumMigration: (token: string, runId: string) => request<SpectrumMigrationRun>('/api/v1/spectrum-migration/commit', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ run_id: runId }) }),
-  spectrumMigrationRun: (token: string, runId: string) => request<SpectrumMigrationRun>(`/api/v1/spectrum-migration/runs/${runId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  spectrumMigrationDiagnostics: (token: string) =>
+    request<SpectrumMigrationDiagnostic>('/api/v1/spectrum-migration/diagnostics', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  spectrumMigrationRuns: (token: string) =>
+    request<{ runs: SpectrumMigrationRun[] }>('/api/v1/spectrum-migration/runs', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stageSpectrumMigration: (token: string, path: string) =>
+    request<SpectrumMigrationRun>('/api/v1/spectrum-migration/stage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ path })
+    }),
+  commitSpectrumMigration: (token: string, runId: string) =>
+    request<SpectrumMigrationRun>('/api/v1/spectrum-migration/commit', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ run_id: runId })
+    }),
+  spectrumMigrationRun: (token: string, runId: string) =>
+    request<SpectrumMigrationRun>(`/api/v1/spectrum-migration/runs/${runId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

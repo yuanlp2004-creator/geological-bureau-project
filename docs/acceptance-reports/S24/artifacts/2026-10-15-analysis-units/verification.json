@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "date": "2026-10-15",
+  "execution_plan_sha256": "13F7200704B30B2FE0848BF5568715C58CA7A100A72E9DBA0041E2F96113DE44",
+  "current_plan_sha256": "2d44404fcb415c0172cdf9f419c48bcc196b9ce5dfee68ce87ea337146b47b9b",
+  "conversion": "1000 ug/g = 1 mg/g = 0.1%",
+  "unit_specific_tests": 18,
+  "related_regressions": 94,
+  "legacy_supplement_tests": 31,
+  "postprocessing_final_tests": 17,
+  "frontend_tests": 11,
+  "test_sets_overlap": true,
+  "browser_checks": 10,
+  "desktop_groups": 5,
+  "desktop_errors": [],
+  "desktop_sample_result": "0.000950 %",
+  "same_frontend_resources": true,
+  "qa_closed_normally": true,
+  "qa_owned_processes_remaining": [],
+  "root_inventory_unchanged": false,
+  "app_inventory_unchanged": true,
+  "root_extra_files_preserved": {
+    "合同功能要求.png": "5dc95947a1426707b378838f47d70dcb9f94a763a7d173a49401f9999667252f"
+  },
+  "current_executables": {
+    "GeoSpectrum.exe": "010368ecab753f91a74b413dfa3fa8a780b04c69dc388812f10507f92efe313a",
+    "geospectrum-backend.exe": "c943ce9794fbdbd3db6fa568fc62724fea148402ffa2e61975d235c94c65ced1"
+  },
+  "previous_executables": {
+    "GeoSpectrum.exe": "189cf83c49d512143872eaf2269baa73390060070990391cdb78606d6bd2e644",
+    "geospectrum-backend.exe": "588cbd7d5cd28b38f7bb50658bb2b5bdfdfab52f56eb9dab66d0515fb2bab045"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-15-analysis-units\\previous",
+  "database_schema_changed": false,
+  "historical_snapshots_rewritten": false,
+  "user_database_operated": false,
+  "legacy_originals_modified": false,
+  "hardware_tested": false,
+  "installer_updated": false
+}

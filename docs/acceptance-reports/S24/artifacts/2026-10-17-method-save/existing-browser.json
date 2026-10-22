@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "R5: three method views, real save/reload, blank numeric rejection without a new version",
+    "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+    "M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft",
+    "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+    "R5: real read-only login, hidden method navigation and server-side write denial",
+    "report detail and preview ignore responses from an earlier selection",
+    "report panels preserve create/confirm/export payloads, missing-directory guard and printer selection",
+    "method switch ignores the previous method line response",
+    "manual acquisition locks task selection in flight and unlocks after completion",
+    "automatic acquisition locks selection until completion, stops its timer and allows the next task",
+    "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+    "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload",
+    "FIX-07/GAP-03: analysis A/B and A/B/A response ownership, old errors, sequential non-slow completion",
+    "FIX-07/GAP-03: slow mode does not auto-step; rejected request after unmount cannot display an old error",
+    "FIX-04: real dispersion line survives task switch; stop queues behind pending frame and stops automatic progression",
+    "GAP-04: actual CCD point selected after zoom, further zoom preserves locked point, saved backend position matches pixel mapping",
+    "FIX-07: 260.1234 nm creation failure retains draft, retry selects newly created line",
+    "FIX-06: actual simulated sample is visible in generic spectrum page; CSV point count/value and PDF download verified",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

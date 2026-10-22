@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-builder\\qa\\GeoSpectrum.exe",
+  "exe_sha256": "f8c2f6103dd54b6aa21b30b0b8c5c746eb1256fe1a0dc72f7ec6c6b75e5ac16f",
+  "pid": 2528,
+  "shown_window_handles": [
+    17308032
+  ],
+  "returncode": 0,
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

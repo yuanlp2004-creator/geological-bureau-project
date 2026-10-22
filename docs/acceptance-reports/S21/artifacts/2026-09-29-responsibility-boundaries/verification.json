@@ -1,0 +1,126 @@
+{
+  "status": "passed",
+  "scope": "M1-M3 only; 16 additional candidates remain planned",
+  "plan_sha256_at_start": {
+    "PLAN.md": "b1a2a163f33cff7479af3c38fd239403cbad3275ca6c6dde8c9f3f0d501ddf18",
+    "docs/规划与计划/职责边界整理与拆分计划.md": "8f00b87a7b88284bc09eb731df306077eb533275e7764444a75bcde9dceffd87"
+  },
+  "baseline_tests": "36 passed in 15.52s",
+  "m1_tests": "17 passed in 12.71s",
+  "targeted_tests": "43 passed in 14.03s",
+  "full_backend_tests": "228 passed in 57.22s",
+  "frontend_build": "passed; existing chunk size warning",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "report detail and preview ignore responses from an earlier selection",
+      "report panels preserve create/confirm/export payloads, missing-directory guard and printer selection",
+      "method switch ignores the previous method line response",
+      "acquisition selection is preserved when an earlier command finishes",
+      "automatic acquisition response cannot restore the previous task or restart its timer",
+      "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+      "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload",
+      "FIX-07/GAP-03: analysis A/B and A/B/A response ownership, old errors, sequential non-slow completion",
+      "FIX-07/GAP-03: slow mode does not auto-step; rejected request after unmount cannot display an old error",
+      "FIX-04: real dispersion line survives task switch; stop queues behind pending frame and stops automatic progression",
+      "GAP-04: actual CCD point selected after zoom, further zoom preserves locked point, saved backend position matches pixel mapping",
+      "FIX-07: 260.1234 nm creation failure retains draft, retry selects newly created line",
+      "FIX-06: actual simulated sample is visible in generic spectrum page; CSV point count/value and PDF download verified",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "report_equivalence": [
+    "model",
+    "TXT",
+    "CSV",
+    "Excel",
+    "fixed-metadata PDF"
+  ],
+  "expected_report": {
+    "model": {
+      "columns": [
+        "report_number",
+        "sample_name",
+        "element",
+        "wavelength_nm",
+        "calculated_value",
+        "unit",
+        "curve_snapshot_id",
+        "calculation_profile",
+        "qc_status"
+      ],
+      "rows": [
+        {
+          "report_number": "",
+          "sample_name": "S19 sample 01",
+          "element": "Fe",
+          "wavelength_nm": 248.3,
+          "calculated_value": 42.75,
+          "decimal_places": 2,
+          "display_value": "42.75",
+          "unit": "ug/g",
+          "curve_snapshot_id": 701,
+          "calculation_profile": "modern_v1",
+          "qc_status": "通过",
+          "analysis_run_id": 1,
+          "line_id": "Fe-line",
+          "merge_snapshot_id": 1,
+          "qc_snapshot_id": 1
+        }
+      ],
+      "runs": [
+        {
+          "id": 1,
+          "name": "S19 run",
+          "status": "completed",
+          "method_name": "S19 test method",
+          "method_version": 1,
+          "method_version_id": 1,
+          "calculation_profile": "modern_v1",
+          "result_sha256": null,
+          "qc_snapshot_id": 1,
+          "merge_snapshot_id": 1,
+          "curve_snapshot_ids": [
+            701
+          ]
+        }
+      ],
+      "arrangement": "standard",
+      "filters": {}
+    },
+    "txt": "f17bd04dff75a4cc079b52104368b0d48dc822e249562399841ba5b82bb7dcaf",
+    "csv": "e2709764cb175e86ed89dbc6eae6f4cc59c21e8ea38bb7b1391770bfc6c27cf0",
+    "excel": "f958bddadbaa7db4d44e635290cc6a4bf9a1d0d547fc2bdb47de0589b2efe097",
+    "pdf": "5f258ae96116fcb1dfa20f9eddc23476031df5ea8eac6fbbc45eaf3a76be9036"
+  },
+  "source_sha256": {
+    "app/backend/modules/methods/line_editing.py": "a76be7b0f1fdc63239f1692e905f3d50f6fb2418366beba49ea078ba6f848964",
+    "app/backend/modules/methods/service.py": "a152399a8b36b8d4529dfc8a17074b13eaa4d2891cf0b2529a2601f7e18cef3b",
+    "app/backend/modules/spectral_lines.py": "0400e37c48b29ace12d72a15aea401b3d2c98a6044630492d7abf715e9f9026f",
+    "app/backend/modules/analysis/report_inputs.py": "39805fb05b8077a0f933e3e4f4f925729d484964409982c26f64d4c2bbc4730b",
+    "app/backend/modules/analysis/service.py": "0f68db7353af9151490e14237245a12aef88665f9ee114b1b68f9e7dcfe97b74",
+    "app/backend/modules/reports.py": "451ef4e86692698362f3a2598e8878b3061958ebc32769f695b45f3a900b3300",
+    "app/backend/runtime.py": "0f777307fdd134345ea12ecddad0189cbcbc8eb5e27e71950810ccae9f7e58fa",
+    "app/frontend/src/pages/settings/SettingsPage.tsx": "e04b38be3a3d92a493e6ed096019f47a441f156bc9bfa2c845421739e7ec562e",
+    "app/frontend/src/layout/WorkspaceApp.tsx": "0753ea734a350370610532482d1520c2a6ad2cdd65cabf1a350f84d027a882a6",
+    "app/tests/test_spectral_lines.py": "7854abb218a673e5c879a81c0f23c8035ae751a22dd992be11e6e6319b848c62",
+    "app/tests/test_s19_reports.py": "fff662ef214a28029234f29884291d0e3d7f451425d4148ba3e60e602e67d434",
+    "app/tests/test_priority_reliability.py": "cfe76743e4e57c24cd877ddc3ef5d3ecbec37b5e56baf63f824ad4f49c48758b",
+    "app/tests/frontend_pages_checks.mjs": "d4beb3c6da26ff4e5375f8fcb60f8afbcc0e70ca96156d94b5abde8600844fe2"
+  },
+  "limitations": [
+    "no EXE/installer rebuild",
+    "no native dialog/physical printing/hardware verification",
+    "no rebuild-learning-project changes"
+  ]
+}

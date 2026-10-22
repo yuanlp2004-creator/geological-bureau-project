@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "checks": [
+    "逐个选择并预览全部真实已有报告，含DAT空波长/无方法字段",
+    "慢加载清空旧报告并禁用输出，快速切换时旧响应不能覆盖新选择",
+    "详情失败保留工作区和选择、禁用输出，重试恢复",
+    "已有DAT与分析报告的Excel/PDF按钮均输出正确报告内容；保存边界隔离",
+    "切换报告取消过期预览，往返强度页保持当前报告",
+    "新建、确认、刷新后重选并预览新报告保持正常；只写隔离库"
+  ],
+  "errors": [],
+  "list_reports": [
+    {
+      "id": 5,
+      "report_number": "QA-SELECT-1792385832244"
+    },
+    {
+      "id": 4,
+      "report_number": "旧数据测试-DAT原值-单位未记录"
+    },
+    {
+      "id": 3,
+      "report_number": "旧数据测试-04-CMT"
+    },
+    {
+      "id": 2,
+      "report_number": "旧数据测试-02-CMT"
+    },
+    {
+      "id": 1,
+      "report_number": "旧数据测试-01-CMT"
+    }
+  ],
+  "selected_reports": [
+    {
+      "id": 5,
+      "number": "QA-SELECT-1792385832244",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 4,
+      "number": "旧数据测试-DAT原值-单位未记录",
+      "rows": 270,
+      "kind": "legacy_dat"
+    },
+    {
+      "id": 3,
+      "number": "旧数据测试-04-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 2,
+      "number": "旧数据测试-02-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 1,
+      "number": "旧数据测试-01-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    }
+  ],
+  "exports": [
+    {
+      "report_id": 4,
+      "format": "Excel",
+      "byte_length": 18500
+    },
+    {
+      "report_id": 4,
+      "format": "PDF",
+      "byte_length": 12313
+    },
+    {
+      "report_id": 5,
+      "format": "Excel",
+      "byte_length": 1125
+    },
+    {
+      "report_id": 5,
+      "format": "PDF",
+      "byte_length": 3235
+    }
+  ]
+}

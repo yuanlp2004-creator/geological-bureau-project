@@ -1,0 +1,143 @@
+[
+  {
+    "batch": "legacy",
+    "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d",
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d",
+            "timestamp": 1792513344258
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "1",
+              "2",
+              "3",
+              "10",
+              "11"
+            ],
+            "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d",
+            "timestamp": 1792513344280
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "29e4d76a-3744-4b73-93cc-5be42b2fc40d",
+            "timestamp": 1792513376848
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "images": [
+        {
+          "filename": "legacy_00001_.png",
+          "subfolder": "geospectrum\\menu-20261021",
+          "type": "output"
+        }
+      ]
+    }
+  },
+  {
+    "batch": "system",
+    "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499",
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499",
+            "timestamp": 1792513378314
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "1",
+              "2",
+              "3",
+              "10",
+              "11"
+            ],
+            "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499",
+            "timestamp": 1792513378346
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "aee8731f-36df-4b32-a6e1-11232d83e499",
+            "timestamp": 1792513407804
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "images": [
+        {
+          "filename": "system_00001_.png",
+          "subfolder": "geospectrum\\menu-20261021",
+          "type": "output"
+        }
+      ]
+    }
+  },
+  {
+    "batch": "tools",
+    "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c",
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c",
+            "timestamp": 1792513408476
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "1",
+              "2",
+              "3",
+              "10",
+              "11"
+            ],
+            "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c",
+            "timestamp": 1792513408492
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "58b8fc0f-68b4-43b2-a100-9fbaae57370c",
+            "timestamp": 1792513431683
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "images": [
+        {
+          "filename": "tools_00001_.png",
+          "subfolder": "geospectrum\\menu-20261021",
+          "type": "output"
+        }
+      ]
+    }
+  }
+]

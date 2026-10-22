@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "plan_sha256": "aa470b387d26cce6790501f181b1ab7f55daaadf71fa970f69fbc6eed206e53c",
+  "changed_frontend": [
+    "pages/spectra/SpectrumQueryToolbar.tsx",
+    "styles/remaining-pages.css",
+    "styles/visual-refinement.css"
+  ],
+  "navigation_entries": 27,
+  "pages": 22,
+  "browser_states": 58,
+  "desktop_states": 58,
+  "browser_checks": [
+    "真实新建色散任务、非法帧数零提交",
+    "任务列表/表单折叠展开保留输入 light/1440",
+    "任务列表/表单折叠展开保留输入 dark/1060",
+    "分页下一页/上一页、加载禁用、末页禁用及检索重置（响应模拟，不作为后端分页验收）",
+    "分页组合保持同排、输入区域对齐 1060",
+    "分页组合保持同排、输入区域对齐 1280",
+    "分页组合保持同排、输入区域对齐 1440",
+    "分页组合保持同排、输入区域对齐 1920"
+  ],
+  "desktop_checks": [
+    "真实新建色散任务、非法帧数零提交",
+    "任务列表/表单折叠展开保留输入 light/1440",
+    "任务列表/表单折叠展开保留输入 dark/1060",
+    "分页下一页/上一页、加载禁用、末页禁用及检索重置（响应模拟，不作为后端分页验收）",
+    "分页组合保持同排、输入区域对齐 1060",
+    "分页组合保持同排、输入区域对齐 1280",
+    "分页组合保持同排、输入区域对齐 1440",
+    "分页组合保持同排、输入区域对齐 1920"
+  ],
+  "frontend_tests": 8,
+  "qa_frontend_matches_production": true,
+  "qa_close_permissions_only_in_temporary_config": true,
+  "desktop_runtime": {
+    "pixelRatio": 2,
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "uri": "http://tauri.localhost/"
+  },
+  "normal_qa_exit": true,
+  "root_app_entries_preserved": true,
+  "root_files": {
+    "GeoSpectrum.exe": "DAE77CD55AFD3C00CC6DC69B98494E705DE4808156C3D87D479D0E59DC59AA6E",
+    "geospectrum-backend.exe": "44B93339410088CE693184947FF16F0623A25B3FD0A4C2E3BC9FEC7F759A79C1"
+  }
+}

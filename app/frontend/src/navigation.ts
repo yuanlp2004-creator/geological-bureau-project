@@ -3,10 +3,29 @@ import type { Capability, CurrentMethodState } from './api'
 /** 根据后端清单推导可见导航及其运行期可用状态。 */
 
 export type Page =
-  | 'workspace' | 'methods' | 'migration' | 'spectrum-migration' | 'result-migration'
-  | 'spectra' | 'postprocessing' | 'samples' | 'acquisition' | 'dispersion'
-  | 'sample-acquisition' | 'hardware-acquisition' | 'mercury-calibration' | 'analysis'
-  | 'reports' | 'maintenance' | 'help' | 'settings' | 'about' | 'users' | 'audit'
+  | 'workspace'
+  | 'methods'
+  | 'migration'
+  | 'spectrum-migration'
+  | 'result-migration'
+  | 'spectra'
+  | 'postprocessing'
+  | 'samples'
+  | 'acquisition'
+  | 'dispersion'
+  | 'sample-acquisition'
+  | 'evaporation-acquisition'
+  | 'evaporation-curves'
+  | 'hardware-acquisition'
+  | 'mercury-calibration'
+  | 'analysis'
+  | 'reports'
+  | 'maintenance'
+  | 'help'
+  | 'settings'
+  | 'about'
+  | 'users'
+  | 'audit'
   | 'extension'
 
 export type NavigationGroupId = 'workspace' | 'methods' | 'analysis-tests' | 'data' | 'tools' | 'system' | 'help'
@@ -44,10 +63,10 @@ export const navigationGroups: NavigationGroup[] = [
   { id: 'workspace', label: '工作台', order: 10, description: '运行状态与常用操作' },
   { id: 'methods', label: '光谱方法', order: 20, description: '方法管理、参数、谱线与打印' },
   { id: 'analysis-tests', label: '分析测试', order: 40, description: '准备、摄谱、查看、分析与质控' },
-  { id: 'data', label: '数据处理', order: 50, description: '全时、重算、矩阵与报告' },
+  { id: 'data', label: '数据处理', order: 50, description: '重新计算、打印与导出' },
   { id: 'tools', label: '工具', order: 60, description: '设备校准与旧版迁移' },
   { id: 'system', label: '系统管理', order: 70, description: '设置、维护、身份与审计' },
-  { id: 'help', label: '帮助', order: 80, description: '离线帮助与诊断信息' },
+  { id: 'help', label: '帮助', order: 80, description: '离线帮助与诊断信息' }
 ]
 
 const validGroups = new Set(navigationGroups.map((group) => group.id))
@@ -65,7 +84,10 @@ export function navigationEntries(capabilities: Capability[], permissions: strin
       keys.add(raw.key)
       entries.push({ ...raw, page: raw.page as Page })
     }
-    if (capability.key.startsWith('s21-') && capability.permissions.every((permission) => permissions.includes(permission))) {
+    if (
+      capability.key.startsWith('s21-') &&
+      capability.permissions.every((permission) => permissions.includes(permission))
+    ) {
       const key = `system.extension.${capability.key}`
       keys.add(key)
       entries.push({
@@ -80,7 +102,7 @@ export function navigationEntries(capabilities: Capability[], permissions: strin
         order: 90,
         status: 'test_only',
         required_context: 'none',
-        extension: capability,
+        extension: capability
       })
     }
   }
@@ -100,7 +122,10 @@ function currentMethodUnavailableReason(currentMethod: CurrentMethodState | null
   return null
 }
 
-export function navigationAvailability(entry: NavigationEntry, currentMethod: CurrentMethodState | null): NavigationAvailability {
+export function navigationAvailability(
+  entry: NavigationEntry,
+  currentMethod: CurrentMethodState | null
+): NavigationAvailability {
   // 此处只负责界面反馈，不构成安全强制；对应 API 路由仍会自行检查权限和领域状态。
   if (entry.required_context === 'current_method') {
     const reason = currentMethodUnavailableReason(currentMethod)
@@ -114,9 +139,15 @@ export function navigationAvailability(entry: NavigationEntry, currentMethod: Cu
   return { disabled: false, reason: null }
 }
 
-export function entryForPage(entries: NavigationEntry[], page: Page, preferredView?: string | null): NavigationEntry | undefined {
-  return entries.find((entry) => entry.page === page && (preferredView == null || entry.view === preferredView))
-    ?? entries.find((entry) => entry.page === page)
+export function entryForPage(
+  entries: NavigationEntry[],
+  page: Page,
+  preferredView?: string | null
+): NavigationEntry | undefined {
+  return (
+    entries.find((entry) => entry.page === page && (preferredView == null || entry.view === preferredView)) ??
+    entries.find((entry) => entry.page === page)
+  )
 }
 
 export function groupedNavigation(entries: NavigationEntry[]): Array<NavigationGroup & { entries: NavigationEntry[] }> {

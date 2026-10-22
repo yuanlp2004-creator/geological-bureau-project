@@ -1,0 +1,108 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": 1,
+      "message": "数据处理仅两个入口，打印与导出有三个页签"
+    },
+    {
+      "id": 2,
+      "message": "报告草稿跨页签保留，建立、预览、确认及PDF/Excel真实写盘通过，打印入口保留"
+    },
+    {
+      "id": 3,
+      "message": "区间查看、源选择跨页签共享，强度导出真实写盘，PDT全部输出方式保留"
+    },
+    {
+      "id": 4,
+      "message": "临时区间保留，非法区间在请求前阻断"
+    },
+    {
+      "id": 5,
+      "message": "全时数据页签直接导出固定谱线逐周期CSV，复用原算法与保存边界"
+    },
+    {
+      "id": 6,
+      "message": "重新计算独立页面完成，切换入口保留状态并导出对应重算批次"
+    },
+    {
+      "id": 7,
+      "message": "三个页签在1440/1060宽度、680高度及明暗主题无横向越界"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "documentWidth": 1440
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "documentWidth": 1425
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "全时数据",
+      "file": "output-full-time-1440-1000-light.png",
+      "documentWidth": 1425
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "全时数据",
+      "file": "output-full-time-1060-680-light.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "documentWidth": 1060
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "全时数据",
+      "file": "output-full-time-1060-1000-dark.png",
+      "documentWidth": 1045
+    }
+  ]
+}

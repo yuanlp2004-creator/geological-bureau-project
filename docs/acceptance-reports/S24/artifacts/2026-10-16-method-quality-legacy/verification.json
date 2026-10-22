@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "execution_plan_sha256": "2D44404FCB415C0172CDF9F419C48BCC196B9CE5DFEE68CE87EA337146B47B9B",
+  "current_plan_sha256": "313FC46DB2FB80B230C205F02EFA30F42D39F24CEB4AB5855FB19E9B93C58AA4",
+  "changed_product_files": [
+    "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "app/frontend/src/pages/methods/methods.css"
+  ],
+  "visible_fields": [
+    "普通样品",
+    "标准样品",
+    "管理样",
+    "重复摄谱最大允许误差[^P]",
+    "相对偏差校验",
+    "最大允许Rsd[%]"
+  ],
+  "hidden_preserved_fields": [
+    "calibration_threshold",
+    "qc_threshold",
+    "abnormal_threshold",
+    "standard_sample_name"
+  ],
+  "browser_groups": 6,
+  "desktop_groups": 6,
+  "frontend_build": "passed",
+  "production_build": "passed",
+  "qa_build": "passed",
+  "qa_closed_normally": true,
+  "qa_owned_processes_remaining": [],
+  "same_frontend_resources": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "current_executables": {
+    "GeoSpectrum.exe": "31241d5f26aa01cbb0efc381a4482bfb4b700100c5cae1a1a62bfdbcee770601",
+    "geospectrum-backend.exe": "c943ce9794fbdbd3db6fa568fc62724fea148402ffa2e61975d235c94c65ced1"
+  },
+  "previous_executables": {
+    "GeoSpectrum.exe": "010368ecab753f91a74b413dfa3fa8a780b04c69dc388812f10507f92efe313a",
+    "geospectrum-backend.exe": "c943ce9794fbdbd3db6fa568fc62724fea148402ffa2e61975d235c94c65ced1"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-method-quality-legacy\\previous",
+  "backend_unchanged": true,
+  "database_schema_changed": false,
+  "user_database_operated": false,
+  "historical_snapshots_rewritten": false,
+  "legacy_originals_modified": false,
+  "installer_updated": false,
+  "scope": "method condition editor only; compatibility fields, API and parameter printing retained"
+}

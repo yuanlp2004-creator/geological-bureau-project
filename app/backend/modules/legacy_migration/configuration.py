@@ -38,11 +38,21 @@ def _ini_value(sections: dict[str, dict[str, str]], section: str, key: str, defa
 
 
 def _typed_cfg(sections: dict[str, dict[str, str]]) -> dict[str, Any]:
+    preliminary={kind:{
+        'pre_excitation_seconds':_ini_value(sections,section,'PreBurn',3.0 if kind=='dispersion' else 1.0,float),
+        'sampling_period_seconds':_ini_value(sections,section,'BurnCyc',1.0,float),
+        'frame_count':_ini_value(sections,section,'BurnCount',3,int),
+        'dark_frame_count':_ini_value(sections,section,'BackCount',1,int)
+    } for kind,section in [('dispersion','IgnitWst'),('evaporation','IgnitEva')] if section in sections}
     return {
+        'preliminary':preliminary,
+        'intensity_output':{name:bool(_ini_value(sections,'METHOD',key,default,int)) for name,key,default in [
+            ('save_intensity','SavePdt',1),('print_intensity','PrintPdt',1),('print_to_text','PrintToTxt',0),('save_positions','SaveWave',1)]},
         "analyze": {
-            "log_analysis": bool(_ini_value(sections, "ANALYZE", "LogAna", 0, int)),
-            "look_band": bool(_ini_value(sections, "ANALYZE", "LookBand", 0, int)),
+            "log_analysis": bool(_ini_value(sections, "ANALYZE", "LogAna", 1, int)),
+            "look_band": bool(_ini_value(sections, "ANALYZE", "LookBand", 1, int)),
             "wait_time_ms": min(5000, max(0, _ini_value(sections, "ANALYZE", "WaitTime", 100, int))),
+            "cmt_band_mean": bool(_ini_value(sections,"ANALYZE","CmtBandObsAvg",0,int)),
             "dark_round_time": _ini_value(sections, "ANALYZE", "RoundDarkTime", 8, int),
         },
         "safety": {

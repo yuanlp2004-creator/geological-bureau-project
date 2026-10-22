@@ -6,11 +6,11 @@
 
 ## 2. 代码入口
 
-- 服务：[`modules/dispersion.py`](../../app/backend/modules/dispersion.py)
-- 设备输入：[`modules/devices.py`](../../app/backend/modules/devices.py) 的 `AcqSimulatorAdapter`
+- 服务：[`modules/dispersion/service.py`](../../app/backend/modules/dispersion/service.py)
+- 设备输入：[`modules/devices/service.py`](../../app/backend/modules/devices/service.py) 的 `AcqSimulatorAdapter`
 - API：[`api/dispersion.py`](../../app/backend/api/dispersion.py)；`/api/v1/dispersion`
 - 请求模型：[`schemas/dispersion.py`](../../app/backend/schemas/dispersion.py)。
-- 前端：`App.tsx` 中的 `DispersionPage`
+- 前端：[`DispersionPage.tsx`](../../app/frontend/src/pages/dispersion/DispersionPage.tsx)
 - 测试：[`tests/test_s12_dispersion.py`](../../app/tests/test_s12_dispersion.py)
 
 ## 3. 任务状态机
@@ -56,3 +56,12 @@ draft → pre_excitation → burn → dark → completed
 - 拟合是否拒绝谱线不足、重复位置和非有限值。
 - 发布后版本是否不可变，方法绑定是否指向确切版本。
 - 运行 S12 测试，并回归前端谱线定位交互。
+
+
+## 实现分工
+
+`dispersion/service.py` 只控制 create/start/step/pause/resume/stop/fail 及适配器生命周期，原命令锁仍包围完整命令。`repository.py` 拥有任务查询/装配、WDT 导入、帧写入与审计；`calibration.py::CalibrationService` 拥有谱线定位/编辑、拟合版本、发布、绑定和归档；`fitting.py` 只执行多项式拟合与求值；`codec.py` 保留帧编码。前端父页保留请求代次、停止协调、锁定点和草稿；`DispersionSetup/Monitor/Lines/Calibration` 四个组件只负责对应区域。
+
+## 当前默认条件与页内观察（2026-10-16）
+
+色散页的“保存激发条件”持久化本类预激发、周期、燃烧/空白次数，下次建立任务时载入；与蒸发摄谱的默认条件各自独立，历史任务不改写。当前任务、定位、拟合/发布、版本绑定与谱图观察在同一工作区，完整观察复用 `SpectrumInspector.tsx`。入口与复核见 [实施清单第6项](../acceptance-reports/S24/artifacts/2026-10-16-legacy-ten-completion/实施清单.md)。

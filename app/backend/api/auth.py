@@ -1,4 +1,5 @@
 """Identity HTTP boundary; account transactions belong to AuthService."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
@@ -34,16 +35,37 @@ def login(payload: LoginRequest, *, runtime: Runtime = Depends(get_runtime)) -> 
             detail={"code": "auth_invalid_credentials", "message": "用户名或密码错误"},
         )
     token, session = result
-    return {"access_token": token, "token_type": "bearer", "expires_at": session.expires_at, "user": {"id": session.user_id, "username": session.username, "roles": session.roles, "permissions": sorted(session.permissions)}}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "expires_at": session.expires_at,
+        "user": {
+            "id": session.user_id,
+            "username": session.username,
+            "roles": session.roles,
+            "permissions": sorted(session.permissions),
+        },
+    }
 
 
 @router.get("/api/v1/auth/me", tags=["auth"])
 def me(session: Session = Depends(require_session), *, runtime: Runtime = Depends(get_runtime)) -> dict:
-    return {"id": session.user_id, "username": session.username, "roles": session.roles, "permissions": sorted(session.permissions), "expires_at": session.expires_at}
+    return {
+        "id": session.user_id,
+        "username": session.username,
+        "roles": session.roles,
+        "permissions": sorted(session.permissions),
+        "expires_at": session.expires_at,
+    }
 
 
 @router.post("/api/v1/auth/logout", status_code=204, response_class=Response, tags=["auth"])
-def logout(authorization: str | None = Header(default=None), session: Session = Depends(require_session), *, runtime: Runtime = Depends(get_runtime)) -> Response:
+def logout(
+    authorization: str | None = Header(default=None),
+    session: Session = Depends(require_session),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> Response:
     token = authorization.removeprefix("Bearer ").strip() if authorization else None
     if token:
         runtime.auth_service.logout(token)
@@ -51,7 +73,9 @@ def logout(authorization: str | None = Header(default=None), session: Session = 
 
 
 @router.get("/api/v1/users", tags=["auth"])
-def users(_: Session = Depends(require_permission("users.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+def users(
+    _: Session = Depends(require_permission("users.read")), *, runtime: Runtime = Depends(get_runtime)
+) -> list[dict]:
     try:
         return runtime.auth_service.list_users()
     except AuthError as exc:
@@ -59,7 +83,12 @@ def users(_: Session = Depends(require_permission("users.read")), *, runtime: Ru
 
 
 @router.post("/api/v1/users", status_code=201, tags=["auth"])
-def create_user(payload: UserCreate, session: Session = Depends(require_permission("users.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+def create_user(
+    payload: UserCreate,
+    session: Session = Depends(require_permission("users.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
     try:
         return runtime.auth_service.create_user(payload, session.user_id)
     except AuthError as exc:
@@ -67,7 +96,13 @@ def create_user(payload: UserCreate, session: Session = Depends(require_permissi
 
 
 @router.patch("/api/v1/users/{user_id}", tags=["auth"])
-def update_user(user_id: int, payload: UserUpdate, session: Session = Depends(require_permission("users.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+def update_user(
+    user_id: int,
+    payload: UserUpdate,
+    session: Session = Depends(require_permission("users.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
     try:
         return runtime.auth_service.update_user(user_id, payload, session.user_id)
     except AuthError as exc:
@@ -75,7 +110,9 @@ def update_user(user_id: int, payload: UserUpdate, session: Session = Depends(re
 
 
 @router.get("/api/v1/roles", tags=["auth"])
-def roles(_: Session = Depends(require_permission("users.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+def roles(
+    _: Session = Depends(require_permission("users.read")), *, runtime: Runtime = Depends(get_runtime)
+) -> list[dict]:
     try:
         return runtime.auth_service.list_roles()
     except AuthError as exc:
@@ -83,7 +120,12 @@ def roles(_: Session = Depends(require_permission("users.read")), *, runtime: Ru
 
 
 @router.post("/api/v1/roles", status_code=201, tags=["auth"])
-def create_role(payload: RoleCreate, session: Session = Depends(require_permission("roles.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+def create_role(
+    payload: RoleCreate,
+    session: Session = Depends(require_permission("roles.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
     try:
         return runtime.auth_service.create_role(payload, session.user_id)
     except AuthError as exc:
@@ -91,7 +133,13 @@ def create_role(payload: RoleCreate, session: Session = Depends(require_permissi
 
 
 @router.patch("/api/v1/roles/{role_id}", tags=["auth"])
-def update_role(role_id: int, payload: RoleUpdate, session: Session = Depends(require_permission("roles.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+def update_role(
+    role_id: int,
+    payload: RoleUpdate,
+    session: Session = Depends(require_permission("roles.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
     try:
         return runtime.auth_service.update_role(role_id, payload, session.user_id)
     except AuthError as exc:
@@ -99,7 +147,12 @@ def update_role(role_id: int, payload: RoleUpdate, session: Session = Depends(re
 
 
 @router.get("/api/v1/audit", tags=["auth"])
-def audit(_: Session = Depends(require_permission("audit.read")), limit: int = Query(default=100, ge=1, le=500), *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+def audit(
+    _: Session = Depends(require_permission("audit.read")),
+    limit: int = Query(default=100, ge=1, le=500),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> list[dict]:
     try:
         return runtime.auth_service.list_audit(limit)
     except AuthError as exc:

@@ -1,4 +1,5 @@
 """Per-application services and event state; no FastAPI or entry-point imports."""
+
 from __future__ import annotations
 
 import asyncio
@@ -7,6 +8,7 @@ from .config import AppConfig
 from .db import Database
 from .printing import SystemPrinters
 from .services import AppService
+from .runtime_messages import RuntimeMessages
 from .auth import AuthService
 from .modules.methods import MethodService
 from .modules.method_printing import MethodPrintService
@@ -33,6 +35,7 @@ class Runtime:
         self.config = config
         self.database = database if database is not None else Database(config.database_path)
         self.service = AppService(self.database, config.runtime_log_path)
+        self.messages = RuntimeMessages(self.service)
         self.auth_service = AuthService(self.database)
         self.process_key = process_key
         self.event_subscribers: set[asyncio.Queue[dict]] = set()
@@ -67,7 +70,12 @@ class Runtime:
         return SpectrumViewerService(self.database)
 
     def postprocessing_service(self) -> PostProcessingService:
-        return PostProcessingService(self.database, analysis=self.analysis_service(), methods=self.methods_service(), acquisitions=AcquisitionRecordImporter())
+        return PostProcessingService(
+            self.database,
+            analysis=self.analysis_service(),
+            methods=self.methods_service(),
+            acquisitions=AcquisitionRecordImporter(),
+        )
 
     def devices_service(self) -> DeviceService:
         if self._device_service_instance is None or self._device_service_instance.database is not self.database:
@@ -80,17 +88,26 @@ class Runtime:
         return self._dispersion_service_instance
 
     def acquisition_service(self) -> AcquisitionService:
-        if self._acquisition_service_instance is None or self._acquisition_service_instance.database is not self.database:
+        if (
+            self._acquisition_service_instance is None
+            or self._acquisition_service_instance.database is not self.database
+        ):
             self._acquisition_service_instance = AcquisitionService(self.database)
         return self._acquisition_service_instance
 
     def hardware_acquisition_service(self) -> HardwareAcquisitionService:
-        if self._hardware_acquisition_service_instance is None or self._hardware_acquisition_service_instance.database is not self.database:
+        if (
+            self._hardware_acquisition_service_instance is None
+            or self._hardware_acquisition_service_instance.database is not self.database
+        ):
             self._hardware_acquisition_service_instance = HardwareAcquisitionService(self.database)
         return self._hardware_acquisition_service_instance
 
     def mercury_calibration_service(self) -> MercuryCalibrationService:
-        if self._mercury_calibration_service_instance is None or self._mercury_calibration_service_instance.database is not self.database:
+        if (
+            self._mercury_calibration_service_instance is None
+            or self._mercury_calibration_service_instance.database is not self.database
+        ):
             self._mercury_calibration_service_instance = MercuryCalibrationService(self.database)
         return self._mercury_calibration_service_instance
 
@@ -98,7 +115,7 @@ class Runtime:
         return AnalysisService(self.database, methods=self.methods_service())
 
     def reports_service(self) -> ReportService:
-        return ReportService(self.database, printers=SystemPrinters())
+        return ReportService(self.database, printers=SystemPrinters(), analysis=self.analysis_service(), results=self.result_migration_service())
 
     def maintenance_service(self) -> MaintenanceService:
         return MaintenanceService(self.database, self.config.runtime_log_path)

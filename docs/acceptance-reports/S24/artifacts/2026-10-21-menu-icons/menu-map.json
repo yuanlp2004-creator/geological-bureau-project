@@ -1,0 +1,184 @@
+[
+  {
+    "key": "workspace.overview",
+    "label": "工作台概览",
+    "group": "workspace",
+    "icon": "workspace",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "system.settings",
+    "label": "软件设置",
+    "group": "system",
+    "icon": "settings",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "help.about",
+    "label": "关于与诊断",
+    "group": "help",
+    "icon": "about",
+    "source": "上一批B棱镜应用图标"
+  },
+  {
+    "key": "system.users",
+    "label": "用户与权限",
+    "group": "system",
+    "icon": "users",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "system.audit",
+    "label": "审计记录",
+    "group": "system",
+    "icon": "audit",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "methods.lifecycle",
+    "label": "方法管理与参数",
+    "group": "methods",
+    "icon": "conditions",
+    "source": "ActMtdCfg / 5"
+  },
+  {
+    "key": "methods.lines",
+    "label": "分析谱线",
+    "group": "methods",
+    "icon": "lines",
+    "source": "ActMtdLines / 6"
+  },
+  {
+    "key": "methods.print-preview",
+    "label": "预览与打印",
+    "group": "methods",
+    "icon": "print",
+    "source": "ActMtdPrint / 7"
+  },
+  {
+    "key": "tools.legacy-methods",
+    "label": "旧方法与配置迁移",
+    "group": "tools",
+    "icon": "import-methods",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "analysis-tests.samples",
+    "label": "样号与样品队列",
+    "group": "analysis-tests",
+    "icon": "samples",
+    "source": "ActInputSamp / 14"
+  },
+  {
+    "key": "tools.legacy-spectra",
+    "label": "旧谱数据迁移",
+    "group": "tools",
+    "icon": "import-spectra",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "tools.legacy-results",
+    "label": "旧结果迁移",
+    "group": "tools",
+    "icon": "import-results",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "analysis-tests.spectra",
+    "label": "谱图查看",
+    "group": "analysis-tests",
+    "icon": "spectra",
+    "source": "ActAnaMulti / 13"
+  },
+  {
+    "key": "tools.devices",
+    "label": "设备参数与实时调试",
+    "group": "tools",
+    "icon": "devices",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "analysis-tests.dispersion",
+    "label": "色散摄谱",
+    "group": "analysis-tests",
+    "icon": "dispersion-acquisition",
+    "source": "ActAcqWdt / 8"
+  },
+  {
+    "key": "analysis-tests.dispersion-curves",
+    "label": "色散曲线",
+    "group": "analysis-tests",
+    "icon": "dispersion-curve",
+    "source": "ActAnaWdt / 11"
+  },
+  {
+    "key": "analysis-tests.evaporation",
+    "label": "蒸发摄谱",
+    "group": "analysis-tests",
+    "icon": "evaporation-acquisition",
+    "source": "ActAcqEdt / 9"
+  },
+  {
+    "key": "analysis-tests.acquisition",
+    "label": "样品摄谱",
+    "group": "analysis-tests",
+    "icon": "acquisition",
+    "source": "ActAcqSam / 10"
+  },
+  {
+    "key": "analysis-tests.evaporation-curves",
+    "label": "蒸发曲线",
+    "group": "analysis-tests",
+    "icon": "evaporation-curve",
+    "source": "ActAnaEdt / 12"
+  },
+  {
+    "key": "analysis-tests.hardware",
+    "label": "自动转角采集",
+    "group": "analysis-tests",
+    "icon": "rotation",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "tools.mercury",
+    "label": "汞灯与光学校准",
+    "group": "tools",
+    "icon": "mercury",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "analysis-tests.raw",
+    "label": "样品分析",
+    "group": "analysis-tests",
+    "icon": "analysis",
+    "source": "ActAnaSam / 15"
+  },
+  {
+    "key": "data.recalculate",
+    "label": "重新计算",
+    "group": "data",
+    "icon": "recalculate",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "data.reports",
+    "label": "打印与导出",
+    "group": "data",
+    "icon": "print",
+    "source": "复用ActMtdPrint / 7的打印含义；旧报告动作本身没有ImageIndex"
+  },
+  {
+    "key": "system.maintenance",
+    "label": "备份与维护",
+    "group": "system",
+    "icon": "maintenance",
+    "source": "本批Qwen补充设计"
+  },
+  {
+    "key": "help.offline",
+    "label": "离线帮助",
+    "group": "help",
+    "icon": "help",
+    "source": "本批Qwen补充设计"
+  }
+]

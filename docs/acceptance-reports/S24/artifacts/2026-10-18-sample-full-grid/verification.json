@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-sample-full-grid",
+  "executed_plan_sha256": "72e3228ccc2ebc4f191cc08d4784354c83236a5b3601be15ce04a512c5101323",
+  "product_changes": [
+    "app/frontend/src/pages/sampleQueues/SampleNumberTable.tsx",
+    "app/frontend/src/pages/sampleQueues/sample-queue.css"
+  ],
+  "layout": {
+    "fill_available_width": true,
+    "rows_per_column": 20,
+    "columns_depend_on": "container width only, never item count",
+    "order": "top-to-bottom then left-to-right",
+    "empty_slots_preserved": true,
+    "append_does_not_rebalance": true,
+    "long_names": "preserve last four characters in grid; full text in title, accessible name and selected details",
+    "desktop_grid_metrics": [
+      {
+        "name_length": 12,
+        "rows": 20,
+        "columns": 13,
+        "capacity": 260,
+        "gridWidth": 1081,
+        "contentWidth": 1081,
+        "overflow": 0,
+        "slots": 260,
+        "cellWidth": 79.84375,
+        "cellHeight": 22
+      },
+      {
+        "name_length": 20,
+        "rows": 20,
+        "columns": 13,
+        "capacity": 260,
+        "gridWidth": 1081,
+        "contentWidth": 1081,
+        "overflow": 0,
+        "slots": 260,
+        "cellWidth": 79.84375,
+        "cellHeight": 22
+      }
+    ],
+    "desktop_layouts": [
+      {
+        "width": 1440,
+        "theme": "light",
+        "rows": 20,
+        "columns": 13,
+        "capacity": 260,
+        "gridWidth": 1081,
+        "contentWidth": 1081,
+        "overflow": 0,
+        "slots": 260
+      },
+      {
+        "width": 1060,
+        "theme": "dark",
+        "rows": 20,
+        "columns": 9,
+        "capacity": 180,
+        "gridWidth": 764,
+        "contentWidth": 764,
+        "overflow": 0,
+        "slots": 180
+      }
+    ],
+    "target_cell_width_css_px": 80
+  },
+  "tests": {
+    "frontend_passed": 15,
+    "browser_special_checks": 7,
+    "frozen_desktop_checks": 7,
+    "d05_and_turn_analysis_regression_checks": 5,
+    "typecheck_vite_tauri_production_qa": true,
+    "offline_manual_passed": true
+  },
+  "packaging": {
+    "root_pair": {
+      "GeoSpectrum.exe": "1c96295bae1bc61cdd112c5b7fe3348430422f113c4e3db27ca95bb1c88bbd64",
+      "geospectrum-backend.exe": "5502d6c0d359f2cb5f7d4c8c82845def008ecaedb3d1ba987b5c0017d3fe721d"
+    },
+    "product_source_count": 351,
+    "production_qa_sources_and_frontend_identical": true,
+    "current_sources_match_build": true,
+    "backend_bytes_unchanged": true,
+    "previous_root_pair": "app/.local/releases/2026-10-18-sample-full-grid/previous/root-final-before-20261017-172913",
+    "installer_updated": false
+  },
+  "protection": {
+    "selected_business_files": {
+      "geospectrum.sqlite3": "dbfd707259343e6e54bde5d23aee39943dfb01514356660eecfe18bc7999349d",
+      "last-upgrade.json": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39",
+      "backups\\pre-upgrade-v20-to-v21-20260925T164327Z-164f8c9d.sqlite3": "b1903dcc0d42d0dd036bcb498a74129ad157a2b9abab77e40be0673494f6d1a4",
+      "backups\\pre-upgrade-v21-to-v23-20261007T101301Z-75fa3350.sqlite3": "58aa133625a200331647e003d894cd774a24335ccda697f3ab5acbdc9270108e",
+      "print-jobs\\b3df28cbb08e440380f6ba80a235280a\\render-input.json": "54c8d3c664c638dcbcab093fcc12775f05a2f9e5c170e5fbe4a2b6233dd450cf",
+      "print-jobs\\d00fa0a61dc84620bd72b01a8396ab69\\render-input.json": "54c8d3c664c638dcbcab093fcc12775f05a2f9e5c170e5fbe4a2b6233dd450cf"
+    },
+    "selected_business_files_unchanged": true,
+    "main_database_exists": true,
+    "old_source_count": 106,
+    "old_sources_unchanged": true,
+    "backend_sources_unchanged": true,
+    "schema_version": 23,
+    "root_and_app_inventories_unchanged": true,
+    "user_windows_preserved": true
+  },
+  "limits": [
+    "Resizing the window changes column count/page capacity; appending does not.",
+    "Deletion keeps the existing queue compaction rule.",
+    "This batch does not establish hardware, physical printing, signing, clean-Windows or formal release acceptance."
+  ],
+  "final_verification": {
+    "sources_and_root_pair_match": true,
+    "selected_business_data_unchanged": true,
+    "old_and_backend_sources_unchanged": true,
+    "root_and_app_inventories_unchanged": true,
+    "git_diff_check_passed": true,
+    "relative_links_checked": 306,
+    "missing_links": 0,
+    "acceptance_status_rows": 25,
+    "manual_topics": 55,
+    "current_plan_sha256": "64693a508452812bde667235f82d4253af32313663dcbdabe989ddc9eeba50f7"
+  }
+}

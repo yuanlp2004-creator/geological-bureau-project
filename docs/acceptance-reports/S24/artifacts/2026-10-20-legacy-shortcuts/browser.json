@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "checks": [
+    "Eight original icons load with Chinese accessible names and nearest-neighbor rendering",
+    "Missing current method disables queue, capture and analysis with reasons; method selection remains available",
+    "New method opens the existing form from another page and repeated clicks preserve its draft",
+    "Save as waits for loaded method state and refuses unsaved edits without discarding them",
+    "Parameters and lines open exact views, preserve edits, and Open focuses the method selector",
+    "Preparation, capture and analysis open existing workspaces without creating or starting tasks",
+    "Four light/dark, comfortable/compact, wide/minimum-window layouts keep all eight buttons visible in one row",
+    "An existing analysis workspace fits below the new header at minimum window height",
+    "Actual limited accounts hide unauthorized actions and omit inaccessible destinations"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "file": "shortcuts-1440-1000-light-comfortable.png",
+      "width": 1440,
+      "height": 1000,
+      "documentWidth": 1440,
+      "barWidth": 1194,
+      "barScrollWidth": 1194,
+      "buttonHeight": 34,
+      "tops": [
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5
+      ],
+      "bottom": 96
+    },
+    {
+      "file": "shortcuts-1060-680-light-comfortable.png",
+      "width": 1060,
+      "height": 680,
+      "documentWidth": 1060,
+      "barWidth": 845,
+      "barScrollWidth": 845,
+      "buttonHeight": 34,
+      "tops": [
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5,
+        56.5
+      ],
+      "bottom": 96
+    },
+    {
+      "file": "shortcuts-1440-1000-dark-compact.png",
+      "width": 1440,
+      "height": 1000,
+      "documentWidth": 1440,
+      "barWidth": 1194,
+      "barScrollWidth": 1194,
+      "buttonHeight": 34,
+      "tops": [
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5
+      ],
+      "bottom": 92
+    },
+    {
+      "file": "shortcuts-1060-680-dark-compact.png",
+      "width": 1060,
+      "height": 680,
+      "documentWidth": 1060,
+      "barWidth": 845,
+      "barScrollWidth": 845,
+      "buttonHeight": 34,
+      "tops": [
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5,
+        52.5
+      ],
+      "bottom": 92
+    }
+  ],
+  "analysisBounds": {
+    "top": 92,
+    "bottom": 680,
+    "height": 680
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "plan_sha256": "A6E049B0A28897654B2B79650D79B88F6B5B4670E048DC593FE97AF5389140A6",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "method dropdown and multi-select retain native selection and existing empty-selection gate",
+      "both selectors use 6px radius with existing light and dark themes",
+      "no browser script errors"
+    ],
+    "controlStyles": [
+      {
+        "theme": "light",
+        "styles": [
+          {
+            "label": "旧样品分析方法",
+            "radius": "6px",
+            "multiple": false,
+            "padding": "10px"
+          },
+          {
+            "label": "旧样品记录",
+            "radius": "6px",
+            "multiple": true,
+            "padding": "10px"
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "styles": [
+          {
+            "label": "旧样品分析方法",
+            "radius": "6px",
+            "multiple": false,
+            "padding": "10px"
+          },
+          {
+            "label": "旧样品记录",
+            "radius": "6px",
+            "multiple": true,
+            "padding": "10px"
+          }
+        ]
+      }
+    ]
+  },
+  "production_and_tauri_build": "passed",
+  "delivery": {
+    "date": "2026-10-08",
+    "status": "internal_test_root_delivery",
+    "scope": "6px radius and horizontal padding for legacy-analysis selectors",
+    "files": [
+      {
+        "name": "GeoSpectrum.exe",
+        "bytes": 11782144,
+        "sha256": "6EAA982F3458941DF63CC7E03162CE15882C68DB87BA31872A2C25F88F768709"
+      },
+      {
+        "name": "geospectrum-backend.exe",
+        "bytes": 25050133,
+        "sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+      }
+    ],
+    "identifier": "cn.geospectrum.desktop",
+    "requires_neighboring_backend": true,
+    "running_old_window_requires_restart": true,
+    "previous_directory": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-rounded-controls\\previous"
+  },
+  "scope": "Only analysis-legacy-import select CSS, no business changes"
+}

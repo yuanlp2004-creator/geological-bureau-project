@@ -1,0 +1,372 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "plan_sha256": "B106CC110EA8FC62B4589A4FE38FF9AE36A753B0CD57A73728963DA95E28198A",
+  "scope": "S06 zero-reference compatibility, native confirmation safety, and S21 root binary replacement",
+  "source_evidence": {
+    "path": "Spec Source/Source/Common/uDbPack.pas",
+    "line": 1234,
+    "rule": "RealRefWave=0 falls back to RefWave"
+  },
+  "failure_before": {
+    "code": "legacy_normalized_method_invalid",
+    "message": "旧方法“AgBSn最大值-20S”转换后未通过当前规则校验",
+    "details": {
+      "legacy_id": 8,
+      "validation_errors": [
+        {
+          "field": "actual_reference_wavelength_nm",
+          "code": "below_minimum",
+          "message": "不能小于 160"
+        },
+        {
+          "field": "actual_reference_wavelength_nm",
+          "code": "reference_offset_too_large",
+          "message": "实际参考波长与理论值的偏差不能大于 0.3 nm"
+        },
+        {
+          "field": "actual_reference_wavelength_nm",
+          "code": "reference_not_on_ccd",
+          "message": "参考波长不在当前 CCD/色散覆盖范围内"
+        },
+        {
+          "field": "lines.0.actual_wavelength_nm",
+          "code": "below_minimum",
+          "message": "不能小于 160"
+        },
+        {
+          "field": "lines.0.actual_wavelength_nm",
+          "code": "actual_wavelength_offset_too_large",
+          "message": "实际波长与理论值偏差不能大于 0.3 nm"
+        },
+        {
+          "field": "lines.0.wavelength_nm",
+          "code": "actual_wavelength_offset_too_large",
+          "message": "实际波长与理论值偏差不能大于 0.3 nm"
+        }
+      ]
+    },
+    "method": {
+      "legacy_id": 8,
+      "name": "AgBSn最大值-20S",
+      "conditions": {
+        "abnormal_threshold": 0.0,
+        "actual_reference_wavelength_nm": 0.0,
+        "analysis_unit": "ug/g",
+        "angle_exposures": [
+          {
+            "angle_deg": 0.0,
+            "end_frame": 30,
+            "start_frame": 1,
+            "storage_mode": "averaged"
+          }
+        ],
+        "calculation_profile": "legacy_2_0_2",
+        "calibration_threshold": 5.0,
+        "ccd_layout_id": null,
+        "control_repeats": 1,
+        "dark_frame_count": 10,
+        "dispersion_calibration_id": null,
+        "frame_count": 30,
+        "legacy_dispersion_name": "1米2400靠门-1022",
+        "maximum_id_deviation": 10.0,
+        "pre_excitation_seconds": 3.0,
+        "qc_threshold": 0.0,
+        "reference_wavelength_nm": 313.4111,
+        "reference_width_points": 21,
+        "rsd_enabled": false,
+        "rsd_threshold": 5.0,
+        "sample_repeats": 1,
+        "sampling_period_seconds": 1.0,
+        "selected_ccds": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "standard_repeats": 3,
+        "standard_sample_name": "",
+        "storage_profile": "legacy_specdirect_202"
+      }
+    },
+    "line_wavelengths": [
+      249.7733,
+      270.9626,
+      283.9989,
+      326.5619,
+      328.0683,
+      326.9494,
+      317.5019
+    ]
+  },
+  "old_failed_task_retry": {
+    "status": "committed",
+    "counts": {
+      "dispersion_curves": 6,
+      "methods": 9,
+      "spectral_lines": 69,
+      "users_ignored": 0
+    }
+  },
+  "backend": {
+    "passed": 259,
+    "failed": 0
+  },
+  "frontend_units": {
+    "passed": 8
+  },
+  "frontend_build": "passed",
+  "tauri_build": "passed",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "report detail and preview ignore responses from an earlier selection",
+      "report panels preserve create/confirm/export payloads, missing-directory guard and printer selection",
+      "method switch ignores the previous method line response",
+      "acquisition selection is preserved when an earlier command finishes",
+      "automatic acquisition response cannot restore the previous task or restart its timer",
+      "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+      "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload",
+      "FIX-07/GAP-03: analysis A/B and A/B/A response ownership, old errors, sequential non-slow completion",
+      "FIX-07/GAP-03: slow mode does not auto-step; rejected request after unmount cannot display an old error",
+      "FIX-04: real dispersion line survives task switch; stop queues behind pending frame and stops automatic progression",
+      "GAP-04: actual CCD point selected after zoom, further zoom preserves locked point, saved backend position matches pixel mapping",
+      "FIX-07: 260.1234 nm creation failure retains draft, retry selects newly created line",
+      "FIX-06: actual simulated sample is visible in generic spectrum page; CSV point count/value and PDF download verified",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "no-method actions explain their prerequisite; diagnostics are collapsed",
+      "packaged EXE bootstrap, login and process-key handshake at schema v23",
+      "20位样号持久、保留原表格设计，12位切换拒绝截断",
+      "摄谱未完成时的真实强度与峰位即时上屏",
+      "在途连续采集删除等待收尾，停止并移除异常样品",
+      "20位采集后命名与谱带哈希保持",
+      "方法逐转角区间实际进入样品谱带，平均与全区间混合保存",
+      "分析页任意 CCD 点值读取及独立横纵缩放",
+      "管理样采集、质控、页面适配、留存修正及新曲线发布回算",
+      "自动转角完整方法计划与逐帧区间结果确认",
+      "ready workflow opens sample acquisition in one click with existing navigation gates",
+      "workflow card title contrast >=4.5 in both themes",
+      "1060/1440/1920 viewports in actual saved light/comfortable and dark/compact themes have no window overflow",
+      "desktop environment and ten-second refresh are factual; details remain reachable",
+      "actual Windows native cancel returns Cancel and sends zero migration writes",
+      "actual packaged UI stages and commits Spec Source DIRECT.MTD: 9 methods, 69 lines, 6 dispersions; 4 zero references normalize to 313.4111 nm with original evidence retained",
+      "reimport is idempotent and all three original legacy files retain size, mtime and SHA-256",
+      "no WebView script errors"
+    ],
+    "scriptErrors": [],
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 23,
+      "database": "ok",
+      "uptime_seconds": 0.812
+    },
+    "legacyMigration": {
+      "counts": {
+        "dispersion_curves": 6,
+        "methods": 9,
+        "spectral_lines": 69,
+        "users_ignored": 0
+      },
+      "zeroReferenceWarnings": 4,
+      "sourceFacts": [
+        {
+          "name": "DIRECT.MTD",
+          "size": 339968,
+          "mtimeMs": 1787726422507.8179,
+          "sha256": "527ae25c08dcf3afb8365b4177cf5d5b113eb417649b6803ad7de2f27c43f83d"
+        },
+        {
+          "name": "DIRECT.CFG",
+          "size": 144,
+          "mtimeMs": 1787726422442.3916,
+          "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236"
+        },
+        {
+          "name": "DIRECT.OPT",
+          "size": 379,
+          "mtimeMs": 1787726422494.4685,
+          "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79"
+        }
+      ],
+      "idempotent": true
+    }
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+    "pid": 27160,
+    "main_windows_closed": 1,
+    "returncode": 0,
+    "native_confirmation_choices": [
+      {
+        "sequence": 1,
+        "action": "cancel",
+        "dialog_class": "#32770",
+        "button_id": 0,
+        "body": "确定\n取消",
+        "button_transport": "BM_CLICK"
+      },
+      {
+        "sequence": 2,
+        "action": "confirm",
+        "dialog_class": "#32770",
+        "button_id": 0,
+        "body": "确定\n取消",
+        "button_transport": "BM_CLICK"
+      }
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "saved_data_copy": {
+    "status": "passed",
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 23,
+      "database": "ok",
+      "uptime_seconds": 0.063
+    },
+    "source": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "source_hashes_unchanged": {
+      "database": "2F95A42D32CDDAAF4ED83ADE2599491F8C44B92D25B4400D87C6B07A76A6FB06",
+      "wal": null
+    },
+    "business_tables": {
+      "methods": {
+        "rows": 1,
+        "sha256": "230221f747473dbb4145e1e6de63532f5615eddc792faa4557abf5465f4c1eb7"
+      },
+      "method_versions": {
+        "rows": 3,
+        "sha256": "8a6d6320f692f0e22e03c6a143ea7406b65711b166a5f4f9cd7a4cc6cbae3dd3"
+      },
+      "ccd_layouts": {
+        "rows": 1,
+        "sha256": "daa054d534ad7dc0718e856601529a8a35653fd2496f6ae1d82b2dcf31426773"
+      },
+      "dispersion_calibrations": {
+        "rows": 1,
+        "sha256": "cd0b5ce592b405a62557e385fe384138dc3fcc3b76a3b8f811e0c00482580646"
+      },
+      "method_runtime_state": {
+        "rows": 1,
+        "sha256": "b468d3b0984eb6e494f46f1d41605b89765523e63822df97c9bbfc74d93680dc"
+      },
+      "spectrum_bands": {
+        "rows": 120,
+        "sha256": "cd6f6ce4bf2ab7a60a13392e0cd5756bf6b41ac60f3fba2e37e943bfd1c00955"
+      },
+      "spectrum_migration_runs": {
+        "rows": 1,
+        "sha256": "603c395206417620c371779d04ffd72850fb17c3b28493a572df9381ae42b6c9"
+      },
+      "spectrum_migration_staging_records": {
+        "rows": 120,
+        "sha256": "4ae290db0fb6920fa76bef5f58f19a4d42b6177c206658ad1bf9f04c6bd9bc32"
+      },
+      "acquisition_tasks": {
+        "rows": 1,
+        "sha256": "a4513e1764223ab87a264ddc74a60a9571fdc12901b78a528959fe5da5f53b33"
+      },
+      "acquisition_samples": {
+        "rows": 1,
+        "sha256": "a2209a84e02d1d1279281f7f32f25796e37f4835a7391d2b3a3991e7fa45594b"
+      },
+      "acquisition_sample_bands": {
+        "rows": 5,
+        "sha256": "884f71c418457eb57af53473e6cb0adff2e98c7e0425a239f6dbed8f02cc8210"
+      },
+      "acquisition_frames": {
+        "rows": 20,
+        "sha256": "faf82321a8055c31bda9f9dd968a1d0deadbd15adedafa21db0fda95f74b748f"
+      }
+    },
+    "sqlite_integrity": "ok",
+    "foreign_key_errors": 0,
+    "cleanup": "owned frozen-sidecar tree ended after copy-only verification"
+  },
+  "sidecar": {
+    "sidecar_bytes": 25050133,
+    "health_status": "ok",
+    "schema_version": 23,
+    "running_before_stop": true,
+    "clean_exit": true,
+    "process_returncode": 1,
+    "remaining_sidecar_pids": [],
+    "business": {
+      "profile_connected": true,
+      "start_ccd_count": 5,
+      "step_frame_index": 1,
+      "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+      "stopped_state": "connected",
+      "legacy_reader_attempts": [
+        "windows-powershell-x86"
+      ]
+    },
+    "error": null
+  },
+  "delivery": {
+    "date": "2026-10-08",
+    "status": "internal_test_root_delivery",
+    "identifier": "cn.geospectrum.desktop",
+    "data_directory": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "schema_version": 23,
+    "signing": "NotSigned",
+    "main_and_backend_must_stay_together": true,
+    "files": [
+      {
+        "name": "GeoSpectrum.exe",
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+        "bytes": 11782144,
+        "sha256": "C3042FF4643214621C3C39E77EFD76DC08F4E553FB7D3E6CBC61AD8CB9E114F3"
+      },
+      {
+        "name": "geospectrum-backend.exe",
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\geospectrum-backend.exe",
+        "bytes": 25050133,
+        "sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+      }
+    ],
+    "previous_files": [
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-root-update\\previous\\GeoSpectrum.exe",
+        "bytes": 11773952,
+        "sha256": "FAB17115E49D1418B524588A88FCB943A0F702465180BD381717E1217D8E628C"
+      },
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-root-update\\previous\\geospectrum-backend.exe",
+        "bytes": 52191902,
+        "sha256": "E3D9839978E7F119800150DBFCBA1F32296E5F585D07B49816B14AFA5CF1BB0C"
+      }
+    ],
+    "previous_isolated_test_deliveries_preserved": true
+  },
+  "root_and_app_entry_lists_unchanged": true,
+  "production_database_and_legacy_files_not_modified": true,
+  "formal_release_gates": [
+    "real hardware and missing protocols",
+    "physical printing",
+    "code signing",
+    "clean Windows and formal acceptance"
+  ]
+}

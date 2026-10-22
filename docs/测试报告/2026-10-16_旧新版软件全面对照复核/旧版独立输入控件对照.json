@@ -1,0 +1,1222 @@
+[
+  {
+    "path": "Main/mmAnalyze/FmAnaCurve.dfm",
+    "control": "CbActive",
+    "type": "TCheckBox",
+    "line": 90,
+    "note": "06 N13；G_StdLoader.Active与曲线参与点，10 R23–R24",
+    "caption": "参与拟合(&F)",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F04",
+      "D02"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmAnaPdt.dfm",
+    "control": "CbSaveWave",
+    "type": "TCheckBox",
+    "line": 27,
+    "note": "06 O01/N03；SaveAllWaves写参考/全线实际波长",
+    "caption": "保存校正波长",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F08",
+      "F11",
+      "D02"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmAnaPdt.dfm",
+    "control": "CbSavePdt",
+    "type": "TCheckBox",
+    "line": 35,
+    "note": "06 O01；本次G_SdMatrix.SavePdt文件",
+    "caption": "保存强度",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F08",
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmAnaPdt.dfm",
+    "control": "CbPrintPdt",
+    "type": "TCheckBox",
+    "line": 43,
+    "note": "06 O01；PrintPdt/GDI",
+    "caption": "打印强度",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F08",
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmAnaPdt.dfm",
+    "control": "CbPrintToTxt",
+    "type": "TCheckBox",
+    "line": 51,
+    "note": "06 O01；PrintToTxt，本次输出/跨重启默认不同，10 R30",
+    "caption": "打印到文本",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F08",
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmAnaPdt.dfm",
+    "control": "CbDefault",
+    "type": "TCheckBox",
+    "line": 69,
+    "note": "四项写内存，三项写CFG；10 R30",
+    "caption": "默认",
+    "initial": {},
+    "comparison_group": "分析与曲线",
+    "current_area": "app/frontend/src/pages/analysis",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "control": "EdtBandname",
+    "type": "TEdit",
+    "line": 104,
+    "note": "WDT/EDT单谱带名称校验并带入记录；10 R01/R28",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "control": "EdtRep",
+    "type": "TEdit",
+    "line": 123,
+    "note": "本组重复序号/次数显示，由队列更新；06 A09/P14–P16，不是采样帧数",
+    "caption": "",
+    "initial": {
+      "ReadOnly": "True"
+    },
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "EdtPreBurn",
+    "type": "TEdit",
+    "line": 111,
+    "note": "预备摄谱PreBurn；退出校验/FullDebug分支；10 R29",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "EdtBurnCyc",
+    "type": "TEdit",
+    "line": 123,
+    "note": "BurnCyc，同时设DarkCyc；采集计时/强度周期归一化；10 R29/R50",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "EdtBurnCount",
+    "type": "TEdit",
+    "line": 135,
+    "note": "预备摄谱BurnCount，控制燃烧帧；06 A01，10 R29",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "EdtDarkCount",
+    "type": "TEdit",
+    "line": 147,
+    "note": "可见暗帧数；0关闭暗周期；区别方法页隐藏派生值；06 P05/10 R29",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "CbSave",
+    "type": "TCheckBox",
+    "line": 159,
+    "note": "SaveIgnitcon保存后续预备摄谱默认，非仅本次文件；10 R29",
+    "caption": "保存激发条件",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmIgnitCon.dfm",
+    "control": "EdtName",
+    "type": "TEdit",
+    "line": 167,
+    "note": "输出文件编号/名称，模板路径和覆盖；10 R07/R49",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "采集软件条件",
+    "current_area": "app/frontend/src/pages/acquisition",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "RbBmpCcd",
+    "type": "TRadioButton",
+    "line": 33,
+    "note": "打印完整当前CCD范围；06 S16",
+    "caption": "当前CCD",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "RbBmpView",
+    "type": "TRadioButton",
+    "line": 43,
+    "note": "打印当前可见范围；06 S16，最小点数门禁",
+    "caption": "当前图像",
+    "initial": {},
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "CbIenBlack",
+    "type": "TCheckBox",
+    "line": 59,
+    "note": "CCD灰度图层，和峰形至少选一个；06 S16",
+    "caption": "CCD灰度",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "CbIenCurve",
+    "type": "TCheckBox",
+    "line": 70,
+    "note": "CCD峰形图层，和灰度至少选一个；06 S16",
+    "caption": "CCD峰形",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "RbPage10CCD",
+    "type": "TRadioButton",
+    "line": 109,
+    "note": "物理10倍CCD比例；06 S16，10 R46",
+    "caption": "10倍CCD比例",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06",
+      "F11",
+      "F12"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "RbPageLong",
+    "type": "TRadioButton",
+    "line": 119,
+    "note": "按页面宽边长度确定打印比例；06 S16",
+    "caption": "页面宽边长度",
+    "initial": {},
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmPrintCcd.dfm",
+    "control": "RbPageShort",
+    "type": "TRadioButton",
+    "line": 127,
+    "note": "按页面窄边长度确定打印比例；06 S16",
+    "caption": "页面窄边长度",
+    "initial": {},
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [
+      "D06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmSampInput.dfm",
+    "control": "EdtName",
+    "type": "TEdit",
+    "line": 57,
+    "note": "样号/标准/管理样/ASCII快捷符号；06 S01–S07，10 R42",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "样号及记录",
+    "current_area": "app/frontend/src/pages/sampleQueues",
+    "findings": [
+      "F14"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmSampInput.dfm",
+    "control": "SpeRep",
+    "type": "TSpinEdit",
+    "line": 80,
+    "note": "队列各组重复数/物理谱带数；Enter提交并回样号；06 P14–P16/S07/10 R42",
+    "caption": "",
+    "initial": {
+      "MinValue": "0",
+      "MaxValue": "0"
+    },
+    "comparison_group": "样号及记录",
+    "current_area": "app/frontend/src/pages/sampleQueues",
+    "findings": [
+      "F14"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmView.dfm",
+    "control": "EdtWave",
+    "type": "TEdit",
+    "line": 450,
+    "note": "波长或CCD,点坐标定位，不写方法；10 R10",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmView.dfm",
+    "control": "EdtExpSeg",
+    "type": "TEdit",
+    "line": 470,
+    "note": "当前显示曝光区间，驱动燃烧均值和当前点；06 S13/10 R13/R50",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "谱图观察",
+    "current_area": "app/frontend/src/pages/spectra",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmAnalyze/FmWstc.dfm",
+    "control": "SpeGap",
+    "type": "TSpinEdit",
+    "line": 47,
+    "note": "um间隔按PointWidth换点数，改变实测步但未自动重拟合；10 R20",
+    "caption": "",
+    "initial": {
+      "MinValue": "0",
+      "MaxValue": "0"
+    },
+    "comparison_group": "色散制作",
+    "current_area": "app/frontend/src/pages/dispersion",
+    "findings": [
+      "F02"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmData/FmExport.dfm",
+    "control": "CbAuto",
+    "type": "TCheckBox",
+    "line": 157,
+    "note": "同名自动删除/否则逐文件询问；06 O08，05复选补充",
+    "caption": "自动删除同名文件",
+    "initial": {},
+    "comparison_group": "输出与报告",
+    "current_area": "app/frontend/src/pages/reports",
+    "findings": [
+      "F07",
+      "F08"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmData/FmExport.dfm",
+    "control": "RgDirect",
+    "type": "TRadioGroup",
+    "line": 224,
+    "note": "标准方式/行列转置，DAT两个reader；PDT禁用并复位0；05 C19/06 O08",
+    "caption": "纵横布局",
+    "initial": {},
+    "comparison_group": "输出与报告",
+    "current_area": "app/frontend/src/pages/reports",
+    "findings": [
+      "F07",
+      "F08"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmData/FmPrintDat.dfm",
+    "control": "EdtName",
+    "type": "TEdit",
+    "line": 41,
+    "note": "新报告文件名/打印标题；保存后的基名供打印；06 O06/10 R43",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "输出与报告",
+    "current_area": "app/frontend/src/pages/reports",
+    "findings": [
+      "D01",
+      "D08"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmData/FmPrintDat.dfm",
+    "control": "CbPrint",
+    "type": "TCheckBox",
+    "line": 49,
+    "note": "调用PrintData；取消保存仍可执行，10 R43–R44",
+    "caption": "打印报告",
+    "initial": {},
+    "comparison_group": "输出与报告",
+    "current_area": "app/frontend/src/pages/reports",
+    "findings": [
+      "F06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmData/FmPrintDat.dfm",
+    "control": "CbSave",
+    "type": "TCheckBox",
+    "line": 57,
+    "note": "保存DAT选择器和G_SdMatrix.SaveDat；06 O06/10 R43",
+    "caption": "保存报告",
+    "initial": {},
+    "comparison_group": "输出与报告",
+    "current_area": "app/frontend/src/pages/reports",
+    "findings": [
+      "D01",
+      "D08"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmInputQuery.dfm",
+    "control": "EdtInput",
+    "type": "TEdit",
+    "line": 24,
+    "note": "根据itMtdName/itCdtName/itWave切通用输入校验；10 R01/R07",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "主框架与辅助对象",
+    "current_area": "app/frontend/src/layout",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtPreBurn",
+    "type": "TEdit",
+    "line": 83,
+    "note": "MTD_BURN.PreBurn，采集预激计时；06 P02",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtBurnCyc",
+    "type": "TEdit",
+    "line": 96,
+    "note": "MTD_BURN.BurnCyc及RoundDarkTime换暗帧；06 P03/P05",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtBurnCount",
+    "type": "TEdit",
+    "line": 109,
+    "note": "MTD_BURN.BurnCount/整段区间，选区间最少2；06 P04",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtDarkCount",
+    "type": "TEdit",
+    "line": 122,
+    "note": "Visible=false；周期换算DarkCount，不算普通可见输入；06 P05",
+    "caption": "",
+    "initial": {
+      "Visible": "False"
+    },
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "CbExpSegMode",
+    "type": "TCheckBox",
+    "line": 136,
+    "note": "MTD_PRIM.ExpSegMode→CDT/CMT/线区间映射；06 P01",
+    "caption": "区间曝光",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtRefWave",
+    "type": "TEdit",
+    "line": 285,
+    "note": "内部第0条参考线理论波长；06 P09，不是Back背景",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "EdtRefwidth",
+    "type": "TEdit",
+    "line": 298,
+    "note": "参考定位寻峰宽11–50点；06 P10",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "LeSam",
+    "type": "TLabeledEdit",
+    "line": 347,
+    "note": "RepOfSam普通样队列默认1–10；06 P14",
+    "caption": "普通样品:",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "LeStd",
+    "type": "TLabeledEdit",
+    "line": 364,
+    "note": "RepOfStd标准样队列默认1–10；06 P15",
+    "caption": "标准样品:",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "LeDiag",
+    "type": "TLabeledEdit",
+    "line": 381,
+    "note": "RepOfDiag管理样队列默认1–10；06 P16",
+    "caption": "管  理  样:",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "LeLimitIda",
+    "type": "TLabeledEdit",
+    "line": 412,
+    "note": "LimitIda/^P 0–20；21.7147ln(max/min)判据；06 P17",
+    "caption": "重复摄谱最大允许误差[^P]:",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "CbRsd",
+    "type": "TCheckBox",
+    "line": 427,
+    "note": "CheckRsd只控制叠加RSD，^P仍独立；06 P18",
+    "caption": "相对偏差校验",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdCfg.dfm",
+    "control": "LeLimitRsd",
+    "type": "TLabeledEdit",
+    "line": 436,
+    "note": "LimitRsd 0–20%，有效重复统计阈值；06 P19",
+    "caption": "最大允许Rsd[%]:",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtRealWave",
+    "type": "TEdit",
+    "line": 254,
+    "note": "RealWave理论±0.3且布局边界，写方法再供定位；06 L02/N03",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "D02"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtSeekWidth",
+    "type": "TEdit",
+    "line": 374,
+    "note": "SeekWidth 5–31，寻峰窗口；06 L07",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtBack",
+    "type": "TEdit",
+    "line": 387,
+    "note": "Back有符号±100；0不扣背景，中心偏移后7点最小；06 L08",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtDigit",
+    "type": "TEdit",
+    "line": 410,
+    "note": "Digit 0–6；标准预览/合并/报告格式，10 R44",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtLowPeak",
+    "type": "TEdit",
+    "line": 424,
+    "note": "LowPeak 100–600；三点寻峰峰强判据；06 L10/10 R41",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtLowRatio",
+    "type": "TEdit",
+    "line": 438,
+    "note": "LowRatio 1.1–2.5；峰强/窗口低值判据；06 L11/10 R41",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtPeakWidth",
+    "type": "TEdit",
+    "line": 467,
+    "note": "最大值1/高斯3–9奇数且不超寻峰窗；06 L09",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "D03"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "CbLnCoord",
+    "type": "TCheckBox",
+    "line": 496,
+    "note": "CoordType；强度浓度同时Ln、Reverse含量；06 L13/N17",
+    "caption": "对数坐标",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F05",
+      "F04"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtExpSegL",
+    "type": "TEdit",
+    "line": 563,
+    "note": "单线ExpSeg左界，默认全段/至少2帧；06 L15",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLines.dfm",
+    "control": "EdtExpSegR",
+    "type": "TEdit",
+    "line": 575,
+    "note": "单线ExpSeg右界，内标须匹配同区间；06 L15/05 C06",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdLinesAdd.dfm",
+    "control": "EditWave",
+    "type": "TEdit",
+    "line": 97,
+    "note": "理论波长，普通布局/漂移检查，FullDebug通用范围；06 L01/08冲突",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmMtdPrint.dfm",
+    "control": "CbFileOnly",
+    "type": "TCheckBox",
+    "line": 24,
+    "note": "TXT/GDI方法参数完整打印，固定字体；06 O10",
+    "caption": "打印到文件",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F09"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmPageSetup.dfm",
+    "control": "RdoAna",
+    "type": "TRadioButton",
+    "line": 81,
+    "note": "TimeMode=0，打印矩阵测量时间；06 O09",
+    "caption": "分析时间",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F06",
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmPageSetup.dfm",
+    "control": "RdoSys",
+    "type": "TRadioButton",
+    "line": 90,
+    "note": "TimeMode=1，打印系统Now；06 O09",
+    "caption": "系统时间",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F06",
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmPageSetup.dfm",
+    "control": "EdtEleLine",
+    "type": "TEdit",
+    "line": 100,
+    "note": "ElePerLine 5–50，纸面可进一步限制；10 R44",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmPageSetup.dfm",
+    "control": "EdtSampPage",
+    "type": "TEdit",
+    "line": 119,
+    "note": "SampPerPage 20–100，纸面可进一步限制；10 R44",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [
+      "F06"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmMethod/FmSelect.dfm",
+    "control": "EdtName",
+    "type": "TEdit",
+    "line": 48,
+    "note": "保存方法/曲线时显示，校验与大小写查重/覆盖ID；10 R05",
+    "caption": "",
+    "initial": {
+      "Visible": "False"
+    },
+    "comparison_group": "方法与谱线",
+    "current_area": "app/frontend/src/pages/methods",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmCfgSoftWare.dfm",
+    "control": "CbLookBand",
+    "type": "TCheckBox",
+    "line": 53,
+    "note": "IsLookBand/CFG.LookBand；监控谱图和WaitMain；06 O11/N06",
+    "caption": "监控测量谱带",
+    "initial": {},
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmCfgSoftWare.dfm",
+    "control": "EdtWaitTime",
+    "type": "TEdit",
+    "line": 62,
+    "note": "WaitTime ms、10ms取整、≤5000；10 R46",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "F11",
+      "F12"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmCfgSoftWare.dfm",
+    "control": "CbLogAna",
+    "type": "TCheckBox",
+    "line": 74,
+    "note": "IsLogAna/CFG.LogAna；显示消息窗并写界面记录；10 R08",
+    "caption": "显示测量信息",
+    "initial": {},
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmCfgSoftWare.dfm",
+    "control": "EdtRoundDarkTime",
+    "type": "TEdit",
+    "line": 82,
+    "note": "RoundDarkTime 6–20s；按周期推算方法暗帧数；06 P05/O11",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmDebug.dfm",
+    "control": "CbSubBack",
+    "type": "TCheckBox",
+    "line": 44,
+    "note": "绘图减最低ADC，读数/数据/分析Back不变；10 R36",
+    "caption": "扣除背景",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmImportPre.dfm",
+    "control": "EdtIn",
+    "type": "TEdit",
+    "line": 69,
+    "note": "禁用手输，选择源EDT后显示路径；布局/方法系数检查，10 R31",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "全时转换",
+    "current_area": "app/frontend/src/pages/postprocessing",
+    "findings": [
+      "D01"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmImportPre.dfm",
+    "control": "BteExgSeg",
+    "type": "TButtonedEdit",
+    "line": 116,
+    "note": "转换取帧区间；超界恢复；CMT区间长度门禁；10 R17/R34",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "全时转换",
+    "current_area": "app/frontend/src/pages/postprocessing",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmImportPre.dfm",
+    "control": "EdtOut",
+    "type": "TEdit",
+    "line": 164,
+    "note": "禁用手输，目标CDT/CMT路径；同名覆盖或追加，10 R32",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "全时转换",
+    "current_area": "app/frontend/src/pages/postprocessing",
+    "findings": [
+      "D01"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmImportPre.dfm",
+    "control": "CbMtdId",
+    "type": "TCheckBox",
+    "line": 257,
+    "note": "只在新目标无布局时带入当前方法ID；10 R33",
+    "caption": "使用方法ID",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "全时转换",
+    "current_area": "app/frontend/src/pages/postprocessing",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmMtdBackup.dfm",
+    "control": "CbBackup",
+    "type": "TCheckBox",
+    "line": 34,
+    "note": "复制方法库到默认文档备份，失败提前退出；06 O16/10 R07",
+    "caption": "备份数据库",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "D01",
+      "D09"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmMtdBackup.dfm",
+    "control": "CbCompact",
+    "type": "TCheckBox",
+    "line": 46,
+    "note": "Jet压缩当前方法库；06 O16，非SQLite优化",
+    "caption": "压缩数据库",
+    "initial": {
+      "Checked": "True"
+    },
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "D01",
+      "D09"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmMtdBackup.dfm",
+    "control": "CbClearLog",
+    "type": "TCheckBox",
+    "line": 58,
+    "note": "仅删除DIRECT.LOG；06 O16",
+    "caption": "清除记录文件",
+    "initial": {},
+    "comparison_group": "设置与维护",
+    "current_area": "app/frontend/src/pages/maintenance",
+    "findings": [
+      "D01",
+      "D09"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtScreenWidth",
+    "type": "TEdit",
+    "line": 123,
+    "note": "屏幕物理cm→um/像素/十倍显示；10 R46",
+    "caption": "",
+    "initial": {},
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11",
+      "F12"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtCcdVolume",
+    "type": "TEdit",
+    "line": 201,
+    "note": "禁用，只显示FrameCount×CcdsPerFrame容量；06 O12",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtPointsPerCcd",
+    "type": "TEdit",
+    "line": 210,
+    "note": "禁用，只显示OPT每CCD点数；06 O12",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtPointWidth",
+    "type": "TEdit",
+    "line": 219,
+    "note": "禁用，只显示OPT点宽um，几何转换消费；06 O12",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtCcdGap",
+    "type": "TEdit",
+    "line": 228,
+    "note": "禁用，只显示OPT基础间隔um；06 O12",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtCcdIndexs",
+    "type": "TEdit",
+    "line": 237,
+    "note": "默认禁用，Ctrl+Alt+W启用；去重升序保存/映射；10 R45",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "EdtAllowDrift",
+    "type": "TEdit",
+    "line": 250,
+    "note": "默认禁用，Ctrl+Alt+W启用；范围/色散/寻峰边界；06 O13",
+    "caption": "",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  },
+  {
+    "path": "Main/mmTool/FmOptHardWare.dfm",
+    "control": "CbMirror",
+    "type": "TCheckBox",
+    "line": 263,
+    "note": "禁用，OPT.Mirror载入；确定函数未从该控件写值；06 O12",
+    "caption": "镜像CCD",
+    "initial": {
+      "Enabled": "False"
+    },
+    "comparison_group": "设备软件配置，物理I/O排除",
+    "current_area": "app/frontend/src/pages/devices",
+    "findings": [
+      "F11"
+    ],
+    "status": "入口/参数纳入清单；具体消费者及结果按关联检查点核对，不声称逐控件运行对跑"
+  }
+]

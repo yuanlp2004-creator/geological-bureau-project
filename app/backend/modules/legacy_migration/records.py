@@ -40,7 +40,6 @@ def _blob(value: Any, *, field: str, expected_lengths: set[int] | None = None) -
 
 
 class LegacyRecordDecoder:
-
     @staticmethod
     def _standard_blob(value: Any, field: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         raw, evidence = _blob(value, field=field, expected_lengths={224, 700})
@@ -61,10 +60,13 @@ class LegacyRecordDecoder:
                         "active": bool(active),
                     }
                 )
-        evidence.update({"record_size": 14, "record_count": record_count, "valid_count": len(parsed), "records": parsed})
+        evidence.update(
+            {"record_size": 14, "record_count": record_count, "valid_count": len(parsed), "records": parsed}
+        )
         return [
-            {"name": f"S{item['index'] + 1}", "value": item["content"], "active": item["active"]}
-            for item in parsed
+            {"name": f"S{item['index'] + 1}", "value": item["content"], "active": item["active"],
+             "original_intensity": item['raw_black'], "adjusted_intensity": item['current_black'],
+             "intensity_valid": item['valid']} for item in parsed
         ], evidence
 
     @staticmethod
@@ -75,7 +77,9 @@ class LegacyRecordDecoder:
         coefficients_raw, coefficients_evidence = _blob(row.get("WsCof"), field=f"{field}.WsCof")
         if len(gaps_raw) != count * 4 or len(indices_raw) != count:
             raise LegacyMigrationError("legacy_wstc_shape_invalid", f"{field} 的 CCD BLOB 与 CcdCount 不一致")
-        expected_coefficients = int(_number(row.get("FrameCount"), integer=True)) * int(_number(row.get("CcdsPerFrame"), integer=True))
+        expected_coefficients = int(_number(row.get("FrameCount"), integer=True)) * int(
+            _number(row.get("CcdsPerFrame"), integer=True)
+        )
         if len(coefficients_raw) != expected_coefficients * 4:
             raise LegacyMigrationError("legacy_wstc_shape_invalid", f"{field} 的色散系数数量不一致")
         return {
@@ -95,4 +99,3 @@ class LegacyRecordDecoder:
                 "WsCof": coefficients_evidence,
             },
         }
-

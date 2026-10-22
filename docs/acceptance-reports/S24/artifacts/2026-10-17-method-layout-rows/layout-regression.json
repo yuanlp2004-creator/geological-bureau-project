@@ -1,0 +1,298 @@
+{
+  "status": "passed",
+  "observations": [
+    {
+      "view": "parameters",
+      "width": 1920,
+      "dark": false,
+      "geometry": {
+        "x": 274,
+        "y": 426.515625,
+        "width": 801,
+        "height": 368.90625
+      },
+      "excitation": {
+        "x": 1091,
+        "y": 426.515625,
+        "width": 801,
+        "height": 368.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 811.421875,
+        "width": 1618,
+        "height": 206.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "view": "parameters",
+      "width": 1920,
+      "dark": true,
+      "geometry": {
+        "x": 274,
+        "y": 400.515625,
+        "width": 801,
+        "height": 344.90625
+      },
+      "excitation": {
+        "x": 1091,
+        "y": 400.515625,
+        "width": 801,
+        "height": 344.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 761.421875,
+        "width": 1618,
+        "height": 194.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "view": "parameters",
+      "width": 1440,
+      "dark": false,
+      "geometry": {
+        "x": 274,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "excitation": {
+        "x": 851,
+        "y": 426.515625,
+        "width": 561,
+        "height": 368.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 811.421875,
+        "width": 1138,
+        "height": 206.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "view": "parameters",
+      "width": 1440,
+      "dark": true,
+      "geometry": {
+        "x": 274,
+        "y": 400.515625,
+        "width": 561,
+        "height": 344.90625
+      },
+      "excitation": {
+        "x": 851,
+        "y": 400.515625,
+        "width": 561,
+        "height": 344.90625
+      },
+      "angles": {
+        "x": 274,
+        "y": 761.421875,
+        "width": 1138,
+        "height": 194.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "view": "parameters",
+      "width": 1060,
+      "dark": false,
+      "geometry": {
+        "x": 235,
+        "y": 491.703125,
+        "width": 394.5,
+        "height": 412.90625
+      },
+      "excitation": {
+        "x": 645.5,
+        "y": 491.703125,
+        "width": 394.5,
+        "height": 412.90625
+      },
+      "angles": {
+        "x": 235,
+        "y": 920.609375,
+        "width": 805,
+        "height": 206.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "view": "parameters",
+      "width": 1060,
+      "dark": true,
+      "geometry": {
+        "x": 235,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "excitation": {
+        "x": 645.5,
+        "y": 461.703125,
+        "width": 394.5,
+        "height": 384.90625
+      },
+      "angles": {
+        "x": 235,
+        "y": 862.609375,
+        "width": 805,
+        "height": 194.171875
+      },
+      "desktop": false,
+      "devicePixelRatio": 1
+    },
+    {
+      "width": 1920,
+      "dark": false,
+      "list": {
+        "x": 274,
+        "y": 281.1875,
+        "width": 280,
+        "height": 613.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 281.1875,
+        "width": 1322,
+        "height": 985.421875
+      },
+      "context": {
+        "x": 274,
+        "y": 100,
+        "width": 1618,
+        "height": 106.59375
+      }
+    },
+    {
+      "width": 1920,
+      "dark": true,
+      "list": {
+        "x": 274,
+        "y": 267.1875,
+        "width": 280,
+        "height": 609.34375
+      },
+      "editor": {
+        "x": 570,
+        "y": 267.1875,
+        "width": 1322,
+        "height": 947.5625
+      },
+      "context": {
+        "x": 274,
+        "y": 86,
+        "width": 1618,
+        "height": 106.59375
+      }
+    },
+    {
+      "width": 1280,
+      "dark": false,
+      "list": {
+        "x": 266,
+        "y": 327.1875,
+        "width": 240,
+        "height": 505.34375
+      },
+      "editor": {
+        "x": 522,
+        "y": 327.1875,
+        "width": 738,
+        "height": 1060.5625
+      },
+      "context": {
+        "x": 266,
+        "y": 96,
+        "width": 994,
+        "height": 156.59375
+      }
+    },
+    {
+      "width": 1280,
+      "dark": true,
+      "list": {
+        "x": 266,
+        "y": 309.1875,
+        "width": 240,
+        "height": 501.34375
+      },
+      "editor": {
+        "x": 522,
+        "y": 309.1875,
+        "width": 738,
+        "height": 1018.703125
+      },
+      "context": {
+        "x": 266,
+        "y": 82,
+        "width": 994,
+        "height": 152.59375
+      }
+    },
+    {
+      "width": 1060,
+      "dark": false,
+      "list": {
+        "x": 235,
+        "y": 327.1875,
+        "width": 240,
+        "height": 505.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 327.1875,
+        "width": 549,
+        "height": 1060.5625
+      },
+      "context": {
+        "x": 235,
+        "y": 96,
+        "width": 805,
+        "height": 156.59375
+      }
+    },
+    {
+      "width": 1060,
+      "dark": true,
+      "list": {
+        "x": 235,
+        "y": 309.1875,
+        "width": 240,
+        "height": 501.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 309.1875,
+        "width": 549,
+        "height": 1018.703125
+      },
+      "context": {
+        "x": 235,
+        "y": 82,
+        "width": 805,
+        "height": 152.59375
+      }
+    }
+  ],
+  "checks": [
+    "single local sidebar",
+    "fold/unfold",
+    "create and select",
+    "save persistence",
+    "compact parameter groups",
+    "expanded error controls and persistence",
+    "invalid error field focused with zero writes",
+    "invalid numeric zero writes",
+    "no page errors"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-recalculate-layout",
+  "executed_plan_sha256": "2915707d7216cab6b076be97583d3ed0fc46c4654c78394c24fcfa3d84808e67",
+  "product_changes": [
+    "app/frontend/src/pages/postprocessing/data-processing.css",
+    "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx",
+    "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx"
+  ],
+  "root_pair": {
+    "GeoSpectrum.exe": "b6ae53e25baef6b2fa706d52754b706c50620e52bbd5ce7dbd1ff55a97db6ce0",
+    "geospectrum-backend.exe": "103eda616aa10d9909e1b189712dc0b0a6ace9d51b9fbd7c10d284bccdb931fa"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-recalculate-layout\\previous\\root-entry-20261018-151239",
+  "tests": {
+    "frontend": 16,
+    "browser": 9,
+    "desktop": 7
+  },
+  "recalculation_layouts": {
+    "browser": 3,
+    "desktop": 3
+  },
+  "output_regression_layouts": {
+    "browser": 6,
+    "desktop": 6
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "backend_byte_unchanged": true,
+  "schema_version": 23,
+  "api_algorithms_and_permissions_changed": false,
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-recalculate-layout\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "2d366e83cf83e636df7055e152f1c4a35d0bcbc800426f5608f57f95b3d5d901",
+    "pid": 27008,
+    "shown_window_handles": [
+      4851246
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "preservation": {
+    "selected_user_files": 10,
+    "byte_unchanged_user_files": 10,
+    "data_differences": [],
+    "legacy_files_unchanged": 106,
+    "root_app_inventory_unchanged": true
+  },
+  "installer_updated": false
+}

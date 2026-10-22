@@ -22,7 +22,9 @@ def verify(database_path: Path, manifest_path: Path, dist_dir: Path) -> dict:
     connection = sqlite3.connect(database_path)
     try:
         connection.execute("PRAGMA foreign_keys = ON")
-        tables = [row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")]
+        tables = [
+            row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+        ]
         result = {
             "integrity_check": connection.execute("PRAGMA integrity_check").fetchone()[0],
             "foreign_keys": connection.execute("PRAGMA foreign_keys").fetchone()[0],
@@ -56,7 +58,15 @@ def main() -> int:
     args = parser.parse_args()
     result = verify(args.database, args.manifest, args.dist)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    checks = [result["integrity_check"] == "ok", result["foreign_keys"] == 1, result["journal_mode"].lower() == "wal", result["schema_version"] == SCHEMA_VERSION, result["required_tables"], result["frontend_asset_count"] > 0, result["frontend_assets_have_sha256"]]
+    checks = [
+        result["integrity_check"] == "ok",
+        result["foreign_keys"] == 1,
+        result["journal_mode"].lower() == "wal",
+        result["schema_version"] == SCHEMA_VERSION,
+        result["required_tables"],
+        result["frontend_asset_count"] > 0,
+        result["frontend_assets_have_sha256"],
+    ]
     return 0 if all(checks) else 1
 
 

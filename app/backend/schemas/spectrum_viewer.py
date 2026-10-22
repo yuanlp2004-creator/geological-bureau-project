@@ -6,6 +6,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class SpectrumPrintRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    print_scope: Literal['visible', 'ccd'] = 'visible'
+    print_layers: list[Literal['curve', 'grayscale']] = Field(default_factory=lambda: ['curve'], min_length=1, max_length=2)
+    print_scale: Literal['fit_long', 'fit_short', 'ccd_10x'] = 'fit_long'
+    paper: Literal['A4', 'A3', 'Letter'] = 'A4'
 
     visible_x_min: float
     visible_x_max: float

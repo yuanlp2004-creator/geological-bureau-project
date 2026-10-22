@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-12",
+  "scope": "Only geology project UI; rebuild is unchanged. Two layout defects fixed; third control is absent in the geology version.",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "product_files": [
+    "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/quality.css"
+  ],
+  "frontend_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "browser": {
+    "phase": "after",
+    "target": "地质局",
+    "status": "passed",
+    "fixtures": "Read-only response fixtures for legacy-imported UI and list records; no migration/import actions.",
+    "checks": [
+      "卡片文字及按钮内边距",
+      "空/12条原生多选列表边框、滚动与焦点",
+      "多选值及空选择操作门禁",
+      "创建表单标题/图标布局及现有字段",
+      "明暗主题及1060/1440宽度无横向溢出",
+      "无页面脚本错误"
+    ],
+    "layouts": [
+      {
+        "theme": "light",
+        "density": "comfortable",
+        "width": 1440,
+        "methodLayout": {
+          "left": 274,
+          "top": 281.1875,
+          "width": 1138,
+          "height": 112.390625,
+          "contentInset": 21,
+          "padding": "20px",
+          "overflow": "visible",
+          "border": "1px solid rgb(216, 226, 236)",
+          "radius": "8px"
+        },
+        "empty": {
+          "height": 140,
+          "multiple": true,
+          "size": 6,
+          "border": "0px none rgb(35, 55, 77)",
+          "wrapperBorder": "1px solid rgb(129, 147, 167)",
+          "wrapperRadius": "6px"
+        },
+        "headerLayout": {
+          "title": {
+            "left": 295,
+            "right": 396.109375,
+            "top": 623.96875
+          },
+          "icon": {
+            "left": 1374,
+            "right": 1391,
+            "top": 628.640625
+          },
+          "display": "flex"
+        }
+      },
+      {
+        "theme": "dark",
+        "density": "compact",
+        "width": 1060,
+        "methodLayout": {
+          "left": 235,
+          "top": 309.1875,
+          "width": 805,
+          "height": 100.390625,
+          "contentInset": 17,
+          "padding": "16px",
+          "overflow": "visible",
+          "border": "1px solid rgb(61, 81, 104)",
+          "radius": "8px"
+        },
+        "empty": {
+          "height": 140,
+          "multiple": true,
+          "size": 6,
+          "border": "0px none rgb(226, 235, 245)",
+          "wrapperBorder": "1px solid rgb(113, 134, 159)",
+          "wrapperRadius": "6px"
+        },
+        "headerLayout": {
+          "title": {
+            "left": 248,
+            "right": 349.109375,
+            "top": 577.96875
+          },
+          "icon": {
+            "left": 1010,
+            "right": 1027,
+            "top": 582.640625
+          },
+          "display": "flex"
+        }
+      }
+    ]
+  },
+  "desktop": {
+    "phase": "desktop",
+    "target": "地质局",
+    "status": "passed",
+    "fixtures": "Read-only response fixtures for legacy-imported UI and list records; no migration/import actions.",
+    "checks": [
+      "卡片文字及按钮内边距",
+      "空/12条原生多选列表边框、滚动与焦点",
+      "多选值及空选择操作门禁",
+      "创建表单标题/图标布局及现有字段",
+      "明暗主题及1060/1440宽度无横向溢出",
+      "无页面脚本错误"
+    ],
+    "layouts": [
+      {
+        "theme": "light",
+        "density": "comfortable",
+        "width": 1440,
+        "methodLayout": {
+          "left": 274,
+          "top": 281.1875,
+          "width": 1123,
+          "height": 112.3984375,
+          "contentInset": 21,
+          "padding": "20px",
+          "overflow": "visible",
+          "border": "1px solid rgb(216, 226, 236)",
+          "radius": "8px"
+        },
+        "empty": {
+          "height": 140,
+          "multiple": true,
+          "size": 6,
+          "border": "0px none rgb(35, 55, 77)",
+          "wrapperBorder": "1px solid rgb(129, 147, 167)",
+          "wrapperRadius": "6px"
+        },
+        "headerLayout": {
+          "title": {
+            "left": 295,
+            "right": 396.1015625,
+            "top": 623.984375
+          },
+          "icon": {
+            "left": 1374,
+            "right": 1391,
+            "top": 628.65625
+          },
+          "display": "flex"
+        }
+      },
+      {
+        "theme": "dark",
+        "density": "compact",
+        "width": 1060,
+        "methodLayout": {
+          "left": 235,
+          "top": 309.1875,
+          "width": 805,
+          "height": 100.3984375,
+          "contentInset": 17,
+          "padding": "16px",
+          "overflow": "visible",
+          "border": "1px solid rgb(61, 81, 104)",
+          "radius": "8px"
+        },
+        "empty": {
+          "height": 140,
+          "multiple": true,
+          "size": 6,
+          "border": "0px none rgb(226, 235, 245)",
+          "wrapperBorder": "1px solid rgb(113, 134, 159)",
+          "wrapperRadius": "6px"
+        },
+        "headerLayout": {
+          "title": {
+            "left": 248,
+            "right": 349.1015625,
+            "top": 577.984375
+          },
+          "icon": {
+            "left": 1010,
+            "right": 1027,
+            "top": 582.65625
+          },
+          "display": "flex"
+        }
+      }
+    ]
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-12-layout-fixes\\GeoSpectrum.exe",
+    "pid": 24632,
+    "main_windows": 1,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "frontend_and_tauri_build": "passed",
+  "root_exe_sha256": "0D458CF7F4F5C922268DD10F475EB864B6D18F5C672D5624305FB89258A5A450",
+  "verified_exe_sha256": "0D458CF7F4F5C922268DD10F475EB864B6D18F5C672D5624305FB89258A5A450",
+  "root_backend_sha256": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51",
+  "backend_unchanged": true,
+  "root_entries_unchanged": true,
+  "app_entries_unchanged": true
+}

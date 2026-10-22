@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "样品入口：历史记录、方法与全时保存、非法输入零写入、暂停恢复及模拟完成",
+    "蒸发入口：独立条件、单次完整全时帧、暂停恢复和区间标记，无样品配置或定量面板",
+    "两个任务列表独立，快速切换后的延迟响应不污染另一业务页",
+    "两个页面在暗色紧凑1060宽窗口无横向溢出",
+    "只读角色可见两个入口；无当前方法时禁用，既有采集读写权限边界保持",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

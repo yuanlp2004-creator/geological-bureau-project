@@ -4,14 +4,14 @@
 
 后端业务已拆到 `modules/*.py`。R3 已完成全部 API 与模型分类；R6 已将基线、历史迁移和默认数据迁入 migrations/，db.py 保留连接、事务和调度。跨层排查时先掌握这些入口：
 
-- [`main.py`](../../app/backend/main.py)：FastAPI 应用工厂与生命周期（44 行）；业务路由在 api/，WebSocket 在 api/events.py。
+- [`main.py`](../../app/backend/main.py)：FastAPI 应用工厂与生命周期；业务路由在 api/，WebSocket 在 api/events.py。
 - [`runtime.py`](../../app/backend/runtime.py)：每个应用独立的数据库、认证、业务服务及事件订阅状态。
 - [`api/system.py`](../../app/backend/api/system.py)：健康、关于、诊断、设置和运行消息接口。
 - [`api/dependencies.py`](../../app/backend/api/dependencies.py)：请求认证与权限检查，从当前应用获取 runtime。
 - [`api/middleware.py`](../../app/backend/api/middleware.py)：进程密钥、CORS 和校验错误处理。
 - [`schemas/__init__.py`](../../app/backend/schemas/__init__.py)：已有模型的显式兼容导出；模型定义位于同目录的各业务文件。
-- [`db.py`](../../app/backend/db.py)：104 行的连接、事务与迁移调度入口。
-- [`migrations/__init__.py`](../../app/backend/migrations/__init__.py)：版本常量和 v11–v20 显式顺序清单。
+- [`db.py`](../../app/backend/db.py)：连接、事务与迁移调度入口。
+- [`migrations/__init__.py`](../../app/backend/migrations/__init__.py)：版本常量和 v11–v23 显式顺序清单。
 - [`migrations/baseline.py`](../../app/backend/migrations/baseline.py)：原建表、索引及前置兼容字段。
 - [`migrations/defaults.py`](../../app/backend/migrations/defaults.py)：迁移后的默认记录、不可变触发器和帮助主题。
 - [`migrations/sql.py`](../../app/backend/migrations/sql.py)：不隐式提交事务的 SQL 执行及结构检查辅助函数。
@@ -82,13 +82,13 @@ Authorization: Bearer <token>
 
 ## 6. Schema 版本
 
-当前 `SCHEMA_VERSION = 20`，S10 以前由基线结构表示，v11–v20 通过 `MIGRATIONS` 顺序登记。
+当前 `SCHEMA_VERSION = 23`，S10 以前由基线结构表示，v11–v23 通过 `MIGRATIONS` 顺序登记。
 
 阅读迁移时按以下顺序：
 
 1. `Database.initialize()` 开启原有事务，调用 `migrations/baseline.py` 的 `create_baseline()`。
 2. db.py 中历史开发标记和旧 JSON 帧的兼容分支。
-3. 按 `migrations/__init__.py` 顺序执行 `v11_devices.py` 至 `v20_maintenance.py`，每步写入 schema_migrations。
+3. 按 `migrations/__init__.py` 顺序执行 `v11_devices.py` 至 `v23_contract_closure.py`，每步写入 schema_migrations。
 4. 原测试扩展迁移。
 5. `migrations/defaults.py` 写入默认数据和触发器，db.py 最后更新元数据；全部处于同一事务内。
 
@@ -128,6 +128,6 @@ python -m pytest -p no:cacheprovider tests/test_auth.py tests/test_architecture.
 
 修改表、索引、触发器或迁移时，还要运行受影响模块测试和 S21 升级测试。
 
-## 2026-09-14 所选依赖的显式装配
+## 实现分工
 
-Runtime 的方法打印、分析、报告和后处理工厂显式传入各自依赖，构造器不再隐式创建所选跨模块服务。后处理的一次重算使用同一个分析依赖；每次服务工厂调用仍创建本次需要的无状态对象，设备服务的 Runtime 内缓存和事件队列不变。独立测试可以传入受控分析实现，正式工具可以通过 Runtime 工厂构造完整服务。
+Runtime显式提供方法、打印、分析、报告与后处理依赖。一次重算复用同一个分析对象，设备服务缓存及事件队列归当前Runtime管理；独立工具通过Runtime工厂获得完整装配。

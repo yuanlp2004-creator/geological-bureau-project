@@ -1,0 +1,222 @@
+[
+  {
+    "id": "3.2.1-1",
+    "requirement": "逐转角选择区间平均值或全区间保存",
+    "status": "有条件覆盖",
+    "entry": "方法管理 → 转角与存储方式；样品摄谱 → 存储设置来源",
+    "saved_data": "conditions.angle_exposures、exposure_by_ccd、acquisition_sample_bands",
+    "consumer": "acquisition.repository 的区间取帧和均值/BLOB；hardware_acquisition.exposures 的区间结果",
+    "verification": "test_contract_closure.py::test_turn_interval_uses_only_selected_frames；test_method_intervals_feed_turn_and_sample_chains",
+    "conditions": "采集须选择方法存储来源；逐线区间曝光会强制保留全时帧。转角独立任务进入正式样品分析另见 A01。"
+  },
+  {
+    "id": "3.2.1-2",
+    "requirement": "新增谱线计算是否在可检测范围内",
+    "status": "已覆盖",
+    "entry": "分析谱线 → 新增及波长检查",
+    "saved_data": "方法版本谱线与色散几何引用",
+    "consumer": "spectral_lines.detect_wavelength、方法发布校验、分析取谱带",
+    "verification": "test_spectral_lines.py::test_options_baseline_and_live_detectability",
+    "conditions": "依赖方法所绑定的 CCD 布局及色散校准。"
+  },
+  {
+    "id": "3.2.1-3",
+    "requirement": "基线分析线内标线定位线及三种内标方式",
+    "status": "已覆盖",
+    "entry": "方法参考基线；分析谱线编辑",
+    "saved_data": "line_type、internal_standard_mode、引用谱线 ID",
+    "consumer": "analysis.candidate 的基准偏移、扣背景和内标计算",
+    "verification": "test_spectral_lines.py；test_s16_analysis.py::test_s16_multi_sample_profiles_internal_standards_and_replay",
+    "conditions": "参考基线由方法条件维护，不能再从普通新增谱线重复创建。"
+  },
+  {
+    "id": "3.2.1-4",
+    "requirement": "最大单点或高斯峰面积",
+    "status": "有条件覆盖",
+    "entry": "分析谱线 → 峰值方式；方法 → 计算档案",
+    "saved_data": "peak_mode、calculation_profile、gaussian_area、quantitative_signal",
+    "consumer": "analysis.candidate 在 modern_v1 中将高斯面积用于定量",
+    "verification": "test_s16_analysis.py::test_s16_multi_sample_profiles_internal_standards_and_replay",
+    "conditions": "modern_v1 满足峰面积；legacy_2_0_2 按旧峰高复现，两者不能混作同一种结果。"
+  },
+  {
+    "id": "3.2.1-5",
+    "requirement": "普通坐标与对数坐标",
+    "status": "已覆盖",
+    "entry": "谱线/标准曲线 → 坐标方式",
+    "saved_data": "coordinate_type、曲线快照",
+    "consumer": "analysis.algorithms、CurveChart、曲线 HTML/PDF",
+    "verification": "test_s17_quality_curves.py::test_s17_four_fits_coordinates_and_failure_boundaries；test_legacy_fourteen_closure.py::test_curve_output_uses_content_x_intensity_y_and_log_both_axes",
+    "conditions": "对数坐标要求强度和含量大于零；图像也变换两轴。"
+  },
+  {
+    "id": "3.2.1-6",
+    "requirement": "直线二次三次样条拟合",
+    "status": "已覆盖",
+    "entry": "标准曲线 → 拟合方式",
+    "saved_data": "fit_mode、fit_json、curve_snapshot_id",
+    "consumer": "analysis.algorithms、legacy_curves、curves 的拟合和反算",
+    "verification": "test_s17_quality_curves.py::test_s17_four_fits_coordinates_and_failure_boundaries",
+    "conditions": "不足标准点、重复强度、非法对数等输入被拒绝。"
+  },
+  {
+    "id": "3.2.1-7",
+    "requirement": "方法条件及谱线参数打印",
+    "status": "已覆盖",
+    "entry": "方法 → 预览与打印",
+    "saved_data": "完整方法版本、打印设置、打印作业",
+    "consumer": "method_printing.document/rendering、Windows 打印边界",
+    "verification": "test_method_printing.py；test_windows_printing.py",
+    "conditions": "已核实际 PDF 和软件打印边界；实体纸面质量排除。"
+  },
+  {
+    "id": "3.2.2-1",
+    "requirement": "短波优先关键波段优先及电弧峰位异常处理",
+    "status": "部分覆盖",
+    "entry": "自动转角与异常闭环",
+    "saved_data": "hardware_tasks/steps、观测、决定、原始帧、区间结果",
+    "consumer": "hardware_acquisition.rules/service；正式分析目前只读 acquisition_samples",
+    "verification": "test_s14_hardware_acquisition.py；test_contract_closure.py；本轮 service-probe.json",
+    "conditions": "排序、实测窗口异常、重试/校正/人工处置可模拟验证；自动转角结果未进入正式样品和分析，见 A01。"
+  },
+  {
+    "id": "3.2.2-2",
+    "requirement": "色散蒸发样品采集及后续分析",
+    "status": "已覆盖",
+    "entry": "三类摄谱共用工作台；色散制作；谱图/后处理；定量分析",
+    "saved_data": "dispersion_task_frames、acquisition_tasks/samples、色散和分析快照",
+    "consumer": "色散定位拟合绑定、蒸发全时/区间转换、普通样品分析",
+    "verification": "test_s12_dispersion.py；test_s13_acquisition.py；test_s18_postprocessing.py",
+    "conditions": "三类采集按各自结果工作；不据此宣称 A01 已闭环。"
+  },
+  {
+    "id": "3.2.2-3",
+    "requirement": "多个样品谱图同时查看对比",
+    "status": "已覆盖",
+    "entry": "谱图查看 → 多选叠加",
+    "saved_data": "来源记录及所选谱带",
+    "consumer": "SpectrumPlot 多曲线；spectrum_viewer 取真实谱带",
+    "verification": "test_s10_spectrum_viewer.py；本轮浏览器入口检查",
+    "conditions": "同坐标叠加与点值读取已有；代表性回归不能证明每个旧键盘分支等价。"
+  },
+  {
+    "id": "3.2.2-4",
+    "requirement": "定位分析线和任意信号点并横纵缩放",
+    "status": "已覆盖",
+    "entry": "谱图查看；分析 → 原始结果 → 完整谱图",
+    "saved_data": "CCD/波长/点位和窗口选择",
+    "consumer": "spectrum_viewer、AnalysisSpectrum、SpectrumPlot",
+    "verification": "test_s10_spectrum_viewer.py；test_contract_closure.py::test_analysis_full_spectrum_integrity_and_membership",
+    "conditions": "任意点来自对应 CCD 原数据；损坏/越界/不属于运行的来源被拒绝。"
+  },
+  {
+    "id": "3.2.2-5",
+    "requirement": "摄谱即时显示测量结果",
+    "status": "已覆盖",
+    "entry": "样品摄谱 → 即时测量",
+    "saved_data": "任务当前帧和绑定方法/已发布曲线",
+    "consumer": "analysis.measurement 复用正式寻峰及曲线公式",
+    "verification": "test_contract_additions.py::test_measurement_matches_formal_algorithms_and_curve_version；test_measurement_concentration_uses_published_curve",
+    "conditions": "没有有效已发布曲线时显示强度/峰位，不能凭空显示最终浓度。"
+  },
+  {
+    "id": "3.2.2-6",
+    "requirement": "能量不足时及时删除样品",
+    "status": "已覆盖",
+    "entry": "摄谱控制 → 删除当前样品",
+    "saved_data": "acquisition_sample_disposals、停止状态和原因",
+    "consumer": "采集立即停止；新谱图/分析来源排除；原始证据保留",
+    "verification": "test_contract_additions.py::test_discard_during_capture_preserves_frames_and_cannot_resume；test_discard_completed_sample_blocks_new_analysis_and_releases_queue",
+    "conditions": "安全作废而非物理抹除；已参与分析的样品按保护规则拒绝删除。"
+  },
+  {
+    "id": "3.2.2-7",
+    "requirement": "前后命名12或20位并按列排列",
+    "status": "部分覆盖",
+    "entry": "样号与样品队列；摄谱后命名",
+    "saved_data": "name_length、pre_name、post_name、样品名称",
+    "consumer": "sample_queues、acquisition.rename；前端固定表格",
+    "verification": "test_contract_additions.py::test_number_modes_and_linked_rename；本轮 browser-audit.json 与截图",
+    "conditions": "12/20 位持久、拒绝截断和后命名已实现；20 位按列排列未实现，见 A02。"
+  },
+  {
+    "id": "3.2.2-8",
+    "requirement": "慢进查看峰位周边谱图及人工干预",
+    "status": "已覆盖",
+    "entry": "定量分析与慢进",
+    "saved_data": "slow_mode、检查点、人工定位、最终 line_results",
+    "consumer": "analysis.service 的暂停/调整/继续/取消及候选固化",
+    "verification": "test_s16_analysis.py::test_s16_slow_checkpoint_adjust_continue_cancel_and_timeout",
+    "conditions": "人工调整限于允许扫描窗口，超时和取消有收尾。"
+  },
+  {
+    "id": "3.2.2-9",
+    "requirement": "重复性误差自动识别预警",
+    "status": "已覆盖",
+    "entry": "重复性质控",
+    "saved_data": "QC 快照、RSD/ID 阈值、接受/剔除决定",
+    "consumer": "analysis.quality；曲线和报告准入",
+    "verification": "test_s17_quality_curves.py::test_s17_repeat_statistics_boundaries；test_s17_quality_adjust_fit_publish_merge_and_print_replay",
+    "conditions": "预警、人工决定和重算可追溯；未通过 QC 不得直接出正式报告。"
+  },
+  {
+    "id": "3.2.2-10",
+    "requirement": "切换拟合方式按管理样调整并保存标准强度",
+    "status": "已覆盖",
+    "entry": "标准曲线 → 标准点/管理样适配",
+    "saved_data": "original/adjusted_intensity、control_adaptations、新曲线版本",
+    "consumer": "control_adaptation、curves 的适配拟合发布及回算",
+    "verification": "test_contract_closure.py::test_management_adaptation_math；test_management_adaptation_service_persists_new_version",
+    "conditions": "新版本保留原强度和旧曲线；多解或无解拒绝适配。"
+  },
+  {
+    "id": "3.2.2-11",
+    "requirement": "不保存正常样品谱的调试及汞灯调试",
+    "status": "已覆盖",
+    "entry": "设备调试对中；汞灯校准",
+    "saved_data": "调试会话、汞灯校准帧/版本及安全状态",
+    "consumer": "devices 调试；mercury_calibration 的模拟校准与回退",
+    "verification": "test_s11_devices.py::test_s11_api_debug_is_audited_and_does_not_create_records；test_s15_mercury_calibration.py",
+    "conditions": "这里只判定模拟软件流程；实际电弧和汞灯命令/光学校准仍属外部验收。"
+  },
+  {
+    "id": "3.2.3-1",
+    "requirement": "保存打印强度计算数据对应曲线并调取重算",
+    "status": "已覆盖",
+    "entry": "分析强度输出；标准曲线打印；后处理重算；报告",
+    "saved_data": "input_sha256、方法版本、原始/修正强度、curve_snapshot_id、报告 model",
+    "consumer": "analysis.intensity_output/report_inputs、postprocessing.recalculation、reports",
+    "verification": "test_s18_postprocessing.py；test_s19_reports.py；本轮 output-probe.json",
+    "conditions": "强度表、曲线图及报告分入口输出；历史 DAT 未带原强度/曲线时不会补造缺失数据。"
+  },
+  {
+    "id": "3.2.3-2",
+    "requirement": "多类型报告显示与打印",
+    "status": "已覆盖",
+    "entry": "报告预览与输出 → 模板/版式",
+    "saved_data": "不可变报告 model、table_layout、arrangement、打印设置",
+    "consumer": "reports.rendering 的标准矩阵、转置、明细和分页",
+    "verification": "test_s19_reports.py；test_legacy_fourteen_closure.py::test_standard_and_exchange_are_real_matrices_without_losing_detail_format；本轮 output-probe.json",
+    "conditions": "A3/字号/分页已实测；现有过期测试断言仍需维护。"
+  },
+  {
+    "id": "3.2.3-3",
+    "requirement": "预览报告导出Excel和PDF",
+    "status": "已覆盖",
+    "entry": "报告 → 预览/Excel/PDF",
+    "saved_data": "报告版本、导出文件及哈希",
+    "consumer": "reports.rendering/service 编码与受控输出",
+    "verification": "test_s19_reports.py::test_report_model_and_outputs_are_consistent；test_s18_postprocessing.py::test_export_formats_have_stable_columns_and_atomic_same_name",
+    "conditions": "Excel 为可读取的 XML .xls；不宣称原生 .xlsx 或所有 Office 版本兼容。"
+  },
+  {
+    "id": "3.2.4",
+    "requirement": "用户角色及分级权限",
+    "status": "已覆盖",
+    "entry": "系统管理 → 用户与权限",
+    "saved_data": "users/roles/permissions、会话与审计",
+    "consumer": "后端 require_permission；前端入口和操作限制",
+    "verification": "test_auth.py；test_auth_transactions.py；最新 users-roles 交付记录",
+    "conditions": "管理员、方法管理员、分析员、只读审计员；权限在后端验证。"
+  }
+]

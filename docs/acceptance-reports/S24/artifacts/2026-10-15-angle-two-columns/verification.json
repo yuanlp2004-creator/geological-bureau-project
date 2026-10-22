@@ -1,0 +1,167 @@
+{
+  "status": "passed",
+  "date": "2026-10-15",
+  "plan_snapshot_sha256": "BD936F5A7EBB154224EA276DA007E5025C453025627ACC712437BE2339BFF32D",
+  "product_changed_files": [
+    "app/frontend/src/pages/methods/MethodAngles.tsx",
+    "app/frontend/src/pages/methods/methods.css"
+  ],
+  "test_adaptation": "existing row locator changed to the named angle group",
+  "layouts": [
+    {
+      "theme": "light",
+      "viewport": 1440,
+      "grid": {
+        "x": 295,
+        "y": 542.4140625,
+        "width": 1081,
+        "height": 76.1484375,
+        "right": 1376
+      },
+      "columns": "528.5px 528.5px",
+      "entries": [
+        {
+          "x": 295,
+          "y": 542.4140625,
+          "width": 528.5,
+          "height": 76.1484375,
+          "right": 823.5,
+          "input": {
+            "x": 333,
+            "y": 569.5625,
+            "width": 166,
+            "height": 36,
+            "right": 499
+          },
+          "select": {
+            "x": 509,
+            "y": 569.5625,
+            "width": 268.5,
+            "height": 36,
+            "right": 777.5
+          },
+          "fits": true
+        },
+        {
+          "x": 847.5,
+          "y": 542.4140625,
+          "width": 528.5,
+          "height": 76.1484375,
+          "right": 1376,
+          "input": {
+            "x": 885.5,
+            "y": 569.5625,
+            "width": 166,
+            "height": 36,
+            "right": 1051.5
+          },
+          "select": {
+            "x": 1061.5,
+            "y": 569.5625,
+            "width": 268.5,
+            "height": 36,
+            "right": 1330
+          },
+          "fits": true
+        }
+      ]
+    },
+    {
+      "theme": "dark",
+      "viewport": 1060,
+      "grid": {
+        "x": 252,
+        "y": 513.8515625,
+        "width": 771,
+        "height": 72.1484375,
+        "right": 1023
+      },
+      "columns": "373.5px 373.5px",
+      "entries": [
+        {
+          "x": 252,
+          "y": 513.8515625,
+          "width": 373.5,
+          "height": 72.1484375,
+          "right": 625.5,
+          "input": {
+            "x": 290,
+            "y": 541,
+            "width": 166,
+            "height": 32,
+            "right": 456
+          },
+          "select": {
+            "x": 466,
+            "y": 541,
+            "width": 113.5,
+            "height": 32,
+            "right": 579.5
+          },
+          "fits": true
+        },
+        {
+          "x": 649.5,
+          "y": 513.8515625,
+          "width": 373.5,
+          "height": 72.1484375,
+          "right": 1023,
+          "input": {
+            "x": 687.5,
+            "y": 541,
+            "width": 166,
+            "height": 32,
+            "right": 853.5
+          },
+          "select": {
+            "x": 863.5,
+            "y": 541,
+            "width": 113.5,
+            "height": 32,
+            "right": 977
+          },
+          "fits": true
+        }
+      ]
+    }
+  ],
+  "odd_item_layout": [
+    {
+      "x": 295,
+      "y": 732.9140625,
+      "width": 528.5,
+      "height": 76.1484375
+    },
+    {
+      "x": 847.5,
+      "y": 732.9140625,
+      "width": 528.5,
+      "height": 76.1484375
+    },
+    {
+      "x": 295,
+      "y": 823.0625,
+      "width": 528.5,
+      "height": 76.1484375
+    }
+  ],
+  "browser_checks": 14,
+  "actual_desktop_groups": 9,
+  "method_save_and_invalid_input_verified": true,
+  "exposure_logic_changed": false,
+  "backend_changed": false,
+  "same_frontend_resources": true,
+  "qa_closed_normally": true,
+  "qa_owned_processes_remaining": [],
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "current_executables": {
+    "GeoSpectrum.exe": "189CF83C49D512143872EAF2269BAA73390060070990391CDB78606D6BD2E644",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "previous_executables": {
+    "GeoSpectrum.exe": "05222093E5018C383C71AA85FF079B16FF336C0959D3CA405C41CDCB84462A0D",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-15-angle-two-columns\\previous"
+}

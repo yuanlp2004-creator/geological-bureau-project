@@ -1,0 +1,80 @@
+/* The status row and shortcuts share the top of every embedded workspace. */
+:root .app-shell {
+  --workspace-header-height: 96px;
+}
+:root[data-density='compact'] .app-shell {
+  --workspace-header-height: 92px;
+}
+:root .app-shell .topbar {
+  height: 52px;
+}
+:root[data-density='compact'] .app-shell .topbar {
+  height: 48px;
+}
+.app-shell .topbar .workspace-method {
+  min-width: 0;
+  max-width: clamp(160px, 23vw, 320px);
+}
+.app-shell .topbar .workspace-method strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quick-access-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 4px 26px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  overflow-x: auto;
+}
+.quick-access-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 2px;
+}
+.quick-access-group + .quick-access-group {
+  border-left: 1px solid var(--line);
+  padding-left: 10px;
+}
+:root .app-shell .quick-access-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 36px;
+  height: 34px;
+  padding: 4px 5px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.quick-access-button img {
+  flex: 0 0 20px;
+  image-rendering: auto;
+}
+:root .app-shell .quick-access-button:not(:disabled):hover,
+:root .app-shell .quick-access-button[aria-current='page'] {
+  color: var(--blue);
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--blue) 9%, var(--surface));
+}
+:root .app-shell .quick-access-button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+:root .app-shell .quick-access-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+@media (max-width: 1150px) {
+  .quick-access-bar { padding-inline: 16px; gap: 6px; }
+  .quick-access-group + .quick-access-group { padding-left: 6px; }
+}
+

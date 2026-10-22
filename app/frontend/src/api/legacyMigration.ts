@@ -50,9 +50,29 @@ export type LegacyMigrationRun = {
 }
 
 export const legacyMigrationApi = {
-  legacyMigrationDiagnostics: (token: string) => request<LegacyMigrationDiagnostic>('/api/v1/legacy-migration/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
-  legacyMigrationRuns: (token: string) => request<{ runs: LegacyMigrationRun[] }>('/api/v1/legacy-migration/runs', { headers: { Authorization: `Bearer ${token}` } }),
-  stageLegacyMigration: (token: string, payload: { mtd_path: string; cfg_path: string; opt_path: string }) => request<LegacyMigrationRun>('/api/v1/legacy-migration/stage', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  commitLegacyMigration: (token: string, runId: string) => request<LegacyMigrationRun>('/api/v1/legacy-migration/commit', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ run_id: runId }) }),
-  legacyMigrationRun: (token: string, runId: string) => request<LegacyMigrationRun>(`/api/v1/legacy-migration/runs/${runId}`, { headers: { Authorization: `Bearer ${token}` } }),
+  legacyPreferences: (token: string,runId: string,apply=false) => request<{settings:Record<string,unknown>;excluded:string[];applied:boolean}>(`/api/v1/legacy-migration/runs/${runId}/preferences`,{method:apply?'POST':'GET',headers:{Authorization:`Bearer ${token}`}}),
+  legacyMigrationDiagnostics: (token: string) =>
+    request<LegacyMigrationDiagnostic>('/api/v1/legacy-migration/diagnostics', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  legacyMigrationRuns: (token: string) =>
+    request<{ runs: LegacyMigrationRun[] }>('/api/v1/legacy-migration/runs', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stageLegacyMigration: (token: string, payload: { mtd_path: string; cfg_path: string; opt_path: string }) =>
+    request<LegacyMigrationRun>('/api/v1/legacy-migration/stage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  commitLegacyMigration: (token: string, runId: string) =>
+    request<LegacyMigrationRun>('/api/v1/legacy-migration/commit', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ run_id: runId })
+    }),
+  legacyMigrationRun: (token: string, runId: string) =>
+    request<LegacyMigrationRun>(`/api/v1/legacy-migration/runs/${runId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

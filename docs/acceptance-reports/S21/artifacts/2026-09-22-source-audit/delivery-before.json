@@ -1,0 +1,14 @@
+[
+  {
+    "Path": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+    "Hash": "1E692D3675E81AC1EB7B6E8507886307BC19910CB9D0F2DB0E78A9E3EBA3CF35"
+  },
+  {
+    "Path": "C:\\Users\\Leo\\Desktop\\地质局\\geospectrum-backend.exe",
+    "Hash": "73756F64F12E85E7B63D7A203F3813A854B7A8DBABF967DD59D0E23A9CF4FFF0"
+  },
+  {
+    "Path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "Hash": "1E8EC68C829EDF04329487D6A9AF5ADC17C08972E657749F33D8D76BD1DD85E9"
+  }
+]

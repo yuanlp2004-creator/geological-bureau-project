@@ -91,7 +91,9 @@ def _inspect(path: Path) -> dict[str, Any]:
     except (OSError, sqlite3.DatabaseError) as exc:
         raise UpgradeError(f"database inspection failed: {exc}") from exc
     if integrity != "ok" or foreign_key_errors:
-        raise UpgradeError(f"database verification failed: integrity={integrity}, foreign_key_errors={foreign_key_errors}")
+        raise UpgradeError(
+            f"database verification failed: integrity={integrity}, foreign_key_errors={foreign_key_errors}"
+        )
     return {"integrity": integrity, "foreign_key_errors": foreign_key_errors, "schema_version": schema_version}
 
 
@@ -142,7 +144,10 @@ def prepare_legacy_data_directory(legacy_data_dir: Path, data_dir: Path) -> dict
         with _source_snapshot(source_database) as (snapshot_database, source_hashes):
             source_before = _inspect(snapshot_database)
             source_counts = _table_counts(snapshot_database)
-            with closing(_connect_readonly(snapshot_database)) as source, closing(sqlite3.connect(staged_database)) as replica:
+            with (
+                closing(_connect_readonly(snapshot_database)) as source,
+                closing(sqlite3.connect(staged_database)) as replica,
+            ):
                 source.backup(replica)
                 replica.commit()
         staged_after = _inspect(staged_database)
@@ -202,7 +207,10 @@ def prepare_database_upgrade(database_path: Path) -> dict[str, Any]:
         staged_path = Path(staged_name)
         switched = False
         try:
-            with closing(_connect_readonly(snapshot_database)) as source, closing(sqlite3.connect(backup_path)) as replica:
+            with (
+                closing(_connect_readonly(snapshot_database)) as source,
+                closing(sqlite3.connect(backup_path)) as replica,
+            ):
                 source.backup(replica)
                 replica.commit()
             backup_before = _inspect(backup_path)
@@ -230,7 +238,9 @@ def prepare_database_upgrade(database_path: Path) -> dict[str, Any]:
                 "before": backup_before,
                 "after": after,
             }
-            (data_dir / "last-upgrade.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+            (data_dir / "last-upgrade.json").write_text(
+                json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
             return result
         except Exception:
             if switched and backup_path.exists():

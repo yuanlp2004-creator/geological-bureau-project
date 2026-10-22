@@ -1,0 +1,199 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-module-status",
+  "plan_sha256_at_start": "3ca9477eb104c1af703a4140c4a09594847ed1965fbe7d27f71e4f048202be3b",
+  "product_changes": [
+    "app/backend/api/module_diagnostics.py",
+    "app/backend/api/system.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/offline_help.py",
+    "app/backend/schemas/system.py",
+    "app/frontend/src/api/index.ts",
+    "app/frontend/src/api/system.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "app/frontend/src/pages/maintenance/SystemDiagnostics.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "generated_manifest_updated": true,
+  "build_license_panel_removed": true,
+  "module_count": 18,
+  "backend_tests": 39,
+  "new_module_tests": 10,
+  "browser_checks": 4,
+  "desktop_checks": 4,
+  "layouts_each": 2,
+  "module_checks": [
+    {
+      "key": "core",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/health",
+      "note": ""
+    },
+    {
+      "key": "about-diagnostics",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/about",
+      "note": ""
+    },
+    {
+      "key": "auth",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/auth/me",
+      "note": ""
+    },
+    {
+      "key": "methods",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/methods?limit=1",
+      "note": ""
+    },
+    {
+      "key": "legacy-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/legacy-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "sample-queues",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/sample-queues",
+      "note": ""
+    },
+    {
+      "key": "spectrum-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/spectrum-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "result-migration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/result-migration/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "spectrum-viewer",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/spectra/records?limit=1",
+      "note": ""
+    },
+    {
+      "key": "devices",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/devices/profiles",
+      "note": "只检测设备管理软件；设备连接和通信需另行验证。"
+    },
+    {
+      "key": "dispersion",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/dispersion/tasks?limit=1",
+      "note": ""
+    },
+    {
+      "key": "acquisition",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/acquisitions/tasks?limit=1",
+      "note": ""
+    },
+    {
+      "key": "hardware-acquisition",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/hardware-acquisitions/tasks?limit=1",
+      "note": "只检测软件接口；真实转角协议与硬件仍待验收。"
+    },
+    {
+      "key": "mercury-calibration",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/mercury-calibrations/sessions?limit=1",
+      "note": "只检测软件接口；汞灯与光学系统仍需实机验证。"
+    },
+    {
+      "key": "analysis",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/analyses/runs?limit=1",
+      "note": ""
+    },
+    {
+      "key": "postprocessing",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/postprocessing/recalculations?limit=1",
+      "note": ""
+    },
+    {
+      "key": "reports",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/reports?limit=1",
+      "note": ""
+    },
+    {
+      "key": "maintenance",
+      "status": "active",
+      "http_status": 200,
+      "probe_path": "/api/v1/help/topics",
+      "note": ""
+    }
+  ],
+  "checked_at": "2026-10-22T13:00:00.283121Z",
+  "actual_detector_faults_tested": [
+    "missing API registration",
+    "missing table",
+    "service error",
+    "invalid response",
+    "disabled dependency",
+    "no probe",
+    "insufficient permissions",
+    "invalid manifest",
+    "timeout"
+  ],
+  "diagnostics_reuses_current_session_and_process_key": true,
+  "internal_asgi_only_no_external_requests": true,
+  "parallel_probe_limit": 4,
+  "probe_timeout_seconds": 3,
+  "diagnostic_database_writes_rejected_in_test": true,
+  "ui_five_status_presentations_verified": true,
+  "ui_failure_clears_stale_results": true,
+  "hardware_acceptance_separate": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-module-status\\qa\\GeoSpectrum.exe",
+    "pid": 31956,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "schema_version": 23,
+  "new_schema_migrations": false,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "d3b91f4a24d593552cc1da7492b1784caf950da01ecc1bf0608ec1c5731d0f0f",
+    "geospectrum-backend.exe": "04815300a0ab8156b5042f6cd9587af37b89788ef6d3fdd578c0354cc07956fb"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-module-status\\previous",
+  "installer_rebuilt": false
+}

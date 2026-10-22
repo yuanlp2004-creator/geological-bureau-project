@@ -1,0 +1,230 @@
+{
+  "status": "passed",
+  "checks": [
+    "报告页初始无自动来源、无候选和全选控件，未打开数据不能建立",
+    "样品分析打开的批次自动带入，建立请求仅含该运行一个ID",
+    "打开DAT无单位填写框可直接建立，270行原值保持空单位且预览如实说明",
+    "打开另一文件替换当前来源并清空旧详情；取消和失败保留来源与草稿",
+    "页签往返保持当前文件；打开未完成批次会替换来源并阻止建立报告",
+    "宽/窄实际布局无横向越界，只有当前文件摘要及报告设置",
+    "逐个选择并预览全部真实已有报告，含DAT空波长/无方法字段",
+    "慢加载清空旧报告并禁用输出，快速切换时旧响应不能覆盖新选择",
+    "详情失败保留工作区和选择、禁用输出，重试恢复",
+    "已有DAT与分析报告的Excel/PDF按钮均输出正确报告内容；保存边界隔离",
+    "切换报告取消过期预览，往返强度页保持当前报告",
+    "新建、确认、刷新后重选并预览新报告保持正常；只写隔离库"
+  ],
+  "errors": [],
+  "list_reports": [
+    {
+      "id": 9,
+      "report_number": "QA-SELECT-1792395076724"
+    },
+    {
+      "id": 8,
+      "report_number": "QA-CURRENT-DAT-1792395072192"
+    },
+    {
+      "id": 7,
+      "report_number": "QA-CURRENT-ANALYSIS-1792395071902"
+    },
+    {
+      "id": 6,
+      "report_number": "QA-CURRENT-DAT-1792395033256"
+    },
+    {
+      "id": 5,
+      "report_number": "QA-CURRENT-ANALYSIS-1792395032940"
+    },
+    {
+      "id": 4,
+      "report_number": "旧数据测试-DAT原值-单位未记录"
+    },
+    {
+      "id": 3,
+      "report_number": "旧数据测试-04-CMT"
+    },
+    {
+      "id": 2,
+      "report_number": "旧数据测试-02-CMT"
+    },
+    {
+      "id": 1,
+      "report_number": "旧数据测试-01-CMT"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 312.8125,
+      "doc": 1440,
+      "controls": [
+        {
+          "left": 295,
+          "right": 649.65625
+        },
+        {
+          "left": 665.65625,
+          "right": 1020.328125
+        },
+        {
+          "left": 1036.328125,
+          "right": 1390.984375
+        },
+        {
+          "left": 295,
+          "right": 465.125
+        },
+        {
+          "left": 469.125,
+          "right": 639.25
+        },
+        {
+          "left": 655.25,
+          "right": 942.125
+        },
+        {
+          "left": 958.125,
+          "right": 1245
+        },
+        {
+          "left": 1261,
+          "right": 1391
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 364.8125,
+      "doc": 1060,
+      "controls": [
+        {
+          "left": 252,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 252,
+          "right": 373.15625
+        },
+        {
+          "left": 377.15625,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 892.984375,
+          "right": 1022.984375
+        }
+      ]
+    }
+  ],
+  "selected_reports": [
+    {
+      "id": 11,
+      "number": "QA-CURRENT-DAT-1792395230777",
+      "rows": 270,
+      "kind": "legacy_dat"
+    },
+    {
+      "id": 10,
+      "number": "QA-CURRENT-ANALYSIS-1792395230438",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 9,
+      "number": "QA-SELECT-1792395076724",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 8,
+      "number": "QA-CURRENT-DAT-1792395072192",
+      "rows": 270,
+      "kind": "legacy_dat"
+    },
+    {
+      "id": 7,
+      "number": "QA-CURRENT-ANALYSIS-1792395071902",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 6,
+      "number": "QA-CURRENT-DAT-1792395033256",
+      "rows": 270,
+      "kind": "legacy_dat"
+    },
+    {
+      "id": 5,
+      "number": "QA-CURRENT-ANALYSIS-1792395032940",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 4,
+      "number": "旧数据测试-DAT原值-单位未记录",
+      "rows": 270,
+      "kind": "legacy_dat"
+    },
+    {
+      "id": 3,
+      "number": "旧数据测试-04-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 2,
+      "number": "旧数据测试-02-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    },
+    {
+      "id": 1,
+      "number": "旧数据测试-01-CMT",
+      "rows": 9,
+      "kind": "analysis"
+    }
+  ],
+  "exports": [
+    {
+      "report_id": 11,
+      "format": "Excel",
+      "byte_length": 18392,
+      "unit": ""
+    },
+    {
+      "report_id": 11,
+      "format": "PDF",
+      "byte_length": 12142,
+      "unit": ""
+    },
+    {
+      "report_id": 9,
+      "format": "Excel",
+      "byte_length": 1125,
+      "unit": "ug/g"
+    },
+    {
+      "report_id": 9,
+      "format": "PDF",
+      "byte_length": 3236,
+      "unit": "ug/g"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "root_matches_final_build": true,
+  "installer_matches_final_bundle": true,
+  "user_database_unchanged": true,
+  "verified_legacy_originals_unchanged": true,
+  "root_and_app_entries_unchanged": true,
+  "tools_tests": {
+    "passed": 11,
+    "seconds": 4.46
+  },
+  "delivery_files": [
+    {
+      "path": "GeoSpectrum.exe",
+      "sha256": "FAB17115E49D1418B524588A88FCB943A0F702465180BD381717E1217D8E628C",
+      "bytes": 11773952
+    },
+    {
+      "path": "geospectrum-backend.exe",
+      "sha256": "E3D9839978E7F119800150DBFCBA1F32296E5F585D07B49816B14AFA5CF1BB0C",
+      "bytes": 52191902
+    },
+    {
+      "path": "app\\.local\\releases\\2026-09-22-fixes\\GeoSpectrum_0.1.0_x64-setup.exe",
+      "sha256": "D31B8931A998329816D5FA2713DE0BBBA7918BDDEABED2107310610325370A64",
+      "bytes": 270431939
+    }
+  ],
+  "rollback_directory": "app/.local/releases/2026-09-22-before-fixes",
+  "external_gates": "user confirmed inputs unavailable; hardware, physical calibration, signing and clean Windows acceptance remain pending",
+  "desktop_smoke": "delivery-desktop.json",
+  "natural_window_exit": "delivery-exit.json",
+  "sidecar_verification": "delivery-sidecar.json",
+  "signing": "unsigned internal-test only"
+}

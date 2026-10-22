@@ -1,0 +1,173 @@
+{
+  "date": "2026-10-07",
+  "scope": "Backport contract software functionality while preserving the geology frontend design; separate EXE delivery",
+  "plan_sha256_before": "183b51dfe964792f52ead62d612b34833f987169d91ca42308c6f1a1669de738",
+  "plan_sha256_after": "20a1a597cf2b1e89d827940b3ade0d1f0bab71d8f6399c26b0d1000e53902075",
+  "backup": "C:\\Users\\Leo\\Documents\\Codex\\backups\\geology-contract-sync-20261007.zip",
+  "backend": {
+    "passed": 257,
+    "failed": 0
+  },
+  "contract_backend_cases": 27,
+  "frontend_units": {
+    "passed": 8
+  },
+  "frontend_build": "passed",
+  "browser_contract_groups": 8,
+  "existing_browser_checks": 23,
+  "sidecar": {
+    "sidecar_bytes": 25049859,
+    "health_status": "ok",
+    "schema_version": 23,
+    "running_before_stop": true,
+    "clean_exit": true,
+    "process_returncode": 1,
+    "remaining_sidecar_pids": [],
+    "business": {
+      "profile_connected": true,
+      "start_ccd_count": 5,
+      "step_frame_index": 1,
+      "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+      "stopped_state": "connected",
+      "legacy_reader_attempts": [
+        "windows-powershell-x86"
+      ]
+    },
+    "error": null
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "packaged EXE bootstrap, login and process-key handshake at schema v23",
+      "20位样号持久、保留原表格设计，12位切换拒绝截断",
+      "摄谱未完成时的真实强度与峰位即时上屏",
+      "在途连续采集删除等待收尾，停止并移除异常样品",
+      "20位采集后命名与谱带哈希保持",
+      "方法逐转角区间实际进入样品谱带，平均与全区间混合保存",
+      "分析页任意 CCD 点值读取及独立横纵缩放",
+      "管理样采集、质控、页面适配、留存修正及新曲线发布回算",
+      "自动转角完整方法计划与逐帧区间结果确认",
+      "no WebView script errors"
+    ],
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 23,
+      "database": "ok",
+      "uptime_seconds": 1.031
+    }
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-contract-sync\\GeoSpectrum-合同补齐版.exe",
+    "pid": 26260,
+    "main_windows_closed": 1,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "delivery": {
+    "schema_version": 23,
+    "identifier": "cn.geospectrum.desktop.contract20261007",
+    "channel": "internal-test",
+    "original_exes_overwritten": false,
+    "front_end_design": "existing design preserved; all 16 CSS files unchanged",
+    "files": [
+      {
+        "name": "geospectrum-backend.exe",
+        "bytes": 25049859,
+        "sha256": "1d002e1bfa8407e9a331ad4f4dd83d170d0a96b2d1498c782b45363296feaf82"
+      },
+      {
+        "name": "GeoSpectrum-合同补齐版.exe",
+        "bytes": 11779584,
+        "sha256": "0e14e4448b321bbb7b69496d2b00afa4962d1d9d21aa3196afe83997304bc437"
+      }
+    ]
+  },
+  "preservation": {
+    "original_exe_hashes": [
+      {
+        "Path": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+        "Hash": "FAB17115E49D1418B524588A88FCB943A0F702465180BD381717E1217D8E628C"
+      },
+      {
+        "Path": "C:\\Users\\Leo\\Desktop\\地质局\\geospectrum-backend.exe",
+        "Hash": "E3D9839978E7F119800150DBFCBA1F32296E5F585D07B49816B14AFA5CF1BB0C"
+      }
+    ],
+    "all_original_css_unchanged": 16,
+    "all_old_migration_files_unchanged": 14,
+    "root_and_app_entry_names_unchanged": true,
+    "files_deleted": [],
+    "unrelated_original_files_unchanged": true
+  },
+  "changed_files": [
+    "PLAN.md",
+    "app/backend/api/acquisition.py",
+    "app/backend/api/analysis.py",
+    "app/backend/api/sample_queues.py",
+    "app/backend/api/system.py",
+    "app/backend/migrations/__init__.py",
+    "app/backend/modules/acquisition/repository.py",
+    "app/backend/modules/acquisition/service.py",
+    "app/backend/modules/analysis/curves.py",
+    "app/backend/modules/analysis/inputs.py",
+    "app/backend/modules/analysis/quality.py",
+    "app/backend/modules/analysis/repository.py",
+    "app/backend/modules/analysis/service.py",
+    "app/backend/modules/hardware_acquisition/adapters.py",
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/modules/hardware_acquisition/service.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/methods/geometry.py",
+    "app/backend/modules/sample_queues.py",
+    "app/backend/schemas/acquisition.py",
+    "app/backend/schemas/analysis.py",
+    "app/backend/schemas/hardware_acquisition.py",
+    "app/backend/schemas/sample_queues.py",
+    "app/frontend/src/api/acquisition.ts",
+    "app/frontend/src/api/analysis.ts",
+    "app/frontend/src/api/hardwareAcquisition.ts",
+    "app/frontend/src/api/sampleQueues.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPlan.tsx",
+    "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "app/manifest.generated.json"
+  ],
+  "new_files": [
+    "app/backend/migrations/v22_contract_samples.py",
+    "app/backend/migrations/v23_contract_closure.py",
+    "app/backend/modules/analysis/control_adaptation.py",
+    "app/backend/modules/analysis/measurement.py",
+    "app/backend/modules/hardware_acquisition/exposures.py",
+    "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "app/tests/contract_additions_workflow.mjs",
+    "app/tests/contract_browser_support.mjs",
+    "app/tests/contract_sync_support.py",
+    "app/tests/fixtures/station17-line.json",
+    "app/tests/frontend_contract_additions_browser.mjs",
+    "app/tests/test_contract_additions.py",
+    "app/tests/test_contract_closure.py",
+    "docs/acceptance-reports/S21/artifacts/2026-10-07-contract-sync/closure-analysis-spectrum.png",
+    "docs/acceptance-reports/S21/artifacts/2026-10-07-contract-sync/closure-management-adaptation.png"
+  ],
+  "external_gates": [
+    "real turn-angle and mercury protocols",
+    "real hardware",
+    "code signing",
+    "clean Windows installation and upgrade",
+    "physical printing",
+    "formal contract acceptance"
+  ],
+  "desktop_harness_recheck": "2026-10-07: restrict native window hiding and closing to the main window; internal Tauri event-target flags preserved. Complete business regression and normal shutdown passed again."
+}

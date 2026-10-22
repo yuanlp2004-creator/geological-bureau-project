@@ -42,17 +42,66 @@ def seed_database(path: Path) -> Database:
         "band_count": 3,
         "sample_names": ["S1", "S2", "S3"],
         "sample_reps": [1, 1, 1],
-        "sample_rows": [{"expanded_index": index, "sample_index": index, "repeat_index": 1, "name": f"S{index + 1}"} for index in range(3)],
-        "lines": [{"index": 0, "element": "Cu", "wavelength_nm": None, "back": None, "digits": 2}, {"index": 1, "element": "Fe", "wavelength_nm": None, "back": None, "digits": 2}],
+        "sample_rows": [
+            {"expanded_index": index, "sample_index": index, "repeat_index": 1, "name": f"S{index + 1}"}
+            for index in range(3)
+        ],
+        "lines": [
+            {"index": 0, "element": "Cu", "wavelength_nm": None, "back": None, "digits": 2},
+            {"index": 1, "element": "Fe", "wavelength_nm": None, "back": None, "digits": 2},
+        ],
         "matrix_kind": "value",
         "matrix_order": "line-major, expanded-sample-minor",
     }
     result_matrix = struct.pack("<6f", 1, 2, 3, 4, 5, 6)
     with database.write() as db:
-        db.execute("INSERT INTO spectrum_migration_runs(id, fingerprint, format, status, source_json, reader_json, staging_json, report_json, created_at, updated_at) VALUES ('srun', 'sfingerprint', 'cdt', 'committed', '{}', '{}', '{}', '{}', ?, ?)", (now, now))
-        db.execute("INSERT INTO spectrum_bands(import_run_id, source_sha256, record_index, format, band_id, sample_no, sample_name, band_name, long_name, measure_time, real_ref_step, frame_count, ccds_per_frame, points_per_ccd, ccd_count, ccd_indices_json, layout_json, ignition_json, bad_frame_indices_json, mean_blob, burn_adcs_blob, dark_adcs_blob, mean_sha256, burn_sha256, dark_sha256, sampled_values_json, details_json) VALUES ('srun', 'sfingerprint', 0, 'cdt', 7, 1, 'Raw sample', 'Cu band', '', ?, 0, 3, 2, 8, 2, ?, ?, ?, '[]', ?, ?, ?, '', '', '', '{}', ?)", (now, json.dumps([0, 1]), json.dumps(layout), json.dumps(ignition), mean, burn, dark, json.dumps({"angle_deg": 15.0})))
-        db.execute("INSERT INTO result_migration_runs(id, fingerprint, format, status, source_json, parser_json, staging_json, report_json, created_at, updated_at) VALUES ('rrun', 'rfingerprint', 'dat', 'committed', '{}', '{}', '{}', '{}', ?, ?)", (now, now))
-        db.execute("INSERT INTO result_matrices(import_run_id, source_sha256, record_index, format, payload_json, matrix_blob, matrix_sha256) VALUES ('rrun', 'rfingerprint', 0, 'dat', ?, ?, '')", (json.dumps(result_payload), result_matrix))
+        db.execute(
+            (
+                "INSERT INTO spectrum_migration_runs(id, fingerprint, format, status, "
+                "source_json, reader_json, staging_json, report_json, created_at, updated_at) "
+                "VALUES ('srun', 'sfingerprint', 'cdt', 'committed', '{}', '{}', '{}', '{}', ?, "
+                "?)"
+            ),
+            (now, now),
+        )
+        db.execute(
+            (
+                "INSERT INTO spectrum_bands(import_run_id, source_sha256, record_index, format, "
+                "band_id, sample_no, sample_name, band_name, long_name, measure_time, "
+                "real_ref_step, frame_count, ccds_per_frame, points_per_ccd, ccd_count, "
+                "ccd_indices_json, layout_json, ignition_json, bad_frame_indices_json, "
+                "mean_blob, burn_adcs_blob, dark_adcs_blob, mean_sha256, burn_sha256, "
+                "dark_sha256, sampled_values_json, details_json) VALUES ('srun', 'sfingerprint', "
+                "0, 'cdt', 7, 1, 'Raw sample', 'Cu band', '', ?, 0, 3, 2, 8, 2, ?, ?, ?, '[]', "
+                "?, ?, ?, '', '', '', '{}', ?)"
+            ),
+            (
+                now,
+                json.dumps([0, 1]),
+                json.dumps(layout),
+                json.dumps(ignition),
+                mean,
+                burn,
+                dark,
+                json.dumps({"angle_deg": 15.0}),
+            ),
+        )
+        db.execute(
+            (
+                "INSERT INTO result_migration_runs(id, fingerprint, format, status, source_json, "
+                "parser_json, staging_json, report_json, created_at, updated_at) VALUES ('rrun', "
+                "'rfingerprint', 'dat', 'committed', '{}', '{}', '{}', '{}', ?, ?)"
+            ),
+            (now, now),
+        )
+        db.execute(
+            (
+                "INSERT INTO result_matrices(import_run_id, source_sha256, record_index, format, "
+                "payload_json, matrix_blob, matrix_sha256) VALUES ('rrun', 'rfingerprint', 0, "
+                "'dat', ?, ?, '')"
+            ),
+            (json.dumps(result_payload), result_matrix),
+        )
     return database
 
 
@@ -109,10 +158,36 @@ def test_s10_angle_filter_exposure_interval_and_visible_csv_are_exact(tmp_path: 
 def test_s10_full_six_ccd_first_view_is_not_sampled(tmp_path: Path) -> None:
     database = seed_database(tmp_path / "large.sqlite3")
     now = utc_now()
-    layout = {"frame_count": 3, "ccds_per_frame": 2, "points_per_ccd": 2048, "ccd_count": 6, "ccd_indices": [0, 1, 2, 3, 4, 5], "gap_points": [2.0] * 5, "ws_cof": [0.001, 1.0, 0.1, 0.1, 0.0, 100.0], "endianness": "little"}
+    layout = {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "ccd_count": 6,
+        "ccd_indices": [0, 1, 2, 3, 4, 5],
+        "gap_points": [2.0] * 5,
+        "ws_cof": [0.001, 1.0, 0.1, 0.1, 0.0, 100.0],
+        "endianness": "little",
+    }
     mean = struct.pack("<" + "f" * (6 * 2048), *[float(index % 4096) for index in range(6 * 2048)])
     with database.write() as db:
-        db.execute("INSERT INTO spectrum_bands(import_run_id, source_sha256, record_index, format, band_id, sample_no, sample_name, band_name, long_name, measure_time, real_ref_step, frame_count, ccds_per_frame, points_per_ccd, ccd_count, ccd_indices_json, layout_json, ignition_json, bad_frame_indices_json, mean_blob, sampled_values_json, details_json) VALUES ('srun', 'large', 1, 'cdt', 8, 1, 'Large', 'Large', '', ?, 0, 3, 2, 2048, 6, ?, ?, ?, '[]', ?, '{}', '{}')", (now, json.dumps(layout["ccd_indices"]), json.dumps(layout), json.dumps({"burn_count": 0, "dark_count": 0}), mean))
+        db.execute(
+            (
+                "INSERT INTO spectrum_bands(import_run_id, source_sha256, record_index, format, "
+                "band_id, sample_no, sample_name, band_name, long_name, measure_time, "
+                "real_ref_step, frame_count, ccds_per_frame, points_per_ccd, ccd_count, "
+                "ccd_indices_json, layout_json, ignition_json, bad_frame_indices_json, "
+                "mean_blob, sampled_values_json, details_json) VALUES ('srun', 'large', 1, "
+                "'cdt', 8, 1, 'Large', 'Large', '', ?, 0, 3, 2, 2048, 6, ?, ?, ?, '[]', ?, '{}', "
+                "'{}')"
+            ),
+            (
+                now,
+                json.dumps(layout["ccd_indices"]),
+                json.dumps(layout),
+                json.dumps({"burn_count": 0, "dark_count": 0}),
+                mean,
+            ),
+        )
     started = time.perf_counter()
     view = SpectrumViewerService(database).get("raw:2", ccd=5)
     elapsed = time.perf_counter() - started
@@ -132,8 +207,15 @@ def test_s10_api_audits_view_export_and_print_visible_range(tmp_path: Path) -> N
     database = seed_database(tmp_path / "api.sqlite3")
     runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
     with TestClient(main_module.create_app(runtime=runtime)) as client:
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         headers = {"Authorization": f"Bearer {token}"}
         view = client.get("/api/v1/spectra/raw:1?ccd=0&exposure_start=1&exposure_end=2", headers=headers)
         assert view.status_code == 200
@@ -141,14 +223,30 @@ def test_s10_api_audits_view_export_and_print_visible_range(tmp_path: Path) -> N
         exported = client.get(
             "/api/v1/spectra/raw:1/export",
             headers=headers,
-            params={"ccd": 0, "exposure_start": 1, "exposure_end": 2, "x_min": points[1]["wavelength_nm"], "x_max": points[3]["wavelength_nm"]},
+            params={
+                "ccd": 0,
+                "exposure_start": 1,
+                "exposure_end": 2,
+                "x_min": points[1]["wavelength_nm"],
+                "x_max": points[3]["wavelength_nm"],
+            },
         )
         assert exported.status_code == 200
         assert len(exported.text.strip().splitlines()) == 4
         printed = client.post(
             "/api/v1/spectra/raw:1/print-pdf",
             headers=headers,
-            json={"visible_x_min": 1, "visible_x_max": 2, "visible_y_min": 3, "visible_y_max": 4, "ccd": 0, "line": 0, "mode": "mean", "reference_shift": 0, "selected_record_ids": ["raw:1"]},
+            json={
+                "visible_x_min": 1,
+                "visible_x_max": 2,
+                "visible_y_min": 3,
+                "visible_y_max": 4,
+                "ccd": 0,
+                "line": 0,
+                "mode": "mean",
+                "reference_shift": 0,
+                "selected_record_ids": ["raw:1"],
+            },
         )
         assert printed.status_code == 200
         assert printed.headers["content-type"] == "application/pdf"

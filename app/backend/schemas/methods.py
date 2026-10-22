@@ -25,6 +25,7 @@ class MethodCondition(BaseModel):
     reference_width_points: int = 21
     analysis_unit: str = "ug/g"
     calculation_profile: Literal["legacy_2_0_2", "modern_v1"] = "modern_v1"
+    exposure_mode: Literal["simple_mean", "line_interval"] | None = None
     pre_excitation_seconds: float = 3.0
     sampling_period_seconds: float = 1.0
     frame_count: int = 20
@@ -69,7 +70,12 @@ class MethodActionRequest(BaseModel):
     method_id: int | None = None
 
 
+class MethodSave(MethodUpdate):
+    expected_latest_version: int | None = Field(default=None, ge=1)
+
+
 class MethodVersion(BaseModel):
+    legacy_imported: bool = False
     id: int
     version: int
     state: Literal["draft", "published"]
@@ -86,6 +92,9 @@ class StandardPointInput(BaseModel):
     name: str = Field(default="", max_length=50)
     value: float
     active: bool = True
+    original_intensity: float | None = None
+    adjusted_intensity: float | None = None
+    intensity_valid: bool = False
 
 
 class SpectralLineInput(BaseModel):
@@ -114,7 +123,7 @@ class SpectralLineInput(BaseModel):
     peak_width_points: int = 1
     fit_mode: Literal["linear", "quadratic", "cubic", "spline"] = "linear"
     coordinate_type: Literal["normal", "logarithmic"] = "normal"
-    unit: Literal["ug/g", "mg/g", "%"] = "ug/g"
+    unit: str = Field(default="ug/g", min_length=1, max_length=32)
     value_kind: Literal["content", "concentration"] = "content"
     decimal_places: int = 2
     lower_peak: int = 300
@@ -123,6 +132,8 @@ class SpectralLineInput(BaseModel):
     valid_range_max: float = 9_999_999.0
     over_limit_tolerance_percent: float = 0.0
     standard_points: list[StandardPointInput] = Field(default_factory=list)
+    exposure_start_frame: int | None = None
+    exposure_end_frame: int | None = None
 
 
 class SpectralLineReorder(BaseModel):
@@ -136,17 +147,20 @@ class SpectralLineDetectRequest(BaseModel):
 
 
 class MethodPrintSettings(BaseModel):
+    elements_per_line: int = Field(default=15,ge=1,le=50)
+    samples_per_page: int = Field(default=50,ge=1,le=1000)
+    time_mode: Literal['analysis','system'] = 'analysis'
     model_config = ConfigDict(extra="forbid")
 
-    default_printer: str = Field(default="geospectrum-pdf", min_length=1, max_length=255)
-    paper: Literal["A4", "A3", "Letter"] = "A4"
+    default_printer: str = Field(default="system", min_length=1, max_length=255)
+    paper: str = Field(default="A4", pattern=r"^(?:A4|A3|Letter|win:[1-9][0-9]{0,4}:[1-9][0-9]{1,4}:[1-9][0-9]{1,4})$")
     orientation: Literal["portrait", "landscape"] = "portrait"
     margin_top_mm: float = Field(default=12, ge=5, le=40)
     margin_right_mm: float = Field(default=12, ge=5, le=40)
     margin_bottom_mm: float = Field(default=12, ge=5, le=40)
     margin_left_mm: float = Field(default=12, ge=5, le=40)
     layout: Literal["standard", "compact"] = "standard"
-    font_size_pt: int = Field(default=9, ge=8, le=12)
+    font_size_pt: int = Field(default=9, ge=8, le=13)
     copies: int = Field(default=1, ge=1, le=99)
     duplex: Literal["none", "long_edge", "short_edge"] = "none"
     color: bool = False
@@ -165,6 +179,7 @@ class MethodPrintRequest(MethodRenderRequest):
 
 
 class MethodResponse(BaseModel):
+    changed_line_id: str | None = None
     id: int
     name: str
     description: str

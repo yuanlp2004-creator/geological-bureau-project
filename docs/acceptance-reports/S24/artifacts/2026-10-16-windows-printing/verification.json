@@ -1,0 +1,71 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "plan_before_sha256": "82e3b9e37d61f1c38586da12f8a492c0565761d9ab8809d865356064bc5a12fd",
+  "plan_sha256": "6297fe177b9d4e6773eac5307e43780e6c316b30243d952fcdad16788f80a240",
+  "schema_version": 23,
+  "backend_tests": 49,
+  "frontend_tests": 15,
+  "browser_checks": 4,
+  "frozen_desktop_checks": 5,
+  "root_pair": {
+    "GeoSpectrum.exe": "5cfe9b3bf5c0d128bb1ed21104c568eb3945e03b583319d9e59078a9dec48f19",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "user_data_files_preserved": {
+    "geospectrum.sqlite3": "d2bfb9d594aff78ef230561b470f78cb4d50c6402a1ea565fbd1068501cda2d2",
+    "backups\\pre-upgrade-v20-to-v21-20260925T164327Z-164f8c9d.sqlite3": "b1903dcc0d42d0dd036bcb498a74129ad157a2b9abab77e40be0673494f6d1a4",
+    "backups\\pre-upgrade-v21-to-v23-20261007T101301Z-75fa3350.sqlite3": "58aa133625a200331647e003d894cd774a24335ccda697f3ab5acbdc9270108e",
+    "EBWebView\\Crashpad\\settings.dat": "f53145aab552f60e2c1d2af484508dd4502549b1ba72e809e717c11b155fd357",
+    "EBWebView\\Crashpad\\throttle_store.dat": "41c91a9c93d76295746a149dce7ebb3b9ee2cb551d84365fff108e59a61cc304",
+    "EBWebView\\Default\\declarative_performance_observer.db": "26f18c3b848f7377a4f2c1b6a30be0382779eb941af89327ab6c38d213cb2db7",
+    "EBWebView\\GPUPersistentCache\\DawnGraphiteCache\\NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS\\cache.db": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_cancelled_without_output": true,
+  "driver_start_doc_and_abort": {
+    "driver": "Microsoft Print To PDF",
+    "start_doc_job": 2,
+    "aborted": true,
+    "end_doc_called": false,
+    "output_exists": false
+  },
+  "changed_existing_files": [
+    "PLAN.md",
+    "app/backend/requirements.txt",
+    "app/backend/services.py",
+    "app/backend/table_output.py",
+    "app/backend/api/methods.py",
+    "app/backend/modules/method_printing/document.py",
+    "app/backend/modules/method_printing/rendering.py",
+    "app/backend/modules/method_printing/service.py",
+    "app/backend/modules/reports/rendering.py",
+    "app/backend/modules/reports/service.py",
+    "app/backend/printing/__init__.py",
+    "app/backend/schemas/methods.py",
+    "app/backend/schemas/system.py",
+    "app/frontend/src/api/client.ts",
+    "app/frontend/src/api/methods.ts",
+    "app/frontend/src/api/reports.ts",
+    "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+    "app/tests/frontend_transport.test.mjs",
+    "app/tests/test_method_printing.py",
+    "app/tests/test_printing_boundary.py",
+    "app/tests/test_s19_reports.py"
+  ],
+  "new_files": [
+    "app/backend/printing/paper.py",
+    "app/backend/printing/windows.py",
+    "app/tests/test_windows_printing.py",
+    "app/tests/windows_printing_workflow.mjs"
+  ],
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-windows-printing\\previous",
+  "root_and_app_listing_unchanged": true,
+  "installer_updated": false,
+  "limits": [
+    "Only software/driver connectivity and native cancellation verified; no physical paper output.",
+    "Hardware, signing, clean-Windows and formal release gates remain unchanged."
+  ]
+}

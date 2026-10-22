@@ -1,0 +1,762 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": "report-layout",
+      "message": "两排表单对齐、相同控件高度、五组明暗/密度/宽度通过；空来源、参数提交和失败草稿保留通过"
+    },
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 274,
+          "right": 445
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    }
+  ],
+  "reportLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "file": "report-builder-1440-1000-light-comfortable.png",
+      "builder": {
+        "left": 274,
+        "right": 1397,
+        "top": 280.0390625,
+        "bottom": 673.8203125,
+        "height": 393.78125,
+        "width": 1123
+      },
+      "format": [
+        {
+          "left": 295,
+          "right": 644.6640625,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        },
+        {
+          "left": 660.6640625,
+          "right": 1010.328125,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        },
+        {
+          "left": 1026.328125,
+          "right": 1375.9921875,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        }
+      ],
+      "options": [
+        {
+          "left": 295,
+          "right": 462.3125,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 167.3125
+        },
+        {
+          "left": 466.3125,
+          "right": 633.625,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 167.3125
+        },
+        {
+          "left": 649.625,
+          "right": 931.8125,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 282.1875
+        },
+        {
+          "left": 947.8125,
+          "right": 1230,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 282.1875
+        },
+        {
+          "left": 1246,
+          "right": 1376,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 130
+        }
+      ],
+      "fieldOverflow": 0,
+      "documentOverflow": false,
+      "rowCount": 3
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "density": "comfortable",
+      "file": "report-builder-1440-1000-dark-comfortable.png",
+      "builder": {
+        "left": 274,
+        "right": 1397,
+        "top": 280.0390625,
+        "bottom": 673.8203125,
+        "height": 393.78125,
+        "width": 1123
+      },
+      "format": [
+        {
+          "left": 295,
+          "right": 644.6640625,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        },
+        {
+          "left": 660.6640625,
+          "right": 1010.328125,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        },
+        {
+          "left": 1026.328125,
+          "right": 1375.9921875,
+          "top": 539.2265625,
+          "bottom": 575.2265625,
+          "height": 36,
+          "width": 349.6640625
+        }
+      ],
+      "options": [
+        {
+          "left": 295,
+          "right": 462.3125,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 167.3125
+        },
+        {
+          "left": 466.3125,
+          "right": 633.625,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 167.3125
+        },
+        {
+          "left": 649.625,
+          "right": 931.8125,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 282.1875
+        },
+        {
+          "left": 947.8125,
+          "right": 1230,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 282.1875
+        },
+        {
+          "left": 1246,
+          "right": 1376,
+          "top": 616.8203125,
+          "bottom": 652.8203125,
+          "height": 36,
+          "width": 130
+        }
+      ],
+      "fieldOverflow": 0,
+      "documentOverflow": false,
+      "rowCount": 3
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "density": "comfortable",
+      "file": "report-builder-1060-680-light-comfortable.png",
+      "builder": {
+        "left": 231,
+        "right": 1029,
+        "top": 276.0390625,
+        "bottom": 721.8203125,
+        "height": 445.78125,
+        "width": 798
+      },
+      "format": [
+        {
+          "left": 252,
+          "right": 493.328125,
+          "top": 535.2265625,
+          "bottom": 571.2265625,
+          "height": 36,
+          "width": 241.328125
+        },
+        {
+          "left": 509.328125,
+          "right": 750.6640625,
+          "top": 535.2265625,
+          "bottom": 571.2265625,
+          "height": 36,
+          "width": 241.3359375
+        },
+        {
+          "left": 766.6640625,
+          "right": 1007.9921875,
+          "top": 535.2265625,
+          "bottom": 571.2265625,
+          "height": 36,
+          "width": 241.328125
+        }
+      ],
+      "options": [
+        {
+          "left": 252,
+          "right": 370.6640625,
+          "top": 612.8203125,
+          "bottom": 648.8203125,
+          "height": 36,
+          "width": 118.6640625
+        },
+        {
+          "left": 374.6640625,
+          "right": 493.328125,
+          "top": 612.8203125,
+          "bottom": 648.8203125,
+          "height": 36,
+          "width": 118.6640625
+        },
+        {
+          "left": 509.328125,
+          "right": 750.6640625,
+          "top": 612.8203125,
+          "bottom": 648.8203125,
+          "height": 36,
+          "width": 241.3359375
+        },
+        {
+          "left": 766.6640625,
+          "right": 1007.9921875,
+          "top": 612.8203125,
+          "bottom": 648.8203125,
+          "height": 36,
+          "width": 241.328125
+        },
+        {
+          "left": 877.9921875,
+          "right": 1007.9921875,
+          "top": 664.8203125,
+          "bottom": 700.8203125,
+          "height": 36,
+          "width": 130
+        }
+      ],
+      "fieldOverflow": 0,
+      "documentOverflow": false,
+      "rowCount": 3
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "density": "compact",
+      "file": "report-builder-1060-1000-dark-compact.png",
+      "builder": {
+        "left": 231,
+        "right": 1029,
+        "top": 220.0390625,
+        "bottom": 637.8203125,
+        "height": 417.78125,
+        "width": 798
+      },
+      "format": [
+        {
+          "left": 248,
+          "right": 492,
+          "top": 467.2265625,
+          "bottom": 499.2265625,
+          "height": 32,
+          "width": 244
+        },
+        {
+          "left": 508,
+          "right": 752,
+          "top": 467.2265625,
+          "bottom": 499.2265625,
+          "height": 32,
+          "width": 244
+        },
+        {
+          "left": 768,
+          "right": 1012,
+          "top": 467.2265625,
+          "bottom": 499.2265625,
+          "height": 32,
+          "width": 244
+        }
+      ],
+      "options": [
+        {
+          "left": 248,
+          "right": 368,
+          "top": 540.8203125,
+          "bottom": 572.8203125,
+          "height": 32,
+          "width": 120
+        },
+        {
+          "left": 372,
+          "right": 492,
+          "top": 540.8203125,
+          "bottom": 572.8203125,
+          "height": 32,
+          "width": 120
+        },
+        {
+          "left": 508,
+          "right": 752,
+          "top": 540.8203125,
+          "bottom": 572.8203125,
+          "height": 32,
+          "width": 244
+        },
+        {
+          "left": 768,
+          "right": 1012,
+          "top": 540.8203125,
+          "bottom": 572.8203125,
+          "height": 32,
+          "width": 244
+        },
+        {
+          "left": 882,
+          "right": 1012,
+          "top": 588.8203125,
+          "bottom": 620.8203125,
+          "height": 32,
+          "width": 130
+        }
+      ],
+      "fieldOverflow": 0,
+      "documentOverflow": false,
+      "rowCount": 3
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "compact",
+      "file": "report-builder-1440-1000-light-compact.png",
+      "builder": {
+        "left": 274,
+        "right": 1397,
+        "top": 260.0390625,
+        "bottom": 629.8203125,
+        "height": 369.78125,
+        "width": 1123
+      },
+      "format": [
+        {
+          "left": 291,
+          "right": 643.328125,
+          "top": 507.2265625,
+          "bottom": 539.2265625,
+          "height": 32,
+          "width": 352.328125
+        },
+        {
+          "left": 659.328125,
+          "right": 1011.6640625,
+          "top": 507.2265625,
+          "bottom": 539.2265625,
+          "height": 32,
+          "width": 352.3359375
+        },
+        {
+          "left": 1027.6640625,
+          "right": 1380,
+          "top": 507.2265625,
+          "bottom": 539.2265625,
+          "height": 32,
+          "width": 352.3359375
+        }
+      ],
+      "options": [
+        {
+          "left": 291,
+          "right": 459.8125,
+          "top": 580.8203125,
+          "bottom": 612.8203125,
+          "height": 32,
+          "width": 168.8125
+        },
+        {
+          "left": 463.8125,
+          "right": 632.625,
+          "top": 580.8203125,
+          "bottom": 612.8203125,
+          "height": 32,
+          "width": 168.8125
+        },
+        {
+          "left": 648.625,
+          "right": 933.3125,
+          "top": 580.8203125,
+          "bottom": 612.8203125,
+          "height": 32,
+          "width": 284.6875
+        },
+        {
+          "left": 949.3125,
+          "right": 1234,
+          "top": 580.8203125,
+          "bottom": 612.8203125,
+          "height": 32,
+          "width": 284.6875
+        },
+        {
+          "left": 1250,
+          "right": 1380,
+          "top": 580.8203125,
+          "bottom": 612.8203125,
+          "height": 32,
+          "width": 130
+        }
+      ],
+      "fieldOverflow": 0,
+      "documentOverflow": false,
+      "rowCount": 3
+    }
+  ],
+  "recalculationLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "file": "recalculate-1440-1000-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1425,
+      "w": 1440,
+      "controls": [
+        {
+          "top": 274.734375,
+          "bottom": 301.078125
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "file": "recalculate-1060-680-light.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 270.734375,
+          "bottom": 297.078125
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "file": "recalculate-1060-1000-dark.png",
+      "gap": 12,
+      "padding": "0px",
+      "doc": 1045,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 270.734375,
+          "bottom": 297.078125
+        }
+      ]
+    }
+  ]
+}

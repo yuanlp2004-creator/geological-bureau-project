@@ -1,0 +1,71 @@
+/* Navigation already names the page. This row contains only usable controls. */
+:root .app-shell .page-action-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 34px;
+  margin: 0 0 16px;
+  padding: 0;
+}
+:root .app-shell .page-action-toolbar > :is(.hero-actions, .page-intro-actions, .file-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0;
+}
+:root .app-shell .page-action-toolbar .page-file-actions-slot:empty { display: none; }
+:root .app-shell .page-action-toolbar:not(:has(button, input, select, .live-pill, .settings-live-badge, .maintenance-health)) { display: none; }
+:root .app-shell .page-action-toolbar > .search-field { margin-right: auto; }
+
+/* Actions belong to their list, filter panel or workspace tabs. */
+:root .app-shell .refined-page .surface-heading:has(.file-actions) {
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+:root .app-shell .refined-page .surface-heading .file-actions {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+:root .app-shell .product-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+:root .app-shell .remaining-page .task-context {
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+:root .app-shell .remaining-page .task-context-actions { margin-left: auto; }
+:root .app-shell .remaining-page .task-context > strong { overflow-wrap: anywhere; }
+:root .app-shell .spectrum-query-panel { padding: 14px 18px; margin-bottom: 14px; }
+:root .app-shell .spectrum-query-panel .spectrum-query-toolbar { padding: 0; margin: 0; }
+:root .app-shell .spectrum-query-actions { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+:root .app-shell .remaining-page .queue-context { display: block; }
+:root .app-shell .remaining-page .queue-context-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+:root .app-shell .remaining-page .queue-context-controls > .field { flex: 1 1 260px; margin: 0; min-width: 0; }
+:root .app-shell .remaining-page .queue-context-controls > .file-actions { flex: 0 1 auto; }
+:root .app-shell .help-index > .search-field { width: 100%; min-width: 0; margin-bottom: 12px; }
+:root .app-shell .help-index > .search-field input { width: 100%; min-width: 0; }
+:root .app-shell .data-processing-page .output-workspace-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+:root .app-shell .data-processing-page .output-workspace-toolbar .postprocessing-view-tabs { margin: 0; border: 0; }
+:root .app-shell .output-workspace-toolbar > .page-file-actions-slot { margin-left: auto; }
+:root .app-shell .device-debug-toolbar { border-bottom-color: var(--line); }

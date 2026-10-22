@@ -17,8 +17,12 @@ from .reader import LegacyAccessReader
 from .records import LegacyRecordDecoder
 
 
-
 class LegacyMigrationService:
+    @staticmethod
+    def method_evidence(connection, method_id: int, source_sha256: str) -> dict:
+        row = connection.execute("SELECT details_json FROM legacy_import_entities WHERE entity_type='method' AND target_id=? AND source_sha256=? ORDER BY id DESC LIMIT 1", (method_id, source_sha256)).fetchone()
+        return json.loads(row['details_json']).get('evidence', {}) if row else {}
+
     def __init__(self, database: Database) -> None:
         self.database = database
         self.methods = MethodService(database)
@@ -30,10 +34,32 @@ class LegacyMigrationService:
         """Resolve a legacy method id through the migration service contract."""
         with self.database.read() as db:
             row = db.execute(
-                "SELECT target_id FROM legacy_import_entities WHERE entity_type='method' AND legacy_key=? AND target_id IS NOT NULL ORDER BY id DESC LIMIT 1",
+                (
+                    "SELECT target_id FROM legacy_import_entities WHERE entity_type='method' AND "
+                    "legacy_key=? AND target_id IS NOT NULL ORDER BY id DESC LIMIT 1"
+                ),
                 (str(int(legacy_id)),),
             ).fetchone()
             return int(row["target_id"]) if row is not None else None
+
+    def upgrade_method_semantics(self, method_id: int, actor_user_id: int) -> dict:
+        """Re-read the hash-locked original MTD and add missing fields to a new draft."""
+        with self.database.read() as db:
+            current = self.methods.bind_snapshots(db).for_print(method_id)
+        provenance = current.payload.get('legacy_migration', {})
+        if not provenance.get('run_id') or provenance.get('legacy_method_id') is None:
+            raise LegacyMigrationError('legacy_method_source_missing', '该方法没有可追溯的旧 MTD 来源')
+        original = self.get(provenance['run_id'])['source_files']['mtd']
+        path = Path(original['path'])
+        before = _source_snapshot(path)
+        if before['sha256'] != provenance['source_sha256']:
+            raise LegacyMigrationError('legacy_source_changed', '旧 MTD 已变化，不能将其作为原方法证据')
+        access, _ = self.reader._read_access(path, before)
+        normalized = self.normalization._normalize_access(access, {}, {}, 'utf-8', 'utf-8')
+        source = next((item for item in normalized['methods'] if item['legacy_id'] == provenance['legacy_method_id']), None)
+        if source is None or _source_snapshot(path) != before:
+            raise LegacyMigrationError('legacy_source_changed', '旧方法缺失或读取期间原件发生变化')
+        return self.methods.upgrade_legacy_semantics(method_id, current.content_sha256, source, before['sha256'], actor_user_id)
 
     @staticmethod
     def _fingerprint(sources: dict[str, dict[str, Any]]) -> str:
@@ -58,11 +84,17 @@ class LegacyMigrationService:
         return result
 
     def stage(self, mtd_path: str, cfg_path: str, opt_path: str, actor_user_id: int) -> dict[str, Any]:
-        paths = {"mtd": Path(mtd_path).expanduser(), "cfg": Path(cfg_path).expanduser(), "opt": Path(opt_path).expanduser()}
+        paths = {
+            "mtd": Path(mtd_path).expanduser(),
+            "cfg": Path(cfg_path).expanduser(),
+            "opt": Path(opt_path).expanduser(),
+        }
         expected = {"mtd": ".mtd", "cfg": ".cfg", "opt": ".opt"}
         for key, path in paths.items():
             if path.suffix.lower() != expected[key]:
-                raise LegacyMigrationError("legacy_source_extension_invalid", f"{key.upper()} 文件扩展名必须是 {expected[key]}")
+                raise LegacyMigrationError(
+                    "legacy_source_extension_invalid", f"{key.upper()} 文件扩展名必须是 {expected[key]}"
+                )
         sources = {name: _source_snapshot(path) for name, path in paths.items()}
         fingerprint = self._fingerprint(sources)
         with self.database.read() as db:
@@ -93,14 +125,38 @@ class LegacyMigrationService:
         run_id = existing["id"] if existing is not None else str(uuid.uuid4())
         with self.database.write() as db:
             db.execute(
-                "INSERT INTO legacy_migration_runs(id, fingerprint, status, source_files_json, reader_json, staging_json, report_json, error_code, error_message, created_by, created_at, updated_at, committed_at) "
+                "INSERT INTO legacy_migration_runs(id, fingerprint, status, source_files_json, "
+                "reader_json, staging_json, report_json, error_code, error_message, created_by, "
+                "created_at, updated_at, committed_at) "
                 "VALUES (?, ?, 'staged', ?, ?, ?, ?, NULL, NULL, ?, ?, ?, NULL) "
-                "ON CONFLICT(fingerprint) DO UPDATE SET status='staged', source_files_json=excluded.source_files_json, reader_json=excluded.reader_json, staging_json=excluded.staging_json, report_json=excluded.report_json, error_code=NULL, error_message=NULL, created_by=excluded.created_by, updated_at=excluded.updated_at, committed_at=NULL",
-                (run_id, fingerprint, _json(sources), _json(reader), _json(staging), _json(report), actor_user_id, now, now),
+                "ON CONFLICT(fingerprint) DO UPDATE SET status='staged', "
+                "source_files_json=excluded.source_files_json, reader_json=excluded.reader_json, "
+                "staging_json=excluded.staging_json, report_json=excluded.report_json, "
+                "error_code=NULL, error_message=NULL, created_by=excluded.created_by, "
+                "updated_at=excluded.updated_at, committed_at=NULL",
+                (
+                    run_id,
+                    fingerprint,
+                    _json(sources),
+                    _json(reader),
+                    _json(staging),
+                    _json(report),
+                    actor_user_id,
+                    now,
+                    now,
+                ),
             )
             db.execute(
-                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'legacy_migration.stage', 'legacy_migration', NULL, ?, ?)",
-                (actor_user_id, _json({"run_id": run_id, "fingerprint": fingerprint, "counts": staging["counts"]}), now),
+                (
+                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                    "details_json, created_at) VALUES (?, 'legacy_migration.stage', "
+                    "'legacy_migration', NULL, ?, ?)"
+                ),
+                (
+                    actor_user_id,
+                    _json({"run_id": run_id, "fingerprint": fingerprint, "counts": staging["counts"]}),
+                    now,
+                ),
             )
             row = db.execute("SELECT * FROM legacy_migration_runs WHERE fingerprint=?", (fingerprint,)).fetchone()
             return {**self._run_dict(row), "already_committed": False}
@@ -125,7 +181,11 @@ class LegacyMigrationService:
         now: str,
     ) -> None:
         db.execute(
-            "INSERT INTO legacy_import_entities(run_id, source_sha256, entity_type, legacy_key, target_id, payload_sha256, details_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "INSERT INTO legacy_import_entities(run_id, source_sha256, entity_type, "
+                "legacy_key, target_id, payload_sha256, details_json, created_at) VALUES (?, ?, "
+                "?, ?, ?, ?, ?, ?)"
+            ),
             (run_id, source_sha256, entity_type, legacy_key, target_id, _sha256_json(payload), _json(details), now),
         )
 
@@ -158,47 +218,113 @@ class LegacyMigrationService:
 
         now = utc_now()
         mtd_hash = sources["mtd"]["sha256"]
-        imported = {"methods": [], "spectral_lines": staging["counts"]["spectral_lines"], "dispersion_curves": [], "ccd_layouts": [], "configuration_profile_id": None}
+        imported = {
+            "methods": [],
+            "spectral_lines": staging["counts"]["spectral_lines"],
+            "dispersion_curves": [],
+            "ccd_layouts": [],
+            "configuration_profile_id": None,
+        }
         try:
             with self.database.write() as db:
-                if db.execute("SELECT 1 FROM legacy_import_entities WHERE source_sha256=? LIMIT 1", (mtd_hash,)).fetchone():
-                    raise LegacyMigrationError("legacy_source_already_imported", "该 MTD 内容已由其他迁移任务导入", status_code=409)
+                if db.execute(
+                    "SELECT 1 FROM legacy_import_entities WHERE source_sha256=? LIMIT 1", (mtd_hash,)
+                ).fetchone():
+                    raise LegacyMigrationError(
+                        "legacy_source_already_imported", "该 MTD 内容已由其他迁移任务导入", status_code=409
+                    )
 
                 layout_ids: dict[str, int] = {}
                 calibration_ids: dict[str, int] = {}
                 for dispersion in staging["dispersions"]:
-                    geometry = {key: dispersion[key] for key in ("frame_count", "ccds_per_frame", "points_per_ccd", "point_width", "gap_points", "ccd_indices")}
+                    geometry = {
+                        key: dispersion[key]
+                        for key in (
+                            "frame_count",
+                            "ccds_per_frame",
+                            "points_per_ccd",
+                            "point_width",
+                            "gap_points",
+                            "ccd_indices",
+                        )
+                    }
                     geometry_key = _sha256_json(geometry)
                     if geometry_key not in layout_ids:
-                        layout_name = self._unique_name(db, "ccd_layouts", f"旧版布局 · {dispersion['name']}", fingerprint)
+                        layout_name = self._unique_name(
+                            db, "ccd_layouts", f"旧版布局 · {dispersion['name']}", fingerprint
+                        )
                         cursor = db.execute(
-                            "INSERT INTO ccd_layouts(name, frame_count, ccds_per_frame, points_per_ccd, point_width, gap_points_json, ccd_indices_json, wavelength_min, wavelength_max, allow_drift_um, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 160, 800, ?, ?)",
-                            (layout_name, dispersion["frame_count"], dispersion["ccds_per_frame"], dispersion["points_per_ccd"], dispersion["point_width"], _json(dispersion["gap_points"]), _json(dispersion["ccd_indices"]), 0.0, now),
+                            (
+                                "INSERT INTO ccd_layouts(name, frame_count, ccds_per_frame, points_per_ccd, "
+                                "point_width, gap_points_json, ccd_indices_json, wavelength_min, wavelength_max, "
+                                "allow_drift_um, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 160, 800, ?, ?)"
+                            ),
+                            (
+                                layout_name,
+                                dispersion["frame_count"],
+                                dispersion["ccds_per_frame"],
+                                dispersion["points_per_ccd"],
+                                dispersion["point_width"],
+                                _json(dispersion["gap_points"]),
+                                _json(dispersion["ccd_indices"]),
+                                0.0,
+                                now,
+                            ),
                         )
                         layout_id = int(cursor.lastrowid)
                         layout_ids[geometry_key] = layout_id
                         imported["ccd_layouts"].append(layout_id)
-                        self._record_entity(db, run_id=run_id, source_sha256=mtd_hash, entity_type="ccd_layout", legacy_key=geometry_key, target_id=layout_id, payload=geometry, details={"name": layout_name}, now=now)
+                        self._record_entity(
+                            db,
+                            run_id=run_id,
+                            source_sha256=mtd_hash,
+                            entity_type="ccd_layout",
+                            legacy_key=geometry_key,
+                            target_id=layout_id,
+                            payload=geometry,
+                            details={"name": layout_name},
+                            now=now,
+                        )
                         self._after_entity_insert("ccd_layout", geometry_key)
                     layout_id = layout_ids[geometry_key]
                     calibration_name = self._unique_name(db, "dispersion_calibrations", dispersion["name"], fingerprint)
                     cursor = db.execute(
-                        "INSERT INTO dispersion_calibrations(name, ccd_layout_id, wavelength_min, wavelength_max, coefficients_json, enabled, created_at) VALUES (?, ?, 160, 800, ?, 1, ?)",
+                        (
+                            "INSERT INTO dispersion_calibrations(name, ccd_layout_id, wavelength_min, "
+                            "wavelength_max, coefficients_json, enabled, created_at) VALUES (?, ?, 160, 800, "
+                            "?, 1, ?)"
+                        ),
                         (calibration_name, layout_id, _json(dispersion["coefficients"]), now),
                     )
                     calibration_id = int(cursor.lastrowid)
                     calibration_ids[dispersion["name"]] = calibration_id
                     imported["dispersion_curves"].append(calibration_id)
-                    self._record_entity(db, run_id=run_id, source_sha256=mtd_hash, entity_type="dispersion_calibration", legacy_key=str(dispersion["legacy_id"]), target_id=calibration_id, payload=dispersion, details={"name": calibration_name, "blob_evidence": dispersion["blob_evidence"]}, now=now)
+                    self._record_entity(
+                        db,
+                        run_id=run_id,
+                        source_sha256=mtd_hash,
+                        entity_type="dispersion_calibration",
+                        legacy_key=str(dispersion["legacy_id"]),
+                        target_id=calibration_id,
+                        payload=dispersion,
+                        details={"name": calibration_name, "blob_evidence": dispersion["blob_evidence"]},
+                        now=now,
+                    )
                     self._after_entity_insert("dispersion_calibration", str(dispersion["legacy_id"]))
 
                 for method in staging["methods"]:
                     desired_name = method["name"]
                     target_name = self._unique_name(db, "methods", desired_name, fingerprint)
                     conditions = deepcopy(method["conditions"])
+                    # Also apply the source-backed rule to tasks staged before this fix.
+                    conditions["actual_reference_wavelength_nm"] = self.normalization.reference_wavelength(
+                        method["evidence"]["primary"], method["legacy_id"], staging["issues"]
+                    )
                     dispersion_name = conditions.pop("legacy_dispersion_name")
                     calibration_id = calibration_ids[dispersion_name]
-                    calibration_row = db.execute("SELECT ccd_layout_id FROM dispersion_calibrations WHERE id=?", (calibration_id,)).fetchone()
+                    calibration_row = db.execute(
+                        "SELECT ccd_layout_id FROM dispersion_calibrations WHERE id=?", (calibration_id,)
+                    ).fetchone()
                     conditions["dispersion_calibration_id"] = calibration_id
                     conditions["ccd_layout_id"] = int(calibration_row[0])
                     payload = {
@@ -208,6 +334,8 @@ class LegacyMigrationService:
                             "run_id": run_id,
                             "source_sha256": mtd_hash,
                             "legacy_method_id": method["legacy_id"],
+                            'modified_at': method['modified_at'],
+                            'evidence': method['evidence'],
                             "evidence_sha256": _sha256_json(method["evidence"]),
                         },
                     }
@@ -219,42 +347,109 @@ class LegacyMigrationService:
                             details={"legacy_id": method["legacy_id"], "validation_errors": validation_errors},
                         )
                     cursor = db.execute(
-                        "INSERT INTO methods(name, description, work_type, status, current_version, created_at, updated_at) VALUES (?, ?, 'spectral', 'active', 1, ?, ?)",
+                        (
+                            "INSERT INTO methods(name, description, work_type, status, current_version, "
+                            "created_at, updated_at) VALUES (?, ?, 'spectral', 'active', 1, ?, ?)"
+                        ),
                         (target_name, method["description"], now, now),
                     )
                     method_id = int(cursor.lastrowid)
                     db.execute(
-                        "INSERT INTO method_versions(method_id, version, state, payload_json, validation_errors_json, created_at, created_by) VALUES (?, 1, 'published', ?, '[]', ?, ?)",
+                        (
+                            "INSERT INTO method_versions(method_id, version, state, payload_json, "
+                            "validation_errors_json, created_at, created_by) VALUES (?, 1, 'published', ?, "
+                            "'[]', ?, ?)"
+                        ),
                         (method_id, _json(canonical), now, actor_user_id),
                     )
                     imported["methods"].append(method_id)
-                    self._record_entity(db, run_id=run_id, source_sha256=mtd_hash, entity_type="method", legacy_key=str(method["legacy_id"]), target_id=method_id, payload=canonical, details={"legacy_name": desired_name, "target_name": target_name, "evidence": method["evidence"]}, now=now)
+                    self._record_entity(
+                        db,
+                        run_id=run_id,
+                        source_sha256=mtd_hash,
+                        entity_type="method",
+                        legacy_key=str(method["legacy_id"]),
+                        target_id=method_id,
+                        payload=canonical,
+                        details={
+                            "legacy_name": desired_name,
+                            "target_name": target_name,
+                            "evidence": method["evidence"],
+                        },
+                        now=now,
+                    )
                     self._after_entity_insert("method", str(method["legacy_id"]))
 
                 cursor = db.execute(
-                    "INSERT INTO legacy_configuration_profiles(run_id, name, cfg_source_sha256, opt_source_sha256, cfg_json, opt_json, active, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?)",
-                    (run_id, f"SpecDirect 2.0.2 · {fingerprint[:8]}", sources["cfg"]["sha256"], sources["opt"]["sha256"], _json(staging["configuration"]["cfg"]), _json(staging["configuration"]["opt"]), now),
+                    (
+                        "INSERT INTO legacy_configuration_profiles(run_id, name, cfg_source_sha256, "
+                        "opt_source_sha256, cfg_json, opt_json, active, created_at) VALUES (?, ?, ?, ?, "
+                        "?, ?, 0, ?)"
+                    ),
+                    (
+                        run_id,
+                        f"SpecDirect 2.0.2 · {fingerprint[:8]}",
+                        sources["cfg"]["sha256"],
+                        sources["opt"]["sha256"],
+                        _json(staging["configuration"]["cfg"]),
+                        _json(staging["configuration"]["opt"]),
+                        now,
+                    ),
                 )
                 imported["configuration_profile_id"] = int(cursor.lastrowid)
-                self._record_entity(db, run_id=run_id, source_sha256=fingerprint, entity_type="configuration_profile", legacy_key="DIRECT.CFG+DIRECT.OPT", target_id=imported["configuration_profile_id"], payload=staging["configuration"], details={"active": False}, now=now)
+                self._record_entity(
+                    db,
+                    run_id=run_id,
+                    source_sha256=fingerprint,
+                    entity_type="configuration_profile",
+                    legacy_key="DIRECT.CFG+DIRECT.OPT",
+                    target_id=imported["configuration_profile_id"],
+                    payload=staging["configuration"],
+                    details={"active": False},
+                    now=now,
+                )
                 self._after_entity_insert("configuration_profile", "DIRECT.CFG+DIRECT.OPT")
 
                 report = {
                     "phase": "committed",
                     "counts": staging["counts"],
-                    "checks": {**staging["checks"], "sources_unchanged": True, "target_validation_passed": True, "atomic_commit": True, "idempotency_guarded": True},
+                    "checks": {
+                        **staging["checks"],
+                        "sources_unchanged": True,
+                        "target_validation_passed": True,
+                        "atomic_commit": True,
+                        "idempotency_guarded": True,
+                    },
                     "issues": staging["issues"],
                     "atomic_scope": "source_set",
                     "already_committed": False,
                     "imported": imported,
                 }
                 db.execute(
-                    "UPDATE legacy_migration_runs SET status='committed', report_json=?, error_code=NULL, error_message=NULL, updated_at=?, committed_at=? WHERE id=?",
+                    (
+                        "UPDATE legacy_migration_runs SET status='committed', report_json=?, "
+                        "error_code=NULL, error_message=NULL, updated_at=?, committed_at=? WHERE id=?"
+                    ),
                     (_json(report), now, now, run_id),
                 )
                 db.execute(
-                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'legacy_migration.commit', 'legacy_migration', NULL, ?, ?)",
-                    (actor_user_id, _json({"run_id": run_id, "fingerprint": fingerprint, "counts": staging["counts"], "imported": imported}), now),
+                    (
+                        "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                        "details_json, created_at) VALUES (?, 'legacy_migration.commit', "
+                        "'legacy_migration', NULL, ?, ?)"
+                    ),
+                    (
+                        actor_user_id,
+                        _json(
+                            {
+                                "run_id": run_id,
+                                "fingerprint": fingerprint,
+                                "counts": staging["counts"],
+                                "imported": imported,
+                            }
+                        ),
+                        now,
+                    ),
                 )
         except Exception as exc:
             code = exc.code if isinstance(exc, LegacyMigrationError) else "legacy_commit_failed"
@@ -266,7 +461,9 @@ class LegacyMigrationService:
                 )
             if isinstance(exc, LegacyMigrationError):
                 raise
-            raise LegacyMigrationError("legacy_commit_failed", "旧方法提交失败，已完整回滚", details={"reason": message}) from exc
+            raise LegacyMigrationError(
+                "legacy_commit_failed", "旧方法提交失败，已完整回滚", details={"reason": message}
+            ) from exc
 
         return self.get(run_id, already_committed=False)
 
@@ -281,8 +478,52 @@ class LegacyMigrationService:
 
     def list(self, limit: int = 20) -> list[dict[str, Any]]:
         with self.database.read() as db:
-            rows = db.execute("SELECT * FROM legacy_migration_runs ORDER BY created_at DESC LIMIT ?", (max(1, min(100, limit)),)).fetchall()
+            rows = db.execute(
+                "SELECT * FROM legacy_migration_runs ORDER BY created_at DESC LIMIT ?", (max(1, min(100, limit)),)
+            ).fetchall()
             return [self._run_dict(row, include_staging=False) for row in rows]
+
+    def configuration_preferences(self, run_id: str, actor=None, *, apply=False) -> dict[str, Any]:
+        from .configuration import _typed_cfg, _typed_opt
+        from ...services import AppService
+        from ...schemas.system import SettingsPatch
+        from pydantic import ValidationError
+        with self.database.read() as db:
+            row=db.execute('SELECT * FROM legacy_configuration_profiles WHERE run_id=? ORDER BY id DESC LIMIT 1',(run_id,)).fetchone()
+        if row is None:
+            raise LegacyMigrationError('legacy_configuration_missing','请先提交迁移，生成配置档案')
+        cfg=json.loads(row['cfg_json']);opt=json.loads(row['opt_json'])
+        cfg=_typed_cfg(cfg.get('sections',cfg.get('raw',{}))) if 'normalized' not in cfg else cfg['normalized']
+        opt=_typed_opt(opt.get('sections',opt.get('raw',{}))) if 'normalized' not in opt else opt['normalized']
+        # Re-read archived sections to include new preference fields in pre-existing imports.
+        archived=json.loads(row['cfg_json'])
+        if archived.get('sections'):cfg=_typed_cfg(archived['sections'])
+        analyze=cfg['analyze'];page=opt['page_setup']
+        dark=int(analyze['dark_round_time']); dark=8 if dark<6 else min(20,dark)
+        patch={'analysis':{'dispersion_allow_gap_error_um':opt['ccd']['allow_gap_error'],
+                           'dark_round_time_seconds':dark,'look_band':analyze['look_band'],'log_analysis':analyze['log_analysis'],
+                           'wait_time_ms':analyze['wait_time_ms'],'cmt_band_mean':analyze.get('cmt_band_mean',False)},
+               'printing':{'font_size_pt':page['font_size'],'elements_per_line':page['elements_per_line'],
+                           'samples_per_page':page['samples_per_page'],'time_mode':'analysis' if page['time_mode']==0 else 'system'},
+               'preliminary':cfg.get('preliminary',{}),'intensity_output':cfg.get('intensity_output',{})}
+        width=float(opt.get('screen',{}).get('width') or 40.92)
+        patch['display']={'screen_width_mm':min(1227.6,max(254.0,width*10))}
+        try:validated=SettingsPatch.model_validate(patch)
+        except ValidationError as exc:
+            raise LegacyMigrationError('legacy_preferences_invalid','旧偏好超出新版安全范围，请先核对配置',details={'errors':str(exc)}) from exc
+        result={'configuration_profile_id':row['id'],'settings':validated.model_dump(exclude_none=True),
+                'excluded':['串口、设备保护和安全时序不自动启用；CCD 布局随迁移方法保留'], 'applied':False}
+        if apply:
+            with self.database.write() as db:
+                AppService(self.database).update_settings(validated,actor,connection=db)
+                db.execute('UPDATE legacy_configuration_profiles SET active=CASE WHEN id=? THEN 1 ELSE 0 END',(row['id'],))
+                self._audit_preferences(db,actor,row['id'],result)
+            result['applied']=True
+        return result
+
+    @staticmethod
+    def _audit_preferences(db,actor,identifier,result):
+        db.execute("INSERT INTO audit_events(actor_user_id,action,target_type,target_id,details_json,created_at) VALUES (?,'legacy_migration.preferences.apply','legacy_configuration',?,?,?)",(actor,identifier,_json(result),utc_now()))
 
     _reader_candidates = staticmethod(LegacyAccessReader._reader_candidates)
 
@@ -296,6 +537,12 @@ class LegacyMigrationService:
 
     _wstc = staticmethod(LegacyRecordDecoder._wstc)
 
-    def _normalize_access(self, access: dict[str, Any], cfg: dict[str, dict[str, str]], opt: dict[str, dict[str, str]], cfg_encoding: str, opt_encoding: str) -> dict[str, Any]:
+    def _normalize_access(
+        self,
+        access: dict[str, Any],
+        cfg: dict[str, dict[str, str]],
+        opt: dict[str, dict[str, str]],
+        cfg_encoding: str,
+        opt_encoding: str,
+    ) -> dict[str, Any]:
         return self.normalization._normalize_access(access, cfg, opt, cfg_encoding, opt_encoding)
-

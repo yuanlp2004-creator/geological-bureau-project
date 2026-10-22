@@ -9,6 +9,8 @@ const exportContentType = (fileName: string): string => {
   const extension = fileName.toLocaleLowerCase().split('.').pop()
   if (extension === 'pdf') return 'application/pdf'
   if (extension === 'csv') return 'text/csv'
+  if (extension === 'json') return 'application/json'
+  if (extension === 'xls') return 'application/vnd.ms-excel'
   return 'text/plain'
 }
 

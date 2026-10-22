@@ -4,6 +4,7 @@ import json
 import sqlite3
 
 from .sql import _execute_sql_script
+from ..modules.offline_help import HELP_TOPICS, HELP_TOPIC_ALIASES
 
 
 def initialize_defaults(connection: sqlite3.Connection, now: str) -> None:
@@ -442,26 +443,12 @@ def initialize_defaults(connection: sqlite3.Connection, now: str) -> None:
                 END;
                 """
     )
-    help_topics = (
-        ("navigation", "导航与工作台", "基础", ["菜单", "工作台", "导航"], "从左侧菜单进入各业务模块。工作台显示本地服务、数据库完整性和最近运行消息；设置页用于本机偏好，帮助页可离线检索主题与错误码。", ["/workspace", "/settings", "/help"]),
-        ("methods", "方法与版本", "核心流程", ["方法", "版本", "谱线", "标准点"], "方法以草稿和发布版本管理。发布前检查条件、CCD 布局、谱线和标准点；发布版本用于后续采集与分析。", ["/methods"]),
-        ("samples", "样品队列", "核心流程", ["样品", "队列", "标准样品", "未知样品"], "样品队列按方法组织标准样品、未知样品与重复次数。采集前确认样品顺序、名称和方法版本，避免把旧队列误用于新版本。", ["/samples"]),
-        ("devices", "设备连接与安全", "核心流程", ["设备", "串口", "模拟器", "安全停止"], "设备连接与实时调试保留审计记录。真实协议或硬件未确认时只能使用模拟器；异常时先暂停或安全停止，不绕过设备保护。", ["/acquisition"]),
-        ("dispersion", "色散校准", "核心流程", ["色散", "校准", "CCD", "谱线"], "色散任务采集校准帧并生成不可变校准版本。方法绑定前检查 CCD、谱线位置与版本状态。", ["/dispersion"]),
-        ("sample-acquisition", "样品采集", "核心流程", ["样品采集", "重复", "帧", "暂停"], "样品采集按已发布方法和队列运行，保留帧、区间、暂停与停止记录。失败后先查看任务消息，再决定恢复或重新采集。", ["/sample-acquisition"]),
-        ("hardware-acquisition", "真实硬件采集", "核心流程", ["真实硬件", "转角", "异常", "人工干预"], "真实硬件采集执行预激发、转角和 CCD 采集计划。协议或现场硬件缺失时保持 deferred_external，不以模拟器结论替代正式验收。", ["/hardware-acquisition"]),
-        ("mercury-calibration", "汞灯校准", "核心流程", ["汞灯", "对齐", "校准", "参考线"], "汞灯校准比较参考线与采集峰位并发布对齐版本。缺少汞灯协议或真实设备时不得猜测命令。", ["/mercury-calibration"]),
-        ("analysis", "分析、质控与曲线", "核心流程", ["分析", "质控", "曲线", "合并结果"], "分析使用已发布方法和采集数据。质控排除、恢复、曲线调整与最终结果合并都产生可追溯快照；报告只使用最终合并结果。", ["/analysis"]),
-        ("postprocessing", "后处理与精确重算", "核心流程", ["后处理", "EDT", "CMT", "PDT", "重算"], "EDT/CMT 采用只读区间解析；旧 PDT 精确重算必须选择目标方法版本、计算口径和已发布曲线快照。任一来源失败时整批不提交。", ["/postprocessing"]),
-        ("spectra", "光谱查看与导出", "核心流程", ["光谱", "叠加", "缩放", "导出"], "光谱页查看已迁移或已采集的光谱，可叠加、缩放并导出。导出前确认来源、CCD 和采集区间。", ["/spectra"]),
-        ("reports", "报告、导出与打印", "核心流程", ["报告", "预览", "导出", "打印", "PDF"], "报告先建立草稿，预览确认后再导出 TXT、CSV、Excel、PDF 或打印。报表取最终合并结果，打印需要选择已枚举的 Windows 打印机。", ["/reports"]),
-        ("migration", "旧方法只读迁移", "兼容性", ["SpecDirect", "方法迁移", "DIRECT", "Access"], "旧方法文件先进入暂存区并保留原件、大小、时间和 SHA-256。迁移不会回写旧 Access 文件。", ["/migration"]),
-        ("spectrum-migration", "旧光谱只读迁移", "兼容性", ["光谱迁移", "SPC", "LIB", "原件"], "旧光谱迁移先校验格式和 BLOB，再写入新版存储；原件只读保留，解析失败不会修改源文件。", ["/spectrum-migration"]),
-        ("result-migration", "旧结果只读迁移", "兼容性", ["结果迁移", "PDT", "DAT", "CMT"], "旧结果迁移保留来源哈希与解析诊断。PDT/DAT/CMT 解析失败时修正解析器或输入副本，不修复或覆盖历史原件。", ["/result-migration"]),
-        ("administration", "用户、权限与审计", "系统管理", ["用户", "角色", "权限", "审计"], "用户页管理本地账户和角色；审计页按动作与时间查询不可变事件。权限不足时由管理员授予所需最小权限。", ["/users", "/audit"]),
-        ("errors", "稳定错误码", "故障排查", ["错误码", "error code", "权限", "校验失败"], "在帮助搜索框输入响应中的稳定错误码，系统会解析到所属业务主题。常见前缀包括 METHOD、MIGRATION、DEVICE、ACQUISITION、ANALYSIS、POSTPROCESSING、REPORT、MAINTENANCE、AUTH 和 HELP；先查看错误详情与对应主题，再重试或联系管理员。", ["/help", "/about"]),
-        ("maintenance", "备份与维护", "系统维护", ["备份", "恢复演练", "WAL", "VACUUM", "日志", "临时文件"], "在线备份使用 SQLite backup API，并执行 integrity_check、外键检查、实体计数和 BLOB 抽样哈希校验；恢复只在隔离副本中演练。空间回收、WAL checkpoint、日志轮换和临时文件清理均需要维护权限并留下操作记录。", ["/maintenance"]),
-        ("about", "关于与诊断", "系统维护", ["版本", "构建", "诊断", "许可证"], "关于页显示产品名、版本、API 版本、数据库路径、构建信息和本地诊断。版本与构建元数据来自同一个后端包，不以前端静态文本覆盖。", ["/about"]),
+    help_topics = HELP_TOPICS
+    # Retire only the built-in articles merged by this manual revision. Keep the
+    # records for old topic URLs, without showing duplicate pages in the index.
+    connection.executemany(
+        "UPDATE help_topics SET enabled=0 WHERE slug=?",
+        [(slug,) for slug in HELP_TOPIC_ALIASES],
     )
     connection.executemany(
         "INSERT INTO help_topics(slug, title, section, keywords_json, body, related_routes_json, updated_at, enabled) "

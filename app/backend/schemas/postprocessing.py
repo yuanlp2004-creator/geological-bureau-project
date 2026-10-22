@@ -17,6 +17,7 @@ class PostProcessingConversionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     record_ids: list[str] = Field(min_length=1, max_length=200)
+    storage_mode: Literal['averaged', 'full_interval'] = 'full_interval'
     start_frame: int = Field(default=1, ge=1, le=255)
     end_frame: int | None = Field(default=None, ge=1, le=255)
     target_ccd_layout_id: int = Field(ge=1)
@@ -29,6 +30,7 @@ class PostProcessingRecalculateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     source_record_ids: list[str] = Field(min_length=1, max_length=200)
+    allow_older_method: bool = False
     method_version_id: int = Field(ge=1)
     calculation_profile: Literal["legacy_2_0_2", "modern_v1"] = "legacy_2_0_2"
     curve_snapshot_ids: list[int] = Field(default_factory=list, max_length=200)

@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "checks": [
+    "12位按位数调整格宽，中文/宽字母/数字满位样号在格内完整显示，满幅空格保留；新增3→4、20→21已有坐标不变",
+    "12位超出当前网格容量后翻页，当前页位置及后台队列顺序保持",
+    "20位按位数调整格宽，中文/宽字母/数字满位样号在格内完整显示，满幅空格保留；新增3→4、20→21已有坐标不变",
+    "20位超出当前网格容量后翻页，当前页位置及后台队列顺序保持",
+    "选中样品可查看重复、谱带和采集后名称，删除仍按原队列规则执行",
+    "20位缩短到12位时拒绝截断，失败后保持20位，刷新后队列和排列保持",
+    "12/20位切换同步调整格宽且保存原名称；明色1440与暗色紧凑1060完整显示满位样号，铺满宽度，无多余水平滚动条或窗口溢出"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "rows": 20,
+      "columns": 4,
+      "capacity": 80,
+      "gridWidth": 1081,
+      "contentWidth": 1081,
+      "overflow": 0,
+      "slots": 80
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "rows": 20,
+      "columns": 2,
+      "capacity": 40,
+      "gridWidth": 764,
+      "contentWidth": 764,
+      "overflow": 0,
+      "slots": 40
+    }
+  ],
+  "grid_metrics": [
+    {
+      "name_length": 12,
+      "rows": 20,
+      "columns": 6,
+      "capacity": 120,
+      "gridWidth": 1081,
+      "contentWidth": 1081,
+      "overflow": 0,
+      "slots": 120,
+      "cellWidth": 174.1640625,
+      "cellHeight": 22
+    },
+    {
+      "name_length": 20,
+      "rows": 20,
+      "columns": 4,
+      "capacity": 80,
+      "gridWidth": 1081,
+      "contentWidth": 1081,
+      "overflow": 0,
+      "slots": 80,
+      "cellWidth": 261.75,
+      "cellHeight": 22
+    }
+  ]
+}

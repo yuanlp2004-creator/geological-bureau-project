@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "checks": [
+    "准备页无空白批次栏，三种窗口明暗布局正常、建立按钮可达，所选记录通过真实API建立分析",
+    "单一菜单入口，共用批次及两条谱线；曲线与重复性检查同时可用",
+    "建立分析与旧数据面板互斥展开，折叠和切换保留表单草稿",
+    "当前样品重复值剔除、恢复、接受预警走真实API，统计重新计算",
+    "标准点保存失败保留输入，重试可保存，原始强度保持且可恢复",
+    "逐线拟合、保存、下一条及最后合并串联完成，原分析结果哈希保持",
+    "1440/1060及680高窗口、明暗主题紧凑布局无页面横向溢出",
+    "质控变化后旧曲线不能继续完成流程；历史曲线和已保存合并结果保留",
+    "真实存储谱图的慢进启动、峰位接受及完成后自动进入同一工作区复核"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "analysis-1440-1000-light.png",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "pageWidth": 1194,
+      "pageScroll": 1194,
+      "qcWidth": 280,
+      "chartWidth": 674,
+      "footerBottom": 983,
+      "reviewColumns": "674px 280px"
+    },
+    {
+      "name": "analysis-1060-1000-dark.png",
+      "width": 1060,
+      "height": 1000,
+      "document": 1060,
+      "documentHeight": 1000,
+      "pageWidth": 845,
+      "pageScroll": 845,
+      "qcWidth": 240,
+      "chartWidth": 415,
+      "footerBottom": 973,
+      "reviewColumns": "415px 240px"
+    },
+    {
+      "name": "analysis-1060-680-light.png",
+      "width": 1060,
+      "height": 680,
+      "document": 1060,
+      "documentHeight": 680,
+      "pageWidth": 845,
+      "pageScroll": 845,
+      "qcWidth": 240,
+      "chartWidth": 415,
+      "footerBottom": 653,
+      "reviewColumns": "415px 240px"
+    }
+  ],
+  "preparationLayouts": [
+    {
+      "file": "analysis-preparation-1440-1000-light.png",
+      "width": 1440,
+      "height": 1000,
+      "documentWidth": 1440,
+      "formWidth": 1098,
+      "position": "static",
+      "buttonTop": 894.2578125,
+      "buttonBottom": 930.2578125
+    },
+    {
+      "file": "analysis-preparation-1060-1000-dark.png",
+      "width": 1060,
+      "height": 1000,
+      "documentWidth": 1060,
+      "formWidth": 815,
+      "position": "static",
+      "buttonTop": 886.2578125,
+      "buttonBottom": 922.2578125
+    },
+    {
+      "file": "analysis-preparation-1060-680-light.png",
+      "width": 1060,
+      "height": 680,
+      "documentWidth": 1045,
+      "formWidth": 800,
+      "position": "static",
+      "buttonTop": 610.7578125,
+      "buttonBottom": 646.7578125
+    }
+  ]
+}

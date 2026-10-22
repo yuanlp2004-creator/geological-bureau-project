@@ -1,4 +1,5 @@
 """HTTP validation, desktop process-key boundary and CORS registration."""
+
 import secrets
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -33,7 +34,9 @@ async def require_process_key(request: Request, call_next):
     if process_key and request.method != "OPTIONS":
         supplied = request.headers.get("X-GeoSpectrum-Process-Key", "")
         if not secrets.compare_digest(supplied, process_key):
-            return JSONResponse(status_code=403, content={"detail": {"code": "PROCESS_KEY_REQUIRED", "message": "本地进程密钥无效"}})
+            return JSONResponse(
+                status_code=403, content={"detail": {"code": "PROCESS_KEY_REQUIRED", "message": "本地进程密钥无效"}}
+            )
     return await call_next(request)
 
 
@@ -49,7 +52,7 @@ def register_middleware(app: FastAPI) -> None:
             "http://tauri.localhost",
         ],
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "Authorization", "X-Correlation-ID", "X-GeoSpectrum-Process-Key"],
         expose_headers=["X-Page-Count", "X-Field-Count", "X-Method-Version", "X-Content-SHA256", "Content-Disposition"],
     )

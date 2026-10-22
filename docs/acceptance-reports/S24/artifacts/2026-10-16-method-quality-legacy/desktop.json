@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "checks": [
+    "旧版两组标题、五个数值与一个开关、六项原名称；额外四项无编辑入口",
+    "真实保存并重载六项参数，四个非默认隐藏值随请求/草稿保留，原发布哈希保持",
+    "关闭相对偏差校验只禁用 Rsd 输入并保留值，误差输入保持可用，重新开启恢复",
+    "普通样品重复次数 0 被前端拦截，零 PATCH，保存版本保持",
+    "明暗 1440/1060 窗口，组内无横溢出，五个输入保持小圆角、复选框保持原形",
+    "真实只读方法角色登录：六项全部禁用，无保存入口"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "requestedWidth": 1440,
+      "width": 1121,
+      "scroll": 1121,
+      "inputs": [
+        {
+          "type": "text",
+          "width": 349.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 349.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 349.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 349.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "checkbox",
+          "width": 13,
+          "radius": "0px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 349.6640625,
+          "radius": "6px",
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "theme": "dark",
+      "requestedWidth": 1060,
+      "width": 803,
+      "scroll": 803,
+      "inputs": [
+        {
+          "type": "text",
+          "width": 243.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 243.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 243.671875,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 243.6640625,
+          "radius": "6px",
+          "disabled": false
+        },
+        {
+          "type": "checkbox",
+          "width": 13,
+          "radius": "0px",
+          "disabled": false
+        },
+        {
+          "type": "text",
+          "width": 243.671875,
+          "radius": "6px",
+          "disabled": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "GeoSpectrum.exe": {
+    "size": 11931648,
+    "sha256": "fde8286667a8ca1dab9853a473f810fa598d08934ca0e29d6773cf8d994c5ee2"
+  },
+  "geospectrum-backend.exe": {
+    "size": 56180662,
+    "sha256": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+  },
+  "app\\.local\\releases\\2026-10-18-open-file-layout\\qa\\GeoSpectrum.exe": {
+    "size": 11947008,
+    "sha256": "560c5949a1d74c75e4fbe8cd3dc6f7f33b30fe53246015820e30bbdab670b71c"
+  }
+}

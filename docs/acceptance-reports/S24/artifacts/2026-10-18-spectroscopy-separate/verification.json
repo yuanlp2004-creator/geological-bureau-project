@@ -1,0 +1,94 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-spectroscopy-separate",
+  "executed_plan_sha256": "a800160329e670958defa52b692c3ddec94566cd309e442f247a2e24f787841a",
+  "product_changes": [
+    "app/backend/modules/manifest.py",
+    "app/frontend/src/navigation.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/EvaporationCurvesPage.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/acquisition/spectroscopySession.ts",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx"
+  ],
+  "navigation": {
+    "modules": 18,
+    "groups": 7,
+    "entries": 29,
+    "added": [
+      "analysis-tests.dispersion-curves",
+      "analysis-tests.evaporation-curves"
+    ]
+  },
+  "removed_ui": [
+    "full-time/evaporation named interval cards",
+    "interval name",
+    "start/end frame inputs for manual tags",
+    "mark interval action"
+  ],
+  "preserved": [
+    "average/full-interval storage",
+    "raw frames and existing interval records",
+    "public interval API compatibility",
+    "immediate sample measurements",
+    "insufficient-energy sample disposal",
+    "12/20 character post-capture sample naming",
+    "mode drafts and running/paused/pending operation locks",
+    "immutable calibration versions and method bindings"
+  ],
+  "rename": {
+    "location": "collapsible area at top of right capture sidebar",
+    "failure_retains_input": true,
+    "request_blocks_duplicates_and_selection": true,
+    "result_hash_preserved": true
+  },
+  "curves": {
+    "dispersion": "Existing location/gap/fit/publish/bind controls in independent menu view; same selected task and drafts retained",
+    "evaporation": "Read-only existing whole-CCD frame peak/integral over stored acquisition timestamps; damaged frames excluded; not a claim of complete legacy per-line evaporation analysis parity"
+  },
+  "tests": {
+    "backend": 39,
+    "frontend": 15,
+    "browser_workflows": 12,
+    "desktop_workflows": 12,
+    "browser_layouts": 13,
+    "desktop_layouts": 13,
+    "regression": 28,
+    "regression_layouts": 12,
+    "offline_manual_topics": 55
+  },
+  "build": {
+    "matched_product_sources": 352,
+    "frontend_assets_match": true,
+    "root_pair_sha256": {
+      "GeoSpectrum.exe": "c68aa9b9f839ec38cc2b529b35045134d5b8af79d908291b494275fa3e79b217",
+      "geospectrum-backend.exe": "7ecda625956f163fbef87dae51285692f40b4f78f8b20639c078932587edea44"
+    },
+    "previous_pair_backup": "app/.local/releases/2026-10-18-spectroscopy-separate/previous/root-entry-20261018-093520",
+    "sidecar_rebuilt_for_navigation": true
+  },
+  "data_preservation": {
+    "business_files_including_main_db": 10,
+    "legacy_source_files": 106,
+    "all_hashes_match": true,
+    "schema": 23,
+    "root_and_app_entries_unchanged": true
+  },
+  "desktop_exit": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-spectroscopy-separate\\qa\\GeoSpectrum.exe",
+    "pid": 14840,
+    "shown_window_handles": [
+      1115828
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "external_acceptance_gates_unchanged": true
+}

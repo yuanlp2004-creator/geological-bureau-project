@@ -1,0 +1,27 @@
+{
+  "provenance": "S06 acceptance report original file evidence; S24 retained runtime copies; recovered 2026-09-22",
+  "evidence": "docs/acceptance-reports/S06/验收报告.md",
+  "files": {
+    "mtd": {
+      "filename": "DIRECT.MTD",
+      "size": 339968,
+      "sha256": "2f7c09324b4f9320506f2a198a1e2abdd6e9d31a5ef92b2ac4b4e9cb9279a3f8",
+      "original_path": "Spec2.02/DIRECT.MTD",
+      "recovered_from": "app/.local/tmp/s24-sources/runtime-DIRECT.MTD"
+    },
+    "cfg": {
+      "filename": "DIRECT.CFG",
+      "size": 125,
+      "sha256": "51406d2f036ca8e9a7aa4f0b8d14362689695a19793df58a2f90913179d5c4c2",
+      "original_path": "Spec2.02/DIRECT.CFG",
+      "recovered_from": "app/.local/tmp/s24-sources/runtime-DIRECT.CFG"
+    },
+    "opt": {
+      "filename": "DIRECT.OPT",
+      "size": 395,
+      "sha256": "3ceb8d73484687a2b83cfb64ceac6cdecfb8c0e68e5a04497b3501c624de63dc",
+      "original_path": "Spec2.02/DIRECT.OPT",
+      "recovered_from": "app/.local/tmp/s24-sources/runtime-DIRECT.OPT"
+    }
+  }
+}

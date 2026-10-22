@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-08",
+  "status": "numeric_differences_reproduced",
+  "probe_count": 7,
+  "scope": "pure numeric probes, not full workflow or hardware acceptance",
+  "checks": [
+    {
+      "id": "gaussian_fallback",
+      "input": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      "profile": "legacy_2_0_2",
+      "current": "analysis_gaussian_fit_failed",
+      "legacy_source_rule": "retain the searched peak height, 10.0"
+    },
+    {
+      "id": "upper_curve_boundary",
+      "intensities": [
+        10,
+        20,
+        30,
+        40
+      ],
+      "contents": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "sample_intensity": 100.0,
+      "current": 10.000000149011612,
+      "legacy_source_rule_result": 4.0
+    },
+    {
+      "id": "lower_curve_boundary",
+      "sample_intensity": 1.0,
+      "current": 0.00999999977645416,
+      "legacy_source_rule_result": 0.3333333333333333
+    },
+    {
+      "id": "logarithmic_smoothing",
+      "current_fit_point_count": 4,
+      "legacy_source_rule": "nonlinear logarithmic fit with fewer than 16 points uses 16 interpolated and smoothed points"
+    },
+    {
+      "id": "internal_background_switch",
+      "analysis_peak": 200,
+      "analysis_back_position": 0,
+      "internal_peak": 100,
+      "internal_background": 20,
+      "internal_back_position": 2,
+      "current_candidate_ratio": 2.5,
+      "legacy_source_rule_result": 2.0
+    },
+    {
+      "id": "internal_background_recalculation",
+      "current": 2.5,
+      "legacy_source_rule_result": 2.0
+    },
+    {
+      "id": "stored_standard_reuse",
+      "current_intensities": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "legacy_source_rule": "when fewer than four current standards are selected, load the prior Valid standard set"
+    }
+  ],
+  "source_sha256": {
+    "Spec2.02功能研究/01_功能树_源码整理版.md": "24ff0ceef84abef4188f40a160bb4509c7e1c18589c3e03ebc03e6168ff15dd8",
+    "Spec2.02功能研究/05_下拉选项与参数使用链.md": "1c8a3013da8133261d3711309ad2954d4f91e86d1e9ddb5588bd498dac0f610d",
+    "Spec2.02功能研究/06_业务流程与参数消费矩阵.md": "ea71f9c80c74d10b64ddcb2322c2ba3edbaa7aac3b5c36f2a555d132e4e1af0b",
+    "Spec2.02功能研究/10_缺漏复查与功能补充.md": "09b990e840e4a749f0f635c62710ce73d8448bbf8e4d58c9e6d50d00f2436001",
+    "Spec2.02功能研究/12_系统功能复核与补充.md": "7c94bcddd6510b2fa4a1f07c24da79f44b7be65312d45f86238c44ca832a6064",
+    "Spec Source/Source/Common/uFitMode.pas": "f3375c94b432c8d3b60f213790c8ee8b8d119ed742cfcd1c9b656508246e070b",
+    "Spec Source/Source/Common/uAnaThread.pas": "9aa79a35def7cd7145dd6c2c4d9b43171582c151847e8839ca167eb45b1e3a7a",
+    "Spec Source/Source/Main/mmAnalyze/FmAnaCheck.pas": "075f80a1f82ae3f5e8f2b0780f85c7b1dfda4d667dae86e5d666189dc049f361",
+    "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas": "072a722cab930a2e9fc4920514d049ac12aa817bcffbffa79c619726f7668e43",
+    "app/backend/modules/analysis/algorithms.py": "c1c741bee271249a04731fd150d2b33ffe81a418bf22af67a6fdd66e0437ef69",
+    "app/backend/modules/analysis/candidate.py": "4f076016f8201f95f698f66092340724f439bb5547a1adc16287fef28ddf8fca",
+    "app/backend/modules/analysis/curves.py": "840e4724be91f39c204cd89b05388caac33dc2ec6bc4eafd0b75d019e4248cf9",
+    "app/backend/modules/analysis/rules.py": "0a947d9f1bd1fdee04705646853217220c8763986c85cc1c67c5105bd660d333",
+    "app/backend/modules/postprocessing/legacy_calculation.py": "8365219676c4457799a326ff782f42aa026f418b5b61a2ce0d0bf706eca90cb4",
+    "app/backend/modules/legacy_migration/records.py": "fbc5de4e03f716827a1dc378475a49a235c2110b5dd700ed6270e36bf83ca4dd",
+    "app/backend/modules/legacy_migration/normalization.py": "8586d22f7d23f0946076771d37632c3778c9f91c7a3a72415169d6572a01d463",
+    "app/backend/modules/acquisition/repository.py": "b2cd9f3022ba6acbf4d0dba220264fc2a1137bf1264d1fa30ef19daad06fa598",
+    "app/backend/modules/postprocessing/recalculation.py": "bbb6debb2f0e72ce6ae64d9092529aff9bb088658bff8daf8edb6db10d4d6a88",
+    "app/backend/modules/postprocessing/exporting.py": "04f63d0af48d77593f992404b86acb75e924c43597ebef47bccd9547c568603d",
+    "app/backend/modules/postprocessing/conversion.py": "03f7d734668c5367f9458af5d5885a68c0a0bc50ce8dd4454c909fb34e868abb",
+    "app/backend/modules/acquisition_import.py": "0d4e25e43843296c438917047f4df3dfdb69251e77bed7c3e436a588a1f83bf7",
+    "app/backend/modules/reports/service.py": "f3c33bb70804650286b8d9b8e63ccdc2fb8dfe22635697deab47c795bdbcb6b9",
+    "app/backend/schemas/methods.py": "c1e02dc82da062cffdffa8d823cbdc1dc00076d64df6edae61019593419cb15b",
+    "app/backend/schemas/reports.py": "1f128b07453130fc18f16ec540dba0eb1e55d38984e5cd49eba1dce9886a0ed4",
+    "app/frontend/src/pages/methods/MethodGeometry.tsx": "9dddacab3e10bce117f10e03e0fb6696864b4fb60511eab58bf7bab774e117b5",
+    "app/frontend/src/pages/methods/MethodsPage.tsx": "f94c955155e0fc9de165be2fe8af68f6aee6db1360c58fe60fcc543cc5017bcd",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx": "1d81059134da5971bbbe3fe24eb162418c15c6fa564cf80903ada3bd9a298c10",
+    "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx": "95b1a6842b5046cfa0408e48d78eb2cf013dbe0a15d767aabae39a068b112027"
+  }
+}

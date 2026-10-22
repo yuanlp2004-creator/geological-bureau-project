@@ -1,0 +1,50 @@
+{
+  "sam_gui": {
+    "expected": "样1",
+    "status": 201,
+    "actual": "��1",
+    "source_sha256": "5fe53520e879b7eab522eb3346cc70af4bfed81810a86222f69c2f3b8ecb8936",
+    "imported_payload": "��1\t1\r\n"
+  },
+  "curve_nudge": {
+    "before": {
+      "cx": 313.3333333333333,
+      "cy": 213.33333333333331
+    },
+    "after": {
+      "cx": 325.2519379844961,
+      "cy": 213.33333333333331
+    },
+    "expected_axis": "legacy x=concentration y=intensity",
+    "actual_chart_labels": "分析值 (ug/g)\n强度\n100\n150\n200\n250\n300\n350\n400\n1\n2\n3\n4",
+    "moves_horizontally": true
+  },
+  "logarithmic_plot": {
+    "checked": true,
+    "displayed_standard_points": [
+      {
+        "name": "标准点 S1",
+        "cx": 40,
+        "cy": 299.4180525644829
+      },
+      {
+        "name": "标准点 S2",
+        "cx": 325.2519379844961,
+        "cy": 212.94536837632194
+      },
+      {
+        "name": "标准点 S3",
+        "cx": 586.6666666666666,
+        "cy": 126.47268418816097
+      },
+      {
+        "name": "标准点 S4",
+        "cx": 860,
+        "cy": 40
+      }
+    ],
+    "labels": "分析值 (ug/g)\n强度\n100\n150\n200\n250\n300\n350\n400\n1\n2\n3\n4",
+    "raw_linear_y_step": -86.47268418816094,
+    "note": "Values 1,2,3,4 remain equally spaced along displayed y in logarithmic mode"
+  }
+}

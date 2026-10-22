@@ -12,6 +12,13 @@ class HardwareTurnInput(BaseModel):
     priority: int = Field(default=0, ge=0, le=100)
     key_band: bool = False
     expected_peak_position: float = Field(default=1024, ge=0, le=4096)
+    expected_baseline_position: float = Field(default=256, ge=0, le=4096)
+    search_radius_points: int = Field(default=64, ge=1, le=1024)
+    storage_mode: Literal['averaged', 'full_interval'] = 'averaged'
+    start_frame: int = Field(default=1, ge=1, le=255)
+    end_frame: int = Field(default=1, ge=1, le=255)
+    baseline_ccd_index: int | None = Field(default=None, ge=0, le=255)
+    peak_ccd_index: int | None = Field(default=None, ge=0, le=255)
 
 
 class HardwareTaskCreate(BaseModel):
@@ -29,7 +36,7 @@ class HardwareTaskCreate(BaseModel):
     pre_excitation_seconds: float = Field(default=1, ge=0, le=600)
     sampling_period_seconds: float = Field(default=1, gt=0, le=60)
     ccd_indices: list[int] | None = Field(default=None, min_length=1, max_length=256)
-    turns: list[HardwareTurnInput] = Field(min_length=1, max_length=300)
+    turns: list[HardwareTurnInput] = Field(default_factory=list, max_length=300)
     thresholds: dict[str, float] = Field(default_factory=dict)
     simulator_sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
     seed: int = Field(default=0, ge=0, le=2_147_483_647)
@@ -41,3 +48,10 @@ class HardwareIntervention(BaseModel):
 
     action: Literal["accept", "retry", "stop"]
     note: str = Field(default="", max_length=300)
+
+
+class HardwareAnalysisSample(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    sample_name: str = Field(min_length=1, max_length=20)
+    sample_kind: Literal['test', 'standard'] = 'test'
+    name_length: Literal[12, 20] = 12

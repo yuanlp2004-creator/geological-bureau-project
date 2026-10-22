@@ -1,0 +1,76 @@
+[
+  {
+    "category": "methods",
+    "source": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\方成DIRECT.MTD",
+      "relative": "Spec Source\\Bin\\方成DIRECT.MTD",
+      "format": "mtd",
+      "size": 512000,
+      "mtime_ns": "1787726422514846600",
+      "sha256": "04a5e8212439deb4f7bc9e5526c568de0acad55c5b85d090edbf377b3c5b94c6"
+    },
+    "type": "LegacyMigrationError",
+    "code": "legacy_wstc_shape_invalid",
+    "message": "WSTC[4] 的 CCD BLOB 与 CcdCount 不一致",
+    "details": {}
+  },
+  {
+    "category": "methods",
+    "source": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\化验DIRECT.MTD",
+      "relative": "Spec Source\\Bin\\化验DIRECT.MTD",
+      "format": "mtd",
+      "size": 536576,
+      "mtime_ns": "1787726422510818000",
+      "sha256": "f049c2012e276ff10f6b0ed040ee542b4f23827c5e950fa5ff8b22b957695ed5"
+    },
+    "type": "LegacyMigrationError",
+    "code": "legacy_wstc_shape_invalid",
+    "message": "WSTC[2] 的 CCD BLOB 与 CcdCount 不一致",
+    "details": {}
+  },
+  {
+    "category": "spectra",
+    "source": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\20140915测试数据\\标准系列S10.wdt",
+      "relative": "Spec Source\\Res\\20140915测试数据\\标准系列S10.wdt",
+      "format": "wdt",
+      "size": 1003520,
+      "mtime_ns": "1787726453389149100",
+      "sha256": "f509b26d78f1fa4bc9f52e1dcacbf5bd5ed539497e2d0acde6337d20d4a43a43"
+    },
+    "type": "LegacyMigrationError",
+    "code": "spectrum_layout_shape_invalid",
+    "message": "LAYOUT BLOB 长度与帧/CCD 维度不一致",
+    "details": {
+      "gap_bytes": 20,
+      "expected_gap_bytes": 20,
+      "index_bytes": 16,
+      "expected_index_bytes": 4,
+      "ws_cof_bytes": 32,
+      "expected_ws_cof_bytes": 24
+    }
+  },
+  {
+    "category": "spectra",
+    "source": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\20140915测试数据\\标准系列.wdt",
+      "relative": "Spec Source\\Res\\20140915测试数据\\标准系列.wdt",
+      "format": "wdt",
+      "size": 3633152,
+      "mtime_ns": "1787726454312201200",
+      "sha256": "29689046cc06565d21208bffdb3e10f050aef7abd0a391678f09a9a795dffcf3"
+    },
+    "type": "LegacyMigrationError",
+    "code": "spectrum_layout_shape_invalid",
+    "message": "LAYOUT BLOB 长度与帧/CCD 维度不一致",
+    "details": {
+      "gap_bytes": 20,
+      "expected_gap_bytes": 20,
+      "index_bytes": 16,
+      "expected_index_bytes": 4,
+      "ws_cof_bytes": 32,
+      "expected_ws_cof_bytes": 24
+    }
+  }
+]

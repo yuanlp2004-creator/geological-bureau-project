@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "checks": [
+    "三个菜单/模式共用同一工作台与控制区；切换保留各自草稿",
+    "样品实际模拟采集完成并产生结果哈希；请求未返回、运行与暂停时均阻止菜单/模式切换，完成后解锁",
+    "蒸发非法输入零写入；独立任务完成、全时帧和区间写回，任务列表与样品结果隔离",
+    "色散共用控制、暂停继续、燃烧/暗帧完成与停止收尾通过；返回样品保留任务和谱图",
+    "三模式1440明色/1060暗色紧凑布局与控制按钮换行通过",
+    "只读角色不能创建或执行摄谱；当前方法前置条件在共用模式入口继续生效"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "mode": "sample-acquisition",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "overflow": 0,
+      "controlOverflow": 0
+    },
+    {
+      "mode": "evaporation-acquisition",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "overflow": 0,
+      "controlOverflow": 0
+    },
+    {
+      "mode": "dispersion",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "overflow": 0,
+      "controlOverflow": 0
+    },
+    {
+      "mode": "sample-acquisition",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "overflow": 0,
+      "controlOverflow": 0
+    },
+    {
+      "mode": "evaporation-acquisition",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "overflow": 0,
+      "controlOverflow": 0
+    },
+    {
+      "mode": "dispersion",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "overflow": 0,
+      "controlOverflow": 0
+    }
+  ]
+}

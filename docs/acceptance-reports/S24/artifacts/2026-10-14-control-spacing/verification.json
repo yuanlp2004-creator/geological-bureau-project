@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "scope": "地质局独立控件和卡片之间的间距",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "changed_product_files": [
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "changes": [
+    "色散采集条件最后一行与新建任务按钮相隔12px",
+    "校准版本管理卡片与任务列表操作栏相隔16px",
+    "分析谱图工具组上下相隔12px，视图导航与谱图工具区增加12px"
+  ],
+  "business_handlers_unchanged": true,
+  "frontend_unit_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "production_build": "TypeScript / Vite / Tauri release --no-bundle passed",
+  "navigation_entries": 26,
+  "pages": 21,
+  "browser_states": 56,
+  "desktop_states": 56,
+  "checks": [
+    "真实新建色散任务、非法帧数零提交",
+    "任务列表/表单折叠展开保留输入 light/1440",
+    "任务列表/表单折叠展开保留输入 dark/1060"
+  ],
+  "critical_before": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "formButtonGap": 0,
+      "cardTaskBarGap": 0
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "formButtonGap": 0,
+      "cardTaskBarGap": 0
+    }
+  ],
+  "critical_after": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "formButtonGap": 12,
+      "cardTaskBarGap": 16
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "formButtonGap": 12,
+      "cardTaskBarGap": 16
+    }
+  ],
+  "separate_boxes_touching_after": [],
+  "page_errors": [],
+  "classification": "基线原始候选24对；其中帮助页连续导航行和报告排列分段组属组合控件，人工查看后排除。其余候选来自分析/色散页。最终扫描继续排除这些同一列表或分段组，不将其称为修复。",
+  "desktop_startup_read_retries": [
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "desktop_close_code": 0,
+  "desktop_owned_pids_remaining": [],
+  "production_binaries": {
+    "GeoSpectrum.exe": "51FF8770839A65D34727B49E00AF849E756D1DF2F2A9EC61E8B56052DFBDDF3F",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "desktop_test_binary": {
+    "sha256": "FF824C4709961775A10308D6923E64B613748B8FCB0C22A8B3CDFE5D0A518F2B",
+    "identifier": "cn.geospectrum.desktop.qaspacing20261014",
+    "reason": "避开用户已打开的程序并隔离数据，使用独立标识验证",
+    "same_frontend_assets_as_production": [
+      {
+        "Path": "\\assets\\index-CXUXI8AO.css",
+        "Hash": "72309F7CB33DE5A0B354006FE5EFDC32A115FFE0CC1C0E97C8A01757A10C756E"
+      },
+      {
+        "Path": "\\assets\\index-Di3F1_DM.js",
+        "Hash": "E32356BAB490B7E4353A9D45F3BF37B29A582819758E1C8DB878AFC296111412"
+      },
+      {
+        "Path": "\\index.html",
+        "Hash": "882059AB7B28D7B24AC3FEE351F1EDF5C6F6CEBF082786D1DCDA844624A404F3"
+      }
+    ]
+  },
+  "root_and_app_entries_unchanged": true,
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-14-control-spacing\\previous",
+  "limits": [
+    "仅覆盖本轮实际可见状态，明色comfortable/1440和暗色compact/1060",
+    "已有报告选择白屏未在此批处理，报告选中后的输出未检查",
+    "已有标准点首次切换重置用第二次点击打开后检查，未改视图业务",
+    "旧样品空列表过大问题未在此批处理",
+    "独立QA与正式入口标识/EXE哈希不同，全部前端构建资源SHA-256相同",
+    "已运行窗口使用旧映像，关闭后重新启动根目录入口生效"
+  ],
+  "evidence": [
+    "form-before-light.png",
+    "context-before-light.png",
+    "analysis-before-light.png",
+    "form-after-light.png",
+    "context-after-light.png",
+    "analysis-toolbar-after-light.png",
+    "form-after-dark.png",
+    "context-after-dark.png",
+    "analysis-toolbar-after-dark.png"
+  ]
+}

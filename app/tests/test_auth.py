@@ -28,12 +28,12 @@ def auth_client(tmp_path, monkeypatch):
 
 def test_logout_has_no_body_and_revokes_session(auth_client) -> None:
     client, _ = auth_client
-    client.post('/api/v1/auth/bootstrap', json={'username': 'operator', 'password': 'correct-horse'})
-    headers = {'Authorization': f'Bearer {_admin_token(client)}'}
-    response = client.post('/api/v1/auth/logout', headers=headers)
+    client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})
+    headers = {"Authorization": f"Bearer {_admin_token(client)}"}
+    response = client.post("/api/v1/auth/logout", headers=headers)
     assert response.status_code == 204
-    assert response.content == b''
-    assert client.get('/api/v1/auth/me', headers=headers).status_code == 401
+    assert response.content == b""
+    assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
 
 
 def _admin_token(client: TestClient) -> str:
@@ -45,9 +45,15 @@ def _admin_token(client: TestClient) -> str:
 def test_bootstrap_uses_argon2id_and_seeds_roles(auth_client) -> None:
     client, runtime = auth_client
     assert client.get("/api/v1/auth/status").json() == {"bootstrapped": False}
-    assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+    assert (
+        client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code
+        == 201
+    )
     assert client.get("/api/v1/auth/status").json() == {"bootstrapped": True}
-    assert client.post("/api/v1/auth/bootstrap", json={"username": "second", "password": "correct-horse"}).status_code == 409
+    assert (
+        client.post("/api/v1/auth/bootstrap", json={"username": "second", "password": "correct-horse"}).status_code
+        == 409
+    )
 
     with runtime.database.read() as db:
         stored = db.execute("SELECT password_hash FROM users WHERE username='operator'").fetchone()[0]
@@ -63,7 +69,10 @@ def test_bootstrap_uses_argon2id_and_seeds_roles(auth_client) -> None:
 
 def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) -> None:
     client, runtime = auth_client
-    assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+    assert (
+        client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code
+        == 201
+    )
 
     expected = {name: set(keys) for name, _description, keys in BUILTIN_ROLES}
     with runtime.database.read() as db:
@@ -79,9 +88,13 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
             for role in expected
         }
     assert actual == expected
-    assert {"acquisition.execute", "hardware-acquisition.execute", "mercury-calibration.execute"}.isdisjoint(expected["method_administrator"])
+    assert {"acquisition.execute", "hardware-acquisition.execute", "mercury-calibration.execute"}.isdisjoint(
+        expected["method_administrator"]
+    )
     assert {"devices.write", "devices.execute"}.isdisjoint(expected["analyst"])
-    assert {"acquisition.execute", "hardware-acquisition.execute", "analysis.execute", "analysis.intervene"}.issubset(expected["analyst"])
+    assert {"acquisition.execute", "hardware-acquisition.execute", "analysis.execute", "analysis.intervene"}.issubset(
+        expected["analyst"]
+    )
 
     with runtime.database.write() as db:
         for role, permission in (("method_administrator", "acquisition.execute"), ("analyst", "devices.execute")):
@@ -99,7 +112,9 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
             "OR (r.name='analyst' AND p.key='devices.execute')"
         ).fetchall()
         changes = json.loads(
-            db.execute("SELECT details_json FROM audit_events WHERE action='role.permission.migrate' ORDER BY id DESC LIMIT 1").fetchone()[0]
+            db.execute(
+                "SELECT details_json FROM audit_events WHERE action='role.permission.migrate' ORDER BY id DESC LIMIT 1"
+            ).fetchone()[0]
         )["changes"]
     assert stale == []
     assert {item["operation"] for item in changes} == {"revoke"}
@@ -107,7 +122,10 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
 
 def test_existing_database_receives_about_permission_idempotently(auth_client) -> None:
     client, runtime = auth_client
-    assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
+    assert (
+        client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code
+        == 201
+    )
     with runtime.database.write() as db:
         db.execute(
             "DELETE FROM role_permissions WHERE role_id=(SELECT id FROM roles WHERE name='system_administrator') "
@@ -139,10 +157,14 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
     bad_password = client.post("/api/v1/auth/login", json={"username": "operator", "password": "bad-password"})
     missing_user = client.post("/api/v1/auth/login", json={"username": "missing", "password": "bad-password"})
     assert bad_password.status_code == missing_user.status_code == 401
-    assert bad_password.json()["detail"] == missing_user.json()["detail"] == {
-        "code": "auth_invalid_credentials",
-        "message": "用户名或密码错误",
-    }
+    assert (
+        bad_password.json()["detail"]
+        == missing_user.json()["detail"]
+        == {
+            "code": "auth_invalid_credentials",
+            "message": "用户名或密码错误",
+        }
+    )
 
     token = _admin_token(client)
     headers = {"Authorization": f"Bearer {token}"}
@@ -156,7 +178,7 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
         for entry in capability["navigation_entries"]
         if any(permission in me.json()["permissions"] for permission in entry["required_any"])
     ]
-    assert len(visible_entries) == 26
+    assert len(visible_entries) == 25
     assert any(entry["key"] == "help.about" for entry in visible_entries)
     roles = client.get("/api/v1/roles", headers=headers)
     assert roles.status_code == 200
@@ -168,7 +190,9 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
         json={"username": "viewer", "password": "viewer-pass", "role_ids": []},
     )
     assert created.status_code == 201
-    viewer_token = client.post("/api/v1/auth/login", json={"username": "viewer", "password": "viewer-pass"}).json()["access_token"]
+    viewer_token = client.post("/api/v1/auth/login", json={"username": "viewer", "password": "viewer-pass"}).json()[
+        "access_token"
+    ]
     viewer_headers = {"Authorization": f"Bearer {viewer_token}"}
     assert client.get("/api/v1/users", headers=viewer_headers).status_code == 403
     assert client.get("/api/v1/audit", headers=viewer_headers).status_code == 403
@@ -182,20 +206,72 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
     assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
 
 
+def test_software_about_and_administrator_diagnostics_permissions(auth_client) -> None:
+    client, _ = auth_client
+    client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})
+    admin_headers = {"Authorization": f"Bearer {_admin_token(client)}"}
+    roles = client.get("/api/v1/roles", headers=admin_headers).json()
+    assert client.get("/api/v1/diagnostics").status_code == 401
+    entries = [entry for module in client.get("/api/v1/capabilities").json()["capabilities"]
+               for entry in module["navigation_entries"]]
+    assert next(entry for entry in entries if entry["key"] == "help.about")["label"] == "关于软件"
+    for index, role in enumerate(roles):
+        username = f"about-role-{index}"
+        assert client.post("/api/v1/users", headers=admin_headers, json={
+            "username": username, "password": "about-test-pass", "role_ids": [role["id"]],
+        }).status_code == 201
+        token = client.post("/api/v1/auth/login", json={
+            "username": username, "password": "about-test-pass",
+        }).json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+        response = client.get("/about", headers=headers)
+        assert response.status_code == 200
+        about = response.json()
+        assert about["display_name"].startswith("GeoSpectrum")
+        assert about["version"]
+        assert about["copyright"] == "© 2026 湖北华祥地质环境检测科技有限公司"
+        diagnostics = client.get("/api/v1/diagnostics", headers=headers)
+        if role["name"] == "system_administrator":
+            assert diagnostics.status_code == 200
+            assert diagnostics.json()["sqlite_integrity"] == "ok"
+            assert about["database"] and about["build"]
+        else:
+            assert diagnostics.status_code == 403
+            assert about["database"] == about["runtime"] == about["license"] == ""
+            assert about["modules"] == [] and about["build"] == {}
+        if role["name"] == "read_only_auditor":
+            assert client.get("/api/v1/maintenance/status", headers=headers).status_code == 200
+
+
 def test_permission_changes_are_audited_and_disabled_users_cannot_login(auth_client) -> None:
     client, runtime = auth_client
     client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"})
     admin = _admin_token(client)
     headers = {"Authorization": f"Bearer {admin}"}
-    role = client.post("/api/v1/roles", headers=headers, json={"name": "qc_reviewer", "description": "QC", "permission_keys": ["results.read"]})
+    role = client.post(
+        "/api/v1/roles",
+        headers=headers,
+        json={"name": "qc_reviewer", "description": "QC", "permission_keys": ["results.read"]},
+    )
     assert role.status_code == 201
     role_id = role.json()["id"]
-    assert client.patch("/api/v1/roles/%s" % role_id, headers=headers, json={"permission_keys": ["results.read", "audit.read"]}).status_code == 200
-    user = client.post("/api/v1/users", headers=headers, json={"username": "reviewer", "password": "review-pass", "role_ids": [role_id]})
+    assert (
+        client.patch(
+            "/api/v1/roles/%s" % role_id, headers=headers, json={"permission_keys": ["results.read", "audit.read"]}
+        ).status_code
+        == 200
+    )
+    user = client.post(
+        "/api/v1/users",
+        headers=headers,
+        json={"username": "reviewer", "password": "review-pass", "role_ids": [role_id]},
+    )
     assert user.status_code == 201
     user_id = user.json()["id"]
     assert client.patch("/api/v1/users/%s" % user_id, headers=headers, json={"enabled": False}).status_code == 200
-    assert client.post("/api/v1/auth/login", json={"username": "reviewer", "password": "review-pass"}).status_code == 401
+    assert (
+        client.post("/api/v1/auth/login", json={"username": "reviewer", "password": "review-pass"}).status_code == 401
+    )
 
     audit = client.get("/api/v1/audit", headers=headers)
     assert audit.status_code == 200
@@ -227,16 +303,35 @@ def test_s02_core_permissions_audit_and_event_stream_scope(auth_client) -> None:
         json={"username": "auditor", "password": "auditor-pass", "role_ids": [auditor_role["id"]]},
     )
     assert created.status_code == 201
-    auditor_token = client.post("/api/v1/auth/login", json={"username": "auditor", "password": "auditor-pass"}).json()["access_token"]
+    auditor_token = client.post("/api/v1/auth/login", json={"username": "auditor", "password": "auditor-pass"}).json()[
+        "access_token"
+    ]
     auditor_headers = {"Authorization": f"Bearer {auditor_token}"}
     assert client.get("/api/v1/settings", headers=auditor_headers).status_code == 200
     assert client.get("/api/v1/logs", headers=auditor_headers).status_code == 200
-    assert client.patch("/api/v1/settings", headers=auditor_headers, json={"display": {"density": "compact"}}).status_code == 403
-    assert client.post("/api/v1/logs", headers=auditor_headers, json={"category": "import", "severity": "info", "message": "denied"}).status_code == 403
+    assert (
+        client.patch("/api/v1/settings", headers=auditor_headers, json={"display": {"density": "compact"}}).status_code
+        == 403
+    )
+    assert (
+        client.post(
+            "/api/v1/logs",
+            headers=auditor_headers,
+            json={"category": "import", "severity": "info", "message": "denied"},
+        ).status_code
+        == 403
+    )
 
-    assert client.patch("/api/v1/settings", headers=headers, json={"display": {"density": "compact"}}).status_code == 200
+    assert (
+        client.patch("/api/v1/settings", headers=headers, json={"display": {"density": "compact"}}).status_code == 200
+    )
     assert client.post("/api/v1/settings/reset", headers=headers).status_code == 200
-    assert client.post("/api/v1/logs", headers=headers, json={"category": "action", "severity": "info", "message": "manual"}).status_code == 201
+    assert (
+        client.post(
+            "/api/v1/logs", headers=headers, json={"category": "action", "severity": "info", "message": "manual"}
+        ).status_code
+        == 201
+    )
     assert client.delete("/api/v1/logs", headers=headers).status_code == 200
     actions = [event["action"] for event in client.get("/api/v1/audit", headers=headers).json()]
     assert {"settings.update", "settings.reset", "runtime_event.create", "runtime_event.clear"}.issubset(actions)
@@ -248,6 +343,11 @@ def test_s02_core_permissions_audit_and_event_stream_scope(auth_client) -> None:
 
     with client.websocket_connect(f"/ws/events?access_token={auditor_token}") as websocket:
         assert websocket.receive_json() == {"type": "ready", "api_version": "v1"}
-        assert client.post("/api/v1/logs", headers=headers, json={"category": "import", "severity": "info", "message": "imported"}).status_code == 201
+        assert (
+            client.post(
+                "/api/v1/logs", headers=headers, json={"category": "import", "severity": "info", "message": "imported"}
+            ).status_code
+            == 201
+        )
         pushed = websocket.receive_json()
         assert pushed["event"]["message"] == "imported"

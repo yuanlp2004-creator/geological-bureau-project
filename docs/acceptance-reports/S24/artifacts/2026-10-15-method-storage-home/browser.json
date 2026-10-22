@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "方法页维护转角增改删；361度越界零提交，逐线曝光输入不在方法页",
+    "高级存储在方法转角下方，转角与模式/范围共用草稿；折叠保留输入且一次保存全部提交",
+    "分析谱线页不再含采集存储表，曝光区间独立显示在谱线类型和其他参数上方",
+    "顶部曝光保存逐线2–3帧，越界5帧零提交且不新增版本",
+    "存储越界阻止方法保存；修正后转角和存储一起保存，另一转角及逐线曝光保持",
+    "明暗1440/1060窗口下方法存储位于转角下方，逐线曝光保持在编辑器顶部，文档宽度断言通过",
+    "区间曝光发布后自动全时保存完整帧，逐线区间用于即时测量",
+    "关闭后保留逐线配置但禁用并按简单均值保存；原已发布版本哈希保持",
+    "显式高级分角度采集保留原存储策略，界面展示与实际任务一致",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

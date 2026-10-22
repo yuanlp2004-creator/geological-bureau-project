@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "checks": [
+    "Only the header save button remains; the entire duplicate footer is absent",
+    "The header save persists edits and preserves existing versions",
+    "Invalid numeric input remains visible and creates no version",
+    "Current and non-current methods both retain one header save action",
+    "The header save remains visible in wide light and narrow dark layouts without overflow"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "save": {
+        "x": 940,
+        "y": 246.984375,
+        "width": 77,
+        "height": 36
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "save": {
+        "x": 572,
+        "y": 303.28125,
+        "width": 77,
+        "height": 32
+      }
+    }
+  ]
+}

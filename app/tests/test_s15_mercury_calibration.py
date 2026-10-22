@@ -16,7 +16,9 @@ from backend.modules.mercury_calibration import MercuryCalibrationService, Mercu
 
 def _create(service: MercuryCalibrationService, **overrides) -> dict:
     line_ids = [line["id"] for line in service.options()["reference_lines"][:4]]
-    return service.create_session({"line_ids": line_ids, "stabilization_frames": 2, "simulator_offset_points": 6.0} | overrides)
+    return service.create_session(
+        {"line_ids": line_ids, "stabilization_frames": 2, "simulator_offset_points": 6.0} | overrides
+    )
 
 
 def _ready(service: MercuryCalibrationService, session_id: int) -> dict:
@@ -33,12 +35,21 @@ def test_s15_nist_lines_peak_gold_apply_and_rollback(tmp_path: Path) -> None:
     database.initialize()
     service = MercuryCalibrationService(database)
     options = service.options()
-    assert [line["wavelength_nm"] for line in options["reference_lines"]] == [253.6517, 296.7280, 302.1498, 312.5668, 313.1548]
+    assert [line["wavelength_nm"] for line in options["reference_lines"]] == [
+        253.6517,
+        296.7280,
+        302.1498,
+        312.5668,
+        313.1548,
+    ]
     assert all(line["source_name"] == "NIST Strong Lines of Mercury" for line in options["reference_lines"])
 
     before_counts: tuple[int, int]
     with database.read() as db:
-        before_counts = (db.execute("SELECT COUNT(*) FROM dispersion_calibration_versions").fetchone()[0], db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0])
+        before_counts = (
+            db.execute("SELECT COUNT(*) FROM dispersion_calibration_versions").fetchone()[0],
+            db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0],
+        )
     created = _create(service)
     assert created["before_version"]["version"] == 1
     ready = _ready(service, created["id"])
@@ -59,7 +70,10 @@ def test_s15_nist_lines_peak_gold_apply_and_rollback(tmp_path: Path) -> None:
     rolled_back = service.rollback(created["id"])
     assert rolled_back["active_version"]["id"] == rolled_back["before_version"]["id"]
     with database.read() as db:
-        after_counts = (db.execute("SELECT COUNT(*) FROM dispersion_calibration_versions").fetchone()[0], db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0])
+        after_counts = (
+            db.execute("SELECT COUNT(*) FROM dispersion_calibration_versions").fetchone()[0],
+            db.execute("SELECT COUNT(*) FROM method_versions").fetchone()[0],
+        )
     assert after_counts == before_counts
 
 
@@ -107,7 +121,10 @@ def test_s15_immutable_frames_versions_and_control_lock(tmp_path: Path) -> None:
             db.execute("UPDATE mercury_frames SET points_sha256='tampered' WHERE session_id=?", (session["id"],))
     with pytest.raises(sqlite3.IntegrityError):
         with database.write() as db:
-            db.execute("UPDATE mercury_alignment_versions SET offset_points=999 WHERE id=?", (ready["candidate_version"]["id"],))
+            db.execute(
+                "UPDATE mercury_alignment_versions SET offset_points=999 WHERE id=?",
+                (ready["candidate_version"]["id"],),
+            )
     with pytest.raises(sqlite3.IntegrityError):
         with database.write() as db:
             db.execute("DELETE FROM mercury_traces WHERE session_id=?", (session["id"],))
@@ -123,13 +140,33 @@ def test_s15_api_permissions_and_manifest(tmp_path: Path, monkeypatch: pytest.Mo
     runtime = application.state.runtime
     with TestClient(application) as client:
         assert client.get("/api/v1/mercury-calibrations/options").status_code == 401
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         headers = {"Authorization": f"Bearer {token}"}
         options = client.get("/api/v1/mercury-calibrations/options", headers=headers).json()
-        created = client.post("/api/v1/mercury-calibrations/sessions", headers=headers, json={"line_ids": [line["id"] for line in options["reference_lines"][:2]], "stabilization_frames": 1})
+        created = client.post(
+            "/api/v1/mercury-calibrations/sessions",
+            headers=headers,
+            json={"line_ids": [line["id"] for line in options["reference_lines"][:2]], "stabilization_frames": 1},
+        )
         assert created.status_code == 201
         session_id = created.json()["id"]
-        assert client.post(f"/api/v1/mercury-calibrations/sessions/{session_id}/start", headers=headers).json()["status"] == "stabilizing"
-        capability = next(item for item in client.get("/api/v1/capabilities").json()["capabilities"] if item["key"] == "mercury-calibration")
-        assert {"mercury-calibration.read", "mercury-calibration.write", "mercury-calibration.execute"}.issubset(capability["permissions"])
+        assert (
+            client.post(f"/api/v1/mercury-calibrations/sessions/{session_id}/start", headers=headers).json()["status"]
+            == "stabilizing"
+        )
+        capability = next(
+            item
+            for item in client.get("/api/v1/capabilities").json()["capabilities"]
+            if item["key"] == "mercury-calibration"
+        )
+        assert {"mercury-calibration.read", "mercury-calibration.write", "mercury-calibration.execute"}.issubset(
+            capability["permissions"]
+        )

@@ -1,0 +1,189 @@
+{
+  "status": "passed",
+  "batch": "2026-10-20-qwen-toolbar-icons",
+  "executed_plan_sha256": "07eff4495a729c0e91bd2956fc6d8edc8e0361ba762b1a042f5818df5a765e59",
+  "modified_product_files": [
+    "app/frontend/src/layout/quick-access.css",
+    "app/frontend/src/layout/QuickAccessBar.tsx"
+  ],
+  "added_product_files": [
+    "app/frontend/src/assets/toolbar/acquisition.png",
+    "app/frontend/src/assets/toolbar/analysis.png",
+    "app/frontend/src/assets/toolbar/conditions.png",
+    "app/frontend/src/assets/toolbar/lines.png",
+    "app/frontend/src/assets/toolbar/new-method.png",
+    "app/frontend/src/assets/toolbar/open-method.png",
+    "app/frontend/src/assets/toolbar/samples.png",
+    "app/frontend/src/assets/toolbar/save-as.png"
+  ],
+  "tests": {
+    "typescript_vite_build": "passed",
+    "browser": 9,
+    "actual_packaged_desktop": 9,
+    "layouts_per_run": 4
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "c6786766700dd5999f40fb4134d3fe0218a56a75285a5943eb0333aa5fe7c0c6",
+    "geospectrum-backend.exe": "f575bcc5586979a9fdc5c5206b7c1fc0c22cc8de982896367f783de13e3ade09"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-qwen-toolbar-icons\\previous\\root-entry-20261020-143011",
+  "desktop": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-qwen-toolbar-icons\\qa\\GeoSpectrum.exe",
+    "sha256": "67409cce336bfa200a4806a477998a40a0324e2f0545f453bcefb617157bc436",
+    "pid": 24748,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "original_legacy_assets_preserved": true,
+  "legacy_source_files_preserved": 105,
+  "generation": {
+    "provider": "local ComfyUI at 127.0.0.1:8188",
+    "model": "qwen_image_2.1_int8_convrot.safetensors",
+    "text_encoder": "qwen3vl_8b_w4a8.safetensors",
+    "vae": "qwen_image_2.1_vae_bf16.safetensors",
+    "steps": 30,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "seed": 2026102008,
+    "reference_size": [
+      1536,
+      768
+    ],
+    "final_icon_size": [
+      256,
+      256
+    ],
+    "prompt_id": "7a63c1f8-46ab-422f-ad30-5894414cb843",
+    "node_errors": {},
+    "raw_sheet_sha256": "2bf3799861841ab4d6d7ea23d9e5fd1a07c55d59950af1ba7e404ccbffb7762e",
+    "external_prompt_api_used": false,
+    "canonical_workflow_unchanged": true,
+    "server_configuration_modified": false
+  },
+  "asset_checks": {
+    "icons": [
+      {
+        "name": "acquisition.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "analysis.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "conditions.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "lines.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "new-method.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "open-method.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "samples.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      },
+      {
+        "name": "save-as.png",
+        "size": [
+          256,
+          256
+        ],
+        "alpha_extrema": [
+          0,
+          255
+        ]
+      }
+    ],
+    "canonical_workflow_unchanged": true
+  },
+  "data": {
+    "tests_use_isolated_database": true,
+    "live_database_overwritten": false,
+    "live_main_file_hash_matches_start": true,
+    "user_changes_retained": true
+  },
+  "toolbar_presentation": {
+    "visible_text": false,
+    "hover_titles": true,
+    "accessible_names": true,
+    "button_css_size": [
+      36,
+      34
+    ]
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "test_temp_data_cleaned": true
+}

@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "方法页总开关默认关闭；高级分角度设置折叠；曝光起止在分析谱线，简单均值时禁用",
+    "开启后保存逐线2–3帧；超出总帧数的输入零提交且不新增版本",
+    "逐线曝光区间在明色1440和暗色1060窗口可操作且无整体横向溢出",
+    "区间曝光发布后自动全时保存完整帧，逐线区间用于即时测量",
+    "关闭后保留逐线配置但禁用并按简单均值保存；原已发布版本哈希保持",
+    "显式高级分角度采集保留原存储策略，界面展示与实际任务一致",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

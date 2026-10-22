@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "topics": 55,
+  "checks": [
+    "55 routes and body links",
+    "tree nesting and selected topic",
+    "body and section jumps",
+    "back and forward",
+    "next page",
+    "full text search and empty result",
+    "input escaping",
+    "deep link reload",
+    "invalid route fallback",
+    "font size",
+    "print media",
+    "mobile navigation",
+    "keyboard search",
+    "zero external requests",
+    "zero page errors"
+  ],
+  "screenshots": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-manual-qa-S2HcaS"
+}

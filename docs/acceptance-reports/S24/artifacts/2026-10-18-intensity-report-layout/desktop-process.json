@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-18-intensity-report-layout\\qa\\GeoSpectrum.exe",
+  "exe_sha256": "9464e1c8abeafb0f633d20607413aadb62721adeac6d927c592e5cd369347a1e",
+  "pid": 24580,
+  "shown_window_handles": [
+    2233536
+  ],
+  "returncode": 0,
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

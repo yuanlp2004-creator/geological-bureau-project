@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "production_identifier": "cn.geospectrum.desktop",
+  "archive": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-spec-gap-fill\\previous",
+  "files": [
+    {
+      "name": "GeoSpectrum.exe",
+      "size": 11784704,
+      "sha256": "10FF0D3A21D7CFAD944D4A9D0C0B15D3ACB1D9F44F4DB95AB6E87E1E0614ABD7",
+      "before_sha256": "6EAA982F3458941DF63CC7E03162CE15882C68DB87BA31872A2C25F88F768709"
+    },
+    {
+      "name": "geospectrum-backend.exe",
+      "size": 25096526,
+      "sha256": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51",
+      "before_sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+    }
+  ],
+  "user_pid_29484_present": true
+}

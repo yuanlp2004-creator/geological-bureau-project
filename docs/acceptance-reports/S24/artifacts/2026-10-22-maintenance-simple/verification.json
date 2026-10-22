@@ -1,0 +1,71 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-maintenance-simple",
+  "plan_sha256_at_start": "011d6f5a7b9b4176036de199a3a14d98e4bfacd69297ca8ae7cb095018c71bfc",
+  "product_changes": [
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/offline_help.py",
+    "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "generated_manifest_updated": true,
+  "main_operations": [
+    "备份数据库",
+    "整理数据库",
+    "清理记录文件"
+  ],
+  "retained_extras": [
+    "备份记录",
+    "校验",
+    "默认收起且按需加载的管理员诊断"
+  ],
+  "removed_ui_operations": [
+    "WAL checkpoint",
+    "优化",
+    "恢复演练",
+    "过期备份清理",
+    "临时文件清理",
+    "维护历史列表"
+  ],
+  "existing_backend_apis_and_records_preserved": true,
+  "maintenance_business_source_unchanged": true,
+  "backend_tests": 25,
+  "browser_checks": 5,
+  "desktop_checks": 5,
+  "layouts_each": 4,
+  "core_data_counts_preserved_in_isolated_reclaim": true,
+  "only_expired_rotated_log_fixture_deleted": true,
+  "current_recent_logs_and_temp_fixture_preserved": true,
+  "invalid_directory_rejected_and_retry_passed": true,
+  "invalid_age_blocks_log_cleanup": true,
+  "auditor_readonly_preserved": true,
+  "diagnostic_requests_only_on_expansion": true,
+  "manual_topics": 55,
+  "desktop_fresh_data_successful_runs": 2,
+  "initial_qa_connection_interruption_recorded": true,
+  "runtime_errors": [],
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-maintenance-simple\\qa\\GeoSpectrum.exe",
+    "pid": 26664,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "schema_version": 23,
+  "new_schema_migrations": false,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "94d92b78ce943dd1a7a10087ee0552510cf2a877934668990727a33eea33e2e9",
+    "geospectrum-backend.exe": "edf5f08151d1d414b08d0e054c20541868d0fa1d30e1af660e2e5fd658aaa5e9"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-maintenance-simple\\previous",
+  "installer_rebuilt": false
+}

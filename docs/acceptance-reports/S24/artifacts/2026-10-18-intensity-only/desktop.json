@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": 1,
+      "message": "数据处理仅两个入口，打印与导出仅两个页签"
+    },
+    {
+      "id": 2,
+      "message": "报告草稿跨页签保留，建立、预览、确认及PDF/Excel真实写盘通过，打印入口保留"
+    },
+    {
+      "id": 3,
+      "message": "新版分析批次直接输出真实强度快照和文本，无需PDT；输出期间锁定批次选择"
+    },
+    {
+      "id": 4,
+      "message": "强度批次跨页签保留，PDT兼容与结果导出仅按需展开，无逐帧导出选项"
+    },
+    {
+      "id": 5,
+      "message": "旧记录临时查看和EDT转换保留为重算辅助工具，非法区间零请求"
+    },
+    {
+      "id": 6,
+      "message": "重新计算独立页面完成，切换入口保留状态并导出对应重算批次"
+    },
+    {
+      "id": 7,
+      "message": "两个页签在1440/1060宽度、680高度及明暗主题无横向越界"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "documentWidth": 1440
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "documentWidth": 1440
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "documentWidth": 1045
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "documentWidth": 1060
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "documentWidth": 1060
+    }
+  ]
+}

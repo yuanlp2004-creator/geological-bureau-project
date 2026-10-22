@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from contextlib import nullcontext
 import re
 import threading
 import time
@@ -21,6 +22,10 @@ from .schemas.system import (
     SettingsPrinting,
     SettingsResponse,
     SettingsTime,
+    SettingsAnalysis,
+    SettingsPreliminary,
+    PreliminaryConditions,
+    SettingsIntensityOutput,
 )
 
 DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
@@ -32,9 +37,10 @@ DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
         "backups": "backups",
     },
     "logging": {"level": "info", "max_bytes": 5242880, "retention_days": 30},
-    "display": {"theme": "light", "density": "comfortable", "show_status_bar": True},
+    "display": {"theme": "light", "density": "comfortable", "show_status_bar": True,'screen_width_mm':409.2,'screen_resolution_px':1920},
     "printing": {
-        "default_printer": "geospectrum-pdf",
+        "elements_per_line": 15, "samples_per_page": 50, "time_mode": "analysis",
+        "default_printer": "system",
         "paper": "A4",
         "orientation": "portrait",
         "margin_top_mm": 12,
@@ -49,6 +55,9 @@ DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
         "preview_before_print": True,
     },
     "time": {"timezone": "Asia/Shanghai", "format": "YYYY-MM-DD HH:mm:ss"},
+    "analysis": SettingsAnalysis().model_dump(),
+    "intensity_output": SettingsIntensityOutput().model_dump(),
+    "preliminary": SettingsPreliminary().model_dump(),
 }
 
 ALLOWED_SETTING_GROUPS = frozenset(DEFAULT_SETTINGS)
@@ -58,6 +67,9 @@ SETTING_MODELS: dict[str, type[BaseModel]] = {
     "display": SettingsDisplay,
     "printing": SettingsPrinting,
     "time": SettingsTime,
+    "analysis": SettingsAnalysis,
+    "preliminary": SettingsPreliminary,
+    'intensity_output':SettingsIntensityOutput,
 }
 LOG_LEVEL_PRIORITY = {"debug": 10, "info": 20, "success": 20, "warning": 30, "error": 40}
 
@@ -99,6 +111,14 @@ class AppService:
             self._repair_invalid_settings(invalid)
         return SettingsResponse.model_validate(result).model_dump()
 
+    def save_preliminary_conditions(self, kind: str, conditions: PreliminaryConditions, actor_user_id: int) -> dict:
+        """Public settings boundary used by each acquisition workflow with its own permission."""
+        if kind not in {"evaporation", "dispersion"}:
+            raise ValueError("未知预备摄谱类型")
+        return self.update_settings(SettingsPatch.model_validate({
+            "preliminary": {kind: conditions.model_dump()}
+        }), actor_user_id)["preliminary"][kind]
+
     def _repair_invalid_settings(self, invalid: list[tuple[str, str, str]]) -> None:
         """Remove only still-current invalid rows and leave an auditable repair record."""
 
@@ -118,7 +138,8 @@ class AppService:
                     (json.dumps({"repaired": repaired}, ensure_ascii=False), utc_now()),
                 )
 
-    def update_settings(self, patch: SettingsPatch, actor_user_id: int | None = None) -> dict[str, dict[str, Any]]:
+    def update_settings(self, patch: SettingsPatch, actor_user_id: int | None = None, *, connection=None) -> dict[str, dict[str, Any]]:
+        external_transaction = connection is not None
         update_data = patch.model_dump(exclude_none=True)
         unknown = set(update_data).difference(ALLOWED_SETTING_GROUPS)
         if unknown:
@@ -126,7 +147,7 @@ class AppService:
         current = self.get_settings()
         before = {group: values.copy() for group, values in current.items()}
         now = utc_now()
-        with self.database.write() as connection:
+        with (self.database.write() if connection is None else nullcontext(connection)) as connection:
             for group, values in update_data.items():
                 if not isinstance(values, dict):
                     raise ValueError(f"settings group must be an object: {group}")
@@ -145,19 +166,20 @@ class AppService:
                 (
                     actor_user_id,
                     json.dumps(
-                        self._redact({
-                            "changed_groups": sorted(update_data),
-                            "before": {group: before[group] for group in update_data},
-                            "after": {group: current[group] for group in update_data},
-                        }),
+                        self._redact(
+                            {
+                                "changed_groups": sorted(update_data),
+                                "before": {group: before[group] for group in update_data},
+                                "after": {group: current[group] for group in update_data},
+                            }
+                        ),
                         ensure_ascii=False,
                     ),
                     now,
                 ),
             )
-        self.append_event(
-            RuntimeEventCreate(category="action", severity="success", message="软件设置已保存")
-        )
+        if not external_transaction:
+            self.append_event(RuntimeEventCreate(category="action", severity="success", message="软件设置已保存"))
         return current
 
     def reset_settings(self, actor_user_id: int) -> dict[str, dict[str, Any]]:
@@ -168,19 +190,24 @@ class AppService:
             connection.execute(
                 "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) "
                 "VALUES (?, 'settings.reset', 'settings', NULL, ?, ?)",
-                (actor_user_id, json.dumps(self._redact({"before": before, "after": DEFAULT_SETTINGS}), ensure_ascii=False), now),
+                (
+                    actor_user_id,
+                    json.dumps(self._redact({"before": before, "after": DEFAULT_SETTINGS}), ensure_ascii=False),
+                    now,
+                ),
             )
         settings = self.get_settings()
-        self.append_event(
-            RuntimeEventCreate(category="action", severity="warning", message="软件设置已恢复默认值")
-        )
+        self.append_event(RuntimeEventCreate(category="action", severity="warning", message="软件设置已恢复默认值"))
         return settings
 
     @staticmethod
     def _redact(value: Any) -> Any:
         sensitive = re.compile(r"password|passwd|token|secret|authorization|api[_-]?key|private[_-]?key", re.I)
         if isinstance(value, dict):
-            return {key: "[REDACTED]" if sensitive.search(str(key)) else AppService._redact(item) for key, item in value.items()}
+            return {
+                key: "[REDACTED]" if sensitive.search(str(key)) else AppService._redact(item)
+                for key, item in value.items()
+            }
         if isinstance(value, list):
             return [AppService._redact(item) for item in value]
         if isinstance(value, str):
@@ -245,7 +272,17 @@ class AppService:
                         actor_user_id,
                         audit_action,
                         event_id,
-                        json.dumps(self._redact({"category": event.category, "severity": event.severity, "message": event.message, "correlation_id": event.correlation_id}), ensure_ascii=False),
+                        json.dumps(
+                            self._redact(
+                                {
+                                    "category": event.category,
+                                    "severity": event.severity,
+                                    "message": event.message,
+                                    "correlation_id": event.correlation_id,
+                                }
+                            ),
+                            ensure_ascii=False,
+                        ),
                         created_at,
                     ),
                 )
@@ -261,7 +298,9 @@ class AppService:
         self._append_file_log(result)
         return result
 
-    def list_events(self, *, category: str | None = None, severity: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
+    def list_events(
+        self, *, category: str | None = None, severity: str | None = None, limit: int = 100
+    ) -> list[dict[str, Any]]:
         clauses: list[str] = []
         params: list[Any] = []
         if category:

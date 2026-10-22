@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "checks": [
+    "packaged root EXE bootstrap and login",
+    "real Tauri runtime handshake, schema v21, new legacy-import API, unauthorized denial",
+    "no page errors"
+  ],
+  "runtime": {
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 21,
+      "database": "ok",
+      "uptime_seconds": 12.641
+    },
+    "legacyImportAvailable": true,
+    "deniedStatus": 403,
+    "scripts": [
+      "http://tauri.localhost/assets/index-DOtmQrQz.js"
+    ]
+  }
+}

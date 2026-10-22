@@ -1,0 +1,160 @@
+{
+  "status": "passed",
+  "observations": [
+    {
+      "view": "parameters",
+      "width": 1440,
+      "dark": false,
+      "geometry": {
+        "x": 274,
+        "y": 426.53125,
+        "width": 553.5,
+        "height": 571.6171875
+      },
+      "excitation": {
+        "x": 843.5,
+        "y": 426.53125,
+        "width": 553.5,
+        "height": 303.03125
+      },
+      "angles": {
+        "x": 843.5,
+        "y": 745.5625,
+        "width": 553.5,
+        "height": 227.8828125
+      },
+      "desktop": true,
+      "devicePixelRatio": 2
+    },
+    {
+      "view": "parameters",
+      "width": 1440,
+      "dark": true,
+      "geometry": {
+        "x": 274,
+        "y": 400.53125,
+        "width": 553.5,
+        "height": 547.6171875
+      },
+      "excitation": {
+        "x": 843.5,
+        "y": 400.53125,
+        "width": 553.5,
+        "height": 287.03125
+      },
+      "angles": {
+        "x": 843.5,
+        "y": 703.5625,
+        "width": 553.5,
+        "height": 215.8828125
+      },
+      "desktop": true,
+      "devicePixelRatio": 2
+    },
+    {
+      "view": "parameters",
+      "width": 1060,
+      "dark": false,
+      "geometry": {
+        "x": 235,
+        "y": 491.7265625,
+        "width": 790,
+        "height": 496.46875
+      },
+      "excitation": {
+        "x": 235,
+        "y": 1004.1953125,
+        "width": 387,
+        "height": 303.03125
+      },
+      "angles": {
+        "x": 638,
+        "y": 1004.1953125,
+        "width": 387,
+        "height": 275.8828125
+      },
+      "desktop": true,
+      "devicePixelRatio": 2
+    },
+    {
+      "view": "parameters",
+      "width": 1060,
+      "dark": true,
+      "geometry": {
+        "x": 235,
+        "y": 461.7265625,
+        "width": 790,
+        "height": 476.46875
+      },
+      "excitation": {
+        "x": 235,
+        "y": 954.1953125,
+        "width": 387,
+        "height": 287.03125
+      },
+      "angles": {
+        "x": 638,
+        "y": 954.1953125,
+        "width": 387,
+        "height": 259.8828125
+      },
+      "desktop": true,
+      "devicePixelRatio": 2
+    },
+    {
+      "width": "desktop",
+      "dark": false,
+      "list": {
+        "x": 235,
+        "y": 327.1875,
+        "width": 240,
+        "height": 613.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 327.1875,
+        "width": 534,
+        "height": 1060.65625
+      },
+      "context": {
+        "x": 235,
+        "y": 96,
+        "width": 790,
+        "height": 156.59375
+      }
+    },
+    {
+      "width": "desktop",
+      "dark": true,
+      "list": {
+        "x": 235,
+        "y": 309.1875,
+        "width": 240,
+        "height": 609.34375
+      },
+      "editor": {
+        "x": 491,
+        "y": 309.1875,
+        "width": 534,
+        "height": 1018.8046875
+      },
+      "context": {
+        "x": 235,
+        "y": 82,
+        "width": 790,
+        "height": 152.59375
+      }
+    }
+  ],
+  "checks": [
+    "single local sidebar",
+    "fold/unfold",
+    "create and select",
+    "save persistence",
+    "compact parameter groups",
+    "folded input preservation and persistence",
+    "invalid collapsed field revealed with zero writes",
+    "invalid numeric zero writes",
+    "no page errors"
+  ]
+}

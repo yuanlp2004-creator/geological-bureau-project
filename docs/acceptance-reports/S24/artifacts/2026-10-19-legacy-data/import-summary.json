@@ -1,0 +1,591 @@
+{
+  "methods": [
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Res\\DIRECT.MTD",
+        "relative": "Spec Source\\Res\\DIRECT.MTD",
+        "format": "mtd",
+        "size": 307200,
+        "mtime_ns": "1787726427684092300",
+        "sha256": "d4466f0b73ab5edd0efb2d6da20f0cd16f284c2b014891c85504c71220a5825e"
+      },
+      "seconds": 2.92,
+      "reused": false,
+      "run_id": "6625451b-612c-4da7-9e53-6d23d7faddf9",
+      "imported": {
+        "ccd_layouts": [
+          82
+        ],
+        "configuration_profile_id": 2,
+        "dispersion_curves": [
+          86,
+          87,
+          88
+        ],
+        "methods": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "spectral_lines": 46
+      },
+      "companions": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin",
+      "issues": [
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.8.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.8.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.11.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.11.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.12.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.12.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.15.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.15.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.17.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.23.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_ccd_boundary_compatibility",
+          "field": "configuration.opt.CCD.AllowCcdDrift",
+          "level": "warning",
+          "message": "旧版 AllowCcdDrift 是漂移诊断阈值，不等同于当前谱线边界禁入宽度；原值完整保留在配置快照，迁移布局不附加边界禁入宽度"
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DIRECT.MTD",
+        "relative": "Spec Source\\Bin\\DIRECT.MTD",
+        "format": "mtd",
+        "size": 339968,
+        "mtime_ns": "1787726422507817800",
+        "sha256": "527ae25c08dcf3afb8365b4177cf5d5b113eb417649b6803ad7de2f27c43f83d"
+      },
+      "seconds": 0.02,
+      "reused": true,
+      "run_id": "d7e5bca1-55d4-4ca7-a3bf-b035b7bf7ee6",
+      "imported": {
+        "ccd_layouts": [
+          23,
+          24
+        ],
+        "configuration_profile_id": 1,
+        "dispersion_curves": [
+          23,
+          24,
+          25,
+          26,
+          27,
+          28
+        ],
+        "methods": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "spectral_lines": 69
+      },
+      "companions": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin",
+      "issues": [
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.8.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.8.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.11.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.11.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.12.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.12.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_reference_wavelength_defaulted",
+          "field": "methods.15.conditions.actual_reference_wavelength_nm",
+          "legacy_value": {
+            "kind": "number",
+            "value": "0"
+          },
+          "level": "warning",
+          "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+          "normalized_value_nm": 313.4111
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.15.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.17.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.23.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.24.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.34.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.35.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_ccd_boundary_compatibility",
+          "field": "configuration.opt.CCD.AllowCcdDrift",
+          "level": "warning",
+          "message": "旧版 AllowCcdDrift 是漂移诊断阈值，不等同于当前谱线边界禁入宽度；原值完整保留在配置快照，迁移布局不附加边界禁入宽度"
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\tests\\fixtures\\legacy_runtime\\DIRECT.MTD",
+        "relative": "app\\tests\\fixtures\\legacy_runtime\\DIRECT.MTD",
+        "format": "mtd",
+        "size": 339968,
+        "mtime_ns": "1787726420201583000",
+        "sha256": "2f7c09324b4f9320506f2a198a1e2abdd6e9d31a5ef92b2ac4b4e9cb9279a3f8"
+      },
+      "seconds": 2.11,
+      "reused": false,
+      "run_id": "1998d87c-8508-4383-be2b-0e3fa5d7f2e2",
+      "imported": {
+        "ccd_layouts": [
+          83
+        ],
+        "configuration_profile_id": 3,
+        "dispersion_curves": [
+          89,
+          90,
+          91,
+          92,
+          93
+        ],
+        "methods": [
+          18,
+          19,
+          20
+        ],
+        "spectral_lines": 20
+      },
+      "companions": "C:\\Users\\Leo\\Desktop\\地质局\\app\\tests\\fixtures\\legacy_runtime",
+      "issues": [
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.23.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.24.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_angle_exposure_synthesized",
+          "field": "methods.34.conditions.angle_exposures",
+          "level": "warning",
+          "message": "旧方法没有当前模型的转角区间字段，已按完整采样帧范围生成单一区间"
+        },
+        {
+          "code": "legacy_ccd_boundary_compatibility",
+          "field": "configuration.opt.CCD.AllowCcdDrift",
+          "level": "warning",
+          "message": "旧版 AllowCcdDrift 是漂移诊断阈值，不等同于当前谱线边界禁入宽度；原值完整保留在配置快照，迁移布局不附加边界禁入宽度"
+        }
+      ]
+    }
+  ],
+  "spectra": [
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+        "relative": "Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+        "format": "wdt",
+        "size": 57708544,
+        "mtime_ns": "1787726457515434800",
+        "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde"
+      },
+      "seconds": 3.81,
+      "reused": false,
+      "run_id": "a1ccc51d-b329-4f9d-8655-bb99a7601433",
+      "record_count": 120,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+        "relative": "Spec Source\\Bin\\DATA\\20141029_测试.edt",
+        "format": "edt",
+        "size": 57708544,
+        "mtime_ns": "1787726459101784000",
+        "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+      },
+      "seconds": 0.06,
+      "reused": true,
+      "run_id": "a91d1cb9-2edd-42b7-b24f-25186b409f3d",
+      "record_count": 120,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cdt",
+        "format": "cdt",
+        "size": 5578752,
+        "mtime_ns": "1787726454767321800",
+        "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+      },
+      "seconds": 2.61,
+      "reused": false,
+      "run_id": "ec91b7d6-7032-468a-840d-dcc930759ac7",
+      "record_count": 120,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cdt",
+        "format": "cdt",
+        "size": 43491328,
+        "mtime_ns": "1787726459746791600",
+        "sha256": "a45f5fd4b8c4ebd06eadb2bf11161b36a66a81d24a9234ff3ee47392f7cfbd54"
+      },
+      "seconds": 6.44,
+      "reused": false,
+      "run_id": "2bb47457-74d0-40f3-ba26-441be452d773",
+      "record_count": 960,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\生产用方法_20170526_1135.cmt",
+        "relative": "Spec Source\\Bin\\DATA\\生产用方法_20170526_1135.cmt",
+        "format": "cmt",
+        "size": 13471744,
+        "mtime_ns": "1787726463411120600",
+        "sha256": "f4b29b1f341bd04a612948abc6a4ed2ff1c681864525e7b9180bf4b9741ea353"
+      },
+      "seconds": 2.45,
+      "reused": false,
+      "run_id": "f318c3b8-2317-40f7-9622-3e738cd003fa",
+      "record_count": 28,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cmt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[2-16].cmt",
+        "format": "cmt",
+        "size": 50323456,
+        "mtime_ns": "1787726465899101200",
+        "sha256": "db09294199d9f49ee2dfb7e17e9dd58f35048b742c06cea2caf93f4f1329f3aa"
+      },
+      "seconds": 3.69,
+      "reused": false,
+      "run_id": "c0b9837b-f6d6-4e78-b2ac-2ad3e640ee6e",
+      "record_count": 120,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170517_[1-18]ErrIndex.cmt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170517_[1-18]ErrIndex.cmt",
+        "format": "cmt",
+        "size": 57696256,
+        "mtime_ns": "1787726465981484300",
+        "sha256": "dc40bbebedc5f8905ef31e5c5257c27e69a8786a7e2922eae52c3fb91fdf8d6e"
+      },
+      "seconds": 3.83,
+      "reused": false,
+      "run_id": "f2e7e245-1019-42fa-9a07-3fdffa691f7b",
+      "record_count": 120,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+        "format": "cmt",
+        "size": 460529664,
+        "mtime_ns": "1787726480178533200",
+        "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270"
+      },
+      "seconds": 16.08,
+      "reused": false,
+      "run_id": "a427c4c5-295c-4c01-8994-ae5189f4cbdf",
+      "record_count": 960,
+      "issues": []
+    }
+  ],
+  "results": [
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.pdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.pdt",
+        "format": "pdt",
+        "size": 8143,
+        "mtime_ns": "1787726452648528200",
+        "sha256": "355beb4f90e6b998f0b33e7e89a7346b7a0e5e62d2d3b70c67ad6ed27eaccd81"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "run_id": "ab67be1b-ddfe-469f-bf81-15ff904c3801",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20180403_1227.pdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20180403_1227.pdt",
+        "format": "pdt",
+        "size": 11068,
+        "mtime_ns": "1787726451565180800",
+        "sha256": "d5c5771531742e3a8e7bd21acf5acbbf4e84893e2f4d4079ffa6554db57cd8b4"
+      },
+      "seconds": 0.05,
+      "reused": false,
+      "run_id": "383a35cd-7d92-41b8-b5b5-37539170e796",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.pdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.pdt",
+        "format": "pdt",
+        "size": 11068,
+        "mtime_ns": "1787726451765671900",
+        "sha256": "d13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "run_id": "51323f3b-4f31-4fb3-bff7-a99494d04348",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.pdt",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.pdt",
+        "format": "pdt",
+        "size": 11068,
+        "mtime_ns": "1787726452015588600",
+        "sha256": "0ab4ccae7f04ca8d876e55dc3feb557ec6335ce0dbfcf360333ad186f898fd78"
+      },
+      "seconds": 0.05,
+      "reused": false,
+      "run_id": "9a975114-86ea-44cf-b165-1e92746a0315",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20190421_1842.dat",
+        "format": "dat",
+        "size": 2105,
+        "mtime_ns": "1787726451809604100",
+        "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "run_id": "24eeb35d-019d-4ca1-9454-e2685595e057",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.dat",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260529_0805.dat",
+        "format": "dat",
+        "size": 2105,
+        "mtime_ns": "1787726451975805100",
+        "sha256": "bb4b15f4de52a47f6aefcfe5f3f0ff660c38c94566676a915800822c7a4e0356"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "run_id": "413f5398-fa9f-42df-930e-0a1587e5371f",
+      "record_count": 1,
+      "issues": []
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.dat",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5_20260531_1755.dat",
+        "format": "dat",
+        "size": 2105,
+        "mtime_ns": "1787726452217918000",
+        "sha256": "b7a6b0e6f808fc208d67bd36a8d7cd4493f501cc868a3b1d3718b188b98bbd93"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "run_id": "572e912a-c811-45bc-86b6-1b6d4e63624e",
+      "record_count": 1,
+      "issues": []
+    }
+  ],
+  "queues": [
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5.sam",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5.sam",
+        "format": "sam",
+        "size": 1200,
+        "mtime_ns": "1787726451125330700",
+        "sha256": "dcb9daac1b17d1ed33ae8fd35127faab17bbfd6fd7debde3b9e91e11e39a8626"
+      },
+      "seconds": 0.02,
+      "reused": false,
+      "queue_id": 3,
+      "item_count": 100
+    },
+    {
+      "source": {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5-960.sam",
+        "relative": "Spec Source\\Bin\\DATA\\测试15-5-960.sam",
+        "format": "sam",
+        "size": 9600,
+        "mtime_ns": "1787726450774552800",
+        "sha256": "353a67ca7855cafaef62fac9c25f965d95624202e19cb03e06a8626e7b544be0"
+      },
+      "seconds": 0.03,
+      "reused": false,
+      "queue_id": 4,
+      "item_count": 800
+    }
+  ]
+}

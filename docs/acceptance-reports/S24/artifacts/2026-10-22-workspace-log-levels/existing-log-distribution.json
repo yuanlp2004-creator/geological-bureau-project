@@ -1,0 +1,21 @@
+{
+  "columns": [
+    "id",
+    "category",
+    "severity",
+    "message",
+    "details_json",
+    "correlation_id",
+    "created_at"
+  ],
+  "severity_counts": [
+    [
+      "info",
+      1
+    ],
+    [
+      "success",
+      97
+    ]
+  ]
+}

@@ -60,13 +60,19 @@ def test_s17_seeded_acquisition_produces_distinct_standard_and_repeat_intensitie
         now = utc_now()
         method_id = int(
             db.execute(
-                "INSERT INTO methods(name, description, work_type, status, current_version, created_at, updated_at) VALUES ('S17 种子回归', '', 'spectral', 'active', 1, ?, ?)",
+                (
+                    "INSERT INTO methods(name, description, work_type, status, current_version, "
+                    "created_at, updated_at) VALUES ('S17 种子回归', '', 'spectral', 'active', 1, ?, ?)"
+                ),
                 (now, now),
             ).lastrowid
         )
         version_id = int(
             db.execute(
-                "INSERT INTO method_versions(method_id, version, state, payload_json, validation_errors_json, created_at) VALUES (?, 1, 'published', ?, '[]', ?)",
+                (
+                    "INSERT INTO method_versions(method_id, version, state, payload_json, "
+                    "validation_errors_json, created_at) VALUES (?, 1, 'published', ?, '[]', ?)"
+                ),
                 (method_id, json.dumps(payload, ensure_ascii=False, separators=(",", ":")), now),
             ).lastrowid
         )
@@ -125,61 +131,212 @@ def test_s17_seeded_acquisition_produces_distinct_standard_and_repeat_intensitie
     assert [point["name"] for point in points] == ["S1", "S2", "S3", "S4"]
     assert all(point["original_intensity"] is not None for point in points)
     assert len({point["original_intensity"] for point in points}) == 4
+    # FIX-08: continue the real simulated acquisition chain through generic viewing and reporting.
+    from backend.modules.spectrum_viewer import SpectrumViewerService
+
+    viewer = SpectrumViewerService(database)
+    assert len(viewer.get(f"sample:{sample_ids[-1]}")["ccd"]["points"]) == 2048
+    fitted = analysis.fit_standard_curve(run["id"], "seeded-L1", {})
+    snapshot = fitted["curves"]["lines"][0]["snapshots"][-1]
+    analysis.publish_standard_curve(run["id"], "seeded-L1", snapshot["id"], "integrated verification")
+    analysis.merge_results(run["id"], "integrated verification")
+    reports = Runtime(AppConfig(data_dir=database.path.parent), database=database).reports_service()
+    report = reports.create({"analysis_run_ids": [run["id"]]})
+    assert report["model"]["rows"][0]["sample_name"] == "QA-1"
+    assert "QA-1" in reports.preview(report["id"])
+    reports.confirm(report["id"])
+    exported = reports.export(
+        report["id"], {"format": "pdf", "output_directory": str(tmp_path / "reports"), "filename": "chain"}
+    )
+    assert Path(exported["path"]).read_bytes().startswith(b"%PDF-")
 
 
-def _seed_completed_run(database: Database) -> tuple[int, int]:
+def _seed_completed_run(database: Database, *, payload_transform=None, calculation_profile="modern_v1") -> tuple[int, int]:
     database.initialize()
     with database.write() as db:
         layout_id = int(db.execute("SELECT id FROM ccd_layouts WHERE name='default'").fetchone()[0])
         profile_id = int(db.execute("SELECT id FROM device_profiles ORDER BY id LIMIT 1").fetchone()[0])
         now = utc_now()
         line = {
-            "id": "L1", "order": 1, "line_type": "analysis", "element": "Cu", "wavelength_nm": 324.754,
-            "actual_wavelength_nm": 324.754, "enabled": True, "fit_mode": "linear", "coordinate_type": "normal",
-            "unit": "ug/g", "valid_range_min": 0.0, "valid_range_max": 100.0,
+            "id": "L1",
+            "order": 1,
+            "line_type": "analysis",
+            "element": "Cu",
+            "wavelength_nm": 324.754,
+            "actual_wavelength_nm": 324.754,
+            "enabled": True,
+            "fit_mode": "linear",
+            "coordinate_type": "normal",
+            "unit": "ug/g",
+            "valid_range_min": 0.0,
+            "valid_range_max": 100.0,
             "standard_points": [
-                {"name": "S1", "value": 5.0, "active": True}, {"name": "S2", "value": 8.0, "active": True},
-                {"name": "S3", "value": 11.0, "active": True}, {"name": "S4", "value": 14.0, "active": True},
+                {"name": "S1", "value": 5.0, "active": True},
+                {"name": "S2", "value": 8.0, "active": True},
+                {"name": "S3", "value": 11.0, "active": True},
+                {"name": "S4", "value": 14.0, "active": True},
             ],
         }
         conditions = {"maximum_id_deviation": 1.0, "rsd_enabled": True, "rsd_threshold": 1.0}
         payload = {"payload_schema": "method-v2-lines", "conditions": conditions, "lines": [line]}
-        method_id = int(db.execute("INSERT INTO methods(name, description, work_type, status, current_version, created_at, updated_at) VALUES ('S17 测试方法', '', 'spectral', 'active', 1, ?, ?)", (now, now)).lastrowid)
-        version_id = int(db.execute("INSERT INTO method_versions(method_id, version, state, payload_json, validation_errors_json, created_at) VALUES (?, 1, 'published', ?, '[]', ?)", (method_id, json.dumps(payload, ensure_ascii=False, separators=(",", ":")), now)).lastrowid)
+        if payload_transform:
+            payload = payload_transform(payload)
+        method_id = int(
+            db.execute(
+                (
+                    "INSERT INTO methods(name, description, work_type, status, current_version, "
+                    "created_at, updated_at) VALUES ('S17 测试方法', '', 'spectral', 'active', 1, ?, ?)"
+                ),
+                (now, now),
+            ).lastrowid
+        )
+        version_id = int(
+            db.execute(
+                (
+                    "INSERT INTO method_versions(method_id, version, state, payload_json, "
+                    "validation_errors_json, created_at) VALUES (?, 1, 'published', ?, '[]', ?)"
+                ),
+                (method_id, json.dumps(payload, ensure_ascii=False, separators=(",", ":")), now),
+            ).lastrowid
+        )
         sample_specs = {
-            "S1": [0.98, 1.00, 1.02], "S2": [1.98, 2.00, 2.02], "S3": [2.98, 3.00, 3.02],
-            "S4": [3.98, 4.00, 4.02], "N1": [2.49, 2.51],
+            "S1": [0.98, 1.00, 1.02],
+            "S2": [1.98, 2.00, 2.02],
+            "S3": [2.98, 3.00, 3.02],
+            "S4": [3.98, 4.00, 4.02],
+            "N1": [2.49, 2.51],
         }
         run_samples: list[tuple[int, str, float]] = []
         for task_index, (sample_name, values) in enumerate(sample_specs.items()):
-            task_id = int(db.execute(
-                "INSERT INTO acquisition_tasks(task_kind, name, status, device_profile_id, ccd_layout_id, method_version_id, method_id, method_version, sample_name, sample_kind, naming_mode, storage_mode, repeat_count, burn_frame_count, dark_frame_count, countdown_seconds, countdown_remaining, pre_excitation_seconds, sampling_period_seconds, burn_cycle_seconds, dark_cycle_seconds, ccd_indices_json, created_at, updated_at) VALUES ('sample', ?, 'completed', ?, ?, ?, ?, 1, ?, ?, 'pre_recorded', 'averaged', ?, 1, 0, 0, 0, 0, 1, 1, 1, '[0]', ?, ?)",
-                (f"task-{task_index}", profile_id, layout_id, version_id, method_id, sample_name, "standard" if sample_name.startswith("S") else "normal", len(values), now, now),
-            ).lastrowid)
+            task_id = int(
+                db.execute(
+                    (
+                        "INSERT INTO acquisition_tasks(task_kind, name, status, device_profile_id, "
+                        "ccd_layout_id, method_version_id, method_id, method_version, sample_name, "
+                        "sample_kind, naming_mode, storage_mode, repeat_count, burn_frame_count, "
+                        "dark_frame_count, countdown_seconds, countdown_remaining, "
+                        "pre_excitation_seconds, sampling_period_seconds, burn_cycle_seconds, "
+                        "dark_cycle_seconds, ccd_indices_json, created_at, updated_at) VALUES ('sample', "
+                        "?, 'completed', ?, ?, ?, ?, 1, ?, ?, 'pre_recorded', 'averaged', ?, 1, 0, 0, 0, "
+                        "0, 1, 1, 1, '[0]', ?, ?)"
+                    ),
+                    (
+                        f"task-{task_index}",
+                        profile_id,
+                        layout_id,
+                        version_id,
+                        method_id,
+                        sample_name,
+                        "standard" if sample_name.startswith("S") else "normal",
+                        len(values),
+                        now,
+                        now,
+                    ),
+                ).lastrowid
+            )
             for repeat_index, value in enumerate(values):
-                sample_id = int(db.execute(
-                    "INSERT INTO acquisition_samples(task_id, repeat_index, sample_name_original, sample_name, sample_kind, storage_mode, status, finalized, result_sha256, created_at, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, 'averaged', 'completed', 1, ?, ?, ?, ?)",
-                    (task_id, repeat_index, sample_name, sample_name, "standard" if sample_name.startswith("S") else "normal", hashlib.sha256(f"{sample_name}-{repeat_index}".encode()).hexdigest(), now, now, now),
-                ).lastrowid)
+                sample_id = int(
+                    db.execute(
+                        (
+                            "INSERT INTO acquisition_samples(task_id, repeat_index, sample_name_original, "
+                            "sample_name, sample_kind, storage_mode, status, finalized, result_sha256, "
+                            "created_at, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, 'averaged', "
+                            "'completed', 1, ?, ?, ?, ?)"
+                        ),
+                        (
+                            task_id,
+                            repeat_index,
+                            sample_name,
+                            sample_name,
+                            "standard" if sample_name.startswith("S") else "normal",
+                            hashlib.sha256(f"{sample_name}-{repeat_index}".encode()).hexdigest(),
+                            now,
+                            now,
+                            now,
+                        ),
+                    ).lastrowid
+                )
                 run_samples.append((sample_id, sample_name, value))
         snapshot = {"method_version_id": version_id, "samples": [item[0] for item in run_samples]}
-        run_id = int(db.execute(
-            "INSERT INTO analysis_runs(name, status, method_id, method_version_id, method_version, calculation_profile, slow_mode, intervention_timeout_seconds, current_sample_position, current_line_position, input_snapshot_json, input_sha256, result_sha256, created_at, updated_at, started_at, completed_at) VALUES ('S17 完成批次', 'completed', ?, ?, 1, 'modern_v1', 0, 300, ?, 0, ?, ?, ?, ?, ?, ?, ?)",
-            (method_id, version_id, len(run_samples), json.dumps(snapshot), hashlib.sha256(json.dumps(snapshot).encode()).hexdigest(), "s16-result", now, now, now, now),
-        ).lastrowid)
+        run_id = int(
+            db.execute(
+                (
+                    "INSERT INTO analysis_runs(name, status, method_id, method_version_id, "
+                    "method_version, calculation_profile, slow_mode, intervention_timeout_seconds, "
+                    "current_sample_position, current_line_position, input_snapshot_json, "
+                    "input_sha256, result_sha256, created_at, updated_at, started_at, completed_at) "
+                    "VALUES ('S17 完成批次', 'completed', ?, ?, 1, ?, 0, 300, ?, 0, ?, ?, ?, "
+                    "?, ?, ?, ?)"
+                ),
+                (
+                    method_id,
+                    version_id,
+                    calculation_profile,
+                    len(run_samples),
+                    json.dumps(snapshot),
+                    hashlib.sha256(json.dumps(snapshot).encode()).hexdigest(),
+                    "s16-result",
+                    now,
+                    now,
+                    now,
+                    now,
+                ),
+            ).lastrowid
+        )
         for position, (sample_id, sample_name, signal) in enumerate(run_samples):
-            db.execute("INSERT INTO analysis_run_samples(run_id, position, acquisition_sample_id, sample_name, input_sha256, result_matrix_json, result_sha256, completed_at) VALUES (?, ?, ?, ?, ?, '[]', ?, ?)", (run_id, position, sample_id, sample_name, f"input-{position}", f"sample-result-{position}", now))
+            db.execute(
+                (
+                    "INSERT INTO analysis_run_samples(run_id, position, acquisition_sample_id, "
+                    "sample_name, input_sha256, result_matrix_json, result_sha256, completed_at) "
+                    "VALUES (?, ?, ?, ?, ?, '[]', ?, ?)"
+                ),
+                (run_id, position, sample_id, sample_name, f"input-{position}", f"sample-result-{position}", now),
+            )
             source = {"position": position, "signal": signal}
             db.execute(
-                "INSERT INTO analysis_line_results(run_id, sample_position, line_position, line_id, line_type, element, wavelength_nm, ccd_index, expected_position, peak_position, peak_height, background, net_signal, quantitative_signal, calculation_profile, intermediates_json, result_sha256, created_at) VALUES (?, ?, 0, 'L1', 'analysis', 'Cu', 324.754, 0, 100, 100, ?, 0, ?, ?, 'modern_v1', '{}', ?, ?)",
-                (run_id, position, signal, signal, signal, hashlib.sha256(json.dumps(source).encode()).hexdigest(), now),
+                (
+                    "INSERT INTO analysis_line_results(run_id, sample_position, line_position, "
+                    "line_id, line_type, element, wavelength_nm, ccd_index, expected_position, "
+                    "peak_position, peak_height, background, net_signal, quantitative_signal, "
+                    "calculation_profile, intermediates_json, result_sha256, created_at) VALUES (?, "
+                    "?, 0, 'L1', 'analysis', 'Cu', 324.754, 0, 100, 100, ?, 0, ?, ?, ?, "
+                    "'{}', ?, ?)"
+                ),
+                (
+                    run_id,
+                    position,
+                    signal,
+                    signal,
+                    signal,
+                    calculation_profile,
+                    hashlib.sha256(json.dumps(source).encode()).hexdigest(),
+                    now,
+                ),
             )
     return run_id, version_id
 
 
 def test_s17_repeat_statistics_boundaries() -> None:
-    assert repeat_statistics([]) == {"effective_count": 0, "mean": None, "minimum": None, "maximum": None, "range": None, "stddev": None, "rsd": None, "id": None}
-    assert repeat_statistics([4.0]) == {"effective_count": 1, "mean": 4.0, "minimum": 4.0, "maximum": 4.0, "range": 0.0, "stddev": 0.0, "rsd": 0.0, "id": 0.0}
+    assert repeat_statistics([]) == {
+        "effective_count": 0,
+        "mean": None,
+        "minimum": None,
+        "maximum": None,
+        "range": None,
+        "stddev": None,
+        "rsd": None,
+        "id": None,
+    }
+    assert repeat_statistics([4.0]) == {
+        "effective_count": 1,
+        "mean": 4.0,
+        "minimum": 4.0,
+        "maximum": 4.0,
+        "range": 0.0,
+        "stddev": 0.0,
+        "rsd": 0.0,
+        "id": 0.0,
+    }
     stats = repeat_statistics([1.0, 2.0, 3.0])
     assert stats["mean"] == 2.0 and stats["stddev"] == 1.0 and stats["range"] == 2.0
     assert stats["rsd"] == 50.0 and stats["id"] == pytest.approx(21.7147 * 1.0986122886681098)
@@ -187,7 +344,9 @@ def test_s17_repeat_statistics_boundaries() -> None:
 
 
 def test_s17_four_fits_coordinates_and_failure_boundaries() -> None:
-    golden = json.loads((APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-curve-fit.json").read_text(encoding="utf-8"))
+    golden = json.loads(
+        (APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-curve-fit.json").read_text(encoding="utf-8")
+    )
     for case in golden["least_squares_cases"]:
         fit = fit_curve(case["x"], case["y"], case["mode"])
         assert fit["coefficients"] == pytest.approx(case["expected_coefficients_c0_to_c3_float32"], abs=1e-5)
@@ -220,37 +379,85 @@ def test_s17_quality_adjust_fit_publish_merge_and_print_replay(tmp_path: Path) -
     assert run["quality"]["latest_snapshot"]["publishable"] is True
     s1 = next(item for item in run["quality"]["latest_snapshot"]["groups"] if item["sample_name"] == "S1")
     assert s1["statistics"]["effective_count"] == 3 and s1["warnings"]
-    run = service.decide_quality(run_id, {"acquisition_task_id": s1["acquisition_task_id"], "line_id": "L1", "action": "accept", "line_result_id": None, "reason": "复核重复波动后接受"})
-    assert next(item for item in run["quality"]["latest_snapshot"]["groups"] if item["sample_name"] == "S1")["warning_accepted"] is True
+    run = service.decide_quality(
+        run_id,
+        {
+            "acquisition_task_id": s1["acquisition_task_id"],
+            "line_id": "L1",
+            "action": "accept",
+            "line_result_id": None,
+            "reason": "复核重复波动后接受",
+        },
+    )
+    assert (
+        next(item for item in run["quality"]["latest_snapshot"]["groups"] if item["sample_name"] == "S1")[
+            "warning_accepted"
+        ]
+        is True
+    )
     member_ids = [item["line_result_id"] for item in s1["members"]]
     for member_id in member_ids:
-        run = service.decide_quality(run_id, {"acquisition_task_id": s1["acquisition_task_id"], "line_id": "L1", "action": "exclude", "line_result_id": member_id, "reason": "边界测试剔除"})
+        run = service.decide_quality(
+            run_id,
+            {
+                "acquisition_task_id": s1["acquisition_task_id"],
+                "line_id": "L1",
+                "action": "exclude",
+                "line_result_id": member_id,
+                "reason": "边界测试剔除",
+            },
+        )
     s1_empty = next(item for item in run["quality"]["latest_snapshot"]["groups"] if item["sample_name"] == "S1")
     assert s1_empty["statistics"]["effective_count"] == 0 and run["quality"]["latest_snapshot"]["publishable"] is False
     with pytest.raises(AnalysisError) as no_fit:
         service.fit_standard_curve(run_id, "L1", {"reason": "无有效重复时拟合"})
     assert no_fit.value.code == "analysis_curve_points_insufficient"
     for member_id in member_ids:
-        run = service.decide_quality(run_id, {"acquisition_task_id": s1["acquisition_task_id"], "line_id": "L1", "action": "restore", "line_result_id": member_id, "reason": "恢复原始重复"})
+        run = service.decide_quality(
+            run_id,
+            {
+                "acquisition_task_id": s1["acquisition_task_id"],
+                "line_id": "L1",
+                "action": "restore",
+                "line_result_id": member_id,
+                "reason": "恢复原始重复",
+            },
+        )
     assert run["quality"]["latest_snapshot"]["publishable"] is True
     points = run["curves"]["lines"][0]["workspace"]["points"]
     assert [(point["name"], point["original_intensity"]) for point in points] == [
-        ("S1", 1.0), ("S2", 2.0), ("S3", 3.0), ("S4", 4.0)
+        ("S1", 1.0),
+        ("S2", 2.0),
+        ("S3", 3.0),
+        ("S4", 4.0),
     ]
 
-    run = service.curve_action(run_id, "L1", {"action": "adjust", "point_index": 1, "adjusted_intensity": 2.05, "reason": "标准点图形复核"})
+    run = service.curve_action(
+        run_id, "L1", {"action": "adjust", "point_index": 1, "adjusted_intensity": 2.05, "reason": "标准点图形复核"}
+    )
     assert run["curves"]["lines"][0]["workspace"]["points"][1]["original_intensity"] == 2.0
     assert run["curves"]["lines"][0]["workspace"]["points"][1]["adjusted_intensity"] == 2.05
-    run = service.fit_standard_curve(run_id, "L1", {"fit_mode": "quadratic", "coordinate_type": "normal", "reason": "二次拟合"})
+    run = service.fit_standard_curve(
+        run_id, "L1", {"fit_mode": "quadratic", "coordinate_type": "normal", "reason": "二次拟合"}
+    )
     first_snapshot = run["curves"]["lines"][0]["snapshots"][-1]
     with database.read() as db:
-        adjustment = db.execute("SELECT fit_mode, coordinate_type, points_json FROM analysis_curve_adjustment_sets WHERE id=?", (first_snapshot["adjustment_set_id"],)).fetchone()
+        adjustment = db.execute(
+            "SELECT fit_mode, coordinate_type, points_json FROM analysis_curve_adjustment_sets WHERE id=?",
+            (first_snapshot["adjustment_set_id"],),
+        ).fetchone()
         assert adjustment["fit_mode"] == "quadratic" and adjustment["coordinate_type"] == "normal"
         assert json.loads(adjustment["points_json"]) == first_snapshot["points"]
     run = service.publish_standard_curve(run_id, "L1", first_snapshot["id"], "发布首个有效快照")
     assert run["curves"]["lines"][0]["active_curve_snapshot_id"] == first_snapshot["id"]
-    n1 = next(item for item in run["curves"]["results"] if item["curve_snapshot_id"] == first_snapshot["id"] and item["sample_name"] == "N1")
-    assert n1["effective_count"] == 2 and n1["calculated_value"] == pytest.approx(evaluate_curve(first_snapshot["fit"], 2.5), rel=1e-9)
+    n1 = next(
+        item
+        for item in run["curves"]["results"]
+        if item["curve_snapshot_id"] == first_snapshot["id"] and item["sample_name"] == "N1"
+    )
+    assert n1["effective_count"] == 2 and n1["calculated_value"] == pytest.approx(
+        evaluate_curve(first_snapshot["fit"], 2.5), rel=1e-9
+    )
     run = service.merge_results(run_id, "保存当前谱线合并结果")
     merge = run["curves"]["merges"][-1]
     assert merge["curve_snapshot_ids"] == [first_snapshot["id"]]
@@ -263,19 +470,28 @@ def test_s17_quality_adjust_fit_publish_merge_and_print_replay(tmp_path: Path) -
     replay_pdf, replay_metadata = service.print_curve(run_id, first_snapshot["id"], "image")
     assert replay_pdf == pdf and replay_metadata["sha256"] == metadata["sha256"]
     with database.read() as db:
-        saved = db.execute("SELECT content_blob, content_sha256 FROM analysis_curve_print_jobs WHERE id=?", (metadata["job_id"],)).fetchone()
+        saved = db.execute(
+            "SELECT content_blob, content_sha256 FROM analysis_curve_print_jobs WHERE id=?", (metadata["job_id"],)
+        ).fetchone()
         assert bytes(saved["content_blob"]) == pdf and saved["content_sha256"] == metadata["sha256"]
     with pytest.raises(sqlite3.IntegrityError):
         with database.write() as db:
-            db.execute("UPDATE analysis_curve_snapshots SET result_sha256='changed' WHERE id=?", (first_snapshot["id"],))
+            db.execute(
+                "UPDATE analysis_curve_snapshots SET result_sha256='changed' WHERE id=?", (first_snapshot["id"],)
+            )
 
-    run = service.curve_action(run_id, "L1", {"action": "set_active", "point_index": 3, "active": False, "reason": "停用边界"})
+    run = service.curve_action(
+        run_id, "L1", {"action": "set_active", "point_index": 3, "active": False, "reason": "停用边界"}
+    )
     with pytest.raises(AnalysisError) as insufficient:
         service.fit_standard_curve(run_id, "L1", {"reason": "有效点不足"})
     assert insufficient.value.code == "analysis_curve_points_insufficient"
     assert service.run(run_id)["curves"]["lines"][0]["active_curve_snapshot_id"] == first_snapshot["id"]
     run = service.curve_action(run_id, "L1", {"action": "restore_all", "reason": "全部恢复"})
-    assert all(item["adjusted_intensity"] == item["original_intensity"] and item["active"] == item["original_active"] for item in run["curves"]["lines"][0]["workspace"]["points"])
+    assert all(
+        item["adjusted_intensity"] == item["original_intensity"] and item["active"] == item["original_active"]
+        for item in run["curves"]["lines"][0]["workspace"]["points"]
+    )
 
 
 @pytest.mark.parametrize("operation", ["quality", "fit", "print"])
@@ -319,17 +535,33 @@ def test_s17_api_permissions_manifest_and_print(tmp_path: Path, monkeypatch: pyt
     runtime = application.state.runtime
     with TestClient(application) as client:
         assert client.post("/api/v1/analyses/runs/1/quality/recalculate").status_code == 401
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         headers = {"Authorization": f"Bearer {token}"}
         run_id, _ = _seed_completed_run(runtime.database)
         quality = client.post(f"/api/v1/analyses/runs/{run_id}/quality/recalculate", headers=headers)
         assert quality.status_code == 200, quality.text
-        fitted = client.post(f"/api/v1/analyses/runs/{run_id}/curves/L1/fit", headers=headers, json={"reason": "API 拟合"})
+        fitted = client.post(
+            f"/api/v1/analyses/runs/{run_id}/curves/L1/fit", headers=headers, json={"reason": "API 拟合"}
+        )
         assert fitted.status_code == 201, fitted.text
         snapshot_id = fitted.json()["curves"]["lines"][0]["snapshots"][-1]["id"]
-        assert client.get(f"/api/v1/analyses/runs/{run_id}/curves/{snapshot_id}/preview?mode=image", headers=headers).status_code == 200
+        assert (
+            client.get(
+                f"/api/v1/analyses/runs/{run_id}/curves/{snapshot_id}/preview?mode=image", headers=headers
+            ).status_code
+            == 200
+        )
         printed = client.post(f"/api/v1/analyses/runs/{run_id}/curves/{snapshot_id}/print?mode=text", headers=headers)
         assert printed.status_code == 200 and printed.content.startswith(b"%PDF") and printed.headers["x-print-job-id"]
-        capability = next(item for item in client.get("/api/v1/capabilities").json()["capabilities"] if item["key"] == "analysis")
+        capability = next(
+            item for item in client.get("/api/v1/capabilities").json()["capabilities"] if item["key"] == "analysis"
+        )
         assert {"analysis.quality", "analysis.curve", "analysis.print"}.issubset(capability["permissions"])

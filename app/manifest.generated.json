@@ -57,12 +57,19 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/health",
+      "diagnostic_tables": [
+        "app_settings",
+        "runtime_events"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "about-diagnostics",
       "version": "0.1.0",
-      "title": "关于与诊断",
+      "title": "关于软件",
       "api_prefix": "/api/v1",
       "route": "/about",
       "enabled": true,
@@ -84,8 +91,8 @@
           "key": "help.about",
           "group": "help",
           "section_label": "",
-          "label": "关于与诊断",
-          "description": "版本、模块清单和本地服务诊断",
+          "label": "关于软件",
+          "description": "软件名称、版本和版权",
           "page": "about",
           "order": 20,
           "required_any": [
@@ -95,7 +102,11 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/about",
+      "diagnostic_tables": [],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "auth",
@@ -157,7 +168,18 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/auth/me",
+      "diagnostic_tables": [
+        "users",
+        "roles",
+        "permissions",
+        "user_roles",
+        "role_permissions",
+        "audit_events"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "methods",
@@ -176,6 +198,8 @@
         "method.metadata.update",
         "method.update",
         "method.publish",
+        "method.daily_calibration.save",
+        "method.legacy_semantics.upgrade",
         "method.pause",
         "method.resume",
         "method.delete",
@@ -189,6 +213,7 @@
         "method.print.settings",
         "method.preview",
         "method.pdf.export",
+        "method.text.export",
         "method.print"
       ],
       "dependencies": [
@@ -202,6 +227,9 @@
         "spectral-lines",
         "wavelength-detectability",
         "standard-points",
+        "single-line-exposure-intervals",
+        "legacy-method-semantics-upgrade",
+        "reference-offset-reset",
         "method-html-preview",
         "method-pdf",
         "system-printers",
@@ -253,7 +281,16 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/methods?limit=1",
+      "diagnostic_tables": [
+        "methods",
+        "method_versions",
+        "ccd_layouts",
+        "method_runtime_state"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "legacy-migration",
@@ -268,7 +305,8 @@
       ],
       "audit_actions": [
         "legacy_migration.stage",
-        "legacy_migration.commit"
+        "legacy_migration.commit",
+        "legacy_migration.preferences.apply"
       ],
       "dependencies": [
         "core",
@@ -299,7 +337,14 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/legacy-migration/runs?limit=1",
+      "diagnostic_tables": [
+        "legacy_migration_runs",
+        "legacy_import_entities"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "sample-queues",
@@ -345,7 +390,15 @@
           "status": "normal",
           "required_context": "current_method"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/sample-queues",
+      "diagnostic_tables": [
+        "sample_queues",
+        "sample_queue_items",
+        "sample_queue_options"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "spectrum-migration",
@@ -391,7 +444,14 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/spectrum-migration/runs?limit=1",
+      "diagnostic_tables": [
+        "spectrum_migration_runs",
+        "spectrum_bands"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "result-migration",
@@ -438,7 +498,14 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/result-migration/runs?limit=1",
+      "diagnostic_tables": [
+        "result_migration_runs",
+        "result_matrices"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "spectrum-viewer",
@@ -460,14 +527,17 @@
         "core",
         "auth",
         "spectrum-migration",
-        "result-migration"
+        "result-migration",
+        "acquisition"
       ],
       "capabilities": [
         "published-spectrum-query",
         "ccd-coordinate-conversion",
         "raw-frame-detail",
         "reversible-view-state",
-        "print-visible-range"
+        "print-visible-range",
+        "point-integration-details",
+        "ccd-grayscale-physical-print"
       ],
       "navigation_entries": [
         {
@@ -485,7 +555,13 @@
           "status": "normal",
           "required_context": "current_method"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/spectra/records?limit=1",
+      "diagnostic_tables": [
+        "spectrum_bands"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "devices",
@@ -528,18 +604,26 @@
           "key": "tools.devices",
           "group": "tools",
           "section_label": "设备与光学校准",
-          "label": "设备参数与实时调试",
-          "description": "设备档案、通信诊断与实时 CCD",
+          "label": "设备调试",
+          "description": "软件参数、设备参数、调试对中与汞灯调试",
           "page": "acquisition",
           "order": 10,
           "required_any": [
-            "devices.read"
+            "devices.read",
+            "settings.read",
+            "mercury-calibration.read"
           ],
           "view": null,
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/devices/profiles",
+      "diagnostic_tables": [
+        "device_profiles"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": "只检测设备管理软件；设备连接和通信需另行验证。"
     },
     {
       "key": "dispersion",
@@ -563,6 +647,8 @@
         "dispersion.task.failed",
         "dispersion.frame.capture",
         "dispersion.line.create",
+        "dispersion.line.update",
+        "dispersion.gap.update",
         "dispersion.line.delete",
         "dispersion.line.locate",
         "dispersion.line.move",
@@ -570,13 +656,18 @@
         "dispersion.line.position.restore",
         "dispersion.calibration.fit",
         "dispersion.calibration.publish",
-        "dispersion.calibration.bind"
+        "dispersion.calibration.bind",
+        "dispersion.calibration.rename",
+        "dispersion.calibration.archive",
+        "dispersion.calibration.restore",
+        "dispersion.calibration.delete"
       ],
       "dependencies": [
         "core",
         "auth",
         "methods",
-        "devices"
+        "devices",
+        "spectrum-migration"
       ],
       "capabilities": [
         "dispersion-acquisition-state",
@@ -592,8 +683,8 @@
           "key": "analysis-tests.dispersion",
           "group": "analysis-tests",
           "section_label": "摄谱与校准",
-          "label": "色散摄谱与校准",
-          "description": "色散采集、谱线定位、拟合与发布",
+          "label": "色散摄谱",
+          "description": "采集、显示并保存色散谱图",
           "page": "dispersion",
           "order": 20,
           "required_any": [
@@ -602,13 +693,36 @@
           "view": null,
           "status": "normal",
           "required_context": "none"
+        },
+        {
+          "key": "analysis-tests.dispersion-curves",
+          "group": "analysis-tests",
+          "section_label": "曲线分析",
+          "label": "色散曲线",
+          "description": "已采集谱图的定位、间隔调整、拟合与保存",
+          "page": "dispersion",
+          "order": 45,
+          "required_any": [
+            "dispersion.read"
+          ],
+          "view": "curve",
+          "status": "normal",
+          "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/dispersion/tasks?limit=1",
+      "diagnostic_tables": [
+        "dispersion_tasks",
+        "dispersion_task_frames",
+        "dispersion_calibration_versions"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "acquisition",
       "version": "0.1.0",
-      "title": "蒸发与样品采集",
+      "title": "摄谱采集",
       "api_prefix": "/api/v1",
       "route": "/sample-acquisition",
       "enabled": true,
@@ -628,7 +742,8 @@
         "acquisition.task.completed",
         "acquisition.repeat.start",
         "acquisition.interval.mark",
-        "acquisition.sample.rename"
+        "acquisition.sample.rename",
+        "acquisition.sample.discard"
       ],
       "dependencies": [
         "core",
@@ -644,15 +759,32 @@
         "full-interval-storage",
         "interval-curve-analysis",
         "repeat-and-preheat",
-        "post-acquisition-rename"
+        "post-acquisition-rename",
+        "realtime-measurements",
+        "sample-discard"
       ],
       "navigation_entries": [
+        {
+          "key": "analysis-tests.evaporation",
+          "group": "analysis-tests",
+          "section_label": "摄谱与校准",
+          "label": "蒸发摄谱",
+          "description": "采集、显示并保存蒸发全时数据",
+          "page": "evaporation-acquisition",
+          "order": 29,
+          "required_any": [
+            "acquisition.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "current_method"
+        },
         {
           "key": "analysis-tests.acquisition",
           "group": "analysis-tests",
           "section_label": "摄谱与校准",
-          "label": "蒸发与样品摄谱",
-          "description": "平均或全时采集、重复与安全收尾",
+          "label": "样品摄谱",
+          "description": "按方法采集样品、队列与重复测量",
           "page": "sample-acquisition",
           "order": 30,
           "required_any": [
@@ -661,8 +793,31 @@
           "view": null,
           "status": "normal",
           "required_context": "current_method"
+        },
+        {
+          "key": "analysis-tests.evaporation-curves",
+          "group": "analysis-tests",
+          "section_label": "曲线分析",
+          "label": "蒸发曲线",
+          "description": "查看已保存蒸发帧的强度随时间变化",
+          "page": "evaporation-curves",
+          "order": 46,
+          "required_any": [
+            "acquisition.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/acquisitions/tasks?limit=1",
+      "diagnostic_tables": [
+        "acquisition_tasks",
+        "acquisition_samples",
+        "acquisition_frames"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "hardware-acquisition",
@@ -692,13 +847,15 @@
         "hardware.task.resume",
         "hardware.task.stop",
         "hardware.task.safety_stop",
-        "hardware.task.completed"
+        "hardware.task.completed",
+        "hardware.sample.save"
       ],
       "dependencies": [
         "core",
         "auth",
         "methods",
-        "devices"
+        "devices",
+        "acquisition"
       ],
       "capabilities": [
         "turn-plan-short-to-long",
@@ -708,7 +865,8 @@
         "finite-retry",
         "manual-takeover",
         "safe-stop",
-        "serial-protocol-gate"
+        "serial-protocol-gate",
+        "confirmed-turn-analysis-sample"
       ],
       "navigation_entries": [
         {
@@ -726,7 +884,15 @@
           "status": "deferred_external",
           "required_context": "current_method"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/hardware-acquisitions/tasks?limit=1",
+      "diagnostic_tables": [
+        "hardware_tasks",
+        "hardware_plan_steps",
+        "hardware_frames"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": "只检测软件接口；真实转角协议与硬件仍待验收。"
     },
     {
       "key": "mercury-calibration",
@@ -767,23 +933,15 @@
         "safe-off",
         "serial-protocol-gate"
       ],
-      "navigation_entries": [
-        {
-          "key": "tools.mercury",
-          "group": "tools",
-          "section_label": "设备与光学校准",
-          "label": "汞灯与光学校准",
-          "description": "汞线峰位、校正建议、回滚与安全关闭",
-          "page": "mercury-calibration",
-          "order": 20,
-          "required_any": [
-            "mercury-calibration.read"
-          ],
-          "view": null,
-          "status": "deferred_external",
-          "required_context": "none"
-        }
-      ]
+      "navigation_entries": [],
+      "diagnostic_path": "/api/v1/mercury-calibrations/sessions?limit=1",
+      "diagnostic_tables": [
+        "mercury_sessions",
+        "mercury_frames",
+        "mercury_alignment_versions"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": "只检测软件接口；汞灯与光学系统仍需实机验证。"
     },
     {
       "key": "analysis",
@@ -801,6 +959,7 @@
         "analysis.print"
       ],
       "audit_actions": [
+        "analysis.legacy.import",
         "analysis.run.create",
         "analysis.run.start",
         "analysis.run.cancel",
@@ -815,19 +974,26 @@
         "analysis.curve.set_coordinate",
         "analysis.curve.set_active",
         "analysis.curve.adjust",
+        "analysis.curve.adapt_control",
         "analysis.curve.restore",
         "analysis.curve.restore_all",
         "analysis.curve.fit",
         "analysis.curve.publish",
+        "analysis.time_series.export",
         "analysis.results.merge",
         "analysis.curve.preview",
-        "analysis.curve.print"
+        "analysis.curve.print",
+        "analysis.observation.print",
+        "analysis.observation.export",
+        "analysis.intensity.output"
       ],
       "dependencies": [
         "core",
         "auth",
         "methods",
-        "acquisition"
+        "acquisition",
+        "spectrum-migration",
+        "spectrum-viewer"
       ],
       "capabilities": [
         "reference-correction",
@@ -835,6 +1001,10 @@
         "maximum-and-gaussian",
         "three-internal-standard-modes",
         "legacy-and-modern-profiles",
+        "legacy-valid-standard-reuse",
+        "legacy-logarithmic-smoothing-and-boundaries",
+        "daily-line-calibration-draft",
+        "normalized-line-time-series",
         "single-and-multi-sample-matrix",
         "slow-mode-checkpoints",
         "audited-intervention",
@@ -854,8 +1024,8 @@
           "key": "analysis-tests.raw",
           "group": "analysis-tests",
           "section_label": "查看与分析",
-          "label": "定量分析与慢进",
-          "description": "定量运行、峰位谱图与人工调整",
+          "label": "样品分析",
+          "description": "测量与慢进、重复性检查、逐线拟合与结果保存",
           "page": "analysis",
           "order": 50,
           "required_any": [
@@ -864,38 +1034,16 @@
           "view": "raw",
           "status": "normal",
           "required_context": "current_method"
-        },
-        {
-          "key": "analysis-tests.quality",
-          "group": "analysis-tests",
-          "section_label": "查看与分析",
-          "label": "重复性质控",
-          "description": "均值、极差、RSD、接受与剔除",
-          "page": "analysis",
-          "order": 60,
-          "required_any": [
-            "analysis.read"
-          ],
-          "view": "quality",
-          "status": "normal",
-          "required_context": "current_method"
-        },
-        {
-          "key": "analysis-tests.curve",
-          "group": "analysis-tests",
-          "section_label": "查看与分析",
-          "label": "标准曲线与样品结果",
-          "description": "拟合、标准点、曲线发布与合并结果",
-          "page": "analysis",
-          "order": 70,
-          "required_any": [
-            "analysis.read"
-          ],
-          "view": "curve",
-          "status": "normal",
-          "required_context": "current_method"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/analyses/runs?limit=1",
+      "diagnostic_tables": [
+        "analysis_runs",
+        "analysis_line_results",
+        "analysis_curve_snapshots"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "postprocessing",
@@ -915,7 +1063,9 @@
         "postprocessing.interval.export",
         "postprocessing.edt.convert",
         "postprocessing.recalculate",
-        "postprocessing.export"
+        "postprocessing.recalculate.retained",
+        "postprocessing.export",
+        "postprocessing.intensity.output"
       ],
       "dependencies": [
         "core",
@@ -930,6 +1080,8 @@
         "full-interval-view",
         "interval-detail-export",
         "edt-selection-conversion",
+        "edt-average-and-full-storage",
+        "strict-pdt-signature-and-time-confirmation",
         "version-bound-recompute",
         "text-csv-excel-matrix-export",
         "atomic-output",
@@ -937,36 +1089,28 @@
       ],
       "navigation_entries": [
         {
-          "key": "data.interval",
-          "group": "data",
-          "section_label": "全时与重算",
-          "label": "全时区间处理",
-          "description": "区间查看、明细平均导出与 EDT 转换",
-          "page": "postprocessing",
-          "order": 10,
-          "required_any": [
-            "postprocessing.read"
-          ],
-          "view": "interval",
-          "status": "normal",
-          "required_context": "page_scoped"
-        },
-        {
           "key": "data.recalculate",
           "group": "data",
-          "section_label": "全时与重算",
-          "label": "结果重算与矩阵导出",
-          "description": "版本绑定重算、强度和结果矩阵",
+          "section_label": "数据处理",
+          "label": "重新计算",
+          "description": "选择已有数据，按方法和曲线版本重新计算",
           "page": "postprocessing",
           "order": 20,
           "required_any": [
             "postprocessing.read"
           ],
-          "view": "recalculate-export",
+          "view": "recalculate",
           "status": "normal",
           "required_context": "page_scoped"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/postprocessing/recalculations?limit=1",
+      "diagnostic_tables": [
+        "postprocessing_recalculation_runs",
+        "postprocessing_conversion_runs"
+      ],
+      "diagnostic_response": "object",
+      "diagnostic_note": ""
     },
     {
       "key": "reports",
@@ -989,10 +1133,12 @@
       "dependencies": [
         "core",
         "auth",
-        "analysis"
+        "analysis",
+        "postprocessing"
       ],
       "capabilities": [
         "versioned-report-model",
+        "legacy-dat-provenance-report",
         "template-rendering",
         "standard-exchange-arrangement",
         "batch-selection",
@@ -1004,19 +1150,28 @@
         {
           "key": "data.reports",
           "group": "data",
-          "section_label": "报告",
-          "label": "分析报告",
-          "description": "编号、模板、预览、打印与多格式导出",
+          "section_label": "数据处理",
+          "label": "打印与导出",
+          "description": "分析报告和强度数据的打印与导出",
           "page": "reports",
           "order": 30,
           "required_any": [
-            "reports.read"
+            "reports.read",
+            "analysis.read"
           ],
           "view": null,
           "status": "normal",
           "required_context": "page_scoped"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/reports?limit=1",
+      "diagnostic_tables": [
+        "reports",
+        "report_templates",
+        "report_exports"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     },
     {
       "key": "maintenance",
@@ -1065,7 +1220,7 @@
           "group": "system",
           "section_label": "系统配置与维护",
           "label": "备份与维护",
-          "description": "备份、恢复演练、空间和日志维护",
+          "description": "数据库备份、整理与日志清理",
           "page": "maintenance",
           "order": 20,
           "required_any": [
@@ -1090,7 +1245,15 @@
           "status": "normal",
           "required_context": "none"
         }
-      ]
+      ],
+      "diagnostic_path": "/api/v1/help/topics",
+      "diagnostic_tables": [
+        "maintenance_backups",
+        "maintenance_operations",
+        "help_topics"
+      ],
+      "diagnostic_response": "list",
+      "diagnostic_note": ""
     }
   ]
 }

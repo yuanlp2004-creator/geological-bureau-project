@@ -1,0 +1,31 @@
+{
+  "report": {
+    "pages": 9,
+    "paper_mm": [
+      297.0000023735894,
+      419.99994506835935
+    ],
+    "font_sizes": [
+      7.0,
+      13.0,
+      16.0
+    ],
+    "html_page_css": "size:297mm 420mm;margin:12.0mm 12.0mm 12.0mm 12.0mm",
+    "confirmed_model_preserved": true
+  },
+  "intensity": {
+    "file_formats": [
+      "json",
+      "pdf",
+      "txt"
+    ],
+    "captured_submissions": [
+      {
+        "printer": "Microsoft Print to PDF",
+        "pdf_bytes": 2767
+      }
+    ],
+    "status_after_submission": "queued",
+    "physical_printer_used": false
+  }
+}

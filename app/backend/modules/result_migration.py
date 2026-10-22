@@ -43,10 +43,19 @@ def _snapshot(path: Path) -> dict[str, Any]:
         stat = path.stat()
         raw = path.read_bytes()
     except OSError as exc:
-        raise ResultMigrationError("result_source_unreadable", f"Unable to read result file: {path}", details={"reason": str(exc)}) from exc
+        raise ResultMigrationError(
+            "result_source_unreadable", f"Unable to read result file: {path}", details={"reason": str(exc)}
+        ) from exc
     if not path.is_file():
         raise ResultMigrationError("result_source_not_file", f"Result source is not a file: {path}")
-    return {"path": str(path.resolve()), "name": path.name, "size": stat.st_size, "mtime_ns": stat.st_mtime_ns, "mtime_utc": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(timespec="milliseconds"), "sha256": hashlib.sha256(raw).hexdigest()}
+    return {
+        "path": str(path.resolve()),
+        "name": path.name,
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+        "mtime_utc": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(timespec="milliseconds"),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
 
 
 class ResultMigrationService:
@@ -54,6 +63,65 @@ class ResultMigrationService:
 
     def __init__(self, database: Database) -> None:
         self.database = database
+
+    def opened_records(self, source_sha256: str) -> list[dict]:
+        with self.database.read() as db:
+            return [dict(row) for row in db.execute(
+                'SELECT id,format,record_index FROM result_matrices WHERE source_sha256=? ORDER BY record_index',
+                (source_sha256,))]
+
+    def report_sources(self) -> list[dict[str, Any]]:
+        with self.database.read() as db:
+            return [{'id': row['id'], 'source_sha256': row['source_sha256'],
+                     'measure_time': json.loads(row['payload_json']).get('measure_time'),
+                     'sample_names': json.loads(row['payload_json']).get('sample_names', [])}
+                    for row in db.execute("SELECT id, source_sha256, payload_json FROM result_matrices WHERE format='dat' ORDER BY id DESC")]
+
+    @staticmethod
+    def report_inputs(connection, record_ids: list[int]) -> list[dict[str, Any]]:
+        result = []
+        for identifier in record_ids:
+            row = connection.execute('SELECT * FROM result_matrices WHERE id=?', (identifier,)).fetchone()
+            if row is None or row['format'] != 'dat':
+                raise ResultMigrationError('report_dat_required', '报告来源必须是已导入的 DAT 结果')
+            payload, blob = json.loads(row['payload_json']), bytes(row['matrix_blob'])
+            expected = int(payload['line_count']) * int(payload['band_count']) * 4
+            if len(blob) != expected or hashlib.sha256(blob).hexdigest() != row['matrix_sha256']:
+                raise ResultMigrationError('report_dat_integrity_failed', 'DAT 矩阵形状或 SHA-256 校验失败')
+            values = [pair[0] for pair in struct.iter_unpack('<f', blob)]
+            if not all(math.isfinite(value) for value in values):
+                raise ResultMigrationError('report_dat_nonfinite', 'DAT 结果含无效数值')
+            result.append({'id': identifier, 'source_sha256': row['source_sha256'],
+                           'matrix_sha256': row['matrix_sha256'], 'payload': payload, 'values': values})
+        return result
+
+    @staticmethod
+    def intensity_tables(connection, record_ids: list[int]) -> list[dict[str, Any]]:
+        result=[]
+        for identifier in record_ids:
+            row=connection.execute('SELECT * FROM result_matrices WHERE id=?',(identifier,)).fetchone()
+            if row is None or row['format']!='pdt':
+                raise ResultMigrationError('intensity_pdt_required','旧强度表只接受已导入 PDT')
+            payload=json.loads(row['payload_json']);blob=bytes(row['matrix_blob'])
+            count=int(payload['line_count'])*int(payload['band_count'])
+            if len(blob)!=count*8 or hashlib.sha256(blob).hexdigest()!=row['matrix_sha256']:
+                raise ResultMigrationError('intensity_pdt_integrity','PDT 强度矩阵形状或哈希错误')
+            pairs=list(struct.iter_unpack('<ff',blob))
+            if not all(math.isfinite(value) for pair in pairs for value in pair):
+                raise ResultMigrationError('intensity_pdt_nonfinite','PDT 含无效强度值')
+            header=['强度编号']
+            for line in payload['lines']:
+                header.append(str(line.get('element',''))+' 峰值')
+                if line.get('back',line.get('background',line.get('background_offset_points',0))):header.append(str(line.get('element',''))+' 背景')
+            table=[header]
+            for index,sample in enumerate(payload['sample_rows']):
+                data=[f"{sample.get('name','')} [{int(sample.get('repeat_index') or 1)}]"]
+                for line_index,line in enumerate(payload['lines']):
+                    peak,back=pairs[line_index*int(payload['band_count'])+index];data.append(peak)
+                    if line.get('back',line.get('background',line.get('background_offset_points',0))):data.append(back)
+                table.append(data)
+            result.append({'id':identifier,'source_sha256':row['source_sha256'],'table':table})
+        return result
 
     @staticmethod
     def _time(raw_value: float) -> str:
@@ -65,10 +133,16 @@ class ResultMigrationService:
     @staticmethod
     def _decode(raw: bytes, position: int, width: int, field: str) -> tuple[str, int, str]:
         if position + width + 1 > len(raw):
-            raise ResultMigrationError("result_file_truncated", f"Truncated {field} short string", details={"offset": position})
+            raise ResultMigrationError(
+                "result_file_truncated", f"Truncated {field} short string", details={"offset": position}
+            )
         length = raw[position]
         if length > width:
-            raise ResultMigrationError("result_short_string_invalid", f"Invalid {field} short string length", details={"length": length, "max": width})
+            raise ResultMigrationError(
+                "result_short_string_invalid",
+                f"Invalid {field} short string length",
+                details={"length": length, "max": width},
+            )
         field_bytes = raw[position + 1 : position + 1 + width]
         active = field_bytes[:length]
         if not active:
@@ -83,7 +157,11 @@ class ResultMigrationService:
     @staticmethod
     def _bounds(count: int, maximum: int, field: str) -> None:
         if not 1 <= count <= maximum:
-            raise ResultMigrationError("result_count_invalid", f"{field} is outside the supported legacy range", details={"count": count, "max": maximum})
+            raise ResultMigrationError(
+                "result_count_invalid",
+                f"{field} is outside the supported legacy range",
+                details={"count": count, "max": maximum},
+            )
 
     @staticmethod
     def _samples(values: list[Any], columns: int, *, kind: str) -> list[dict[str, Any]]:
@@ -108,40 +186,68 @@ class ResultMigrationService:
             raise ResultMigrationError("result_file_truncated", "Result file is shorter than its header")
         header = struct.unpack_from("<H", raw, 0)[0]
         if fmt == "dat" and header != DAT_HEAD:
-            raise ResultMigrationError("result_header_unknown", "Unknown .dat header", details={"header": hex(header), "expected": hex(DAT_HEAD)})
+            raise ResultMigrationError(
+                "result_header_unknown",
+                "Unknown .dat header",
+                details={"header": hex(header), "expected": hex(DAT_HEAD)},
+            )
         if fmt == "pdt" and header not in {PDT_HEAD, EXP_SEG_PDT_HEAD}:
-            raise ResultMigrationError("result_header_unknown", "Unknown .pdt header", details={"header": hex(header), "expected": [hex(PDT_HEAD), hex(EXP_SEG_PDT_HEAD)]})
+            raise ResultMigrationError(
+                "result_header_unknown",
+                "Unknown .pdt header",
+                details={"header": hex(header), "expected": [hex(PDT_HEAD), hex(EXP_SEG_PDT_HEAD)]},
+            )
         position = 2
         encodings: set[str] = set()
         if fmt == "dat":
             if len(raw) < position + 12:
                 raise ResultMigrationError("result_file_truncated", "Truncated .dat metadata")
-            measure_raw = struct.unpack_from("<d", raw, position)[0]; position += 8
-            sample_count, line_count = struct.unpack_from("<hh", raw, position); position += 4
+            measure_raw = struct.unpack_from("<d", raw, position)[0]
+            position += 8
+            sample_count, line_count = struct.unpack_from("<hh", raw, position)
+            position += 4
             cls._bounds(sample_count, MAX_SAMPLES, "sample_count")
             cls._bounds(line_count, MAX_LINES, "line_count")
             sample_names: list[str] = []
             for index in range(sample_count):
                 value, position, encoding = cls._decode(raw, position, NAME_WIDTH, f"sample[{index}]")
-                sample_names.append(value); encodings.add(encoding)
+                sample_names.append(value)
+                encodings.add(encoding)
             elements: list[str] = []
             for index in range(line_count):
                 value, position, encoding = cls._decode(raw, position, ELEMENT_WIDTH, f"element[{index}]")
-                elements.append(value); encodings.add(encoding)
+                elements.append(value)
+                encodings.add(encoding)
             if position + line_count * 2 > len(raw):
                 raise ResultMigrationError("result_file_truncated", "Truncated .dat digit metadata")
-            digits = list(struct.unpack_from(f"<{line_count}h", raw, position)); position += line_count * 2
+            digits = list(struct.unpack_from(f"<{line_count}h", raw, position))
+            position += line_count * 2
             matrix_size = line_count * sample_count * 4
             expected = position + matrix_size
             if len(raw) < expected:
-                raise ResultMigrationError("result_file_truncated", "Truncated .dat matrix", details={"expected": expected, "actual": len(raw)})
+                raise ResultMigrationError(
+                    "result_file_truncated", "Truncated .dat matrix", details={"expected": expected, "actual": len(raw)}
+                )
             if len(raw) > expected:
-                raise ResultMigrationError("result_file_layout_invalid", "Unexpected trailing bytes in .dat file", details={"expected": expected, "actual": len(raw)})
+                raise ResultMigrationError(
+                    "result_file_layout_invalid",
+                    "Unexpected trailing bytes in .dat file",
+                    details={"expected": expected, "actual": len(raw)},
+                )
             matrix_blob = raw[position:expected]
             values = list(struct.unpack(f"<{line_count * sample_count}f", matrix_blob))
             if not all(math.isfinite(value) for value in values):
                 raise ResultMigrationError("result_matrix_nonfinite", "The .dat matrix contains a non-finite value")
-            lines = [{"index": index, "element": elements[index], "wavelength_nm": None, "back": None, "digits": digits[index]} for index in range(line_count)]
+            lines = [
+                {
+                    "index": index,
+                    "element": elements[index],
+                    "wavelength_nm": None,
+                    "back": None,
+                    "digits": digits[index],
+                }
+                for index in range(line_count)
+            ]
             band_count = sample_count
             kind = "value"
             method_legacy_id = None
@@ -149,18 +255,23 @@ class ResultMigrationService:
         else:
             if len(raw) < position + 16:
                 raise ResultMigrationError("result_file_truncated", "Truncated .pdt metadata")
-            method_legacy_id = struct.unpack_from("<i", raw, position)[0]; position += 4
-            measure_raw = struct.unpack_from("<d", raw, position)[0]; position += 8
-            sample_count, line_count = struct.unpack_from("<hh", raw, position); position += 4
+            method_legacy_id = struct.unpack_from("<i", raw, position)[0]
+            position += 4
+            measure_raw = struct.unpack_from("<d", raw, position)[0]
+            position += 8
+            sample_count, line_count = struct.unpack_from("<hh", raw, position)
+            position += 4
             cls._bounds(sample_count, MAX_SAMPLES, "sample_count")
             cls._bounds(line_count, MAX_LINES, "line_count")
             sample_names = []
             for index in range(sample_count):
                 value, position, encoding = cls._decode(raw, position, NAME_WIDTH, f"sample[{index}]")
-                sample_names.append(value); encodings.add(encoding)
+                sample_names.append(value)
+                encodings.add(encoding)
             if position + sample_count * 2 > len(raw):
                 raise ResultMigrationError("result_file_truncated", "Truncated .pdt repeat metadata")
-            sample_reps = list(struct.unpack_from(f"<{sample_count}h", raw, position)); position += sample_count * 2
+            sample_reps = list(struct.unpack_from(f"<{sample_count}h", raw, position))
+            position += sample_count * 2
             if any(repeat <= 0 for repeat in sample_reps):
                 raise ResultMigrationError("result_repeat_invalid", "Every .pdt sample repeat count must be positive")
             band_count = sum(sample_reps)
@@ -168,52 +279,94 @@ class ResultMigrationService:
             elements = []
             for index in range(line_count):
                 value, position, encoding = cls._decode(raw, position, ELEMENT_WIDTH, f"element[{index}]")
-                elements.append(value); encodings.add(encoding)
+                elements.append(value)
+                encodings.add(encoding)
             metadata_size = line_count * (4 + 2 + 2)
             if position + metadata_size > len(raw):
                 raise ResultMigrationError("result_file_truncated", "Truncated .pdt line metadata")
-            waves = list(struct.unpack_from(f"<{line_count}f", raw, position)); position += line_count * 4
-            backs = list(struct.unpack_from(f"<{line_count}h", raw, position)); position += line_count * 2
-            digits = list(struct.unpack_from(f"<{line_count}h", raw, position)); position += line_count * 2
+            waves = list(struct.unpack_from(f"<{line_count}f", raw, position))
+            position += line_count * 4
+            backs = list(struct.unpack_from(f"<{line_count}h", raw, position))
+            position += line_count * 2
+            digits = list(struct.unpack_from(f"<{line_count}h", raw, position))
+            position += line_count * 2
             exp_segments = []
             if header == EXP_SEG_PDT_HEAD:
                 if position + line_count * 2 > len(raw):
                     raise ResultMigrationError("result_file_truncated", "Truncated .pdt exposure segments")
                 for index in range(line_count):
-                    left, right = struct.unpack_from("<BB", raw, position); position += 2
+                    left, right = struct.unpack_from("<BB", raw, position)
+                    position += 2
                     exp_segments.append({"left": left, "right": right})
             matrix_size = line_count * band_count * 8
             expected = position + matrix_size
             if len(raw) < expected:
-                raise ResultMigrationError("result_file_truncated", "Truncated .pdt matrix", details={"expected": expected, "actual": len(raw)})
+                raise ResultMigrationError(
+                    "result_file_truncated", "Truncated .pdt matrix", details={"expected": expected, "actual": len(raw)}
+                )
             if len(raw) > expected:
-                raise ResultMigrationError("result_file_layout_invalid", "Unexpected trailing bytes in .pdt file", details={"expected": expected, "actual": len(raw)})
+                raise ResultMigrationError(
+                    "result_file_layout_invalid",
+                    "Unexpected trailing bytes in .pdt file",
+                    details={"expected": expected, "actual": len(raw)},
+                )
             matrix_blob = raw[position:expected]
             values = list(struct.iter_unpack("<ff", matrix_blob))
             if not all(math.isfinite(value) for pair in values for value in pair):
                 raise ResultMigrationError("result_matrix_nonfinite", "The .pdt matrix contains a non-finite value")
-            lines = [{"index": index, "element": elements[index], "wavelength_nm": waves[index], "back": backs[index], "digits": digits[index]} for index in range(line_count)]
+            lines = [
+                {
+                    "index": index,
+                    "element": elements[index],
+                    "wavelength_nm": waves[index],
+                    "back": backs[index],
+                    "digits": digits[index],
+                }
+                for index in range(line_count)
+            ]
             kind = "peak_back"
         measure_time = cls._time(measure_raw)
         sample_rows: list[dict[str, Any]] = []
         if fmt == "dat":
-            sample_rows = [{"expanded_index": index, "sample_index": index, "repeat_index": 1, "name": sample_names[index]} for index in range(sample_count)]
+            sample_rows = [
+                {"expanded_index": index, "sample_index": index, "repeat_index": 1, "name": sample_names[index]}
+                for index in range(sample_count)
+            ]
         else:
             expanded = 0
             for sample_index, repeat in enumerate(sample_reps):
                 for repeat_index in range(1, repeat + 1):
-                    sample_rows.append({"expanded_index": expanded, "sample_index": sample_index, "repeat_index": repeat_index, "name": sample_names[sample_index]})
+                    sample_rows.append(
+                        {
+                            "expanded_index": expanded,
+                            "sample_index": sample_index,
+                            "repeat_index": repeat_index,
+                            "name": sample_names[sample_index],
+                        }
+                    )
                     expanded += 1
         method_target_id = None
         method_match_status = "not_present" if method_legacy_id is None else "orphan"
         issues: list[dict[str, Any]] = []
         if method_legacy_id is not None:
-            method_target_id = LegacyMigrationService(source.get("database")) .resolve_method_id(method_legacy_id) if source.get("database") is not None else None
+            method_target_id = (
+                LegacyMigrationService(source.get("database")).resolve_method_id(method_legacy_id)
+                if source.get("database") is not None
+                else None
+            )
             if method_target_id is not None:
                 method_match_status = "matched"
             else:
-                issues.append({"level": "warning", "code": "result_method_orphan", "message": "No imported method matches the legacy method id; result retained read-only."})
-        matrix_samples = cls._samples(values if fmt == "dat" else values, sample_count if fmt == "dat" else band_count, kind=kind)
+                issues.append(
+                    {
+                        "level": "warning",
+                        "code": "result_method_orphan",
+                        "message": "No imported method matches the legacy method id; result retained read-only.",
+                    }
+                )
+        matrix_samples = cls._samples(
+            values if fmt == "dat" else values, sample_count if fmt == "dat" else band_count, kind=kind
+        )
         payload: dict[str, Any] = {
             "header": header,
             "format": fmt,
@@ -235,7 +388,9 @@ class ResultMigrationService:
             "matrix_sha256": hashlib.sha256(matrix_blob).hexdigest(),
             "matrix_samples": matrix_samples,
             "endianness": "little",
-            "encoding": "gb18030" if any(item == "gb18030" for item in encodings) else ("utf-8" if "utf-8" in encodings else "ascii"),
+            "encoding": "gb18030"
+            if any(item == "gb18030" for item in encodings)
+            else ("utf-8" if "utf-8" in encodings else "ascii"),
         }
         if method_target_id is not None:
             payload["method_match_status"] = "matched"
@@ -243,13 +398,35 @@ class ResultMigrationService:
 
     @staticmethod
     def _run_dict(row: Any, *, include_staging: bool = True, already_committed: bool = False) -> dict[str, Any]:
-        result = {"id": row["id"], "fingerprint": row["fingerprint"], "format": row["format"], "status": row["status"], "source_file": json.loads(row["source_json"]), "parser": json.loads(row["parser_json"]), "report": json.loads(row["report_json"]), "error": {"code": row["error_code"], "message": row["error_message"]} if row["error_code"] else None, "created_at": row["created_at"], "updated_at": row["updated_at"], "committed_at": row["committed_at"], "already_committed": already_committed}
+        result = {
+            "id": row["id"],
+            "fingerprint": row["fingerprint"],
+            "format": row["format"],
+            "status": row["status"],
+            "source_file": json.loads(row["source_json"]),
+            "parser": json.loads(row["parser_json"]),
+            "report": json.loads(row["report_json"]),
+            "error": {"code": row["error_code"], "message": row["error_message"]} if row["error_code"] else None,
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+            "committed_at": row["committed_at"],
+            "already_committed": already_committed,
+        }
         if include_staging:
             result["staging"] = json.loads(row["staging_json"])
         return result
 
     def diagnostics(self) -> dict[str, Any]:
-        return {"available": True, "code": "result_parser_ready", "message": "Strict little-endian .dat/.pdt parser ready", "formats": ["dat", "pdt"], "headers": {"dat": hex(DAT_HEAD), "pdt": [hex(PDT_HEAD), hex(EXP_SEG_PDT_HEAD)]}, "read_only": True, "parser_version": PARSER_VERSION, "short_strings": {"sample_name_bytes": NAME_WIDTH + 1, "element_bytes": ELEMENT_WIDTH + 1}}
+        return {
+            "available": True,
+            "code": "result_parser_ready",
+            "message": "Strict little-endian .dat/.pdt parser ready",
+            "formats": ["dat", "pdt"],
+            "headers": {"dat": hex(DAT_HEAD), "pdt": [hex(PDT_HEAD), hex(EXP_SEG_PDT_HEAD)]},
+            "read_only": True,
+            "parser_version": PARSER_VERSION,
+            "short_strings": {"sample_name_bytes": NAME_WIDTH + 1, "element_bytes": ELEMENT_WIDTH + 1},
+        }
 
     @staticmethod
     def _source_snapshot(path: Path) -> dict[str, Any]:
@@ -273,20 +450,93 @@ class ResultMigrationService:
         payload = parsed["payload"]
         issues = parsed["issues"]
         public_staging = {"records": [payload], "record_count": 1, "parser_version": PARSER_VERSION, "issues": issues}
-        report = {"phase": "staged", "format": fmt, "counts": {"files": 1, "samples": payload["sample_count"], "lines": payload["line_count"], "bands": payload["band_count"], "matrix_values": payload["line_count"] * payload["band_count"]}, "checks": {"header_known": True, "metadata_complete": True, "repeat_counts_valid": True, "matrix_shape_valid": True, "matrix_values_finite": True, "source_unchanged": True, "hashes_verified": True, "read_only": True, "atomic_commit": None, "idempotency_guarded": True}, "issues": issues, "method_match_status": payload["method_match_status"], "sampled_values": payload["matrix_samples"], "atomic_scope": "single_source_file", "already_committed": False}
-        now = utc_now(); run_id = existing["id"] if existing is not None else str(uuid.uuid4())
+        report = {
+            "phase": "staged",
+            "format": fmt,
+            "counts": {
+                "files": 1,
+                "samples": payload["sample_count"],
+                "lines": payload["line_count"],
+                "bands": payload["band_count"],
+                "matrix_values": payload["line_count"] * payload["band_count"],
+            },
+            "checks": {
+                "header_known": True,
+                "metadata_complete": True,
+                "repeat_counts_valid": True,
+                "matrix_shape_valid": True,
+                "matrix_values_finite": True,
+                "source_unchanged": True,
+                "hashes_verified": True,
+                "read_only": True,
+                "atomic_commit": None,
+                "idempotency_guarded": True,
+            },
+            "issues": issues,
+            "method_match_status": payload["method_match_status"],
+            "sampled_values": payload["matrix_samples"],
+            "atomic_scope": "single_source_file",
+            "already_committed": False,
+        }
+        now = utc_now()
+        run_id = existing["id"] if existing is not None else str(uuid.uuid4())
         try:
             with self.database.write() as db:
-                db.execute("INSERT INTO result_migration_runs(id, fingerprint, format, status, source_json, parser_json, staging_json, report_json, created_by, created_at, updated_at) VALUES (?, ?, ?, 'staged', ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(fingerprint) DO UPDATE SET id=excluded.id, format=excluded.format, status='staged', source_json=excluded.source_json, parser_json=excluded.parser_json, staging_json=excluded.staging_json, report_json=excluded.report_json, error_code=NULL, error_message=NULL, created_by=excluded.created_by, updated_at=excluded.updated_at, committed_at=NULL", (run_id, fingerprint, fmt, _json(source), _json({"parser_version": PARSER_VERSION, "header": payload["header"], "endianness": "little", "encoding": payload["encoding"]}), _json(public_staging), _json(report), actor_user_id, now, now))
+                db.execute(
+                    (
+                        "INSERT INTO result_migration_runs(id, fingerprint, format, status, source_json, "
+                        "parser_json, staging_json, report_json, created_by, created_at, updated_at) "
+                        "VALUES (?, ?, ?, 'staged', ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(fingerprint) DO "
+                        "UPDATE SET id=excluded.id, format=excluded.format, status='staged', "
+                        "source_json=excluded.source_json, parser_json=excluded.parser_json, "
+                        "staging_json=excluded.staging_json, report_json=excluded.report_json, "
+                        "error_code=NULL, error_message=NULL, created_by=excluded.created_by, "
+                        "updated_at=excluded.updated_at, committed_at=NULL"
+                    ),
+                    (
+                        run_id,
+                        fingerprint,
+                        fmt,
+                        _json(source),
+                        _json(
+                            {
+                                "parser_version": PARSER_VERSION,
+                                "header": payload["header"],
+                                "endianness": "little",
+                                "encoding": payload["encoding"],
+                            }
+                        ),
+                        _json(public_staging),
+                        _json(report),
+                        actor_user_id,
+                        now,
+                        now,
+                    ),
+                )
                 db.execute("DELETE FROM result_migration_staging_records WHERE run_id=?", (run_id,))
-                db.execute("INSERT INTO result_migration_staging_records(run_id, record_index, payload_json, matrix_blob, matrix_sha256) VALUES (?, 0, ?, ?, ?)", (run_id, _json(payload), parsed["matrix_blob"], payload["matrix_sha256"]))
-                db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'result_migration.stage', 'result_migration', NULL, ?, ?)", (actor_user_id, _json({"run_id": run_id, "source_sha256": fingerprint, "format": fmt}), now))
+                db.execute(
+                    (
+                        "INSERT INTO result_migration_staging_records(run_id, record_index, "
+                        "payload_json, matrix_blob, matrix_sha256) VALUES (?, 0, ?, ?, ?)"
+                    ),
+                    (run_id, _json(payload), parsed["matrix_blob"], payload["matrix_sha256"]),
+                )
+                db.execute(
+                    (
+                        "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                        "details_json, created_at) VALUES (?, 'result_migration.stage', "
+                        "'result_migration', NULL, ?, ?)"
+                    ),
+                    (actor_user_id, _json({"run_id": run_id, "source_sha256": fingerprint, "format": fmt}), now),
+                )
                 row = db.execute("SELECT * FROM result_migration_runs WHERE id=?", (run_id,)).fetchone()
                 return self._run_dict(row)
         except ResultMigrationError:
             raise
         except Exception as exc:
-            raise ResultMigrationError("result_stage_failed", "Failed to stage result file", details={"reason": str(exc)}) from exc
+            raise ResultMigrationError(
+                "result_stage_failed", "Failed to stage result file", details={"reason": str(exc)}
+            ) from exc
 
     def commit(self, run_id: str, actor_user_id: int) -> dict[str, Any]:
         with self.database.read() as db:
@@ -295,30 +545,85 @@ class ResultMigrationService:
                 raise ResultMigrationError("result_run_not_found", "Result migration run not found", status_code=404)
             if row["status"] == "committed":
                 return self._run_dict(row, already_committed=True)
-            source = json.loads(row["source_json"]); fingerprint = row["fingerprint"]
+            source = json.loads(row["source_json"])
+            fingerprint = row["fingerprint"]
         current = self._source_snapshot(Path(source["path"]))
         if current != source:
-            raise ResultMigrationError("result_source_changed_since_stage", "Source changed after staging", details={"before": source, "current": current})
+            raise ResultMigrationError(
+                "result_source_changed_since_stage",
+                "Source changed after staging",
+                details={"before": source, "current": current},
+            )
         now = utc_now()
         try:
             with self.database.write() as db:
                 if db.execute("SELECT 1 FROM result_matrices WHERE source_sha256=? LIMIT 1", (fingerprint,)).fetchone():
-                    raise ResultMigrationError("result_source_already_imported", "Source SHA-256 is already committed", status_code=409)
-                staging = db.execute("SELECT * FROM result_migration_staging_records WHERE run_id=? ORDER BY record_index", (run_id,)).fetchall()
+                    raise ResultMigrationError(
+                        "result_source_already_imported", "Source SHA-256 is already committed", status_code=409
+                    )
+                staging = db.execute(
+                    "SELECT * FROM result_migration_staging_records WHERE run_id=? ORDER BY record_index", (run_id,)
+                ).fetchall()
                 for item in staging:
-                    db.execute("INSERT INTO result_matrices(import_run_id, source_sha256, record_index, format, payload_json, matrix_blob, matrix_sha256) VALUES (?, ?, ?, ?, ?, ?, ?)", (run_id, fingerprint, item["record_index"], row["format"], item["payload_json"], item["matrix_blob"], item["matrix_sha256"]))
+                    db.execute(
+                        (
+                            "INSERT INTO result_matrices(import_run_id, source_sha256, record_index, format, "
+                            "payload_json, matrix_blob, matrix_sha256) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                        ),
+                        (
+                            run_id,
+                            fingerprint,
+                            item["record_index"],
+                            row["format"],
+                            item["payload_json"],
+                            item["matrix_blob"],
+                            item["matrix_sha256"],
+                        ),
+                    )
                 report = json.loads(row["report_json"])
-                report.update({"phase": "committed", "checks": {**report["checks"], "atomic_commit": True}, "already_committed": False, "imported": {"result_matrices": len(staging)}})
-                db.execute("UPDATE result_migration_runs SET status='committed', report_json=?, updated_at=?, committed_at=? WHERE id=?", (_json(report), now, now, run_id))
-                db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'result_migration.commit', 'result_migration', NULL, ?, ?)", (actor_user_id, _json({"run_id": run_id, "source_sha256": fingerprint, "record_count": len(staging)}), now))
+                report.update(
+                    {
+                        "phase": "committed",
+                        "checks": {**report["checks"], "atomic_commit": True},
+                        "already_committed": False,
+                        "imported": {"result_matrices": len(staging)},
+                    }
+                )
+                db.execute(
+                    "UPDATE result_migration_runs SET status='committed', report_json=?, updated_at=?, committed_at=? WHERE id=?",
+                    (_json(report), now, now, run_id),
+                )
+                db.execute(
+                    (
+                        "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                        "details_json, created_at) VALUES (?, 'result_migration.commit', "
+                        "'result_migration', NULL, ?, ?)"
+                    ),
+                    (
+                        actor_user_id,
+                        _json({"run_id": run_id, "source_sha256": fingerprint, "record_count": len(staging)}),
+                        now,
+                    ),
+                )
         except ResultMigrationError as exc:
             with self.database.write() as db:
-                db.execute("UPDATE result_migration_runs SET status='failed', error_code=?, error_message=?, updated_at=? WHERE id=?", (exc.code, exc.message[:1000], utc_now(), run_id))
+                db.execute(
+                    "UPDATE result_migration_runs SET status='failed', error_code=?, error_message=?, updated_at=? WHERE id=?",
+                    (exc.code, exc.message[:1000], utc_now(), run_id),
+                )
             raise
         except Exception as exc:
             with self.database.write() as db:
-                db.execute("UPDATE result_migration_runs SET status='failed', error_code='result_commit_failed', error_message=?, updated_at=? WHERE id=?", (str(exc)[:1000], utc_now(), run_id))
-            raise ResultMigrationError("result_commit_failed", "Result commit failed and was rolled back", details={"reason": str(exc)}) from exc
+                db.execute(
+                    (
+                        "UPDATE result_migration_runs SET status='failed', "
+                        "error_code='result_commit_failed', error_message=?, updated_at=? WHERE id=?"
+                    ),
+                    (str(exc)[:1000], utc_now(), run_id),
+                )
+            raise ResultMigrationError(
+                "result_commit_failed", "Result commit failed and was rolled back", details={"reason": str(exc)}
+            ) from exc
         return self.get(run_id)
 
     def get(self, run_id: str, *, already_committed: bool = False) -> dict[str, Any]:
@@ -330,5 +635,7 @@ class ResultMigrationService:
 
     def list(self, limit: int = 20) -> list[dict[str, Any]]:
         with self.database.read() as db:
-            rows = db.execute("SELECT * FROM result_migration_runs ORDER BY created_at DESC LIMIT ?", (max(1, min(100, limit)),)).fetchall()
+            rows = db.execute(
+                "SELECT * FROM result_migration_runs ORDER BY created_at DESC LIMIT ?", (max(1, min(100, limit)),)
+            ).fetchall()
             return [self._run_dict(row, include_staging=False) for row in rows]

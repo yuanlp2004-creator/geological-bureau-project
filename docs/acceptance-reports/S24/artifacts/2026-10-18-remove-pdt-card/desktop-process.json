@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-18-remove-pdt-card\\qa\\GeoSpectrum.exe",
+  "exe_sha256": "749cc6d0cb89b9cf30b59bba228a756b7de0e369c4274014bd1c0695ef5bcb4d",
+  "pid": 21984,
+  "shown_window_handles": [
+    2558840
+  ],
+  "returncode": 0,
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

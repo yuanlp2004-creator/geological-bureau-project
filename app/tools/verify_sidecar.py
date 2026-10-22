@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import signal
+import sys
 import socket
 import subprocess
 import tempfile
@@ -15,6 +16,11 @@ from typing import Any
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
+if str(APP_ROOT) not in sys.path:
+    sys.path.insert(0, str(APP_ROOT))
+
+from backend.migrations import SCHEMA_VERSION
+
 SIDECAR = APP_ROOT / "src-tauri" / "binaries" / "geospectrum-backend-x86_64-pc-windows-msvc.exe"
 EXPECTED_SAMPLE_SHA256 = "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C"
 
@@ -232,7 +238,18 @@ def main() -> int:
         "error": error,
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0 if health and health.get("status") == "ok" and health.get("schema_version") == 20 and business and not error and running_before_stop and result["clean_exit"] and not remaining_sidecar_pids else 1
+    return (
+        0
+        if health
+        and health.get("status") == "ok"
+        and health.get("schema_version") == SCHEMA_VERSION
+        and business
+        and not error
+        and running_before_stop
+        and result["clean_exit"]
+        and not remaining_sidecar_pids
+        else 1
+    )
 
 
 if __name__ == "__main__":

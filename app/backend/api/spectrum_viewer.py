@@ -1,4 +1,5 @@
 """Spectrum Viewer API boundary; business services retain their existing behavior."""
+
 from __future__ import annotations
 import json
 from typing import Any
@@ -17,6 +18,13 @@ from .dependencies import get_runtime, require_permission
 router = APIRouter()
 
 
+@router.get('/api/v1/spectra/display-profiles', tags=['spectra'])
+def display_profiles(_: Session = Depends(require_permission('spectra.read')), *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+    display=runtime.service.get_settings()['display']
+    return [{'id':0,'name':'软件设置','screen_width_mm':display['screen_width_mm'],'screen_resolution_px':display['screen_resolution_px']},*[{key:p[key] for key in ('id','name','screen_width_mm','screen_resolution_px')}
+            for p in runtime.devices_service().profiles() if p['enabled']]]
+
+
 def spectrum_viewer_error(exc: SpectrumViewerError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
@@ -26,9 +34,16 @@ def list_spectrum_records(
     kind: str = Query(default="all"),
     limit: int = Query(default=100, ge=1, le=200),
     angle_deg: float | None = Query(default=None),
-    _: Session = Depends(require_permission("spectra.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+    offset: int = Query(default=0, ge=0),
+    query: str = Query(default="", max_length=200),
+    _: Session = Depends(require_permission("spectra.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> list[dict]:
     try:
-        return runtime.spectrum_viewer_service().list(kind=kind, limit=limit, angle_deg=angle_deg)
+        return runtime.spectrum_viewer_service().list(
+            kind=kind, limit=limit, angle_deg=angle_deg, offset=offset, query=query
+        )
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
 
@@ -43,17 +58,93 @@ def get_spectrum_record(
     frame: int = Query(default=0, ge=0, le=255),
     exposure_start: int | None = Query(default=None, ge=1, le=255),
     exposure_end: int | None = Query(default=None, ge=1, le=255),
-    session: Session = Depends(require_permission("spectra.read")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    session: Session = Depends(require_permission("spectra.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
     try:
-        result = runtime.spectrum_viewer_service().get(record_id, ccd=ccd, line=line, detail=detail, phase=phase, frame=frame, exposure_start=exposure_start, exposure_end=exposure_end)
+        result = runtime.spectrum_viewer_service().get(
+            record_id,
+            ccd=ccd,
+            line=line,
+            detail=detail,
+            phase=phase,
+            frame=frame,
+            exposure_start=exposure_start,
+            exposure_end=exposure_end,
+        )
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
     with runtime.database.write() as db:
         db.execute(
-            "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'spectrum.view', 'spectrum', NULL, ?, ?)",
-            (session.user_id, json.dumps({"record_id": record_id, "ccd": ccd, "line": line, "detail": detail, "phase": phase, "frame": frame, "exposure_start": exposure_start, "exposure_end": exposure_end}, ensure_ascii=False), utc_now()),
+            (
+                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                "details_json, created_at) VALUES (?, 'spectrum.view', 'spectrum', NULL, ?, ?)"
+            ),
+            (
+                session.user_id,
+                json.dumps(
+                    {
+                        "record_id": record_id,
+                        "ccd": ccd,
+                        "line": line,
+                        "detail": detail,
+                        "phase": phase,
+                        "frame": frame,
+                        "exposure_start": exposure_start,
+                        "exposure_end": exposure_end,
+                    },
+                    ensure_ascii=False,
+                ),
+                utc_now(),
+            ),
         )
     return result
+
+
+@router.get("/api/v1/spectra/{record_id}/point-details", tags=["spectra"])
+def spectrum_point_details(record_id: str, ccd: int = Query(default=0, ge=0, le=255),
+    point: int = Query(ge=0, le=100000), session: Session = Depends(require_permission("spectra.read")),
+    *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.spectrum_viewer_service().point_details(record_id, ccd=ccd, point=point)
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+
+
+@router.post("/api/v1/spectra/{record_id}/point-details/copy", tags=["spectra"])
+def copy_spectrum_point_details(record_id: str, ccd: int = Query(default=0, ge=0, le=255),
+    point: int = Query(ge=0, le=100000), orientation: str = Query(pattern='^(vertical|horizontal)$'),
+    session: Session = Depends(require_permission('spectra.export')), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    from ..modules.spectrum_viewer import point_details_text
+    try:
+        details = runtime.spectrum_viewer_service().point_details(record_id, ccd=ccd, point=point)
+        text = point_details_text(details, orientation)
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+    with runtime.database.write() as db:
+        db.execute("INSERT INTO audit_events(actor_user_id,action,target_type,details_json,created_at) VALUES (?,'spectrum.export','spectrum',?,?)",
+            (session.user_id, json.dumps({'record_id': record_id, 'ccd': ccd, 'point': point,
+                'orientation': orientation, 'detail_sha256': details['sha256'], 'output': 'clipboard'}), utc_now()))
+    return {'text': text, 'sha256': details['sha256']}
+
+
+@router.post("/api/v1/spectra/{record_id}/point-details/print", tags=["spectra"])
+def print_spectrum_point_details(record_id: str, ccd: int = Query(default=0, ge=0, le=255),
+    point: int = Query(ge=0, le=100000), session: Session = Depends(require_permission("spectra.export")),
+    *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    from ..modules.spectrum_pdf import render_point_details_pdf
+    try:
+        details = runtime.spectrum_viewer_service().point_details(record_id, ccd=ccd, point=point)
+        content = render_point_details_pdf(details)
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+    with runtime.database.write() as db:
+        db.execute("INSERT INTO audit_events(actor_user_id,action,target_type,details_json,created_at) VALUES (?,'spectrum.print','spectrum',?,?)",
+                   (session.user_id, json.dumps({"record_id": record_id, "ccd": ccd, "point": point,
+                                                "detail_sha256": details["sha256"], "output": "point-details-pdf"}), utc_now()))
+    return Response(content, media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="point-{record_id.replace(":", "-")}-{point + 1}.pdf"'})
 
 
 @router.get("/api/v1/spectra/{record_id}/export", tags=["spectra"])
@@ -69,7 +160,10 @@ def export_spectrum_record(
     x_min: float | None = Query(default=None),
     x_max: float | None = Query(default=None),
     reference_shift: float = Query(default=0.0),
-    session: Session = Depends(require_permission("spectra.export")), *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    session: Session = Depends(require_permission("spectra.export")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> Response:
     try:
         content, digest, point_count = runtime.spectrum_viewer_service().export_csv(
             record_id,
@@ -88,13 +182,35 @@ def export_spectrum_record(
         raise spectrum_viewer_error(exc) from exc
     with runtime.database.write() as db:
         db.execute(
-            "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'spectrum.export', 'spectrum', NULL, ?, ?)",
-            (session.user_id, json.dumps({"record_id": record_id, "ccd": ccd, "line": line, "visible_x_min": x_min, "visible_x_max": x_max, "reference_shift": reference_shift, "point_count": point_count, "sha256": digest}, ensure_ascii=False), utc_now()),
+            (
+                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                "details_json, created_at) VALUES (?, 'spectrum.export', 'spectrum', NULL, ?, ?)"
+            ),
+            (
+                session.user_id,
+                json.dumps(
+                    {
+                        "record_id": record_id,
+                        "ccd": ccd,
+                        "line": line,
+                        "visible_x_min": x_min,
+                        "visible_x_max": x_max,
+                        "reference_shift": reference_shift,
+                        "point_count": point_count,
+                        "sha256": digest,
+                    },
+                    ensure_ascii=False,
+                ),
+                utc_now(),
+            ),
         )
     return Response(
         content=content,
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": f'attachment; filename="spectrum-{quote(record_id, safe="")}.csv"', "X-Content-SHA256": digest},
+        headers={
+            "Content-Disposition": f'attachment; filename="spectrum-{quote(record_id, safe="")}.csv"',
+            "X-Content-SHA256": digest,
+        },
     )
 
 
@@ -102,9 +218,19 @@ def export_spectrum_record(
 def audit_spectrum_print(
     record_id: str,
     payload: SpectrumPrintRequest,
-    session: Session = Depends(require_permission("spectra.export")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("spectra.export")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     if payload.visible_x_min > payload.visible_x_max or payload.visible_y_min > payload.visible_y_max:
-        raise HTTPException(status_code=422, detail={"code": "spectrum_visible_range_invalid", "message": "visible ranges must be ordered", "details": {}})
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "spectrum_visible_range_invalid",
+                "message": "visible ranges must be ordered",
+                "details": {},
+            },
+        )
     try:
         runtime.spectrum_viewer_service().get(record_id, ccd=payload.ccd, line=payload.line)
     except SpectrumViewerError as exc:
@@ -112,17 +238,31 @@ def audit_spectrum_print(
     details = {"record_id": record_id, **payload.model_dump(mode="json")}
     with runtime.database.write() as db:
         db.execute(
-            "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'spectrum.print', 'spectrum', NULL, ?, ?)",
+            (
+                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                "details_json, created_at) VALUES (?, 'spectrum.print', 'spectrum', NULL, ?, ?)"
+            ),
             (session.user_id, json.dumps(details, ensure_ascii=False), utc_now()),
         )
-    return {"status": "ready", "visible_range": {"x_min": payload.visible_x_min, "x_max": payload.visible_x_max, "y_min": payload.visible_y_min, "y_max": payload.visible_y_max}}
+    return {
+        "status": "ready",
+        "visible_range": {
+            "x_min": payload.visible_x_min,
+            "x_max": payload.visible_x_max,
+            "y_min": payload.visible_y_min,
+            "y_max": payload.visible_y_max,
+        },
+    }
 
 
 @router.post("/api/v1/spectra/{record_id}/print-pdf", tags=["spectra"])
 def print_spectrum_pdf(
     record_id: str,
     payload: SpectrumPrintRequest,
-    session: Session = Depends(require_permission("spectra.export")), *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    session: Session = Depends(require_permission("spectra.export")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> Response:
     try:
         content, result = runtime.spectrum_viewer_service().render_visible_pdf(
             record_id,
@@ -140,13 +280,26 @@ def print_spectrum_pdf(
             exposure_start=payload.exposure_start,
             exposure_end=payload.exposure_end,
             priority_record_id=payload.priority_record_id,
+            print_scope=payload.print_scope,
+            print_layers=payload.print_layers,
+            print_scale=payload.print_scale,
+            paper=payload.paper,
         )
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
-    details = {"record_id": record_id, **payload.model_dump(mode="json"), **result, "bytes": len(content), "output": "pdf"}
+    details = {
+        "record_id": record_id,
+        **payload.model_dump(mode="json"),
+        **result,
+        "bytes": len(content),
+        "output": "pdf",
+    }
     with runtime.database.write() as db:
         db.execute(
-            "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'spectrum.print', 'spectrum', NULL, ?, ?)",
+            (
+                "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                "details_json, created_at) VALUES (?, 'spectrum.print', 'spectrum', NULL, ?, ?)"
+            ),
             (session.user_id, json.dumps(details, ensure_ascii=False), utc_now()),
         )
     filename = f"spectrum-{record_id.replace(':', '-')}.pdf"

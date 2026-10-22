@@ -1,0 +1,71 @@
+{
+  "topics": 33,
+  "body_characters_including_image_markers": 8330,
+  "text_characters": 8077,
+  "illustrated_topics": {
+    "dispersion": [
+      "dispersion-points"
+    ],
+    "method-parameters": [
+      "method-parameters"
+    ],
+    "spectral-lines": [
+      "spectral-lines"
+    ],
+    "samples": [
+      "sample-numbers"
+    ],
+    "analysis": [
+      "analysis-spectrum"
+    ],
+    "curves": [
+      "standard-curve"
+    ]
+  },
+  "images": [
+    {
+      "key": "analysis-spectrum",
+      "width": 922,
+      "height": 371,
+      "bytes": 24123,
+      "sha256": "f19c3e81b3ac7e6c5849f30f0600f3e1a82eca1f9175bab601d6f6dd08990113"
+    },
+    {
+      "key": "dispersion-points",
+      "width": 840,
+      "height": 450,
+      "bytes": 30203,
+      "sha256": "c64f48a4f232943117748e8cbde4a7ca5e6ff780ee129e6c7b45ead19b3d4f52"
+    },
+    {
+      "key": "method-parameters",
+      "width": 561,
+      "height": 370,
+      "bytes": 15917,
+      "sha256": "59bf2c174dbb20eae9ecb60837cb00c23a970e85d4f71a3c94fbc50626db0579"
+    },
+    {
+      "key": "sample-numbers",
+      "width": 1120,
+      "height": 456,
+      "bytes": 30608,
+      "sha256": "4c6801e90d49673ddb3b3c6f13e3361659b1aee82ea0411044546e961188e8d2"
+    },
+    {
+      "key": "spectral-lines",
+      "width": 816,
+      "height": 154,
+      "bytes": 8607,
+      "sha256": "b511eadf1416991708b660bcbea2532b77fe29d9393e70cf6dc2f774d7090d56"
+    },
+    {
+      "key": "standard-curve",
+      "width": 642,
+      "height": 463,
+      "bytes": 17398,
+      "sha256": "da67a07567225e6691096ea23595c3ff6b12e5765791e08207b191c48c5d52ed"
+    }
+  ],
+  "total_image_bytes": 126856,
+  "capture": "Fresh isolated golden fixtures, current production UI, cropped at capture time; no real user data or old UI images."
+}

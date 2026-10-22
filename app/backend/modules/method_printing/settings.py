@@ -18,3 +18,7 @@ class PrintSettings:
     duplex: str
     color: bool
     preview_before_print: bool
+
+    elements_per_line: int = 15
+    samples_per_page: int = 50
+    time_mode: str = "analysis"

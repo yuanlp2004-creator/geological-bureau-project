@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "checks": [
+    "First-level navigation has no function icons; all expanded menus retain loaded icons",
+    "Open from another page immediately shows the chooser; cancel changes nothing and double submit opens the selected method once",
+    "Opening failure keeps the chooser and selection, preserves the current method, and can be retried",
+    "Unsaved edits block opening without losing content; parameter and spectral-line shortcuts open the exact views",
+    "New and Save As open their forms directly and create real separate records while preserving the source version",
+    "Pre-record focuses sample input and Enter saves a sample; capture and analysis reach their operating workspaces",
+    "Chooser and text-only first-level navigation fit both window sizes and both themes",
+    "The chooser retains method-file opening, and cancelling its file picker leaves the current method intact",
+    "Accounts without method write permission have no mutating method shortcuts"
+  ],
+  "errors": [],
+  "runtimeApi": "http://127.0.0.1:52199",
+  "networkErrors": [
+    {
+      "url": "http://127.0.0.1:52199/api/v1/auth/logout",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "layouts": [
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "file": "open-1440-1000-light.png",
+      "left": 432.5,
+      "right": 992.5,
+      "top": 341.625,
+      "bottom": 658.3671875,
+      "width": 1440,
+      "height": 1000,
+      "scroll": 1425
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "file": "open-1060-680-light.png",
+      "left": 242.5,
+      "right": 802.5,
+      "top": 181.625,
+      "bottom": 498.3671875,
+      "width": 1060,
+      "height": 680,
+      "scroll": 1045
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "file": "open-1440-1000-dark.png",
+      "left": 432.5,
+      "right": 992.5,
+      "top": 349.625,
+      "bottom": 650.3671875,
+      "width": 1440,
+      "height": 1000,
+      "scroll": 1425
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "file": "open-1060-680-dark.png",
+      "left": 242.5,
+      "right": 802.5,
+      "top": 189.625,
+      "bottom": 490.3671875,
+      "width": 1060,
+      "height": 680,
+      "scroll": 1045
+    }
+  ],
+  "openRequests": 3
+}

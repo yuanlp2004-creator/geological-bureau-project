@@ -1,4 +1,5 @@
 """Dispersion API boundary; business services retain their existing behavior."""
+
 from __future__ import annotations
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,6 +11,7 @@ from ..schemas.dispersion import (
     DispersionCalibrationBindRequest,
 )
 from ..auth import Session
+from ..schemas.system import PreliminaryConditions
 from ..modules.dispersion import DispersionError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
@@ -17,28 +19,61 @@ from .dependencies import get_runtime, require_permission
 router = APIRouter()
 
 
+@router.patch('/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/wavelength', tags=['dispersion'])
+def update_wavelength(task_id: int, line_id: int, wavelength_nm: float = Query(gt=0,le=2000),
+    session: Session = Depends(require_permission('dispersion.write')), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.dispersion_service().update_line_wavelength(task_id,line_id,wavelength_nm,session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@router.patch('/api/v1/dispersion/tasks/{task_id}/gaps/{gap_index}', tags=['dispersion'])
+def update_gap(task_id: int, gap_index: int, gap_um: float = Query(ge=0,le=10000),
+    session: Session = Depends(require_permission('dispersion.write')), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.dispersion_service().update_gap(task_id,gap_index,gap_um,session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
 def dispersion_error(exc: DispersionError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
 @router.get("/api/v1/dispersion/options", tags=["dispersion"])
-def dispersion_options(_: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
-    return runtime.dispersion_service().options()
+def dispersion_options(
+    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)
+) -> dict[str, Any]:
+    return {**runtime.dispersion_service().options(),
+            "preliminary_defaults": runtime.service.get_settings()["preliminary"]["dispersion"]}
+
+
+@router.put("/api/v1/dispersion/defaults", tags=["dispersion"])
+def save_dispersion_defaults(payload: PreliminaryConditions,
+    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    return runtime.service.save_preliminary_conditions("dispersion", payload, session.user_id)
 
 
 @router.get("/api/v1/dispersion/tasks", tags=["dispersion"])
 def list_dispersion_tasks(
     limit: int = Query(default=50, ge=1, le=200),
-    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict[str, Any]]:
+    _: Session = Depends(require_permission("dispersion.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> list[dict[str, Any]]:
     return runtime.dispersion_service().list_tasks(limit)
 
 
 @router.post("/api/v1/dispersion/tasks", status_code=201, tags=["dispersion"])
 def create_dispersion_task(
     payload: DispersionTaskCreate,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().create_task(payload.model_dump(mode="json"), session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().create_task(payload.model_dump(mode="json"), session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -46,7 +81,10 @@ def create_dispersion_task(
 @router.get("/api/v1/dispersion/tasks/{task_id}", tags=["dispersion"])
 def get_dispersion_task(
     task_id: int,
-    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    _: Session = Depends(require_permission("dispersion.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().get_task(task_id)
     except DispersionError as exc:
@@ -56,9 +94,12 @@ def get_dispersion_task(
 @router.post("/api/v1/dispersion/tasks/{task_id}/start", tags=["dispersion"])
 def start_dispersion_task(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.execute")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.execute")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().start_task(task_id, session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().start_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -66,9 +107,12 @@ def start_dispersion_task(
 @router.post("/api/v1/dispersion/tasks/{task_id}/step", tags=["dispersion"])
 def step_dispersion_task(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.execute")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.execute")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().step_task(task_id, session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().step_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -76,9 +120,12 @@ def step_dispersion_task(
 @router.post("/api/v1/dispersion/tasks/{task_id}/pause", tags=["dispersion"])
 def pause_dispersion_task(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.execute")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.execute")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().pause_task(task_id, session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().pause_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -86,9 +133,12 @@ def pause_dispersion_task(
 @router.post("/api/v1/dispersion/tasks/{task_id}/resume", tags=["dispersion"])
 def resume_dispersion_task(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.execute")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.execute")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().resume_task(task_id, session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().resume_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -96,9 +146,12 @@ def resume_dispersion_task(
 @router.post("/api/v1/dispersion/tasks/{task_id}/stop", tags=["dispersion"])
 def stop_dispersion_task(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.execute")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.execute")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().stop_task(task_id, session.user_id)
+        return runtime.messages.task(runtime.dispersion_service().stop_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -108,7 +161,10 @@ def dispersion_task_frames(
     task_id: int,
     phase: str | None = Query(default=None),
     ccd_index: int | None = Query(default=None, ge=0, le=255),
-    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict[str, Any]]:
+    _: Session = Depends(require_permission("dispersion.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> list[dict[str, Any]]:
     try:
         return runtime.dispersion_service().frames(task_id, phase=phase, ccd_index=ccd_index)
     except DispersionError as exc:
@@ -119,7 +175,10 @@ def dispersion_task_frames(
 def add_dispersion_line(
     task_id: int,
     payload: DispersionLineInput,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().add_line(task_id, payload.model_dump(mode="json"), session.user_id)
     except DispersionError as exc:
@@ -130,7 +189,10 @@ def add_dispersion_line(
 def delete_dispersion_line(
     task_id: int,
     line_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().delete_line(task_id, line_id, session.user_id)
     except DispersionError as exc:
@@ -140,7 +202,10 @@ def delete_dispersion_line(
 @router.post("/api/v1/dispersion/tasks/{task_id}/lines/locate-all", tags=["dispersion"])
 def locate_all_dispersion_lines(
     task_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     return runtime.dispersion_service().locate_all(task_id, session.user_id)
 
 
@@ -148,7 +213,10 @@ def locate_all_dispersion_lines(
 def locate_dispersion_line(
     task_id: int,
     line_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().locate_line(task_id, line_id, session.user_id)
     except DispersionError as exc:
@@ -160,9 +228,14 @@ def move_dispersion_line(
     task_id: int,
     line_id: int,
     payload: DispersionLineMoveRequest,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().move_line(task_id, line_id, payload.direction, payload.steps, session.user_id)
+        return runtime.dispersion_service().move_line(
+            task_id, line_id, payload.direction, payload.steps, session.user_id
+        )
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -171,7 +244,10 @@ def move_dispersion_line(
 def save_dispersion_line_position(
     task_id: int,
     line_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().save_line_position(task_id, line_id, session.user_id)
     except DispersionError as exc:
@@ -182,7 +258,10 @@ def save_dispersion_line_position(
 def restore_dispersion_line_position(
     task_id: int,
     line_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().restore_line_position(task_id, line_id, session.user_id)
     except DispersionError as exc:
@@ -193,9 +272,14 @@ def restore_dispersion_line_position(
 def fit_dispersion_calibration(
     task_id: int,
     payload: DispersionCalibrationFitRequest,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().fit_calibration(task_id, payload.model_dump(exclude_none=True), session.user_id)
+        return runtime.dispersion_service().fit_calibration(
+            task_id, payload.model_dump(exclude_none=True), session.user_id
+        )
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -203,7 +287,10 @@ def fit_dispersion_calibration(
 @router.get("/api/v1/dispersion/calibrations/{calibration_version_id}", tags=["dispersion"])
 def get_dispersion_calibration(
     calibration_version_id: int,
-    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    _: Session = Depends(require_permission("dispersion.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().calibration(calibration_version_id)
     except DispersionError as exc:
@@ -213,7 +300,10 @@ def get_dispersion_calibration(
 @router.post("/api/v1/dispersion/calibrations/{calibration_version_id}/publish", tags=["dispersion"])
 def publish_dispersion_calibration(
     calibration_version_id: int,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
         return runtime.dispersion_service().publish_calibration(calibration_version_id, session.user_id)
     except DispersionError as exc:
@@ -224,9 +314,14 @@ def publish_dispersion_calibration(
 def bind_dispersion_calibration(
     calibration_version_id: int,
     payload: DispersionCalibrationBindRequest,
-    session: Session = Depends(require_permission("dispersion.write")), *, runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
     try:
-        return runtime.dispersion_service().bind_calibration(calibration_version_id, payload.model_dump(exclude_none=True), session.user_id)
+        return runtime.dispersion_service().bind_calibration(
+            calibration_version_id, payload.model_dump(exclude_none=True), session.user_id
+        )
     except DispersionError as exc:
         raise dispersion_error(exc) from exc
 
@@ -234,5 +329,38 @@ def bind_dispersion_calibration(
 @router.get("/api/v1/dispersion/bindings", tags=["dispersion"])
 def list_dispersion_bindings(
     method_id: int | None = Query(default=None, ge=1),
-    _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)) -> list[dict[str, Any]]:
+    _: Session = Depends(require_permission("dispersion.read")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> list[dict[str, Any]]:
     return runtime.dispersion_service().bindings(method_id)
+
+
+@router.post("/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position", tags=["dispersion"])
+def set_dispersion_position(
+    task_id: int,
+    line_id: int,
+    position: float = Query(ge=0, le=100000),
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
+    try:
+        return runtime.dispersion_service().set_line_position(task_id, line_id, position, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
+@router.post("/api/v1/dispersion/calibrations/{calibration_id}/manage", tags=["dispersion"])
+def manage_dispersion_calibration(
+    calibration_id: int,
+    action: str = Query(),
+    name: str | None = Query(default=None, max_length=120),
+    session: Session = Depends(require_permission("dispersion.write")),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
+    try:
+        return runtime.dispersion_service().manage_calibration(calibration_id, action, name, session.user_id)
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc

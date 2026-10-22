@@ -1,0 +1,54 @@
+{
+  "status": "passed",
+  "release": "2026-10-21-page-spacing",
+  "plan_sha256_at_start": "781cd6f3a67d0a83c4bfc401c9d14e93734a0d5bb27b34c7abd2eed82c1f3704",
+  "browser_checks": 4,
+  "desktop_checks": 4,
+  "page_layouts_each": 50,
+  "frontend_typescript_vite_build": "passed",
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-page-spacing\\qa\\GeoSpectrum.exe",
+    "pid": 2520,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "source_count": 421,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "backend_sources_unchanged": 190,
+  "legacy_sources_unchanged": 105,
+  "assets_unchanged": 39,
+  "database": {
+    "path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "before": "97ffdd9d4b1777deddb52fd0d21e389094c4c145e50618b6e4eeb93de8602059",
+    "after": "97ffdd9d4b1777deddb52fd0d21e389094c4c145e50618b6e4eeb93de8602059",
+    "main_file_hash_unchanged": true,
+    "qa_used_fresh_isolated_data": true
+  },
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "6684ed4e663bf93f188fe646bf783ea32bbbd0f18db30a4b72b9e98ea3f866c6",
+    "geospectrum-backend.exe": "36f9c19c154309661ddce6aba0bed0ad0322a1c511d3aacd5aed5ac14fc45779"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-page-spacing\\previous",
+  "changed_baseline_files": [
+    "PLAN.md",
+    "app/frontend/src/components/page-heading.css",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/analysis/analysis-workspace.css"
+  ],
+  "uniform_title_content_gap_css_px": 24,
+  "loaded_rail_collapse_expand_checked": true,
+  "installer_rebuilt": false,
+  "documentation_files": [
+    "PLAN.md",
+    "README.md",
+    "docs/acceptance-reports/README.md",
+    "docs/acceptance-reports/S24/验收报告.md"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "batch": "2026-10-19-report-current",
+  "executed_plan_sha256": "4bdb84e83418ccbee9da7594faa881fd2a1943b60e9f75fb345207cabd967423",
+  "product_changes": [
+    "app/frontend/src/components/OpenLegacyFile.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/analysisView.tsx",
+    "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx",
+    "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "app/frontend/src/pages/reports/ReportsPage.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "tests": {
+    "frontend": 15,
+    "browser": 12,
+    "actual_qa_desktop": 12,
+    "report_layouts_per_run": 2
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "6a74bc5922fc94627d4f264ff03b99c1196fce92ce66511d86bfd4c400d450d2",
+    "geospectrum-backend.exe": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-current\\previous\\root-entry-20261019-070624",
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "backend_byte_unchanged": true,
+  "schema_version": 23,
+  "api_payloads_algorithms_permissions_changed": false,
+  "selection_policy": "One currently opened DAT file, or the current analysis run opened in sample analysis; no candidate list or latest-record default.",
+  "request_protection": "Source change clears selected report and preview; cancellation/failure retain source and draft; DAT unit never copied to a new file.",
+  "desktop_process": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-current\\qa\\GeoSpectrum.exe",
+    "sha256": "2fea291609faefbde22a6c039891993cd302ea376da2c48a78a50738a9c9679e",
+    "pid": 13724,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "data": {
+    "test_database_isolated": true,
+    "live_database_overwritten": false,
+    "live_reports_at_delivery": [
+      {
+        "id": 1,
+        "report_number": "旧数据测试-01-CMT"
+      },
+      {
+        "id": 2,
+        "report_number": "旧数据测试-02-CMT"
+      },
+      {
+        "id": 3,
+        "report_number": "旧数据测试-04-CMT"
+      },
+      {
+        "id": 4,
+        "report_number": "旧数据测试-DAT原值-单位未记录"
+      }
+    ],
+    "qa_accounts_in_live": 0,
+    "live_main_file_hash_same_as_start": true,
+    "live_main_file_sha256_at_delivery": "fc15fc1d2b30b5f1afcfda38f61d7865fe7fad99cec0283102751c697213f7c2",
+    "user_changes_retained": true,
+    "old_sources_modified": false
+  },
+  "manual": {
+    "status": "passed",
+    "topic": "reports",
+    "other_topics_preserved": true,
+    "full_generator": "Existing missing 6.4 heading; only current report topic updated in existing manual"
+  },
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "temporary_test_database_removed": true
+}

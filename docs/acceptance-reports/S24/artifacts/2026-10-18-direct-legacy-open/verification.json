@@ -1,0 +1,35 @@
+{
+  "batch": "2026-10-18-direct-legacy-open",
+  "status": "passed",
+  "plan_sha256": "4d492f2e98e7ce7a6847de08449990d17111cee915455a4e4948a34c7e8d1f4c",
+  "schema_version": 23,
+  "root_pair": {
+    "GeoSpectrum.exe": "5713a062e1fe84d9d1c7d9305f2b69e7596f13d87db734abab41f531311b30cb",
+    "geospectrum-backend.exe": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+  },
+  "previous_pair": {
+    "GeoSpectrum.exe": "b6ae53e25baef6b2fa706d52754b706c50620e52bbd5ce7dbd1ff55a97db6ce0",
+    "geospectrum-backend.exe": "103eda616aa10d9909e1b189712dc0b0a6ace9d51b9fbd7c10d284bccdb931fa"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-direct-legacy-open\\previous",
+  "backend_tests": 74,
+  "frontend_tests": 15,
+  "desktop_process": {
+    "pid": 34632,
+    "port": 64113,
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-direct-legacy-open\\qa\\GeoSpectrum.exe",
+    "returncode": 0
+  },
+  "native_file_picker": "command compiled; file-choice results simulated in packaged WebView tests; OS selection and cancellation not manually exercised because Computer Use native pipe unavailable",
+  "installer_updated": false,
+  "browser_checks": 12,
+  "desktop_direct_open_checks": 12,
+  "desktop_output_regression_checks": 7,
+  "desktop_layouts": 9,
+  "source_preservation": {
+    "copies": 10,
+    "originals": 9,
+    "size_mtime_sha256_unchanged": true
+  },
+  "temporary_cleanup": "blocked by policy; isolated test data retained under app/.local/direct-open-20261018"
+}

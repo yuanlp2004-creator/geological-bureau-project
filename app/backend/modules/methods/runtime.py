@@ -7,25 +7,27 @@ from ...db import Database, utc_now
 from .errors import MethodDomainError
 from .repository import MethodRepository
 
+
 class MethodRuntime:
     def __init__(self, database: Database, repository: MethodRepository):
         self.database = database
         self.repository = repository
 
-    def open(self, method_id: int, actor_user_id: int) -> dict[str, Any]:
+    def open(self, method_id: int, actor_user_id: int, *, resume_paused: bool = False) -> dict[str, Any]:
         with self.database.write() as db:
-            row = db.execute(
-                "SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)
-            ).fetchone()
+            row = db.execute("SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)).fetchone()
             if row is None:
                 raise MethodDomainError("method_not_found", "方法不存在", status_code=404)
-            if row["status"] == "paused":
+            if row["status"] == "paused" and not resume_paused:
                 raise MethodDomainError("method_paused", "方法已停用，请先启用", status_code=409)
             if row["current_version"] is None:
-                raise MethodDomainError(
-                    "method_not_published", "方法尚未发布，不能设为当前方法", status_code=409
-                )
+                raise MethodDomainError("method_not_published", "方法尚未发布，不能设为当前方法", status_code=409)
             now = utc_now()
+            if row["status"] == "paused":
+                db.execute("UPDATE methods SET status='active', updated_at=? WHERE id=?", (now, method_id))
+                self.repository._audit(
+                    db, self.repository._valid_actor(db, actor_user_id), "method.resume", method_id, {"status": "active"}
+                )
             db.execute(
                 "UPDATE method_runtime_state SET current_method_id=?, current_version=?, action_state='idle', updated_at=? WHERE id=1",
                 (method_id, row["current_version"], now),
@@ -40,13 +42,9 @@ class MethodRuntime:
             row = db.execute("SELECT * FROM methods WHERE id=?", (method_id,)).fetchone()
             return self.repository._method_dict(db, row, current_id=method_id)
 
-    def pause(
-        self, method_id: int, actor_user_id: int, *, paused: bool = True
-    ) -> dict[str, Any]:
+    def pause(self, method_id: int, actor_user_id: int, *, paused: bool = True) -> dict[str, Any]:
         with self.database.write() as db:
-            row = db.execute(
-                "SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)
-            ).fetchone()
+            row = db.execute("SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)).fetchone()
             if row is None:
                 raise MethodDomainError("method_not_found", "方法不存在", status_code=404)
             status = "paused" if paused else "active"
@@ -69,9 +67,7 @@ class MethodRuntime:
 
     def delete(self, method_id: int, actor_user_id: int) -> dict[str, Any]:
         with self.database.write() as db:
-            row = db.execute(
-                "SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)
-            ).fetchone()
+            row = db.execute("SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)).fetchone()
             if row is None:
                 raise MethodDomainError("method_not_found", "方法不存在", status_code=404)
             now = utc_now()
@@ -143,6 +139,5 @@ class MethodRuntime:
                 "action_state": state["action_state"],
                 "actions": actions,
                 "method": self.repository._method_dict(db, row, current_id=row["id"]),
-                "referenced_version": self.repository._version_dict(referenced),
+                "referenced_version": self.repository._version_dict(referenced, db),
             }
-

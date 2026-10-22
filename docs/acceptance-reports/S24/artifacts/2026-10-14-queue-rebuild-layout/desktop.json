@@ -1,0 +1,653 @@
+{
+  "phase": "desktop",
+  "status": "passed",
+  "target": "地质局",
+  "checks": [
+    "无当前方法时队列入口保持前置条件禁用",
+    "默认次数S/D/普通样及手动覆盖 light/1440",
+    "12/20位选择持久化，表格/字段布局保持 light/1440",
+    "真实创建/追加、非法次数零提交且保留输入 light/1440",
+    "默认次数S/D/普通样及手动覆盖 dark/1060",
+    "12/20位选择持久化，表格/字段布局保持 dark/1060",
+    "真实创建/追加、非法次数零提交且保留输入 dark/1060"
+  ],
+  "layouts": [
+    {
+      "key": "create-light-1440",
+      "controls": [
+        {
+          "x": 295,
+          "y": 393.5703125,
+          "width": 120,
+          "height": 36,
+          "right": 415,
+          "bottom": 429.5703125
+        },
+        {
+          "x": 431,
+          "y": 393.5703125,
+          "width": 404,
+          "height": 36,
+          "right": 835,
+          "bottom": 429.5703125
+        },
+        {
+          "x": 851,
+          "y": 393.5703125,
+          "width": 404,
+          "height": 36,
+          "right": 1255,
+          "bottom": 429.5703125
+        },
+        {
+          "x": 1271,
+          "y": 393.5703125,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 429.5703125
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 274,
+        "y": 304.6328125,
+        "width": 1138,
+        "height": 195.9375,
+        "right": 1412,
+        "bottom": 500.5703125
+      },
+      "inputs": [
+        {
+          "x": 431,
+          "y": 393.5703125,
+          "width": 404,
+          "height": 36,
+          "right": 835,
+          "bottom": 429.5703125
+        },
+        {
+          "x": 851,
+          "y": 393.5703125,
+          "width": 404,
+          "height": 36,
+          "right": 1255,
+          "bottom": 429.5703125
+        },
+        {
+          "x": 1271,
+          "y": 393.5703125,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 429.5703125
+        }
+      ],
+      "checkbox": {
+        "x": 295,
+        "y": 453.5703125,
+        "width": 16,
+        "height": 16,
+        "right": 311,
+        "bottom": 469.5703125
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 295,
+        "y": 443.5703125,
+        "width": 1096,
+        "height": 36,
+        "right": 1391,
+        "bottom": 479.5703125
+      },
+      "label": {
+        "x": 295,
+        "y": 452.5703125,
+        "width": 132,
+        "height": 18,
+        "right": 427,
+        "bottom": 470.5703125
+      },
+      "button": {
+        "x": 1288,
+        "y": 443.5703125,
+        "width": 103,
+        "height": 36,
+        "right": 1391,
+        "bottom": 479.5703125
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing-light-1440",
+      "controls": [
+        {
+          "x": 295,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 415,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 431,
+          "y": 403.2265625,
+          "width": 824,
+          "height": 36,
+          "right": 1255,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 1271,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 439.2265625
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 274,
+        "y": 304.6328125,
+        "width": 1138,
+        "height": 337.7421875,
+        "right": 1412,
+        "bottom": 642.375
+      },
+      "inputs": [
+        {
+          "x": 431,
+          "y": 403.2265625,
+          "width": 824,
+          "height": 36,
+          "right": 1255,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 1271,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 439.2265625
+        }
+      ],
+      "checkbox": {
+        "x": 295,
+        "y": 463.2265625,
+        "width": 16,
+        "height": 16,
+        "right": 311,
+        "bottom": 479.2265625
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 295,
+        "y": 453.2265625,
+        "width": 1096,
+        "height": 36,
+        "right": 1391,
+        "bottom": 489.2265625
+      },
+      "label": {
+        "x": 295,
+        "y": 462.2265625,
+        "width": 132,
+        "height": 18,
+        "right": 427,
+        "bottom": 480.2265625
+      },
+      "button": {
+        "x": 1288,
+        "y": 453.2265625,
+        "width": 103,
+        "height": 36,
+        "right": 1391,
+        "bottom": 489.2265625
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing20-light-1440",
+      "controls": [
+        {
+          "x": 295,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 415,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 431,
+          "y": 403.2265625,
+          "width": 824,
+          "height": 36,
+          "right": 1255,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 1271,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 439.2265625
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 274,
+        "y": 304.6328125,
+        "width": 1138,
+        "height": 337.7421875,
+        "right": 1412,
+        "bottom": 642.375
+      },
+      "inputs": [
+        {
+          "x": 431,
+          "y": 403.2265625,
+          "width": 824,
+          "height": 36,
+          "right": 1255,
+          "bottom": 439.2265625
+        },
+        {
+          "x": 1271,
+          "y": 403.2265625,
+          "width": 120,
+          "height": 36,
+          "right": 1391,
+          "bottom": 439.2265625
+        }
+      ],
+      "checkbox": {
+        "x": 295,
+        "y": 463.2265625,
+        "width": 16,
+        "height": 16,
+        "right": 311,
+        "bottom": 479.2265625
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 295,
+        "y": 453.2265625,
+        "width": 1096,
+        "height": 36,
+        "right": 1391,
+        "bottom": 489.2265625
+      },
+      "label": {
+        "x": 295,
+        "y": 462.2265625,
+        "width": 132,
+        "height": 18,
+        "right": 427,
+        "bottom": 480.2265625
+      },
+      "button": {
+        "x": 1288,
+        "y": 453.2265625,
+        "width": 103,
+        "height": 36,
+        "right": 1391,
+        "bottom": 489.2265625
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "create-dark-1060",
+      "controls": [
+        {
+          "x": 248,
+          "y": 403.5703125,
+          "width": 120,
+          "height": 32,
+          "right": 368,
+          "bottom": 435.5703125
+        },
+        {
+          "x": 384,
+          "y": 403.5703125,
+          "width": 245.5,
+          "height": 32,
+          "right": 629.5,
+          "bottom": 435.5703125
+        },
+        {
+          "x": 645.5,
+          "y": 403.5703125,
+          "width": 245.5,
+          "height": 32,
+          "right": 891,
+          "bottom": 435.5703125
+        },
+        {
+          "x": 907,
+          "y": 403.5703125,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 435.5703125
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 231,
+        "y": 318.6328125,
+        "width": 813,
+        "height": 179.9375,
+        "right": 1044,
+        "bottom": 498.5703125
+      },
+      "inputs": [
+        {
+          "x": 384,
+          "y": 403.5703125,
+          "width": 245.5,
+          "height": 32,
+          "right": 629.5,
+          "bottom": 435.5703125
+        },
+        {
+          "x": 645.5,
+          "y": 403.5703125,
+          "width": 245.5,
+          "height": 32,
+          "right": 891,
+          "bottom": 435.5703125
+        },
+        {
+          "x": 907,
+          "y": 403.5703125,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 435.5703125
+        }
+      ],
+      "checkbox": {
+        "x": 248,
+        "y": 457.5703125,
+        "width": 16,
+        "height": 16,
+        "right": 264,
+        "bottom": 473.5703125
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 248,
+        "y": 449.5703125,
+        "width": 779,
+        "height": 32,
+        "right": 1027,
+        "bottom": 481.5703125
+      },
+      "label": {
+        "x": 248,
+        "y": 456.5703125,
+        "width": 132,
+        "height": 18,
+        "right": 380,
+        "bottom": 474.5703125
+      },
+      "button": {
+        "x": 924,
+        "y": 449.5703125,
+        "width": 103,
+        "height": 32,
+        "right": 1027,
+        "bottom": 481.5703125
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing-dark-1060",
+      "controls": [
+        {
+          "x": 248,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 368,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 384,
+          "y": 409.2265625,
+          "width": 507,
+          "height": 32,
+          "right": 891,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 907,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 441.2265625
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 231,
+        "y": 318.6328125,
+        "width": 813,
+        "height": 313.7421875,
+        "right": 1044,
+        "bottom": 632.375
+      },
+      "inputs": [
+        {
+          "x": 384,
+          "y": 409.2265625,
+          "width": 507,
+          "height": 32,
+          "right": 891,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 907,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 441.2265625
+        }
+      ],
+      "checkbox": {
+        "x": 248,
+        "y": 463.2265625,
+        "width": 16,
+        "height": 16,
+        "right": 264,
+        "bottom": 479.2265625
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 248,
+        "y": 455.2265625,
+        "width": 779,
+        "height": 32,
+        "right": 1027,
+        "bottom": 487.2265625
+      },
+      "label": {
+        "x": 248,
+        "y": 462.2265625,
+        "width": 132,
+        "height": 18,
+        "right": 380,
+        "bottom": 480.2265625
+      },
+      "button": {
+        "x": 924,
+        "y": 455.2265625,
+        "width": 103,
+        "height": 32,
+        "right": 1027,
+        "bottom": 487.2265625
+      },
+      "horizontalOverflow": false
+    },
+    {
+      "key": "existing20-dark-1060",
+      "controls": [
+        {
+          "x": 248,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 368,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 384,
+          "y": 409.2265625,
+          "width": 507,
+          "height": 32,
+          "right": 891,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 907,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 441.2265625
+        }
+      ],
+      "lengthInForm": true,
+      "card": {
+        "x": 231,
+        "y": 318.6328125,
+        "width": 813,
+        "height": 313.7421875,
+        "right": 1044,
+        "bottom": 632.375
+      },
+      "inputs": [
+        {
+          "x": 384,
+          "y": 409.2265625,
+          "width": 507,
+          "height": 32,
+          "right": 891,
+          "bottom": 441.2265625
+        },
+        {
+          "x": 907,
+          "y": 409.2265625,
+          "width": 120,
+          "height": 32,
+          "right": 1027,
+          "bottom": 441.2265625
+        }
+      ],
+      "checkbox": {
+        "x": 248,
+        "y": 463.2265625,
+        "width": 16,
+        "height": 16,
+        "right": 264,
+        "bottom": 479.2265625
+      },
+      "nestedLabels": 0,
+      "footer": {
+        "x": 248,
+        "y": 455.2265625,
+        "width": 779,
+        "height": 32,
+        "right": 1027,
+        "bottom": 487.2265625
+      },
+      "label": {
+        "x": 248,
+        "y": 462.2265625,
+        "width": 132,
+        "height": 18,
+        "right": 380,
+        "bottom": 480.2265625
+      },
+      "button": {
+        "x": 924,
+        "y": 455.2265625,
+        "width": 103,
+        "height": 32,
+        "right": 1027,
+        "bottom": 487.2265625
+      },
+      "horizontalOverflow": false
+    }
+  ],
+  "errors": [],
+  "transportFailures": [
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "queueRequests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/sample-queues"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sample-queues"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/1"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/1"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/1"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sample-queues"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/2"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/2"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/sample-queues/2"
+    }
+  ]
+}

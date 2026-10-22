@@ -1,0 +1,200 @@
+{
+  "status": "passed",
+  "scope": "four Qwen app-icon design candidates; application integration not performed",
+  "executed_plan_sha256": "e1849e6253c901486b5506f51159522b1e44ac3e691f5a525cb69cdad3bc4323",
+  "provider": "local ComfyUI 127.0.0.1:8188",
+  "model": "qwen_image_2.1_int8_convrot.safetensors",
+  "steps": 30,
+  "cfg": 1.0,
+  "sampler": "euler",
+  "scheduler": "simple",
+  "jobs": {
+    "A-crystal": {
+      "prompt_id": "71aa289e-81e0-43dc-b794-8eecef05414b",
+      "number": 35,
+      "node_errors": {}
+    },
+    "B-prism": {
+      "prompt_id": "36f28197-323c-41e6-a3f9-8b8d009a0944",
+      "number": 37,
+      "node_errors": {}
+    },
+    "C-strata": {
+      "prompt_id": "72f6c571-e758-4533-9eae-a525afa3ee3f",
+      "number": 38,
+      "node_errors": {}
+    },
+    "D-monogram": {
+      "prompt_id": "baf7e526-b988-47d4-97f0-4b37e5085f95",
+      "number": 39,
+      "node_errors": {}
+    }
+  },
+  "assets": [
+    {
+      "name": "A-crystal",
+      "title": "A · 晶体光谱",
+      "source": "generated-v1.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bounds": [
+        32,
+        28,
+        992,
+        985
+      ],
+      "transparent_master": true,
+      "png_sizes": [
+        1024,
+        512
+      ],
+      "ico_sizes": [
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        96,
+        128,
+        256
+      ],
+      "files": {
+        "A-crystal-1024.png": "ccb894c15f47bc2102354314593f8c84bae9d820316b6b0d746304da38329074",
+        "A-crystal-512.png": "db9525699de72a359105ca4820e67d519228d3702f02afda5d8dee51005643d0",
+        "A-crystal.ico": "0640230dff372aa060247cb87c0722cb22b731765be90dae7672aa4cf063bb69"
+      }
+    },
+    {
+      "name": "B-prism",
+      "title": "B · 棱镜分光",
+      "source": "B-prism.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bounds": [
+        82,
+        68,
+        944,
+        935
+      ],
+      "transparent_master": true,
+      "png_sizes": [
+        1024,
+        512
+      ],
+      "ico_sizes": [
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        96,
+        128,
+        256
+      ],
+      "files": {
+        "B-prism-1024.png": "0e231dc17326965481358c8589e0842136cda520310323cdbd4117d9105fd5d5",
+        "B-prism-512.png": "bfa7eee5e7dfd47b065afd20daa4238ea721f62d19f1c1ffd2b124fa68693ae8",
+        "B-prism.ico": "629d0871c23449067953a406221719e8e56dcf05325a78d49957ba1dce04704c"
+      }
+    },
+    {
+      "name": "C-strata",
+      "title": "C · 地层谱峰",
+      "source": "C-strata.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bounds": [
+        29,
+        28,
+        995,
+        996
+      ],
+      "transparent_master": true,
+      "png_sizes": [
+        1024,
+        512
+      ],
+      "ico_sizes": [
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        96,
+        128,
+        256
+      ],
+      "files": {
+        "C-strata-1024.png": "691601e8f1b61b02b0bf7efeb5d038f67d1311670beedec102b47802db45d4c0",
+        "C-strata-512.png": "8e0c698a5e1828a7abc93841763bf980a14d547351acb843928e6953306ca36e",
+        "C-strata.ico": "c881602221346ec7c6508c9a64b3b25c0e0c98f5d19b5ace8363540a42848721"
+      }
+    },
+    {
+      "name": "D-monogram",
+      "title": "D · 极简 G",
+      "source": "D-monogram.png",
+      "source_size": [
+        1024,
+        1024
+      ],
+      "source_bounds": [
+        12,
+        18,
+        1013,
+        1007
+      ],
+      "transparent_master": true,
+      "png_sizes": [
+        1024,
+        512
+      ],
+      "ico_sizes": [
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        96,
+        128,
+        256
+      ],
+      "files": {
+        "D-monogram-1024.png": "99b1f585401d561d3b859eac4bfd56dc8bad6a3b753b09d8b2fbe620662abc90",
+        "D-monogram-512.png": "d089e6d2b1dfb0ae544d57282df8457c637ca862184cb3abf73b52a91e06cc0a",
+        "D-monogram.ico": "2046d44f3e1bfc5222c7e128504ca97f38d4e2bd683c17a16156a9bd4ffe77fd"
+      }
+    }
+  ],
+  "preview_inspected": true,
+  "small_sizes_inspected": [
+    16,
+    24,
+    32,
+    48
+  ],
+  "canonical_workflow_unchanged": true,
+  "product_sources_unchanged": true,
+  "root_executables_unchanged": true,
+  "legacy_sources_preserved": 105,
+  "live_database_overwritten": false,
+  "live_main_file_hash_same": true,
+  "root_app_inventory_unchanged": true,
+  "application_icon_selected": null,
+  "installer_updated": false,
+  "temporary_test_data_cleaned": true
+}

@@ -1,0 +1,104 @@
+{
+  "production": {
+    "executable": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-20-prism-app-icon\\GeoSpectrum.exe",
+    "all_frames_match_selected_ico": true,
+    "groups": [
+      {
+        "resource": "32512",
+        "frames": [
+          {
+            "size": 256,
+            "sha256": "357144e8be3d27409e14c07a7567156176c22425d7dc46f6ccb0bf4e63a7e565"
+          },
+          {
+            "size": 128,
+            "sha256": "040e9f78e6bd874bd27f9d1804eab2ae9e7c50b171fc4a8c031916fbd4f605de"
+          },
+          {
+            "size": 96,
+            "sha256": "8a82d39476bbac21d867fdfeaa982a0fc282c911bc13cf94b53fe6df238c580e"
+          },
+          {
+            "size": 64,
+            "sha256": "c0ca702187c46e48c2fe5b34658f2aa74ef8055e9af74e618eade87ab5267600"
+          },
+          {
+            "size": 48,
+            "sha256": "72adf2d91bce018eab169814d5ec947036de52810091948524fb99ad3f372f75"
+          },
+          {
+            "size": 40,
+            "sha256": "3ccb0c0b580234ce57cfeda51fd4b7e2fd796d1483c7cf3bfbcacdfaa413d033"
+          },
+          {
+            "size": 32,
+            "sha256": "159e80195ef351dec1ec3e87434c7119c9fa0eb9c85eec3fb19c21ab82786048"
+          },
+          {
+            "size": 24,
+            "sha256": "aa8000b5d46755770219b2da1b474ec7ef7b34e951d2fa8ee8b31aeeef93b310"
+          },
+          {
+            "size": 20,
+            "sha256": "cd4c8f11c08956908a727f5bfa9be75f108a95bb2fbed1cd48281d66635d9303"
+          },
+          {
+            "size": 16,
+            "sha256": "c0be3be6430ab6db17564c813a8e2bda542ddd026b890b7b36e87719de8c17c5"
+          }
+        ]
+      }
+    ]
+  },
+  "qa": {
+    "executable": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-20-prism-app-icon\\qa\\GeoSpectrum.exe",
+    "all_frames_match_selected_ico": true,
+    "groups": [
+      {
+        "resource": "32512",
+        "frames": [
+          {
+            "size": 256,
+            "sha256": "357144e8be3d27409e14c07a7567156176c22425d7dc46f6ccb0bf4e63a7e565"
+          },
+          {
+            "size": 128,
+            "sha256": "040e9f78e6bd874bd27f9d1804eab2ae9e7c50b171fc4a8c031916fbd4f605de"
+          },
+          {
+            "size": 96,
+            "sha256": "8a82d39476bbac21d867fdfeaa982a0fc282c911bc13cf94b53fe6df238c580e"
+          },
+          {
+            "size": 64,
+            "sha256": "c0ca702187c46e48c2fe5b34658f2aa74ef8055e9af74e618eade87ab5267600"
+          },
+          {
+            "size": 48,
+            "sha256": "72adf2d91bce018eab169814d5ec947036de52810091948524fb99ad3f372f75"
+          },
+          {
+            "size": 40,
+            "sha256": "3ccb0c0b580234ce57cfeda51fd4b7e2fd796d1483c7cf3bfbcacdfaa413d033"
+          },
+          {
+            "size": 32,
+            "sha256": "159e80195ef351dec1ec3e87434c7119c9fa0eb9c85eec3fb19c21ab82786048"
+          },
+          {
+            "size": 24,
+            "sha256": "aa8000b5d46755770219b2da1b474ec7ef7b34e951d2fa8ee8b31aeeef93b310"
+          },
+          {
+            "size": 20,
+            "sha256": "cd4c8f11c08956908a727f5bfa9be75f108a95bb2fbed1cd48281d66635d9303"
+          },
+          {
+            "size": 16,
+            "sha256": "c0be3be6430ab6db17564c813a8e2bda542ddd026b890b7b36e87719de8c17c5"
+          }
+        ]
+      }
+    ]
+  }
+}

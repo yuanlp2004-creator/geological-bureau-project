@@ -32,7 +32,16 @@ def repeat_statistics(values: list[float]) -> dict[str, Any]:
         raise AnalysisError("analysis_qc_value_invalid", "重复测量值必须是有限数字", status_code=422)
     count = len(numbers)
     if count == 0:
-        return {"effective_count": 0, "mean": None, "minimum": None, "maximum": None, "range": None, "stddev": None, "rsd": None, "id": None}
+        return {
+            "effective_count": 0,
+            "mean": None,
+            "minimum": None,
+            "maximum": None,
+            "range": None,
+            "stddev": None,
+            "rsd": None,
+            "id": None,
+        }
     minimum, maximum = min(numbers), max(numbers)
     mean = sum(numbers) / count
     stddev = 0.0 if count == 1 else math.sqrt(sum((value - mean) ** 2 for value in numbers) / (count - 1))
@@ -62,7 +71,9 @@ def _solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]
     for column in range(size):
         pivot = max(range(column, size), key=lambda row: abs(augmented[row][column]))
         if abs(augmented[pivot][column]) <= tolerance:
-            raise AnalysisError("analysis_curve_ill_conditioned", "标准点矩阵病态，无法稳定拟合", details={"pivot": column})
+            raise AnalysisError(
+                "analysis_curve_ill_conditioned", "标准点矩阵病态，无法稳定拟合", details={"pivot": column}
+            )
         augmented[column], augmented[pivot] = augmented[pivot], augmented[column]
         divisor = augmented[column][column]
         augmented[column] = [value / divisor for value in augmented[column]]
@@ -70,11 +81,20 @@ def _solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]
             if row == column:
                 continue
             factor = augmented[row][column]
-            augmented[row] = [value - factor * pivot_value for value, pivot_value in zip(augmented[row], augmented[column], strict=True)]
+            augmented[row] = [
+                value - factor * pivot_value
+                for value, pivot_value in zip(augmented[row], augmented[column], strict=True)
+            ]
     return [augmented[row][-1] for row in range(size)]
 
 
-def fit_curve(x_values: list[float], y_values: list[float], mode: str, coordinate_type: str = "normal") -> dict[str, Any]:
+def fit_curve(
+    x_values: list[float], y_values: list[float], mode: str, coordinate_type: str = "normal",
+    *, calculation_profile: str = "modern_v1",
+) -> dict[str, Any]:
+    if calculation_profile == "legacy_2_0_2":
+        from .legacy_curves import fit_legacy_curve
+        return fit_legacy_curve(x_values, y_values, mode, coordinate_type)
     if mode not in FIT_MODES:
         raise AnalysisError("analysis_curve_fit_mode_invalid", "拟合方式无效", status_code=422)
     if coordinate_type not in COORDINATE_TYPES:
@@ -83,7 +103,11 @@ def fit_curve(x_values: list[float], y_values: list[float], mode: str, coordinat
         raise AnalysisError("analysis_curve_shape_invalid", "标准点强度与含量数量不一致", status_code=422)
     minimum_count = 4
     if len(x_values) < minimum_count:
-        raise AnalysisError("analysis_curve_points_insufficient", f"{mode} 拟合至少需要 {minimum_count} 个有效标准点", details={"minimum": minimum_count, "actual": len(x_values)})
+        raise AnalysisError(
+            "analysis_curve_points_insufficient",
+            f"{mode} 拟合至少需要 {minimum_count} 个有效标准点",
+            details={"minimum": minimum_count, "actual": len(x_values)},
+        )
     pairs = [(float(x), float(y)) for x, y in zip(x_values, y_values, strict=True)]
     if any(not math.isfinite(x) or not math.isfinite(y) for x, y in pairs):
         raise AnalysisError("analysis_curve_value_invalid", "标准点必须是有限数字", status_code=422)
@@ -92,13 +116,15 @@ def fit_curve(x_values: list[float], y_values: list[float], mode: str, coordinat
             raise AnalysisError("analysis_curve_log_nonpositive", "对数坐标要求强度和含量均大于零")
         pairs = [(math.log(x), math.log(y)) for x, y in pairs]
     pairs.sort(key=lambda item: item[0])
-    if any(math.isclose(pairs[index][0], pairs[index - 1][0], rel_tol=0.0, abs_tol=1e-12) for index in range(1, len(pairs))):
+    if any(
+        math.isclose(pairs[index][0], pairs[index - 1][0], rel_tol=0.0, abs_tol=1e-12) for index in range(1, len(pairs))
+    ):
         raise AnalysisError("analysis_curve_duplicate_x", "标准点存在重复强度，无法拟合")
     xs, ys = map(list, zip(*pairs, strict=True))
     if mode != "spline":
         degree = FIT_MODES[mode]
         matrix = [[sum(x ** (row + column) for x in xs) for column in range(degree + 1)] for row in range(degree + 1)]
-        vector = [sum(y * (x ** row) for x, y in zip(xs, ys, strict=True)) for row in range(degree + 1)]
+        vector = [sum(y * (x**row) for x, y in zip(xs, ys, strict=True)) for row in range(degree + 1)]
         coefficients = [_float32(value) for value in _solve_linear(matrix, vector)]
         coefficients += [0.0] * (4 - len(coefficients))
         return {"kind": "polynomial", "coefficients": coefficients, "x": xs, "y": ys}
@@ -127,6 +153,9 @@ def fit_curve(x_values: list[float], y_values: list[float], mode: str, coordinat
 
 
 def evaluate_curve(fit: dict[str, Any], x_value: float, coordinate_type: str = "normal") -> float:
+    if fit.get("calculation_profile") == "legacy_2_0_2":
+        from .legacy_curves import evaluate_legacy_curve
+        return evaluate_legacy_curve(fit, float(x_value))
     x = float(x_value)
     if coordinate_type == "logarithmic":
         if x <= 0:
@@ -146,7 +175,9 @@ def evaluate_curve(fit: dict[str, Any], x_value: float, coordinate_type: str = "
         span = xs[index + 1] - xs[index]
         dy = (ys[index + 1] - ys[index]) / span
         slope = (second[index + 1] - second[index]) / span
-        result = ys[index] + h * (dy + (x - xs[index + 1]) * (second[index + 1] + 2.0 * second[index] + h * slope) / 6.0)
+        result = ys[index] + h * (
+            dy + (x - xs[index + 1]) * (second[index + 1] + 2.0 * second[index] + h * slope) / 6.0
+        )
     if coordinate_type == "logarithmic":
         result = math.exp(result)
     if not math.isfinite(result):
@@ -222,7 +253,11 @@ def legacy_gaussian(values: list[float]) -> dict[str, float | int | bool | None]
 
 def _bounded_range(center: int, width: int, point_count: int) -> tuple[int, int, bool]:
     if width <= 0 or width > point_count:
-        raise AnalysisError("analysis_window_invalid", "谱线计算窗口超出 CCD 点数", details={"center": center, "width": width, "point_count": point_count})
+        raise AnalysisError(
+            "analysis_window_invalid",
+            "谱线计算窗口超出 CCD 点数",
+            details={"center": center, "width": width, "point_count": point_count},
+        )
     left = center - width // 2
     adjusted = False
     if left < 0:
@@ -236,9 +271,18 @@ def _bounded_range(center: int, width: int, point_count: int) -> tuple[int, int,
     return left, right, adjusted
 
 
-def _search_peak(values: list[float], center: int, width: int, *, checked: bool, lower_peak: float, minimum_ratio: float, maximum: bool = False) -> dict[str, Any]:
+def _search_peak(
+    values: list[float],
+    center: int,
+    width: int,
+    *,
+    checked: bool,
+    lower_peak: float,
+    minimum_ratio: float,
+    maximum: bool = False,
+) -> dict[str, Any]:
     left, right, adjusted = _bounded_range(center, width, len(values))
-    window = values[left:right + 1]
+    window = values[left : right + 1]
     minimum = min(window)
     if maximum:
         peak = max(window)
@@ -259,4 +303,12 @@ def _search_peak(values: list[float], center: int, width: int, *, checked: bool,
             found = False
             position = max(left, min(right, center))
         peak = float(values[position])
-    return {"position": position, "peak": peak, "minimum": float(minimum), "found": found, "window_start": left, "window_end": right, "boundary_adjusted": adjusted}
+    return {
+        "position": position,
+        "peak": peak,
+        "minimum": float(minimum),
+        "found": found,
+        "window_start": left,
+        "window_end": right,
+        "boundary_adjusted": adjusted,
+    }

@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "plan_sha256": "A6E049B0A28897654B2B79650D79B88F6B5B4670E048DC593FE97AF5389140A6",
+  "scope": "Repeatability quality UI aligned with restored workspace visual style",
+  "product_files": [
+    {
+      "path": "app/frontend/src/pages/analysis/AnalysisQuality.tsx",
+      "sha256": "EA9122C9557F72E9BD71FA6B7FF2A967CC61113AD3A7B5E603C8802E1B29AC3D"
+    },
+    {
+      "path": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "sha256": "00A338448056B400CDC34EDD603B17F78379123DFBE5A167362A63F318A588D2"
+    },
+    {
+      "path": "app/frontend/src/pages/analysis/quality.css",
+      "sha256": "9FAF990703F1ABEBDDC6D9DFC4E8A25B8C0D3998686CF9298C50973982DA5E2B"
+    },
+    {
+      "path": "app/frontend/src/styles/index.ts",
+      "sha256": "45AE73F63106A84702E0890BEE01FF08588B172C432B16099B6E812F78A9AC5D"
+    }
+  ],
+  "frontend_units": {
+    "passed": 8
+  },
+  "production_build": "passed",
+  "tauri_build": "passed",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "report detail and preview ignore responses from an earlier selection",
+      "report panels preserve create/confirm/export payloads, missing-directory guard and printer selection",
+      "method switch ignores the previous method line response",
+      "acquisition selection is preserved when an earlier command finishes",
+      "automatic acquisition response cannot restore the previous task or restart its timer",
+      "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+      "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload",
+      "FIX-07/GAP-03: analysis A/B and A/B/A response ownership, old errors, sequential non-slow completion",
+      "FIX-07/GAP-03: slow mode does not auto-step; rejected request after unmount cannot display an old error",
+      "FIX-04: real dispersion line survives task switch; stop queues behind pending frame and stops automatic progression",
+      "GAP-04: actual CCD point selected after zoom, further zoom preserves locked point, saved backend position matches pixel mapping",
+      "FIX-07: 260.1234 nm creation failure retains draft, retry selects newly created line",
+      "FIX-06: actual simulated sample is visible in generic spectrum page; CSV point count/value and PDF download verified",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "quality_browser": {
+    "status": "passed",
+    "checks": [
+      "draft analysis cannot recalculate quality before completion",
+      "real simulated measurements, analysis, quality recalculation and two repeat groups rendered",
+      "real exclude/restore updates effective count 3 to 2 to 3 and restores exact statistics",
+      "warning acceptance retains real audit decision and visible accepted state",
+      "quality view captured in light/comfortable and dark/compact at three window widths",
+      "no WebView script errors"
+    ],
+    "phase": "after",
+    "scriptErrors": []
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "draft analysis cannot recalculate quality before completion",
+      "real simulated measurements, analysis, quality recalculation and two repeat groups rendered",
+      "real exclude/restore updates effective count 3 to 2 to 3 and restores exact statistics",
+      "warning acceptance retains real audit decision and visible accepted state",
+      "quality view captured in light/comfortable and dark/compact at three window widths",
+      "20位样号持久、保留原表格设计，12位切换拒绝截断",
+      "摄谱未完成时的真实强度与峰位即时上屏",
+      "在途连续采集删除等待收尾，停止并移除异常样品",
+      "20位采集后命名与谱带哈希保持",
+      "方法逐转角区间实际进入样品谱带，平均与全区间混合保存",
+      "分析页任意 CCD 点值读取及独立横纵缩放",
+      "管理样采集、质控、页面适配、留存修正及新曲线发布回算",
+      "自动转角完整方法计划与逐帧区间结果确认",
+      "no WebView script errors"
+    ],
+    "phase": "after",
+    "scriptErrors": []
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+    "pid": 19840,
+    "main_windows_closed": 1,
+    "returncode": 0,
+    "native_confirmation_choices": [],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "viewports": [
+    1060,
+    1440,
+    1920
+  ],
+  "theme_density_pairs": [
+    [
+      "light",
+      "comfortable"
+    ],
+    [
+      "dark",
+      "compact"
+    ]
+  ],
+  "existing_analysis_css_unchanged": true,
+  "backend_binary_unchanged": true,
+  "user_database_files_unchanged": {
+    "geospectrum.sqlite3": "121AABB241E012A951FB3D2D52303FBC5F225159A44CB787F58DF9CB23A8C280"
+  },
+  "root_and_app_entry_lists_unchanged": true,
+  "delivery": {
+    "date": "2026-10-08",
+    "status": "internal_test_root_delivery",
+    "identifier": "cn.geospectrum.desktop",
+    "scope": "Repeatability quality UI aligned with restored workspace visual style",
+    "schema_version": 23,
+    "files": [
+      {
+        "name": "GeoSpectrum.exe",
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+        "bytes": 11782144,
+        "sha256": "6083C086559C8315C2D51908154E7164E1D6A15E0348C2803250F34FD11DEBC2"
+      },
+      {
+        "name": "geospectrum-backend.exe",
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\geospectrum-backend.exe",
+        "bytes": 25050133,
+        "sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+      }
+    ],
+    "previous_files": [
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-quality-ui\\previous\\GeoSpectrum.exe",
+        "bytes": 11781120,
+        "sha256": "E220A0FE94835319E2A2CDD02D9D579881AC546AAF9743A6E56945BF1BE87F99"
+      },
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-quality-ui\\previous\\geospectrum-backend.exe",
+        "bytes": 25050133,
+        "sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+      }
+    ],
+    "data_directory": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop",
+    "user_data_unchanged": true,
+    "signing": "NotSigned",
+    "main_and_backend_must_stay_together": true
+  },
+  "remaining_external": [
+    "real hardware and missing protocols",
+    "physical printing",
+    "code signing",
+    "clean Windows and formal acceptance"
+  ]
+}

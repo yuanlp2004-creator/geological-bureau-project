@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "batch": "2026-10-17-users-roles",
+  "execution_plan_sha256": "31da0a6ea2f6e192b88725d520965523fe5a8b043fc01785c59e55309bd88e01",
+  "task_start_plan_sha256": "275230794676d50f61105f91aa1f8ce802731c0d41e565be50a856b5e61014d1",
+  "product_files_changed": [
+    "app/frontend/src/pages/auth/PermissionPicker.tsx",
+    "app/frontend/src/pages/auth/permissions.css",
+    "app/frontend/src/pages/auth/UsersPage.tsx"
+  ],
+  "new_regression": "app/tests/users_roles_workflow.mjs",
+  "tests": {
+    "frontend": 15,
+    "auth": 12,
+    "browser_workflow_checks": 6,
+    "browser_layouts": 8,
+    "desktop_workflow_checks": 6,
+    "desktop_layouts": 8,
+    "builds": [
+      "TypeScript/Vite",
+      "production Tauri",
+      "isolated QA Tauri"
+    ],
+    "sidecar_verify": "passed"
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "3f1f12b8200bf03a596340a9039eede1920dd3cfe9e9d10bba9a10e356742a43",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "previous_root_pair": {
+    "GeoSpectrum.exe": "0c87c75fdf7bf2bb92a3abe7a631aa84084d5049b0784232f5484f64551bceb7",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "backup": "app/.local/releases/2026-10-17-users-roles/previous",
+  "unchanged_backend": true,
+  "production_qa_sources_equal": true,
+  "verified_product_source_count": 347,
+  "current_sources_match_build": true,
+  "production_qa_frontend_equal": true,
+  "frontend_assets": {
+    "index.html": "fc1605aadcc4d219b3ef24f4a3cfb31cc77a27d54b1da06eb2389f86e8f1c733",
+    "assets/index-CMw25Qsv.js": "1bc4c668bb18c9dffc02ef35a11e7fd8876d6418600561c9f3cb2baefa3eb27f",
+    "assets/index-DUDz4mgt.css": "3d68c91dfe62e95c6f60a6267d78abda17590f7efd51411e3c02e6dc7470423e"
+  },
+  "user_business_files_preserved": {
+    "geospectrum.sqlite3": "b14d2b01129a612d3baa371fcf92907dff70f3cbb4d56944eba0feccbb425c8a",
+    "last-upgrade.json": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39"
+  },
+  "user_database_exists": true,
+  "root_app_entry_lists_unchanged": true,
+  "desktop_cleanup": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-17-users-roles\\qa\\GeoSpectrum.exe",
+    "pid": 21600,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "permission_matrix_schema_api_changed": false
+}

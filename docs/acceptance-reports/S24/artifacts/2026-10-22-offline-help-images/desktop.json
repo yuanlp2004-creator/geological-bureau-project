@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "checks": [
+    "All 33 concise topics follow the CHM chapter order and render their text, steps and parameter tables",
+    "Exactly six topics load bundled screenshots; mouse and keyboard zoom, close and Escape work",
+    "Merged articles disappear from the directory while all 13 old topic URLs remain readable",
+    "Full-text search, stable error-code routing, empty-state recovery, keyboard selection and parameter navigation work",
+    "The compact help remains readable and searchable with all non-local requests blocked",
+    "Unknown image keys, external URLs and HTML remain text and cannot fetch or execute",
+    "Wide light and minimum dark layouts have no overflow, and catalogue collapse keeps the selected article"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "overflow": 0,
+      "articleWidth": 867,
+      "indexWidth": 240
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "overflow": 0,
+      "articleWidth": 566,
+      "indexWidth": 220
+    }
+  ]
+}

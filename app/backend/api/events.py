@@ -1,4 +1,5 @@
 """Events API boundary; business services retain their existing behavior."""
+
 from __future__ import annotations
 import asyncio
 import json
@@ -14,7 +15,9 @@ router = APIRouter()
 async def events_socket(websocket: WebSocket, *, runtime: Runtime = Depends(get_runtime)) -> None:
     await websocket.accept()
     if runtime.process_key:
-        supplied_key = websocket.headers.get("X-GeoSpectrum-Process-Key") or websocket.query_params.get("process_key", "")
+        supplied_key = websocket.headers.get("X-GeoSpectrum-Process-Key") or websocket.query_params.get(
+            "process_key", ""
+        )
         if not secrets.compare_digest(supplied_key, runtime.process_key):
             await websocket.close(code=4403, reason="process key required")
             return

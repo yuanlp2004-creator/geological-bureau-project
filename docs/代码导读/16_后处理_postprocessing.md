@@ -62,14 +62,12 @@
 - 同名策略和原子写是否避免覆盖意外文件。
 - 运行 S18 测试，并回归前端两个后处理视图。
 
-## 2026-09-14 结构更新
+## 实现分工
 
-`postprocessing/` 的 `service.py` 保留公开调用入口；`repository.py` 负责来源查询、区间读取与记录编解码；`conversion.py` 负责 EDT 转换与事务协调；`recalculation.py` 负责固定版本重算；`exporting.py` 负责矩阵构建、格式编码和原子替换；`serialization.py`、`errors.py` 保存共用序列化与错误类型。小文件整理后，原 codec.py 的两个函数已收回 repository.py，原 conversion_uow.py 的事务类型已收回 conversion.py。
+`service.py`提供公开入口，`repository.py`查询并编解码记录，`conversion.py`负责EDT转换及转换工作单元，`recalculation.py`编排固定版本重算，`exporting.py`负责矩阵、格式编码及原子文件替换，`legacy_calculation.py`执行解码后的旧PDT纯计算。
 
-转换的业务写入与审计仍在同一事务。导出保持先写文件、再登记数据库的原顺序，不提供文件与数据库之间的整体事务。文件替换失败时，已有文件保留且临时文件清理；对应失败注入测试已通过。
+转换记录、采集导入与审计使用同一连接和事务。重算先提交分析任务，再登记后处理结果，最终审计失败可能留下已完成分析任务，不能按整体事务理解。导出先写文件再登记数据库，文件与数据库也不构成整体事务。
 
-## 2026-09-14 内部解耦更新
+## 当前入口（2026-10-18）
 
-Runtime 向后处理传入方法服务、分析契约实现和采集导入能力。重算全程使用同一个分析对象，方法查询通过公开快照，选项列表批量获取版本信息。`conversion.py` 中的 ConversionUnitOfWork 将转换存储与采集导入绑定同一连接；`acquisition_import.py` 负责采集表及帧记录写入，不能独立提交。中途谱带/审计失败整体回滚。
-
-`recalculation.py` 保留格式/档案检查、JSON/BLOB 解码和流程编排，`legacy_calculation.py` 使用 `LegacyIntensity`、方法谱线及曲线参数做纯数值计算。重算与 EDT 转换的事务语义不同：重算先提交分析任务，再登记后处理结果；最终审计失败会留下已完成的分析任务，不能把它当作整体事务。
+数据处理显示“重新计算”和“打印与导出”，输出仅有分析报告、强度数据两个页签。`AnalysisIntensityOutput` 从已完成新版分析读取候选批次并复用 `IntensityOutput`，使用既有 analysis.read/print/execute 权限；输出期间锁定批次。独立旧PDT强度表卡片已移除；旧结果先通过迁移模块导入，重算及已迁移结果通过统一折叠区访问，`PostProcessingPage` 不再提供逐帧原始/平均导出选项；旧记录区间查看与EDT转换作为重算辅助工具保留。`FullTimeOutput` 和分析谱图中的全时导出动作已移除，采集全区间保存和谱线曝光区间未改。旧后端API保留兼容，无数据删除或schema改变。报告只读用户不会请求无权读取的分析批次。两入口共用工作区实例，切换保留输入。

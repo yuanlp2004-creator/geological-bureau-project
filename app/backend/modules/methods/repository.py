@@ -69,12 +69,13 @@ class MethodRepository:
         ).fetchone()
 
     @staticmethod
-    def _version_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
+    def _version_dict(row: sqlite3.Row | None, connection=None) -> dict[str, Any] | None:
         if row is None:
             return None
         from ..spectral_lines import canonical_lines
 
-        payload = json.loads(row["payload_json"])
+        from .legacy_values import legacy_payload
+        payload = legacy_payload(json.loads(row["payload_json"]), connection, row['method_id'])
         conditions = payload.get("conditions", {})
         return {
             "id": row["id"],
@@ -84,6 +85,7 @@ class MethodRepository:
             "lines": canonical_lines(payload.get("lines"), conditions),
             "validation_errors": json.loads(row["validation_errors_json"] or "[]"),
             "content_sha256": hashlib.sha256(row["payload_json"].encode("utf-8")).hexdigest(),
+            'legacy_imported': bool(payload.get('legacy_migration', {}).get('source_sha256')),
             "created_at": row["created_at"],
         }
 
@@ -100,8 +102,8 @@ class MethodRepository:
             "status": row["status"],
             "current_version": row["current_version"],
             "latest_version": latest["version"] if latest else None,
-            "version": self._version_dict(latest),
-            "published_version": self._version_dict(published),
+            "version": self._version_dict(latest, db),
+            "published_version": self._version_dict(published, db),
             "is_current": current_id == row["id"] if current_id is not None else False,
             "created_at": row["created_at"],
             "updated_at": row["updated_at"],
@@ -142,7 +144,7 @@ class MethodRepository:
             rows = db.execute(
                 "SELECT * FROM method_versions WHERE method_id=? ORDER BY version DESC", (method_id,)
             ).fetchall()
-            return [self._version_dict(row) for row in rows if row is not None]
+            return [self._version_dict(row, db) for row in rows if row is not None]
 
     def _calibration_option(
         self, layout: sqlite3.Row, calibration: sqlite3.Row

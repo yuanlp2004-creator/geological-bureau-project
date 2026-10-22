@@ -1,0 +1,1072 @@
+{
+  "phase": "desktop",
+  "status": "completed",
+  "entries": [
+    {
+      "key": "workspace.overview",
+      "group": "workspace",
+      "section_label": "",
+      "label": "工作台概览",
+      "description": "系统状态、当前方法与运行消息",
+      "page": "workspace",
+      "order": 10,
+      "required_any": [
+        "runtime-events.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "system.settings",
+      "group": "system",
+      "section_label": "系统配置与维护",
+      "label": "软件设置",
+      "description": "目录、显示、打印、时间与日志选项",
+      "page": "settings",
+      "order": 10,
+      "required_any": [
+        "settings.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "methods.lifecycle",
+      "group": "methods",
+      "section_label": "",
+      "label": "方法管理与参数",
+      "description": "选择、管理方法与编辑方法参数",
+      "page": "methods",
+      "order": 10,
+      "required_any": [
+        "methods.read"
+      ],
+      "view": "conditions",
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.samples",
+      "group": "analysis-tests",
+      "section_label": "准备",
+      "label": "样号与样品队列",
+      "description": "预录样号、重复展开与 SAM",
+      "page": "samples",
+      "order": 10,
+      "required_any": [
+        "samples.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "tools.devices",
+      "group": "tools",
+      "section_label": "设备与光学校准",
+      "label": "设备参数与实时调试",
+      "description": "设备档案、通信诊断与实时 CCD",
+      "page": "acquisition",
+      "order": 10,
+      "required_any": [
+        "devices.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "data.interval",
+      "group": "data",
+      "section_label": "全时与重算",
+      "label": "全时区间处理",
+      "description": "区间查看、明细平均导出与 EDT 转换",
+      "page": "postprocessing",
+      "order": 10,
+      "required_any": [
+        "postprocessing.read"
+      ],
+      "view": "interval",
+      "status": "normal",
+      "required_context": "page_scoped"
+    },
+    {
+      "key": "help.offline",
+      "group": "help",
+      "section_label": "",
+      "label": "离线帮助",
+      "description": "业务流程、错误码与旧格式兼容",
+      "page": "help",
+      "order": 10,
+      "required_any": [
+        "help.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "help.about",
+      "group": "help",
+      "section_label": "",
+      "label": "关于与诊断",
+      "description": "版本、模块清单和本地服务诊断",
+      "page": "about",
+      "order": 20,
+      "required_any": [
+        "about.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "methods.lines",
+      "group": "methods",
+      "section_label": "",
+      "label": "分析谱线",
+      "description": "谱线、内标、峰值、拟合与标准点",
+      "page": "methods",
+      "order": 20,
+      "required_any": [
+        "methods.read"
+      ],
+      "view": "lines",
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "group": "analysis-tests",
+      "section_label": "摄谱与校准",
+      "label": "色散摄谱与校准",
+      "description": "色散采集、谱线定位、拟合与发布",
+      "page": "dispersion",
+      "order": 20,
+      "required_any": [
+        "dispersion.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "tools.mercury",
+      "group": "tools",
+      "section_label": "设备与光学校准",
+      "label": "汞灯与光学校准",
+      "description": "汞线峰位、校正建议、回滚与安全关闭",
+      "page": "mercury-calibration",
+      "order": 20,
+      "required_any": [
+        "mercury-calibration.read"
+      ],
+      "view": null,
+      "status": "deferred_external",
+      "required_context": "none"
+    },
+    {
+      "key": "data.recalculate",
+      "group": "data",
+      "section_label": "全时与重算",
+      "label": "结果重算与矩阵导出",
+      "description": "版本绑定重算、强度和结果矩阵",
+      "page": "postprocessing",
+      "order": 20,
+      "required_any": [
+        "postprocessing.read"
+      ],
+      "view": "recalculate-export",
+      "status": "normal",
+      "required_context": "page_scoped"
+    },
+    {
+      "key": "system.maintenance",
+      "group": "system",
+      "section_label": "系统配置与维护",
+      "label": "备份与维护",
+      "description": "备份、恢复演练、空间和日志维护",
+      "page": "maintenance",
+      "order": 20,
+      "required_any": [
+        "maintenance.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "group": "analysis-tests",
+      "section_label": "摄谱与校准",
+      "label": "蒸发摄谱",
+      "description": "全时蒸发实验与有效区间研究",
+      "page": "evaporation-acquisition",
+      "order": 29,
+      "required_any": [
+        "acquisition.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "system.users",
+      "group": "system",
+      "section_label": "身份与审计",
+      "label": "用户与权限",
+      "description": "本地账户、角色与授权",
+      "page": "users",
+      "order": 30,
+      "required_any": [
+        "users.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "methods.print-preview",
+      "group": "methods",
+      "section_label": "",
+      "label": "预览与打印",
+      "description": "页面、打印机设置与方法预览输出",
+      "page": "methods",
+      "order": 30,
+      "required_any": [
+        "methods.read"
+      ],
+      "view": "print-preview",
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "tools.legacy-methods",
+      "group": "tools",
+      "section_label": "旧版兼容迁移",
+      "label": "旧方法与配置迁移",
+      "description": "DIRECT.MTD、CFG 与 OPT 只读迁移",
+      "page": "migration",
+      "order": 30,
+      "required_any": [
+        "migration.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "group": "analysis-tests",
+      "section_label": "摄谱与校准",
+      "label": "样品摄谱",
+      "description": "按方法采集样品、队列与重复测量",
+      "page": "sample-acquisition",
+      "order": 30,
+      "required_any": [
+        "acquisition.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "data.reports",
+      "group": "data",
+      "section_label": "报告",
+      "label": "分析报告",
+      "description": "编号、模板、预览、打印与多格式导出",
+      "page": "reports",
+      "order": 30,
+      "required_any": [
+        "reports.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "page_scoped"
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "group": "analysis-tests",
+      "section_label": "摄谱与校准",
+      "label": "自动转角采集",
+      "description": "关键波段优先、异常闭环与安全停止",
+      "page": "hardware-acquisition",
+      "order": 35,
+      "required_any": [
+        "hardware-acquisition.read"
+      ],
+      "view": null,
+      "status": "deferred_external",
+      "required_context": "current_method"
+    },
+    {
+      "key": "system.audit",
+      "group": "system",
+      "section_label": "身份与审计",
+      "label": "审计记录",
+      "description": "登录、权限与业务事件查询",
+      "page": "audit",
+      "order": 40,
+      "required_any": [
+        "audit.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "group": "tools",
+      "section_label": "旧版兼容迁移",
+      "label": "旧谱数据迁移",
+      "description": "CDT、CMT、EDT 与 WDT 只读迁移",
+      "page": "spectrum-migration",
+      "order": 40,
+      "required_any": [
+        "spectrum-migration.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.spectra",
+      "group": "analysis-tests",
+      "section_label": "查看与分析",
+      "label": "谱图查看",
+      "description": "多样品、转角、CCD、定位与缩放",
+      "page": "spectra",
+      "order": 40,
+      "required_any": [
+        "spectra.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "tools.legacy-results",
+      "group": "tools",
+      "section_label": "旧版兼容迁移",
+      "label": "旧结果迁移",
+      "description": "DAT 与 PDT 结果矩阵只读迁移",
+      "page": "result-migration",
+      "order": 50,
+      "required_any": [
+        "result-migration.read"
+      ],
+      "view": null,
+      "status": "normal",
+      "required_context": "none"
+    },
+    {
+      "key": "analysis-tests.raw",
+      "group": "analysis-tests",
+      "section_label": "查看与分析",
+      "label": "定量分析与慢进",
+      "description": "定量运行、峰位谱图与人工调整",
+      "page": "analysis",
+      "order": 50,
+      "required_any": [
+        "analysis.read"
+      ],
+      "view": "raw",
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "analysis-tests.quality",
+      "group": "analysis-tests",
+      "section_label": "查看与分析",
+      "label": "重复性质控",
+      "description": "均值、极差、RSD、接受与剔除",
+      "page": "analysis",
+      "order": 60,
+      "required_any": [
+        "analysis.read"
+      ],
+      "view": "quality",
+      "status": "normal",
+      "required_context": "current_method"
+    },
+    {
+      "key": "analysis-tests.curve",
+      "group": "analysis-tests",
+      "section_label": "查看与分析",
+      "label": "标准曲线与样品结果",
+      "description": "拟合、标准点、曲线发布与合并结果",
+      "page": "analysis",
+      "order": 70,
+      "required_any": [
+        "analysis.read"
+      ],
+      "view": "curve",
+      "status": "normal",
+      "required_context": "current_method"
+    }
+  ],
+  "observations": [
+    {
+      "key": "workspace-main-light-1440",
+      "page": "workspace",
+      "view": null,
+      "label": "工作台概览",
+      "boxes": 58,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "settings-main-light-1440",
+      "page": "settings",
+      "view": null,
+      "label": "软件设置",
+      "boxes": 52,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-conditions-light-1440",
+      "page": "methods",
+      "view": "conditions",
+      "label": "方法管理与参数",
+      "boxes": 129,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "samples-main-light-1440",
+      "page": "samples",
+      "view": null,
+      "label": "样号与样品队列",
+      "boxes": 23,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "acquisition-main-light-1440",
+      "page": "acquisition",
+      "view": null,
+      "label": "设备参数与实时调试",
+      "boxes": 46,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "postprocessing-interval-light-1440",
+      "page": "postprocessing",
+      "view": "interval",
+      "label": "全时区间处理",
+      "boxes": 27,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "help-main-light-1440",
+      "page": "help",
+      "view": null,
+      "label": "离线帮助",
+      "boxes": 30,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "about-main-light-1440",
+      "page": "about",
+      "view": null,
+      "label": "关于与诊断",
+      "boxes": 69,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-lines-light-1440",
+      "page": "methods",
+      "view": "lines",
+      "label": "分析谱线",
+      "boxes": 110,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "dispersion-main-light-1440",
+      "page": "dispersion",
+      "view": null,
+      "label": "色散摄谱与校准",
+      "boxes": 72,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "mercury-calibration-main-light-1440",
+      "page": "mercury-calibration",
+      "view": null,
+      "label": "汞灯与光学校准",
+      "boxes": 68,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "postprocessing-recalculate-export-light-1440",
+      "page": "postprocessing",
+      "view": "recalculate-export",
+      "label": "结果重算与矩阵导出",
+      "boxes": 40,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "maintenance-main-light-1440",
+      "page": "maintenance",
+      "view": null,
+      "label": "备份与维护",
+      "boxes": 27,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "evaporation-acquisition-main-light-1440",
+      "page": "evaporation-acquisition",
+      "view": null,
+      "label": "蒸发摄谱",
+      "boxes": 37,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "users-main-light-1440",
+      "page": "users",
+      "view": null,
+      "label": "用户与权限",
+      "boxes": 29,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-print-preview-light-1440",
+      "page": "methods",
+      "view": "print-preview",
+      "label": "预览与打印",
+      "boxes": 64,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "migration-main-light-1440",
+      "page": "migration",
+      "view": null,
+      "label": "旧方法与配置迁移",
+      "boxes": 20,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "sample-acquisition-main-light-1440",
+      "page": "sample-acquisition",
+      "view": null,
+      "label": "样品摄谱",
+      "boxes": 122,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "reports-main-light-1440",
+      "page": "reports",
+      "view": null,
+      "label": "分析报告",
+      "boxes": 40,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "hardware-acquisition-main-light-1440",
+      "page": "hardware-acquisition",
+      "view": null,
+      "label": "自动转角采集",
+      "boxes": 73,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "audit-main-light-1440",
+      "page": "audit",
+      "view": null,
+      "label": "审计记录",
+      "boxes": 2,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "spectrum-migration-main-light-1440",
+      "page": "spectrum-migration",
+      "view": null,
+      "label": "旧谱数据迁移",
+      "boxes": 14,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "spectra-main-light-1440",
+      "page": "spectra",
+      "view": null,
+      "label": "谱图查看",
+      "boxes": 71,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "result-migration-main-light-1440",
+      "page": "result-migration",
+      "view": null,
+      "label": "旧结果迁移",
+      "boxes": 11,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-raw-light-1440",
+      "page": "analysis",
+      "view": "raw",
+      "label": "定量分析与慢进",
+      "boxes": 59,
+      "candidates": [],
+      "overflow": false,
+      "toolbarRowGaps": [
+        12,
+        12
+      ]
+    },
+    {
+      "key": "analysis-quality-light-1440",
+      "page": "analysis",
+      "view": "quality",
+      "label": "重复性质控",
+      "boxes": 39,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-curve-light-1440",
+      "page": "analysis",
+      "view": "curve",
+      "label": "标准曲线与样品结果",
+      "boxes": 50,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-standards-light-1440",
+      "page": "analysis",
+      "view": "standards",
+      "label": "标准曲线与样品结果",
+      "boxes": 43,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-samples-light-1440",
+      "page": "analysis",
+      "view": "samples",
+      "label": "标准曲线与样品结果",
+      "boxes": 38,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "workspace-main-dark-1060",
+      "page": "workspace",
+      "view": null,
+      "label": "工作台概览",
+      "boxes": 64,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "settings-main-dark-1060",
+      "page": "settings",
+      "view": null,
+      "label": "软件设置",
+      "boxes": 52,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-conditions-dark-1060",
+      "page": "methods",
+      "view": "conditions",
+      "label": "方法管理与参数",
+      "boxes": 129,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "samples-main-dark-1060",
+      "page": "samples",
+      "view": null,
+      "label": "样号与样品队列",
+      "boxes": 23,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "acquisition-main-dark-1060",
+      "page": "acquisition",
+      "view": null,
+      "label": "设备参数与实时调试",
+      "boxes": 46,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "postprocessing-interval-dark-1060",
+      "page": "postprocessing",
+      "view": "interval",
+      "label": "全时区间处理",
+      "boxes": 27,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "help-main-dark-1060",
+      "page": "help",
+      "view": null,
+      "label": "离线帮助",
+      "boxes": 22,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "about-main-dark-1060",
+      "page": "about",
+      "view": null,
+      "label": "关于与诊断",
+      "boxes": 69,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-lines-dark-1060",
+      "page": "methods",
+      "view": "lines",
+      "label": "分析谱线",
+      "boxes": 110,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "dispersion-main-dark-1060",
+      "page": "dispersion",
+      "view": null,
+      "label": "色散摄谱与校准",
+      "boxes": 75,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "mercury-calibration-main-dark-1060",
+      "page": "mercury-calibration",
+      "view": null,
+      "label": "汞灯与光学校准",
+      "boxes": 65,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "postprocessing-recalculate-export-dark-1060",
+      "page": "postprocessing",
+      "view": "recalculate-export",
+      "label": "结果重算与矩阵导出",
+      "boxes": 40,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "maintenance-main-dark-1060",
+      "page": "maintenance",
+      "view": null,
+      "label": "备份与维护",
+      "boxes": 27,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "evaporation-acquisition-main-dark-1060",
+      "page": "evaporation-acquisition",
+      "view": null,
+      "label": "蒸发摄谱",
+      "boxes": 37,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "users-main-dark-1060",
+      "page": "users",
+      "view": null,
+      "label": "用户与权限",
+      "boxes": 29,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "methods-print-preview-dark-1060",
+      "page": "methods",
+      "view": "print-preview",
+      "label": "预览与打印",
+      "boxes": 64,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "migration-main-dark-1060",
+      "page": "migration",
+      "view": null,
+      "label": "旧方法与配置迁移",
+      "boxes": 20,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "sample-acquisition-main-dark-1060",
+      "page": "sample-acquisition",
+      "view": null,
+      "label": "样品摄谱",
+      "boxes": 122,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "reports-main-dark-1060",
+      "page": "reports",
+      "view": null,
+      "label": "分析报告",
+      "boxes": 40,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "hardware-acquisition-main-dark-1060",
+      "page": "hardware-acquisition",
+      "view": null,
+      "label": "自动转角采集",
+      "boxes": 73,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "audit-main-dark-1060",
+      "page": "audit",
+      "view": null,
+      "label": "审计记录",
+      "boxes": 2,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "spectrum-migration-main-dark-1060",
+      "page": "spectrum-migration",
+      "view": null,
+      "label": "旧谱数据迁移",
+      "boxes": 14,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "spectra-main-dark-1060",
+      "page": "spectra",
+      "view": null,
+      "label": "谱图查看",
+      "boxes": 71,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "result-migration-main-dark-1060",
+      "page": "result-migration",
+      "view": null,
+      "label": "旧结果迁移",
+      "boxes": 11,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-raw-dark-1060",
+      "page": "analysis",
+      "view": "raw",
+      "label": "定量分析与慢进",
+      "boxes": 58,
+      "candidates": [],
+      "overflow": false,
+      "toolbarRowGaps": [
+        12,
+        12
+      ]
+    },
+    {
+      "key": "analysis-quality-dark-1060",
+      "page": "analysis",
+      "view": "quality",
+      "label": "重复性质控",
+      "boxes": 39,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-curve-dark-1060",
+      "page": "analysis",
+      "view": "curve",
+      "label": "标准曲线与样品结果",
+      "boxes": 49,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-standards-dark-1060",
+      "page": "analysis",
+      "view": "standards",
+      "label": "标准曲线与样品结果",
+      "boxes": 42,
+      "candidates": [],
+      "overflow": false
+    },
+    {
+      "key": "analysis-samples-dark-1060",
+      "page": "analysis",
+      "view": "samples",
+      "label": "标准曲线与样品结果",
+      "boxes": 38,
+      "candidates": [],
+      "overflow": false
+    }
+  ],
+  "candidates": [],
+  "errors": [],
+  "checks": [
+    "真实新建色散任务、非法帧数零提交",
+    "任务列表/表单折叠展开保留输入 light/1440",
+    "任务列表/表单折叠展开保留输入 dark/1060",
+    "分页下一页/上一页、加载禁用、末页禁用及检索重置（响应模拟，不作为后端分页验收）",
+    "分页组合保持同排、输入区域对齐 1060",
+    "分页组合保持同排、输入区域对齐 1280",
+    "分页组合保持同排、输入区域对齐 1440",
+    "分页组合保持同排、输入区域对齐 1920"
+  ],
+  "critical": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "formButtonGap": 12,
+      "cardTaskBarGap": 16
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "formButtonGap": 12,
+      "cardTaskBarGap": 16
+    }
+  ],
+  "transport": [
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "desktop": {
+    "pixelRatio": 2,
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "uri": "http://tauri.localhost/"
+  },
+  "knownViewNavigationReset": true
+}

@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "scope": "地质局设备档案分组、方法参考线偏移组合及同类目录控件对齐",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "changed_product_files": [
+    "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "app/frontend/src/styles/remaining-pages.css",
+    "app/frontend/src/styles/visual-refinement.css"
+  ],
+  "frontend_unit_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "production_build": "TypeScript / Vite / Tauri release --no-bundle passed",
+  "browser_groups_passed": 6,
+  "desktop_groups_passed": 6,
+  "display_settings": [
+    "light/comfortable/1440×1000",
+    "dark/compact/1060×1000"
+  ],
+  "control_heights_px": {
+    "comfortable": 36,
+    "compact": 32
+  },
+  "paired_control_gap_px": 8,
+  "page_errors": [],
+  "desktop_close_code": 0,
+  "desktop_owned_pids_remaining": [],
+  "production_binaries": {
+    "GeoSpectrum.exe": "F0D33F4FEB5C7FC4272FF284958604ECEA0649FD2039B77A6F2E9A04B563732B",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "desktop_test_binary": {
+    "sha256": "BF375DEAFDCD658F689853FF60EA06ADE9846D0F211123722D15538351B286EA",
+    "identifier": "cn.geospectrum.desktop.qaaligned20261012",
+    "reason": "用户正在运行正式标识；使用独立标识隔离测试，不关闭该会话",
+    "same_frontend_assets_as_production": [
+      {
+        "Path": "\\index.html",
+        "Hash": "6FCFC026441C201BF2B5F2FFCE016DA1304E07D755485B2DA41DF099950BBC92"
+      },
+      {
+        "Path": "\\assets\\index-BaZJyKIC.css",
+        "Hash": "F794F1B0F256F5A27FD2D3A78AD20A9B6D8BE9939D00F63903342AD3981B2095"
+      },
+      {
+        "Path": "\\assets\\index-BLgA3n8F.js",
+        "Hash": "5C891826D58676549AA54C531D64111B59EA57B91BC7C104B970F1567CC5CB72"
+      }
+    ]
+  },
+  "root_and_app_entries_unchanged": true,
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-12-aligned-controls\\previous",
+  "limits": [
+    "桌面复验是独立QA标识，正式入口与QA不是同一EXE哈希；其全部前端资源SHA-256相同",
+    "原窗口继续使用旧映像，关闭后重新启动根目录入口加载新布局",
+    "既有报告选择白屏/标准点首次切换异常本批未修复",
+    "当前布局和模拟器验证不替代其他DPI、真实设备或全应用验收"
+  ],
+  "evidence": [
+    "device-before-light.png",
+    "reference-before-light.png",
+    "device-after-light.png",
+    "device-expanded-dark.png",
+    "reference-after-light.png",
+    "reference-unavailable-dark.png",
+    "directory-actions-dark.png"
+  ]
+}

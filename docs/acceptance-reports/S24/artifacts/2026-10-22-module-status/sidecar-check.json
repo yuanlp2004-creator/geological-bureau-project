@@ -1,0 +1,20 @@
+{
+  "sidecar_bytes": 32276267,
+  "health_status": "ok",
+  "schema_version": 23,
+  "running_before_stop": true,
+  "clean_exit": true,
+  "process_returncode": 1,
+  "remaining_sidecar_pids": [],
+  "business": {
+    "profile_connected": true,
+    "start_ccd_count": 5,
+    "step_frame_index": 1,
+    "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+    "stopped_state": "connected",
+    "legacy_reader_attempts": [
+      "windows-powershell-x86"
+    ]
+  },
+  "error": null
+}

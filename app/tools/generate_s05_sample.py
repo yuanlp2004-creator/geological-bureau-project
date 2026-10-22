@@ -45,21 +45,13 @@ def line(element: str, wavelength_nm: float) -> SpectralLineInput:
         valid_range_max=1000,
         over_limit_tolerance_percent=5,
         standard_points=[
-            {"name": f"{element}-STD-{index}", "value": index * 25, "active": True}
-            for index in range(1, 5)
+            {"name": f"{element}-STD-{index}", "value": index * 25, "active": True} for index in range(1, 5)
         ],
     )
 
 
 def main() -> int:
-    output = (
-        PROJECT_ROOT
-        / "docs"
-        / "acceptance-reports"
-        / "S05"
-        / "artifacts"
-        / "S05-方法参数预览.pdf"
-    )
+    output = PROJECT_ROOT / "docs" / "acceptance-reports" / "S05" / "artifacts" / "S05-方法参数预览.pdf"
     output.parent.mkdir(parents=True, exist_ok=True)
 
     with TemporaryDirectory(prefix="geospectrum-s05-") as temp:
@@ -89,25 +81,28 @@ def main() -> int:
             except MethodDomainError as exc:
                 raise RuntimeError(f"sample line {element} failed: {exc.detail()}") from exc
 
-        pdf_bytes, document = Runtime(AppConfig(data_dir=database.path.parent), database=database).method_print_service().pdf(
-            method_id,
-            None,
-            MethodPrintSettings(
-                paper="A4",
-                orientation="portrait",
-                margin_top_mm=12,
-                margin_right_mm=12,
-                margin_bottom_mm=12,
-                margin_left_mm=12,
-                layout="standard",
-                font_size_pt=9,
-            ),
-            None,  # type: ignore[arg-type]
+        pdf_bytes, document = (
+            Runtime(AppConfig(data_dir=database.path.parent), database=database)
+            .method_print_service()
+            .pdf(
+                method_id,
+                None,
+                MethodPrintSettings(
+                    paper="A4",
+                    orientation="portrait",
+                    margin_top_mm=12,
+                    margin_right_mm=12,
+                    margin_bottom_mm=12,
+                    margin_left_mm=12,
+                    layout="standard",
+                    font_size_pt=9,
+                ),
+                None,  # type: ignore[arg-type]
+            )
         )
         output.write_bytes(pdf_bytes)
         print(
-            f"wrote {output} ({document['page_count']} pages, "
-            f"{document['field_count']} fields, {len(pdf_bytes)} bytes)"
+            f"wrote {output} ({document['page_count']} pages, {document['field_count']} fields, {len(pdf_bytes)} bytes)"
         )
     return 0
 

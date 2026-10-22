@@ -33,7 +33,9 @@ def test_account_changes_rollback_if_audit_insert_fails(tmp_path: Path, operatio
     token, session = service.login("viewer", "viewer-pass")
     # Deliberately fail at the final write, after the account/association mutations.
     with runtime.database.write() as db:
-        db.execute("CREATE TRIGGER fail_auth_audit BEFORE INSERT ON audit_events BEGIN SELECT RAISE(ABORT, 'injected audit failure'); END")
+        db.execute(
+            "CREATE TRIGGER fail_auth_audit BEFORE INSERT ON audit_events BEGIN SELECT RAISE(ABORT, 'injected audit failure'); END"
+        )
     before = snapshot(runtime)
     with pytest.raises(sqlite3.IntegrityError, match="injected audit failure"):
         if operation == "create_user":
@@ -43,7 +45,9 @@ def test_account_changes_rollback_if_audit_insert_fails(tmp_path: Path, operatio
         elif operation == "create_role":
             service.create_role(RoleCreate(name="new-role", permission_keys=["new.permission"]), admin)
         else:
-            service.update_role(role["id"], RoleUpdate(description="changed", permission_keys=["new.permission"]), admin)
+            service.update_role(
+                role["id"], RoleUpdate(description="changed", permission_keys=["new.permission"]), admin
+            )
     assert snapshot(runtime) == before
     assert service.get_session(token) == session
 
@@ -53,18 +57,44 @@ def test_account_api_preserves_validation_errors_without_partial_writes(tmp_path
     runtime = app.state.runtime
     with TestClient(app) as client:
         client.post("/api/v1/auth/bootstrap", json={"username": "admin", "password": "correct-horse"})
-        token = client.post("/api/v1/auth/login", json={"username": "admin", "password": "correct-horse"}).json()["access_token"]
+        token = client.post("/api/v1/auth/login", json={"username": "admin", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         headers = {"Authorization": f"Bearer {token}"}
         admin_id = client.get("/api/v1/auth/me", headers=headers).json()["id"]
         roles = client.get("/api/v1/roles", headers=headers).json()
         role = next(item for item in roles if item["name"] == "system_administrator")
         cases = [
-            ("post", "/api/v1/users", {"username": "admin", "password": "correct-horse"}, 409, "username already exists"),
-            ("post", "/api/v1/users", {"username": "new", "password": "correct-horse", "role_ids": [role["id"], role["id"]]}, 422, "duplicate role"),
-            ("post", "/api/v1/users", {"username": "new", "password": "correct-horse", "role_ids": [999999]}, 422, "unknown role"),
+            (
+                "post",
+                "/api/v1/users",
+                {"username": "admin", "password": "correct-horse"},
+                409,
+                "username already exists",
+            ),
+            (
+                "post",
+                "/api/v1/users",
+                {"username": "new", "password": "correct-horse", "role_ids": [role["id"], role["id"]]},
+                422,
+                "duplicate role",
+            ),
+            (
+                "post",
+                "/api/v1/users",
+                {"username": "new", "password": "correct-horse", "role_ids": [999999]},
+                422,
+                "unknown role",
+            ),
             ("patch", f"/api/v1/users/{admin_id}", {"enabled": False}, 422, "cannot disable the current user"),
             ("patch", "/api/v1/users/999999", {"enabled": False}, 404, "user not found"),
-            ("patch", f"/api/v1/roles/{role['id']}", {"description": "changed"}, 422, "built-in role cannot be changed"),
+            (
+                "patch",
+                f"/api/v1/roles/{role['id']}",
+                {"description": "changed"},
+                422,
+                "built-in role cannot be changed",
+            ),
             ("post", "/api/v1/roles", {"name": role["name"]}, 409, "role already exists"),
             ("patch", "/api/v1/roles/999999", {"description": "changed"}, 404, "role not found"),
         ]

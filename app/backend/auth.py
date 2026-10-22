@@ -87,17 +87,84 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     (
         "method_administrator",
         "Method administrator",
-        ("settings.read", "runtime-events.read", "methods.read", "methods.write", "migration.read", "migration.write", "devices.read", "dispersion.read", "dispersion.write", "dispersion.execute", "reports.read", "help.read", "about.read"),
+        (
+            "settings.read",
+            "runtime-events.read",
+            "methods.read",
+            "methods.write",
+            "migration.read",
+            "migration.write",
+            "devices.read",
+            "dispersion.read",
+            "dispersion.write",
+            "dispersion.execute",
+            "reports.read",
+            "help.read",
+            "about.read",
+        ),
     ),
     (
         "analyst",
         "Analyst",
-        ("settings.read", "runtime-events.read", "methods.read", "samples.read", "samples.write", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "acquisition.write", "acquisition.execute", "hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute", "mercury-calibration.read", "analysis.read", "analysis.execute", "analysis.intervene", "analysis.quality", "analysis.curve", "analysis.print", "postprocessing.read", "postprocessing.write", "postprocessing.execute", "postprocessing.export", "reports.read", "reports.write", "reports.export", "help.read", "about.read"),
+        (
+            "settings.read",
+            "runtime-events.read",
+            "methods.read",
+            "samples.read",
+            "samples.write",
+            "spectra.read",
+            "spectra.export",
+            "devices.read",
+            "dispersion.read",
+            "acquisition.read",
+            "acquisition.write",
+            "acquisition.execute",
+            "hardware-acquisition.read",
+            "hardware-acquisition.write",
+            "hardware-acquisition.execute",
+            "mercury-calibration.read",
+            "analysis.read",
+            "analysis.execute",
+            "analysis.intervene",
+            "analysis.quality",
+            "analysis.curve",
+            "analysis.print",
+            "postprocessing.read",
+            "postprocessing.write",
+            "postprocessing.execute",
+            "postprocessing.export",
+            "reports.read",
+            "reports.write",
+            "reports.export",
+            "help.read",
+            "about.read",
+        ),
     ),
     (
         "read_only_auditor",
         "Read-only auditor",
-        ("settings.read", "runtime-events.read", "audit.read", "results.read", "results.export", "spectra.read", "spectra.export", "devices.read", "dispersion.read", "acquisition.read", "hardware-acquisition.read", "mercury-calibration.read", "analysis.read", "postprocessing.read", "postprocessing.export", "reports.read", "reports.export", "maintenance.read", "help.read", "about.read"),
+        (
+            "settings.read",
+            "runtime-events.read",
+            "audit.read",
+            "results.read",
+            "results.export",
+            "spectra.read",
+            "spectra.export",
+            "devices.read",
+            "dispersion.read",
+            "acquisition.read",
+            "hardware-acquisition.read",
+            "mercury-calibration.read",
+            "analysis.read",
+            "postprocessing.read",
+            "postprocessing.export",
+            "reports.read",
+            "reports.export",
+            "maintenance.read",
+            "help.read",
+            "about.read",
+        ),
     ),
 )
 
@@ -142,6 +209,7 @@ class Session:
 
 class AuthError(Exception):
     """Application error translated to HTTP only at the API boundary."""
+
     def __init__(self, status_code: int, detail: str):
         super().__init__(detail)
         self.status_code = status_code
@@ -315,7 +383,9 @@ class AuthService:
 
     def list_users(self) -> list[dict]:
         with self.database.read() as db:
-            rows = db.execute("SELECT id, username, enabled, created_at, updated_at FROM users ORDER BY username").fetchall()
+            rows = db.execute(
+                "SELECT id, username, enabled, created_at, updated_at FROM users ORDER BY username"
+            ).fetchall()
             result = []
             for row in rows:
                 item = dict(row)
@@ -334,14 +404,29 @@ class AuthService:
             result = []
             for row in rows:
                 item = dict(row)
-                item["permission_keys"] = [permission[0] for permission in db.execute("SELECT p.key FROM permissions p JOIN role_permissions rp ON rp.permission_id=p.id WHERE rp.role_id=? ORDER BY p.key", (row["id"],)).fetchall()]
+                item["permission_keys"] = [
+                    permission[0]
+                    for permission in db.execute(
+                        "SELECT p.key FROM permissions p JOIN role_permissions rp ON rp.permission_id=p.id WHERE rp.role_id=? ORDER BY p.key",
+                        (row["id"],),
+                    ).fetchall()
+                ]
                 item["built_in"] = row["name"] in {role[0] for role in BUILTIN_ROLES}
                 result.append(item)
             return result
 
     def list_audit(self, limit: int = 100) -> list[dict]:
         with self.database.read() as db:
-                return [dict(row) for row in db.execute("SELECT id, actor_user_id, action, target_type, target_id, details_json, created_at FROM audit_events ORDER BY id DESC LIMIT ?", (limit,)).fetchall()]
+            return [
+                dict(row)
+                for row in db.execute(
+                    (
+                        "SELECT id, actor_user_id, action, target_type, target_id, details_json, "
+                        "created_at FROM audit_events ORDER BY id DESC LIMIT ?"
+                    ),
+                    (limit,),
+                ).fetchall()
+            ]
 
     def create_user(self, payload: UserCreate, actor_user_id: int) -> dict:
         now = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
@@ -354,14 +439,30 @@ class AuthService:
                     raise AuthError(status_code=422, detail="duplicate role")
                 if payload.role_ids:
                     placeholders = ",".join("?" for _ in payload.role_ids)
-                    role_count = db.execute(f"SELECT COUNT(*) FROM roles WHERE id IN ({placeholders})", payload.role_ids).fetchone()[0]
+                    role_count = db.execute(
+                        f"SELECT COUNT(*) FROM roles WHERE id IN ({placeholders})", payload.role_ids
+                    ).fetchone()[0]
                     if role_count != len(set(payload.role_ids)):
                         raise AuthError(status_code=422, detail="unknown role")
-                cur = db.execute("INSERT INTO users(username, password_hash, enabled, created_at, updated_at) VALUES (?, ?, 1, ?, ?)", (username, hash_password(payload.password), now, now))
+                cur = db.execute(
+                    "INSERT INTO users(username, password_hash, enabled, created_at, updated_at) VALUES (?, ?, 1, ?, ?)",
+                    (username, hash_password(payload.password), now, now),
+                )
                 user_id = cur.lastrowid
                 for role_id in payload.role_ids:
                     db.execute("INSERT INTO user_roles(user_id, role_id) VALUES (?, ?)", (user_id, role_id))
-                db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'user.create', 'user', ?, ?, ?)", (actor_user_id, user_id, json.dumps({"username": username, "role_ids": payload.role_ids}, ensure_ascii=False), now))
+                db.execute(
+                    (
+                        "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                        "details_json, created_at) VALUES (?, 'user.create', 'user', ?, ?, ?)"
+                    ),
+                    (
+                        actor_user_id,
+                        user_id,
+                        json.dumps({"username": username, "role_ids": payload.role_ids}, ensure_ascii=False),
+                        now,
+                    ),
+                )
         except ValueError as exc:
             raise AuthError(status_code=422, detail=str(exc)) from exc
         except Exception as exc:
@@ -369,6 +470,25 @@ class AuthService:
                 raise AuthError(status_code=409, detail="username already exists") from exc
             raise
         return {"id": user_id, "username": username, "enabled": True, "role_ids": payload.role_ids}
+
+    @staticmethod
+    def _require_manager(db) -> None:
+        manager = db.execute(
+            (
+                "SELECT u.id FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN "
+                "role_permissions rp ON rp.role_id=ur.role_id JOIN permissions p ON "
+                "p.id=rp.permission_id WHERE u.enabled=1 AND p.key IN "
+                "('users.write','roles.write') GROUP BY u.id HAVING COUNT(DISTINCT p.key)=2 "
+                "LIMIT 1"
+            )
+        ).fetchone()
+        if manager is None:
+            raise AuthError(status_code=409, detail="至少保留一个启用且具有用户授权和角色维护权限的账户")
+
+    def _revoke_users(self, user_ids) -> None:
+        for token, session in list(self.sessions.items()):
+            if session.user_id in user_ids:
+                self.sessions.pop(token, None)
 
     def update_user(self, user_id: int, payload: UserUpdate, actor_user_id: int) -> dict:
         with self.database.write() as db:
@@ -380,7 +500,9 @@ class AuthService:
                 if len(payload.role_ids) != len(set(payload.role_ids)):
                     raise AuthError(status_code=422, detail="duplicate role")
                 placeholders = ",".join("?" for _ in payload.role_ids)
-                role_count = db.execute(f"SELECT COUNT(*) FROM roles WHERE id IN ({placeholders})", payload.role_ids).fetchone()[0]
+                role_count = db.execute(
+                    f"SELECT COUNT(*) FROM roles WHERE id IN ({placeholders})", payload.role_ids
+                ).fetchone()[0]
                 if role_count != len(set(payload.role_ids)):
                     raise AuthError(status_code=422, detail="unknown role")
             now = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
@@ -390,7 +512,15 @@ class AuthService:
                 db.execute("DELETE FROM user_roles WHERE user_id=?", (user_id,))
                 for role_id in payload.role_ids:
                     db.execute("INSERT INTO user_roles(user_id, role_id) VALUES (?, ?)", (user_id, role_id))
-            db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'user.permission.change', 'user', ?, ?, ?)", (actor_user_id, user_id, json.dumps(payload.model_dump(exclude_none=True), ensure_ascii=False), now))
+            self._require_manager(db)
+            db.execute(
+                (
+                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                    "details_json, created_at) VALUES (?, 'user.permission.change', 'user', ?, ?, ?)"
+                ),
+                (actor_user_id, user_id, json.dumps(payload.model_dump(exclude_none=True), ensure_ascii=False), now),
+            )
+        self._revoke_users({user_id})
         return {"id": user_id, "updated": True}
 
     def create_role(self, payload: RoleCreate, actor_user_id: int) -> dict:
@@ -399,12 +529,28 @@ class AuthService:
             raise AuthError(status_code=422, detail="role name is required")
         try:
             with self.database.write() as db:
-                cur = db.execute("INSERT INTO roles(name, description) VALUES (?, ?)", (name, payload.description.strip()))
+                cur = db.execute(
+                    "INSERT INTO roles(name, description) VALUES (?, ?)", (name, payload.description.strip())
+                )
                 role_id = cur.lastrowid
                 for key in sorted(set(payload.permission_keys)):
                     db.execute("INSERT OR IGNORE INTO permissions(key, description) VALUES (?, ?)", (key, key))
-                    db.execute("INSERT INTO role_permissions(role_id, permission_id) SELECT ?, id FROM permissions WHERE key=?", (role_id, key))
-                db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'role.permission.change', 'role', ?, ?, ?)", (actor_user_id, role_id, json.dumps({"permission_keys": sorted(set(payload.permission_keys))}, ensure_ascii=False), utc_now()))
+                    db.execute(
+                        "INSERT INTO role_permissions(role_id, permission_id) SELECT ?, id FROM permissions WHERE key=?",
+                        (role_id, key),
+                    )
+                db.execute(
+                    (
+                        "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                        "details_json, created_at) VALUES (?, 'role.permission.change', 'role', ?, ?, ?)"
+                    ),
+                    (
+                        actor_user_id,
+                        role_id,
+                        json.dumps({"permission_keys": sorted(set(payload.permission_keys))}, ensure_ascii=False),
+                        utc_now(),
+                    ),
+                )
         except Exception as exc:
             if "UNIQUE" in str(exc):
                 raise AuthError(status_code=409, detail="role already exists") from exc
@@ -424,8 +570,25 @@ class AuthService:
                 db.execute("DELETE FROM role_permissions WHERE role_id=?", (role_id,))
                 for key in sorted(set(payload.permission_keys)):
                     db.execute("INSERT OR IGNORE INTO permissions(key, description) VALUES (?, ?)", (key, key))
-                    db.execute("INSERT INTO role_permissions(role_id, permission_id) SELECT ?, id FROM permissions WHERE key=?", (role_id, key))
-            db.execute("INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, 'role.permission.change', 'role', ?, ?, ?)", (actor_user_id, role_id, json.dumps(payload.model_dump(exclude_none=True), ensure_ascii=False), utc_now()))
+                    db.execute(
+                        "INSERT INTO role_permissions(role_id, permission_id) SELECT ?, id FROM permissions WHERE key=?",
+                        (role_id, key),
+                    )
+            self._require_manager(db)
+            affected = {row[0] for row in db.execute("SELECT user_id FROM user_roles WHERE role_id=?", (role_id,))}
+            db.execute(
+                (
+                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
+                    "details_json, created_at) VALUES (?, 'role.permission.change', 'role', ?, ?, ?)"
+                ),
+                (
+                    actor_user_id,
+                    role_id,
+                    json.dumps(payload.model_dump(exclude_none=True), ensure_ascii=False),
+                    utc_now(),
+                ),
+            )
+        self._revoke_users(affected)
         return {"id": role_id, "updated": True}
 
     def logout(self, token: str) -> None:

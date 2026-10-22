@@ -1,0 +1,58 @@
+{
+  "theme": "dark",
+  "viewport": 1060,
+  "grid": {
+    "x": 252,
+    "y": 513.8515625,
+    "width": 771,
+    "height": 72.1484375,
+    "right": 1023
+  },
+  "columns": "373.5px 373.5px",
+  "entries": [
+    {
+      "x": 252,
+      "y": 513.8515625,
+      "width": 373.5,
+      "height": 72.1484375,
+      "right": 625.5,
+      "input": {
+        "x": 290,
+        "y": 541,
+        "width": 166,
+        "height": 32,
+        "right": 456
+      },
+      "select": {
+        "x": 466,
+        "y": 541,
+        "width": 113.5,
+        "height": 32,
+        "right": 579.5
+      },
+      "fits": true
+    },
+    {
+      "x": 649.5,
+      "y": 513.8515625,
+      "width": 373.5,
+      "height": 72.1484375,
+      "right": 1023,
+      "input": {
+        "x": 687.5,
+        "y": 541,
+        "width": 166,
+        "height": 32,
+        "right": 853.5
+      },
+      "select": {
+        "x": 863.5,
+        "y": 541,
+        "width": 113.5,
+        "height": 32,
+        "right": 977
+      },
+      "fits": true
+    }
+  ]
+}

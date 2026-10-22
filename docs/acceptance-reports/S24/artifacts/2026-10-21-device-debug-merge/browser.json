@@ -1,0 +1,113 @@
+{
+  "status": "passed",
+  "checks": [
+    "One device-debug menu entry contains all four permission-controlled tabs",
+    "Software and device parameter drafts survive tab changes",
+    "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+    "Device parameters persist through the existing API and reject duplicate CCD slots",
+    "Live alignment retains CCD acquisition, creates no sample/spectrum records and blocks tab changes until stopped",
+    "Mercury draft, acquisition, tab lock, calibration application and rollback remain available in the unified page",
+    "All four tabs fit light/dark themes and both desktop window sizes",
+    "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+    "Mercury-only read permission reaches the unified entry without requiring settings or device permissions"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    }
+  ]
+}

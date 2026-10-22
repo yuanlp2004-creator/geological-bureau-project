@@ -1,0 +1,150 @@
+[
+  {
+    "name": "A-crystal",
+    "title": "A · 晶体光谱",
+    "source": "generated-v1.png",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "source_bounds": [
+      32,
+      28,
+      992,
+      985
+    ],
+    "transparent_master": true,
+    "png_sizes": [
+      1024,
+      512
+    ],
+    "ico_sizes": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "files": {
+      "A-crystal-1024.png": "ccb894c15f47bc2102354314593f8c84bae9d820316b6b0d746304da38329074",
+      "A-crystal-512.png": "db9525699de72a359105ca4820e67d519228d3702f02afda5d8dee51005643d0",
+      "A-crystal.ico": "0640230dff372aa060247cb87c0722cb22b731765be90dae7672aa4cf063bb69"
+    }
+  },
+  {
+    "name": "B-prism",
+    "title": "B · 棱镜分光",
+    "source": "B-prism.png",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "source_bounds": [
+      82,
+      68,
+      944,
+      935
+    ],
+    "transparent_master": true,
+    "png_sizes": [
+      1024,
+      512
+    ],
+    "ico_sizes": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "files": {
+      "B-prism-1024.png": "0e231dc17326965481358c8589e0842136cda520310323cdbd4117d9105fd5d5",
+      "B-prism-512.png": "bfa7eee5e7dfd47b065afd20daa4238ea721f62d19f1c1ffd2b124fa68693ae8",
+      "B-prism.ico": "629d0871c23449067953a406221719e8e56dcf05325a78d49957ba1dce04704c"
+    }
+  },
+  {
+    "name": "C-strata",
+    "title": "C · 地层谱峰",
+    "source": "C-strata.png",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "source_bounds": [
+      29,
+      28,
+      995,
+      996
+    ],
+    "transparent_master": true,
+    "png_sizes": [
+      1024,
+      512
+    ],
+    "ico_sizes": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "files": {
+      "C-strata-1024.png": "691601e8f1b61b02b0bf7efeb5d038f67d1311670beedec102b47802db45d4c0",
+      "C-strata-512.png": "8e0c698a5e1828a7abc93841763bf980a14d547351acb843928e6953306ca36e",
+      "C-strata.ico": "c881602221346ec7c6508c9a64b3b25c0e0c98f5d19b5ace8363540a42848721"
+    }
+  },
+  {
+    "name": "D-monogram",
+    "title": "D · 极简 G",
+    "source": "D-monogram.png",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "source_bounds": [
+      12,
+      18,
+      1013,
+      1007
+    ],
+    "transparent_master": true,
+    "png_sizes": [
+      1024,
+      512
+    ],
+    "ico_sizes": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "files": {
+      "D-monogram-1024.png": "99b1f585401d561d3b859eac4bfd56dc8bad6a3b753b09d8b2fbe620662abc90",
+      "D-monogram-512.png": "d089e6d2b1dfb0ae544d57282df8457c637ca862184cb3abf73b52a91e06cc0a",
+      "D-monogram.ico": "2046d44f3e1bfc5222c7e128504ca97f38d4e2bd683c17a16156a9bd4ffe77fd"
+    }
+  }
+]

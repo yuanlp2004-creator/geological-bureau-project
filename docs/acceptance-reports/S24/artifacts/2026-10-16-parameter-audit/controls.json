@@ -1,0 +1,2807 @@
+[
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 38,
+    "tag": "input",
+    "label": "任务名称",
+    "value": "{taskName}",
+    "handler": "{(e) => setTaskName(e.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 46,
+    "tag": "select",
+    "label": "设备档案",
+    "value": "{profileId ?? ''}",
+    "handler": "{(e) => setProfileId(Number(e.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item.id} key={item.id}> {item.name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 60,
+    "tag": "select",
+    "label": "CCD 布局",
+    "value": "{layoutId}",
+    "handler": "{(e) => setLayoutId(e.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item.id} key={item.id}> {item.name} · {item.points_per_ccd} 点 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 77,
+    "tag": "NumericInput",
+    "label": "采样次数",
+    "value": "{burnCount}",
+    "handler": "{setBurnCount}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 87,
+    "tag": "NumericInput",
+    "label": "空白次数",
+    "value": "{darkCount}",
+    "handler": "{setDarkCount}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 96,
+    "tag": "NumericInput",
+    "label": "预激时间（秒）",
+    "value": "{preExcitation}",
+    "handler": "{setPreExcitation}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 107,
+    "tag": "NumericInput",
+    "label": "采样周期 (秒)",
+    "value": "{samplingPeriod}",
+    "handler": "{setSamplingPeriod}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 118,
+    "tag": "NumericInput",
+    "label": "倒计时（秒）",
+    "value": "{countdown}",
+    "handler": "{setCountdown}",
+    "folded": [
+      "\"高级采集设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 133,
+    "tag": "select",
+    "label": "模拟帧",
+    "value": "{simulatorSample}",
+    "handler": "{(e) => setSimulatorSample(e.target.value)}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": "",
+    "options": [
+      "<option key={item}>{item}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "line": 145,
+    "tag": "NumericInput",
+    "label": "种子",
+    "value": "{seed}",
+    "handler": "{setSeed}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 86,
+    "tag": "select",
+    "label": "激发参数与默认次数",
+    "value": "{useMethodConditions ? 'method' : 'custom'}",
+    "handler": "{(event) => setUseMethodConditions(event.target.value === 'method')}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"method\">按已发布方法条件</option>",
+      "<option value=\"custom\">手动设置（队列次数优先）</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 94,
+    "tag": "select",
+    "label": "存储区间来源",
+    "value": "{useMethodIntervals ? 'method' : 'custom'}",
+    "handler": "{(event) => setUseMethodIntervals(event.target.value === 'method')}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"custom\">任务自定义范围</option>",
+      "<option value=\"method\">按已发布方法的逐转角区间</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 106,
+    "tag": "input",
+    "label": "\"管理样\"",
+    "value": "{managementSample}",
+    "handler": "{(event) => { setManagementSample(event.target.checked) if (event.target.checked) setSampleKind('test') }}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 125,
+    "tag": "select",
+    "label": "样号长度",
+    "value": "{nameLength}",
+    "handler": "{(e) => setNameLength(Number(e.target.value) as 12 | 20)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={12}>12 位</option>",
+      "<option value={20}>20 位</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 138,
+    "tag": "select",
+    "label": "已发布方法版本",
+    "value": "{methodKey}",
+    "handler": "{(e) => setMethodKey(e.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">{options?.methods.length ? '请选择方法版本' : '暂无已发布方法版本'}</option>",
+      "<option value={`${item.method_id}:${item.method_version}`} key={`${item.method_id}:${item.method_version}`} > {item.name} · v{item.method_version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 157,
+    "tag": "select",
+    "label": "样品队列",
+    "value": "{queueId}",
+    "handler": "{(e) => { setQueueId(e.target.value) setQueueItemId('') }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">临时样号</option>",
+      "<option value={item.id} key={item.id}> {item.name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 176,
+    "tag": "select",
+    "label": "预录样品",
+    "value": "{queueItemId}",
+    "handler": "{(e) => setQueueItemId(e.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">请选择队列项</option>",
+      "<option value={item.id} key={item.id}> {item.pre_name || '空样'} · {item.repeats || 1} 次 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 196,
+    "tag": "input",
+    "label": "临时样号",
+    "value": "{sampleName}",
+    "handler": "{(e) => setSampleName(e.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 205,
+    "tag": "select",
+    "label": "样品类型",
+    "value": "{sampleKind}",
+    "handler": "{(e) => setSampleKind(e.target.value as typeof sampleKind)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"test\">试样</option>",
+      "<option value=\"normal\">普通样</option>",
+      "<option value=\"standard\">标准样</option>",
+      "<option value=\"blank\">空样</option>",
+      "<option value=\"preheat\">预热</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 222,
+    "tag": "select",
+    "label": "保存模式",
+    "value": "{methodStorage ?? storageMode}",
+    "handler": "{(e) => setStorageMode(e.target.value as typeof storageMode)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"averaged\">平均值 float32</option>",
+      "<option value=\"full_interval\">全时原始区间</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "line": 236,
+    "tag": "NumericInput",
+    "label": "重复次数",
+    "value": "{displayedRepeatCount}",
+    "handler": "{setRepeatCount}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "line": 149,
+    "tag": "select",
+    "label": "CCD",
+    "value": "{ccdIndex}",
+    "handler": "{(e) => setCcdIndex(Number(e.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item} key={item}> CCD {item + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "line": 41,
+    "tag": "input",
+    "label": "名称",
+    "value": "{intervalLabel}",
+    "handler": "{/* 处理样品采集的当前输入或异步响应。 */ (e) => setIntervalLabel(e.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "line": 50,
+    "tag": "NumericInput",
+    "label": "起止帧",
+    "value": "{intervalStart}",
+    "handler": "{setIntervalStart}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "line": 57,
+    "tag": "NumericInput",
+    "label": "起止帧",
+    "value": "{intervalEnd}",
+    "handler": "{setIntervalEnd}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "line": 101,
+    "tag": "select",
+    "label": "{selected.task_kind === 'evaporation' ? '实验名称长度' : '采集后样号长度'}",
+    "value": "{nameLength}",
+    "handler": "{/* 选择正式样号长度，不截断草稿。 */ (e) => setNameLength(Number(e.target.value) as 12 | 20)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={12}>12 位</option>",
+      "<option value={20}>20 位</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx",
+    "line": 105,
+    "tag": "input",
+    "label": "",
+    "value": "{renameValue}",
+    "handler": "{/* 处理样品采集的当前输入或异步响应。 */ (e) => setRenameValue(e.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+    "line": 46,
+    "tag": "select",
+    "label": "拟合方式",
+    "value": "{curveLine.workspace.fit_mode}",
+    "handler": "{(event) => curveAction( curveLine.line_id, { action: 'set_fit', fit_mode: event.target.value, reason: '切换拟合方式' }, '拟合方式已保存到新的修正集' ) }",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"linear\">直线函数</option>",
+      "<option value=\"quadratic\">二次曲线</option>",
+      "<option value=\"cubic\">三次曲线</option>",
+      "<option value=\"spline\">样条函数</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+    "line": 65,
+    "tag": "select",
+    "label": "坐标方式",
+    "value": "{curveLine.workspace.coordinate_type}",
+    "handler": "{(event) => curveAction( curveLine.line_id, { action: 'set_coordinate', coordinate_type: event.target.value, reason: '切换坐标方式' }, '坐标方式已保存到新的修正集' ) }",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"normal\">普通坐标</option>",
+      "<option value=\"logarithmic\">对数坐标</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisIntervention.tsx",
+    "line": 96,
+    "tag": "NumericInput",
+    "label": "调整后峰位",
+    "value": "{adjustedPosition ?? checkpoint.automatic_position}",
+    "handler": "{setAdjustedPosition}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisIntervention.tsx",
+    "line": 105,
+    "tag": "input",
+    "label": "调整理由",
+    "value": "{reason}",
+    "handler": "{(event) => setReason(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "line": 544,
+    "tag": "select",
+    "label": "\"旧样品分析方法\"",
+    "value": "{legacyMethod ?? ''}",
+    "handler": "{(event) => setLegacyMethod(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">选择确切方法版本</option>",
+      "<option key={method.method_version_id} value={method.method_version_id}> {method.name} v{method.version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "line": 559,
+    "tag": "select",
+    "label": "\"旧样品记录\"",
+    "value": "{legacyIds.map(String)}",
+    "handler": "{(event) => setLegacyIds(Array.from(event.target.selectedOptions, (option) => Number(option.value))) }",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={source.id} value={source.id}> {source.format.toUpperCase()} #{source.id} · {source.sample_name} · 样号 {source.sample_no} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisRunForm.tsx",
+    "line": 53,
+    "tag": "input",
+    "label": "批次名称",
+    "value": "{name}",
+    "handler": "{(event) => setName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisRunForm.tsx",
+    "line": 57,
+    "tag": "select",
+    "label": "计算档案",
+    "value": "{profile}",
+    "handler": "{(event) => setProfile(event.target.value as typeof profile)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"modern_v1\">modern_v1 · 高斯面积定量</option>",
+      "<option value=\"legacy_2_0_2\">legacy_2_0_2 · 旧版峰高</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisRunForm.tsx",
+    "line": 64,
+    "tag": "NumericInput",
+    "label": "慢进超时（秒）",
+    "value": "{timeout}",
+    "handler": "{setTimeout}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisRunForm.tsx",
+    "line": 67,
+    "tag": "input",
+    "label": "逐谱线慢进  每条谱线暂停并等待接受或放弃",
+    "value": "{slowMode}",
+    "handler": "{(event) => setSlowMode(event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisRunForm.tsx",
+    "line": 81,
+    "tag": "input",
+    "label": "",
+    "value": "{sampleIds.includes(sample.id)}",
+    "handler": "{() => toggleSample(sample.id, sample.method_version_id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 91,
+    "tag": "select",
+    "label": "",
+    "value": "{sample}",
+    "handler": "{/* 选择当前运行内样品。 */ event => setSample(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.position} value={item.position}>{item.sample_name} · 重复 {item.position + 1}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 94,
+    "tag": "select",
+    "label": "",
+    "value": "{ccd}",
+    "handler": "{/* 切换所选检测器。 */ event => { setFocus(null) setCcd(Number(event.target.value)) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.ccd_index} value={item.ccd_index}>{item.ccd_index + 1}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 105,
+    "tag": "select",
+    "label": "\"分析谱图工具\"",
+    "value": "{tool}",
+    "handler": "{/* 切换绘图操作。 */ event => setTool(event.target.value as typeof tool)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"crosshair\">十字线</option>",
+      "<option value=\"pan\">平移</option>",
+      "<option value=\"box\">框选缩放</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 111,
+    "tag": "select",
+    "label": "",
+    "value": "{scope}",
+    "handler": "{(event) => setScope(event.target.value as typeof scope)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"all\">全部谱线</option>",
+      "<option value=\"reference\">仅参考线</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 113,
+    "tag": "select",
+    "label": "",
+    "value": "{positionMode}",
+    "handler": "{(event) => { setPositionMode(event.target.value as typeof positionMode); setFocus(null) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"measured\">本次实测位置</option>",
+      "<option value=\"stored\">还原原方法保存位置</option>",
+      "<option value=\"theoretical\">复位理论位置</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 116,
+    "tag": "input",
+    "label": "",
+    "value": "{includeMean}",
+    "handler": "{(event) => setIncludeMean(event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "line": 141,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{point}",
+    "handler": "{setPoint}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "line": 41,
+    "tag": "select",
+    "label": "",
+    "value": "{control?.acquisition_task_id ?? ''}",
+    "handler": "{(event) => setControlTask(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={group.acquisition_task_id} value={group.acquisition_task_id}> {group.sample_name} · 强度 {group.statistics.mean?.toFixed(6)} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "line": 54,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{controlValue}",
+    "handler": "{setControlValue}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "line": 122,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{adjustments[key] ?? point.adjusted_intensity ?? 0}",
+    "handler": "{(value) => setAdjustments((current) => ({ ...current, [key]: value }))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/analysis/AnalysisStandards.tsx",
+    "line": 132,
+    "tag": "input",
+    "label": "",
+    "value": "{point.active}",
+    "handler": "{(event) => curveAction( curveLine.line_id, { action: 'set_active', point_index: point.point_index, active: event.target.checked, reason: `${event.target.checked ? '启用' : '停用'}标准点 ${point.name}` }, '标准点启用状态已保存' ) }",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/AuthForm.tsx",
+    "line": 50,
+    "tag": "input",
+    "label": "用户名",
+    "value": "{username}",
+    "handler": "{(event) => setUsername(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/AuthForm.tsx",
+    "line": 60,
+    "tag": "input",
+    "label": "密码",
+    "value": "{password}",
+    "handler": "{(event) => setPassword(event.target.value)}",
+    "folded": [],
+    "type": "\"password\""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/AuthForm.tsx",
+    "line": 72,
+    "tag": "input",
+    "label": "确认密码",
+    "value": "{confirm}",
+    "handler": "{(event) => setConfirm(event.target.value)}",
+    "folded": [],
+    "type": "\"password\""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/UsersPage.tsx",
+    "line": 184,
+    "tag": "input",
+    "label": "用户名",
+    "value": "{username}",
+    "handler": "{(event) => setUsername(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/UsersPage.tsx",
+    "line": 188,
+    "tag": "input",
+    "label": "初始密码",
+    "value": "{password}",
+    "handler": "{(event) => setPassword(event.target.value)}",
+    "folded": [],
+    "type": "\"password\""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/UsersPage.tsx",
+    "line": 198,
+    "tag": "select",
+    "label": "角色",
+    "value": "{roleId}",
+    "handler": "{(event) => setRoleId(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">无角色</option>",
+      "<option value={role.id} key={role.id}> {role.name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/auth/UsersPage.tsx",
+    "line": 219,
+    "tag": "input",
+    "label": "角色名称",
+    "value": "{roleName}",
+    "handler": "{(event) => setRoleName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/auth/UsersPage.tsx",
+    "line": 223,
+    "tag": "input",
+    "label": "权限键（逗号分隔）",
+    "value": "{rolePermissions}",
+    "handler": "{(event) => setRolePermissions(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 231,
+    "tag": "select",
+    "label": "待连接设备档案",
+    "value": "{selectedProfile ?? ''}",
+    "handler": "{(e) => setSelectedProfile(Number(e.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item.id} key={item.id}> {item.name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 325,
+    "tag": "select",
+    "label": "模拟样本",
+    "value": "{sample}",
+    "handler": "{(e) => setSample(e.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item}>{item}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 333,
+    "tag": "NumericInput",
+    "label": "随机种子",
+    "value": "{seed}",
+    "handler": "{setSeed}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 337,
+    "tag": "select",
+    "label": "CCD",
+    "value": "{ccdIndex}",
+    "handler": "{(e) => { setCcdIndex(Number(e.target.value)) setCrosshairPoint(null) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item} key={item}> CCD {item + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 438,
+    "tag": "input",
+    "label": "X  %",
+    "value": "{xZoom}",
+    "handler": "{(e) => { setXZoom(Number(e.target.value)) setXOffset(0) }}",
+    "folded": [],
+    "type": "\"range\""
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 452,
+    "tag": "input",
+    "label": "Y  %",
+    "value": "{yZoom}",
+    "handler": "{(e) => setYZoom(Number(e.target.value))}",
+    "folded": [],
+    "type": "\"range\""
+  },
+  {
+    "file": "app/frontend/src/pages/devices/AcquisitionPage.tsx",
+    "line": 464,
+    "tag": "input",
+    "label": "滚动",
+    "value": "{xOffset}",
+    "handler": "{(e) => setXOffset(Number(e.target.value))}",
+    "folded": [],
+    "type": "\"range\""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionCalibration.tsx",
+    "line": 49,
+    "tag": "input",
+    "label": "校准名称",
+    "value": "{calibrationName}",
+    "handler": "{(event) => setCalibrationName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionCalibration.tsx",
+    "line": 111,
+    "tag": "select",
+    "label": "绑定已发布方法修订",
+    "value": "{bindMethodId ?? ''}",
+    "handler": "{(event) => setBindMethodId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={method.id} key={method.id}> {method.name} · v{method.current_version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+    "line": 64,
+    "tag": "input",
+    "label": "元素",
+    "value": "{element}",
+    "handler": "{(event) => setElement(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+    "line": 68,
+    "tag": "NumericInput",
+    "label": "波长 (nm)",
+    "value": "{wavelength}",
+    "handler": "{setWavelength}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+    "line": 72,
+    "tag": "select",
+    "label": "CCD",
+    "value": "{lineCcd}",
+    "handler": "{(event) => setLineCcd(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={ccd} value={ccd}> CCD {ccd + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "line": 144,
+    "tag": "select",
+    "label": "当前 CCD",
+    "value": "{selectedCcd}",
+    "handler": "{(event) => setSelectedCcd(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={ccd} key={ccd}> CCD {ccd + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "line": 172,
+    "tag": "select",
+    "label": "\"人工定位谱线\"",
+    "value": "{manualLine ?? ''}",
+    "handler": "{(event) => setManualLine(event.target.value === '' ? null : Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">选择当前 CCD 谱线</option>",
+      "<option key={line.id} value={line.id}>{line.element} {line.wavelength_nm}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 63,
+    "tag": "select",
+    "label": "数据来源",
+    "value": "{legacySource}",
+    "handler": "{(event) => setLegacySource(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">新采集</option>",
+      "<option key={source.id} value={source.id}> 旧 WDT #{source.id} {source.sample_name || source.band_name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 74,
+    "tag": "select",
+    "label": "设备档案",
+    "value": "{profileId ?? ''}",
+    "handler": "{(event) => setProfileId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={profile.id} value={profile.id}> {profile.name} · {profile.transport} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 84,
+    "tag": "select",
+    "label": "CCD 布局",
+    "value": "{layoutId ?? ''}",
+    "handler": "{(event) => setLayoutId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={layout.id} value={layout.id}> {layout.name} · {layout.frame_count}×{layout.ccds_per_frame} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 95,
+    "tag": "NumericInput",
+    "label": "预激时间（秒）",
+    "value": "{preSeconds}",
+    "handler": "{setPreSeconds}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 99,
+    "tag": "NumericInput",
+    "label": "采样周期（秒）",
+    "value": "{samplingPeriod}",
+    "handler": "{setSamplingPeriod}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 109,
+    "tag": "NumericInput",
+    "label": "采样次数",
+    "value": "{frameCount}",
+    "handler": "{setFrameCount}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "line": 113,
+    "tag": "NumericInput",
+    "label": "空白次数",
+    "value": "{darkFrameCount}",
+    "handler": "{setDarkFrameCount}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "line": 63,
+    "tag": "select",
+    "label": "\"色散谱图数据\"",
+    "value": "{mode}",
+    "handler": "{(event) => setMode(event.target.value as typeof mode)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"live\">实时 / 最新帧</option>",
+      "<option value=\"frame\">已保存单帧</option>",
+      "<option value=\"average\">燃烧区间均值</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "line": 70,
+    "tag": "select",
+    "label": "\"色散历史帧\"",
+    "value": "{frameId ?? ''}",
+    "handler": "{(event) => setFrameId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.id} value={item.id}> {item.phase === 'dark' ? '暗帧' : '燃烧帧'} {item.frame_index + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "line": 76,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{start}",
+    "handler": "{setStart}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "line": 77,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{end}",
+    "handler": "{setEnd}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 81,
+    "tag": "select",
+    "label": "方法转角区间",
+    "value": "{methodSelection}",
+    "handler": "{(event) => setMethodSelection(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">自定义转角计划</option>",
+      "<option key={`${method.method_id}-${method.version}`} value={`${method.method_id}-${method.version}`} > {method.name} · v{method.version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 103,
+    "tag": "input",
+    "label": "任务名称",
+    "value": "{name}",
+    "handler": "{(event) => setName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 111,
+    "tag": "select",
+    "label": "设备档案",
+    "value": "{profileId ?? ''}",
+    "handler": "{(event) => setProfileId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.id} value={item.id}> {item.name} · {item.transport === 'simulator' ? '模拟器' : '串口'} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 125,
+    "tag": "select",
+    "label": "CCD 布局",
+    "value": "{layoutId}",
+    "handler": "{(event) => setLayoutId(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={String(item.id)} value={String(item.id)}> {String(item.name)} · {String(item.points_per_ccd)} 点 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 139,
+    "tag": "select",
+    "label": "执行策略",
+    "value": "{strategy}",
+    "handler": "{(event) => setStrategy(event.target.value as typeof strategy)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"short_to_long\">短波 → 长波</option>",
+      "<option value=\"key_first\">关键波段优先</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 150,
+    "tag": "select",
+    "label": "异常策略",
+    "value": "{policy}",
+    "handler": "{(event) => setPolicy(event.target.value as typeof policy)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"retry_then_stop\">有限重试后停止</option>",
+      "<option value=\"manual\">转人工接管</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 161,
+    "tag": "NumericInput",
+    "label": "重试上限",
+    "value": "{retryLimit}",
+    "handler": "{setRetryLimit}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 173,
+    "tag": "textarea",
+    "label": "转角计划 JSON",
+    "value": "{turns}",
+    "handler": "{(event) => setTurns(event.target.value)}",
+    "folded": [
+      "\"独立转角调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 188,
+    "tag": "input",
+    "label": "模拟样品",
+    "value": "{sample}",
+    "handler": "{(event) => setSample(event.target.value)}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 196,
+    "tag": "NumericInput",
+    "label": "随机种子",
+    "value": "{seed}",
+    "handler": "{setSeed}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "line": 206,
+    "tag": "textarea",
+    "label": "模拟异常脚本 JSON",
+    "value": "{anomalies}",
+    "handler": "{(event) => setAnomalies(event.target.value)}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx",
+    "line": 161,
+    "tag": "input",
+    "label": "",
+    "value": "{interventionNote}",
+    "handler": "{(event) => setInterventionNote(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx",
+    "line": 39,
+    "tag": "select",
+    "label": "\"转角原始帧\"",
+    "value": "{frame?.id ?? ''}",
+    "handler": "{(event) => setFrameId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.id} value={item.id}> 转角 {(selected.steps.find((entry) => entry.id === item.step_id)?.order_index ?? -1) + 1} {' · '}尝试 {item.attempt} · CCD {item.ccd_index + 1} {' · '}{item.damaged ? '损坏' : item.confirmed ? '已确认' : '待确认'} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/help/HelpPage.tsx",
+    "line": 37,
+    "tag": "input",
+    "label": "\"搜索帮助主题\"",
+    "value": "{query}",
+    "handler": "{(event) => updateQuery(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "line": 86,
+    "tag": "input",
+    "label": "备份目录",
+    "value": "{directory}",
+    "handler": "{(event) => setDirectory(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "line": 186,
+    "tag": "NumericInput",
+    "label": "保留天数",
+    "value": "{retentionDays}",
+    "handler": "{setRetentionDays}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 67,
+    "tag": "input",
+    "label": "会话名称",
+    "value": "{name}",
+    "handler": "{(event) => setName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 75,
+    "tag": "select",
+    "label": "设备档案",
+    "value": "{profileId ?? ''}",
+    "handler": "{(event) => setProfileId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.id} value={item.id}> {item.name} · {item.transport === 'simulator' ? '合成谱' : '串口'} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 89,
+    "tag": "select",
+    "label": "CCD 布局",
+    "value": "{layoutId}",
+    "handler": "{(event) => setLayoutId(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={item.id} value={item.id}> {item.name} · {item.points_per_ccd} 点 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 103,
+    "tag": "NumericInput",
+    "label": "稳定帧数",
+    "value": "{stabilizationFrames}",
+    "handler": "{setStabilizationFrames}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 116,
+    "tag": "NumericInput",
+    "label": "模拟峰偏移（点）",
+    "value": "{offset}",
+    "handler": "{setOffset}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 127,
+    "tag": "select",
+    "label": "故障脚本",
+    "value": "{fault}",
+    "handler": "{(event) => setFault(event.target.value)}",
+    "folded": [
+      "\"模拟调试\""
+    ],
+    "type": "",
+    "options": [
+      "<option value=\"none\">无</option>",
+      "<option value=\"switch_failure\">谱源启动失败</option>",
+      "<option value=\"stability_failure\">稳定失败</option>",
+      "<option value=\"capture_failure\">采集失败</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx",
+    "line": 145,
+    "tag": "input",
+    "label": "nm",
+    "value": "{lineIds.includes(line.id)}",
+    "handler": "{() => setLineIds((current) => current.includes(line.id) ? current.filter((id) => id !== line.id) : [...current, line.id] ) }",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx",
+    "line": 254,
+    "tag": "select",
+    "label": "",
+    "value": "{plotCcd}",
+    "handler": "{(event) => setCcdIndex(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={index} value={index}> {index + 1} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodAngles.tsx",
+    "line": 34,
+    "tag": "NumericInput",
+    "label": "{`第${index + 1}项转角`}",
+    "value": "{angle.angle_deg}",
+    "handler": "{(value) => onChange(angles.map((item, position) => position === index ? { ...item, angle_deg: value } : item))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodAngles.tsx",
+    "line": 43,
+    "tag": "select",
+    "label": "{`第${index + 1}项存储方式`}",
+    "value": "{angle.storage_mode}",
+    "handler": "{(event) => onChange(angles.map((item, position) => position === index ? { ...item, storage_mode: event.target.value as AngleExposure['storage_mode'] } : item))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={mode.value} value={mode.value}>{mode.label}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "line": 35,
+    "tag": "input",
+    "label": "\"区间曝光\"",
+    "value": "{conditions.exposure_mode === 'line_interval'}",
+    "handler": "{(event) => { setCondition('exposure_mode', event.target.checked ? 'line_interval' : 'simple_mean') if (event.target.checked && conditions.frame_count < 2) setCondition('frame_count', 2) }}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "line": 43,
+    "tag": "NumberField",
+    "label": "\"预激时间 (s)\"",
+    "value": "{conditions.pre_excitation_seconds}",
+    "handler": "{(value) => setCondition('pre_excitation_seconds', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "line": 52,
+    "tag": "NumberField",
+    "label": "\"采样周期 (s)\"",
+    "value": "{conditions.sampling_period_seconds}",
+    "handler": "{(value) => setCondition('sampling_period_seconds', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "line": 61,
+    "tag": "NumberField",
+    "label": "\"采样次数\"",
+    "value": "{conditions.frame_count}",
+    "handler": "{(value) => setCondition('frame_count', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+    "line": 69,
+    "tag": "NumberField",
+    "label": "\"空白次数\"",
+    "value": "{conditions.dark_frame_count}",
+    "handler": "{(value) => setCondition('dark_frame_count', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 64,
+    "tag": "select",
+    "label": "CCD 布局",
+    "value": "{String(currentLayout?.id ?? '')}",
+    "handler": "{(event) => changeLayout(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={layout.id} value={layout.id}> {layout.name} · {layout.frame_count}×{layout.ccds_per_frame} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 78,
+    "tag": "select",
+    "label": "色散曲线",
+    "value": "{String(currentCalibration?.id ?? '')}",
+    "handler": "{(event) => setCondition('dispersion_calibration_id', Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={calibration.id} value={calibration.id}> {calibration.name} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 95,
+    "tag": "input",
+    "label": "",
+    "value": "{conditions.selected_ccds.includes(index)}",
+    "handler": "{() => toggleCcd(index)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 109,
+    "tag": "EmptyableNumberInput",
+    "label": "基线波长 (nm)",
+    "value": "{conditions.reference_wavelength_nm}",
+    "handler": "{(value) => setCondition('reference_wavelength_nm', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 118,
+    "tag": "EmptyableNumberInput",
+    "label": "实际基线波长 (nm)",
+    "value": "{conditions.actual_reference_wavelength_nm}",
+    "handler": "{(value) => setCondition('actual_reference_wavelength_nm', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 127,
+    "tag": "EmptyableNumberInput",
+    "label": "扫描宽度",
+    "value": "{conditions.reference_width_points}",
+    "handler": "{(value) => setCondition('reference_width_points', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+    "line": 145,
+    "tag": "AnalysisUnitSelect",
+    "label": "\"分析单位\"",
+    "value": "{conditions.analysis_unit}",
+    "handler": "{(unit) => setCondition('analysis_unit', unit)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodIdentity.tsx",
+    "line": 32,
+    "tag": "input",
+    "label": "方法名称",
+    "value": "{draftName}",
+    "handler": "{(event) => setDraftName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodIdentity.tsx",
+    "line": 43,
+    "tag": "textarea",
+    "label": "说明",
+    "value": "{draftDescription}",
+    "handler": "{(event) => setDraftDescription(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 168,
+    "tag": "select",
+    "label": "打印机",
+    "value": "{settings.default_printer}",
+    "handler": "{(event) => update('default_printer', event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={item.name} key={item.name}> {item.display_name} {item.virtual ? ' · 可自动验收' : ''} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 182,
+    "tag": "select",
+    "label": "纸张",
+    "value": "{settings.paper}",
+    "handler": "{(event) => update('paper', event.target.value as MethodPrintSettings['paper'])}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option>A4</option>",
+      "<option>A3</option>",
+      "<option>Letter</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 193,
+    "tag": "select",
+    "label": "方向",
+    "value": "{settings.orientation}",
+    "handler": "{(event) => update('orientation', event.target.value as MethodPrintSettings['orientation'])}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"portrait\">纵向</option>",
+      "<option value=\"landscape\">横向</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 203,
+    "tag": "select",
+    "label": "版式",
+    "value": "{settings.layout}",
+    "handler": "{(event) => update('layout', event.target.value as MethodPrintSettings['layout'])}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"standard\">标准</option>",
+      "<option value=\"compact\">紧凑</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 211,
+    "tag": "NumberField",
+    "label": "\"字号 (pt)\"",
+    "value": "{settings.font_size_pt}",
+    "handler": "{(value) => update('font_size_pt', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 222,
+    "tag": "NumberField",
+    "label": "\"上边距 (mm)\"",
+    "value": "{settings.margin_top_mm}",
+    "handler": "{(value) => update('margin_top_mm', value)}",
+    "folded": [
+      "\"高级打印设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 231,
+    "tag": "NumberField",
+    "label": "\"右边距 (mm)\"",
+    "value": "{settings.margin_right_mm}",
+    "handler": "{(value) => update('margin_right_mm', value)}",
+    "folded": [
+      "\"高级打印设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 240,
+    "tag": "NumberField",
+    "label": "\"下边距 (mm)\"",
+    "value": "{settings.margin_bottom_mm}",
+    "handler": "{(value) => update('margin_bottom_mm', value)}",
+    "folded": [
+      "\"高级打印设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 249,
+    "tag": "NumberField",
+    "label": "\"左边距 (mm)\"",
+    "value": "{settings.margin_left_mm}",
+    "handler": "{(value) => update('margin_left_mm', value)}",
+    "folded": [
+      "\"高级打印设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodPrintPanel.tsx",
+    "line": 261,
+    "tag": "input",
+    "label": "打印前刷新预览  保证预览和本次任务使用同一输入",
+    "value": "{settings.preview_before_print}",
+    "handler": "{(event) => update('preview_before_print', event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 34,
+    "tag": "NumberField",
+    "label": "\"普通样品\"",
+    "value": "{conditions.sample_repeats}",
+    "handler": "{(value) => setCondition('sample_repeats', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 42,
+    "tag": "NumberField",
+    "label": "\"标准样品\"",
+    "value": "{conditions.standard_repeats}",
+    "handler": "{(value) => setCondition('standard_repeats', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 50,
+    "tag": "NumberField",
+    "label": "\"管理样\"",
+    "value": "{conditions.control_repeats}",
+    "handler": "{(value) => setCondition('control_repeats', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 63,
+    "tag": "NumberField",
+    "label": "\"重复摄谱最大允许误差[^P]\"",
+    "value": "{conditions.maximum_id_deviation}",
+    "handler": "{(value) => setCondition('maximum_id_deviation', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 73,
+    "tag": "input",
+    "label": "相对偏差校验",
+    "value": "{conditions.rsd_enabled}",
+    "handler": "{(event) => setCondition('rsd_enabled', event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodQuality.tsx",
+    "line": 81,
+    "tag": "NumberField",
+    "label": "\"最大允许Rsd[%]\"",
+    "value": "{conditions.rsd_threshold}",
+    "handler": "{(value) => setCondition('rsd_threshold', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "line": 218,
+    "tag": "select",
+    "label": "\"选择编辑方法\"",
+    "value": "{selectedId ?? ''}",
+    "handler": "{(event) => setSelectedId(Number(event.target.value))}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">暂无方法</option>",
+      "<option key={item.id} value={item.id}> {item.name} {item.is_current ? ' · 当前运行' : ''} {item.status === 'paused' ? ' · 已暂停' : ''} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "line": 376,
+    "tag": "input",
+    "label": "新方法名称",
+    "value": "{composerName}",
+    "handler": "{(event) => setComposerName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/NumberField.tsx",
+    "line": 24,
+    "tag": "EmptyableNumberInput",
+    "label": "",
+    "value": "{value}",
+    "handler": "{onChange}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 145,
+    "tag": "EmptyableNumberInput",
+    "label": "曝光起始帧",
+    "value": "{draft.exposure_start_frame ?? 1}",
+    "handler": "{(value) => setDraft((previous) => ({ ...previous, exposure_start_frame: value, exposure_end_frame: previous.exposure_end_frame ?? frameCount }))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 151,
+    "tag": "EmptyableNumberInput",
+    "label": "曝光结束帧",
+    "value": "{draft.exposure_end_frame ?? frameCount}",
+    "handler": "{(value) => setDraft((previous) => ({ ...previous, exposure_start_frame: previous.exposure_start_frame ?? 1, exposure_end_frame: value }))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 159,
+    "tag": "select",
+    "label": "谱线类型",
+    "value": "{draft.line_type}",
+    "handler": "{(event) => setLineType(event.target.value as SpectralLineInput['line_type'])}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"analysis\">分析线</option>",
+      "<option value=\"internal_standard\">内标线</option>",
+      "<option value=\"positioning\">定位线</option>",
+      "<option value=\"baseline\">参考基线</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 172,
+    "tag": "select",
+    "label": "元素",
+    "value": "{draft.element}",
+    "handler": "{(event) => updateDraft('element', event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={element}>{element}</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 182,
+    "tag": "NumberField",
+    "label": "\"理论波长 (nm)\"",
+    "value": "{draft.wavelength_nm}",
+    "handler": "{(value) => setDraft((previous) => ({ ...previous, wavelength_nm: value, actual_wavelength_nm: previous.actual_wavelength_nm === previous.wavelength_nm ? value : previous.actual_wavelength_nm })) }",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 198,
+    "tag": "NumberField",
+    "label": "\"实际波长 (nm)\"",
+    "value": "{draft.actual_wavelength_nm ?? draft.wavelength_nm}",
+    "handler": "{(value) => updateDraft('actual_wavelength_nm', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 238,
+    "tag": "input",
+    "label": "启用谱线  停用后不参与后续分析",
+    "value": "{draft.enabled}",
+    "handler": "{(event) => updateDraft('enabled', event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 250,
+    "tag": "input",
+    "label": "关键波段  随方法版本固化",
+    "value": "{draft.critical_band}",
+    "handler": "{(event) => updateDraft('critical_band', event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 269,
+    "tag": "select",
+    "label": "定位谱线",
+    "value": "{draft.alignment_line_id ?? ''}",
+    "handler": "{(event) => updateDraft('alignment_line_id', event.target.value || null)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">不引用</option>",
+      "<option key={line.id} value={line.id}> {lineTypeLabel[line.line_type]} · {line.element} {line.wavelength_nm.toFixed(4)} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 284,
+    "tag": "select",
+    "label": "内标谱线",
+    "value": "{draft.internal_standard_mode === 'line' ? `line:${draft.internal_standard_line_id ?? ''}` : draft.internal_standard_mode}",
+    "handler": "{(event) => { const value = event.target.value setDraft((previous) => ({ ...previous, internal_standard_mode: value.startsWith('line:') ? 'line' : value as 'none' | 'background', internal_standard_line_id: value.startsWith('line:') ? value.slice(5) || null : null, background_line_id: value === 'background' ? previous.background_line_id ?? backgroundLines[0]?.id ?? null : previous.background_line_id })) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"none\">无内标</option>",
+      "<option value=\"background\">背景做内标</option>",
+      "<option value={`line:${draft.internal_standard_line_id ?? ''}`} disabled>原内标谱线（当前不可用）</option>",
+      "<option key={line.id} value={`line:${line.id}`}> {line.element} {line.wavelength_nm.toFixed(4)} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 314,
+    "tag": "NumberField",
+    "label": "\"扫描点数\"",
+    "value": "{draft.scan_width_points}",
+    "handler": "{(value) => updateDraft('scan_width_points', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 322,
+    "tag": "NumberField",
+    "label": "\"背景位置\"",
+    "value": "{draft.background_offset_points}",
+    "handler": "{(value) => updateDraft('background_offset_points', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 332,
+    "tag": "select",
+    "label": "峰值方式",
+    "value": "{draft.peak_mode}",
+    "handler": "{(event) => setDraft((previous) => ({ ...previous, peak_mode: event.target.value as SpectralLineInput['peak_mode'], peak_width_points: event.target.value === 'max_single_point' ? 1 : Math.max(3, previous.peak_width_points | 1) })) }",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"max_single_point\">最大值</option>",
+      "<option value=\"gaussian\">高斯曲线</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 348,
+    "tag": "NumberField",
+    "label": "\"计算点数\"",
+    "value": "{draft.peak_width_points}",
+    "handler": "{(value) => updateDraft('peak_width_points', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 359,
+    "tag": "select",
+    "label": "拟合方式",
+    "value": "{draft.fit_mode}",
+    "handler": "{(event) => updateDraft('fit_mode', event.target.value as SpectralLineInput['fit_mode'])}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"linear\">直线函数</option>",
+      "<option value=\"quadratic\">二次曲线</option>",
+      "<option value=\"cubic\">三次曲线</option>",
+      "<option value=\"spline\">样条函数</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 371,
+    "tag": "input",
+    "label": "对数坐标",
+    "value": "{draft.coordinate_type === 'logarithmic'}",
+    "handler": "{(event) => updateDraft('coordinate_type', event.target.checked ? 'logarithmic' : 'normal')}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 376,
+    "tag": "AnalysisUnitSelect",
+    "label": "\"单位\"",
+    "value": "{draft.unit}",
+    "handler": "{(unit) => setDraft((previous) => convertLineUnit(previous, unit))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 378,
+    "tag": "NumberField",
+    "label": "\"小数位数\"",
+    "value": "{draft.decimal_places}",
+    "handler": "{(value) => updateDraft('decimal_places', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 386,
+    "tag": "NumberField",
+    "label": "\"最低峰值\"",
+    "value": "{draft.lower_peak}",
+    "handler": "{(value) => updateDraft('lower_peak', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 394,
+    "tag": "NumberField",
+    "label": "\"最小倍数\"",
+    "value": "{draft.minimum_peak_ratio}",
+    "handler": "{(value) => updateDraft('minimum_peak_ratio', value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 407,
+    "tag": "NumberField",
+    "label": "\"优先级\"",
+    "value": "{draft.priority}",
+    "handler": "{(value) => updateDraft('priority', value)}",
+    "folded": [
+      "\"高级谱线参数\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 415,
+    "tag": "NumberField",
+    "label": "\"有效下限\"",
+    "value": "{draft.valid_range_min}",
+    "handler": "{(value) => updateDraft('valid_range_min', value)}",
+    "folded": [
+      "\"高级谱线参数\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 424,
+    "tag": "NumberField",
+    "label": "\"有效上限\"",
+    "value": "{draft.valid_range_max}",
+    "handler": "{(value) => updateDraft('valid_range_max', value)}",
+    "folded": [
+      "\"高级谱线参数\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 476,
+    "tag": "input",
+    "label": "",
+    "value": "{point.active}",
+    "handler": "{(event) => updateDraft( 'standard_points', draft.standard_points.map((item, itemIndex) => itemIndex === index ? { ...item, active: event.target.checked } : item ) ) }",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 491,
+    "tag": "input",
+    "label": "",
+    "value": "{point.name}",
+    "handler": "{(event) => updateDraft( 'standard_points', draft.standard_points.map((item, itemIndex) => itemIndex === index ? { ...item, name: event.target.value } : item ) ) }",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "line": 506,
+    "tag": "EmptyableNumberInput",
+    "label": "",
+    "value": "{point.value}",
+    "handler": "{(value) => updateDraft( 'standard_points', draft.standard_points.map((item, itemIndex) => itemIndex === index ? { ...item, value } : item ) ) }",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/migration/LegacyMigrationPage.tsx",
+    "line": 153,
+    "tag": "input",
+    "label": "方法库 · DIRECT.MTD",
+    "value": "{paths.mtd_path}",
+    "handler": "{(event) => setPaths({ ...paths, mtd_path: event.target.value })}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/migration/LegacyMigrationPage.tsx",
+    "line": 163,
+    "tag": "input",
+    "label": "设备配置 · DIRECT.CFG",
+    "value": "{paths.cfg_path}",
+    "handler": "{(event) => setPaths({ ...paths, cfg_path: event.target.value })}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/migration/LegacyMigrationPage.tsx",
+    "line": 173,
+    "tag": "input",
+    "label": "软件选项 · DIRECT.OPT",
+    "value": "{paths.opt_path}",
+    "handler": "{(event) => setPaths({ ...paths, opt_path: event.target.value })}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/migration/ResultMigrationPage.tsx",
+    "line": 107,
+    "tag": "input",
+    "label": "文件路径",
+    "value": "{path}",
+    "handler": "{(event) => setPath(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/migration/SpectrumMigrationPage.tsx",
+    "line": 149,
+    "tag": "input",
+    "label": "谱文件路径",
+    "value": "{path}",
+    "handler": "{(event) => setPath(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 117,
+    "tag": "input",
+    "label": "\"搜索源记录\"",
+    "value": "{recordQuery}",
+    "handler": "{(event) => setRecordQuery(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 159,
+    "tag": "input",
+    "label": "{`选择记录 ${record.id}`}",
+    "value": "{selected.includes(record.id)}",
+    "handler": "{() => toggle(record.id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 202,
+    "tag": "select",
+    "label": "转换存储模式",
+    "value": "{storageMode}",
+    "handler": "{(event) => setStorageMode(event.target.value as typeof storageMode)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"full_interval\">分时帧（保留燃烧与暗帧）</option>",
+      "<option value=\"averaged\">平均值</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 208,
+    "tag": "NumericInput",
+    "label": "CCD 索引",
+    "value": "{ccd}",
+    "handler": "{setCcd}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 212,
+    "tag": "NumericInput",
+    "label": "起始帧",
+    "value": "{start}",
+    "handler": "{setStart}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 216,
+    "tag": "NumericInput",
+    "label": "结束帧",
+    "value": "{end}",
+    "handler": "{setEnd}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "line": 220,
+    "tag": "NumericInput",
+    "label": "目标 CCD 布局",
+    "value": "{layoutId}",
+    "handler": "{setLayoutId}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 255,
+    "tag": "select",
+    "label": "方法版本",
+    "value": "{methodVersionId ?? ''}",
+    "handler": "{(event) => { setMethodVersionId(event.target.value ? Number(event.target.value) : undefined) setSelectedCurves([]) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">请选择</option>",
+      "<option key={method.method_version_id} value={method.method_version_id}> {method.name} · v{method.version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 272,
+    "tag": "select",
+    "label": "算法档案",
+    "value": "{profile}",
+    "handler": "{(event) => { setProfile(event.target.value as typeof profile) setSelectedCurves([]) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"legacy_2_0_2\">legacy_2_0_2</option>",
+      "<option value=\"modern_v1\">modern_v1</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 304,
+    "tag": "input",
+    "label": "\"筛选重算源记录\"",
+    "value": "{sourceQuery}",
+    "handler": "{(event) => setSourceQuery(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 318,
+    "tag": "input",
+    "label": "·",
+    "value": "{selectedSources.includes(source.id)}",
+    "handler": "{() => toggleSource(source.id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 361,
+    "tag": "input",
+    "label": "·",
+    "value": "{selectedCurves.includes(curve.id)}",
+    "handler": "{() => toggleCurve(curve.id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 378,
+    "tag": "input",
+    "label": "",
+    "value": "{allowOlderMethod}",
+    "handler": "{(event) => setAllowOlderMethod(event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 424,
+    "tag": "select",
+    "label": "矩阵类型",
+    "value": "{kind}",
+    "handler": "{(event) => setKind(event.target.value as typeof kind)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"raw_intensity\">原始强度</option>",
+      "<option value=\"processed_intensity\">处理后强度</option>",
+      "<option value=\"result_matrix\">结果矩阵</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 432,
+    "tag": "select",
+    "label": "文件格式",
+    "value": "{format}",
+    "handler": "{(event) => setFormat(event.target.value as typeof format)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"txt\">文本（TXT）</option>",
+      "<option value=\"csv\">CSV</option>",
+      "<option value=\"excel\">Excel（XLS）</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 440,
+    "tag": "input",
+    "label": "输出目录",
+    "value": "{directory}",
+    "handler": "{(event) => setDirectory(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 448,
+    "tag": "input",
+    "label": "文件名",
+    "value": "{filename}",
+    "handler": "{(event) => setFilename(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "line": 455,
+    "tag": "select",
+    "label": "矩阵输出来源",
+    "value": "{exportBatch}",
+    "handler": "{(event) => setExportBatch(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">所选原始结果（DAT 数值 / PDT 峰值与背景）</option>",
+      "<option key={run.id} value={`recalc:${run.id}`}> 重算批次 {run.id} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 70,
+    "tag": "select",
+    "label": "报告来源",
+    "value": "{sourceKind}",
+    "handler": "{(event) => setSourceKind(event.target.value as typeof sourceKind)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"analysis\">已完成分析运行</option>",
+      "<option value=\"dat\">已导入旧 DAT 结果</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 75,
+    "tag": "input",
+    "label": "旧结果单位",
+    "value": "{legacyUnit}",
+    "handler": "{(event) => setLegacyUnit(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 77,
+    "tag": "input",
+    "label": "DAT #  ·",
+    "value": "{legacySelected.includes(source.id)}",
+    "handler": "{() => setLegacySelected((current) => current.includes(source.id) ? current.filter((id) => id !== source.id) : [...current, source.id])}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 87,
+    "tag": "input",
+    "label": "#  ·  v  ·",
+    "value": "{selected.includes(run.id)}",
+    "handler": "{() => toggle(run.id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 102,
+    "tag": "input",
+    "label": "报告编号（可选）",
+    "value": "{reportNumber}",
+    "handler": "{(event) => setReportNumber(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 110,
+    "tag": "select",
+    "label": "报告模板",
+    "value": "{templateKey}",
+    "handler": "{(event) => setTemplateKey(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={template.key} value={template.key}> {template.name} v{template.version} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 132,
+    "tag": "input",
+    "label": "样品筛选",
+    "value": "{sampleFilter}",
+    "handler": "{(event) => setSampleFilter(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "line": 140,
+    "tag": "input",
+    "label": "元素筛选",
+    "value": "{elementFilter}",
+    "handler": "{(event) => setElementFilter(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+    "line": 52,
+    "tag": "input",
+    "label": "输出目录",
+    "value": "{directory}",
+    "handler": "{(event) => setDirectory(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+    "line": 56,
+    "tag": "input",
+    "label": "文件名",
+    "value": "{filename}",
+    "handler": "{(event) => setFilename(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportExportPanel.tsx",
+    "line": 64,
+    "tag": "select",
+    "label": "Windows 打印机",
+    "value": "{printerName}",
+    "handler": "{(event) => setPrinterName(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={printer.name} value={printer.name}> {printer.display_name} {printer.virtual ? ' · 可自动验收' : ''} </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/reports/ReportOutput.tsx",
+    "line": 32,
+    "tag": "select",
+    "label": "选择报告版本",
+    "value": "{active?.id ?? ''}",
+    "handler": "{(event) => { const report = reports.find((item) => item.id === Number(event.target.value)) if (report) void selectReport(report) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\" disabled> 请选择版本 </option>",
+      "<option key={report.id} value={report.id}> {report.report_number} v{report.version} · {report.status} · {report.source_run_ids.length} 个运行 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 150,
+    "tag": "input",
+    "label": "",
+    "value": "",
+    "handler": "{(event) => { const file = event.target.files?.[0] if (file) void importFile(file) }}",
+    "folded": [],
+    "type": "\"file\""
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 174,
+    "tag": "select",
+    "label": "选择样品队列",
+    "value": "{selected?.id ?? ''}",
+    "handler": "{(event) => setSelected(queues.find((queue) => queue.id === Number(event.target.value)) ?? null)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"\">{loading ? '正在读取…' : '新建队列'}</option>",
+      "<option key={queue.id} value={queue.id}> {queue.name} · {queue.record_count} 条记录 · {queue.expanded_bands} 谱带 </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 207,
+    "tag": "select",
+    "label": "样号长度",
+    "value": "{nameLength}",
+    "handler": "{event => void changeNameLength(Number(event.target.value) as 10 | 12 | 20)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value={10} disabled={selected?.name_length !== 10}>旧版 10 字节</option>",
+      "<option value={12}>12 位</option>",
+      "<option value={20}>20 位</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 216,
+    "tag": "input",
+    "label": "队列名称",
+    "value": "{name}",
+    "handler": "{(event) => setName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 221,
+    "tag": "input",
+    "label": "样品名",
+    "value": "{entryName}",
+    "handler": "{(event) => setEntryName(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 229,
+    "tag": "EmptyableNumberInput",
+    "label": "重复次数",
+    "value": "{repeats}",
+    "handler": "{(value) => { setUseMethodRepeats(false); setRepeats(value) }}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "line": 235,
+    "tag": "input",
+    "label": "按当前方法默认次数",
+    "value": "{useMethodRepeats}",
+    "handler": "{(event) => setUseMethodRepeats(event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 63,
+    "tag": "input",
+    "label": "",
+    "value": "",
+    "handler": "{(event) => onPickedDirectory(event.target.files)}",
+    "folded": [],
+    "type": "\"file\""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 95,
+    "tag": "input",
+    "label": "",
+    "value": "{value}",
+    "handler": "{(event) => changeDirectory(key, event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 117,
+    "tag": "select",
+    "label": "界面主题",
+    "value": "{draft.display.theme}",
+    "handler": "{(event) => setDraft({ ...draft, display: { ...draft.display, theme: event.target.value } })}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"light\">浅色工作区</option>",
+      "<option value=\"dark\">深色工作区</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 127,
+    "tag": "select",
+    "label": "信息密度",
+    "value": "{draft.display.density}",
+    "handler": "{(event) => setDraft({ ...draft, display: { ...draft.display, density: event.target.value } })}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"comfortable\">舒适</option>",
+      "<option value=\"compact\">紧凑</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 137,
+    "tag": "input",
+    "label": "显示侧栏运行状态  显示本地服务连接状态和版本",
+    "value": "{draft.display.show_status_bar}",
+    "handler": "{(event) => setDraft({ ...draft, display: { ...draft.display, show_status_bar: event.target.checked } }) }",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 155,
+    "tag": "select",
+    "label": "日志级别",
+    "value": "{draft.logging.level}",
+    "handler": "{(event) => setDraft({ ...draft, logging: { ...draft.logging, level: event.target.value } })}",
+    "folded": [
+      "\"高级维护设置\""
+    ],
+    "type": "",
+    "options": [
+      "<option value=\"debug\">调试</option>",
+      "<option value=\"info\">信息</option>",
+      "<option value=\"warning\">警告</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 166,
+    "tag": "EmptyableNumberInput",
+    "label": "日志保留天数",
+    "value": "{draft.logging.retention_days}",
+    "handler": "{(value) => setDraft({ ...draft, logging: { ...draft.logging, retention_days: value } })}",
+    "folded": [
+      "\"高级维护设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 175,
+    "tag": "EmptyableNumberInput",
+    "label": "日志上限（字节）",
+    "value": "{draft.logging.max_bytes}",
+    "handler": "{(value) => setDraft({ ...draft, logging: { ...draft.logging, max_bytes: value } })}",
+    "folded": [
+      "\"高级维护设置\""
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "line": 184,
+    "tag": "select",
+    "label": "时区",
+    "value": "{draft.time.timezone}",
+    "handler": "{(event) => setDraft({ ...draft, time: { ...draft.time, timezone: event.target.value } })}",
+    "folded": [
+      "\"高级维护设置\""
+    ],
+    "type": "",
+    "options": [
+      "<option>Asia/Shanghai</option>",
+      "<option>UTC</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/LegacySpectrumViewerPage.tsx",
+    "line": 347,
+    "tag": "EmptyableNumberInput",
+    "label": "参考线偏移 | nm",
+    "value": "{referenceShift}",
+    "handler": "{setReferenceShift}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/LegacySpectrumViewerPage.tsx",
+    "line": 352,
+    "tag": "select",
+    "label": "\"原始帧阶段\"",
+    "value": "{framePhase}",
+    "handler": "{(event) => setFramePhase(event.target.value as 'burn' | 'dark')}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"burn\">燃烧帧</option>",
+      "<option value=\"dark\">暗帧</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/LegacySpectrumViewerPage.tsx",
+    "line": 360,
+    "tag": "EmptyableNumberInput",
+    "label": "",
+    "value": "{frameIndex}",
+    "handler": "{(value) => setFrameIndex(Math.max(0, value))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumQueryToolbar.tsx",
+    "line": 33,
+    "tag": "select",
+    "label": "\"谱图来源\"",
+    "value": "{sourceKind}",
+    "handler": "{(event) => { setSourceKind(event.target.value) setOffset(0) }}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"all\">全部</option>",
+      "<option value=\"raw\">旧谱图</option>",
+      "<option value=\"result\">旧结果</option>",
+      "<option value=\"sample\">新采集样品</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumQueryToolbar.tsx",
+    "line": 49,
+    "tag": "input",
+    "label": "\"检索谱图\"",
+    "value": "{search}",
+    "handler": "{(event) => { setSearch(event.target.value) setOffset(0) }}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumQueryToolbar.tsx",
+    "line": 60,
+    "tag": "input",
+    "label": "\"检索转角\"",
+    "value": "{angleFilter === 'all' ? '' : angleFilter}",
+    "handler": "{(event) => { setAngleFilter(event.target.value || 'all') setOffset(0) }}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "line": 41,
+    "tag": "select",
+    "label": "转角",
+    "value": "{angleFilter}",
+    "handler": "{(event) => setAngleFilter(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"all\">全部（含未记录）</option>",
+      "<option value={String(angle)} key={angle}> {angle}° </option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "line": 60,
+    "tag": "input",
+    "label": "",
+    "value": "{displayIds.includes(record.id)}",
+    "handler": "{() => toggleOverlay(record.id)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 477,
+    "tag": "EmptyableNumberInput",
+    "label": "参考校正 | ",
+    "value": "{referenceShift}",
+    "handler": "{setReferenceShift}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 484,
+    "tag": "input",
+    "label": "谱线定位",
+    "value": "{locateValue}",
+    "handler": "{(event) => setLocateValue(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 495,
+    "tag": "input",
+    "label": "曝光区间 | –",
+    "value": "{exposureEnabled}",
+    "handler": "{(event) => setExposureEnabled(event.target.checked)}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 501,
+    "tag": "EmptyableNumberInput",
+    "label": "曝光区间 | –",
+    "value": "{exposureStart}",
+    "handler": "{(value) => setExposureStart(Math.max(1, Math.min(maxExposure, value)))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 508,
+    "tag": "EmptyableNumberInput",
+    "label": "曝光区间 | –",
+    "value": "{exposureEnd}",
+    "handler": "{(value) => setExposureEnd(Math.max(exposureStart, Math.min(maxExposure, value)))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 518,
+    "tag": "select",
+    "label": "\"原始帧阶段\"",
+    "value": "{framePhase}",
+    "handler": "{(event) => setFramePhase(event.target.value as 'burn' | 'dark')}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"burn\">燃烧帧</option>",
+      "<option value=\"dark\">暗帧</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "line": 526,
+    "tag": "EmptyableNumberInput",
+    "label": "\"原始帧序号\"",
+    "value": "{frameIndex}",
+    "handler": "{(value) => setFrameIndex(Math.max(0, value))}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/components/AnalysisUnitSelect.tsx",
+    "line": 11,
+    "tag": "select",
+    "label": "{label}",
+    "value": "{custom ? '__custom__' : value}",
+    "handler": "{(event) => onChange(event.target.value === '__custom__' ? '' : event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option key={unit} value={unit}>{unit}</option>",
+      "<option value=\"__custom__\">自定义</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/components/AnalysisUnitSelect.tsx",
+    "line": 17,
+    "tag": "input",
+    "label": "{`${label}自定义值`}",
+    "value": "{value}",
+    "handler": "{(event) => onChange(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/components/LegacySourcePicker.tsx",
+    "line": 87,
+    "tag": "input",
+    "label": "\"旧版目录\"",
+    "value": "{root}",
+    "handler": "{(event) => setRoot(event.target.value)}",
+    "folded": [
+      "details"
+    ],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/components/LegacySourcePicker.tsx",
+    "line": 117,
+    "tag": "input",
+    "label": "\"筛选旧版文件\"",
+    "value": "{filter}",
+    "handler": "{(event) => setFilter(event.target.value)}",
+    "folded": [],
+    "type": ""
+  },
+  {
+    "file": "app/frontend/src/components/MessagePanel.tsx",
+    "line": 40,
+    "tag": "select",
+    "label": "\"按状态过滤\"",
+    "value": "{filter}",
+    "handler": "{(event) => setFilter(event.target.value)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"all\">全部状态</option>",
+      "<option value=\"success\">完成</option>",
+      "<option value=\"info\">信息</option>",
+      "<option value=\"warning\">警告</option>",
+      "<option value=\"error\">错误</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/components/MessagePanel.tsx",
+    "line": 60,
+    "tag": "input",
+    "label": "全选",
+    "value": "{selectAll}",
+    "handler": "{setSelectAll}",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/components/MessagePanel.tsx",
+    "line": 80,
+    "tag": "input",
+    "label": " | ",
+    "value": "{selected.includes(event.id)}",
+    "handler": "{() => setSelected( selected.includes(event.id) ? selected.filter((id) => id !== event.id) : [...selected, event.id] ) }",
+    "folded": [],
+    "type": "\"checkbox\""
+  },
+  {
+    "file": "app/frontend/src/components/NumericInput.tsx",
+    "line": 137,
+    "tag": "input",
+    "label": "",
+    "value": "{text}",
+    "handler": "{(event) => { const nextText = event.target.value if (!PARTIAL_NUMBER.test(nextText.trim())) return setText(nextText) const result = applyValidity(nextText, false) if (!result.message && result.value !== null) (onValueChange as (next: number) => void)(result.value) }}",
+    "folded": [],
+    "type": "\"text\""
+  },
+  {
+    "file": "app/frontend/src/components/SpectrumInspector.tsx",
+    "line": 69,
+    "tag": "select",
+    "label": "\"谱图工具\"",
+    "value": "{tool}",
+    "handler": "{(event) => setTool(event.target.value as typeof tool)}",
+    "folded": [],
+    "type": "",
+    "options": [
+      "<option value=\"crosshair\">十字线</option>",
+      "<option value=\"pan\">平移</option>",
+      "<option value=\"box\">框选缩放</option>"
+    ]
+  },
+  {
+    "file": "app/frontend/src/components/SpectrumInspector.tsx",
+    "line": 92,
+    "tag": "NumericInput",
+    "label": "",
+    "value": "{point}",
+    "handler": "{readPoint}",
+    "folded": [],
+    "type": ""
+  }
+]

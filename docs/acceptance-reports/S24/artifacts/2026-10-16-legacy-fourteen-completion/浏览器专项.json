@@ -1,0 +1,235 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": "F01",
+      "message": "Actual locate button uses all burn/dark means; independent unequal-period and damaged-frame tests also pass"
+    },
+    {
+      "id": "F02",
+      "message": "Gap selection/increments update a separate layout and create a new fit without changing old geometry"
+    },
+    {
+      "id": "F03",
+      "message": "Existing wavelength updates in place, preserving line identity and saved point"
+    },
+    {
+      "id": "F10",
+      "message": "File input imports Chinese GB18030 bytes and preserves original SHA-256"
+    },
+    {
+      "id": "F14",
+      "message": "Enter increments numeric names; comma inserts empty; slash deletes; dot finishes"
+    },
+    {
+      "id": "F04",
+      "message": "Up nudge moves vertically with content on X and intensity on Y"
+    },
+    {
+      "id": "F05",
+      "message": "Logarithmic display transforms both axes; standard X spacing follows ln(content)"
+    },
+    {
+      "id": "F08a",
+      "message": "Analysis wide table outputs native intensity snapshot, TXT and actual print PDF together"
+    },
+    {
+      "id": "F08b",
+      "message": "Imported PDT has dedicated per-repeat peak/background wide table output"
+    },
+    {
+      "id": "F09",
+      "message": "Complete method/line/standard parameter TXT uses the same current snapshot as preview"
+    },
+    {
+      "id": "F11",
+      "message": "Archived CFG/OPT previews and applies software preferences into actual default consumers"
+    },
+    {
+      "id": "F13",
+      "message": "Record lock blocks list and previous/next independently of cursor lock"
+    },
+    {
+      "id": "F12",
+      "message": "100/400 use actual one/four pixels per CCD point; tenfold mode consumes point width and screen dimensions"
+    },
+    {
+      "id": "F06",
+      "message": "Actual report preview consumes A3 portrait, 13pt and system time; service tests verify PDF size, font and pagination"
+    },
+    {
+      "id": "F07",
+      "message": "Report UI creates matrix layout and preview shows sample/element cells; both orientations verified cell-for-cell by service tests"
+    },
+    {
+      "id": "preservation",
+      "message": "Original published method hash remains; isolated test data only"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "target": "samples",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "dispersion",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "analysis",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "spectra",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "postprocessing",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "reports",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "migration",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "methods",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "dark",
+      "target": "samples",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "dispersion",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "analysis",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "spectra",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "postprocessing",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "reports",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "migration",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "methods",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    }
+  ],
+  "facts": {
+    "sam": {
+      "id": 2,
+      "name": "gb-sample",
+      "status": "draft",
+      "source_sha256": "6247db6ebd6bc7d8ec84ad04fa98049d162e96c19d2c4b8910a3e7d581c30a7d",
+      "created_by": 1,
+      "created_at": "2026-10-16T06:37:52.998+00:00",
+      "updated_at": "2026-10-16T06:37:52.998+00:00",
+      "name_length": 10,
+      "items": [
+        {
+          "id": 3,
+          "queue_id": 2,
+          "position": 0,
+          "source_name": "样1",
+          "pre_name": "样1",
+          "post_name": null,
+          "repeats": 1,
+          "expanded_bands": 1,
+          "spectrum_hash": null,
+          "created_at": "2026-10-16T06:37:52.998+00:00",
+          "updated_at": "2026-10-16T06:37:52.998+00:00"
+        }
+      ],
+      "record_count": 1,
+      "expanded_bands": 1
+    },
+    "curve_nudge": {
+      "before": {
+        "x": 313.3333333333333,
+        "y": 213.33333333333331
+      },
+      "after": {
+        "x": 313.3333333333333,
+        "y": 209.55426356589146
+      }
+    },
+    "logarithmic_x": [
+      43.974828528648445,
+      451.9874142643243,
+      690.6594767419704,
+      860
+    ],
+    "pixel_spacing": {
+      "pixel100": 1.0005254934210523,
+      "pixel400": 4.002101973684209,
+      "pixelTen": 0.6528852796052658,
+      "device_pixel_ratio": 1
+    }
+  }
+}

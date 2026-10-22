@@ -12,6 +12,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from .settings import PrintSettings
+from ...printing.paper import paper_css
 
 
 FONT_NAME = "GeoSpectrum-CJK"
@@ -52,7 +53,6 @@ def _register_font() -> tuple[str, str]:
 
 
 class MethodRenderer:
-
     @staticmethod
     def _html_lines(lines: list[str]) -> str:
         return "<br>".join(html.escape(line) for line in lines)
@@ -76,25 +76,25 @@ class MethodRenderer:
                     )
             pages_html.append(
                 f'<article class="preview-page" data-page="{page_index}" style="width:{document["width_mm"]}mm;height:{document["height_mm"]}mm;padding:{settings["margin_top_mm"]}mm {settings["margin_right_mm"]}mm {settings["margin_bottom_mm"]}mm {settings["margin_left_mm"]}mm">'
-                '<header><span>GEOSPECTRUM / METHOD PARAMETERS</span>'
-                f'<strong>{html.escape(method["name"])}</strong><small>v{version["version"]} · {version["state"]}</small></header>'
-                f'<main>{"".join(body)}</main>'
-                f'<footer><span>SHA-256 {version["content_sha256"][:16]}</span><span>{page_index} / {document["page_count"]}</span></footer>'
+                "<header><span>GEOSPECTRUM / METHOD PARAMETERS</span>"
+                f"<strong>{html.escape(method['name'])}</strong><small>v{version['version']} · {version['state']}</small></header>"
+                f"<main>{''.join(body)}</main>"
+                f"<footer><span>SHA-256 {version['content_sha256'][:16]}</span><span>{page_index} / {document['page_count']}</span></footer>"
                 "</article>"
             )
         orientation = settings["orientation"]
         return f"""<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><title>{html.escape(method['name'])} - 方法参数预览</title>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>{html.escape(method["name"])} - 方法参数预览</title>
 <style>
-@page {{ size: {settings['paper']} {orientation}; margin: 0; }}
-* {{ box-sizing: border-box; }} body {{ margin:0; padding:18px; background:#e9eef3; color:#33495f; font-family:'Microsoft YaHei','Noto Sans CJK SC',sans-serif; font-size:{settings['font_size_pt']}pt; }}
+@page {{ size: {paper_css(settings["paper"], orientation)}; margin: 0; }}
+* {{ box-sizing: border-box; }} body {{ margin:0; padding:18px; background:#e9eef3; color:#33495f; font-family:'Microsoft YaHei','Noto Sans CJK SC',sans-serif; font-size:{settings["font_size_pt"]}pt; }}
 .preview-page {{ position:relative; margin:0 auto 18px; overflow:hidden; background:white; box-shadow:0 8px 28px rgba(35,55,76,.14); page-break-after:always; }}
 header {{ height:15mm; display:grid; grid-template-columns:1fr auto; align-items:end; padding-bottom:3mm; border-bottom:1px solid #aac1d8; }} header span {{ grid-column:1/-1; color:#2d73c8; font-size:7pt; letter-spacing:.12em; }} header strong {{ font-size:15pt; }} header small {{ color:#778a9c; }}
 main {{ padding-top:3mm; }} .section-title {{ margin-top:2mm; padding:1.5mm 2mm; color:#245f9f; background:#eaf3fc; border-left:1.2mm solid #347bd1; font-weight:700; }}
 .preview-row {{ display:grid; grid-template-columns:28% 72%; border-bottom:1px solid #e8edf2; page-break-inside:avoid; }} .preview-label,.preview-value {{ padding:1.2mm 2mm; line-height:1.42; }} .preview-label {{ color:#60758a; background:#f8fafc; font-weight:600; }}
-footer {{ position:absolute; left:{settings['margin_left_mm']}mm; right:{settings['margin_right_mm']}mm; bottom:{max(3, settings['margin_bottom_mm']-6)}mm; display:flex; justify-content:space-between; padding-top:2mm; color:#8494a3; border-top:1px solid #dfe7ee; font-size:7pt; }}
+footer {{ position:absolute; left:{settings["margin_left_mm"]}mm; right:{settings["margin_right_mm"]}mm; bottom:{max(3, settings["margin_bottom_mm"] - 6)}mm; display:flex; justify-content:space-between; padding-top:2mm; color:#8494a3; border-top:1px solid #dfe7ee; font-size:7pt; }}
 @media print {{ body {{ padding:0; background:white; }} .preview-page {{ margin:0; box-shadow:none; }} }}
-</style></head><body data-page-count="{document['page_count']}" data-field-count="{document['field_count']}">{''.join(pages_html)}</body></html>"""
+</style></head><body data-page-count="{document["page_count"]}" data-field-count="{document["field_count"]}">{"".join(pages_html)}</body></html>"""
 
     def render_pdf(self, document: dict[str, Any]) -> bytes:
         regular_font, bold_font = _register_font()
@@ -144,11 +144,11 @@ footer {{ position:absolute; left:{settings['margin_left_mm']}mm; right:{setting
                         pdf.rect(left, y - height, right - left, height, stroke=0, fill=1)
                     pdf.setStrokeColor(colors.HexColor("#e5ebf0"))
                     pdf.line(left, y - height, right, y - height)
-                    pdf.setFont(bold_font, settings.font_size_pt - 0.5)
+                    pdf.setFont(bold_font, settings.font_size_pt)
                     pdf.setFillColor(colors.HexColor("#60758a"))
                     for line_index, text in enumerate(row["label_lines"]):
                         pdf.drawString(left + 6, y - line_height * (line_index + 1), text)
-                    pdf.setFont(regular_font, settings.font_size_pt - 0.5)
+                    pdf.setFont(regular_font, settings.font_size_pt)
                     pdf.setFillColor(colors.HexColor("#33495f"))
                     for line_index, text in enumerate(row["value_lines"]):
                         pdf.drawString(left + label_width + 6, y - line_height * (line_index + 1), text)
@@ -163,4 +163,3 @@ footer {{ position:absolute; left:{settings['margin_left_mm']}mm; right:{setting
             pdf.showPage()
         pdf.save()
         return output.getvalue()
-

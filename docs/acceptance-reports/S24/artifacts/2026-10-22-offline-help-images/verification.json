@@ -1,0 +1,71 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-offline-help-images",
+  "plan_sha256_at_start": "d0639af3f9365b9de040e09e0d91c4c56e13dd0ae75bccf8f5cc117f384dccc0",
+  "product_changes": [
+    "app/backend/modules/offline_help.py",
+    "app/frontend/src/pages/help/help.css",
+    "app/frontend/src/pages/help/HelpArticle.tsx",
+    "app/frontend/src/pages/help/helpIllustrations.ts",
+    "app/frontend/src/assets/help/analysis-spectrum.png",
+    "app/frontend/src/assets/help/dispersion-points.png",
+    "app/frontend/src/assets/help/method-parameters.png",
+    "app/frontend/src/assets/help/sample-numbers.png",
+    "app/frontend/src/assets/help/spectral-lines.png",
+    "app/frontend/src/assets/help/standard-curve.png"
+  ],
+  "topics": 33,
+  "illustrated_topics": 6,
+  "text_characters": 8077,
+  "total_image_bytes": 126856,
+  "image_keys": [
+    [
+      "dispersion-points"
+    ],
+    [
+      "method-parameters"
+    ],
+    [
+      "spectral-lines"
+    ],
+    [
+      "sample-numbers"
+    ],
+    [
+      "analysis-spectrum"
+    ],
+    [
+      "standard-curve"
+    ]
+  ],
+  "backend_tests": 5,
+  "browser_checks": 7,
+  "desktop_checks": 7,
+  "layouts_each": 2,
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-offline-help-images\\qa\\GeoSpectrum.exe",
+    "pid": 26892,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "schema_version": 23,
+  "new_schema_migrations": false,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "original_chm_preserved": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_fresh_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "7c42442dbfbd680337dad61195c8038080bf16f50a6b17212b255ffa1f7962fa",
+    "geospectrum-backend.exe": "2953fd34b77692bc9b64b422a2c76bf824b2da7dd367683a19139eb29b23c33a"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-offline-help-images\\previous",
+  "installer_rebuilt": false
+}

@@ -9,7 +9,7 @@
 ## 2. 代码入口
 
 - 公共入口：[`analysis/__init__.py`](../../app/backend/modules/analysis/__init__.py)，保留 AnalysisService、AnalysisError 和公开算法。
-- 分析运行：[`analysis/service.py`](../../app/backend/modules/analysis/service.py)，创建、运行、慢进干预与取消；显式组合下面三个服务。
+- 分析运行：[`analysis/service.py`](../../app/backend/modules/analysis/service.py)，创建、运行、慢进干预与取消；显式组合领域服务和输入处理。
 - 纯算法：[`analysis/algorithms.py`](../../app/backend/modules/analysis/algorithms.py)，不依赖数据库或 PDF。
 - 质控：[`analysis/quality.py`](../../app/backend/modules/analysis/quality.py)；曲线调整/拟合/发布/合并：[`analysis/curves.py`](../../app/backend/modules/analysis/curves.py)。
 - 曲线预览与 PDF：[`analysis/printing.py`](../../app/backend/modules/analysis/printing.py)。
@@ -63,7 +63,7 @@
 
 ## 8. 推荐阅读顺序
 
-纯函数 → `create_run()` → `_line_candidate()` → `step()` → `intervene()` → `_qc_groups()` → `build_quality()` → `curve_action()` → `fit_standard_curve()` → `publish_standard_curve()` → `merge_results()`。
+纯函数 → `create_run()` → `AnalysisInputs.candidate()` → `calculate_candidate()` → `step()` → `intervene()` → `_qc_groups()` → `build_quality()` → `curve_action()` → `fit_standard_curve()` → `publish_standard_curve()` → `merge_results()`。
 
 ## 9. 修改检查
 
@@ -75,6 +75,16 @@
 - 预览、打印、后处理和报告是否读取同一曲线快照。
 - 运行 S16、S17 测试以及相关数值黄金样例。
 
-## 2026-09-14 内部解耦更新
+## 实现分工
 
-`Runtime.analysis_service()` 显式注入方法服务；分析服务与仓储通过 `bind_snapshots()` 在原连接读取固定版本，不直接查询方法表。创建运行要求已发布版本，运行读取使用已固定版本，不随最新草稿变化。后处理通过 `analysis/contracts.py` 的小型契约调用分析。几何换算仍使用方法服务的 `_layout`、`_dispersion`、`_reference_position`，属于本轮之外的剩余私有依赖。
+分析运行服务现在调用 `inputs.py::AnalysisInputs.prepare_run` 在原创建事务中验证样品、方法版本并组织输入快照；`AnalysisInputs.candidate` 读取/校验谱带和历史逐线结果，再调用 `candidate.py::calculate_candidate`。候选数值函数只接受普通字典、数值、数组，不接收 SQLite 或请求模型；内标有效性和数值错误顺序保持。`rules.py` 拥有 `_operational_lines`、`_analysis_lines` 与基于普通 QC 分组的 `_base_curve_points`，仓储只查询并交给这些规则。原算法、质控、曲线、打印服务继续复用。前端运行表单、干预、原始结果、质控、曲线、标准点及样品结果分别进入 `AnalysisRunForm/Intervention/RawResults/Quality/Curves/Standards/Samples`，`CurveChart.tsx` 独立；当前运行、请求身份、自动推进及草稿由父页统一拥有。
+
+方法读取通过 `bind_snapshots()`，几何定位通过 `bind_geometry()`及定位器完成。
+
+## 当前曝光、单位与曲线微调（2026-10-16）
+
+`AnalysisSpectrum.tsx` 选择谱线后，以该分析输入固化的曝光区间请求观察谱带，服务核对原样品/谱带哈希；全谱观察和该线定量使用的区段要分清。任意点明细显示燃烧/空白原值，观察不会回写已生成结果。
+
+`AnalysisStandards.tsx`、`AnalysisCurves.tsx`、`CurveChart.tsx` 显示已有反算值及 `relative_error_percent`，表格、HTML和PDF保留相对误差。曲线图可选标准点、切换1/5标尺并用Ctrl方向键微调；修改工作点后旧拟合标记为过期，须重新拟合才能打印/发布。
+
+分析单位为 `ug/g / mg/g / %`，同时贯通方法标准值/有效范围/精度、曲线、即时测量、样品结果、重算和报告。计算模式界面名为“旧版兼容”“新版定量（支持峰面积）”，真实标识仍为 `legacy_2_0_2`、`modern_v1`。证据见 [最新操作验证](../acceptance-reports/S24/artifacts/2026-10-16-legacy-ten-completion/实施清单.md)。

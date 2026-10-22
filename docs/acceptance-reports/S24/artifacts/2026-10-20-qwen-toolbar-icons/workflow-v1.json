@@ -1,0 +1,149 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "加载 DiT 主模型 (INT8)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载文本编码器 (Qwen3-VL W4A8)"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载 VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "prompt": "请将参考图里的八个老软件图标重绘成清晰精致的高清桌面工具栏图标集。\n严格保留参考图的四列两行布局、每个图标所在格子、图形含义和主要配色，绝不能增加、遗漏、调换或合并图标。\n第一行从左到右：1 白色纸张、浅蓝灰色轮廓、右上折角的新建文件图标；2 金黄色打开的文件夹与朝右的绿色箭头；3 蓝紫色软盘，灰白色顶部和白色下部标签；4 三个蓝色小方框与三条深蓝灰色水平线组成的方法参数列表。\n第二行从左到右：1 三根蓝色纵向谱线柱，其中中间有金黄色细节；2 白色清单纸、蓝色边线、三行蓝色条目，右侧一支红色铅笔；3 圆角深蓝色方形背景中一个亮黄色闪电；4 鲜绿色圆环包围朝右的白色播放三角形。\n这是用于Windows科学仪器软件的24像素工具栏，采用统一的现代扁平矢量图标风格，形状简洁，深蓝灰色清晰轮廓，线条中等偏粗，圆角自然，边缘平滑锐利，色块干净饱满，细节适度简化，缩小后仍然一眼可辨。保留经典图标的识别特征，去掉老图的像素锯齿和模糊边缘。不是像素画，不是照片，不是3D渲染，不使用发光或模糊。\n画布必须为1536乘768像素，四列两行，八个384乘384像素格子。每个图标位于自己格子的正中央，图形占格子宽度约百分之六十五，四周留足均匀空白。所有图标视觉大小协调一致。\n背景为纯白色RGB255,255,255，所有格子背景完全一致。无文字、无字母数字、无说明、无格线、无边框、无阴影、无背景纹理、无水印。图标本身的白色纸张和白色标签保留为白色。仅绘制八个互相独立的图标。",
+      "negative_prompt": "",
+      "resolution": 0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_1": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Qwen 2.1 文本/多模态条件编码"
+    }
+  },
+  "6": {
+    "inputs": {
+      "seed": 2026102008,
+      "steps": 30,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "4",
+        1
+      ],
+      "latent_image": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (30 steps / CFG 1.0)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "geospectrum/icons-20261020/toolbar-hd-v1",
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "10": {
+    "class_type": "ModelAttentionBackend",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "attention": "comfy kitchen attention"
+    },
+    "_meta": {
+      "title": "Comfy Kitchen Attention (INT8)"
+    }
+  },
+  "11": {
+    "class_type": "EasyCache",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "reuse_threshold": 0.1,
+      "start_percent": 0.15,
+      "end_percent": 0.85,
+      "verbose": false
+    },
+    "_meta": {
+      "title": "EasyCache (0.10 / 0.15-0.85)"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "geospectrum-icons-20261020/legacy-icon-reference.png"
+    }
+  }
+}

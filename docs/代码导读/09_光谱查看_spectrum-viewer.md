@@ -54,3 +54,14 @@
 - CSV、PDF 是否只包含当前可见范围。
 - 损坏 BLOB 和无效系数是否产生明确错误。
 - 运行 S10 后端测试和前端构建。
+
+
+## 实现分工
+
+谱图服务继续负责来源选择、坐标兼容、区间和可见范围验证。`spectrum_pdf.py::render_spectrum_pdf` 接收选好的曲线、坐标范围和显示信息，只负责字体、绘制、分页及字节输出。前端 `SpectrumViewerPage` 统一持有选择、加载代次和视图状态；`SpectrumQueryToolbar.tsx`、`SpectrumRecordList.tsx`、`SpectrumViewToolbar.tsx` 分别呈现查询、来源列表和视图操作，继续使用现有 `SpectrumPlot`。
+
+## 当前观察和输出操作（2026-10-16）
+
+`SpectrumViewToolbar.tsx`、`SpectrumPlot.tsx` 与 `SpectrumPointDetails.tsx` 提供以下入口：多样叠加的同点强度表、任意点全部燃烧/空白原始积分明细及复制/PDF、输入 `CCD,点号` 跨CCD定位、左右逐点和上下缩放。界面点号从1开始。
+
+CCD打印可选灰度/峰形图层及宽边、窄边、十倍CCD比例；至少选择一个图层，十倍比例需校验纸张可容纳。可见区域PDF与CCD比例打印分别使用各自模型，不能混用范围和比例。明细复制/输出执行权限及审计，损坏帧拒绝读取；观察不回写历史分析结果。证据与实体打印边界见 [十项实施清单第3、4、8、9项](../acceptance-reports/S24/artifacts/2026-10-16-legacy-ten-completion/实施清单.md)。

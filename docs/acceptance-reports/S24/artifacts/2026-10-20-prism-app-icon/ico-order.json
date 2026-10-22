@@ -1,0 +1,28 @@
+{
+  "original_order": [
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    96,
+    128,
+    256
+  ],
+  "native_order": [
+    256,
+    128,
+    96,
+    64,
+    48,
+    40,
+    32,
+    24,
+    20,
+    16
+  ],
+  "all_frame_payloads_preserved": true,
+  "reason": "Tauri CachedIcon::new_ico decodes entry 0 for the default window icon; place 256px first."
+}

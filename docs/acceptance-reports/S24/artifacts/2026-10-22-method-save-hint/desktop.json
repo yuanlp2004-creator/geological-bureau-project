@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "checks": [
+    "The footer contains only the save button; the version/history hint is absent",
+    "The footer save button persists edits and preserves existing method versions",
+    "Invalid numeric input remains on screen and does not create a version",
+    "Current and non-current methods both show only the save button in the footer",
+    "Wide light and narrow dark layouts retain the save button on the right without overflow"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "geometry": {
+        "width": 1440,
+        "overflow": 0,
+        "right": 17,
+        "left": 1276,
+        "bottom": 791,
+        "height": 1000,
+        "justify": "flex-end"
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "geometry": {
+        "width": 1060,
+        "overflow": 0,
+        "right": 17,
+        "left": 904,
+        "bottom": 471,
+        "height": 680,
+        "justify": "flex-end"
+      }
+    }
+  ]
+}

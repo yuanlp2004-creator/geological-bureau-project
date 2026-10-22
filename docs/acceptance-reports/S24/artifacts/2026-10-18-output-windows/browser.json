@@ -1,0 +1,302 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    },
+    "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+    "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 1332,
+          "right": 1412
+        },
+        {
+          "left": 274,
+          "right": 445
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.953125
+        },
+        {
+          "left": 365.953125,
+          "right": 443.046875
+        },
+        {
+          "left": 451.046875,
+          "right": 530.046875
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 1306,
+          "right": 1412
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.953125
+        },
+        {
+          "left": 365.953125,
+          "right": 443.046875
+        },
+        {
+          "left": 451.046875,
+          "right": 530.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 964,
+          "right": 1044
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 938,
+          "right": 1044
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 964,
+          "right": 1044
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 938,
+          "right": 1044
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## 1. 模块定位
 
-本模块提供运行状态、在线备份、备份验证、恢复演练、WAL 检查点、优化、空间回收、保留策略、日志/临时文件清理和内置帮助。原则是先验证再操作，并且恢复演练只针对隔离副本，不直接覆盖当前业务库。
+当前界面保留备份数据库、整理数据库（空间回收）、清理历史日志三项操作，以及备份记录、校验和默认收起的管理员系统诊断。其余既有维护API保留兼容，不再提供页面按钮；维护记录仍在数据库留存。原则是先验证再操作，不直接覆盖当前业务库。
 
 ## 2. 代码入口
 
@@ -10,7 +10,7 @@
 - 数据库封装：[`db.py`](../../app/backend/db.py)
 - API：[`api/maintenance.py`](../../app/backend/api/maintenance.py)；`/api/v1/maintenance` 和帮助相关路由
 - 请求模型：[`schemas/maintenance.py`](../../app/backend/schemas/maintenance.py)。
-- 前端：`App.tsx` 中的 `MaintenancePage`、`HelpPage`
+- 前端：`frontend/src/pages/maintenance/MaintenancePage.tsx`、`SystemDiagnostics.tsx`及帮助页；诊断展开后才挂载、请求。
 - 测试：[`tests/test_s20_maintenance.py`](../../app/tests/test_s20_maintenance.py)
 
 ## 3. 完整性快照

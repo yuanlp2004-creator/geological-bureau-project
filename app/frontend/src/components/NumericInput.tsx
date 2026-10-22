@@ -1,7 +1,18 @@
-import { useEffect, useId, useRef, useState, type FocusEvent, type InputHTMLAttributes, type KeyboardEvent } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FocusEvent,
+  type InputHTMLAttributes,
+  type KeyboardEvent
+} from 'react'
 import { PARTIAL_NUMBER, validateNumericText } from './numericInputModel'
 
-type CommonProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step' | 'required'> & {
+type CommonProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step' | 'required'
+> & {
   min?: number | string
   max?: number | string
   step?: number | string
@@ -22,8 +33,12 @@ type OptionalNumericInputProps = CommonProps & {
 export type NumericInputProps = RequiredNumericInputProps | OptionalNumericInputProps
 
 export function reportInvalidNumericInput(root: ParentNode | null = document): boolean {
-  const invalid = root?.querySelector<HTMLInputElement>('[data-numeric-input]:invalid:not(:disabled)')
+  const invalid = root?.querySelector<HTMLInputElement>('[data-numeric-input]:invalid:not(:disabled):not([data-observation-input])')
   if (!invalid) return true
+  // 收起的高级设置仍参与校验，先展开再将错误定位给用户。
+  for (let parent = invalid.parentElement; parent; parent = parent.parentElement) {
+    if (parent instanceof HTMLDetailsElement) parent.open = true
+  }
   invalid.focus()
   invalid.reportValidity()
   return false
@@ -70,7 +85,7 @@ export function NumericInput(props: NumericInputProps) {
     if (result.value === null) {
       if (required === false) (onValueChange as (next: number | null) => void)(null)
     } else {
-      (onValueChange as (next: number) => void)(result.value)
+      ;(onValueChange as (next: number) => void)(result.value)
     }
     return true
   }
@@ -111,35 +126,41 @@ export function NumericInput(props: NumericInputProps) {
       if (focusValue.current === null) {
         if (required === false) (onValueChange as (next: number | null) => void)(null)
       } else {
-        (onValueChange as (next: number) => void)(focusValue.current)
+        ;(onValueChange as (next: number) => void)(focusValue.current)
       }
     }
   }
 
   const errorVisible = touched && error
-  return <>
-    <input
-      {...inputProps}
-      ref={inputRef}
-      type="text"
-      inputMode="decimal"
-      className={[className, 'numeric-input', errorVisible ? 'numeric-input-invalid' : ''].filter(Boolean).join(' ')}
-      value={text}
-      required={required}
-      aria-invalid={Boolean(errorVisible)}
-      aria-describedby={[describedBy, errorVisible ? errorId : null].filter(Boolean).join(' ') || undefined}
-      data-numeric-input="true"
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      onChange={(event) => {
-        const nextText = event.target.value
-        if (!PARTIAL_NUMBER.test(nextText.trim())) return
-        setText(nextText)
-        const result = applyValidity(nextText, false)
-        if (!result.message && result.value !== null) (onValueChange as (next: number) => void)(result.value)
-      }}
-    />
-    {errorVisible && <small className="numeric-input-error" id={errorId} role="alert">{error}</small>}
-  </>
+  return (
+    <>
+      <input
+        {...inputProps}
+        ref={inputRef}
+        type="text"
+        inputMode="decimal"
+        className={[className, 'numeric-input', errorVisible ? 'numeric-input-invalid' : ''].filter(Boolean).join(' ')}
+        value={text}
+        required={required}
+        aria-invalid={Boolean(errorVisible)}
+        aria-describedby={[describedBy, errorVisible ? errorId : null].filter(Boolean).join(' ') || undefined}
+        data-numeric-input="true"
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        onChange={(event) => {
+          const nextText = event.target.value
+          if (!PARTIAL_NUMBER.test(nextText.trim())) return
+          setText(nextText)
+          const result = applyValidity(nextText, false)
+          if (!result.message && result.value !== null) (onValueChange as (next: number) => void)(result.value)
+        }}
+      />
+      {errorVisible && (
+        <small className="numeric-input-error" id={errorId} role="alert">
+          {error}
+        </small>
+      )}
+    </>
+  )
 }

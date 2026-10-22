@@ -1,0 +1,348 @@
+{
+  "original_rows_checked": 1026,
+  "original_rows_changed": [],
+  "counts": {
+    "schema_migrations": {
+      "before": 14,
+      "after": 14
+    },
+    "app_metadata": {
+      "before": 2,
+      "after": 2
+    },
+    "app_settings": {
+      "before": 0,
+      "after": 0
+    },
+    "runtime_events": {
+      "before": 78,
+      "after": 78
+    },
+    "users": {
+      "before": 1,
+      "after": 1
+    },
+    "roles": {
+      "before": 4,
+      "after": 4
+    },
+    "permissions": {
+      "before": 54,
+      "after": 54
+    },
+    "user_roles": {
+      "before": 1,
+      "after": 1
+    },
+    "role_permissions": {
+      "before": 116,
+      "after": 116
+    },
+    "audit_events": {
+      "before": 265,
+      "after": 359
+    },
+    "methods": {
+      "before": 11,
+      "after": 20
+    },
+    "method_versions": {
+      "before": 24,
+      "after": 33
+    },
+    "ccd_layouts": {
+      "before": 3,
+      "after": 6
+    },
+    "device_profiles": {
+      "before": 1,
+      "after": 2
+    },
+    "dispersion_calibrations": {
+      "before": 7,
+      "after": 15
+    },
+    "dispersion_tasks": {
+      "before": 2,
+      "after": 3
+    },
+    "dispersion_task_frames": {
+      "before": 40,
+      "after": 155
+    },
+    "dispersion_task_lines": {
+      "before": 0,
+      "after": 0
+    },
+    "dispersion_calibration_versions": {
+      "before": 1,
+      "after": 1
+    },
+    "method_calibration_bindings": {
+      "before": 0,
+      "after": 0
+    },
+    "method_runtime_state": {
+      "before": 1,
+      "after": 1
+    },
+    "method_print_jobs": {
+      "before": 2,
+      "after": 2
+    },
+    "legacy_migration_runs": {
+      "before": 1,
+      "after": 3
+    },
+    "legacy_import_entities": {
+      "before": 18,
+      "after": 39
+    },
+    "legacy_configuration_profiles": {
+      "before": 1,
+      "after": 3
+    },
+    "sample_queues": {
+      "before": 2,
+      "after": 4
+    },
+    "sample_queue_items": {
+      "before": 7,
+      "after": 907
+    },
+    "acquisition_tasks": {
+      "before": 3,
+      "after": 22
+    },
+    "acquisition_samples": {
+      "before": 2,
+      "after": 39
+    },
+    "acquisition_frames": {
+      "before": 20,
+      "after": 3780
+    },
+    "acquisition_sample_bands": {
+      "before": 5,
+      "after": 190
+    },
+    "acquisition_intervals": {
+      "before": 0,
+      "after": 0
+    },
+    "acquisition_messages": {
+      "before": 14,
+      "after": 16
+    },
+    "analysis_runs": {
+      "before": 0,
+      "after": 5
+    },
+    "analysis_run_samples": {
+      "before": 0,
+      "after": 43
+    },
+    "analysis_checkpoints": {
+      "before": 0,
+      "after": 0
+    },
+    "analysis_interventions": {
+      "before": 0,
+      "after": 0
+    },
+    "analysis_line_results": {
+      "before": 0,
+      "after": 280
+    },
+    "analysis_messages": {
+      "before": 0,
+      "after": 13
+    },
+    "analysis_qc_decisions": {
+      "before": 0,
+      "after": 0
+    },
+    "analysis_qc_snapshots": {
+      "before": 0,
+      "after": 3
+    },
+    "analysis_curve_actions": {
+      "before": 0,
+      "after": 0
+    },
+    "analysis_curve_adjustment_sets": {
+      "before": 0,
+      "after": 9
+    },
+    "analysis_curve_snapshots": {
+      "before": 0,
+      "after": 9
+    },
+    "analysis_active_curves": {
+      "before": 0,
+      "after": 9
+    },
+    "analysis_curve_results": {
+      "before": 0,
+      "after": 57
+    },
+    "analysis_result_merges": {
+      "before": 0,
+      "after": 3
+    },
+    "analysis_curve_print_jobs": {
+      "before": 0,
+      "after": 0
+    },
+    "hardware_tasks": {
+      "before": 2,
+      "after": 2
+    },
+    "hardware_plan_steps": {
+      "before": 6,
+      "after": 6
+    },
+    "hardware_frames": {
+      "before": 15,
+      "after": 15
+    },
+    "hardware_traces": {
+      "before": 14,
+      "after": 14
+    },
+    "hardware_decisions": {
+      "before": 3,
+      "after": 3
+    },
+    "hardware_messages": {
+      "before": 6,
+      "after": 6
+    },
+    "mercury_reference_lines": {
+      "before": 5,
+      "after": 5
+    },
+    "mercury_sessions": {
+      "before": 1,
+      "after": 1
+    },
+    "mercury_session_lines": {
+      "before": 4,
+      "after": 4
+    },
+    "mercury_frames": {
+      "before": 0,
+      "after": 0
+    },
+    "mercury_alignment_versions": {
+      "before": 1,
+      "after": 1
+    },
+    "mercury_active_alignments": {
+      "before": 1,
+      "after": 1
+    },
+    "mercury_traces": {
+      "before": 1,
+      "after": 1
+    },
+    "mercury_messages": {
+      "before": 2,
+      "after": 2
+    },
+    "spectrum_migration_runs": {
+      "before": 1,
+      "after": 8
+    },
+    "spectrum_migration_staging_records": {
+      "before": 120,
+      "after": 2548
+    },
+    "spectrum_bands": {
+      "before": 120,
+      "after": 2548
+    },
+    "result_migration_runs": {
+      "before": 0,
+      "after": 7
+    },
+    "result_migration_staging_records": {
+      "before": 0,
+      "after": 7
+    },
+    "result_matrices": {
+      "before": 0,
+      "after": 7
+    },
+    "postprocessing_conversion_runs": {
+      "before": 0,
+      "after": 1
+    },
+    "postprocessing_recalculation_runs": {
+      "before": 0,
+      "after": 1
+    },
+    "postprocessing_exports": {
+      "before": 0,
+      "after": 0
+    },
+    "report_templates": {
+      "before": 1,
+      "after": 1
+    },
+    "reports": {
+      "before": 0,
+      "after": 4
+    },
+    "report_exports": {
+      "before": 0,
+      "after": 0
+    },
+    "maintenance_backups": {
+      "before": 0,
+      "after": 0
+    },
+    "maintenance_operations": {
+      "before": 0,
+      "after": 0
+    },
+    "help_topics": {
+      "before": 19,
+      "after": 19
+    },
+    "dispersion_calibration_metadata": {
+      "before": 0,
+      "after": 0
+    },
+    "sample_queue_options": {
+      "before": 2,
+      "after": 2
+    },
+    "acquisition_task_options": {
+      "before": 2,
+      "after": 2
+    },
+    "acquisition_sample_disposals": {
+      "before": 0,
+      "after": 0
+    },
+    "acquisition_management_tasks": {
+      "before": 0,
+      "after": 0
+    },
+    "hardware_exposure_frames": {
+      "before": 0,
+      "after": 0
+    },
+    "hardware_exposure_results": {
+      "before": 0,
+      "after": 0
+    },
+    "analysis_control_adaptations": {
+      "before": 0,
+      "after": 0
+    }
+  },
+  "integrity_check": "ok",
+  "foreign_key_check": []
+}

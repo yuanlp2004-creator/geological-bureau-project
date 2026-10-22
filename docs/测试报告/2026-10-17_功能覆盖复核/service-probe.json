@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-17",
+  "isolated_user_data": true,
+  "turn_to_analysis": {
+    "turn_status": "completed",
+    "confirmed_exposures": 2,
+    "counts_after_turn_only": {
+      "hardware_tasks": 1,
+      "hardware_exposure_results": 2,
+      "acquisition_tasks": 0,
+      "acquisition_samples": 0,
+      "analysis_runs": 0
+    },
+    "analysis_selectable_samples": 0,
+    "spectrum_viewer_records": 0,
+    "software_bridge_present": false
+  },
+  "ordinary_acquisition_control": {
+    "status": "completed",
+    "analysis_selectable_samples": 1,
+    "spectrum_viewer_records": 1
+  },
+  "modules": 18,
+  "navigation_entries": 27,
+  "legacy_matrix_checkpoints": 226,
+  "stale_consumer_paths": [],
+  "old_matrix_is_historical": true
+}

@@ -1,0 +1,31 @@
+.permission-picker { min-width: 0; }
+.permission-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 20px; }
+.permission-group { min-width: 0; margin: 0; padding: 8px 0; border: 0; border-top: 1px solid var(--line); }
+.permission-group legend { padding-right: 8px; font-weight: 600; font-size: 12px; }
+.permission-group legend.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.permission-choice { display: flex; align-items: center; gap: 7px; min-height: 30px; font-size: 12px; }
+.permission-choice input[type='checkbox'] { flex: 0 0 14px; width: 14px; height: 14px; min-height: 0; margin: 0; }
+.permission-picker > small { display: block; margin-top: 8px; color: var(--muted); }
+.permission-group-choice { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 12px; }
+.permission-group-choice input[type='checkbox'] { flex: 0 0 14px; width: 14px; height: 14px; min-height: 0; margin: 0; }
+.permission-group-choice small { margin-left: auto; color: var(--muted); }
+.permission-group-details { margin-left: 22px; }
+.permission-group-details summary { cursor: pointer; color: var(--muted); font-size: 12px; padding: 4px 0; }
+:root .app-shell .auth-page .surface-heading h2 { display: flex; align-items: center; gap: 8px; }
+:root .app-shell .auth-page .auth-role-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin-top: 12px; align-items: start; }
+:root .app-shell .auth-page .auth-role-card { min-width: 0; padding: 14px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+:root .app-shell .auth-page .auth-role-title { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; }
+:root .app-shell .auth-page .auth-role-title strong { color: var(--ink); font-size: 14px; }
+:root .app-shell .auth-page .auth-role-card p { margin: 7px 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+:root .app-shell .auth-page .auth-role-card small { color: var(--muted); font-size: 12px; line-height: 1.6; }
+:root .app-shell .auth-page .auth-role-summary { display: block; }
+:root .app-shell .auth-page .auth-role-details { margin-top: 8px; font-size: 12px; }
+:root .app-shell .auth-page .auth-role-details summary { cursor: pointer; color: var(--blue); }
+:root .app-shell .auth-page .auth-role-details ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 16px; list-style: none; margin: 10px 0 0; padding: 0; color: var(--muted); }
+:root .app-shell .auth-page .role-template-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 320px)); gap: 16px; }
+:root .app-shell .auth-page .role-create-form { margin-top: 14px; }
+:root .app-shell .auth-page .role-create-form > .field-hint { margin: 0; }
+@media (max-width: 760px) {
+  :root .app-shell .auth-page .auth-role-list,
+  :root .app-shell .auth-page .role-template-fields { grid-template-columns: minmax(0, 1fr); }
+}

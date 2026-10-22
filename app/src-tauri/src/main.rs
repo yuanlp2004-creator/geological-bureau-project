@@ -11,8 +11,11 @@ use tauri::{Manager, RunEvent};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::{process::CommandChild, ShellExt};
 use uuid::Uuid;
+mod open_location;
+use open_location::OpenLocation;
 
 struct SidecarState(Mutex<Option<CommandChild>>);
+struct OpenLocationState(Mutex<OpenLocation>);
 
 #[derive(Clone, serde::Serialize)]
 struct RuntimeConfig {
@@ -54,8 +57,10 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
     let expected_type = match extension.as_str() {
         "pdf" => "application/pdf",
         "csv" => "text/csv",
+        "json" => "application/json",
+        "xls" => "application/vnd.ms-excel",
         "txt" | "log" | "sam" => "text/plain",
-        _ => return Err("只允许保存 PDF、CSV、TXT、LOG 或 SAM 文件".to_string()),
+        _ => return Err("只允许保存 PDF、CSV、TXT、LOG、SAM、JSON 或 XLS 文件".to_string()),
     };
     if content_type != expected_type {
         return Err("文件扩展名与内容类型不匹配".to_string());
@@ -68,6 +73,12 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
     }
     if extension != "pdf" && bytes.contains(&0) {
         return Err("文本导出包含不允许的 NUL 字节".to_string());
+    }
+    if extension == "json" && serde_json::from_slice::<serde_json::Value>(bytes).is_err() {
+        return Err("JSON 文件内容无效".to_string());
+    }
+    if extension == "xls" && (!bytes.starts_with(b"<?xml") || !bytes.windows(8).any(|part| part == b"Workbook")) {
+        return Err("XLS 文件必须是有效的 SpreadsheetML 输出".to_string());
     }
     Ok(extension)
 }
@@ -99,10 +110,62 @@ async fn save_export_file(
 
 #[tauri::command]
 async fn select_legacy_directory(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    let selected = app.dialog().file().set_title("选择旧版程序或数据目录").blocking_pick_folder();
-    selected.map(|value| value.into_path()
+    let state = app.state::<OpenLocationState>();
+    let mut location = state.0.lock().map_err(|_| "文件目录状态不可用")?;
+    let mut dialog = app.dialog().file().set_title("选择程序或数据目录");
+    if let Some(directory) = location.directory() { dialog = dialog.set_directory(directory); }
+    let selected = dialog.blocking_pick_folder().map(|value| value.into_path()
+        .map_err(|error| format!("无法读取目录路径：{error}"))).transpose()?;
+    location.remember(selected.as_deref());
+    Ok(selected.map(|path| path.to_string_lossy().into_owned()))
+}
+
+#[tauri::command]
+async fn select_legacy_files(app: tauri::AppHandle, extensions: Vec<String>, multiple: bool) -> Result<Vec<String>, String> {
+    select_files(&app, extensions, multiple)
+}
+
+fn select_files(app: &tauri::AppHandle, extensions: Vec<String>, multiple: bool) -> Result<Vec<String>, String> {
+    let allowed = ["mtd", "cdt", "cmt", "edt", "wdt", "pdt", "dat", "sam", "txt"];
+    if extensions.is_empty() || extensions.iter().any(|ext| !allowed.contains(&ext.as_str())) {
+        return Err("不支持的文件类型".to_string());
+    }
+    let filters: Vec<&str> = extensions.iter().map(String::as_str).collect();
+    let state = app.state::<OpenLocationState>();
+    let mut location = state.0.lock().map_err(|_| "文件目录状态不可用")?;
+    let mut dialog = app.dialog().file().set_title("打开文件").add_filter("兼容数据文件", &filters);
+    if let Some(directory) = location.directory() { dialog = dialog.set_directory(directory); }
+    let selected = if multiple { dialog.blocking_pick_files().unwrap_or_default() }
+        else { dialog.blocking_pick_file().into_iter().collect() };
+    let paths: Vec<std::path::PathBuf> = selected.into_iter().map(|file| file.into_path()
+        .map_err(|error| format!("无法读取文件路径：{error}"))).collect::<Result<_, _>>()?;
+    location.remember(paths.last().map(|path| path.as_path()));
+    Ok(paths.into_iter()
         .map(|path| path.to_string_lossy().into_owned())
-        .map_err(|error| format!("无法读取目录路径：{error}"))).transpose()
+        .collect())
+}
+
+#[derive(serde::Serialize)]
+struct SampleFile { name: String, bytes: Vec<u8>, last_modified: u64 }
+
+#[tauri::command]
+async fn select_sample_file(app: tauri::AppHandle) -> Result<Option<SampleFile>, String> {
+    let paths = select_files(&app, vec!["sam".into(), "txt".into()], false)?;
+    let Some(selected) = paths.first() else { return Ok(None) };
+    read_sample_file(Path::new(selected)).map(Some)
+}
+
+fn read_sample_file(path: &Path) -> Result<SampleFile, String> {
+    let extension = path.extension().and_then(|value| value.to_str()).unwrap_or_default().to_ascii_lowercase();
+    if !["sam", "txt"].contains(&extension.as_str()) { return Err("请选择 SAM 或 TXT 样品号文件".into()); }
+    let metadata = path.metadata().map_err(|error| format!("无法读取样品号文件：{error}"))?;
+    if metadata.len() > MAX_EXPORT_BYTES as u64 { return Err("样品号文件超过 64 MiB 限制".into()); }
+    let bytes = std::fs::read(path).map_err(|error| format!("无法读取样品号文件：{error}"))?;
+    if bytes.len() > MAX_EXPORT_BYTES { return Err("样品号文件超过 64 MiB 限制".into()); }
+    let last_modified = metadata.modified().ok()
+        .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|duration| duration.as_millis() as u64).unwrap_or(0);
+    Ok(SampleFile { name: path.file_name().unwrap_or_default().to_string_lossy().into_owned(), bytes, last_modified })
 }
 
 fn reserve_loopback_port() -> Result<u16, std::io::Error> {
@@ -191,7 +254,7 @@ fn main() {
     tauri::Builder::default()
         .manage(SidecarState(Mutex::new(None)))
         .manage(runtime)
-        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_legacy_directory])
+        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_legacy_directory, select_legacy_files, select_sample_file])
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
@@ -201,6 +264,9 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(move |app| {
+            let preferences_dir = std::env::var_os("SPECTRUM_DATA_DIR").map(std::path::PathBuf::from)
+                .unwrap_or(app.path().app_local_data_dir()?);
+            app.manage(OpenLocationState(Mutex::new(OpenLocation::load(&preferences_dir))));
             let Some(port) = port else {
                 return Ok(());
             };
@@ -252,7 +318,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_development_api_base, validate_export, write_export_file};
+    use super::{parse_development_api_base, validate_export, write_export_file, read_sample_file, MAX_EXPORT_BYTES};
     use uuid::Uuid;
 
     #[test]
@@ -277,6 +343,10 @@ mod tests {
         assert!(validate_export("curve.pdf", "application/pdf", b"not a pdf").is_err());
         assert!(validate_export("data.exe", "text/plain", b"data").is_err());
         assert!(validate_export("empty.csv", "text/csv", b"").is_err());
+        assert!(validate_export("intensity.json", "application/json", br#"{"format":"geospectrum-intensity-v1"}"#).is_ok());
+        assert!(validate_export("intensity.json", "application/json", b"broken").is_err());
+        assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"<?xml version=\"1.0\"?><Workbook/>").is_ok());
+        assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"binary executable").is_err());
     }
 
     #[test]
@@ -289,5 +359,23 @@ mod tests {
         write_export_file(&path, content).unwrap();
         assert_eq!(std::fs::read(&path).unwrap(), content);
         std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn sample_reader_preserves_source_and_rejects_wrong_type_or_oversize() {
+        let root = std::env::temp_dir().join(format!("geospectrum-sample-{}", Uuid::new_v4()));
+        std::fs::create_dir(&root).unwrap();
+        let path = root.join("样品.SAM");
+        let bytes = "样品甲,2\r\n".as_bytes();
+        std::fs::write(&path, bytes).unwrap();
+        let before = path.metadata().unwrap().modified().unwrap();
+        let file = read_sample_file(&path).unwrap();
+        assert_eq!(file.name, "样品.SAM"); assert_eq!(file.bytes, bytes);
+        assert_eq!(path.metadata().unwrap().modified().unwrap(), before);
+        assert_eq!(file.last_modified, before.duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as u64);
+        assert!(read_sample_file(&root.join("other.json")).is_err());
+        std::fs::File::create(&path).unwrap().set_len(MAX_EXPORT_BYTES as u64 + 1).unwrap();
+        assert!(read_sample_file(&path).is_err());
+        std::fs::remove_dir_all(root).unwrap();
     }
 }

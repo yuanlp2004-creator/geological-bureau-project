@@ -2,8 +2,11 @@
 import { request, requestRaw } from './client'
 
 export type MethodPrintSettings = {
+  elements_per_line?: number
+  samples_per_page?: number
+  time_mode?: 'analysis' | 'system'
   default_printer: string
-  paper: 'A4' | 'A3' | 'Letter'
+  paper: string
   orientation: 'portrait' | 'landscape'
   margin_top_mm: number
   margin_right_mm: number
@@ -60,8 +63,10 @@ export type MethodConditions = {
   reference_wavelength_nm: number
   actual_reference_wavelength_nm: number
   reference_width_points: number
-  analysis_unit: 'ug/g' | 'mg/g' | '%'
+  analysis_unit: string
   calculation_profile: 'legacy_2_0_2' | 'modern_v1'
+  exposure_mode?: 'simple_mean' | 'line_interval' | null
+  legacy_exposure_mode?: boolean
   pre_excitation_seconds: number
   sampling_period_seconds: number
   frame_count: number
@@ -81,6 +86,7 @@ export type MethodConditions = {
 }
 
 export type MethodVersion = {
+  legacy_imported?: boolean
   id: number
   version: number
   state: 'draft' | 'published'
@@ -110,6 +116,8 @@ export type LineDetectability = {
 }
 
 export type SpectralLineInput = {
+  exposure_start_frame?: number | null
+  exposure_end_frame?: number | null
   line_type: 'baseline' | 'analysis' | 'internal_standard' | 'positioning'
   element: string
   wavelength_nm: number
@@ -127,7 +135,7 @@ export type SpectralLineInput = {
   peak_width_points: number
   fit_mode: 'linear' | 'quadratic' | 'cubic' | 'spline'
   coordinate_type: 'normal' | 'logarithmic'
-  unit: 'ug/g' | 'mg/g' | '%'
+  unit: string
   value_kind: 'content' | 'concentration'
   decimal_places: number
   lower_peak: number
@@ -160,9 +168,12 @@ export type MethodLineCollection = {
   version: number
   state: 'draft' | 'published'
   lines: SpectralLine[]
+  exposure_mode?: 'simple_mean' | 'line_interval'
+  frame_count?: number
 }
 
 export type MethodRecord = {
+  changed_line_id?: string | null
   id: number
   name: string
   description: string
@@ -218,6 +229,7 @@ export type DispersionOption = {
 }
 
 export type MethodOptions = {
+  dark_round_time_seconds?: number
   ccd_layouts: CcdLayoutOption[]
   dispersion_calibrations: DispersionOption[]
   storage_modes: Array<{ value: AngleExposure['storage_mode']; label: string }>
@@ -225,44 +237,182 @@ export type MethodOptions = {
 }
 
 export const methodsApi = {
-  methods: (token: string, includeDeleted = false) => request<MethodRecord[]>(`/api/v1/methods${includeDeleted ? '?include_deleted=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
-  methodOptions: (token: string) => request<MethodOptions>('/api/v1/methods/options', { headers: { Authorization: `Bearer ${token}` } }),
-  currentMethod: (token: string) => request<CurrentMethodState>('/api/v1/methods/current', { headers: { Authorization: `Bearer ${token}` } }),
-  createMethod: (token: string, payload: { name: string; description?: string; work_type?: string }) => request<MethodRecord>('/api/v1/methods', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  updateMethod: (token: string, methodId: number, payload: { name?: string; description?: string; work_type?: string; conditions?: MethodConditions }) => request<MethodRecord>(`/api/v1/methods/${methodId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  publishMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/publish`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  copyMethod: (token: string, methodId: number, name: string) => request<MethodRecord>(`/api/v1/methods/${methodId}/copy`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ name }) }),
-  openMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/open`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  pauseMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  resumeMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  deleteMethod: (token: string, methodId: number) => request<{ id: number; deleted: boolean }>(`/api/v1/methods/${methodId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
-  spectralLineOptions: (token: string) => request<SpectralLineOptions>('/api/v1/spectral-lines/options', { headers: { Authorization: `Bearer ${token}` } }),
-  methodLines: (token: string, methodId: number) => request<MethodLineCollection>(`/api/v1/methods/${methodId}/lines`, { headers: { Authorization: `Bearer ${token}` } }),
-  detectLine: (token: string, methodId: number, payload: { wavelength_nm: number; actual_wavelength_nm?: number | null; scan_width_points?: number }) => request<LineDetectability>(`/api/v1/methods/${methodId}/lines/detect`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  createLine: (token: string, methodId: number, payload: SpectralLineInput) => request<MethodRecord>(`/api/v1/methods/${methodId}/lines`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  updateLine: (token: string, methodId: number, lineId: string, payload: SpectralLineInput) => request<MethodRecord>(`/api/v1/methods/${methodId}/lines/${lineId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  deleteLine: (token: string, methodId: number, lineId: string) => request<MethodRecord>(`/api/v1/methods/${methodId}/lines/${lineId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
-  reorderLines: (token: string, methodId: number, lineIds: string[]) => request<MethodRecord>(`/api/v1/methods/${methodId}/lines/reorder`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ line_ids: lineIds }) }),
-  methodPrintSettings: (token: string) => request<MethodPrintSettings>('/api/v1/method-print/settings', { headers: { Authorization: `Bearer ${token}` } }),
-  saveMethodPrintSettings: (token: string, settings: MethodPrintSettings) => request<MethodPrintSettings>('/api/v1/method-print/settings', { method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(settings) }),
-  methodPrinters: (token: string) => request<{ printers: PrinterOption[] }>('/api/v1/method-print/printers', { headers: { Authorization: `Bearer ${token}` } }),
+  upgradeLegacyMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/legacy-semantics`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }
+  }),
+  referenceOffset: (token: string, conditions: MethodConditions) =>
+    request<{ wavelength_delta_nm: number; point_delta: number; ccd_index: number }>('/api/v1/methods/reference-offset', {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(conditions)
+    }),
+  methods: (token: string, includeDeleted = false) =>
+    request<MethodRecord[]>(`/api/v1/methods${includeDeleted ? '?include_deleted=true' : ''}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  methodOptions: (token: string) =>
+    request<MethodOptions>('/api/v1/methods/options', { headers: { Authorization: `Bearer ${token}` } }),
+  currentMethod: (token: string) =>
+    request<CurrentMethodState>('/api/v1/methods/current', { headers: { Authorization: `Bearer ${token}` } }),
+  createMethod: (token: string, payload: { name: string; description?: string; work_type?: string }) =>
+    request<MethodRecord>('/api/v1/methods', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  updateMethod: (
+    token: string,
+    methodId: number,
+    payload: { name?: string; description?: string; work_type?: string; conditions?: Partial<MethodConditions> }
+  ) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  publishMethod: (token: string, methodId: number) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/publish`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  saveMethod: (
+    token: string,
+    methodId: number,
+    payload: { name?: string; description?: string; work_type?: string; conditions?: Partial<MethodConditions>; expected_latest_version?: number }
+  ) => request<MethodRecord>(`/api/v1/methods/${methodId}/save`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
+  }),
+  copyMethod: (token: string, methodId: number, name: string) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/copy`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name })
+    }),
+  openMethod: (token: string, methodId: number, resumePaused = false) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/open${resumePaused ? '?resume_paused=true' : ''}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  pauseMethod: (token: string, methodId: number) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/pause`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  resumeMethod: (token: string, methodId: number) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/resume`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  deleteMethod: (token: string, methodId: number) =>
+    request<{ id: number; deleted: boolean }>(`/api/v1/methods/${methodId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  spectralLineOptions: (token: string) =>
+    request<SpectralLineOptions>('/api/v1/spectral-lines/options', { headers: { Authorization: `Bearer ${token}` } }),
+  methodLines: (token: string, methodId: number) =>
+    request<MethodLineCollection>(`/api/v1/methods/${methodId}/lines`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  detectLine: (
+    token: string,
+    methodId: number,
+    payload: { wavelength_nm: number; actual_wavelength_nm?: number | null; scan_width_points?: number }
+  ) =>
+    request<LineDetectability>(`/api/v1/methods/${methodId}/lines/detect`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  createLine: (token: string, methodId: number, payload: SpectralLineInput) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/lines`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  updateLine: (token: string, methodId: number, lineId: string, payload: SpectralLineInput) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/lines/${lineId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  deleteLine: (token: string, methodId: number, lineId: string) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/lines/${lineId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  reorderLines: (token: string, methodId: number, lineIds: string[]) =>
+    request<MethodRecord>(`/api/v1/methods/${methodId}/lines/reorder`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ line_ids: lineIds })
+    }),
+  methodPrintSettings: (token: string) =>
+    request<MethodPrintSettings>('/api/v1/method-print/settings', { headers: { Authorization: `Bearer ${token}` } }),
+  saveMethodPrintSettings: (token: string, settings: MethodPrintSettings) =>
+    request<MethodPrintSettings>('/api/v1/method-print/settings', {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(settings)
+    }),
+  methodPrinters: (token: string) =>
+    request<{ printers: PrinterOption[] }>('/api/v1/method-print/printers', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  printerPapers: (token: string, printerName: string) =>
+    request<{ papers: { code: string; display_name: string; width_mm: number; height_mm: number }[] }>(
+      `/api/v1/method-print/papers?printer_name=${encodeURIComponent(printerName)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+  checkPrinterConnection: (token: string, settings: MethodPrintSettings) =>
+    request<{ connected: boolean; printer_name: string; driver: string; submitted: boolean }>(
+      '/api/v1/method-print/check-connection',
+      { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(settings) }
+    ),
   methodPreview: async (token: string, methodId: number, version: number | null, settings: MethodPrintSettings) => {
-    const response = await requestRaw(`/api/v1/methods/${methodId}/preview`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ version, settings }) })
+    const response = await requestRaw(`/api/v1/methods/${methodId}/preview`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ version, settings })
+    })
     return {
       html: await response.text(),
       pageCount: Number(response.headers.get('X-Page-Count') ?? 0),
       fieldCount: Number(response.headers.get('X-Field-Count') ?? 0),
-      version: Number(response.headers.get('X-Method-Version') ?? version ?? 0),
+      version: Number(response.headers.get('X-Method-Version') ?? version ?? 0)
     }
   },
   methodPdf: async (token: string, methodId: number, version: number | null, settings: MethodPrintSettings) => {
-    const response = await requestRaw(`/api/v1/methods/${methodId}/pdf`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ version, settings }) })
+    const response = await requestRaw(`/api/v1/methods/${methodId}/pdf`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ version, settings })
+    })
     return {
       blob: await response.blob(),
       pageCount: Number(response.headers.get('X-Page-Count') ?? 0),
-      fieldCount: Number(response.headers.get('X-Field-Count') ?? 0),
+      fieldCount: Number(response.headers.get('X-Field-Count') ?? 0)
     }
   },
-  printMethod: (token: string, methodId: number, version: number | null, settings: MethodPrintSettings, printerName: string) => request<PrintJob>(`/api/v1/methods/${methodId}/print`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ version, settings, printer_name: printerName }) }),
-  methodPrintJobs: (token: string, methodId: number) => request<{ jobs: PrintJob[] }>(`/api/v1/methods/${methodId}/print-jobs`, { headers: { Authorization: `Bearer ${token}` } }),
+  methodText: async (token: string, methodId: number, version: number | null) => {
+    const response = await requestRaw(`/api/v1/methods/${methodId}/text`, {
+      method:'POST',headers:{Authorization:`Bearer ${token}`},body:JSON.stringify({version})
+    })
+    return response.blob()
+  },
+  printMethod: (
+    token: string,
+    methodId: number,
+    version: number | null,
+    settings: MethodPrintSettings,
+    printerName: string
+  ) =>
+    request<PrintJob>(`/api/v1/methods/${methodId}/print`, {
+      timeoutMs: 300000,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ version, settings, printer_name: printerName })
+    }),
+  methodPrintJobs: (token: string, methodId: number) =>
+    request<{ jobs: PrintJob[] }>(`/api/v1/methods/${methodId}/print-jobs`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 }

@@ -1,0 +1,1094 @@
+{
+  "status": "passed",
+  "checks": [
+    "Default view shows four role summaries and ordinary section actions",
+    "Eight layouts: real light/dark settings, both densities, 1060/1440 widths, forms closed/open",
+    "Template copies exact keys, including default analyst and explicit blank",
+    "Group toggle, partial selection, collapse and duplicate-name failure preserve exact draft",
+    "Custom role saves exactly the selected keys; all source roles remain unchanged",
+    "User receives the selected role, audit exists, read-only UI and server deny unauthorized account creation"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "density": "comfortable",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 469.453125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 469.453125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 600.71875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 600.71875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "density": "comfortable",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 280.03125,
+          "width": 315,
+          "right": 610,
+          "kind": "field"
+        },
+        {
+          "x": 626,
+          "y": 280.03125,
+          "width": 315,
+          "right": 941,
+          "kind": "field"
+        },
+        {
+          "x": 957,
+          "y": 280.03125,
+          "width": 315,
+          "right": 1272,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 569.046875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 569.046875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 700.3125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 700.3125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 863.578125,
+          "width": 320,
+          "right": 615,
+          "kind": "field"
+        },
+        {
+          "x": 631,
+          "y": 863.578125,
+          "width": 320,
+          "right": 951,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "density": "compact",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 431.453125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 431.453125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 562.71875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 562.71875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "density": "compact",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 457.328125,
+          "kind": "field"
+        },
+        {
+          "x": 473.328125,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 682.65625,
+          "kind": "field"
+        },
+        {
+          "x": 698.65625,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 907.984375,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 527.046875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 527.046875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 658.3125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 658.3125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 821.578125,
+          "width": 320,
+          "right": 568,
+          "kind": "field"
+        },
+        {
+          "x": 584,
+          "y": 821.578125,
+          "width": 320,
+          "right": 904,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1529.703125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1529.703125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "light",
+      "density": "compact",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 431.453125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 431.453125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 562.71875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 562.71875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "light",
+      "density": "compact",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 457.328125,
+          "kind": "field"
+        },
+        {
+          "x": 473.328125,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 682.65625,
+          "kind": "field"
+        },
+        {
+          "x": 698.65625,
+          "y": 254.03125,
+          "width": 209.328125,
+          "right": 907.984375,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 527.046875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 527.046875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 658.3125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 658.3125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 821.578125,
+          "width": 320,
+          "right": 568,
+          "kind": "field"
+        },
+        {
+          "x": 584,
+          "y": 821.578125,
+          "width": 320,
+          "right": 904,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 972.546875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1052.140625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1131.734375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1211.328125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1290.921875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1370.515625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1450.109375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1529.703125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1529.703125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "density": "comfortable",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 469.453125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 469.453125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 600.71875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 600.71875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "density": "comfortable",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 280.03125,
+          "width": 315,
+          "right": 610,
+          "kind": "field"
+        },
+        {
+          "x": 626,
+          "y": 280.03125,
+          "width": 315,
+          "right": 941,
+          "kind": "field"
+        },
+        {
+          "x": 957,
+          "y": 280.03125,
+          "width": 315,
+          "right": 1272,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 569.046875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 569.046875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 700.3125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 700.3125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 863.578125,
+          "width": 320,
+          "right": 615,
+          "kind": "field"
+        },
+        {
+          "x": 631,
+          "y": 863.578125,
+          "width": 320,
+          "right": 951,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1018.546875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1098.140625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1177.734375,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1257.328125,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1336.921875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1416.515625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-maintenance-header",
+  "plan_sha256_at_start": "7e032525db3313e8f46028ac89935c299f9eb111fbca91528b69a16ceac0c08c",
+  "product_changes": [
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "separator_gap_css_px": 12,
+  "title_action_center_difference_css_px": 0,
+  "browser_checks": 3,
+  "desktop_checks": 3,
+  "layouts_each": 4,
+  "refresh_success_and_failure_retry_passed": true,
+  "maintenance_write_requests": 0,
+  "backend_sources_and_binary_unchanged": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-maintenance-header\\qa\\GeoSpectrum.exe",
+    "pid": 31288,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "ed786e8ffd48312139b5e8bb2d3f6db4604659a8a7754cd2d2510e677d38b237",
+    "geospectrum-backend.exe": "edf5f08151d1d414b08d0e054c20541868d0fa1d30e1af660e2e5fd658aaa5e9"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-maintenance-header\\previous",
+  "installer_rebuilt": false
+}

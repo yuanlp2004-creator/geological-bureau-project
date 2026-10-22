@@ -16,7 +16,13 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
 from backend.db import Database
-from backend.modules.devices import AcqSimulatorAdapter, DeviceError, parse_acq_frame, screen_conversion, validate_profile
+from backend.modules.devices import (
+    AcqSimulatorAdapter,
+    DeviceError,
+    parse_acq_frame,
+    screen_conversion,
+    validate_profile,
+)
 
 
 SAMPLES = {
@@ -104,8 +110,15 @@ def device_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     application = main_module.create_app(test_config)
     runtime = application.state.runtime
     with TestClient(application) as client:
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         yield client, runtime, {"Authorization": f"Bearer {token}"}
 
 

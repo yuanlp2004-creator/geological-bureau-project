@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "plan_before_sha256": "1f915725e4e6c07bdfaa1634a8e2ca0fed3dd14276bca727994e02a414528e0d",
+  "plan_sha256": "45bbf1f86cb83bac8070388b58ac7cb235d848563f00b35d93e977f6b297ab9b",
+  "schema_version": 23,
+  "frontend_tests": 15,
+  "browser_checks": 6,
+  "frozen_desktop_checks": 6,
+  "regression_checks": 28,
+  "browser_layouts": 6,
+  "desktop_layouts": 6,
+  "regression_layouts": 12,
+  "root_pair": {
+    "GeoSpectrum.exe": "abdc88569e9f1cd30515397a647c5b354f076ca394469fd80d940dcbc60dd53b",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "production_qa_backend_equal": true,
+  "backend_bytes_unchanged": true,
+  "sidecar": {
+    "sidecar_bytes": 56148065,
+    "health_status": "ok",
+    "schema_version": 23,
+    "running_before_stop": true,
+    "clean_exit": true,
+    "process_returncode": 1,
+    "remaining_sidecar_pids": [],
+    "business": {
+      "profile_connected": true,
+      "start_ccd_count": 5,
+      "step_frame_index": 1,
+      "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+      "stopped_state": "connected",
+      "legacy_reader_attempts": [
+        "windows-powershell-x86"
+      ]
+    },
+    "error": null
+  },
+  "user_data_files_preserved": 12,
+  "legacy_source_files_preserved": 106,
+  "root_and_app_listing_unchanged": true,
+  "changed_existing_files": [
+    "PLAN.md",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/styles/index.ts",
+    "app/tests/acquisition_split_workflow.mjs",
+    "app/tests/embedded_spectrum_workflow.mjs",
+    "app/tests/legacy_operator_workflow.mjs",
+    "docs/acceptance-reports/README.md",
+    "docs/acceptance-reports/S24/验收报告.md",
+    "docs/使用与说明/GeoSpectrum_使用说明.md"
+  ],
+  "new_files": [
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+    "app/frontend/src/pages/acquisition/spectroscopySession.ts",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/tests/spectroscopy_workbench_workflow.mjs"
+  ],
+  "source_file_count": 347,
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-16-spectroscopy-workbench\\previous",
+  "installer_updated": false,
+  "limits": [
+    "Simulation and software UI verification only; no real instrument acceptance.",
+    "Existing hardware, printing, signing and clean-Windows release gates remain unchanged.",
+    "Existing user window was preserved; close it and reopen the root executable to load this release."
+  ],
+  "diagnostic_repairs": [
+    "Corrected test labels and complete-frame fixture settings without relaxing business validation.",
+    "Updated existing tests for persisted mode panels and explicit refresh.",
+    "Corrected QA window-size invocation; initialized QA window without activation before hiding to avoid hidden fresh WebView startup suspension."
+  ],
+  "plan_after_documentation_sha256": "500c9fe6a7092b64735c57648be1354bdc71112b0fdaa12cd3ce0b757bb2f5fc"
+}

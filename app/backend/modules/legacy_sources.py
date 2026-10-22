@@ -1,4 +1,5 @@
 """Bounded, read-only discovery shared by the three legacy import entry points."""
+
 from __future__ import annotations
 
 import os
@@ -85,16 +86,42 @@ def discover_sources(kind: SourceKind, root: str | None = None) -> dict[str, Any
             warnings.append(f"无法完整读取目录：{directory}")
         if kind == "methods":
             if "direct.mtd" in files:
-                paths = {key: str(files[name][0]) if name in files else "" for key, name in (
-                    ("mtd_path", "direct.mtd"), ("cfg_path", "direct.cfg"), ("opt_path", "direct.opt"))}
+                paths = {
+                    key: str(files[name][0]) if name in files else ""
+                    for key, name in (
+                        ("mtd_path", "direct.mtd"),
+                        ("cfg_path", "direct.cfg"),
+                        ("opt_path", "direct.opt"),
+                    )
+                }
                 missing = [name.upper() for name in ("direct.cfg", "direct.opt") if name not in files]
-                candidates.append({"path": paths["mtd_path"], "name": "DIRECT.MTD + CFG + OPT", "directory": str(directory),
-                                   "paths": paths, "missing": missing, "size": sum(info.st_size for name, (_, info) in files.items() if name in {"direct.mtd", "direct.cfg", "direct.opt"})})
+                candidates.append(
+                    {
+                        "path": paths["mtd_path"],
+                        "name": "DIRECT.MTD + CFG + OPT",
+                        "directory": str(directory),
+                        "paths": paths,
+                        "missing": missing,
+                        "size": sum(
+                            info.st_size
+                            for name, (_, info) in files.items()
+                            if name in {"direct.mtd", "direct.cfg", "direct.opt"}
+                        ),
+                    }
+                )
         else:
             for path, info in sorted(files.values(), key=lambda item: item[0].name.casefold()):
                 if path.suffix.casefold() in suffixes[kind]:
-                    candidates.append({"path": str(path), "name": path.name, "directory": str(directory),
-                                       "size": info.st_size, "missing": [], "paths": {}})
+                    candidates.append(
+                        {
+                            "path": str(path),
+                            "name": path.name,
+                            "directory": str(directory),
+                            "size": info.st_size,
+                            "missing": [],
+                            "paths": {},
+                        }
+                    )
                     if len(candidates) >= MAX_CANDIDATES:
                         truncated = True
                         break
@@ -103,4 +130,9 @@ def discover_sources(kind: SourceKind, root: str | None = None) -> dict[str, Any
         pending.extend((child, depth + 1) for child in reversed(sorted(children)))
     if truncated:
         warnings.append("扫描达到数量上限，结果不完整。请选择更具体的旧版数据目录继续检测。")
-    return {"candidates": candidates, "roots": [str(path) for path in roots], "warnings": warnings[:30], "truncated": truncated}
+    return {
+        "candidates": candidates,
+        "roots": [str(path) for path in roots],
+        "warnings": warnings[:30],
+        "truncated": truncated,
+    }

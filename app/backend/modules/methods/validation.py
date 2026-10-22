@@ -9,6 +9,8 @@ from typing import Any
 from ...db import Database
 from .geometry import MethodGeometry
 from .repository import MethodRepository
+from .values import valid_unit
+
 
 class MethodValidator:
     def __init__(self, database: Database, repository: MethodRepository, geometry: MethodGeometry):
@@ -117,13 +119,18 @@ class MethodValidator:
                 )
 
         number("reference_width_points", 11, 50, integer=True)
-        if conditions.get("analysis_unit") not in {"ug/g", "mg/g", "%"}:
-            add("analysis_unit", "analysis_unit_invalid", "分析单位只能是 ug/g、mg/g 或 %")
+        if not valid_unit(conditions.get("analysis_unit")):
+            add("analysis_unit", "analysis_unit_invalid", "分析单位须为 1–32 个可见字符，不能含控制字符或首尾空白")
         if conditions.get("calculation_profile") not in {"legacy_2_0_2", "modern_v1"}:
             add("calculation_profile", "calculation_profile_invalid", "计算档案只能是 legacy_2_0_2 或 modern_v1")
         number("pre_excitation_seconds", 1, 10)
         number("sampling_period_seconds", 1, 2)
         frame_count = number("frame_count", 1, 255, integer=True)
+        exposure_mode = conditions.get('exposure_mode')
+        if exposure_mode is not None and exposure_mode not in ('simple_mean', 'line_interval'):
+            add('exposure_mode', 'exposure_mode_invalid', '曝光模式只能是简单均值或区间曝光')
+        if exposure_mode == 'line_interval' and frame_count is not None and frame_count < 2:
+            add('frame_count', 'exposure_too_short', '区间曝光至少需要两帧')
         number("dark_frame_count", 0, 20, integer=True)
         for field in ("sample_repeats", "standard_repeats", "control_repeats"):
             number(field, 1, 10, integer=True)
@@ -168,12 +175,17 @@ class MethodValidator:
                     add(f"{prefix}.start_frame", "integer_required", "起始帧必须是整数")
                 if isinstance(end, bool) or not isinstance(end, int):
                     add(f"{prefix}.end_frame", "integer_required", "结束帧必须是整数")
-                if isinstance(start, int) and not isinstance(start, bool) and isinstance(end, int) and not isinstance(end, bool):
+                if (
+                    isinstance(start, int)
+                    and not isinstance(start, bool)
+                    and isinstance(end, int)
+                    and not isinstance(end, bool)
+                ):
                     if start < 1:
                         add(f"{prefix}.start_frame", "frame_out_of_range", "起始帧不能小于 1")
                     if frame_count is not None and end > int(frame_count):
                         add(f"{prefix}.end_frame", "frame_out_of_range", "结束帧不能超过采样帧数")
-                    if end - start + 1 < 2:
+                    minimum = 1 if exposure_mode == 'simple_mean' and exposure.get('storage_mode') == 'averaged' else 2
+                    if end - start + 1 < minimum:
                         add(prefix, "exposure_too_short", "曝光区间必须至少包含两帧")
         return errors
-

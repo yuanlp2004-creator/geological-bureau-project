@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "checks": [
+    "about: name, version and contract copyright only; no diagnostic request",
+    "administrator: maintenance diagnostics, refresh, paths, build and modules",
+    "about and expanded diagnostics fit light large and dark minimum windows",
+    "diagnostic failure shows error without stale success; refresh recovers",
+    "analyst: software info works, no automatic diagnostics, direct diagnostic API denied",
+    "read_only_auditor: software info works, no automatic diagnostics, direct diagnostic API denied"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "about",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "maintenance",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "about",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "maintenance",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false
+    }
+  ],
+  "diagnosticRequests": 8
+}

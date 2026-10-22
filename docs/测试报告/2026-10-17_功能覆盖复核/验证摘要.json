@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-17",
+  "scope": "C:/Users/Leo/Desktop/地质局；图片3.2.1至3.2.4共22条；旧版功能源代码与代表性软件/模拟器复核",
+  "conclusion": "two_confirmed_software_gaps_and_outdated_test_expectations",
+  "contract_status_counts": {
+    "已覆盖": 18,
+    "有条件覆盖": 2,
+    "部分覆盖": 2
+  },
+  "legacy_checkpoints": 226,
+  "all_indexed_consumer_paths_exist": true,
+  "tests": {
+    "backend": {
+      "passed": 328,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "failures": [
+        {
+          "module": "tests.test_legacy_fourteen_closure",
+          "test": "test_report_settings_are_consumed_and_confirmed_model_stays_immutable",
+          "message": "assert 'A3 portrait' in \"<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><title>RPT-20261016-001</title>\\n<style>@page{size:297m...ple 25</td><td>66.75</td></tr></tbody></table></section><p>方法 S19 test method v1 · modern_v1 · 运行 #1</p></body></html>\"\n +  where \"<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><title>RPT-20261016-001</title>\\n<style>@page{size:297m...ple 25</td><td>66.75</td></tr></tbody></table></section><p>方法 S19 test method v1 · modern_v1 · 运行 #1</p></body></html>\" = preview(1)\n +    where preview = <backend.modules.reports.service.ReportService object at 0x000001728AE357D0>.preview"
+        },
+        {
+          "module": "tests.test_legacy_fourteen_closure",
+          "test": "test_intensity_wide_outputs_native_snapshot_text_pdf_and_method_text",
+          "message": "AssertionError: assert 'cancelled' == 'completed'\n  \n  - completed\n  + cancelled"
+        }
+      ]
+    },
+    "frontend": {
+      "passed": 15,
+      "failed": 0
+    },
+    "typescript_no_emit_exit_code": 0,
+    "browser": {
+      "status": "passed",
+      "layouts": 54,
+      "checks": 7,
+      "page_errors": []
+    },
+    "old_browser_regression": {
+      "command": "node tests/frontend_api_browser.mjs --pages --legacy-exposure",
+      "status": "failed",
+      "reason": "frontend_request_races.mjs:114 expected payload lacks table_layout:legacy_matrix"
+    },
+    "sidecar": {
+      "verification": "passed",
+      "schema": 23,
+      "simulated_ccds": 5,
+      "stopped_process_returncode": 1,
+      "remaining_sidecar_pids": []
+    }
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "3f1f12b8200bf03a596340a9039eede1920dd3cfe9e9d10bba9a10e356742a43",
+    "geospectrum-backend.exe": "ba9012787688682280c899564cc8cb30d8e7160bba8d71aa8b6441c1154875e3"
+  },
+  "latest_delivery": "2026-10-17-users-roles",
+  "root_pair_matches_latest_delivery": true,
+  "plan_sha256_at_snapshot": "275230794676d50f61105f91aa1f8ce802731c0d41e565be50a856b5e61014d1",
+  "plan_sha256_at_report": "acfa1746e726e8244a2765bd4e7a321ef4264960eec0837f133ae71531cebe95",
+  "protected_snapshot_files": 450,
+  "concurrent_changes": [
+    "GeoSpectrum.exe",
+    "PLAN.md"
+  ],
+  "product_source_or_legacy_source_changed_since_snapshot": false,
+  "product_code_modified_by_this_audit": false,
+  "user_database_opened_by_this_audit": false,
+  "old_exe_executed": false,
+  "actual_desktop_retest_this_audit": false,
+  "limits": [
+    "本轮新跑的是源码/隔离API/无头浏览器和冻结侧车。最新桌面交付证据为既有记录。",
+    "没有真实硬件和实体纸面验收。",
+    "未证明全部旧EXE输入与分支行为等价。",
+    "全量后端和旧浏览器回归存在未修复的过期断言，不标记全部绿色。"
+  ],
+  "temporary_fixture_cleanup": {
+    "status": "retained",
+    "reason": "Automatic safety review rejected recursive cleanup: blocked by policy",
+    "path": "app/.local/test-runs/coverage-audit-20261017/pytest"
+  }
+}

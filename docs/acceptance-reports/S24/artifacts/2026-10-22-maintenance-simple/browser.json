@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "checks": [
+    "legacy three operations only, backup records and collapsed diagnostics retained",
+    "invalid backup directory rejected, draft retained, retry creates real verified database backup",
+    "database reclaim preserves core record counts; invalid log age blocks requests; cleanup preserves current/recent logs and temp files",
+    "four light/dark large/minimum layouts fit; diagnostic request occurs only on expansion",
+    "auditor can read backup records; write controls disabled and diagnostics unavailable"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "maintenance",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "diagnostics",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "maintenance",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false
+    },
+    {
+      "name": "diagnostics",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false
+    }
+  ],
+  "maintenancePosts": [
+    "/api/v1/backups",
+    "/api/v1/backups",
+    "/api/v1/backups/e330f8a8-ee22-4b11-82b0-4da77f600a96/verify",
+    "/api/v1/maintenance/reclaim",
+    "/api/v1/maintenance/logs/cleanup"
+  ],
+  "diagnosticRequests": 2
+}

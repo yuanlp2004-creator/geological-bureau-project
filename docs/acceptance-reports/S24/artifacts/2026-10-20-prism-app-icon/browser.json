@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "checks": [
+    "Login prism icon loads at 32px without the previous frame",
+    "Browser favicon loads the selected asset",
+    "Failed login retains the icon and form",
+    "Sidebar uses the prism; eight toolbar buttons retain icon-only presentation and hover titles",
+    "About page uses the same selected asset at 48px",
+    "Four wide/minimum-window light/dark layouts preserve icon geometry and avoid horizontal overflow"
+  ],
+  "errors": [],
+  "networkErrors": [],
+  "authIcon": {
+    "src": "http://127.0.0.1:52334/src/assets/brand/geospectrum.png",
+    "naturalWidth": 512,
+    "naturalHeight": 512,
+    "width": 32,
+    "height": 32,
+    "alt": "",
+    "border": "0px",
+    "background": "rgba(0, 0, 0, 0)"
+  },
+  "favicon": {
+    "href": "http://127.0.0.1:52334/src/assets/brand/geospectrum.png",
+    "sha256": "bfa7eee5e7dfd47b065afd20daa4238ea721f62d19f1c1ffd2b124fa68693ae8"
+  },
+  "sidebarIcon": {
+    "src": "http://127.0.0.1:52334/src/assets/brand/geospectrum.png",
+    "naturalWidth": 512,
+    "naturalHeight": 512,
+    "width": 32,
+    "height": 32,
+    "alt": "",
+    "border": "0px",
+    "background": "rgba(0, 0, 0, 0)"
+  },
+  "aboutIcon": {
+    "src": "http://127.0.0.1:52334/src/assets/brand/geospectrum.png",
+    "naturalWidth": 512,
+    "naturalHeight": 512,
+    "width": 48,
+    "height": 48,
+    "alt": "",
+    "border": "0px",
+    "background": "rgba(0, 0, 0, 0)"
+  },
+  "layouts": [
+    {
+      "file": "about-1440-1000-light.png",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000,
+      "scroll": 1440,
+      "toolbarScroll": 1194,
+      "toolbarWidth": 1194
+    },
+    {
+      "file": "about-1060-680-light.png",
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680,
+      "scroll": 1060,
+      "toolbarScroll": 845,
+      "toolbarWidth": 845
+    },
+    {
+      "file": "about-1440-1000-dark.png",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000,
+      "scroll": 1440,
+      "toolbarScroll": 1194,
+      "toolbarWidth": 1194
+    },
+    {
+      "file": "about-1060-680-dark.png",
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680,
+      "scroll": 1060,
+      "toolbarScroll": 845,
+      "toolbarWidth": 845
+    }
+  ]
+}

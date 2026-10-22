@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "batch": "2026-10-20-prism-app-icon",
+  "selected_design": "B-prism",
+  "executed_plan_sha256": "9a27c5db3f15f676c3f6e3f40de9baff611623e5bfb8fc1fa80066500f811e9f",
+  "modified_product_files": [
+    "app/frontend/src/App.tsx",
+    "app/frontend/src/layout/Sidebar.tsx",
+    "app/frontend/src/pages/about/AboutPage.tsx",
+    "app/frontend/src/pages/auth/AuthForm.tsx",
+    "app/frontend/src/styles/index.ts",
+    "app/src-tauri/icons/icon.ico",
+    "app/frontend/index.html",
+    "app/src-tauri/tauri.conf.json"
+  ],
+  "added_product_files": [
+    "app/frontend/src/assets/brand/geospectrum.png",
+    "app/frontend/src/components/AppIcon.tsx",
+    "app/frontend/src/components/app-icon.css",
+    "app/src-tauri/icons/128x128.png",
+    "app/src-tauri/icons/128x128@2x.png",
+    "app/src-tauri/icons/32x32.png",
+    "app/src-tauri/icons/icon.png"
+  ],
+  "tests": {
+    "browser_checks": 6,
+    "actual_packaged_desktop_checks": 7,
+    "layouts_per_run": 4,
+    "typescript_vite": "passed",
+    "native_ico_frames": 10,
+    "actual_window_icon_source_size": [
+      256,
+      256
+    ]
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "7f891db70fe9314da0633bf8aa9850de5df7445c0f9ad921f312acd8283ef6cc",
+    "geospectrum-backend.exe": "f575bcc5586979a9fdc5c5206b7c1fc0c22cc8de982896367f783de13e3ade09"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-prism-app-icon\\previous\\root-entry-20261020-151928",
+  "desktop": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-prism-app-icon\\qa\\GeoSpectrum.exe",
+    "sha256": "b0fa7597e00a3707cdc2c29e5faef4f67cd22ee7fd7230f8fd58d887e93abc4d",
+    "pid": 31496,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "native_window": {
+    "status": "passed",
+    "pid": 31496,
+    "visible_window_found": true,
+    "window_icon_present": true,
+    "window_icon_source_size": [
+      256,
+      256
+    ],
+    "render_size": [
+      64,
+      64
+    ],
+    "mean_absolute_rgb_difference": {
+      "selected": 4.7431640625,
+      "previous": 115.014404296875
+    }
+  },
+  "native_icon_payloads_match": true,
+  "data": {
+    "tests_use_fresh_isolated_database": true,
+    "temporary_test_data_removed": true,
+    "live_database_overwritten": false,
+    "live_main_file_hash_matches_start": true
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "toolbar_assets_and_behavior_unchanged": true,
+  "legacy_source_files_preserved": 106,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false
+}

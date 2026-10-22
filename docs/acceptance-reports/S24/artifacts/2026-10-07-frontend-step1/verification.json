@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-07",
+  "status": "passed",
+  "scope": "Incremental frontend rebuild batch 1: workspace and shared header only",
+  "plan_sha256": "F1A9A9C452EAD2C376FFD4DCDD0A4A608F1A544BA9FD821A6ECE0B6A402BFC90",
+  "product_files": [
+    {
+      "path": "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+      "sha256": "C901CFF13BC5355A6A044AEEC61FDC5111695DBB664813DD09CE9B95304B467C"
+    },
+    {
+      "path": "app/frontend/src/layout/Header.tsx",
+      "sha256": "58AB7821C91D9A4FBBDE5B1DB518BA59062906C0FF169C47FBBE197A51CC3D5E"
+    },
+    {
+      "path": "app/frontend/src/styles/index.ts",
+      "sha256": "888FF657C604E316FA972664BE6C425967F5C490F333A8DBD475DE3D25C34297"
+    },
+    {
+      "path": "app/frontend/src/pages/workspace/workspace.css",
+      "sha256": "0469A38D2F533E5CF297D5BEDF423728C349DDF5723BBFAC65E2CDBB4D0B767F"
+    }
+  ],
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\frontend-step1\\before",
+  "inherited_backend_regression": {
+    "passed": 257,
+    "report": "S21/2026-10-07"
+  },
+  "frontend_units": {
+    "passed": 8
+  },
+  "frontend_build": "passed",
+  "tauri_build": "passed",
+  "browser_contract_groups": 8,
+  "workspace_checks": 5,
+  "existing_browser_checks": {
+    "status": "passed",
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "R5: three method views, real save/reload, blank numeric rejection without a new version",
+      "R5: page navigation mounted migration, spectrum-migration, result-migration, settings, about, users, audit, maintenance, help, acquisition, dispersion, mercury-calibration, postprocessing, reports; prerequisite gates retained for spectra, samples, sample-acquisition, hardware-acquisition, analysis",
+      "M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft",
+      "R5: real saved dark/light themes and 1280/1920 method layouts without window overflow",
+      "R5: real read-only login, hidden method navigation and server-side write denial",
+      "report detail and preview ignore responses from an earlier selection",
+      "report panels preserve create/confirm/export payloads, missing-directory guard and printer selection",
+      "method switch ignores the previous method line response",
+      "acquisition selection is preserved when an earlier command finishes",
+      "automatic acquisition response cannot restore the previous task or restart its timer",
+      "FIX-02: completed recalculation selects its batch and exports recalc:id from actual page controls",
+      "postprocessing: filtered selection, CMT interval, tab state, invalid input, failure feedback and EDT-only conversion payload",
+      "FIX-07/GAP-03: analysis A/B and A/B/A response ownership, old errors, sequential non-slow completion",
+      "FIX-07/GAP-03: slow mode does not auto-step; rejected request after unmount cannot display an old error",
+      "FIX-04: real dispersion line survives task switch; stop queues behind pending frame and stops automatic progression",
+      "GAP-04: actual CCD point selected after zoom, further zoom preserves locked point, saved backend position matches pixel mapping",
+      "FIX-07: 260.1234 nm creation failure retains draft, retry selects newly created line",
+      "FIX-06: actual simulated sample is visible in generic spectrum page; CSV point count/value and PDF download verified",
+      "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+      "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+    ],
+    "nativeDialogTested": false
+  },
+  "packaged_desktop": {
+    "status": "passed",
+    "checks": [
+      "no-method actions explain their prerequisite; diagnostics are collapsed",
+      "packaged EXE bootstrap, login and process-key handshake at schema v23",
+      "20位样号持久、保留原表格设计，12位切换拒绝截断",
+      "摄谱未完成时的真实强度与峰位即时上屏",
+      "在途连续采集删除等待收尾，停止并移除异常样品",
+      "20位采集后命名与谱带哈希保持",
+      "方法逐转角区间实际进入样品谱带，平均与全区间混合保存",
+      "分析页任意 CCD 点值读取及独立横纵缩放",
+      "管理样采集、质控、页面适配、留存修正及新曲线发布回算",
+      "自动转角完整方法计划与逐帧区间结果确认",
+      "ready workflow opens sample acquisition in one click with existing navigation gates",
+      "workflow card title contrast >=4.5 in both themes",
+      "1060/1440/1920 viewports in actual saved light/comfortable and dark/compact themes have no window overflow",
+      "desktop environment and ten-second refresh are factual; details remain reachable",
+      "no WebView script errors"
+    ],
+    "health": {
+      "status": "ok",
+      "app": "GeoSpectrum",
+      "version": "0.1.0",
+      "schema_version": 23,
+      "database": "ok",
+      "uptime_seconds": 1.093
+    }
+  },
+  "desktop_lifecycle": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-frontend-step1\\GeoSpectrum-前端第一版.exe",
+    "pid": 31804,
+    "main_windows_closed": 1,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "viewports": [
+    1060,
+    1440,
+    1920
+  ],
+  "theme_density_pairs": [
+    [
+      "light",
+      "comfortable"
+    ],
+    [
+      "dark",
+      "compact"
+    ]
+  ],
+  "minimum_workflow_title_contrast": 4.5,
+  "existing_css_files_unchanged": 16,
+  "native_exit_code_unchanged": true,
+  "root_and_app_entry_lists_unchanged": true,
+  "delivery": {
+    "date": "2026-10-07",
+    "status": "internal_test_delivery",
+    "main_exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-frontend-step1\\GeoSpectrum-前端第一版.exe",
+    "identifier": "cn.geospectrum.desktop.frontendstep1",
+    "requires_neighboring_backend": true,
+    "schema_version": 23,
+    "files": [
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-frontend-step1\\GeoSpectrum-前端第一版.exe",
+        "bytes": 11780608,
+        "sha256": "974F33D954F457DBEB404FF373A131453705A601D113C37DD2FABB7308DF0599"
+      },
+      {
+        "path": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-frontend-step1\\geospectrum-backend.exe",
+        "bytes": 25049859,
+        "sha256": "1D002E1BFA8407E9A331AD4F4DD83D170D0A96B2D1498C782B45363296FEAF82"
+      }
+    ],
+    "root_originals_preserved": {
+      "GeoSpectrum.exe": "FAB17115E49D1418B524588A88FCB943A0F702465180BD381717E1217D8E628C",
+      "geospectrum-backend.exe": "E3D9839978E7F119800150DBFCBA1F32296E5F585D07B49816B14AFA5CF1BB0C"
+    },
+    "previous_delivery_preserved": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-07-contract-sync",
+    "scope": "First frontend iteration: workspace and shared header",
+    "signing": "NotSigned"
+  },
+  "test_harness_diagnosis": "Hiding every owned native window changed Tauri internal event-target visibility. Restricting hide and close to the main window restored normal exit; no product lifecycle changes.",
+  "remaining": [
+    "Other frontend pages belong to later incremental batches",
+    "User visual confirmation",
+    "Real hardware/protocols, signing and clean Windows formal release gates"
+  ]
+}

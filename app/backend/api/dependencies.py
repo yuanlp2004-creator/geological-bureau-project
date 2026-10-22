@@ -1,4 +1,5 @@
 """Request dependencies resolved from the current HTTP/WebSocket application."""
+
 from fastapi import Depends, Header, HTTPException
 from starlette.requests import HTTPConnection
 
@@ -10,7 +11,9 @@ def get_runtime(connection: HTTPConnection) -> Runtime:
     return connection.app.state.runtime
 
 
-def require_session(authorization: str | None = Header(default=None), *, runtime: Runtime = Depends(get_runtime)) -> Session:
+def require_session(
+    authorization: str | None = Header(default=None), *, runtime: Runtime = Depends(get_runtime)
+) -> Session:
     token = authorization.removeprefix("Bearer ").strip() if authorization else None
     session = runtime.auth_service.get_session(token)
     if not session:

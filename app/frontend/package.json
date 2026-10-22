@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs",
+    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs",
     "test:api": "node ../tests/frontend_api_browser.mjs",
     "test:pages": "node ../tests/frontend_api_browser.mjs --pages",
     "preview": "vite preview"

@@ -15,10 +15,11 @@ NAME_MAX_GB18030_BYTES = 20
 METHOD_NAME_INVALID = set(r"\/:*?<>|")
 
 
-DEFAULT_CONDITIONS = MethodCondition().model_dump(mode="json")
+# 未带曝光模式的既有快照继续采用原解释；只有新建或明确编辑才写入模式。
+DEFAULT_CONDITIONS = MethodCondition().model_dump(mode="json", exclude_none=True)
 
 
-def _json(value: Any) -> str:
+def _json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 
@@ -30,12 +31,12 @@ def _condition_patch(value: MethodCondition | dict[str, Any] | None) -> dict[str
     return deepcopy(value)
 
 
-def _normalize_conditions(
-    base: dict[str, Any], value: MethodCondition | dict[str, Any] | None
-) -> dict[str, Any]:
+def _normalize_conditions(base: dict[str, Any], value: MethodCondition | dict[str, Any] | None) -> dict[str, Any]:
     """Merge a draft patch while accepting names emitted by the abandoned S03 draft."""
 
     patch = _condition_patch(value)
+    if 'reference_wavelength_nm' in patch and 'actual_reference_wavelength_nm' not in patch:
+        patch['actual_reference_wavelength_nm'] = patch['reference_wavelength_nm']
     aliases = {
         "ccd_layout": "ccd_layout_id",
         "dispersion_reference": "dispersion_calibration_id",
@@ -91,9 +92,7 @@ def validate_method_name(name: str) -> str:
     try:
         byte_length = len(value.encode("gb18030"))
     except UnicodeEncodeError as exc:
-        raise MethodDomainError(
-            "method_name_encoding", "方法名称无法使用 GB18030 编码", fields=["name"]
-        ) from exc
+        raise MethodDomainError("method_name_encoding", "方法名称无法使用 GB18030 编码", fields=["name"]) from exc
     if byte_length > NAME_MAX_GB18030_BYTES:
         raise MethodDomainError(
             "method_name_too_long",
@@ -108,3 +107,15 @@ def validate_method_name(name: str) -> str:
             fields=["name"],
         )
     return value
+
+
+def valid_unit(value: object) -> bool:
+    """A visible unit label; no implicit conversion or executable/control content."""
+    import unicodedata
+
+    return (
+        isinstance(value, str)
+        and 1 <= len(value) <= 32
+        and value == value.strip()
+        and not any(unicodedata.category(char).startswith("C") for char in value)
+    )

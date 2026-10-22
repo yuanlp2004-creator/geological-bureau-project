@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-18-sample-edit\\qa\\GeoSpectrum.exe",
+  "pid": 13876,
+  "shown_window_handles": [
+    790922,
+    987532,
+    13634614,
+    987526,
+    465238
+  ],
+  "returncode": 0,
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

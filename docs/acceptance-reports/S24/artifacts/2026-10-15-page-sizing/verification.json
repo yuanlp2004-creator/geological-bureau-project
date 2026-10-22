@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "plan_sha256": "aa470b387d26cce6790501f181b1ab7f55daaadf71fa970f69fbc6eed206e53c",
+  "changed_frontend": [
+    "pages/analysis/AnalysisPage.tsx",
+    "pages/analysis/quality.css",
+    "pages/postprocessing/postprocessing.css",
+    "styles/visual-refinement.css"
+  ],
+  "analysis_change_only_visible_row_count": true,
+  "baseline_candidates": 17,
+  "browser_states": 58,
+  "desktop_states": 58,
+  "navigation_entries": 27,
+  "pages": 22,
+  "browser_checks": [
+    "真实源记录选择、无匹配搜索、跨视图保留选择及缺曲线禁用",
+    "后处理两视图宽度与尺寸 light/1060",
+    "后处理两视图宽度与尺寸 light/1280",
+    "后处理两视图宽度与尺寸 light/1440",
+    "后处理两视图宽度与尺寸 light/1920",
+    "后处理两视图宽度与尺寸 dark/1060",
+    "后处理两视图宽度与尺寸 dark/1280",
+    "后处理两视图宽度与尺寸 dark/1440",
+    "后处理两视图宽度与尺寸 dark/1920",
+    "帮助搜索输入、清空、焦点可见",
+    "模拟0/1/12项旧样品的自适应列表、滚动范围及多选（零导入提交）"
+  ],
+  "desktop_checks": [
+    "真实源记录选择、无匹配搜索、跨视图保留选择及缺曲线禁用",
+    "后处理两视图宽度与尺寸 light/1060",
+    "后处理两视图宽度与尺寸 light/1280",
+    "后处理两视图宽度与尺寸 light/1440",
+    "后处理两视图宽度与尺寸 light/1920",
+    "后处理两视图宽度与尺寸 dark/1060",
+    "后处理两视图宽度与尺寸 dark/1280",
+    "后处理两视图宽度与尺寸 dark/1440",
+    "后处理两视图宽度与尺寸 dark/1920",
+    "帮助搜索输入、清空、焦点可见",
+    "模拟0/1/12项旧样品的自适应列表、滚动范围及多选（零导入提交）"
+  ],
+  "frontend_tests": 8,
+  "qa_frontend_matches_production": true,
+  "desktop_runtime": {
+    "pixelRatio": 2,
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "uri": "http://tauri.localhost/"
+  },
+  "qa_normal_exit": true,
+  "root_app_entries_preserved": true,
+  "root_files": {
+    "GeoSpectrum.exe": "B73AAE29D0A874B55E66BEBE4E4FB3B36D68F2B4FB2AA341C4DE4229C934AAD8",
+    "geospectrum-backend.exe": "44B93339410088CE693184947FF16F0623A25B3FD0A4C2E3BC9FEC7F759A79C1"
+  }
+}

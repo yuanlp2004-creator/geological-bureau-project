@@ -1,0 +1,39 @@
+{
+  "standard": {
+    "txt": "dcbc32feb8c96cf86a6a5fd5cd812df5f60fc5b8d352721cb8ec131d2b4a661e",
+    "csv": "525dda67dd8110900d0e5dadf7186387e87b46d83b2f6817fcc55e4d338b5486",
+    "excel": "2637e7cc4461cbe3e945a8ce2c892ee99c7f0d98b6c483049a405cca906835d6",
+    "pdf": "73a9ccb496ff68b0d13ad6c6b1b37bbe5132ebdc9165d4c51766b07668c3bcbe",
+    "pages": 3,
+    "rows": 45
+  },
+  "exchange": {
+    "txt": "3c076c9883be15a58c8ad08808a3585430a3eb3ea96555ebcba05610ab40a1f9",
+    "csv": "e9594f2930eb99eb3d3be214c6d6d2a20c6364862c5f2ffde98aaaa09295eb3b",
+    "excel": "00c51b6f6ef191f505ed65d0c6dcb56c3cb49fcbef84b6cdca5f4a8feb2f9fda",
+    "pdf": "5048aaf516b6351e4f2502e629a841bb53a4eeb1ee616a9b7c58e28840a74aa3",
+    "pages": 3,
+    "rows": 45
+  },
+  "spectrum_200_221": {
+    "curve_count": 2,
+    "visible_point_count": 4096,
+    "sha256": "3bf8d8b57d774215232d51c7a4c30ebc78f05f0498b7f929932c1bb24bea477e"
+  },
+  "spectrum_204.5_208.1": {
+    "curve_count": 2,
+    "visible_point_count": 722,
+    "sha256": "ad8798313c45192a663695c686930febf9a313f69182503242b7537ac06f737e"
+  },
+  "simulator": {
+    "frame_variants": 96,
+    "mean_blobs": 24,
+    "all_equal": true,
+    "sha256": "6dd426a6ed76e8f44b27a811b992d894be7af291a51a8770fcca23e808575c2e"
+  },
+  "openapi": {
+    "equal": true,
+    "paths": 176,
+    "sha256": "f46f2b243b69d7e8dede69cdadcbb258b8330102447dec1bc94d101c5f94926d"
+  }
+}

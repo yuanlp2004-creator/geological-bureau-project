@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "batch": "2026-10-17-sample-column-table",
+  "executed_plan_sha256": "3d822552546b35819f1fe823d74a3a51e9a679f8fb0c1250015d44d0ddaca098",
+  "layout": {
+    "rows_per_column": 10,
+    "columns_per_page": 3,
+    "items_per_page": 30,
+    "order": "top-to-bottom then left-to-right",
+    "name_lengths": [
+      12,
+      20
+    ],
+    "append_does_not_rebalance": true,
+    "narrow_window": "scroll inside table; slot mapping stays fixed",
+    "sample_details": "selected sample details below table; delete selected item"
+  },
+  "tests": {
+    "frontend_passed": 15,
+    "queue_and_contract_backend_passed": 12,
+    "browser_special_checks": 7,
+    "frozen_desktop_special_checks": 7,
+    "prior_d05_a01_regression_checks": 5,
+    "layouts_each": [
+      {
+        "width": 1440,
+        "theme": "light"
+      },
+      {
+        "width": 1060,
+        "theme": "dark"
+      }
+    ],
+    "typecheck_vite_and_tauri_production_qa_passed": true
+  },
+  "packaging": {
+    "root_pair": {
+      "GeoSpectrum.exe": "d226236b25e32679ecb36246c4ee63fdb108a2aa4c05cec9df4af2cac727f3ad",
+      "geospectrum-backend.exe": "5502d6c0d359f2cb5f7d4c8c82845def008ecaedb3d1ba987b5c0017d3fe721d"
+    },
+    "source_count": 351,
+    "production_qa_sources_identical": true,
+    "production_qa_frontend_identical": true,
+    "current_sources_match_packages": true,
+    "backend_bytes_unchanged": true,
+    "root_pair_match_archive": true,
+    "previous_root_entries": "app/.local/releases/2026-10-17-sample-column-table/previous/root-entry-20261017-165312",
+    "installer_updated": false
+  },
+  "protection": {
+    "selected_business_files": {
+      "geospectrum.sqlite3": "1c39e0975a099d9c0b83afe901f1381a33b6258b9df0883bd67f9f4c2d3a6ad0",
+      "last-upgrade.json": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39",
+      "backups\\pre-upgrade-v20-to-v21-20260925T164327Z-164f8c9d.sqlite3": "b1903dcc0d42d0dd036bcb498a74129ad157a2b9abab77e40be0673494f6d1a4",
+      "backups\\pre-upgrade-v21-to-v23-20261007T101301Z-75fa3350.sqlite3": "58aa133625a200331647e003d894cd774a24335ccda697f3ab5acbdc9270108e",
+      "print-jobs\\b3df28cbb08e440380f6ba80a235280a\\render-input.json": "54c8d3c664c638dcbcab093fcc12775f05a2f9e5c170e5fbe4a2b6233dd450cf",
+      "print-jobs\\d00fa0a61dc84620bd72b01a8396ab69\\render-input.json": "54c8d3c664c638dcbcab093fcc12775f05a2f9e5c170e5fbe4a2b6233dd450cf"
+    },
+    "business_files_unchanged": true,
+    "critical_main_db_exists": true,
+    "old_source_files_checked": 106,
+    "old_source_files_unchanged": true,
+    "backend_source_files_checked": 185,
+    "backend_sources_unchanged": true,
+    "root_and_app_inventories_unchanged": true,
+    "user_running_windows_preserved": true,
+    "schema_version": 23
+  },
+  "product_changes": [
+    "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "app/frontend/src/pages/sampleQueues/SampleNumberTable.tsx",
+    "app/frontend/src/pages/sampleQueues/sample-queue.css"
+  ],
+  "regression_files": [
+    "app/tests/sample_column_table_workflow.mjs",
+    "app/tests/contract_additions_workflow.mjs",
+    "app/tests/legacy_d05_contract_workflow.mjs"
+  ],
+  "limits": [
+    "Deleting a record follows the existing queue compaction rule; stable positions are guaranteed for append, not deletion.",
+    "At most 30 samples shown per page; adding record 31 leaves the current page in place, use Next to view it.",
+    "No hardware, physical print, signing, clean-Windows or formal acceptance claims."
+  ],
+  "final_verification": {
+    "sources_and_root_pair_match": true,
+    "selected_user_data_and_old_sources_unchanged": true,
+    "root_and_app_inventories_unchanged": true,
+    "git_diff_check_passed": true,
+    "relative_links_checked": 289,
+    "missing_links": 0,
+    "acceptance_status_rows": 25,
+    "offline_manual_verified": true,
+    "current_plan_sha256": "157833923665cd8cba46d059abcf14b10cf62a570b82bd54141d3de37f8b9805"
+  }
+}

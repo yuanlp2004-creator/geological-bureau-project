@@ -1,0 +1,12 @@
+{
+  "mode": "desktop",
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-20-legacy-shortcuts\\qa\\GeoSpectrum.exe",
+  "sha256": "32fc3cd5ed2be99e29d7df26feac9060e10e22e9a811a85a3557f9350588ede1",
+  "pid": 26772,
+  "returncodes": [
+    0
+  ],
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}

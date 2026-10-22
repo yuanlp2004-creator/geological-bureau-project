@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "checks": [
+    "旧QA程序选择真实列表摘要后React崩溃，工作区被卸载"
+  ],
+  "errors": [
+    "Cannot read properties of undefined (reading 'rows')"
+  ],
+  "list_reports": [
+    {
+      "id": 4,
+      "report_number": "旧数据测试-DAT原值-单位未记录"
+    },
+    {
+      "id": 3,
+      "report_number": "旧数据测试-04-CMT"
+    },
+    {
+      "id": 2,
+      "report_number": "旧数据测试-02-CMT"
+    },
+    {
+      "id": 1,
+      "report_number": "旧数据测试-01-CMT"
+    }
+  ]
+}

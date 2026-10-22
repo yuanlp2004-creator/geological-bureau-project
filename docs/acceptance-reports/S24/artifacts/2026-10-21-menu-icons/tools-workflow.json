@@ -1,0 +1,149 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "加载 DiT 主模型 (INT8)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载文本编码器 (Qwen3-VL W4A8)"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载 VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "prompt": "为Windows光谱分析仪软件制作统一的高清功能菜单图标集。参考图仅用于颜色、轮廓、扁平风格与大小参考，不要照抄参考图中的图形；改画下面指定的新功能图形。\n画布1152乘768像素，严格3列2行，共6个互不相连的独立图标，每格384乘384像素。每个图标居中，约占格子65%，均匀留白。\n图形必须按照从左到右、从上到下的顺序：\n1：蓝色圆形转台，上方一根竖立金色光学组件，外侧一段清晰绿色旋转箭头。\n2：蓝灰色灯座上一根青蓝玻璃灯管，两侧简短金色光芒。\n3：蓝灰色小计算器，白色显示屏，四个小按键，右上方一个绿色循环箭头。\n4：蓝灰色数据库圆柱，前方绿色环形备份箭头。\n5：打开的白色书本，深蓝色封面和书页边线，中间少量金色书签。\n6：一把简洁深蓝色扳手与一根金色螺丝刀交叉放置。\n\n风格统一为精致清晰的经典桌面工具图标：现代扁平、简洁几何轮廓，适量自然圆角，深蓝灰边线，蓝色/青色、金黄色、绿色为主色，少量红色点缀。使用中等偏粗线条，有限大色块，24像素缩小显示仍可辨认，形状饱满、平滑锐利；不是像素画，不是照片，不是立体3D，不加光晕、模糊、阴影或装饰纹理。\n背景必须为纯白色RGB255，不画格线、边框、标题、文字、数字、字母、标签或水印。白色纸张和白色书页必须保留。只画指定数量图标，不能调换顺序、合并或漏画。",
+      "negative_prompt": "",
+      "resolution": 0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_1": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Qwen 2.1 文本/多模态条件编码"
+    }
+  },
+  "6": {
+    "inputs": {
+      "seed": 2026102103,
+      "steps": 30,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "4",
+        1
+      ],
+      "latent_image": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (30 steps / CFG 1.0)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "geospectrum/menu-20261021/tools",
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "10": {
+    "class_type": "ModelAttentionBackend",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "attention": "comfy kitchen attention"
+    },
+    "_meta": {
+      "title": "Comfy Kitchen Attention (INT8)"
+    }
+  },
+  "11": {
+    "class_type": "EasyCache",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "reuse_threshold": 0.1,
+      "start_percent": 0.15,
+      "end_percent": 0.85,
+      "verbose": false
+    },
+    "_meta": {
+      "title": "EasyCache (0.10 / 0.15-0.85)"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "geospectrum-menu-20261021/tools-menu-reference.png"
+    }
+  }
+}

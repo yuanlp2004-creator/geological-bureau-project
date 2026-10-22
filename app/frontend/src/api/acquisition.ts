@@ -1,10 +1,18 @@
-/** acquisition requests and models; moved without changing payloads or responses. */
 import { request } from './client'
 import type { DeviceEvent } from './devices'
 import type { SampleQueue } from './sampleQueues'
-
-export type AcquisitionState = 'draft' | 'countdown' | 'pre_excitation' | 'burn' | 'dark' | 'between_repeats' | 'paused' | 'stopping' | 'completed' | 'failed' | 'stopped'
-
+export type AcquisitionState =
+  | 'draft'
+  | 'countdown'
+  | 'pre_excitation'
+  | 'burn'
+  | 'dark'
+  | 'between_repeats'
+  | 'paused'
+  | 'stopping'
+  | 'completed'
+  | 'failed'
+  | 'stopped'
 export type AcquisitionSample = {
   id: number
   task_id: number
@@ -16,12 +24,26 @@ export type AcquisitionSample = {
   storage_mode: 'averaged' | 'full_interval'
   status: 'collecting' | 'completed' | 'failed' | 'stopped'
   finalized: boolean
+  discarded: boolean
+  disposal: {
+    reason: string
+    created_at: string
+  } | null
   result_sha256: string | null
   failure_code: string | null
   failure_message: string | null
-  bands: Array<{ id: number; ccd_index: number; storage_mode: string; points_count: number; burn_frame_count: number; dark_frame_count: number; mean_sha256: string; burn_sha256: string | null; dark_sha256: string | null }>
+  bands: Array<{
+    id: number
+    ccd_index: number
+    storage_mode: string
+    points_count: number
+    burn_frame_count: number
+    dark_frame_count: number
+    mean_sha256: string
+    burn_sha256: string | null
+    dark_sha256: string | null
+  }>
 }
-
 export type AcquisitionMessage = {
   id: number
   task_id: number
@@ -31,7 +53,6 @@ export type AcquisitionMessage = {
   details: Record<string, unknown>
   created_at: string
 }
-
 export type AcquisitionTask = {
   id: number
   task_kind: 'evaporation' | 'sample'
@@ -46,6 +67,7 @@ export type AcquisitionTask = {
   queue_item_id: number | null
   sample_name: string
   sample_kind: AcquisitionSample['sample_kind']
+  name_length: 10 | 12 | 20
   naming_mode: 'pre_recorded' | 'temporary' | 'post'
   storage_mode: 'averaged' | 'full_interval'
   repeat_count: number
@@ -76,11 +98,16 @@ export type AcquisitionTask = {
   profile: { id: number; name: string; transport: string; mirror: boolean }
   samples: AcquisitionSample[]
   messages: AcquisitionMessage[]
-  intervals: Array<{ id: number; repeat_index: number; label: string; start_frame_index: number; end_frame_index: number }>
+  intervals: Array<{
+    id: number
+    repeat_index: number
+    label: string
+    start_frame_index: number
+    end_frame_index: number
+  }>
   created_at: string
   updated_at: string
 }
-
 export type AcquisitionFrame = {
   id: number
   task_id: number
@@ -107,39 +134,165 @@ export type AcquisitionFrame = {
   damage_message: string | null
   captured_at: string
 }
-
 export type AcquisitionOptions = {
+  preliminary_defaults?: { evaporation: import('./system').PreliminaryConditions; dispersion: import('./system').PreliminaryConditions }
   task_kinds: Array<'evaporation' | 'sample'>
   sample_kinds: AcquisitionSample['sample_kind'][]
   storage_modes: Array<'averaged' | 'full_interval'>
   states: AcquisitionState[]
-  profiles: Array<{ id: number; name: string; transport: string; ccd_indices: number[]; points_per_ccd: number }>
-  layouts: Array<{ id: number; name: string; frame_count: number; ccds_per_frame: number; points_per_ccd: number; ccd_indices: number[] }>
-  methods: Array<{ method_id: number; method_version: number; name: string }>
+  profiles: Array<{
+    id: number
+    name: string
+    transport: string
+    ccd_indices: number[]
+    points_per_ccd: number
+  }>
+  layouts: Array<{
+    id: number
+    name: string
+    frame_count: number
+    ccds_per_frame: number
+    points_per_ccd: number
+    ccd_indices: number[]
+  }>
+  methods: Array<{ method_id: number; method_version: number; name: string; conditions?: import('./methods').MethodConditions }>
   queues: SampleQueue[]
 }
-
 export type AcquisitionAnalysis = {
   task_id: number
   repeat_index: number
   points_per_ccd: number
   curves: AcquisitionFrame[]
-  intervals: Array<Record<string, unknown> & { label: string; stats: Array<Record<string, unknown> & { ccd_index: number; point_mean: number[] }> }>
+  intervals: Array<
+    Record<string, unknown> & {
+      label: string
+      stats: Array<Record<string, unknown> & { ccd_index: number; point_mean: number[] }>
+    }
+  >
 }
-
 export const acquisitionApi = {
-  acquisitionOptions: (token: string) => request<AcquisitionOptions>('/api/v1/acquisitions/options', { headers: { Authorization: `Bearer ${token}` } }),
-  acquisitionTasks: (token: string) => request<AcquisitionTask[]>('/api/v1/acquisitions/tasks', { headers: { Authorization: `Bearer ${token}` } }),
-  createAcquisitionTask: (token: string, payload: Record<string, unknown>) => request<AcquisitionTask>('/api/v1/acquisitions/tasks', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  acquisitionTask: (token: string, taskId: number, includePoints = false) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
-  startAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  stepAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  pauseAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/pause`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  resumeAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/resume`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  stopAcquisitionTask: (token: string, taskId: number) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/stop`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
-  acquisitionFrames: (token: string, taskId: number, params = '') => request<AcquisitionFrame[]>(`/api/v1/acquisitions/tasks/${taskId}/frames${params}`, { headers: { Authorization: `Bearer ${token}` } }),
-  markAcquisitionInterval: (token: string, taskId: number, payload: { repeat_index: number; label: string; start_frame_index: number; end_frame_index: number }) => request<AcquisitionAnalysis>(`/api/v1/acquisitions/tasks/${taskId}/intervals`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
-  acquisitionAnalysis: (token: string, taskId: number, repeatIndex?: number) => request<AcquisitionAnalysis>(`/api/v1/acquisitions/tasks/${taskId}/analysis${repeatIndex === undefined ? '' : `?repeat_index=${repeatIndex}`}`, { headers: { Authorization: `Bearer ${token}` } }),
-  acquisitionBands: (token: string, sampleId: number, includePoints = false) => request<Array<Record<string, unknown>>>(`/api/v1/acquisitions/samples/${sampleId}/bands${includePoints ? '?include_points=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
-  renameAcquisitionSample: (token: string, taskId: number, sampleId: number, postName: string) => request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/samples/${sampleId}/rename`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ post_name: postName }) }),
+  saveEvaporationDefaults: (token: string, payload: import('./system').PreliminaryConditions) =>
+    request<import('./system').PreliminaryConditions>('/api/v1/acquisitions/defaults', {
+      method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
+    }),
+  acquisitionMeasurements: (token: string, taskId: number) =>
+    request<AcquisitionMeasurements>(`/api/v1/acquisitions/tasks/${taskId}/measurements`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  discardAcquisitionSample: (token: string, taskId: number, reason: string) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/discard`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ reason })
+    }),
+  acquisitionOptions: (token: string) =>
+    request<AcquisitionOptions>('/api/v1/acquisitions/options', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  acquisitionTasks: (token: string, taskKind?: AcquisitionTask['task_kind']) =>
+    request<AcquisitionTask[]>(`/api/v1/acquisitions/tasks${taskKind ? `?task_kind=${taskKind}` : ''}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  createAcquisitionTask: (token: string, payload: Record<string, unknown>) =>
+    request<AcquisitionTask>('/api/v1/acquisitions/tasks', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  acquisitionTask: (token: string, taskId: number, includePoints = false) =>
+    request<AcquisitionTask>(
+      `/api/v1/acquisitions/tasks/${taskId}${includePoints ? '?include_points=true' : ''}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    ),
+  startAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stepAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  pauseAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/pause`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  resumeAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/resume`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  stopAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/stop`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  acquisitionFrames: (token: string, taskId: number, params = '') =>
+    request<AcquisitionFrame[]>(`/api/v1/acquisitions/tasks/${taskId}/frames${params}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  markAcquisitionInterval: (
+    token: string,
+    taskId: number,
+    payload: { repeat_index: number; label: string; start_frame_index: number; end_frame_index: number }
+  ) =>
+    request<AcquisitionAnalysis>(`/api/v1/acquisitions/tasks/${taskId}/intervals`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+  acquisitionAnalysis: (token: string, taskId: number, repeatIndex?: number) =>
+    request<AcquisitionAnalysis>(
+      `/api/v1/acquisitions/tasks/${taskId}/analysis${repeatIndex === undefined ? '' : `?repeat_index=${repeatIndex}`}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+  acquisitionBands: (token: string, sampleId: number, includePoints = false) =>
+    request<Array<Record<string, unknown>>>(
+      `/api/v1/acquisitions/samples/${sampleId}/bands${includePoints ? '?include_points=true' : ''}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+  renameAcquisitionSample: (
+    token: string,
+    taskId: number,
+    sampleId: number,
+    postName: string,
+    nameLength?: 12 | 20
+  ) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/samples/${sampleId}/rename`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ post_name: postName, name_length: nameLength })
+    })
+}
+export type AcquisitionMeasurements = {
+  task_id: number
+  method_version_id: number | null
+  calculation_profile?: string
+  message: string
+  provisional: boolean
+  rows: Array<{
+    sample_id: number
+    sample_name: string
+    repeat_index: number
+    line_id: string
+    element: string
+    wavelength_nm: number
+    complete: boolean
+    message: string
+    unit: string
+    decimal_places?: number
+    peak_position?: number
+    peak_height?: number
+    background?: number
+    net_signal?: number
+    quantitative_signal?: number
+    burn_count?: number
+    dark_count?: number
+    concentration: number | null
+    curve_snapshot_id: number | null
+  }>
 }

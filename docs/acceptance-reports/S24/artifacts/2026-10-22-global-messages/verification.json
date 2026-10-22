@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-global-messages",
+  "plan_sha256_at_start": "d6659cb9c875955d36d0f12ddf5a38a7e47d675fbaec2e03e4591f106a94077d",
+  "backend_tests": 61,
+  "frontend_tests": 15,
+  "browser_checks": 14,
+  "desktop_checks": 14,
+  "page_layouts_each": 50,
+  "device_debug_layouts_each": 16,
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-global-messages\\qa\\GeoSpectrum.exe",
+    "pid": 18160,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "source_count": 423,
+  "protected_files_unchanged": 160,
+  "schema_version": 23,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "database": {
+    "path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "exists": true,
+    "before": "2213c58db92d489926bf0693d3dbf057568de3c636996c7c335818a32ed57004",
+    "after": "2213c58db92d489926bf0693d3dbf057568de3c636996c7c335818a32ed57004",
+    "main_file_hash_unchanged": true,
+    "qa_used_fresh_isolated_data": true
+  },
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "baaf08840bc69ad6fadb4b2788cc91be843ec1828bb5f971561bb5d8e4642285",
+    "geospectrum-backend.exe": "2e5b9684b03fdd5870d9c4348e6fe791248843d1d1b58ef74985ffb535552a04"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-global-messages\\previous",
+  "changed_existing_sources": [
+    "app/backend/runtime.py",
+    "app/backend/api/acquisition.py",
+    "app/backend/api/analysis.py",
+    "app/backend/api/devices.py",
+    "app/backend/api/dispersion.py",
+    "app/backend/api/hardware_acquisition.py",
+    "app/backend/api/mercury_calibration.py",
+    "app/frontend/src/components/MessagePanel.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "PLAN.md"
+  ],
+  "new_product_sources": [
+    "app/backend/runtime_messages.py",
+    "app/frontend/src/components/message-panel.css"
+  ],
+  "installer_rebuilt": false
+}

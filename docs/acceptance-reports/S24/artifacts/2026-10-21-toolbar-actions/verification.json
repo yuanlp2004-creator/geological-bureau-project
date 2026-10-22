@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "batch": "2026-10-21-toolbar-actions",
+  "executed_plan_sha256": "638a7c62882a789508cbde7db09e34bf8402f7cb78727bcf7979de982f4d8248",
+  "modified_product_files": [
+    "app/frontend/src/components/FunctionIcon.tsx",
+    "app/frontend/src/layout/QuickAccessBar.tsx",
+    "app/frontend/src/layout/Sidebar.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx"
+  ],
+  "added_product_files": [
+    "app/frontend/src/pages/methods/OpenMethodDialog.tsx"
+  ],
+  "affected_test": "app/tests/legacy_shortcuts_workflow.mjs",
+  "behavior": {
+    "first_level_navigation_icons": false,
+    "expanded_menu_icons": true,
+    "method_open_chooser": "immediate",
+    "method_open_confirm": "existing service loads saved method and makes it current",
+    "new_and_copy": "immediate form and actual record creation",
+    "sample_entry": "focus input; Enter saves through existing service",
+    "parameters_and_lines": "exact views",
+    "acquisition_and_analysis": "existing operating workspaces with their confirmation and guards"
+  },
+  "tests": {
+    "typescript_vite": "passed",
+    "production_tauri": "passed",
+    "qa_tauri": "passed",
+    "browser_checks": 9,
+    "actual_packaged_desktop_checks": 9,
+    "layouts_per_run": 4,
+    "open_cancel_failure_retry": "passed",
+    "unsaved_protection": "passed",
+    "duplicate_open_submission": "passed",
+    "write_permission": "passed"
+  },
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "dfe361f587b112e3fe2ef28619923b1c2e84a4dc69e18ea371ad4e85af2a09f1",
+    "geospectrum-backend.exe": "f575bcc5586979a9fdc5c5206b7c1fc0c22cc8de982896367f783de13e3ade09"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-toolbar-actions\\previous\\root-entry-20261021-010103",
+  "desktop": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-21-toolbar-actions\\qa\\GeoSpectrum.exe",
+    "sha256": "22eb980a92196d371c5fa5b16b6c815635558fc62018151caeac77a30eb96c4b",
+    "pid": 9452,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "data": {
+    "tests_use_fresh_isolated_databases": true,
+    "fixtures_created_by_public_method_service": true,
+    "temporary_test_data_removed": true,
+    "live_database_overwritten": false,
+    "live_main_file_hash_matches_start": true
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "legacy_source_files_preserved": 106,
+  "all_icon_bytes_preserved": true,
+  "native_method_file_picker": "cancel response verified at IPC boundary; physical OS selection not exercised",
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false
+}

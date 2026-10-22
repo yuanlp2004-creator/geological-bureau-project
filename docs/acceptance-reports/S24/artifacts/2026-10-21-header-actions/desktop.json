@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "checks": [
+    "Settings title, saved-state badge, Reset and Save share one row in both window sizes and themes",
+    "Save failure retains the settings draft without changing persisted values",
+    "The header Save button still persists the original page fields through the real API",
+    "The header Reset button restores defaults and refreshes the settings form",
+    "Leaving Settings removes its header controls without leaking actions into another page"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1060,
+      "height": 680
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "height": 680
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-data-output",
+  "executed_plan_sha256": "35e83630b64c0c47e114fa414963bf5a35a959556fd5b67fef6164798f9fced6",
+  "product_changes": [
+    "app/backend/modules/manifest.py",
+    "app/frontend/src/navigation.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/postprocessing/data-processing.css",
+    "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx",
+    "app/frontend/src/pages/postprocessing/FullTimeOutput.tsx",
+    "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "app/frontend/src/pages/reports/ReportsPage.tsx"
+  ],
+  "tests": {
+    "backend": 35,
+    "frontend": 16,
+    "browser": 9,
+    "desktop": 7,
+    "regression": 10
+  },
+  "layouts": {
+    "browser": 9,
+    "desktop": 9,
+    "regression": 12
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "f4a468681af4859805b4f51cecbaf85c9e630edf36b7977cce532bab8dd001a6",
+    "geospectrum-backend.exe": "a1c104dc6b3b5a3f2f2cfa8746fe89dfad0fb4413054be4b5bdab05496edca7e"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-data-output\\previous\\root-entry-20261018-121649",
+  "frozen_sources": 356,
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "schema_version": 23,
+  "api_algorithms_and_role_grants_changed": false,
+  "navigation_permissions": "combined output entry accepts registered report/postprocessing/analysis read permissions; individual tabs and actions keep original guards",
+  "preservation": {
+    "selected_user_files": 10,
+    "byte_unchanged_user_files": 10,
+    "data_differences": [],
+    "legacy_files_unchanged": 106,
+    "root_app_inventory_unchanged": true
+  },
+  "build_environment": "system Python 3.11 with pywin32; initial incomplete build-venv package rejected by desktop QA and rebuilt before delivery",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-data-output\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "ccabd1d1fdfdaf353da5c24d1db2c4faeec7900909e4f919afa2df5b98536a66",
+    "pid": 3896,
+    "shown_window_handles": [
+      16647688
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false,
+  "physical_print_tested": false
+}

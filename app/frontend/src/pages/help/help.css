@@ -1,0 +1,72 @@
+:root .app-shell .help-page .help-grid {
+  grid-template-columns: minmax(235px, 285px) minmax(0, 1fr);
+  align-items: start;
+}
+:root .app-shell .help-page .help-topic-list { max-height: min(68vh, 760px); }
+:root .app-shell .help-page .help-article { min-width: 0; }
+:root .app-shell .help-page .help-manual {
+  max-width: 80ch;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+}
+:root .app-shell .help-page .help-manual p { margin: 12px 0; color: inherit; }
+:root .app-shell .help-page .help-manual h3 {
+  margin: 26px 0 10px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: inherit;
+  scroll-margin-top: 24px;
+}
+:root .app-shell .help-page .help-manual ol,
+:root .app-shell .help-page .help-manual ul { padding-left: 1.7em; margin: 12px 0; }
+:root .app-shell .help-page .help-manual li { margin: 0 0 10px; padding-left: 4px; }
+:root .app-shell .help-page .help-manual code { font-size: .92em; overflow-wrap: anywhere; }
+:root .app-shell .help-page .help-contents {
+  display: flex;
+  gap: 6px 18px;
+  flex-wrap: wrap;
+  margin: 18px 0 22px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+}
+:root .app-shell .help-page .help-contents strong { flex-basis: 100%; }
+:root .app-shell .help-page .help-contents a { color: var(--blue); text-underline-offset: 3px; }
+:root .app-shell .help-page .help-table-scroll { overflow-x: auto; margin: 14px 0; }
+:root .app-shell .help-page .help-manual table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.8; }
+:root .app-shell .help-page .help-manual th,
+:root .app-shell .help-page .help-manual td { border: 1px solid var(--line); padding: 9px 12px; text-align: left; vertical-align: top; }
+:root .app-shell .help-page .help-manual th { font-weight: 600; }
+:root .app-shell .help-page .help-manual td:first-child { min-width: 95px; }
+:root .app-shell .help-page .help-related { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+:root .app-shell .help-page .help-related > strong { flex-basis: 100%; font-size: 13px; }
+:root .app-shell .help-page .help-illustration { margin: 18px 0; }
+:root .app-shell .help-page .help-image-button {
+  display: block; width: 100%; padding: 0; border: 1px solid var(--line);
+  border-radius: 6px; overflow: hidden; background: white; cursor: zoom-in;
+}
+:root .app-shell .help-page .help-illustration img { display: block; width: 100%; height: auto; }
+:root .app-shell .help-page .help-illustration figcaption {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px;
+  margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.7;
+}
+:root .app-shell .help-page .help-illustration figcaption span { white-space: nowrap; }
+:root .app-shell .help-page .help-image-dialog {
+  max-width: min(94vw, 1280px); max-height: 90vh; padding: 16px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--surface, white); color: var(--ink);
+}
+:root .app-shell .help-page .help-image-dialog::backdrop { background: rgb(7 19 32 / 70%); }
+:root .app-shell .help-page .help-image-heading {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px;
+}
+:root .app-shell .help-page .help-image-dialog img { display: block; max-width: 100%; height: auto; }
+@media (max-width: 900px) {
+  :root .app-shell .help-page .help-grid { grid-template-columns: minmax(200px, 235px) minmax(0, 1fr); }
+}
+@media (max-width: 700px) {
+  :root .app-shell .help-page .help-grid { grid-template-columns: minmax(0, 1fr); }
+  :root .app-shell .help-page .help-topic-list { max-height: 260px; }
+}

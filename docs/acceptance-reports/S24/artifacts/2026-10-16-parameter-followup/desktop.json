@@ -1,0 +1,166 @@
+{
+  "status": "passed",
+  "checks": [
+    "旧版六项与条件名称保持；真实保存保留原工作类型、四项隐藏质控值和原发布哈希",
+    "单个内标谱线下拉可保存三种模式；对数坐标双向保存；隐藏数值类型/容差、关键波段和高级参数保持",
+    "背景做内标自动补充缺失的参考基线引用；已有引用和背景位置不重置",
+    "收起的高级谱线参数仍校验：优先级 101 自动展开提示、零 PATCH、版本不变",
+    "软件设置只保留备份和显示常用项；保存仍保留四目录及打印值；高级日志无效值自动展开且零写入",
+    "打印常用功能与旧名称预览可用；四边距收起且原值保持；份数/双面/彩色无入口但存值保持；非法边距零保存",
+    "样品/转角/汞灯模拟参数默认收起，串口不显示，切回模拟器保留草稿；独立转角 JSON 收起",
+    "样品入口：历史记录、方法与全时保存、非法输入零写入、暂停恢复及模拟完成",
+    "蒸发入口：独立条件、单次完整全时帧、暂停恢复和区间标记，无样品配置或定量面板",
+    "两个任务列表独立，快速切换后的延迟响应不污染另一业务页",
+    "两个页面在暗色紧凑1060宽窗口无横向溢出",
+    "只读角色可见两个入口；无当前方法时禁用，既有采集读写权限边界保持",
+    "1440 明色与 1060 暗色下谱线/设置/打印无横向溢出，截图留存；原发布版本哈希保持",
+    "N09：分组权限覆盖全部既有/扩展权限；重名失败保留勾选；真实创建只提交三项，原角色授权保持",
+    "N09：新角色实际登录权限精确匹配，创建角色/修改设置均被后端 403 拒绝",
+    "P01：设备模拟参数收起，串口隐藏、切回保值；连接/开始/停止/断开真实 API 保留并使用非默认样本/种子",
+    "P03：高级异常处理收起后仍按 manual/4 创建转角任务，关键优先与短波到长波两策略保留",
+    "P04：汞灯稳定帧数收起但非默认 3 原样保存，汞线及校准会话入口保留",
+    "P02/N07：计算模式两引擎值保留；慢进超时收起、关闭重开保值、非法零提交、实际创建保留 432 秒",
+    "N02/N05：曲线对数勾选实际双向保存，四拟合逐项保存，原分析输入/发布曲线保持，全部还原旧名可用",
+    "P06/P07/N01/N03/N07：优先级仅留详情、参考线定位旧名、打印兼容附节保留全部非默认值，重算两模式保留",
+    "dispersion: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "sample-acquisition: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "mercury-calibration: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "hardware-acquisition: light/1440 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "dispersion: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "sample-acquisition: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "mercury-calibration: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "hardware-acquisition: dark/1060 真实点值、十字线、锁定、双轴缩放、框选、平移，观察零写入",
+    "色散人工定位：缩放后零起点坐标123原样提交，无一位偏移",
+    "色散已保存单帧与燃烧区间观察均值符合原始帧，观察不改拟合输入",
+    "切换空任务清空锁定与谱图，禁止旧点位提交",
+    "观察点位空输入清除定位锁定，不阻断有效采集条件的新建任务",
+    "N06：三类摄谱及汞灯的旧名谱图工具完成真实点值、双轴缩放、区域放大和滚动回归",
+    "明暗 1440/1060 实际可用宽度：权限勾选、设备、色散、转角、汞灯均无横溢出"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "spectral": {
+        "viewport": 1425,
+        "document": 1425,
+        "body": 1425
+      },
+      "settings": {
+        "viewport": 1440,
+        "document": 1440,
+        "body": 1440
+      },
+      "print": {
+        "viewport": 1425,
+        "document": 1425,
+        "body": 1425
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "spectral": {
+        "viewport": 1045,
+        "document": 1045,
+        "body": 1045
+      },
+      "settings": {
+        "viewport": 1060,
+        "document": 1060,
+        "body": 1060
+      },
+      "print": {
+        "viewport": 1045,
+        "document": 1045,
+        "body": 1045
+      },
+      "overflow": false
+    },
+    {
+      "surface": "users",
+      "theme": "light",
+      "width": 1440,
+      "viewport": 1425,
+      "document": 1425,
+      "body": 1425
+    },
+    {
+      "surface": "acquisition",
+      "theme": "light",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "surface": "dispersion",
+      "theme": "light",
+      "width": 1440,
+      "viewport": 1425,
+      "document": 1425,
+      "body": 1425
+    },
+    {
+      "surface": "hardware-acquisition",
+      "theme": "light",
+      "width": 1440,
+      "viewport": 1425,
+      "document": 1425,
+      "body": 1425
+    },
+    {
+      "surface": "mercury-calibration",
+      "theme": "light",
+      "width": 1440,
+      "viewport": 1425,
+      "document": 1425,
+      "body": 1425
+    },
+    {
+      "surface": "users",
+      "theme": "dark",
+      "width": 1060,
+      "viewport": 1045,
+      "document": 1045,
+      "body": 1045
+    },
+    {
+      "surface": "acquisition",
+      "theme": "dark",
+      "width": 1060,
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "surface": "dispersion",
+      "theme": "dark",
+      "width": 1060,
+      "viewport": 1045,
+      "document": 1045,
+      "body": 1045
+    },
+    {
+      "surface": "hardware-acquisition",
+      "theme": "dark",
+      "width": 1060,
+      "viewport": 1045,
+      "document": 1045,
+      "body": 1045
+    },
+    {
+      "surface": "mercury-calibration",
+      "theme": "dark",
+      "width": 1060,
+      "viewport": 1045,
+      "document": 1045,
+      "body": 1045
+    }
+  ],
+  "startup_targets": [
+    "http://tauri.localhost/"
+  ]
+}

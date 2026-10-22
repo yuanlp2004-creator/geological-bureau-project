@@ -1,0 +1,520 @@
+{
+  "date": "2026-10-08",
+  "status": "passed",
+  "scope": "G01-G15",
+  "execution_plan_sha256": "3080107b6b2d1323f73cc0d597ae2e34b238bf79c32735f93266d2bce74d7f7e",
+  "database_schema": 23,
+  "verification": {
+    "backend": {
+      "passed": 276,
+      "skipped": 0
+    },
+    "new_parameterized_tests": 17,
+    "last_targeted_tests": 43,
+    "frontend_unit": 8,
+    "existing_browser": 23,
+    "new_browser_groups": 7,
+    "frozen_desktop_groups": 7,
+    "desktop_exit_code": 0,
+    "desktop_owned_processes_remaining": 0,
+    "typescript_vite_tauri_build": "passed"
+  },
+  "delivery": {
+    "status": "passed",
+    "production_identifier": "cn.geospectrum.desktop",
+    "archive": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-spec-gap-fill\\previous",
+    "files": [
+      {
+        "name": "GeoSpectrum.exe",
+        "size": 11784704,
+        "sha256": "10FF0D3A21D7CFAD944D4A9D0C0B15D3ACB1D9F44F4DB95AB6E87E1E0614ABD7",
+        "before_sha256": "6EAA982F3458941DF63CC7E03162CE15882C68DB87BA31872A2C25F88F768709"
+      },
+      {
+        "name": "geospectrum-backend.exe",
+        "size": 25096526,
+        "sha256": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51",
+        "before_sha256": "CE5C7599FE7FE5136C4CCA47DCB339B582392B70E880958B242C579D7968CFD0"
+      }
+    ],
+    "user_pid_29484_present": true
+  },
+  "desktop_qa": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-08-spec-gap-fill\\qa\\GeoSpectrum.exe",
+    "pid": 25048,
+    "isolated_identifier": "cn.geospectrum.desktop.specgapqa",
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "qa_variant_difference": "Independent Tauri identifier only; same final frontend and sidecar, isolated data and WebView.",
+  "root_runtime_tested": false,
+  "root_runtime_reason": "Existing user window retained. Final production files verified by paired hashes and identifier.",
+  "protected_user_files_before": {
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3": {
+      "size": 116432896,
+      "sha256": "6e29432c351aad66ed59821d6bd585d12b8601461e3f5805923fd2559cf630ed"
+    },
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\last-upgrade.json": {
+      "size": 606,
+      "sha256": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39"
+    }
+  },
+  "protected_user_files_after": {
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3": {
+      "size": 116432896,
+      "sha256": "6e29432c351aad66ed59821d6bd585d12b8601461e3f5805923fd2559cf630ed"
+    },
+    "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\last-upgrade.json": {
+      "size": 606,
+      "sha256": "fb635989c13d83d1c08bb386a0e199cb31d25c45122be2fe487807ef90f98b39"
+    }
+  },
+  "user_data_unchanged": true,
+  "root_and_app_entry_lists_unchanged": true,
+  "existing_css_files_unchanged": [
+    "app/frontend/src/components/legacySources.css",
+    "app/frontend/src/components/simple-chart-axes.css",
+    "app/frontend/src/pages/acquisition/sample-acquisition.css",
+    "app/frontend/src/pages/analysis/analysis.css",
+    "app/frontend/src/pages/analysis/quality.css",
+    "app/frontend/src/pages/devices/acquisition.css",
+    "app/frontend/src/pages/dispersion/dispersion.css",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css",
+    "app/frontend/src/pages/mercuryCalibration/mercury-calibration.css",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/migration/migration.css",
+    "app/frontend/src/pages/postprocessing/postprocessing.css",
+    "app/frontend/src/pages/sampleQueues/sample-queue.css",
+    "app/frontend/src/pages/spectra/spectrum-viewer.css",
+    "app/frontend/src/styles/global.css",
+    "app/frontend/src/styles/remaining-pages.css",
+    "app/frontend/src/styles/visual-refinement.css"
+  ],
+  "changes_relative_to_before_snapshot": [
+    {
+      "path": "GeoSpectrum.exe",
+      "before_sha256": "6eaa982f3458941df63cc7e03162ce15882c68db87ba31872a2c25f88f768709",
+      "sha256": "10ff0d3a21d7cfad944d4a9d0c0b15d3acb1d9f44f4db95ab6e87e1e0614abd7"
+    },
+    {
+      "path": "PLAN.md",
+      "before_sha256": "a6e049b0a28897654b2b79650d79b88f6b5b4670e048dc593fe97af5389140a6",
+      "sha256": "3080107b6b2d1323f73cc0d597ae2e34b238bf79c32735f93266d2bce74d7f7e"
+    },
+    {
+      "path": "app/backend/api/analysis.py",
+      "before_sha256": "d70be2f6697fe6a4f81ce83640078b55d1382b179eec093e35ff45d284e41ee9",
+      "sha256": "8b65c7030197ec89a35078a1a98f72bc2e2294c9e1503324f076120bae78ffdb"
+    },
+    {
+      "path": "app/backend/api/methods.py",
+      "before_sha256": "1fcd3c5703324b7f7ab5271cc58a7d885d6ed2407a43a29e3a685084dcba3413",
+      "sha256": "439362af15a4013a20b622229793aef1b70d558c435db8bc59b85e4bdc7dc083"
+    },
+    {
+      "path": "app/backend/api/reports.py",
+      "before_sha256": "9d9dbd62ba2ef2eb9c72d6157a2316335ea9817302d250b944d48af71e885ff0",
+      "sha256": "91a6648edd81209c393ac35ba3e501daf17bb61ce329484ae36800447a87a940"
+    },
+    {
+      "path": "app/backend/modules/acquisition/repository.py",
+      "before_sha256": "b2cd9f3022ba6acbf4d0dba220264fc2a1137bf1264d1fa30ef19daad06fa598",
+      "sha256": "f6d9f9b41007a3631d30f217399a210ee3e752db2a086869a1acdb28db3621b5"
+    },
+    {
+      "path": "app/backend/modules/acquisition/service.py",
+      "before_sha256": "beddb7e418efcd8298f29e81c59c9b640d32d9f27da5bc5d06e9153bda7d4e0d",
+      "sha256": "cac1d3305a46040683f31c26805b744d7122c353cb28dc112cd5e8fdc6c22dde"
+    },
+    {
+      "path": "app/backend/modules/acquisition_import.py",
+      "before_sha256": "0d4e25e43843296c438917047f4df3dfdb69251e77bed7c3e436a588a1f83bf7",
+      "sha256": "bc6fce4aab9bcfbf15a52854135befe8ce7b0f55a823e4bac05c4691aa2b9d2c"
+    },
+    {
+      "path": "app/backend/modules/analysis/algorithms.py",
+      "before_sha256": "c1c741bee271249a04731fd150d2b33ffe81a418bf22af67a6fdd66e0437ef69",
+      "sha256": "553e8ed68476a0c964aeb30b0efb2e466f89d3237e91a65f847f040e4e9fea8a"
+    },
+    {
+      "path": "app/backend/modules/analysis/candidate.py",
+      "before_sha256": "4f076016f8201f95f698f66092340724f439bb5547a1adc16287fef28ddf8fca",
+      "sha256": "9a557453eec30d2a4088911390a3c7e6e1533e7ee0423e0018686313309bfb2b"
+    },
+    {
+      "path": "app/backend/modules/analysis/curves.py",
+      "before_sha256": "840e4724be91f39c204cd89b05388caac33dc2ec6bc4eafd0b75d019e4248cf9",
+      "sha256": "9295b28efa53ac78077028711233a1dfcd7fe6701ce25e92bdf27db6473d2b0e"
+    },
+    {
+      "path": "app/backend/modules/analysis/daily_operations.py",
+      "before_sha256": null,
+      "sha256": "a056abf0f0a24b430e479f78588ad68195fa6011522380caf8942b792ad74459"
+    },
+    {
+      "path": "app/backend/modules/analysis/inputs.py",
+      "before_sha256": "f98e70ad60fa5b83d707bcefd665b2df6837c899c31adcc5075d7c534e05fa34",
+      "sha256": "17117ab044e98f5b4b045fff6fe6848b9d2bea987c926bc7f89bdb3e886f69b8"
+    },
+    {
+      "path": "app/backend/modules/analysis/legacy_curves.py",
+      "before_sha256": null,
+      "sha256": "053dac2297562e6e774791fb6d19ea49335f6979d9c3d999e64bc52340c0a384"
+    },
+    {
+      "path": "app/backend/modules/analysis/measurement.py",
+      "before_sha256": "1a0a3916fe5cc6e219222c4840451d1117bbdb5e72f097da4a0cbe8859d76640",
+      "sha256": "916ee4964ac4c677b7a182255d5321df193b4a221d31fd5f69434fb13e1adf4f"
+    },
+    {
+      "path": "app/backend/modules/analysis/repository.py",
+      "before_sha256": "6af28108230018e5f16bd5ecbbb44b5761a5f9867e7caa495b974b1f45c2913a",
+      "sha256": "8746405d1c80ca7e32faf59c1cb44435ed59bdf843bbbbf147156dd7fc02d784"
+    },
+    {
+      "path": "app/backend/modules/analysis/rules.py",
+      "before_sha256": "0a947d9f1bd1fdee04705646853217220c8763986c85cc1c67c5105bd660d333",
+      "sha256": "062ea33e187ef945238be630d6cb5ece2d2b842f7b6717efb7f1f65b364fcd03"
+    },
+    {
+      "path": "app/backend/modules/analysis/service.py",
+      "before_sha256": "75eb2f9ca44fddc25cb98c3f322f9d90cb8e0c2ac57879a280aa6901d18998d9",
+      "sha256": "c41f5f7a3f12060643972ba50baf0a3392bfb6cf0979719385b2cb047a30952f"
+    },
+    {
+      "path": "app/backend/modules/legacy_migration/normalization.py",
+      "before_sha256": "8586d22f7d23f0946076771d37632c3778c9f91c7a3a72415169d6572a01d463",
+      "sha256": "f5a1f5cf702dfea9802e2e931722b2617c22fe03e3f0365a57944f1ad04b50cc"
+    },
+    {
+      "path": "app/backend/modules/legacy_migration/records.py",
+      "before_sha256": "fbc5de4e03f716827a1dc378475a49a235c2110b5dd700ed6270e36bf83ca4dd",
+      "sha256": "1384dddfd13f4d8f703e912dd5447b19407863d112925463898ad56dd1c2511d"
+    },
+    {
+      "path": "app/backend/modules/legacy_migration/service.py",
+      "before_sha256": "2a41eaef9f897d7c7ac4163f2e39384a045e4513ee58dc39bd3ea117d2a44267",
+      "sha256": "64611d3ac992895f7c957c642920da0000050a01112661f418dadfa40c1fb040"
+    },
+    {
+      "path": "app/backend/modules/manifest.py",
+      "before_sha256": "39a7021c427aae2364f4f5a5f1f2aa9949bf7733866b94ca0d7ff075d3f28c86",
+      "sha256": "f8b086b72ac2eeba7faab1f1ea09e94149717495f6534ee4e036208f7dee39ec"
+    },
+    {
+      "path": "app/backend/modules/methods/legacy_values.py",
+      "before_sha256": null,
+      "sha256": "966b1f46ba82963e5fcba435f492fd70c2cafdc838b2de4cce2dff2e6bd2312a"
+    },
+    {
+      "path": "app/backend/modules/methods/line_editing.py",
+      "before_sha256": "a76be7b0f1fdc63239f1692e905f3d50f6fb2418366beba49ea078ba6f848964",
+      "sha256": "3e598b3b386dc3e0009d84a7a33cd17bc99008fe063ffef8534417cee8887954"
+    },
+    {
+      "path": "app/backend/modules/methods/repository.py",
+      "before_sha256": "bf6dcf0ba28a9708a9ccdefc11c3fa2de0520fb11ed9631018c42c484dacab79",
+      "sha256": "1ba1d131dade4436f8c696a575c272a29643e95e1a3437eac8925fdc3650537e"
+    },
+    {
+      "path": "app/backend/modules/methods/runtime.py",
+      "before_sha256": "c6f2b1a16e7136ec36e540bd2909455bb46d9b7dbebb4d9c9557562ed08d87f4",
+      "sha256": "adddb7822669d88b43350fbf66aafa2ef24c17050792e095c76b4652176699bb"
+    },
+    {
+      "path": "app/backend/modules/methods/service.py",
+      "before_sha256": "a152399a8b36b8d4529dfc8a17074b13eaa4d2891cf0b2529a2601f7e18cef3b",
+      "sha256": "1a5266a2aac74a95ed445bd377ddc9518dc1f152e52bc02db9a9f8e1cbd6f99f"
+    },
+    {
+      "path": "app/backend/modules/methods/snapshots.py",
+      "before_sha256": "38b0aecdf654da0fe62af688d59118502b0125b3ea2be861cea2f7b6a354cc72",
+      "sha256": "c097ee7c680b5b0b717ab538f5e43acd8d22c5bf40ed3ea5bc1882bbe5cfb253"
+    },
+    {
+      "path": "app/backend/modules/methods/values.py",
+      "before_sha256": "1ae987d08183da916a7552aabcaec7a44728e188e6ca190438439b9c00a0a3d2",
+      "sha256": "13ccb9c796f5f946205a3583a0fca0cbb7d4518ae0d8825176cb0bc164cfc4ff"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/conversion.py",
+      "before_sha256": "03f7d734668c5367f9458af5d5885a68c0a0bc50ce8dd4454c909fb34e868abb",
+      "sha256": "78de718251c5a341561c9b955e2fd0fe1564176e8ac006c2867a8f6dbdd90359"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/legacy_calculation.py",
+      "before_sha256": "8365219676c4457799a326ff782f42aa026f418b5b61a2ce0d0bf706eca90cb4",
+      "sha256": "b1b47a922f598069fffc0b153fd99ff9aa71649946bfd8197f650908d170df0f"
+    },
+    {
+      "path": "app/backend/modules/postprocessing/recalculation.py",
+      "before_sha256": "bbb6debb2f0e72ce6ae64d9092529aff9bb088658bff8daf8edb6db10d4d6a88",
+      "sha256": "3c66b3f9d07fe582036acd23c478ea58c9cb57f3d3755446200e1666074a1aad"
+    },
+    {
+      "path": "app/backend/modules/reports/rendering.py",
+      "before_sha256": "b0cb9d2b9aa2265187da01a0ee916d1b9b43fdfea516d8ba17333bfb70f1c0ff",
+      "sha256": "85654c429a2ebe710345316f70d091400ddd6d6b60a1b0b6da6c926ec03069fc"
+    },
+    {
+      "path": "app/backend/modules/reports/service.py",
+      "before_sha256": "f3c33bb70804650286b8d9b8e63ccdc2fb8dfe22635697deab47c795bdbcb6b9",
+      "sha256": "45b442c3e6ea00e12cdc3a5707fb46a97d2c0302c8c813f17681ffaeb785f375"
+    },
+    {
+      "path": "app/backend/modules/result_migration.py",
+      "before_sha256": "b50d749856911d7d9f6d12bec67f3eddfd15b5fbccf8fb532b7ce48bbe042278",
+      "sha256": "693d7f4c1878bed76b82cae12f618c5b990ffce619a3619ecd7e264833f02999"
+    },
+    {
+      "path": "app/backend/modules/spectral_lines.py",
+      "before_sha256": "0400e37c48b29ace12d72a15aea401b3d2c98a6044630492d7abf715e9f9026f",
+      "sha256": "2630189c35a2c5b583126cdbb436a3d20b838af219c7bb15f7ac929fb3dbea96"
+    },
+    {
+      "path": "app/backend/runtime.py",
+      "before_sha256": "0f777307fdd134345ea12ecddad0189cbcbc8eb5e27e71950810ccae9f7e58fa",
+      "sha256": "3694ef2f42287cda2428f5b6d878ab242427394a11e81a31942d6633cf1b60bb"
+    },
+    {
+      "path": "app/backend/schemas/acquisition.py",
+      "before_sha256": "b3561160f89ec00ec94ca251939593e4232a74378f183a6f820e01e4f884f8c3",
+      "sha256": "764324c2256f5790058898438ea3f11f1755de88dc1bc7adf58eee4b637db58c"
+    },
+    {
+      "path": "app/backend/schemas/analysis.py",
+      "before_sha256": "b0b9f5ffd42715f22de38047b8e9b4bb714ddf7786b54308effd5d30c7d5d91c",
+      "sha256": "9477a84f07f671abb5d50dc935c3e07c18e9fc378e9112896f46577ff68530c8"
+    },
+    {
+      "path": "app/backend/schemas/methods.py",
+      "before_sha256": "c1e02dc82da062cffdffa8d823cbdc1dc00076d64df6edae61019593419cb15b",
+      "sha256": "906ca097e323a9b17da0317a721bae4537bf4b6b8a677f0fe36fa4e95726a470"
+    },
+    {
+      "path": "app/backend/schemas/postprocessing.py",
+      "before_sha256": "5c72ae8143ed3e6f827abf483e01ad749beb72815fbdcdbe323e3b1d6c88246f",
+      "sha256": "8de8b5812f14ab978d16396ae6aaa669d094c4a6ae21ba1bb1b8cb4ff4042731"
+    },
+    {
+      "path": "app/backend/schemas/reports.py",
+      "before_sha256": "1f128b07453130fc18f16ec540dba0eb1e55d38984e5cd49eba1dce9886a0ed4",
+      "sha256": "572549ee7bcf4d30b0dea4ea387f84b7da6972b7cd493681ba528044500f9c07"
+    },
+    {
+      "path": "app/frontend/src/api/acquisition.ts",
+      "before_sha256": "2eb324a7ba20ca3325dd48f119f8a1c6ec991737811888ed947ec1a6089de3a3",
+      "sha256": "fc24e72de54b2dffdbab36b803a5988149ebd2e4020faf07b615be57af75ac57"
+    },
+    {
+      "path": "app/frontend/src/api/analysis.ts",
+      "before_sha256": "76fa370322790b6e9c059e56eabb95ba88f24b904c72219b6d3ed257e226beb2",
+      "sha256": "efe25dae703f541bfd2f6b9f93fc87c733b074be009762537584a232731c2d52"
+    },
+    {
+      "path": "app/frontend/src/api/methods.ts",
+      "before_sha256": "bbb14514b1f95bb843a16c85e9218cf4a1826dafefabf8bcd16b3b51fca8ea0f",
+      "sha256": "91cca9ca1bd420090b065a81120f1656b4b5d6863ce013481bed07b252653493"
+    },
+    {
+      "path": "app/frontend/src/api/postprocessing.ts",
+      "before_sha256": "c42691f86fe58daa220b35ce7d77290fdb2773ab6dff3b22eceddfdd61a2986f",
+      "sha256": "903c8a93088e003b9865210eaec3e1773c4e4b7d92f24c1d6e40e658102bb99a"
+    },
+    {
+      "path": "app/frontend/src/api/reports.ts",
+      "before_sha256": "dd7ae92beaaa076f15b4b0fc8a0e6a5c77b4e10ebbc2bd766a8feabb80c435e2",
+      "sha256": "2082476bd99c0aa27b4ccc924f8f1b14f49690dd57df42bbb6ede84d0cc53560"
+    },
+    {
+      "path": "app/frontend/src/layout/WorkspaceApp.tsx",
+      "before_sha256": "8381852d502f060c1870c7580653d37fa5601cb80c3c0a910ef5729229533665",
+      "sha256": "93b062a3506dc1b74b022b4dbe62591eed36c5e6fe0d37a1b925031f7ba61774"
+    },
+    {
+      "path": "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+      "before_sha256": "82d8d2fb3feaa7e6428ae773fbd5d72a87234501f37072302645dc2e8034eaac",
+      "sha256": "136a463305f9be19be5e67b9f459583e435a1f6c53362ca3642c31416b699bd2"
+    },
+    {
+      "path": "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx",
+      "before_sha256": "1d81059134da5971bbbe3fe24eb162418c15c6fa564cf80903ada3bd9a298c10",
+      "sha256": "f9775a400e09beea5bb15547d2a886bc5cd8d37a1b52f689b9195ceaef83f807"
+    },
+    {
+      "path": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "before_sha256": "00a338448056b400cdc34edd603b17f78379123dfbe5a167362a63f318a588d2",
+      "sha256": "27aec8d4d2cf87466ec3af42c1af01237dc7f7b5d3eadbc8b1407a90da3353f3"
+    },
+    {
+      "path": "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+      "before_sha256": "95b1a6842b5046cfa0408e48d78eb2cf013dbe0a15d767aabae39a068b112027",
+      "sha256": "438cd4534dd04ac8c9af0a686b08d3b5a65f0d48003ee08a6a5ae04095a92d9d"
+    },
+    {
+      "path": "app/frontend/src/pages/analysis/analysisView.tsx",
+      "before_sha256": "8d59b38672caeaa8bdb4ddcee5c3f1cf7927befd21022c6bb9037a6b0f43c478",
+      "sha256": "043d91a8de4ecf272a57384ba8882b3efbfd753119aaff2f97c1ea7dc9596e43"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/MethodExcitation.tsx",
+      "before_sha256": "361f6ccff8d56d3732d204c3442024e9fe0c79c995fdbadb05a713e72e10b433",
+      "sha256": "77a25ceb1c66ffe28b28b2d3ed921aeeac05553bab44b39e64ae23b1ef28d874"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/MethodGeometry.tsx",
+      "before_sha256": "9dddacab3e10bce117f10e03e0fb6696864b4fb60511eab58bf7bab774e117b5",
+      "sha256": "8abde1748425ace7da276fed5e7b906247bbab38f00e3e2bc6ce5434512b6531"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "before_sha256": "f94c955155e0fc9de165be2fe8af68f6aee6db1360c58fe60fcc543cc5017bcd",
+      "sha256": "85a9babc678cceaefb8e5e981db709063e0f737f6dda6a408471aa0710660cac"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/NumberField.tsx",
+      "before_sha256": "4fc36ec8324b2225cfee5800ab535d844b51bd810aadbfb5376c983a81f4d8d4",
+      "sha256": "65ce22b5d3cb1a6b0f6bc57717115ae5540cdf8d64fdb797491badb76b4e4111"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+      "before_sha256": "a04cfd9ab3bca87e83ede05eb202082d58adc8655e2431651abfd253adb3a329",
+      "sha256": "68114c774a05d74f3c491c6877a9043fb136e551292951cf7f8aea35b1b829d1"
+    },
+    {
+      "path": "app/frontend/src/pages/methods/spectralLineDraft.tsx",
+      "before_sha256": "f5c2d8ca79879046912dabe84f4fa230016f7460182ec5fe22f69f1ecfae7046",
+      "sha256": "6ab61cd9de86141a76af334e939232528b16b70a052502421552ddd79a88c125"
+    },
+    {
+      "path": "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+      "before_sha256": "d5efe73964bf2253f10430ebbdf813b9d6a44f6386e2cd0aed18317d30a37dca",
+      "sha256": "949b785d46866a1e855f9ce1e2b0f0ffd2297bbcc069073e689e0152e6dcae6d"
+    },
+    {
+      "path": "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+      "before_sha256": "41251865cce466f01686d86ed4f2d696cfcdf936bfd2976cee042a95a75c6cda",
+      "sha256": "d034324671cd229202d740096f727d20b12674fbc1f7574c1a622f8f71b1b9a5"
+    },
+    {
+      "path": "app/frontend/src/pages/reports/ReportBuilder.tsx",
+      "before_sha256": "40d433da90476032a3f6fc8244fbcb3eb4c25e4bc64a4914d6525ef377541484",
+      "sha256": "648d5ad48710ecb218c54a15b0fff71d8805faea8d543bd5a11e3abf7d7b4c7d"
+    },
+    {
+      "path": "app/frontend/src/pages/reports/ReportOutput.tsx",
+      "before_sha256": "94055ce87f8ef62c807a17bb7b932e16df828fcbb1f6982c3aa8f62c2bdf9c26",
+      "sha256": "f2d61297a6c614ba0da5fb25f5979a49ae46b6cd965378a67bc8ca9f96076b4f"
+    },
+    {
+      "path": "app/frontend/src/pages/reports/ReportsPage.tsx",
+      "before_sha256": "5f7dc0af1c2b1eff94459ca810a2cbad5e91a70074c942767ffa122d9dff1a6b",
+      "sha256": "88d587a9aab74b391a143c10e069bbd008f08193825c455aa4188e91fb018943"
+    },
+    {
+      "path": "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+      "before_sha256": "cc18de79c7b9d31b5f06eb2ad385b1311303997fac4efe04850094d34341f507",
+      "sha256": "cb9691070ed39f39d3d9cc541e5999b2bad950862fb8e2854d0b905d87c62619"
+    },
+    {
+      "path": "app/manifest.generated.json",
+      "before_sha256": "8edc283ac186a768f1c3844e01cddc998751f49fc3eeaf09193c79069d9e63ea",
+      "sha256": "1c36d06df173bceb7a74f3a1ebd3042a70357f14efa46960b1470253db8c9710"
+    },
+    {
+      "path": "app/tests/frontend_postprocessing_checks.mjs",
+      "before_sha256": "4ba726ff7e943d241051007f28733873634cd0ab037e8221ac3458ee445cf246",
+      "sha256": "172636448f44093456562f50ccd0b0a66414bbb5bd419cb38fdb03eee0dc83ea"
+    },
+    {
+      "path": "app/tests/spec_gap_browser.mjs",
+      "before_sha256": null,
+      "sha256": "81a6fa1206c40c23f138f0d7d76355147bc20e36db3ea9d3b509b2899fd1c807"
+    },
+    {
+      "path": "app/tests/test_s13_acquisition.py",
+      "before_sha256": "6ccd245502bf2b4fe1e60a4a98e714fe9e9b926aad0d9d42b646e3e6d3ef7c8a",
+      "sha256": "8ef0c6fc585ae059c727b84f0dc5419f5a77912690a441c482ae47faa70112da"
+    },
+    {
+      "path": "app/tests/test_s18_postprocessing.py",
+      "before_sha256": "76c5b0753916e989e15b22016be9b4837bff1e0a0b830b55bde6fbb1102a737e",
+      "sha256": "cafe442ee622efa5177b8d407ea0fb7ac527a501b79850aed6490bccb30553d4"
+    },
+    {
+      "path": "app/tests/test_spec_gap_closure.py",
+      "before_sha256": null,
+      "sha256": "3426780e471418f5120964ac14fdebd6ceb8b2cc5bfba706521c0199c2660773"
+    },
+    {
+      "path": "docs/acceptance-reports/README.md",
+      "before_sha256": "ef5027185cdba4e0c1c400e2dde080f5c0ab73e098c7b844f7db3a3c4872f979",
+      "sha256": "7b8bb0981913106f8e8845308d396079f6c2ef3f2215923a43a74d95c647303b"
+    },
+    {
+      "path": "docs/acceptance-reports/S21/验收报告.md",
+      "before_sha256": "9d4555a704efce7af500ddb838dd73c4f451922bb3ad2b3a006146517cbc418a",
+      "sha256": "3adf4dff52ed4aeb62e3ec59d3c9c307ce67fc6b0273f17274def31de3e32bc8"
+    },
+    {
+      "path": "docs/测试报告/2026-10-08_Spec2.02新版功能缺口复核.md",
+      "before_sha256": "97307c97bdc0ac3cd78e0c3b4326684b97126d3113da6ba8fb9286780f381ab5",
+      "sha256": "12d492f512b13a6ac6fb9c92dcb554c663ca6772cb266489fcf032324e2999ab"
+    },
+    {
+      "path": "geospectrum-backend.exe",
+      "before_sha256": "ce5c7599fe7fe5136c4cca47dcb339b582392b70e880958b242c579d7968cfd0",
+      "sha256": "663aaeb50ffcb0ddd2e85006a74e83eaf08157f469d6e108d73f187a9e6ace51"
+    }
+  ],
+  "uncommitted_work_preserved": true,
+  "historical_directory_writes": false,
+  "source_integrity_scope": "Selected real source fixtures checked in tests. No global historical directory hash comparison claimed.",
+  "native_save_dialog_tested": false,
+  "csv_bytes": "Captured via controlled bridge; browser actual download also checked.",
+  "physical_print_tested": false,
+  "real_hardware_tested": false,
+  "installer_rebuilt": false,
+  "formal_release": "deferred_external",
+  "authenticode": "NotSigned",
+  "git_diff_check": "passed",
+  "qa_exe_sha256": "c62a74781fc5b91dcd3ed173820fd515f0338768749f91fb68b2252c52df6cf1",
+  "frontend_assets": {
+    "index-B6ffhLxA.css": "7b53e001a59f24c34edda5cab1617b2e25b013dd7cc4f7effe0efdf0dc5adcb7",
+    "index-D0HAMs_K.js": "3c2140d38239c945fbe49a91f6d01d4d2412d706b584bd629b8d066923ea7775"
+  },
+  "remaining_external_gates": [
+    "real protocols/hardware/calibration",
+    "physical printing/file selection",
+    "code signing",
+    "clean Windows",
+    "formal acceptance"
+  ],
+  "artifact_sha256": {
+    "backend-tests.log": "2af9cccccb72276d04160c4a97cce31ba06411888b54084d24daffd948af93b6",
+    "browser-gap.json": "25945a66d91c068a4cfd720c03cc943d65e43d656672d0a17a086b267b0ab988",
+    "browser-regression.json": "133291b26669664b9e75368dfd4e55a0ed8daebfafa4fd8ca21a7472661f58a1",
+    "daily-calibration.png": "3b5e12791709afb0d7fc238fbe58f6ace1a4396e0dd7770cd84b85111f46ffe1",
+    "delivery.json": "cb4fe8c1496b993a8e6db442bb0add03e8109ac8c6960d7fc915f7ffb7155731",
+    "desktop-build.log": "938927a070805cfb4f0adfdd65f03610da46769c65fe8cdc7e0e12468df11cfe",
+    "desktop-gap.json": "63aab6c1f18251a241e69b8cea59c7ea3d48d9a68c58798fcc590ee4821280ad",
+    "desktop-process.json": "3ede97abe79a403a5a1eb6aadb58a34ef6deffc7cebc49f29bd778e3546368db",
+    "desktop-qa-build.log": "d96cb5ee40128b8168ef1ed4d9a21ee151803fcaa63fd3215535078a0cbaddbf",
+    "frontend-unit.log": "a1851acabfd8a4d2426cfc91dcaa770d0aa06cf4f9e77da067176a019b413d9e",
+    "legacy-dat-report.pdf": "e06f1f854420e52d35efcac2c415d05ff1761ddc3144b28feee66735889aa8c2",
+    "legacy-dat-report.png": "0e09ea4101c45b146113a691cac6d3c2688924dca840a2efd78dabdaa341f1a2",
+    "line-time-series.csv": "4e11b25349dbd97b015619d311d1025c63af73b0f856fb8030a779eb51830039",
+    "reference-offset.png": "32563a659c2ae344b3c1f4537fdcf113fa96c917fead48f13da811781a9fbc20",
+    "sidecar-verify.json": "2da16a0a34f60a7aadfe4da24cf6f6053238fba1b07af0f08e68ee0f77ffd4da",
+    "targeted-final.log": "09f54c0deadb4c01b4ecb6d35effd653d074657232cdb2bd1cb0ad5a8ec81c17",
+    "verify_browser.py": "53cd8baef7e96cb5e67855fc9a577d5ce56b36a71d9dc5c64c1b3fa69f9eae15",
+    "verify_desktop.py": "d63be5916aa5408ebbe477f0a68e19534b6240ed2d208d436d8dab16424b347f"
+  },
+  "source_ui_scripts": [
+    "app/tests/spec_gap_browser.mjs",
+    "app/tests/test_spec_gap_closure.py"
+  ],
+  "script_snapshot_location_note": "verify_browser.py and verify_desktop.py were executed from app/.local/diagnostics/spec-gap-fill-20261008; archival copies preserve that layout assumption."
+}

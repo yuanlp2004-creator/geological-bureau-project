@@ -1,7 +1,25 @@
 """Analysis models, moved without validation changes."""
 from __future__ import annotations
+
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
+from .system import SettingsIntensityOutput
+
+
+class AnalysisIntensityOutputRequest(SettingsIntensityOutput):
+    export_format: Literal['excel', 'pdf'] | None = None
+    printer_name: str | None = Field(default=None, max_length=255)
+
+
+class AnalysisCalibrationRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    mode: Literal['measured', 'theoretical', 'stored'] = 'measured'
+    scope: Literal['reference', 'all'] = 'all'
+
+
+class AnalysisTimeSeriesRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    include_mean: bool = True
 
 
 class AnalysisRunCreate(BaseModel):
@@ -36,7 +54,9 @@ class AnalysisQcDecision(BaseModel):
 class AnalysisCurveAction(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    action: Literal["set_fit", "set_coordinate", "set_active", "adjust", "restore", "restore_all"]
+    action: Literal["set_fit", "set_coordinate", "set_active", "adjust", "restore", "restore_all", "adapt_control"]
+    control_task_id: int | None = Field(default=None, ge=1)
+    control_value: float | None = Field(default=None, gt=0, allow_inf_nan=False)
     point_index: int | None = Field(default=None, ge=0, le=49)
     fit_mode: Literal["linear", "quadratic", "cubic", "spline"] | None = None
     coordinate_type: Literal["normal", "logarithmic"] | None = None

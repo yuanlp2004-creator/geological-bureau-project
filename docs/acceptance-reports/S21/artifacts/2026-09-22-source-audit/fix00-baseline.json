@@ -1,0 +1,44 @@
+{
+  "head": "6fb3eae7c356197b9bd29bec3f0f2bd4d90a0b3b",
+  "sha256": {
+    "PLAN.md": "61a9bae673999c23933fbe3ffe1fa35ecfc9b8e51b916596a7510006a08514c9",
+    "代码缺陷修复与功能补齐计划.md": "9f1563f02721fb4f3b94485c5f24edb4c55676af06cb6dd8f5d280278a91ef0a",
+    "app/tests/test_architecture.py": "081cde0bc583f04562b09814cdb885a5170ffa4045d792ce2d96aacae188d4b0",
+    "app/tests/test_legacy_migration.py": "a57911278a911c21ef434cdf0c9a8fcf66225b579c7d4b4bb73e869a7ca56377",
+    "app/tests/frontend_postprocessing_checks.mjs": "8a43a7dcdd7ac13198cb02c2b3a1cf2ad63dd33e732475294fffa7008adae465",
+    "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx": "a2899bc7a57be0179e16f66e5203f4de97b6d8c53ea172ccdb15dc66b52d9614"
+  },
+  "git_status": " M PLAN.md\n M app/backend/api/acquisition.py\n M app/backend/modules/acquisition.py\n M app/backend/modules/analysis/service.py\n M app/backend/modules/methods/geometry.py\n M app/backend/modules/methods/service.py\n M app/backend/modules/postprocessing/exporting.py\n M app/backend/modules/postprocessing/recalculation.py\n M app/backend/modules/reports.py\n M app/frontend/package.json\n M app/frontend/src/api/client.ts\n M app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx\n M app/frontend/src/pages/methods/SpectralLinesPanel.tsx\n M app/frontend/src/pages/postprocessing/PostProcessingPage.tsx\n M app/frontend/src/pages/reports/ReportsPage.tsx\n M app/tests/frontend_api_browser.mjs\n M app/tests/test_s13_acquisition.py\n M app/tests/test_s18_postprocessing.py\n M docs/acceptance-reports/README.md\n M \"docs/acceptance-reports/S13/\\351\\252\\214\\346\\224\\266\\346\\212\\245\\345\\221\\212.md\"\n M \"docs/acceptance-reports/S16/\\351\\252\\214\\346\\224\\266\\346\\212\\245\\345\\221\\212.md\"\n M \"docs/acceptance-reports/S18/\\351\\252\\214\\346\\224\\266\\346\\212\\245\\345\\221\\212.md\"\n M \"docs/acceptance-reports/S19/\\351\\252\\214\\346\\224\\266\\346\\212\\245\\345\\221\\212.md\"\n M \"docs/acceptance-reports/S21/\\351\\252\\214\\346\\224\\266\\346\\212\\245\\345\\221\\212.md\"\n D docs/ui-test-homepage-reference.png\n M \"docs/\\350\\247\\204\\345\\210\\222\\344\\270\\216\\350\\256\\241\\345\\210\\222/INTERNAL_DECOUPLING_PLAN.md\"\n?? app/backend/file_exports.py\n?? app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx\n?? app/frontend/src/pages/postprocessing/formatting.ts\n?? app/frontend/src/pages/reports/ReportBuilder.tsx\n?? app/frontend/src/pages/reports/ReportExportPanel.tsx\n?? app/frontend/src/pages/reports/ReportOutput.tsx\n?? app/tests/frontend_postprocessing_checks.mjs\n?? app/tests/frontend_request_races.mjs\n?? app/tests/frontend_transport.test.mjs\n?? app/tests/test_method_geometry_boundary.py\n?? app/tests/test_priority_reliability.py\n?? \"docs/\\350\\247\\204\\345\\210\\222\\344\\270\\216\\350\\256\\241\\345\\210\\222/2026-09-20_\\344\\273\\243\\347\\240\\201\\350\\264\\250\\351\\207\\217\\345\\256\\241\\346\\237\\245\\344\\270\\216\\346\\225\\264\\347\\220\\206\\345\\273\\272\\350\\256\\256.md\"\n",
+  "root_entries": [
+    ".git",
+    ".gitignore",
+    ".obsidian",
+    "AGENTS.md",
+    "GeoSpectrum.exe",
+    "PLAN.md",
+    "README.md",
+    "Spec Source",
+    "Spec2.02功能研究",
+    "SpecFile",
+    "app",
+    "docs",
+    "geospectrum-backend.exe",
+    "代码缺陷修复与功能补齐计划.md"
+  ],
+  "app_entries": [
+    ".gitignore",
+    ".local",
+    "README.md",
+    "backend",
+    "frontend",
+    "manifest.generated.json",
+    "node_modules",
+    "package-lock.json",
+    "package.json",
+    "pytest.ini",
+    "requirements.txt",
+    "src-tauri",
+    "tests",
+    "tools"
+  ]
+}

@@ -1,0 +1,939 @@
+{
+  "status": "passed",
+  "scope": "M1-M3 retained and revalidated; all N1-N11 source changes complete",
+  "plan_sha256": "9e623c77f1ba0924bc3685d978f1682d217475c7345910f2102f14b2e4cbe377",
+  "responsibility_plan_sha256": "b3d0d6dadb65c456e4da3e29e6e37b9767106195d892f5af983858d4fb12a4a4",
+  "units": [
+    {
+      "unit": "N1",
+      "source": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "target": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "before_lines": 1243,
+      "after_lines": 613,
+      "responsibility": "运行/干预/质控/曲线与结果 JSX → AnalysisRunForm、AnalysisIntervention、AnalysisQuality、AnalysisCurves、AnalysisStandards、AnalysisSamples、AnalysisRawResults、CurveChart；父页统一状态与请求身份",
+      "status": "passed"
+    },
+    {
+      "unit": "N2",
+      "source": "app/backend/modules/devices.py",
+      "target": "app/backend/modules/devices/service.py",
+      "before_lines": 705,
+      "after_lines": 247,
+      "responsibility": "parse_acq_frame → protocol；AcqSimulatorAdapter → simulator；validate_profile/screen_conversion → profiles；DeviceService 保留实例生命周期",
+      "status": "passed"
+    },
+    {
+      "unit": "N3",
+      "source": "app/backend/modules/acquisition.py",
+      "target": "app/backend/modules/acquisition/service.py",
+      "before_lines": 1634,
+      "after_lines": 575,
+      "responsibility": "_seeded_acquisition_event → simulation；average_points/编解码 → codec；_task_dict/_store_event/_finalize_sample 等 → AcquisitionRepository；控制/事务/锁留 service",
+      "status": "passed"
+    },
+    {
+      "unit": "N4",
+      "source": "app/backend/modules/dispersion.py",
+      "target": "app/backend/modules/dispersion/service.py",
+      "before_lines": 1506,
+      "after_lines": 427,
+      "responsibility": "_fit_polynomial 等 → fitting；定位/拟合/发布/绑定/管理 → CalibrationService；上下文/WDT/帧 → DispersionRepository；控制留 service",
+      "status": "passed"
+    },
+    {
+      "unit": "N5",
+      "source": "app/backend/modules/hardware_acquisition.py",
+      "target": "app/backend/modules/hardware_acquisition/service.py",
+      "before_lines": 1647,
+      "after_lines": 842,
+      "responsibility": "SimulatorTurnAdapter/SerialTurnAdapter → adapters；_normalize_plan/_thresholds/_metrics/_simulated_anomalies → rules；轨迹/帧/决策入库 → HardwareRepository；安全状态机留 service",
+      "status": "passed"
+    },
+    {
+      "unit": "N6",
+      "source": "app/backend/modules/mercury_calibration.py",
+      "target": "app/backend/modules/mercury_calibration/service.py",
+      "before_lines": 1209,
+      "after_lines": 484,
+      "responsibility": "汞灯适配器 → adapters；_expected_position/_locate/offset_statistics → calculation；会话/帧/候选版本 → MercuryRepository；apply/rollback/关闭顺序留 service",
+      "status": "passed"
+    },
+    {
+      "unit": "N7",
+      "source": "app/backend/modules/analysis/service.py",
+      "target": "app/backend/modules/analysis/service.py",
+      "before_lines": 887,
+      "after_lines": 611,
+      "responsibility": "_line_candidate → AnalysisInputs.candidate + calculate_candidate；create_run 输入验证 → prepare_run；仓储顺序/匹配 → rules._operational_lines/_analysis_lines/_base_curve_points",
+      "status": "passed"
+    },
+    {
+      "unit": "N8a",
+      "source": "app/backend/modules/reports.py",
+      "target": "app/backend/modules/reports/service.py",
+      "before_lines": 659,
+      "after_lines": 514,
+      "responsibility": "_headers/_table/_encode_table/_pdf/预览 HTML → rendering；报告准入/模型/发布/记账留 ReportService，并继续复用 M2",
+      "status": "passed"
+    },
+    {
+      "unit": "N8b",
+      "source": "app/backend/modules/spectrum_viewer.py",
+      "target": "app/backend/modules/spectrum_viewer.py",
+      "before_lines": 820,
+      "after_lines": 692,
+      "responsibility": "字体与 PDF 绘制 → spectrum_pdf.render_spectrum_pdf；来源选择、坐标兼容、可见范围验证留 SpectrumViewerService",
+      "status": "passed"
+    },
+    {
+      "unit": "N9",
+      "source": "app/backend/modules/spectrum_migration.py",
+      "target": "app/backend/modules/spectrum_migration/service.py",
+      "before_lines": 939,
+      "after_lines": 325,
+      "responsibility": "_read_access → SpectrumAccessReader.read；原格式解析 → SpectrumParser；_stage_streaming → SpectrumStaging；stage/commit 保留源快照与事务；旧读取器提供 streaming_command 公开入口",
+      "status": "passed"
+    },
+    {
+      "unit": "N10a",
+      "source": "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "target": "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+      "before_lines": 995,
+      "after_lines": 442,
+      "responsibility": "表单/曲线与控制呈现/谱线/校准管理 → DispersionSetup/Monitor/Lines/Calibration",
+      "status": "passed"
+    },
+    {
+      "unit": "N10b",
+      "source": "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx",
+      "target": "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx",
+      "before_lines": 968,
+      "after_lines": 458,
+      "responsibility": "创建/监视/结果 → SampleAcquisitionForm/Monitor/Results；计时器与停止协调留父页",
+      "status": "passed"
+    },
+    {
+      "unit": "N10c",
+      "source": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+      "target": "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+      "before_lines": 690,
+      "after_lines": 349,
+      "responsibility": "创建/监视与轨迹/转角计划 → HardwareAcquisitionForm/Monitor/Plan",
+      "status": "passed"
+    },
+    {
+      "unit": "N10d",
+      "source": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx",
+      "target": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx",
+      "before_lines": 621,
+      "after_lines": 358,
+      "responsibility": "创建/监视/谱线结果 → MercuryCalibrationForm/Monitor/Results",
+      "status": "passed"
+    },
+    {
+      "unit": "N11a",
+      "source": "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "target": "app/frontend/src/pages/methods/MethodsPage.tsx",
+      "before_lines": 904,
+      "after_lines": 558,
+      "responsibility": "身份/几何/激发/质控/曝光条件 → MethodIdentity/Geometry/Excitation/Quality/Exposure；统一草稿留父页",
+      "status": "passed"
+    },
+    {
+      "unit": "N11b",
+      "source": "app/frontend/src/pages/methods/SpectralLinesPanel.tsx",
+      "target": "app/frontend/src/pages/methods/SpectralLinesPanel.tsx",
+      "before_lines": 879,
+      "after_lines": 295,
+      "responsibility": "列表/编辑 → SpectralLineList/Editor；草稿转换 → spectralLineDraft；选择及写请求留父级",
+      "status": "passed"
+    },
+    {
+      "unit": "N11c",
+      "source": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "target": "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+      "before_lines": 827,
+      "after_lines": 674,
+      "responsibility": "查询/来源列表/视图操作 → SpectrumQueryToolbar/RecordList/ViewToolbar；加载及唯一视图状态留父页",
+      "status": "passed"
+    }
+  ],
+  "pytest": "228 passed in 54.72s",
+  "frontend_tests": 8,
+  "browser_checks": 23,
+  "method_layouts": 6,
+  "page_layouts": 77,
+  "openapi_and_outputs": {
+    "standard": {
+      "txt": "dcbc32feb8c96cf86a6a5fd5cd812df5f60fc5b8d352721cb8ec131d2b4a661e",
+      "csv": "525dda67dd8110900d0e5dadf7186387e87b46d83b2f6817fcc55e4d338b5486",
+      "excel": "2637e7cc4461cbe3e945a8ce2c892ee99c7f0d98b6c483049a405cca906835d6",
+      "pdf": "73a9ccb496ff68b0d13ad6c6b1b37bbe5132ebdc9165d4c51766b07668c3bcbe",
+      "pages": 3,
+      "rows": 45
+    },
+    "exchange": {
+      "txt": "3c076c9883be15a58c8ad08808a3585430a3eb3ea96555ebcba05610ab40a1f9",
+      "csv": "e9594f2930eb99eb3d3be214c6d6d2a20c6364862c5f2ffde98aaaa09295eb3b",
+      "excel": "00c51b6f6ef191f505ed65d0c6dcb56c3cb49fcbef84b6cdca5f4a8feb2f9fda",
+      "pdf": "5048aaf516b6351e4f2502e629a841bb53a4eeb1ee616a9b7c58e28840a74aa3",
+      "pages": 3,
+      "rows": 45
+    },
+    "spectrum_200_221": {
+      "curve_count": 2,
+      "visible_point_count": 4096,
+      "sha256": "3bf8d8b57d774215232d51c7a4c30ebc78f05f0498b7f929932c1bb24bea477e"
+    },
+    "spectrum_204.5_208.1": {
+      "curve_count": 2,
+      "visible_point_count": 722,
+      "sha256": "ad8798313c45192a663695c686930febf9a313f69182503242b7537ac06f737e"
+    },
+    "simulator": {
+      "frame_variants": 96,
+      "mean_blobs": 24,
+      "all_equal": true,
+      "sha256": "6dd426a6ed76e8f44b27a811b992d894be7af291a51a8770fcca23e808575c2e"
+    },
+    "openapi": {
+      "equal": true,
+      "paths": 176,
+      "sha256": "f46f2b243b69d7e8dede69cdadcbb258b8330102447dec1bc94d101c5f94926d"
+    }
+  },
+  "root_and_app_entries_unchanged": true,
+  "changes_since_this_turn": [
+    {
+      "path": "app\\backend\\api\\acquisition.py",
+      "change": "modified",
+      "sha256": "2c132a03bdfb2e780614189cc160e38d027df6329a00cb6735ecdc32c9a4d775"
+    },
+    {
+      "path": "app\\backend\\api\\hardware_acquisition.py",
+      "change": "modified",
+      "sha256": "2f89a80fe5f9784194344317e5ee0cc5ea1d250ed8a71c05ceb7449b47784f12"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\__init__.py",
+      "change": "added",
+      "sha256": "c8640d7594383d890c1b3aef56fd98f4489182618ece40a2f0a3356faff881c4"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\codec.py",
+      "change": "added",
+      "sha256": "e97b85591592483227290253ddc9182cccf7ad06d3b9a3fd4317fad7140b6042"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\repository.py",
+      "change": "added",
+      "sha256": "67b32d02d36f1b62b43b767159bd380373d3172f0f13bcab247ee56a110789ac"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\service.py",
+      "change": "added",
+      "sha256": "d9dd8a55b7f9b565072cf7b462729cf44c39d7222d187a08d9acd1f6ad0f3059"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\simulation.py",
+      "change": "added",
+      "sha256": "5a04317a628bed931c4b83cd5e0880197860d29fce600b849fddc368013b5726"
+    },
+    {
+      "path": "app\\backend\\modules\\acquisition\\values.py",
+      "change": "added",
+      "sha256": "7edaaa496bf31a83fbed6db165163148e6197ad91610f6e429d7259e706a52f4"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\candidate.py",
+      "change": "added",
+      "sha256": "4f076016f8201f95f698f66092340724f439bb5547a1adc16287fef28ddf8fca"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\curves.py",
+      "change": "modified",
+      "sha256": "ec8f633eaf132474671618f5797356598344520e6c1205caebaf472d3a54deb0"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\inputs.py",
+      "change": "added",
+      "sha256": "dac651a3575c6081f2bff592daece966ccc96272c8f397a7509a1ad9a7557797"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\repository.py",
+      "change": "modified",
+      "sha256": "ddde5ff3ef528b6d75de1edf2c34420aaecf3a4ebb25528ac67298ed1d34e062"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\rules.py",
+      "change": "added",
+      "sha256": "0a947d9f1bd1fdee04705646853217220c8763986c85cc1c67c5105bd660d333"
+    },
+    {
+      "path": "app\\backend\\modules\\analysis\\service.py",
+      "change": "modified",
+      "sha256": "33b35921585d7089f229c7ccb4086b14d57f502849cb567a8af301f33e21b805"
+    },
+    {
+      "path": "app\\backend\\modules\\devices.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\__init__.py",
+      "change": "added",
+      "sha256": "c707a54f7deccc8724f99d462864f4c168bd1901d25676b0f1ee69707906a854"
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\profiles.py",
+      "change": "added",
+      "sha256": "6dafe31ab43160c99ca569ffd85d4a05088c1eb1fbd433e9793e02d3a3650917"
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\protocol.py",
+      "change": "added",
+      "sha256": "101a58c0557bc2b61e7c8fd27d4691f04c94dc0b8d1fd7c3bdf138829503d77a"
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\service.py",
+      "change": "added",
+      "sha256": "de34794ac45c7ed65ee1e3f914473144f946df7075ec017c33f1fa9bdc904c31"
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\simulator.py",
+      "change": "added",
+      "sha256": "93ecbdb2fd22e02d38ee1a54b8c70ef21ade881ea8c584f346a85cc2490b7f49"
+    },
+    {
+      "path": "app\\backend\\modules\\devices\\values.py",
+      "change": "added",
+      "sha256": "c4ccf18b897437e0bf566ccf68a090dc99c6ee911db342dd4d5d7f990b971fe8"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\__init__.py",
+      "change": "added",
+      "sha256": "0fd7aa1e6bee42474bb54d8a50a4c27bab1fe1e95262967ad0125e88e2bc1a29"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\calibration.py",
+      "change": "added",
+      "sha256": "381aeeed12e508e0735aca9fbb0b5dfe53f68e0921c9c396cf95da3fa5aa5866"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\codec.py",
+      "change": "added",
+      "sha256": "86357254b93d432d8a0254427a85b995fe2b6d406a2d97954f9967904d7d12c0"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\fitting.py",
+      "change": "added",
+      "sha256": "a316b442ddf3f49702e86f7c2ebf480dcbe4b576e7d3f72ee4d531a50e185518"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\repository.py",
+      "change": "added",
+      "sha256": "6c04666dcee76e4a190701df07e6ead5f28313c93ef7c160723f27ab389f66e3"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\service.py",
+      "change": "added",
+      "sha256": "6fe0b657ca3ccfeee5576b1cd877506eba1aee2f73e7e8c8a244ec8ca98bbaea"
+    },
+    {
+      "path": "app\\backend\\modules\\dispersion\\values.py",
+      "change": "added",
+      "sha256": "c6b22230043ab1feffa11069351782cdf2c08bf1e97fcfd1836b63e487271684"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\__init__.py",
+      "change": "added",
+      "sha256": "835f41c22f090015798dbf422628b4e51de6642ffb1db3d571d4b6adcc90ced8"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\adapters.py",
+      "change": "added",
+      "sha256": "11e7ed57483c16942250ff35c5bee3820234cdc857bac70761db2bffb0806bb8"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\codec.py",
+      "change": "added",
+      "sha256": "76ad63211f6fdb8249dd0099e1f416a729d535970b7f96bc41a6bc805dc56b20"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\repository.py",
+      "change": "added",
+      "sha256": "16b190054f233634128eb85f7630b08cb8d3807908e4f1bf0c24d7a875c4d79d"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\rules.py",
+      "change": "added",
+      "sha256": "e4599bb8e9d4cd9ea6b8b498da00484ff7bdde0426116410073a4a3906412e20"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\service.py",
+      "change": "added",
+      "sha256": "8311658a1487f967491762f84bf1ef3f2cdbdc23436266be84da15fbdb264bbe"
+    },
+    {
+      "path": "app\\backend\\modules\\hardware_acquisition\\values.py",
+      "change": "added",
+      "sha256": "f0d799750d922b973be6cc3753ca4426b0ac1cf8da72ecbd372b9007e02be954"
+    },
+    {
+      "path": "app\\backend\\modules\\legacy_migration\\reader.py",
+      "change": "modified",
+      "sha256": "53b5e75acf2f9cfccfc14a5adcae092371af75e98340736b7c54decce23736af"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\__init__.py",
+      "change": "added",
+      "sha256": "8805dcd3474307b5086e3b7402d61d250c2d443c811b1482b85715b10a638b0e"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\adapters.py",
+      "change": "added",
+      "sha256": "4118e6a1380d4fe57cb4d664ffba6441b82e2a516e12e5f708d80474b36335b2"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\calculation.py",
+      "change": "added",
+      "sha256": "020721cda37cac1c629c76acb394bfaad9b7b9ed993285a812fed75de7be3fcb"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\codec.py",
+      "change": "added",
+      "sha256": "82154ccc50c8c5c3073858bd1c84a4f66b6f8f3747a457d6ed49e0e0ea233579"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\repository.py",
+      "change": "added",
+      "sha256": "5ffe36c1554d9260b037cdd43e5bbc14e883ff3649b7fbafacbb1602514a707e"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\service.py",
+      "change": "added",
+      "sha256": "54a828e11ef5e159f88d33e44aec5d68b140a0e573c235cc6ec24a5f6f512b44"
+    },
+    {
+      "path": "app\\backend\\modules\\mercury_calibration\\values.py",
+      "change": "added",
+      "sha256": "30f24e5eebd88800bd57e10eb4923da0be44f9f6cffd12457d5f1b1f57a14a2f"
+    },
+    {
+      "path": "app\\backend\\modules\\reports.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\reports\\__init__.py",
+      "change": "added",
+      "sha256": "0d7a93a247e282eb5cc3c0c1eb46c79fd6b07b8180d987cd1271b97bc81b94c5"
+    },
+    {
+      "path": "app\\backend\\modules\\reports\\rendering.py",
+      "change": "added",
+      "sha256": "b0cb9d2b9aa2265187da01a0ee916d1b9b43fdfea516d8ba17333bfb70f1c0ff"
+    },
+    {
+      "path": "app\\backend\\modules\\reports\\service.py",
+      "change": "added",
+      "sha256": "f3c33bb70804650286b8d9b8e63ccdc2fb8dfe22635697deab47c795bdbcb6b9"
+    },
+    {
+      "path": "app\\backend\\modules\\reports\\values.py",
+      "change": "added",
+      "sha256": "e429e9a548cf3cacbe064835a6f91bafbcce460e0da94b9aaca023001de487c7"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration.py",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\__init__.py",
+      "change": "added",
+      "sha256": "b1ef3097d09b66fee8226715f918605fa57365dd7b7bb891413d4cf8900d9193"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\parsing.py",
+      "change": "added",
+      "sha256": "92a6d20a761569629cb78178b56229717b91e0ad71023ce9321098ae873a6c58"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\reader.py",
+      "change": "added",
+      "sha256": "48d55e2950e127c55531db00da08d252270f334e932e200727c09ef8401313c9"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\records.py",
+      "change": "added",
+      "sha256": "25d1401d9dd31fcc4ee839b7e1ce824aec896c111988d1aaa10630ec77c31cc8"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\service.py",
+      "change": "added",
+      "sha256": "d9377c009de659d2ca3614439f21fbb418d6caa13465d3d42d85dd2af7662036"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\staging.py",
+      "change": "added",
+      "sha256": "4e0207f2aa8e730fab077fb63c74f9c49efc060929b78507cc3d5dfcbb246b17"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_migration\\values.py",
+      "change": "added",
+      "sha256": "a2041f5a080cba1881f671b7a810186b98faf97e9a4160c9106467d4386db9e5"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_pdf.py",
+      "change": "added",
+      "sha256": "3a021d418960a8d3324bc438420998148de941d4e73e14730c1e0b34adbcce7d"
+    },
+    {
+      "path": "app\\backend\\modules\\spectrum_viewer.py",
+      "change": "modified",
+      "sha256": "204b7cb507838e8a24f394893315769572899671c0957b1cf9d1d84daffa75a2"
+    },
+    {
+      "path": "app\\frontend\\src\\components\\legacySources.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\components\\simple-chart-axes.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionForm.tsx",
+      "change": "added",
+      "sha256": "5ae9d6c118da74be7664369b4938647b8bc0cf0492c4475bedf91a25a2de21e2"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionMonitor.tsx",
+      "change": "added",
+      "sha256": "e00fd05452ba0b93daf8abaab3bd9b3e17855c4659f9fa8e08c44944639de3cc"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionPage.tsx",
+      "change": "modified",
+      "sha256": "29ba906570b6550415a2fb1e165cca8830e35fbe485775ac6477c761e9a9b261"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionResults.tsx",
+      "change": "added",
+      "sha256": "292bd42a34f404c2860fdac4988eef272c3ad3f8e65ae6cc772883aef4098f2f"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\acquisitionView.tsx",
+      "change": "added",
+      "sha256": "8f4c3c4c71b31258f33f153bd9ed8f4238a650edf5134524687afe481f860b5e"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\acquisition\\sample-acquisition.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisCurves.tsx",
+      "change": "added",
+      "sha256": "872ca3994b4110b6e9ce2a33cdf9bd012f422abd58e2a9fa38cef42bb1b1afd8"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisIntervention.tsx",
+      "change": "added",
+      "sha256": "1569b83a1f917b03b04c9c9524bca2b0ce9c73a1bae36c6fba54924f00b81cf6"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisPage.tsx",
+      "change": "modified",
+      "sha256": "369414dcc97292ff5752f2a06be22de3e3ba6cf25e291eecd936b862997c3228"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisQuality.tsx",
+      "change": "added",
+      "sha256": "ba998a03b213b07b4a3f686071d04abfc88da5a130f89493d0da11e1da730520"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisRawResults.tsx",
+      "change": "added",
+      "sha256": "a92bbfcf3863b9cb334efd09eb7c2447aee293c3bc16e89367878e3a20ab57f1"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisRunForm.tsx",
+      "change": "added",
+      "sha256": "9006fee0be94b6fcee794e49af72d75a50564a43ff7bee52e7a153fa3d5db80e"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisSamples.tsx",
+      "change": "added",
+      "sha256": "eb7535590184c5c28901b07699d75bb55483ebe32bdc924d65a87ca336ded504"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\AnalysisStandards.tsx",
+      "change": "added",
+      "sha256": "448387aa1cc53d63dfa1cb8601bcaba3217132017d6ec8404d7180159c103916"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\CurveChart.tsx",
+      "change": "added",
+      "sha256": "07c2850a1f0b6ce5d34097742a9ea1e029367b0e9706f9f0e4b0eead4677a37e"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\analysis.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\analysis\\analysisView.tsx",
+      "change": "added",
+      "sha256": "8d59b38672caeaa8bdb4ddcee5c3f1cf7927befd21022c6bb9037a6b0f43c478"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\devices\\acquisition.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\DispersionCalibration.tsx",
+      "change": "added",
+      "sha256": "7a068ee59354e49e667f1c1e2e247769874cc5b2476a3a6ee128e407505e599a"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\DispersionLines.tsx",
+      "change": "added",
+      "sha256": "2274888e729839b25f37bf39f88a827d3e84e538a4fe9d07661cc804e7ee8662"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\DispersionMonitor.tsx",
+      "change": "added",
+      "sha256": "d2ff63f9109b1ce65b1f185be0bde6ebb6a9a4d8ea0a39cb4add4b8d4c97a7eb"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\DispersionPage.tsx",
+      "change": "modified",
+      "sha256": "719bd27209d4c6a9198e4ed977f5075751439c73e7a0960a631db3c502a8fb6c"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\DispersionSetup.tsx",
+      "change": "added",
+      "sha256": "e8b5ef69cc63c32f5d4523668945d7ec1c433232b6dc971a4183677b6f40a3f6"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\dispersion.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\dispersion\\dispersionView.tsx",
+      "change": "added",
+      "sha256": "a00639dd0788a3affe5bd69d3ada5c8b1445a5b83a3777c158319736fe3e7be8"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\HardwareAcquisitionForm.tsx",
+      "change": "added",
+      "sha256": "480402864353d290f2b1866c5f489337df002a91455b50376cbbc1b5f28e0c04"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\HardwareAcquisitionMonitor.tsx",
+      "change": "added",
+      "sha256": "64131eb180244ef8aa2600f9a7a864e8af11ba291b386ed4c1dede82e6ce00e5"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\HardwareAcquisitionPage.tsx",
+      "change": "modified",
+      "sha256": "6212b7f5020963edfef4e49a6ebb2a29fef5cc54fa9a64c4f1f82f23c722058f"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\HardwareAcquisitionPlan.tsx",
+      "change": "added",
+      "sha256": "fc8d3cb221500433df0bb9f0ef64d3a31defc4edb35d3858ea961bfe0682f701"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\hardware-acquisition.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\hardwareAcquisition\\hardwareView.tsx",
+      "change": "added",
+      "sha256": "1b4aee05dd58c48fa6e17dc84d267fe994d9b4337c0e76c19b63898186d13f60"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\MercuryCalibrationForm.tsx",
+      "change": "added",
+      "sha256": "38b28c44562ee6de9ad93552dc4f332cf06bf17d816949bb25ec8d5920fba9ca"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\MercuryCalibrationMonitor.tsx",
+      "change": "added",
+      "sha256": "917c830a66b787d7e87b947e87aaf2cf5ddc4c268afd646a3f6c116fd3fb8a81"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\MercuryCalibrationPage.tsx",
+      "change": "modified",
+      "sha256": "38658e355823b4935269c44eee76765babd1072223293e6dd60e5fefb335d205"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\MercuryCalibrationResults.tsx",
+      "change": "added",
+      "sha256": "2a2cb1df0573233dbb8a26e9d8ac81eedaf00845ab23f8e11d1a0bb54bb784f7"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\mercury-calibration.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\mercuryCalibration\\mercuryView.tsx",
+      "change": "added",
+      "sha256": "8324f0e36d7d673b8b95eb737e7ff182837d063cdd840b73c88ca000b624527d"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodExcitation.tsx",
+      "change": "added",
+      "sha256": "361f6ccff8d56d3732d204c3442024e9fe0c79c995fdbadb05a713e72e10b433"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodExposure.tsx",
+      "change": "added",
+      "sha256": "a7ca3431657132c2583d6492e402da9f72247f4172f85703fb705e02152dd4f1"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodGeometry.tsx",
+      "change": "added",
+      "sha256": "9dddacab3e10bce117f10e03e0fb6696864b4fb60511eab58bf7bab774e117b5"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodIdentity.tsx",
+      "change": "added",
+      "sha256": "48c53b5befddc7fd551619e729307b1018e7a20894e8f6421ab9bedbe6a8ba15"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodQuality.tsx",
+      "change": "added",
+      "sha256": "f63d9381c2f87589c7789934e09669062399b2add305ca5274a4033e58b5c387"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\MethodsPage.tsx",
+      "change": "modified",
+      "sha256": "b0566400d0513cf06c10d11df5fc8828b6b97bbf29f09cf478305dd42ff7acad"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\SpectralLineEditor.tsx",
+      "change": "added",
+      "sha256": "a04cfd9ab3bca87e83ede05eb202082d58adc8655e2431651abfd253adb3a329"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\SpectralLineList.tsx",
+      "change": "added",
+      "sha256": "5f8e67359359e571d0d410d5bdff10236c4087490651435e3dc35cca438e7e4a"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\SpectralLinesPanel.tsx",
+      "change": "modified",
+      "sha256": "af7ac584997dca3f3792b9e39b480b232e67278a23c70947386222ea0abd6391"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\methods.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\methods\\spectralLineDraft.tsx",
+      "change": "added",
+      "sha256": "f5c2d8ca79879046912dabe84f4fa230016f7460182ec5fe22f69f1ecfae7046"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\migration\\migration.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\postprocessing\\postprocessing.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\sampleQueues\\sample-queue.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\spectra\\SpectrumQueryToolbar.tsx",
+      "change": "added",
+      "sha256": "076502847b7ffe30afc90a33bb35b7620f7a96ede0a8a31fea6211661630c471"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\spectra\\SpectrumRecordList.tsx",
+      "change": "added",
+      "sha256": "91fe4d100006ed1bd2901bdde65a6246e35f3174b0276cf3a7e9537ba7227bfa"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\spectra\\SpectrumViewToolbar.tsx",
+      "change": "added",
+      "sha256": "586f71fdeb965bca057d95c7a2cb7f3b37c38962b1185e7cc09cf302fbc17b03"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\spectra\\SpectrumViewerPage.tsx",
+      "change": "modified",
+      "sha256": "5a4be1394a40fca309526bc74372baf41aabde8c1b5606d85990dc8c3ddb2ae3"
+    },
+    {
+      "path": "app\\frontend\\src\\pages\\spectra\\spectrum-viewer.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\styles\\global.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\styles\\remaining-pages.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\frontend\\src\\styles\\visual-refinement.css",
+      "change": "deleted",
+      "sha256": null
+    },
+    {
+      "path": "app\\tests\\s23_method_layout_regression.mjs",
+      "change": "modified",
+      "sha256": "58340aca9dfd247baf9184403a24a09f499b707257cfe8b37e404bb65b1ddfe7"
+    },
+    {
+      "path": "app\\tests\\s24_frontend_regression.mjs",
+      "change": "modified",
+      "sha256": "a3c06f81cc13a11cd5640a9e6151a3c1fc8707a01d5de12418f4d74b0fc51a20"
+    },
+    {
+      "path": "app\\tests\\test_architecture.py",
+      "change": "modified",
+      "sha256": "9e9cb8956d9db936f5db98130339f0181f491058f79cfe52979e2925ee8868e0"
+    },
+    {
+      "path": "app\\tests\\test_gap_workflows.py",
+      "change": "modified",
+      "sha256": "7af311afaf66531b86b592838776fc1fc96f7fb3c4196ce843b01a96b235f96f"
+    },
+    {
+      "path": "app\\tests\\test_method_geometry_boundary.py",
+      "change": "modified",
+      "sha256": "638ad9edf448aa06583137bba4b8cb6084e3676fd0b91d2db298c635c0aa017a"
+    },
+    {
+      "path": "app\\tests\\test_printing_boundary.py",
+      "change": "modified",
+      "sha256": "8baa1609c60c05eb879083ab0592d0e69c609169a3e42f85a31dfdb5a7faaf40"
+    },
+    {
+      "path": "app\\tests\\test_priority_reliability.py",
+      "change": "modified",
+      "sha256": "59d9efbf65e6f02412363f25566c39dcf18d6d2703f50f4205824ef893160aa5"
+    },
+    {
+      "path": "app\\tests\\test_runtime_isolation.py",
+      "change": "modified",
+      "sha256": "8c02577410df84de93ba9e7cfadd029b51284cc6e1166fbfb26b1980c4491a36"
+    },
+    {
+      "path": "app\\tests\\test_runtime_resources.py",
+      "change": "modified",
+      "sha256": "c05c2183c7477dcb822597eb8eac61df9f79d9df5d49d17b03ebdc69ef507c8f"
+    },
+    {
+      "path": "app\\tests\\test_s08_spectrum_migration.py",
+      "change": "modified",
+      "sha256": "bdafccfee35af399cfe7646afac15b7891bcd409f5ff7838b075a4ee846fa0c3"
+    },
+    {
+      "path": "app\\tests\\test_s14_hardware_acquisition.py",
+      "change": "modified",
+      "sha256": "9c705d94e291092137df7b2b91eb44b1606717840eb3591dbc7c26504dd7c4e2"
+    },
+    {
+      "path": "app\\tests\\test_s16_analysis.py",
+      "change": "modified",
+      "sha256": "f587a5ae49b5c1dc09f5e566bb83ea565d4e04478a798bdacfde31759deffd0b"
+    },
+    {
+      "path": "docs\\代码导读\\04_方法谱线与打印_methods.md",
+      "change": "modified",
+      "sha256": "26a8696c43b49743fa43e4864330a421a2ffde080461b3aba217fb53f14c1a5c"
+    },
+    {
+      "path": "docs\\代码导读\\07_旧光谱迁移_spectrum-migration.md",
+      "change": "modified",
+      "sha256": "4120da597d3856f71ad326113d7bc6985b9eba2bd8c85d1bded0e452636c61c8"
+    },
+    {
+      "path": "docs\\代码导读\\09_光谱查看_spectrum-viewer.md",
+      "change": "modified",
+      "sha256": "4cc880f835732bf1cc199a74af8c248574b614e94867d85fd2d4fe70813ad999"
+    },
+    {
+      "path": "docs\\代码导读\\10_设备配置与模拟器_devices.md",
+      "change": "modified",
+      "sha256": "a14d81584164db3ed8ca92aa182464ce930f4d2fa0b180b4e6649fdc864d9c39"
+    },
+    {
+      "path": "docs\\代码导读\\11_色散校准_dispersion.md",
+      "change": "modified",
+      "sha256": "0aa7af791f1e64ca2099a55c010621985e9560a7031172692796202f18afb3f8"
+    },
+    {
+      "path": "docs\\代码导读\\12_样品采集_acquisition.md",
+      "change": "modified",
+      "sha256": "217e6fd38c10ca567f3e3b7889ecbc94ce091501cc50be2fab1c1817ffb8bd91"
+    },
+    {
+      "path": "docs\\代码导读\\13_硬件转角采集_hardware-acquisition.md",
+      "change": "modified",
+      "sha256": "ea5efa89629efc5d83d5b7a4acf478c07c5ba53fdc00e084db2a9d8800e4ae0e"
+    },
+    {
+      "path": "docs\\代码导读\\14_汞灯校准_mercury-calibration.md",
+      "change": "modified",
+      "sha256": "f3f109b98a611e679a8dad15571bace9879e163bc9d14834fd86afe0fc7dac3e"
+    },
+    {
+      "path": "docs\\代码导读\\15_分析与标准曲线_analysis.md",
+      "change": "modified",
+      "sha256": "8dcd2304bf6ec2fe62436be8e429f02ecff84dc8ff72c77bc4e7a527c4f51931"
+    },
+    {
+      "path": "docs\\代码导读\\17_报告_reports.md",
+      "change": "modified",
+      "sha256": "c2da66cf4fe7394e26608a031681516b983018d920354768022068dc61b5eeaa"
+    },
+    {
+      "path": "docs\\代码导读\\19_前端架构.md",
+      "change": "modified",
+      "sha256": "3efed48ac90fcb14488f01b675be7e74efa4a38f2080961865feff16818cf00c"
+    }
+  ],
+  "delivery": "source only; existing EXE/installer and external acceptance gates unchanged"
+}

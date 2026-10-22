@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "batch": "2026-10-18-analysis-aligned",
+  "executed_plan_sha256": "b369cd74c89ff8fd7aeb2bbe3f6bf52f1d6e63bbe9c84fc605ab23d7f866753f",
+  "product_changes": [
+    "app/frontend/src/pages/analysis/analysis-workspace.css",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/AnalysisRunForm.tsx"
+  ],
+  "scope": "Preparation form only; previous selected analysis workspace retained",
+  "layout": [
+    "inline preparation card",
+    "hide empty batch rail",
+    "compact two-column batch settings",
+    "acquisition groups with aligned selectable rows",
+    "blank sample-name fallback",
+    "selected record count and footer action",
+    "empty source message"
+  ],
+  "unchanged": [
+    "selected workspace markup and existing CSS",
+    "API, permissions, algorithms and schema23",
+    "single entry, slow intervention, repeat QC, fitting and immutable results",
+    "backend executable bytes"
+  ],
+  "tests": {
+    "frontend": 15,
+    "browser_workflows": 9,
+    "desktop_workflows": 9,
+    "preparation_layouts_each": 3,
+    "existing_analysis_layouts_each": 3,
+    "operator_regression": 10,
+    "regression_layouts": 12
+  },
+  "build": {
+    "matched_product_sources": 353,
+    "frontend_assets_match": true,
+    "root_pair_sha256": {
+      "GeoSpectrum.exe": "b8e034462ce4e81ea0dcd9e969aaf2cea461e88af4230040af20250684bd4025",
+      "geospectrum-backend.exe": "125cc66f68b927e9a546a3436c847aa4fcb1f54046bf245bd977cfaeffa1a693"
+    },
+    "previous_pair_backup": "app/.local/releases/2026-10-18-analysis-aligned/previous/root-entry-20261018-104144"
+  },
+  "data_preservation": {
+    "selected_business_files_including_main_db": 10,
+    "unchanged_business_files": 9,
+    "differences": [
+      {
+        "path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+        "before_sha256": "c86be70bd98b4b829885a23e41899a702f2d11a3fb577175c6e894f1fd1dd69d",
+        "after_sha256": "1889c14d0e5debabe3d37c5544325c56477774f16d42a27eeb3190676f933e80",
+        "quick_check": "ok",
+        "action": "kept current file; no overwrite or rollback",
+        "cause": "not established; existing production window is running; QA used isolated data"
+      }
+    ],
+    "legacy_source_files": 106,
+    "all_legacy_hashes_match": true,
+    "root_and_app_entries_unchanged": true
+  },
+  "desktop_exit": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-18-analysis-aligned\\qa\\GeoSpectrum.exe",
+    "exe_sha256": "c587496bf71ae2592573898eb59d00577692ea9e06f6e073f59a1669c8051293",
+    "pid": 1720,
+    "shown_window_handles": [
+      3737220
+    ],
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_updated": false
+}

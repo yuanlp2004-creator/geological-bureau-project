@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "checks": [
+    "title and actions centered; 12px separation from line in four layouts",
+    "refresh still loads real status; diagnostics stay collapsed; no maintenance writes",
+    "failed refresh shows unknown status; retry recovers"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "name": "header",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false,
+      "geometry": {
+        "centerDifference": 0,
+        "separatorGap": 12
+      }
+    },
+    {
+      "name": "header",
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false,
+      "geometry": {
+        "centerDifference": 0,
+        "separatorGap": 12
+      }
+    },
+    {
+      "name": "header",
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "density": "comfortable",
+      "overflow": false,
+      "documentOverflow": false,
+      "geometry": {
+        "centerDifference": 0,
+        "separatorGap": 12
+      }
+    },
+    {
+      "name": "header",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "overflow": false,
+      "documentOverflow": false,
+      "geometry": {
+        "centerDifference": 0,
+        "separatorGap": 12
+      }
+    }
+  ],
+  "maintenancePosts": [],
+  "diagnosticRequests": 0
+}

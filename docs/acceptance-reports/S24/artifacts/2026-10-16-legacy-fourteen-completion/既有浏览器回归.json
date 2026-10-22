@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": 5,
+      "message": "空白传输时间保存，9/2 按旧版偶数舍入得到4；原发布版本保持"
+    },
+    {
+      "id": 6,
+      "message": "色散和蒸发独立保存、重新进入自动载入；非法值零提交"
+    },
+    {
+      "id": 2,
+      "message": "选谱线同步1–2帧及CCD，原第903点显示490，定量和查看一致"
+    },
+    {
+      "id": 4,
+      "message": "任意点完整燃烧/空白原值、周期信息、横纵复制格式和真实PDF输出"
+    },
+    {
+      "id": 7,
+      "message": "标准点表显示反算含量/相对误差，文本预览带百分误差列"
+    },
+    {
+      "id": 10,
+      "message": "图上选点，Ctrl方向键/Insert/1和5标尺微调，修改后禁止旧拟合打印，重新拟合恢复"
+    },
+    {
+      "id": 3,
+      "message": "两份原始谱图叠加，同一CCD/点位并列读取全部样品强度"
+    },
+    {
+      "id": 9,
+      "message": "CCD,点位跨CCD定位、锁定、方向键逐点移动及纵向缩放"
+    },
+    {
+      "id": 8,
+      "message": "当前CCD/当前图像、灰度/峰形至少一层、纸张窄边的真实PDF输出；十倍物理尺寸由黄金测试验证"
+    },
+    {
+      "id": 1,
+      "message": "当前项全部重复完成后自动带出下一样号及次数，保留结果哈希，不自动激发下一项"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "target": "analysis-tests.spectra",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "analysis",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "sample-acquisition",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "dispersion",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "evaporation-acquisition",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "light",
+      "target": "settings",
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    {
+      "theme": "dark",
+      "target": "analysis-tests.spectra",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "analysis",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "sample-acquisition",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "dispersion",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "evaporation-acquisition",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    },
+    {
+      "theme": "dark",
+      "target": "settings",
+      "viewport": 1060,
+      "document": 1060,
+      "body": 1060
+    }
+  ]
+}

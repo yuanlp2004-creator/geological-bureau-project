@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-about-maintenance",
+  "plan_sha256_at_start": "a9c4665adc20ce57501ab1d0ef53f9e72ad41eb090623fedd031aaac5400290a",
+  "product_changes": [
+    "app/backend/api/system.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/offline_help.py",
+    "app/backend/schemas/system.py",
+    "app/frontend/src/api/system.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/about/AboutPage.tsx",
+    "app/frontend/src/pages/auth/PermissionPicker.tsx",
+    "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "app/frontend/src/pages/maintenance/SystemDiagnostics.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "generated_manifest_updated": true,
+  "backend_tests": 25,
+  "browser_checks": 6,
+  "desktop_checks": 6,
+  "layouts_each": 4,
+  "runtime_errors": [],
+  "copyright_owner": "湖北华祥地质环境检测科技有限公司",
+  "copyright_basis": {
+    "file": "C:\\Users\\Leo\\Desktop\\自动转角平面光栅电弧直读发射光谱仪分析软件开发项目合同(2026.9.8).docx",
+    "sha256": "af0cb11f07366acffba0f0be0dc7269ab18364ea4279e27fbe5587c1b5368447",
+    "clause": "8.1(1)"
+  },
+  "diagnostics_permission": "maintenance.write",
+  "ordinary_startup_and_about_run_diagnostics": false,
+  "about_permission": "about.read",
+  "auditor_maintenance_read_preserved": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-about-maintenance\\qa\\GeoSpectrum.exe",
+    "pid": 23008,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "schema_version": 23,
+  "new_schema_migrations": false,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "b3486a1b18d7737615a6decd82e000def0fa576db0c5191c95e6c739c938ec49",
+    "geospectrum-backend.exe": "d875d4b6c3795934891c697cf64f8bdf7c67cb9d584b6aab3f21d9015f669cc9"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-about-maintenance\\previous",
+  "installer_rebuilt": false,
+  "notes": [
+    "Initial QA window-size test used an invalid Tauri argument; corrected the test harness and reran all checks successfully.",
+    "Standalone manual generator has an existing section-title mismatch; updated current HTML topics directly and passed its 55-topic verifier.",
+    "git diff --check reports two existing whitespace lines in MaintenancePage.tsx; no new whitespace was added to these lines."
+  ]
+}

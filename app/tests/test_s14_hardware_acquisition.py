@@ -15,9 +15,16 @@ from backend.modules.hardware_acquisition import HardwareAcquisitionService, Har
 
 
 def _advance(service: HardwareAcquisitionService, task_id: int, limit: int = 100) -> dict:
-    task = service._task_dict(task_id)
+    task = service.get_task(task_id)
     for _ in range(limit):
-        if task["status"] in {"completed", "failed", "stopped", "safety_stopped", "deferred_external", "manual_intervention"}:
+        if task["status"] in {
+            "completed",
+            "failed",
+            "stopped",
+            "safety_stopped",
+            "deferred_external",
+            "manual_intervention",
+        }:
             return task
         task = service.step(task_id)
     raise AssertionError(f"task did not settle: {task['status']}")
@@ -42,7 +49,9 @@ def test_s14_plan_ordering_duplicate_guard_and_simulator_completion(tmp_path: Pa
     assert [(step["key_band"], step["priority"]) for step in task["steps"]] == [(True, 8), (True, 0), (False, 2)]
 
     with pytest.raises(HardwareError) as duplicate:
-        service.create_task({"turns": [{"angle_deg": 1, "wavelength_nm": 270}, {"angle_deg": 2, "wavelength_nm": 270.005}]})
+        service.create_task(
+            {"turns": [{"angle_deg": 1, "wavelength_nm": 270}, {"angle_deg": 2, "wavelength_nm": 270.005}]}
+        )
     assert duplicate.value.code == "turn_duplicate_wavelength"
 
     started = service.start(task["id"])
@@ -61,7 +70,14 @@ def test_s14_peak_correction_retry_and_retry_exhausted_safety_stop(tmp_path: Pat
     database.initialize()
     service = HardwareAcquisitionService(database)
 
-    corrected = service.create_task({"name": "peak correction", "retry_limit": 1, "turns": [{"angle_deg": 5, "wavelength_nm": 280}], "simulator_anomalies": [{"step_index": 0, "kind": "peak_shift", "count": 1}]})
+    corrected = service.create_task(
+        {
+            "name": "peak correction",
+            "retry_limit": 1,
+            "turns": [{"angle_deg": 5, "wavelength_nm": 280}],
+            "simulator_anomalies": [{"step_index": 0, "kind": "peak_shift", "count": 1}],
+        }
+    )
     service.start(corrected["id"])
     first = service.step(corrected["id"])
     assert first["status"] == "turning"
@@ -73,7 +89,14 @@ def test_s14_peak_correction_retry_and_retry_exhausted_safety_stop(tmp_path: Pat
     assert retried["latest_decision"]["decision"] == "correct"
     assert _advance(service, corrected["id"])["status"] == "completed"
 
-    stopped = service.create_task({"name": "baseline stop", "retry_limit": 1, "turns": [{"angle_deg": 8, "wavelength_nm": 290}], "simulator_anomalies": [{"step_index": 0, "kind": "baseline_low", "count": 5}]})
+    stopped = service.create_task(
+        {
+            "name": "baseline stop",
+            "retry_limit": 1,
+            "turns": [{"angle_deg": 8, "wavelength_nm": 290}],
+            "simulator_anomalies": [{"step_index": 0, "kind": "baseline_low", "count": 5}],
+        }
+    )
     service.start(stopped["id"])
     safety = _advance(service, stopped["id"])
     assert safety["status"] == "safety_stopped"
@@ -82,12 +105,21 @@ def test_s14_peak_correction_retry_and_retry_exhausted_safety_stop(tmp_path: Pat
     assert any(trace["name"] == "safety.stop" for trace in safety["traces"])
 
 
-@pytest.mark.parametrize("kind", ["baseline_low", "baseline_high", "baseline_shift", "peak_shift", "frame_fault", "turn_timeout"])
+@pytest.mark.parametrize(
+    "kind", ["baseline_low", "baseline_high", "baseline_shift", "peak_shift", "frame_fault", "turn_timeout"]
+)
 def test_s14_each_anomaly_kind_is_detected_and_stopped(tmp_path: Path, kind: str) -> None:
     database = Database(tmp_path / f"{kind}.sqlite3")
     database.initialize()
     service = HardwareAcquisitionService(database)
-    task = service.create_task({"name": kind, "retry_limit": 0, "turns": [{"angle_deg": 9, "wavelength_nm": 295}], "simulator_anomalies": [{"step_index": 0, "kind": kind, "count": 1}]})
+    task = service.create_task(
+        {
+            "name": kind,
+            "retry_limit": 0,
+            "turns": [{"angle_deg": 9, "wavelength_nm": 295}],
+            "simulator_anomalies": [{"step_index": 0, "kind": kind, "count": 1}],
+        }
+    )
     service.start(task["id"])
     stopped = _advance(service, task["id"])
     assert stopped["status"] == "safety_stopped"
@@ -113,7 +145,15 @@ def test_s14_manual_takeover_and_immutable_hardware_evidence(tmp_path: Path) -> 
     database = Database(tmp_path / "manual.sqlite3")
     database.initialize()
     service = HardwareAcquisitionService(database)
-    task = service.create_task({"name": "manual review", "anomaly_policy": "manual", "retry_limit": 0, "turns": [{"angle_deg": 12, "wavelength_nm": 300}], "simulator_anomalies": [{"step_index": 0, "kind": "baseline_shift", "count": 1}]})
+    task = service.create_task(
+        {
+            "name": "manual review",
+            "anomaly_policy": "manual",
+            "retry_limit": 0,
+            "turns": [{"angle_deg": 12, "wavelength_nm": 300}],
+            "simulator_anomalies": [{"step_index": 0, "kind": "baseline_shift", "count": 1}],
+        }
+    )
     service.start(task["id"])
     manual = _advance(service, task["id"])
     assert manual["status"] == "manual_intervention"
@@ -138,7 +178,9 @@ def test_s14_serial_protocol_gate_is_deferred_without_command_bytes(tmp_path: Pa
     with database.write() as db:
         db.execute("UPDATE device_profiles SET transport='serial', name='Serial external' WHERE id=1")
     service = HardwareAcquisitionService(database)
-    task = service.create_task({"name": "serial gate", "device_profile_id": 1, "turns": [{"angle_deg": 1, "wavelength_nm": 260}]})
+    task = service.create_task(
+        {"name": "serial gate", "device_profile_id": 1, "turns": [{"angle_deg": 1, "wavelength_nm": 260}]}
+    )
     deferred = service.start(task["id"])
     assert deferred["status"] == "deferred_external"
     assert deferred["failure_code"] == "hardware_protocol_unavailable"
@@ -156,15 +198,34 @@ def test_s14_api_permissions_and_simulator_route(tmp_path: Path, monkeypatch: py
     runtime = application.state.runtime
     with TestClient(application) as client:
         assert client.get("/api/v1/hardware-acquisitions/tasks").status_code == 401
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post(
+                "/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "operator", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         headers = {"Authorization": f"Bearer {token}"}
         assert client.get("/api/v1/hardware-acquisitions/options", headers=headers).status_code == 200
         payload = {"name": "API hardware", "turns": [{"angle_deg": 1, "wavelength_nm": 260}]}
         created = client.post("/api/v1/hardware-acquisitions/tasks", headers=headers, json=payload)
         assert created.status_code == 201
         task_id = created.json()["id"]
-        assert client.post(f"/api/v1/hardware-acquisitions/tasks/{task_id}/start", headers=headers).json()["status"] == "pre_excitation"
-        assert client.post(f"/api/v1/hardware-acquisitions/tasks/{task_id}/step", headers=headers).json()["status"] == "turning"
-        capability = next(item for item in client.get("/api/v1/capabilities").json()["capabilities"] if item["key"] == "hardware-acquisition")
-        assert {"hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute"}.issubset(capability["permissions"])
+        assert (
+            client.post(f"/api/v1/hardware-acquisitions/tasks/{task_id}/start", headers=headers).json()["status"]
+            == "pre_excitation"
+        )
+        assert (
+            client.post(f"/api/v1/hardware-acquisitions/tasks/{task_id}/step", headers=headers).json()["status"]
+            == "turning"
+        )
+        capability = next(
+            item
+            for item in client.get("/api/v1/capabilities").json()["capabilities"]
+            if item["key"] == "hardware-acquisition"
+        )
+        assert {"hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute"}.issubset(
+            capability["permissions"]
+        )

@@ -1,94 +1,82 @@
 # GeoSpectrum
 
-以 **SpecDirect 2.0.2 自动转角光谱仪分析软件** 的业务和旧格式为研究对象，使用 **FastAPI + React/TypeScript + SQLite + Tauri 2** 实现的 Windows 桌面光谱分析项目。
+以 **SpecDirect 2.0.2 自动转角光谱仪分析软件** 为业务与旧格式的兼容对象，使用 **FastAPI + React/TypeScript + SQLite + Tauri 2** 构建的 Windows 桌面光谱分析软件。
 
-项目覆盖方法与分析谱线管理、旧数据只读迁移、谱图查看、设备与模拟采集、定量分析、标准曲线、后处理以及报告导出。当前用于开发和内部验证；真实转角/汞灯设备验收、代码签名和干净 Windows 环境安装升级验证仍有外部依赖，具体状态以验收报告为准。
+日常流程是：配置并发布方法 → 建立样品队列 → 摄谱 → 样品分析（测量、重复值检查、逐线曲线复核和结果保存） → 预览、导出或打印报告。色散摄谱用于建立 CCD 点位到波长的关系；蒸发摄谱用于研究信号随时间的变化，和样品摄谱分别提供独立工作区。
+
+## 当前状态（2026-10-21）
+
+- 现有 18 个清单模块、七组导航、25 个正式入口，数据库 schema 为 **23**。菜单按权限及当前方法条件显示和启用。
+- 具备方法/谱线、独立蒸发与样品摄谱、完整谱图观察、定量分析、质控、曲线与报告；分析单位支持 `ug/g / mg/g / %`。
+- 此前十四项补齐批次记录了后端 322 项、前端 14 项、Rust 文件边界 3 项、浏览器和冻结 QA 桌面各 16 组专项及各 10 组既有操作回归通过。逐项入口和范围见 [实施清单](docs/acceptance-reports/S24/artifacts/2026-10-16-legacy-fourteen-completion/实施清单.md)。
+- 当前为未签名内部测试版。真实转角/汞灯协议与硬件、实体打印、签名、干净 Windows 安装升级及正式验收仍按对应报告保留门禁，自动更新关闭。
+
+当前能力与最新证据统一从 [文档索引](docs/README.md) 和 [当前验收状态](docs/acceptance-reports/README.md) 进入。
+
+## 直接运行
+
+本机项目主目录中同时保留 `GeoSpectrum.exe` 与 `geospectrum-backend.exe`，双击前者即可。两文件配套使用；程序已打开时，关闭旧窗口并重开才会载入替换后的版本。正式运行数据使用 `%LOCALAPPDATA%\cn.geospectrum.desktop`。
+
+当前配对交付为 `2026-10-21-page-spacing`：各页面主标题下方的主内容间距统一为蒸发摄谱参考图的24px；保留原有左右缩进、按钮与业务流程。该批未重建安装包。
+
+Git 仓库提交源码与文档，本机 EXE、依赖、缓存、运行数据和旧版资料不随源码分发。只克隆仓库时需要自行构建程序，并准备兼容测试使用的旧版样本。
 
 ## 仓库内容
 
-```text
-.
-├─ README.md             项目介绍与开发入口
-├─ PLAN.md               总体计划、业务范围和验收门禁
-├─ AGENTS.md             项目协作与 AI 执行规则
-├─ app/
-│  ├─ backend/           FastAPI、业务模块、SQLite 迁移与运行资源
-│  ├─ frontend/          React/TypeScript 页面、组件与 API 客户端
-│  ├─ src-tauri/         Windows 桌面壳与本机能力
-│  ├─ tests/             自动化测试
-│  └─ tools/             构建、迁移、检查与开发工具
-└─ docs/                 设计、代码导读、使用说明与验收记录
-```
+| 路径 | 用途 |
+|---|---|
+| `app/backend/` | API、业务服务、SQLite 迁移和随包资源 |
+| `app/frontend/` | 页面、共用谱图工具和 API 客户端 |
+| `app/src-tauri/` | 桌面启动、本机文件能力与 sidecar 生命周期 |
+| `app/tests/`、`app/tools/` | 测试、构建、迁移与检查工具 |
+| `docs/` | 现行说明、代码导读、计划及历史验收证据 |
+| `PLAN.md`、`AGENTS.md` | 范围、确认门禁和协作规则 |
 
-仓库提交正式源码、依赖清单/锁文件、必要资源和文档。旧 Delphi 工程、旧版运行目录、`SpecFile/`、`UI测试/`、独立重建工程、本机 EXE、安装包、依赖目录、缓存和运行数据库不包含在当前版本中。文档中的部分历史链接指向这些本地资料，需要另行准备。
-
-## 功能范围
-
-- 用户、角色、权限、审计、软件设置与运行事件。
-- 方法版本、采集条件、分析谱线、方法预览与打印。
-- 旧方法、谱图和分析结果的只读解析、暂存校验及迁移。
-- 设备适配、模拟采集、色散校准、样品队列与重复采集。
-- 定量分析、重复质控、标准曲线、后处理与报告导出。
-
-模拟器与自动化测试只能验证对应的软件路径，不能替代真实仪器验收。已有记录请查看 [验收报告索引](docs/acceptance-reports/README.md)；本次仓库整理不代表重新完成全部验收。
+旧资料与阶段记录由文档索引页末的“文档维护”入口查阅。
 
 ## Windows 开发运行
 
-浏览器开发需要 Python 3.11+、Node.js 和 pnpm。前端依赖使用 `app/frontend/pnpm-lock.yaml`，桌面工具依赖使用 `app/package-lock.json`。桌面编译还需要 Rust/MSVC Build Tools 与 WebView2；旧 Access 读取器另有 .NET/Jet 要求，详见 [应用开发说明](app/README.md)。
+需要 Python 3.11+、Node.js 和 pnpm；桌面编译另需 Rust/MSVC Build Tools 与 WebView2。详细构建与 Jet 读取器条件见 [应用开发说明](app/README.md)。以下为 PowerShell 命令。
 
-以下命令在 PowerShell 中执行。
-
-### 1. 获取代码并安装依赖
+首次安装依赖，在项目的 `app` 目录执行：
 
 ```powershell
-git clone https://github.com/yuanlp2004-creator/geological-bureau-project.git
-cd geological-bureau-project
-cd app
+cd 'C:\Users\Leo\Desktop\地质局\app'
 python -m venv .local\build-venv
 .\.local\build-venv\Scripts\python.exe -m pip install -r requirements.txt
 npm.cmd ci
 npx.cmd --yes pnpm@11.19.0 --dir frontend install --frozen-lockfile
 ```
 
-### 2. 启动后端
-
-在 `app` 目录执行：
+启动后端：
 
 ```powershell
 $env:SPECTRUM_DATA_DIR = "$PWD\.local\runtime\dev"
 .\.local\build-venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8787
 ```
 
-后端启动时初始化并迁移 SQLite。上述配置将开发数据放入已忽略的 `app/.local/runtime/dev/`；未设置时，Windows 默认使用 `%LOCALAPPDATA%\cn.geospectrum.desktop`。
-
-### 3. 启动前端
-
-另开一个终端，进入本仓库的 `app` 目录后执行：
+另开终端启动前端：
 
 ```powershell
+cd 'C:\Users\Leo\Desktop\地质局\app'
 npm.cmd run frontend:dev
 ```
 
-打开 <http://127.0.0.1:5173>，按页面提示完成首次管理员设置。后端 API 文档位于 <http://127.0.0.1:8787/docs>。
+打开 [开发前端](http://127.0.0.1:5173)，首次使用时按页面提示创建管理员。后端提供 [API 文档](http://127.0.0.1:8787/docs)。开发数据库与用户运行库分开。
 
-### 4. 常用检查
-
-在 `app` 目录执行：
+常用检查，在 `app` 目录执行：
 
 ```powershell
 .\.local\build-venv\Scripts\python.exe -m pytest -q
+npm.cmd --prefix frontend test
 npm.cmd run frontend:build
 ```
 
-依赖旧版原始资料的测试需要自行准备相应本地资料；只克隆此源码仓库不能保证这些兼容性测试全部运行。浏览器集成测试还需要 Playwright，配置与桌面打包步骤见 [app/README.md](app/README.md)。
+兼容测试依赖本地旧版资料；浏览器测试另需 Playwright。单个批次的定向通过不能代表全量测试或真实仪器验收。
 
 ## 阅读入口
 
-- [项目阅读指南](docs/项目阅读指南.md)：从前端、接口、业务服务到数据库追踪功能。
-- [文档索引](docs/README.md)：代码导读、研究资料、设计与发布记录。
-- [离线使用手册](docs/使用与说明/GeoSpectrum_使用手册.html)：克隆后用浏览器打开。
-- [总体计划](PLAN.md)：实施范围、步骤和验收要求。
-- [应用开发说明](app/README.md)：源码组织、测试工具与 Windows 构建。
-- [验收报告索引](docs/acceptance-reports/README.md)：自动化结果、人工验收和外部依赖。
-
-源码、验收记录与本机生成的 EXE 可能属于不同快照，请按对应报告和发布清单核对。当前仓库不分发可直接运行的安装包。
+- [文档索引](docs/README.md)：现行说明、最新变化和证据入口。
+- [使用说明](docs/使用与说明/GeoSpectrum_使用说明.md) / [离线手册](docs/使用与说明/GeoSpectrum_使用手册.html)：实际操作步骤。
+- [项目阅读指南](docs/项目阅读指南.md) / [代码导读](docs/代码导读/README.md)：从页面追踪 API、保存字段和消费者。
+- [总体计划](PLAN.md) / [验收状态](docs/acceptance-reports/README.md)：授权范围和未关闭门禁。

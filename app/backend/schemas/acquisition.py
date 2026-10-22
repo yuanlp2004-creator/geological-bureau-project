@@ -5,6 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class AcquisitionTaskCreate(BaseModel):
+    use_method_conditions: bool = False
+    use_method_intervals: bool = False
+    management_sample: bool = False
     model_config = ConfigDict(extra="forbid")
 
     task_kind: Literal["evaporation", "sample"] = "sample"
@@ -17,14 +20,15 @@ class AcquisitionTaskCreate(BaseModel):
     queue_id: int | None = Field(default=None, ge=1)
     queue_item_id: int | None = Field(default=None, ge=1)
     sample_name: str = Field(default="", max_length=100)
+    name_length: Literal[12, 20] | None = None
     sample_kind: Literal["blank", "normal", "standard", "test", "preheat"] = "test"
     naming_mode: Literal["pre_recorded", "temporary", "post"] = "temporary"
     storage_mode: Literal["averaged", "full_interval"] = "averaged"
-    repeat_count: int = Field(default=1, ge=1, le=10)
+    repeat_count: int | None = Field(default=None, ge=1, le=10)
     burn_frame_count: int = Field(default=3, ge=1, le=255)
     dark_frame_count: int = Field(default=1, ge=0, le=20)
     countdown_seconds: float = Field(default=0, ge=0, le=600)
-    pre_excitation_seconds: float = Field(default=1, ge=0, le=600)
+    pre_excitation_seconds: float | None = Field(default=None, ge=0, le=600)
     sampling_period_seconds: float = Field(default=1, ge=0.01, le=60, multiple_of=0.01)
     burn_cycle_seconds: float = Field(default=1, gt=0, le=60)
     dark_cycle_seconds: float = Field(default=1, gt=0, le=60)
@@ -48,3 +52,9 @@ class AcquisitionRename(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     post_name: str = Field(min_length=1, max_length=100)
+    name_length: Literal[12, 20] | None = None
+
+
+class AcquisitionDiscard(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: str = Field(default="激发能量不足", min_length=1, max_length=200)

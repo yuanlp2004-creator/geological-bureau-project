@@ -7,12 +7,39 @@ import uuid
 from copy import deepcopy
 from typing import Any
 
-from ..db import Database, utc_now
+from ..db import Database
 from ..schemas.methods import SpectralLineInput
-from .methods import MethodDomainError, MethodService, _json
+from .methods import MethodDomainError, MethodService
+from .methods.values import valid_unit
+from .methods.line_editing import MethodLineDraft
+from .methods.units import UNIT_POWERS, decimal_limit, unit_scale
 
 
 REFERENCE_BASELINE_ID = "reference-baseline"
+
+
+def method_exposure_mode(conditions: dict[str, Any], lines: list[dict[str, Any]]) -> str:
+    mode = conditions.get('exposure_mode')
+    if mode in ('simple_mean', 'line_interval'):
+        return mode
+    # 仅为未声明新模式的旧版本推导界面状态，不回写或改变其计算语义。
+    if conditions.get('legacy_exposure_mode') or any(
+        line.get('exposure_start_frame') is not None and line.get('exposure_end_frame') is not None for line in lines
+    ):
+        return 'line_interval'
+    return 'simple_mean'
+
+
+def exposure_interval(line: dict[str, Any], conditions: dict[str, Any]) -> tuple[int, int] | None:
+    if conditions.get('exposure_mode') == 'simple_mean':
+        return None
+    start, end = line.get('exposure_start_frame'), line.get('exposure_end_frame')
+    if start is not None and end is not None:
+        return int(start), int(end)
+    if conditions.get('exposure_mode') == 'line_interval' or conditions.get('legacy_exposure_mode'):
+        interval = conditions.get('legacy_exposure_interval', [1, conditions.get('frame_count', 20)]) if line.get('line_type') == 'baseline' else [1, conditions.get('frame_count', 20)]
+        return int(interval[0]), int(interval[1])
+    return None
 MAX_LINE_COUNT = 300
 MIN_WAVELENGTH_NM = 160.0
 MAX_WAVELENGTH_NM = 800.0
@@ -23,13 +50,93 @@ MIN_STANDARD_POINTS = 4
 MAX_STANDARD_POINTS = 50
 STANDARD_VALUE_TOLERANCE = 9.5e-7
 ELEMENT_SYMBOLS = (
-    "Ag", "Al", "Ar", "As", "Au", "B", "Ba", "Be", "Bi", "Br", "C", "Ca", "Cd",
-    "Ce", "Cl", "Co", "Cr", "Cs", "Cu", "Dy", "Er", "Eu", "Fe", "Ga", "Gd", "Ge",
-    "H", "He", "Hf", "Hg", "Ho", "I", "In", "Ir", "K", "Kr", "La", "Li", "Lu", "Mg",
-    "Mn", "Mo", "N", "Na", "Nb", "Nd", "Ne", "Ni", "O", "Os", "P", "Pb", "Pd", "Po",
-    "Pr", "Pt", "Pu", "Ra", "Rb", "Re", "Rh", "Rn", "Ru", "S", "Sb", "Sc", "Se", "Si",
-    "Sm", "Sn", "Sr", "Ta", "Tb", "Tc", "Te", "Th", "Ti", "Tl", "Tm", "U", "V", "W",
-    "Xe", "Y", "Yb", "Zn", "Zr",
+    "Ag",
+    "Al",
+    "Ar",
+    "As",
+    "Au",
+    "B",
+    "Ba",
+    "Be",
+    "Bi",
+    "Br",
+    "C",
+    "Ca",
+    "Cd",
+    "Ce",
+    "Cl",
+    "Co",
+    "Cr",
+    "Cs",
+    "Cu",
+    "Dy",
+    "Er",
+    "Eu",
+    "Fe",
+    "Ga",
+    "Gd",
+    "Ge",
+    "H",
+    "He",
+    "Hf",
+    "Hg",
+    "Ho",
+    "I",
+    "In",
+    "Ir",
+    "K",
+    "Kr",
+    "La",
+    "Li",
+    "Lu",
+    "Mg",
+    "Mn",
+    "Mo",
+    "N",
+    "Na",
+    "Nb",
+    "Nd",
+    "Ne",
+    "Ni",
+    "O",
+    "Os",
+    "P",
+    "Pb",
+    "Pd",
+    "Po",
+    "Pr",
+    "Pt",
+    "Pu",
+    "Ra",
+    "Rb",
+    "Re",
+    "Rh",
+    "Rn",
+    "Ru",
+    "S",
+    "Sb",
+    "Sc",
+    "Se",
+    "Si",
+    "Sm",
+    "Sn",
+    "Sr",
+    "Ta",
+    "Tb",
+    "Tc",
+    "Te",
+    "Th",
+    "Ti",
+    "Tl",
+    "Tm",
+    "U",
+    "V",
+    "W",
+    "Xe",
+    "Y",
+    "Yb",
+    "Zn",
+    "Zr",
 )
 
 
@@ -119,7 +226,11 @@ def detect_wavelength(
     actual_wavelength_nm: Any = None,
     scan_width_points: Any = 9,
 ) -> dict[str, Any]:
-    if isinstance(wavelength_nm, bool) or not isinstance(wavelength_nm, (int, float)) or not math.isfinite(float(wavelength_nm)):
+    if (
+        isinstance(wavelength_nm, bool)
+        or not isinstance(wavelength_nm, (int, float))
+        or not math.isfinite(float(wavelength_nm))
+    ):
         return {"detectable": False, "reason_code": "wavelength_required", "message": "波长必须是有限数字"}
     theoretical = float(wavelength_nm)
     actual = theoretical if actual_wavelength_nm is None else actual_wavelength_nm
@@ -141,13 +252,15 @@ def detect_wavelength(
     layout = method_service._layout(db, conditions.get("ccd_layout_id", "default"))
     if layout is None:
         return {"detectable": False, "reason_code": "ccd_layout_not_found", "message": "未找到 CCD 布局"}
-    dispersion = method_service._dispersion(
-        db, conditions.get("dispersion_calibration_id", "default")
-    )
+    dispersion = method_service._dispersion(db, conditions.get("dispersion_calibration_id", "default"))
     if dispersion is None:
         return {"detectable": False, "reason_code": "dispersion_not_found", "message": "未找到色散引用"}
     if int(dispersion["ccd_layout_id"]) != int(layout["id"]):
-        return {"detectable": False, "reason_code": "dispersion_layout_mismatch", "message": "色散引用与 CCD 布局不匹配"}
+        return {
+            "detectable": False,
+            "reason_code": "dispersion_layout_mismatch",
+            "message": "色散引用与 CCD 布局不匹配",
+        }
     position = method_service._reference_position(measured, layout, dispersion)
     if position is None:
         return {
@@ -177,7 +290,11 @@ def detect_wavelength(
         return {"detectable": False, "reason_code": "scan_width_invalid", "message": "扫描宽度必须是整数"}
     frame_index = ccd_index // int(layout["ccds_per_frame"])
     exposures = conditions.get("angle_exposures", [])
-    angle = exposures[frame_index].get("angle_deg") if isinstance(exposures, list) and frame_index < len(exposures) and isinstance(exposures[frame_index], dict) else None
+    angle = (
+        exposures[frame_index].get("angle_deg")
+        if isinstance(exposures, list) and frame_index < len(exposures) and isinstance(exposures[frame_index], dict)
+        else None
+    )
     return {
         "detectable": True,
         "reason_code": "detectable",
@@ -213,9 +330,16 @@ def validate_spectral_lines(
     valid_peak_modes = {"max_single_point", "gaussian"}
     valid_fit_modes = {"linear", "quadratic", "cubic", "spline"}
     valid_coords = {"normal", "logarithmic"}
-    valid_units = {"ug/g", "mg/g", "%"}
 
-    def number(prefix: str, line: dict[str, Any], field: str, minimum: float | None = None, maximum: float | None = None, *, integer: bool = False) -> float | None:
+    def number(
+        prefix: str,
+        line: dict[str, Any],
+        field: str,
+        minimum: float | None = None,
+        maximum: float | None = None,
+        *,
+        integer: bool = False,
+    ) -> float | None:
         value = line.get(field)
         path = f"{prefix}.{field}"
         if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)):
@@ -259,12 +383,20 @@ def validate_spectral_lines(
         wave = number(prefix, line, "wavelength_nm", MIN_WAVELENGTH_NM, MAX_WAVELENGTH_NM)
         actual = number(prefix, line, "actual_wavelength_nm", MIN_WAVELENGTH_NM, MAX_WAVELENGTH_NM)
         if wave is not None and actual is not None and abs(actual - wave) > MAX_ACTUAL_WAVELENGTH_OFFSET_NM:
-            errors.append(_issue(f"{prefix}.actual_wavelength_nm", "actual_wavelength_offset_too_large", "实际波长与理论值偏差不能大于 0.3 nm"))
+            errors.append(
+                _issue(
+                    f"{prefix}.actual_wavelength_nm",
+                    "actual_wavelength_offset_too_large",
+                    "实际波长与理论值偏差不能大于 0.3 nm",
+                )
+            )
         if wave is not None and line_type != "baseline":
             nonbaseline_waves.append((index, wave))
-        detection = detect_wavelength(
-            method_service, db, conditions, wave, actual, line.get("scan_width_points")
-        ) if wave is not None and actual is not None else None
+        detection = (
+            detect_wavelength(method_service, db, conditions, wave, actual, line.get("scan_width_points"))
+            if wave is not None and actual is not None
+            else None
+        )
         if detection is not None and not detection["detectable"]:
             errors.append(_issue(f"{prefix}.wavelength_nm", detection["reason_code"], detection["message"]))
 
@@ -284,18 +416,24 @@ def validate_spectral_lines(
             errors.append(_issue(f"{prefix}.peak_width_points", "maximum_peak_width", "最大值模式只能使用 1 个计算点"))
         elif peak_mode == "gaussian" and peak_width is not None:
             if int(peak_width) < 3 or int(peak_width) > 9 or int(peak_width) % 2 == 0:
-                errors.append(_issue(f"{prefix}.peak_width_points", "gaussian_points_invalid", "高斯计算点数必须是 3–9 的奇数"))
+                errors.append(
+                    _issue(f"{prefix}.peak_width_points", "gaussian_points_invalid", "高斯计算点数必须是 3–9 的奇数")
+                )
             if scan_width is not None and peak_width > scan_width:
-                errors.append(_issue(f"{prefix}.peak_width_points", "peak_width_exceeds_scan", "计算点数不能大于扫描宽度"))
+                errors.append(
+                    _issue(f"{prefix}.peak_width_points", "peak_width_exceeds_scan", "计算点数不能大于扫描宽度")
+                )
         if line.get("fit_mode") not in valid_fit_modes:
             errors.append(_issue(f"{prefix}.fit_mode", "fit_mode_invalid", "拟合方式无效"))
         if line.get("coordinate_type") not in valid_coords:
             errors.append(_issue(f"{prefix}.coordinate_type", "coordinate_type_invalid", "拟合坐标无效"))
-        if line.get("unit") not in valid_units:
-            errors.append(_issue(f"{prefix}.unit", "unit_invalid", "单位只能是 ug/g、mg/g 或 %"))
+        if not valid_unit(line.get("unit")):
+            errors.append(
+                _issue(f"{prefix}.unit", "unit_invalid", "单位须为 1–32 个可见字符，不能含控制字符或首尾空白")
+            )
         if line.get("value_kind") not in {"content", "concentration"}:
             errors.append(_issue(f"{prefix}.value_kind", "value_kind_invalid", "数值类型只能是含量或浓度"))
-        number(prefix, line, "decimal_places", 0, 6, integer=True)
+        number(prefix, line, "decimal_places", 0, decimal_limit(line.get("unit", "")), integer=True)
         number(prefix, line, "lower_peak", 100, 600, integer=True)
         number(prefix, line, "minimum_peak_ratio", 1.1, 2.5)
         minimum = number(prefix, line, "valid_range_min", 0, 9_999_999)
@@ -303,32 +441,54 @@ def validate_spectral_lines(
         if minimum is not None and maximum is not None and maximum <= minimum:
             errors.append(_issue(f"{prefix}.valid_range_max", "valid_range_order", "有效范围上限必须大于下限"))
         number(prefix, line, "over_limit_tolerance_percent", 0, 100)
+        start, end = line.get('exposure_start_frame'), line.get('exposure_end_frame')
+        if start is not None or end is not None:
+            maximum_frame = 255 if conditions.get('exposure_mode') == 'simple_mean' else int(conditions.get('frame_count', 20))
+            if (isinstance(start, bool) or isinstance(end, bool) or not isinstance(start, int)
+                or not isinstance(end, int) or not 1 <= start < end <= maximum_frame):
+                errors.append(_issue(f'{prefix}.exposure_end_frame', 'line_exposure_invalid',
+                                     '谱线曝光段须在方法帧数内且至少包含两帧'))
 
         points = line.get("standard_points")
         if line_type == "analysis":
             if not isinstance(points, list) or not MIN_STANDARD_POINTS <= len(points) <= MAX_STANDARD_POINTS:
-                errors.append(_issue(f"{prefix}.standard_points", "standard_point_count", "分析线必须配置 4–50 个标准点"))
+                errors.append(
+                    _issue(f"{prefix}.standard_points", "standard_point_count", "分析线必须配置 4–50 个标准点")
+                )
             else:
                 point_values: list[float] = []
                 for point_index, point in enumerate(points):
                     point_path = f"{prefix}.standard_points.{point_index}.value"
                     value = point.get("value") if isinstance(point, dict) else None
-                    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)) or not 9.9e-7 <= float(value) <= 9_999_999:
-                        errors.append(_issue(point_path, "standard_value_invalid", "标准点必须在 0.00000099–9999999 范围内"))
+                    if (
+                        isinstance(value, bool)
+                        or not isinstance(value, (int, float))
+                        or not math.isfinite(float(value))
+                        or not 9.9e-7 / unit_scale(line.get("unit", "")) <= float(value) <= 9_999_999
+                    ):
+                        errors.append(
+                            _issue(point_path, "standard_value_invalid", f"标准点必须在 {9.9e-7 / unit_scale(line.get('unit', '')):g}–9999999 范围内")
+                        )
                         continue
                     numeric = float(value)
-                    if any(abs(numeric - existing) <= STANDARD_VALUE_TOLERANCE for existing in point_values):
+                    if any(abs(numeric - existing) * unit_scale(line.get("unit", "")) <= STANDARD_VALUE_TOLERANCE for existing in point_values):
                         errors.append(_issue(point_path, "standard_value_duplicate", "标准点数值不能重复"))
                     point_values.append(numeric)
         elif isinstance(points, list) and points:
-            errors.append(_issue(f"{prefix}.standard_points", "standard_points_not_allowed", "只有分析线可以配置标准点"))
+            errors.append(
+                _issue(f"{prefix}.standard_points", "standard_points_not_allowed", "只有分析线可以配置标准点")
+            )
 
     for left_index, left_wave in nonbaseline_waves:
         for right_index, right_wave in nonbaseline_waves:
             if right_index <= left_index:
                 continue
             if abs(left_wave - right_wave) <= DUPLICATE_WAVELENGTH_TOLERANCE_NM:
-                errors.append(_issue(f"lines.{right_index}.wavelength_nm", "line_wavelength_duplicate", "±0.01 nm 内已存在近似谱线"))
+                errors.append(
+                    _issue(
+                        f"lines.{right_index}.wavelength_nm", "line_wavelength_duplicate", "±0.01 nm 内已存在近似谱线"
+                    )
+                )
 
     graph: dict[str, list[str]] = {}
     for index, line in enumerate(lines):
@@ -361,13 +521,23 @@ def validate_spectral_lines(
         mode = line.get("internal_standard_mode")
         if line.get("line_type") == "analysis":
             if mode not in {"none", "background", "line"}:
-                errors.append(_issue(f"{prefix}.internal_standard_mode", "internal_standard_mode_invalid", "内标方式无效"))
+                errors.append(
+                    _issue(f"{prefix}.internal_standard_mode", "internal_standard_mode_invalid", "内标方式无效")
+                )
             elif mode == "background" and line.get("background_line_id") is None:
-                errors.append(_issue(f"{prefix}.background_line_id", "background_reference_required", "背景内标必须引用参考基线"))
+                errors.append(
+                    _issue(f"{prefix}.background_line_id", "background_reference_required", "背景内标必须引用参考基线")
+                )
             elif mode == "line" and line.get("internal_standard_line_id") is None:
-                errors.append(_issue(f"{prefix}.internal_standard_line_id", "internal_standard_required", "普通内标必须引用内标线"))
+                errors.append(
+                    _issue(
+                        f"{prefix}.internal_standard_line_id", "internal_standard_required", "普通内标必须引用内标线"
+                    )
+                )
         elif mode != "none" or line.get("internal_standard_line_id") is not None:
-            errors.append(_issue(f"{prefix}.internal_standard_mode", "internal_standard_not_allowed", "只有分析线可以配置内标"))
+            errors.append(
+                _issue(f"{prefix}.internal_standard_mode", "internal_standard_not_allowed", "只有分析线可以配置内标")
+            )
 
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -409,14 +579,20 @@ class SpectralLineService:
                 {"value": "background", "label": "背景内标"},
                 {"value": "line", "label": "普通内标线"},
             ],
-            "peak_modes": [{"value": "max_single_point", "label": "最大值"}, {"value": "gaussian", "label": "高斯曲线"}],
+            "peak_modes": [
+                {"value": "max_single_point", "label": "最大值"},
+                {"value": "gaussian", "label": "高斯曲线"},
+            ],
             "fit_modes": [
                 {"value": "linear", "label": "直线函数"},
                 {"value": "quadratic", "label": "二次曲线"},
                 {"value": "cubic", "label": "三次曲线"},
                 {"value": "spline", "label": "样条函数"},
             ],
-            "coordinate_types": [{"value": "normal", "label": "普通坐标"}, {"value": "logarithmic", "label": "对数坐标"}],
+            "coordinate_types": [
+                {"value": "normal", "label": "普通坐标"},
+                {"value": "logarithmic", "label": "对数坐标"},
+            ],
             "limits": {
                 "wavelength_nm": [160, 800],
                 "duplicate_tolerance_nm": 0.01,
@@ -429,32 +605,20 @@ class SpectralLineService:
             },
         }
 
-    @staticmethod
-    def _method_row(db: sqlite3.Connection, method_id: int) -> sqlite3.Row:
-        row = db.execute("SELECT * FROM methods WHERE id=? AND status <> 'deleted'", (method_id,)).fetchone()
-        if row is None:
-            raise MethodDomainError("method_not_found", "方法不存在", status_code=404)
-        return row
+    def _payload(self, db: sqlite3.Connection, method_id: int) -> tuple[MethodLineDraft, dict[str, Any]]:
+        draft = self.methods.bind_line_editor(db).load(method_id)
+        return draft, draft.payload
 
-    def _payload(self, db: sqlite3.Connection, method_id: int) -> tuple[sqlite3.Row, dict[str, Any]]:
-        row = self._method_row(db, method_id)
-        latest = self.methods._latest_row(db, method_id)
-        if latest is None:
-            raise MethodDomainError("method_version_not_found", "方法版本不存在", status_code=404)
-        payload = json.loads(latest["payload_json"])
-        conditions = payload.get("conditions", {})
-        payload["lines"] = canonical_lines(payload.get("lines"), conditions)
-        return row, payload
-
-    def _audit(self, db: sqlite3.Connection, actor_user_id: int | None, action: str, method_id: int, line_id: str | None, details: dict[str, Any]) -> None:
-        actor = self.methods._valid_actor(db, actor_user_id)
-        payload = {"method_id": method_id, "line_id": line_id, **details}
-        db.execute(
-            "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) VALUES (?, ?, 'spectral_line', ?, ?, ?)",
-            (actor, action, method_id, _json(payload), utc_now()),
-        )
-
-    def _commit(self, db: sqlite3.Connection, row: sqlite3.Row, payload: dict[str, Any], actor_user_id: int, action: str, line_id: str | None, details: dict[str, Any]) -> dict[str, Any]:
+    def _commit(
+        self,
+        db: sqlite3.Connection,
+        row: MethodLineDraft,
+        payload: dict[str, Any],
+        actor_user_id: int,
+        action: str,
+        line_id: str | None,
+        details: dict[str, Any],
+    ) -> dict[str, Any]:
         conditions = payload.get("conditions", {})
         payload["lines"] = canonical_lines(payload.get("lines"), conditions)
         line_errors = validate_spectral_lines(self.methods, db, conditions, payload["lines"])
@@ -465,21 +629,13 @@ class SpectralLineService:
                 fields=sorted({item["field"] for item in line_errors}),
                 details={"validation_errors": line_errors},
             )
-        now = utc_now()
-        version, method_errors = self.methods._insert_payload_draft(
-            db, int(row["id"]), payload, actor_user_id, now
-        )
-        db.execute("UPDATE methods SET updated_at=? WHERE id=?", (now, row["id"]))
-        self._audit(db, actor_user_id, action, int(row["id"]), line_id, {"version": version, "validation_issue_count": len(method_errors), **details})
-        updated = db.execute("SELECT * FROM methods WHERE id=?", (row["id"],)).fetchone()
-        state = db.execute("SELECT current_method_id FROM method_runtime_state WHERE id=1").fetchone()
-        return self.methods._method_dict(db, updated, current_id=state[0] if state else None)
+        row.payload = payload
+        return self.methods.bind_line_editor(db).save(row, actor_user_id, action, line_id, details)
 
     def list(self, method_id: int) -> dict[str, Any]:
         with self.database.read() as db:
-            _, payload = self._payload(db, method_id)
+            draft, payload = self._payload(db, method_id)
             conditions = payload.get("conditions", {})
-            latest = self.methods._latest_row(db, method_id)
             lines = []
             for line in payload["lines"]:
                 item = deepcopy(line)
@@ -492,16 +648,24 @@ class SpectralLineService:
                     item.get("scan_width_points"),
                 )
                 lines.append(item)
-            return {"method_id": method_id, "version": latest["version"], "state": latest["state"], "lines": lines}
+            return {"method_id": method_id, "version": draft.version, "state": draft.state, "lines": lines,
+                    "exposure_mode": method_exposure_mode(conditions, lines),
+                    "frame_count": conditions.get('frame_count', 20)}
 
-    def detect(self, method_id: int, wavelength_nm: float, actual_wavelength_nm: float | None, scan_width_points: int) -> dict[str, Any]:
+    def detect(
+        self, method_id: int, wavelength_nm: float, actual_wavelength_nm: float | None, scan_width_points: int
+    ) -> dict[str, Any]:
         with self.database.read() as db:
             _, payload = self._payload(db, method_id)
-            return detect_wavelength(self.methods, db, payload.get("conditions", {}), wavelength_nm, actual_wavelength_nm, scan_width_points)
+            return detect_wavelength(
+                self.methods, db, payload.get("conditions", {}), wavelength_nm, actual_wavelength_nm, scan_width_points
+            )
 
     def create(self, method_id: int, value: SpectralLineInput, actor_user_id: int) -> dict[str, Any]:
         if value.line_type == "baseline":
-            raise MethodDomainError("reference_baseline_exists", "参考基线由方法条件维护，不能重复新增", fields=["line_type"])
+            raise MethodDomainError(
+                "reference_baseline_exists", "参考基线由方法条件维护，不能重复新增", fields=["line_type"]
+            )
         with self.database.write() as db:
             row, payload = self._payload(db, method_id)
             lines = payload["lines"]
@@ -514,11 +678,21 @@ class SpectralLineService:
                 line["actual_wavelength_nm"] = line["wavelength_nm"]
             line["reference_baseline"] = False
             payload["lines"] = [*lines, line]
-            return self._commit(db, row, payload, actor_user_id, "spectral_line.create", line["id"], {"line_type": line["line_type"], "wavelength_nm": line["wavelength_nm"]})
+            return self._commit(
+                db,
+                row,
+                payload,
+                actor_user_id,
+                "spectral_line.create",
+                line["id"],
+                {"line_type": line["line_type"], "wavelength_nm": line["wavelength_nm"]},
+            )
 
     def update(self, method_id: int, line_id: str, value: SpectralLineInput, actor_user_id: int) -> dict[str, Any]:
         if line_id == REFERENCE_BASELINE_ID or value.line_type == "baseline":
-            raise MethodDomainError("reference_baseline_readonly", "参考基线请在方法条件中维护", fields=["line_type"], status_code=409)
+            raise MethodDomainError(
+                "reference_baseline_readonly", "参考基线请在方法条件中维护", fields=["line_type"], status_code=409
+            )
         with self.database.write() as db:
             row, payload = self._payload(db, method_id)
             index = next((index for index, line in enumerate(payload["lines"]) if line.get("id") == line_id), None)
@@ -526,12 +700,32 @@ class SpectralLineService:
                 raise MethodDomainError("spectral_line_not_found", "谱线不存在", status_code=404)
             previous = payload["lines"][index]
             replacement = value.model_dump(mode="json")
+            previous_points = {point['name']: point for point in previous.get('standard_points', [])}
+            for point in replacement.get('standard_points', []):
+                old = previous_points.get(point['name'])
+                old_unit, new_unit = previous.get('unit', ''), replacement.get('unit', '')
+                compatible = old_unit == new_unit or old_unit in UNIT_POWERS and new_unit in UNIT_POWERS
+                difference = abs(float(old['value']) * unit_scale(old_unit) - float(point['value']) * unit_scale(new_unit)) if old else 0
+                if old and (not compatible or difference > STANDARD_VALUE_TOLERANCE):
+                    point.update({'original_intensity': None, 'adjusted_intensity': None, 'intensity_valid': False})
             replacement.update({"id": line_id, "order": previous["order"], "reference_baseline": False})
             if replacement["actual_wavelength_nm"] is None:
                 replacement["actual_wavelength_nm"] = replacement["wavelength_nm"]
             payload["lines"][index] = replacement
-            action = "spectral_line.toggle" if previous.get("enabled") != replacement.get("enabled") else "spectral_line.update"
-            return self._commit(db, row, payload, actor_user_id, action, line_id, {"enabled": replacement["enabled"], "wavelength_nm": replacement["wavelength_nm"]})
+            action = (
+                "spectral_line.toggle"
+                if previous.get("enabled") != replacement.get("enabled")
+                else "spectral_line.update"
+            )
+            return self._commit(
+                db,
+                row,
+                payload,
+                actor_user_id,
+                action,
+                line_id,
+                {"enabled": replacement["enabled"], "wavelength_nm": replacement["wavelength_nm"]},
+            )
 
     def delete(self, method_id: int, line_id: str, actor_user_id: int) -> dict[str, Any]:
         if line_id == REFERENCE_BASELINE_ID:
@@ -549,9 +743,23 @@ class SpectralLineService:
                 or line.get("internal_standard_line_id") == line_id
             ]
             if dependent_ids:
-                raise MethodDomainError("spectral_line_in_use", "谱线仍被其他谱线引用，不能删除", fields=["line_id"], details={"dependent_line_ids": dependent_ids}, status_code=409)
+                raise MethodDomainError(
+                    "spectral_line_in_use",
+                    "谱线仍被其他谱线引用，不能删除",
+                    fields=["line_id"],
+                    details={"dependent_line_ids": dependent_ids},
+                    status_code=409,
+                )
             payload["lines"] = [line for line in payload["lines"] if line.get("id") != line_id]
-            return self._commit(db, row, payload, actor_user_id, "spectral_line.delete", line_id, {"wavelength_nm": target.get("wavelength_nm")})
+            return self._commit(
+                db,
+                row,
+                payload,
+                actor_user_id,
+                "spectral_line.delete",
+                line_id,
+                {"wavelength_nm": target.get("wavelength_nm")},
+            )
 
     def reorder(self, method_id: int, line_ids: list[str], actor_user_id: int) -> dict[str, Any]:
         with self.database.write() as db:
@@ -559,7 +767,9 @@ class SpectralLineService:
             movable = [line for line in payload["lines"] if line.get("line_type") != "baseline"]
             expected = [line["id"] for line in movable]
             if len(line_ids) != len(set(line_ids)) or set(line_ids) != set(expected):
-                raise MethodDomainError("line_reorder_mismatch", "排序列表必须包含全部非基线谱线且不能重复", fields=["line_ids"])
+                raise MethodDomainError(
+                    "line_reorder_mismatch", "排序列表必须包含全部非基线谱线且不能重复", fields=["line_ids"]
+                )
             by_id = {line["id"]: line for line in movable}
             baseline = next(line for line in payload["lines"] if line.get("line_type") == "baseline")
             ordered = [by_id[line_id] for line_id in line_ids]

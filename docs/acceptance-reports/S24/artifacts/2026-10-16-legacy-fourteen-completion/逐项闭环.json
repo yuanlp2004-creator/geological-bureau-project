@@ -1,0 +1,279 @@
+[
+  {
+    "id": "F01",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:386",
+      "Spec Source/Source/Common/uAnaThread.pas:352",
+      "Spec Source/Source/Common/uCcdBand.pas:990"
+    ],
+    "entry": "色散制作→定位/全部定位",
+    "saved_field_and_consumer": "全燃烧帧按周期平均、扣除全部空白均值，按旧版 LowAvg=0.1 限幅；保留定位值、原始帧和全部来源审计。",
+    "verification": "旧口径峰107，新版已为107；不等周期和损坏帧也验证。",
+    "current_evidence": [
+      "app/backend/modules/dispersion/calibration.py:120"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F02",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:216",
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:445"
+    ],
+    "entry": "色散制作→CCD间隔/增量/应用间隔并重算",
+    "saved_field_and_consumer": "1/2/5/10 μm增量；新布局保存间隔，所有谱线使用新几何参与新拟合，原引用布局与已发布色散保持。",
+    "verification": "后续CCD全局点位联动；原布局、旧拟合和已有方法哈希保持。",
+    "current_evidence": [
+      "app/backend/modules/dispersion/calibration.py:220",
+      "app/frontend/src/pages/dispersion/DispersionLines.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F03",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmWstc.pas:229"
+    ],
+    "entry": "色散制作→既有谱线波长→保存波长",
+    "saved_field_and_consumer": "原行更新波长及预期位置，保留行ID、实测/保存位置；越界及重复拒绝。",
+    "verification": "UI保存与错误零修改通过。",
+    "current_evidence": [
+      "app/backend/modules/dispersion/calibration.py:202"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F04",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:407",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:591",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:965"
+    ],
+    "entry": "分析→曲线图及图像预览/PDF",
+    "saved_field_and_consumer": "横轴含量、纵轴强度；上移改变纵坐标，保持标准含量；屏幕、HTML、PDF同方向。",
+    "verification": "上移cx保持、cy减小；计算算法未改。",
+    "current_evidence": [
+      "app/frontend/src/pages/analysis/CurveChart.tsx:1",
+      "app/backend/modules/analysis/printing.py:59"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F05",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:348",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaCurve.pas:415"
+    ],
+    "entry": "分析→曲线图→对数坐标",
+    "saved_field_and_consumer": "两轴均按ln变换绘图，刻度显示原值并缩短过长数值；图像输出使用同一口径。",
+    "verification": "标准1/2/3/4的横向间距符合ln比例；微调和拟合过期保护保持。",
+    "current_evidence": [
+      "app/frontend/src/pages/analysis/CurveChart.tsx:1",
+      "app/backend/modules/analysis/printing.py:121"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F06",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmPageSetup.pas:46",
+      "Spec Source/Source/Main/mmData/FmPrintDat.pas:110"
+    ],
+    "entry": "方法→预览与打印→高级打印设置；报告预览/输出",
+    "saved_field_and_consumer": "纸型、方向、边距、8–13pt字号、每行元素、每页样品、分析/系统时间进入实际渲染；宽矩阵按纸张横向分页。",
+    "verification": "A3竖向13pt实际PDF297×420mm；25样品每页3得9页；宽表最后一列保留。",
+    "current_evidence": [
+      "app/backend/modules/reports/rendering.py:82",
+      "app/backend/modules/reports/rendering.py:108"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F07",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uExport.pas:327",
+      "Spec Source/Source/Common/uExport.pas:395",
+      "Spec Source/Source/Main/mmData/FmExport.pas:1"
+    ],
+    "entry": "报告→表格形式→旧版矩阵/完整明细长表",
+    "saved_field_and_consumer": "新报告固化表格形式，standard为样品×元素，exchange真实转置；既有未标记报告及明细选项继续可用。",
+    "verification": "3样品×2元素标准4×3、转置3×4逐格验证，含表头。",
+    "current_evidence": [
+      "app/backend/modules/reports/rendering.py:32",
+      "app/frontend/src/pages/reports/ReportBuilder.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F08",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uExport.pas:491",
+      "Spec Source/Source/Main/mmAnalyze/FmAnaPdt.pas:93"
+    ],
+    "entry": "分析→原始结果→分析强度输出；后处理→旧PDT强度表",
+    "saved_field_and_consumer": "逐重复峰/背景宽表；四选项为保存强度（新版JSON）、打印强度、强度到文本、校正波长新草稿；旧PDT单独TXT/CSV/XLS/PDF/打印。",
+    "verification": "实际文件字节、虚拟打印、重复序号、损坏拒绝、位置新草稿及原发布保持通过。",
+    "current_evidence": [
+      "app/backend/modules/analysis/intensity_output.py:10",
+      "app/backend/modules/result_migration.py:93",
+      "app/frontend/src/pages/analysis/IntensityOutput.tsx:1",
+      "app/frontend/src/pages/postprocessing/PdtIntensityOutput.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F09",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmMethod/FmMtdPrint.pas:30"
+    ],
+    "entry": "方法→预览与打印→导出TXT",
+    "saved_field_and_consumer": "复用完整方法/谱线/标准参数文档生成UTF-8 BOM文本；原HTML/PDF/打印保持。",
+    "verification": "真实UI导出包含方法条件、谱线及标准；只读方法权限可读取。",
+    "current_evidence": [
+      "app/backend/modules/method_printing/service.py:124"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F10",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uMethod.pas:953",
+      "Spec Source/Source/Common/uMethod.pas:976"
+    ],
+    "entry": "样号与样品队列→导入SAM及编码选择",
+    "saved_field_and_consumer": "上传原字节及mtime；无BOM旧文件按GB18030，有BOM识别UTF-8，另可显式选择UTF-8；保留原字节SHA-256。",
+    "verification": "样1和铅1正确；原哈希一致，非法整批拒绝，原队列保持。",
+    "current_evidence": [
+      "app/backend/modules/sample_queues.py:48",
+      "app/frontend/src/api/sampleQueues.ts:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F11",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Common/uConfigs.pas:80",
+      "Spec Source/Source/Common/uOptions.pas:1"
+    ],
+    "entry": "旧方法与配置迁移→提交记录→预览旧版偏好→应用",
+    "saved_field_and_consumer": "原档案保留；应用分析监控/信息/等待/空白、WDT与EDT独立条件、强度默认、报告及屏幕偏好；事务内设置/激活/审计。",
+    "verification": "12秒/1234ms/9帧进入运行消费者；预览零修改、审计失败全回滚、目录/方法保持。",
+    "current_evidence": [
+      "app/backend/modules/legacy_migration/service.py:486",
+      "app/frontend/src/pages/analysis/AnalysisPage.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F12",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmView.pas:1",
+      "Spec Source/Source/Common/uOptions.pas:1"
+    ],
+    "entry": "谱图查看→100%/400%/十倍CCD→屏幕参数",
+    "saved_field_and_consumer": "用CCD点坐标、实际SVG绘图区与DPI换算一/四屏幕像素；十倍比例消费点宽、屏幕物理宽和分辨率。",
+    "verification": "浏览器和真实QA WebView测量像素间距；可见导出/打印仍转换回原坐标。",
+    "current_evidence": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F13",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.pas:1"
+    ],
+    "entry": "谱图查看→锁定谱带记录",
+    "saved_field_and_consumer": "单独锁记录列表和前后翻页；光标锁定独立，解锁恢复选择。",
+    "verification": "列表与上一/下一按钮禁用、解锁恢复通过。",
+    "current_evidence": [
+      "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx:1",
+      "app/frontend/src/pages/spectra/SpectrumRecordList.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  },
+  {
+    "id": "F14",
+    "status": "passed",
+    "legacy_evidence": [
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:374",
+      "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:546"
+    ],
+    "entry": "样号与样品队列→样品名回车",
+    "saved_field_and_consumer": "数字样号递增；逗号空样、点结束、斜杠删除录入末项；保留逐项按钮、默认重复和采集关联保护。",
+    "verification": "100→101、空样重复0、删除及结束均经真实UI/API验证。",
+    "current_evidence": [
+      "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx:1"
+    ],
+    "test_evidence": [
+      "app/tests/test_legacy_fourteen_closure.py",
+      "app/tests/legacy_fourteen_workflow.mjs",
+      "冻结桌面专项.json"
+    ]
+  }
+]

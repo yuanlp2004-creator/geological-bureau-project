@@ -1,316 +1,436 @@
-import { TaskLayout, FormDisclosure } from '../../layout/TaskLayout'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Activity, ArrowLeft, ArrowRight, Crosshair, PauseCircle, PlayCircle, Plus, RefreshCw, Save, SlidersHorizontal, Square, Trash2, Zap } from 'lucide-react'
-import { api, type DispersionCalibrationVersion, type DispersionLine, type DispersionOptions, type DispersionTask, type MethodRecord } from '../../api'
-import { CopyableCode } from '../../components/InformationDisplay'
-import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
-import { SimpleChartAxes } from '../../components/SimpleChartAxes'
+import { PageFileActions } from '../../components/PageFileActions'
+import { OpenLegacyFile } from '../../components/OpenLegacyFile'
+import { confirmAction } from '../../platform/dialogs'
+import {
+  RefreshCw
+} from 'lucide-react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  api,
+  type DispersionCalibrationVersion,
+  type DispersionLine,
+  type DispersionOptions,
+  type DispersionTask,
+  type MethodRecord
+} from '../../api'
+import { reportInvalidNumericInput } from '../../components/NumericInput'
+import { FormDisclosure, TaskLayout } from '../../layout/TaskLayout'
+import { DispersionCalibration } from './DispersionCalibration'
+import { DispersionLines } from './DispersionLines'
+import { DispersionMonitor } from './DispersionMonitor'
+import { DispersionSetup } from './DispersionSetup'
+import { Props, runningStates, statusLabels } from './dispersionView'
+import { useSpectroscopySession } from '../acquisition/spectroscopySession'
 
-
-type Props = {
-  token: string
-  canWrite: boolean
-  canExecute: boolean
-  onToast: (message: string) => void
-}
-
-const runningStates = new Set(['pre_excitation', 'burn', 'dark'])
-const statusLabels: Record<string, string> = {
-  draft: '待开始', pre_excitation: '预激发', burn: '燃烧采集', dark: '暗帧采集', paused: '已暂停',
-  stopping: '收尾中', completed: '已完成', failed: '失败', stopped: '已停止',
-}
-
-type CurveGeometry = { path: string; minimum: number; maximum: number }
-
-function curveGeometry(points: number[]): CurveGeometry {
-  if (!points.length) return { path: '', minimum: 0, maximum: 1 }
-  const stride = Math.max(1, Math.ceil(points.length / 800))
-  const visible = points.filter((_, index) => index % stride === 0)
-  const minimum = Math.min(...visible)
-  const maximum = Math.max(...visible)
-  const span = Math.max(maximum - minimum, 1)
-  const path = visible.map((value, index) => {
-    const x = index / Math.max(visible.length - 1, 1) * 1000
-    const y = 248 - (value - minimum) / span * 224
-    return `${index ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`
-  }).join(' ')
-  return { path, minimum, maximum }
-}
-
-type PositionMarker = {
-  key: string
-  kind: 'expected' | 'located'
-  label: string
-  position: number
-  x: number
-  labelY: number
-}
-
-function positionMarkers(lines: DispersionLine[], ccdIndex: number, pointsPerCcd: number): PositionMarker[] {
-  if (pointsPerCcd <= 1) return []
-  const markers: PositionMarker[] = []
-  const markerDefinitions: Array<{ kind: PositionMarker['kind']; field: 'expected_position' | 'located_position'; label: string; labelY: number }> = [
-    { kind: 'expected', field: 'expected_position', label: '预期', labelY: 38 },
-    { kind: 'located', field: 'located_position', label: '实测', labelY: 62 },
-  ]
-  lines.filter((line) => line.ccd_index === ccdIndex).forEach((line) => {
-    markerDefinitions.forEach((definition) => {
-      const position = line[definition.field]
-      if (position === null || !Number.isFinite(position)) return
-      const bounded = Math.max(0, Math.min(pointsPerCcd - 1, position))
-      markers.push({
-        key: `${line.id}-${definition.kind}`,
-        kind: definition.kind,
-        label: `${line.element} ${line.wavelength_nm.toFixed(4)} nm · ${definition.label} ${position.toFixed(2)}`,
-        position,
-        x: bounded / (pointsPerCcd - 1) * 1000,
-        labelY: definition.labelY,
-      })
-    })
-  })
-  return markers
-}
-
-function replaceLine(task: DispersionTask, line: DispersionLine): DispersionTask {
-  return { ...task, lines: task.lines.map((item) => item.id === line.id ? line : item) }
-}
-
-export function DispersionPage({ token, canWrite, canExecute, onToast }: Props) {
+export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTarget, view = 'capture' }: Props & { actionsTarget?: HTMLElement | null; view?: 'capture' | 'curve' }) {
   const [options, setOptions] = useState<DispersionOptions | null>(null)
   const [tasks, setTasks] = useState<DispersionTask[]>([])
   const [methods, setMethods] = useState<MethodRecord[]>([])
   const [active, setActive] = useState<DispersionTask | null>(null)
   const [profileId, setProfileId] = useState<number | null>(null)
   const [layoutId, setLayoutId] = useState<number | null>(null)
+  const [legacySource, setLegacySource] = useState('')
+  const [preSeconds, setPreSeconds] = useState(3)
+  const [samplingPeriod, setSamplingPeriod] = useState(1)
+  const [lockedPoint, setLockedPoint] = useState<number | null>(null)
+  const [manualLine, setManualLine] = useState<number | null>(null)
   const [frameCount, setFrameCount] = useState(3)
   const [darkFrameCount, setDarkFrameCount] = useState(1)
+  const defaultsLoaded = useRef(false)
   const [selectedCcd, setSelectedCcd] = useState(0)
+  useEffect(() => {
+    setLockedPoint(null)
+    setManualLine(null)
+  }, [active?.id, selectedCcd])
   const [element, setElement] = useState('Fe')
   const [wavelength, setWavelength] = useState(253.65)
   const [lineCcd, setLineCcd] = useState(0)
-  const [calibrationName, setCalibrationName] = useState('S12 色散校准')
+  const [calibrationName, setCalibrationName] = useState('S12 色散曲线')
   const [bindMethodId, setBindMethodId] = useState<number | null>(null)
   const [autoRun, setAutoRun] = useState(false)
   const [busy, setBusy] = useState(false)
+  const runningTask = tasks.find((task) => !['draft', 'completed', 'failed', 'stopped'].includes(task.status))
+  const embedded = useSpectroscopySession('dispersion', runningTask
+    ? `色散摄谱任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
+    : busy ? '色散摄谱操作尚未完成，请稍后切换摄谱方式。' : null)
+  const Heading = embedded ? 'h2' : 'h1'
 
+  const generation = useRef(0)
+  const mounted = useRef(false)
+  const operation = useRef<Promise<unknown> | null>(null)
+  const stopIntent = useRef(false)
+  const identity = useRef(token)
+  identity.current = token
+  const ticket = () => {
+    const epoch = generation.current
+    return () => mounted.current && generation.current === epoch && identity.current === token
+  }
+  useLayoutEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      generation.current++
+      stopIntent.current = true
+    }
+  }, [token])
+  const applyTask = (task: DispersionTask) => {
+    setActive(task)
+    setTasks((items) =>
+      items.some((item) => item.id === task.id)
+        ? items.map((item) => (item.id === task.id ? task : item))
+        : [task, ...items]
+    )
+  }
+  const perform = async (work: () => Promise<DispersionTask>, message = '') => {
+    if (operation.current) {
+      onToast('上一操作仍在完成，请稍后重试')
+      return
+    }
+    const valid = ticket()
+    setBusy(true)
+    const pending = work()
+    operation.current = pending
+    try {
+      const task = await pending
+      if (!valid()) return
+      applyTask(task)
+      if (!runningStates.has(task.status)) setAutoRun(false)
+      if (message) onToast(message)
+      return task
+    } catch (error) {
+      if (valid()) {
+        setAutoRun(false)
+        onToast(error instanceof Error ? error.message : '色散操作失败')
+      }
+    } finally {
+      if (operation.current === pending) operation.current = null
+      if (valid()) setBusy(false)
+    }
+  }
+  const choose = async (task: DispersionTask) => {
+    generation.current++
+    stopIntent.current = true
+    setAutoRun(false)
+    setBusy(false)
+    setActive(task)
+    const valid = ticket()
+    try {
+      const fresh = await api.dispersionTask(token, task.id)
+      if (valid()) applyTask(fresh)
+    } catch (error) {
+      if (valid()) onToast(error instanceof Error ? error.message : '读取任务失败')
+    }
+  }
+  const loadRequest = useRef(0)
   const load = useCallback(async () => {
+    const current = ticket(),
+      requestId = ++loadRequest.current
+    const valid = () => current() && requestId === loadRequest.current
     setBusy(true)
     try {
       const [nextOptions, nextTasks, nextMethods] = await Promise.all([
-        api.dispersionOptions(token), api.dispersionTasks(token), api.methods(token),
+        api.dispersionOptions(token),
+        api.dispersionTasks(token),
+        api.methods(token)
       ])
+      if (!valid()) return
+      if (!defaultsLoaded.current && nextOptions.preliminary_defaults) {
+        defaultsLoaded.current = true
+        const saved = nextOptions.preliminary_defaults
+        setPreSeconds(saved.pre_excitation_seconds); setSamplingPeriod(saved.sampling_period_seconds)
+        setFrameCount(saved.frame_count); setDarkFrameCount(saved.dark_frame_count)
+      }
       setOptions(nextOptions)
       setTasks(nextTasks)
-      setActive((current) => current ? nextTasks.find((item) => item.id === current.id) ?? nextTasks[0] ?? null : nextTasks[0] ?? null)
+      setActive((current) =>
+        current ? (nextTasks.find((item) => item.id === current.id) ?? nextTasks[0] ?? null) : (nextTasks[0] ?? null)
+      )
       setMethods(nextMethods.filter((item) => item.current_version !== null && item.status !== 'deleted'))
       setProfileId((current) => current ?? nextOptions.device_profiles[0]?.id ?? null)
       setLayoutId((current) => current ?? nextOptions.ccd_layouts[0]?.id ?? null)
       setBindMethodId((current) => current ?? nextMethods.find((item) => item.current_version !== null)?.id ?? null)
     } catch (error) {
-      onToast(error instanceof Error ? error.message : '无法读取色散任务')
+      if (valid()) onToast(error instanceof Error ? error.message : '无法读取色散任务')
     } finally {
-      setBusy(false)
+      if (valid()) setBusy(false)
     }
   }, [onToast, token])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load()
+  }, [load])
   useEffect(() => {
     if (!active || !active.ccd_indices.includes(selectedCcd)) setSelectedCcd(active?.ccd_indices[0] ?? 0)
     if (!active || !active.ccd_indices.includes(lineCcd)) setLineCcd(active?.ccd_indices[0] ?? 0)
   }, [active, lineCcd, selectedCcd])
   useEffect(() => {
-    if (!autoRun || !active || !runningStates.has(active.status) || busy) return
+    if (!autoRun || !active || !runningStates.has(active.status) || busy || stopIntent.current) return
     const timer = window.setTimeout(() => {
-      setBusy(true)
-      void api.stepDispersionTask(token, active.id).then((task) => {
-        setActive(task)
-        setTasks((current) => current.map((item) => item.id === task.id ? task : item))
-        if (!runningStates.has(task.status)) setAutoRun(false)
-      }).catch((error) => {
-        setAutoRun(false)
-        onToast(error instanceof Error ? error.message : '采集帧失败')
-      }).finally(() => setBusy(false))
+      if (!stopIntent.current) void perform(() => api.stepDispersionTask(token, active.id))
     }, 850)
     return () => window.clearTimeout(timer)
-  }, [active, autoRun, busy, onToast, token])
+  }, [active, autoRun, busy, token])
 
-  const currentCcd = active?.last_event?.ccds.find((item) => item.ccd_index === selectedCcd) ?? active?.last_event?.ccds[0]
-  const curve = useMemo(() => curveGeometry(currentCcd?.points ?? []), [currentCcd?.points])
-  const markers = useMemo(
-    () => positionMarkers(active?.lines ?? [], selectedCcd, active?.layout.points_per_ccd ?? 0),
-    [active?.layout.points_per_ccd, active?.lines, selectedCcd],
-  )
+  const currentCcd =
+    active?.last_event?.ccds.find((item) => item.ccd_index === selectedCcd) ?? active?.last_event?.ccds[0]
   const latestCalibration = active?.calibrations[0] ?? null
 
-  const createTask = async () => {
-    if (!canWrite || profileId === null || layoutId === null) return
-    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid'))) return onToast('请先修正采集帧参数')
+  const saveConditions = async () => {
+    if (!canWrite || busy) return
+    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid'))) return onToast('请先修正激发参数')
     setBusy(true)
     try {
-      const task = await api.createDispersionTask(token, {
-        name: `色散采集 ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`,
-        device_profile_id: profileId, ccd_layout_id: layoutId, frame_count: frameCount,
-        dark_frame_count: darkFrameCount, pre_excitation_seconds: 3, sampling_period_seconds: 1,
-        residual_limit_points: 2, sample: '280-288.acq', seed: 12,
-      })
-      setTasks((current) => [task, ...current])
-      setActive(task)
-      onToast('色散采集任务已创建')
-    } catch (error) { onToast(error instanceof Error ? error.message : '无法创建任务') }
+      await api.saveDispersionDefaults(token, { pre_excitation_seconds: preSeconds,
+        sampling_period_seconds: samplingPeriod, frame_count: frameCount, dark_frame_count: darkFrameCount })
+      onToast('色散激发条件已保存，下次新建时自动载入')
+    } catch (error) { onToast(error instanceof Error ? error.message : '保存激发条件失败') }
     finally { setBusy(false) }
   }
-
-  const applyTask = (task: DispersionTask) => {
-    setActive(task)
-    setTasks((current) => current.map((item) => item.id === task.id ? task : item))
+  const createTask = async () => {
+    if (runningTask) return onToast('当前任务尚未结束，请先完成或停止摄谱')
+    if (!canWrite || profileId === null || layoutId === null) return
+    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid')))
+      return onToast('请先修正采集参数')
+    await perform(
+      () =>
+        api.createDispersionTask(token, {
+          name: `色散采集 ${new Date().toLocaleTimeString('zh-CN')}`,
+          device_profile_id: profileId,
+          ccd_layout_id: layoutId,
+          source_record_id: legacySource ? Number(legacySource) : undefined,
+          frame_count: frameCount,
+          dark_frame_count: darkFrameCount,
+          pre_excitation_seconds: preSeconds,
+          sampling_period_seconds: samplingPeriod,
+          sample: '280-288.acq',
+          seed: 12
+        }),
+      '色散任务已创建'
+    )
   }
-
   const start = async () => {
     if (!active || !canExecute) return
-    setBusy(true)
-    try {
-      const task = await api.startDispersionTask(token, active.id)
-      applyTask(task)
-      setAutoRun(true)
-      onToast('色散采集已开始')
-    } catch (error) { onToast(error instanceof Error ? error.message : '无法开始采集') }
-    finally { setBusy(false) }
+    stopIntent.current = false
+    const next = await perform(() => api.startDispersionTask(token, active.id), '采集已开始')
+    if (next && !stopIntent.current) setAutoRun(true)
   }
-
-  const pause = async () => {
-    if (!active) return
-    setAutoRun(false)
-    try { applyTask(await api.pauseDispersionTask(token, active.id)); onToast('采集已暂停') }
-    catch (error) { onToast(error instanceof Error ? error.message : '无法暂停') }
-  }
-
   const resume = async () => {
-    if (!active) return
-    try { applyTask(await api.resumeDispersionTask(token, active.id)); setAutoRun(true); onToast('采集已继续') }
-    catch (error) { onToast(error instanceof Error ? error.message : '无法继续') }
+    if (!active || !canExecute) return
+    stopIntent.current = false
+    const next = await perform(() => api.resumeDispersionTask(token, active.id), '采集已继续')
+    if (next && !stopIntent.current) setAutoRun(true)
   }
-
-  const stop = async () => {
-    if (!active) return
+  const halt = async (mode: 'pause' | 'stop') => {
+    if (!active || !canExecute) return
+    const taskId = active.id,
+      valid = ticket()
+    stopIntent.current = true
     setAutoRun(false)
-    try { applyTask(await api.stopDispersionTask(token, active.id)); onToast('采集已安全收尾') }
-    catch (error) { onToast(error instanceof Error ? error.message : '无法停止') }
+    // Preserve this explicit command even when a frame is still awaiting a response.
+    await operation.current?.catch(() => { })
+    try {
+      const task = await (mode === 'stop' ? api.stopDispersionTask : api.pauseDispersionTask)(token, taskId)
+      if (valid()) {
+        applyTask(task)
+        onToast(mode === 'stop' ? '采集已安全收尾' : '采集已暂停')
+      }
+    } catch (error) {
+      if (valid()) onToast(error instanceof Error ? error.message : '停止操作失败，请重试')
+    }
   }
-
-  const step = async () => {
-    if (!active || busy) return
-    setBusy(true)
-    try { applyTask(await api.stepDispersionTask(token, active.id)) }
-    catch (error) { onToast(error instanceof Error ? error.message : '采集帧失败') }
-    finally { setBusy(false) }
-  }
-
-  const addLine = async () => {
+  const pause = () => halt('pause')
+  const stop = () => halt('stop')
+  const step = () => active && perform(() => api.stepDispersionTask(token, active.id))
+  const change = (work: (id: number) => Promise<unknown>, message = '') => {
     if (!active || !canWrite) return
+    const id = active.id
+    return perform(async () => {
+      await work(id)
+      return api.dispersionTask(token, id)
+    }, message)
+  }
+  const addLine = () => {
     if (!reportInvalidNumericInput(document.querySelector('.dispersion-line-form'))) return onToast('请先修正谱线波长')
-    try {
-      const line = await api.addDispersionLine(token, active.id, { element, wavelength_nm: wavelength, ccd_index: lineCcd })
-      setActive({ ...active, lines: [...active.lines, line].sort((left, right) => left.wavelength_nm - right.wavelength_nm) })
-      onToast('已知谱线已添加')
-    } catch (error) { onToast(error instanceof Error ? error.message : '无法添加谱线') }
+    return change(
+      (id) => api.addDispersionLine(token, id, { element, wavelength_nm: wavelength, ccd_index: lineCcd }),
+      '谱线已添加'
+    )
   }
-
-  const updateLine = async (line: DispersionLine, action: 'locate' | 'short' | 'long' | 'save' | 'restore') => {
-    if (!active) return
-    try {
-      const next = action === 'locate' ? await api.locateDispersionLine(token, active.id, line.id)
-        : action === 'short' || action === 'long' ? await api.moveDispersionLine(token, active.id, line.id, action)
-          : action === 'save' ? await api.saveDispersionLinePosition(token, active.id, line.id)
-            : await api.restoreDispersionLinePosition(token, active.id, line.id)
-      setActive(replaceLine(active, next))
-    } catch (error) { onToast(error instanceof Error ? error.message : '谱线位置操作失败') }
-  }
-
-  const locateAll = async () => {
-    if (!active) return
-    try {
-      const result = await api.locateAllDispersionLines(token, active.id)
-      setActive({ ...active, lines: active.lines.map((line) => result.located.find((item) => item.id === line.id) ?? line) })
-      onToast(result.all_succeeded ? '全部谱线定位完成' : `${result.errors.length} 条谱线定位失败`)
-    } catch (error) { onToast(error instanceof Error ? error.message : '全部定位失败') }
-  }
-
-  const removeLine = async (lineId: number) => {
-    if (!active) return
-    try { await api.deleteDispersionLine(token, active.id, lineId); setActive({ ...active, lines: active.lines.filter((line) => line.id !== lineId) }) }
-    catch (error) { onToast(error instanceof Error ? error.message : '删除谱线失败') }
-  }
-
-  const fit = async () => {
-    if (!active) return
-    try {
-      const calibration = await api.fitDispersionCalibration(token, active.id, { name: calibrationName, degree: 2 })
-      setActive({ ...active, calibrations: [calibration, ...active.calibrations] })
-      onToast(calibration.publishable ? '拟合完成，可发布校准版本' : '拟合完成，但残差超过阈值')
-    } catch (error) { onToast(error instanceof Error ? error.message : '拟合失败') }
-  }
-
-  const publish = async (calibration: DispersionCalibrationVersion) => {
-    if (!active) return
-    try {
-      const published = await api.publishDispersionCalibration(token, calibration.id)
-      setActive({ ...active, calibrations: active.calibrations.map((item) => item.id === published.id ? published : item) })
-      onToast('不可变校准版本已发布')
-    } catch (error) { onToast(error instanceof Error ? error.message : '校准版本不能发布') }
-  }
-
-  const bind = async () => {
+  const updateLine = (line: DispersionLine, action: 'locate' | 'short' | 'long' | 'save' | 'restore') =>
+    change((id) =>
+      action === 'locate'
+        ? api.locateDispersionLine(token, id, line.id)
+        : action === 'short' || action === 'long'
+          ? api.moveDispersionLine(token, id, line.id, action)
+          : action === 'save'
+            ? api.saveDispersionLinePosition(token, id, line.id)
+            : api.restoreDispersionLinePosition(token, id, line.id)
+    )
+  const locateAll = () => change((id) => api.locateAllDispersionLines(token, id), '定位结果已刷新，请检查各谱线状态')
+  const removeLine = (lineId: number) => change((id) => api.deleteDispersionLine(token, id, lineId))
+  const fit = () =>
+    change((id) => api.fitDispersionCalibration(token, id, { name: calibrationName, degree: 2, use_legacy_limit: true }), '拟合结果已刷新')
+  const publish = (calibration: DispersionCalibrationVersion) =>
+    change(() => api.publishDispersionCalibration(token, calibration.id), '不可变色散曲线版本已发布')
+  const bind = () => {
     if (!latestCalibration || bindMethodId === null) return
     const method = methods.find((item) => item.id === bindMethodId)
-    try {
-      await api.bindDispersionCalibration(token, latestCalibration.id, bindMethodId, method?.current_version ?? undefined)
-      onToast(`已绑定 ${method?.name ?? '方法'} 修订 v${method?.current_version ?? ''}`)
-    } catch (error) { onToast(error instanceof Error ? error.message : '方法绑定失败') }
+    return change(
+      () =>
+        api.bindDispersionCalibration(token, latestCalibration.id, bindMethodId, method?.current_version ?? undefined),
+      '色散曲线版本已绑定'
+    )
   }
 
-  return <div className="page-content dispersion-page refined-page remaining-page" data-testid="dispersion-page">
-    <section className="hero-row compact-hero"><div><h1>色散采集、校准与方法绑定</h1><p>用确定性 ACQ 帧完成燃烧/暗帧时序、已知谱线定位和不可变校准版本发布，不修改原始帧。</p></div><button className="secondary-button" onClick={() => void load()} disabled={busy}><RefreshCw size={15} className={busy ? 'spin' : ''} />刷新</button></section>
-    <TaskLayout className="dispersion-shell" hasItems={Boolean(tasks.length)} current={active ? `${active.name} · ${statusLabels[active.status] ?? active.status}` : "尚未选择"}>
-      <aside className="surface dispersion-sidebar">
-        <div className="dispersion-task-list">{tasks.length === 0 ? <small>尚无色散任务</small> : tasks.map((task) => <button key={task.id} className={active?.id === task.id ? 'active' : ''} onClick={() => setActive(task)}><span className={`dispersion-state ${task.status}`} /> <strong title={task.name}>{task.name}</strong><small>{statusLabels[task.status]} · {task.burn_frames_captured}/{task.frame_count}</small></button>)}</div>
-      </aside>
-      <main className="dispersion-main"><FormDisclosure title="新建任务与采集条件" hasItems={Boolean(tasks.length)} objectKey={active?.id}><section className="surface dispersion-setup">        <div className="surface-heading"><div><h2>采集条件</h2></div><Zap size={17} /></div>
-        <label className="field"><span>设备档案</span><select value={profileId ?? ''} onChange={(event) => setProfileId(Number(event.target.value))}>{options?.device_profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name} · {profile.transport}</option>)}</select></label>
-        <label className="field"><span>CCD 布局</span><select value={layoutId ?? ''} onChange={(event) => setLayoutId(Number(event.target.value))}>{options?.ccd_layouts.map((layout) => <option key={layout.id} value={layout.id}>{layout.name} · {layout.frame_count}×{layout.ccds_per_frame}</option>)}</select></label>
-        <div className="dispersion-number-grid"><label className="field"><span>燃烧帧</span><NumericInput min={1} max={255} value={frameCount} onValueChange={setFrameCount} /></label><label className="field"><span>暗帧</span><NumericInput min={0} max={20} value={darkFrameCount} onValueChange={setDarkFrameCount} /></label></div>
-        <button className="primary-button full-button" onClick={() => void createTask()} disabled={!canWrite || busy || profileId === null || layoutId === null}><Plus size={15} />新建任务</button>
-</section></FormDisclosure>
-        <section className="surface dispersion-run-panel">
-          <div className="surface-heading"><div><h2>{active?.name ?? '选择或创建任务'}</h2></div>{active && <span className={`state-chip ${active.status}`}>{statusLabels[active.status]}</span>}</div>
-          {active ? <><div className="runtime-source">{active.profile.transport === "simulator" ? "模拟设备 · 仅用于软件验证" : "真实设备 · 连接与协议状态以当前任务反馈为准"}</div><div className="dispersion-progress"><div><span>燃烧帧</span><strong>{active.burn_frames_captured} / {active.frame_count}</strong><progress max={active.frame_count} value={active.burn_frames_captured} /></div><div><span>暗帧</span><strong>{active.dark_frames_captured} / {active.dark_frame_count}</strong><progress max={Math.max(active.dark_frame_count, 1)} value={active.dark_frames_captured} /></div><div><span>CCD</span><strong>{active.ccd_indices.length} × {active.layout.points_per_ccd}</strong><small>原始帧只读保存</small></div></div>
-            <div className="dispersion-controls"><button className="primary-button" onClick={() => void start()} disabled={!canExecute || active.status !== 'draft'}><PlayCircle size={15} />开始</button><button className="secondary-button" onClick={() => void pause()} disabled={!canExecute || !runningStates.has(active.status)}><PauseCircle size={15} />暂停</button><button className="secondary-button" onClick={() => void resume()} disabled={!canExecute || active.status !== 'paused'}><PlayCircle size={15} />继续</button><button className="secondary-button" onClick={() => void step()} disabled={!canExecute || !runningStates.has(active.status) || busy}><Activity size={15} />单帧</button><button className="secondary-button danger" onClick={() => void stop()} disabled={!canExecute || ![...runningStates, 'paused'].includes(active.status)}><Square size={14} />停止</button></div>
-            <div className="dispersion-curve-toolbar"><label className="field compact-field"><span>当前 CCD</span><select value={selectedCcd} onChange={(event) => setSelectedCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option value={ccd} key={ccd}>CCD {ccd + 1}</option>)}</select></label><span><Crosshair size={14} />峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position + 1}` : '--'}</span><div className="dispersion-marker-legend" aria-label="谱线位置图例"><span><i className="expected" />预期</span><span><i className="located" />实测</span></div><CopyableCode value={active.last_event?.details.sha256} visibleLength={16} empty="--" /></div>
-            <div className="dispersion-curve simple-chart-plot-host">
-              <div className="simple-chart-plot">
-                <svg viewBox="0 0 1000 260" preserveAspectRatio="none" role="img" aria-label={`CCD ${selectedCcd + 1} 色散曲线与谱线定位`}><g className="dispersion-grid"><line x1="0" y1="24" x2="1000" y2="24" /><line x1="0" y1="136" x2="1000" y2="136" /><line x1="0" y1="248" x2="1000" y2="248" /></g><path className="dispersion-spectrum-line" d={curve.path} />{currentCcd && <g className="dispersion-position-markers">{markers.map((marker) => <g key={marker.key} className={`dispersion-position-marker ${marker.kind}`} data-marker-kind={marker.kind} data-marker-position={marker.position.toFixed(2)}><title>{marker.label}</title><line x1={marker.x} y1="24" x2={marker.x} y2="248" /><circle cx={marker.x} cy={marker.labelY - 5} r="5" /></g>)}</g>}</svg>
-                {currentCcd && markers.length > 0 && <div className="dispersion-marker-label-layer" aria-hidden="true">{markers.map((marker) => {
-                  const placeOnLeft = marker.x > 650
-                  return <span key={marker.key} className={`dispersion-marker-label ${marker.kind} ${placeOnLeft ? 'align-end' : ''}`} style={{ left: `calc(${marker.x / 10}% ${placeOnLeft ? '-' : '+'} 11px)`, top: `${marker.labelY - 15}px` }}>{marker.label}</span>
-                })}</div>}
-                {currentCcd && markers.length === 0 && <span className="dispersion-marker-empty">当前 CCD 尚无已添加的定位谱线</span>}
-              </div>
-              {currentCcd && <SimpleChartAxes xMin={1} xMax={active.layout.points_per_ccd} yMin={curve.minimum} yMax={curve.maximum} xLabel="CCD 点位" yLabel="强度 (ADC)" />}
-              {!currentCcd && <div className="dispersion-curve-empty"><Activity size={22} /><span>开始采集后显示实时 CCD 曲线</span></div>}
-            </div>
-          </> : <div className="dispersion-empty"><Activity size={28} /><p>配置设备档案和帧数后创建色散任务。</p></div>}
-        </section>
-        {active && <section className="surface dispersion-lines-panel">
-          <div className="surface-heading"><div><h2>谱线定位与位置</h2></div><button className="secondary-button" onClick={() => void locateAll()} disabled={!canWrite || active.lines.length === 0 || active.burn_frames_captured === 0}><Crosshair size={15} />全部定位</button></div>
-          <div className="dispersion-line-form"><label className="field"><span>元素</span><input value={element} onChange={(event) => setElement(event.target.value)} /></label><label className="field"><span>波长 (nm)</span><NumericInput min={0} step={0.0001} value={wavelength} onValueChange={setWavelength} /></label><label className="field"><span>CCD</span><select value={lineCcd} onChange={(event) => setLineCcd(Number(event.target.value))}>{active.ccd_indices.map((ccd) => <option key={ccd} value={ccd}>CCD {ccd + 1}</option>)}</select></label><button className="primary-button" onClick={() => void addLine()} disabled={!canWrite}><Plus size={15} />添加</button></div>
-          <div className="dispersion-line-table"><table><thead><tr><th>谱线</th><th>CCD</th><th>预期位置</th><th>实测 / 保存</th><th>定位操作</th></tr></thead><tbody>{active.lines.length === 0 ? <tr><td colSpan={5} className="empty-cell">添加至少 3 条已知谱线后可拟合校准。</td></tr> : active.lines.map((line) => <tr key={line.id}><td><strong>{line.element}</strong><small>{line.wavelength_nm.toFixed(4)} nm</small></td><td>CCD {line.ccd_index + 1}</td><td>{line.expected_position?.toFixed(2) ?? '越界'}</td><td><strong>{line.located_position?.toFixed(2) ?? '--'}</strong><small>保存 {line.saved_position?.toFixed(2) ?? '--'}</small></td><td><div className="line-actions"><button title="定位" onClick={() => void updateLine(line, 'locate')} disabled={!canWrite || active.burn_frames_captured === 0}><Crosshair size={14} /></button><button title="向短波移动" onClick={() => void updateLine(line, 'short')} disabled={!canWrite}><ArrowLeft size={14} /></button><button title="向长波移动" onClick={() => void updateLine(line, 'long')} disabled={!canWrite}><ArrowRight size={14} /></button><button title="保存实测位置" onClick={() => void updateLine(line, 'save')} disabled={!canWrite || line.located_position === null}><Save size={14} /></button><button title="恢复保存位置" onClick={() => void updateLine(line, 'restore')} disabled={!canWrite || line.saved_position === null}><RefreshCw size={14} /></button><button title="删除谱线" onClick={() => void removeLine(line.id)} disabled={!canWrite}><Trash2 size={14} /></button></div></td></tr>)}</tbody></table></div>
-        </section>}
-        {active && <section className="surface dispersion-fit-panel">
-          <div className="surface-heading"><div><h2>拟合、发布与方法绑定</h2></div><SlidersHorizontal size={17} /></div>
-          <div className="dispersion-fit-form"><label className="field"><span>校准名称</span><input value={calibrationName} onChange={(event) => setCalibrationName(event.target.value)} /></label><button className="primary-button" onClick={() => void fit()} disabled={!canWrite || active.lines.filter((line) => line.saved_position !== null || line.located_position !== null).length < 3}>二次拟合</button>{latestCalibration?.state === 'draft' && <button className="secondary-button" onClick={() => void publish(latestCalibration)} disabled={!canWrite || !latestCalibration.publishable}>发布版本</button>}</div>
-          {latestCalibration ? <div className="calibration-result"><div><span>版本</span><strong title={`${latestCalibration.name} · v${latestCalibration.version}`}>{latestCalibration.name} · v{latestCalibration.version}</strong><small>{latestCalibration.state}</small></div><div><span>有效波段</span><strong>{latestCalibration.wavelength_min.toFixed(4)}–{latestCalibration.wavelength_max.toFixed(4)} nm</strong><small>{latestCalibration.point_count} 个定位点</small></div><div><span>残差</span><strong>RMS {latestCalibration.residual_rms.toFixed(4)}</strong><small>最大 {latestCalibration.residual_max.toFixed(4)} / 阈值 {latestCalibration.residual_limit_points}</small></div><div><span>系数</span><code title={latestCalibration.coefficients.map((value) => value.toExponential(4)).join(' · ')}>{latestCalibration.coefficients.map((value) => value.toExponential(4)).join(' · ')}</code></div></div> : <div className="dispersion-empty compact"><p>保存至少三个定位点后生成校准草稿。</p></div>}
-          {latestCalibration?.state === 'published' && <div className="dispersion-bind"><label className="field"><span>绑定已发布方法修订</span><select value={bindMethodId ?? ''} onChange={(event) => setBindMethodId(Number(event.target.value))}>{methods.map((method) => <option value={method.id} key={method.id}>{method.name} · v{method.current_version}</option>)}</select></label><button className="primary-button" onClick={() => void bind()} disabled={!canWrite || bindMethodId === null}>绑定修订</button><small>绑定记录独立保存，不原地修改方法版本。</small></div>}
-        </section>}
-      </main>
-    </TaskLayout>
-  </div>
+  const fileActions = <PageFileActions target={actionsTarget}>
+        {view === 'curve' && <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="dispersion" label="打开色散文件" disabled={busy || Boolean(runningTask)} onOpened={async result => {
+        await load()
+        if (result.task_ids?.[0]) await choose(await api.dispersionTask(token, result.task_ids[0]))
+      }}/>}
+        <button className="secondary-button" onClick={() => void load()} disabled={busy}>
+          <RefreshCw size={15} className={busy ? 'spin' : ''} />
+          刷新
+        </button>
+      </PageFileActions>
+
+  return (
+    <div className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} dispersion-page refined-page remaining-page`} data-testid="dispersion-page" data-view={view}>
+      {!embedded && <section className="page-action-toolbar">
+        
+
+        {fileActions}
+      </section>}
+      {embedded && view === 'curve' && fileActions}
+
+      <TaskLayout
+        showEmptyRail
+        actions={embedded && view !== 'curve' && <button className="secondary-button" onClick={() => void load()} disabled={busy}>
+          <RefreshCw size={15} className={busy ? 'spin' : ''} />刷新
+        </button>}
+        className="dispersion-shell"
+        hasItems={Boolean(tasks.length)}
+        current={active ? `${active.name} · ${statusLabels[active.status] ?? active.status}` : '尚未选择'}
+      >
+        <aside className="surface dispersion-sidebar">
+          <div className="surface-heading"><h2>色散任务 <span className="count-badge">{tasks.length}</span></h2></div>
+          <div className="dispersion-task-list">
+            {tasks.length === 0 ? <small>尚无色散任务</small> : tasks.map((task) => (
+              <button key={task.id} className={active?.id === task.id ? 'active' : ''}
+                disabled={busy || Boolean(runningTask && runningTask.id !== task.id)} onClick={() => void choose(task)}>
+                <span className={`dispersion-state ${task.status}`} /><strong title={task.name}>{task.name}</strong>
+                <small>{statusLabels[task.status]} · {task.burn_frames_captured}/{task.frame_count}</small>
+              </button>
+            ))}
+          </div>
+        </aside>
+        <main className="dispersion-main">
+          <DispersionMonitor view={view} setup={view === 'capture' && <FormDisclosure title="新建任务与采集条件" hasItems={false} objectKey={active?.id}>
+            <DispersionSetup legacySource={legacySource} setLegacySource={setLegacySource} options={options}
+              profileId={profileId} setProfileId={setProfileId} layoutId={layoutId} setLayoutId={setLayoutId}
+              preSeconds={preSeconds} setPreSeconds={setPreSeconds} samplingPeriod={samplingPeriod} setSamplingPeriod={setSamplingPeriod}
+              frameCount={frameCount} setFrameCount={setFrameCount} darkFrameCount={darkFrameCount} setDarkFrameCount={setDarkFrameCount}
+              createTask={createTask} saveConditions={saveConditions} canWrite={canWrite && !busy && !runningTask} busy={busy} />
+          </FormDisclosure>} active={active} start={start} canExecute={canExecute && (!runningTask || active?.id === runningTask.id)} pause={pause} resume={resume}
+            step={step} busy={busy} stop={stop} selectedCcd={selectedCcd} setSelectedCcd={setSelectedCcd}
+            currentCcd={currentCcd} lockedPoint={lockedPoint} manualLine={manualLine} setManualLine={setManualLine}
+            canWrite={canWrite} change={change} token={token} setLockedPoint={setLockedPoint}
+            autoRun={autoRun} setAutoRun={setAutoRun} />
+      {view === 'curve' && <section className="surface spectroscopy-calibration-versions">
+        <h2>色散曲线版本管理</h2>
+        {active?.calibrations.map((calibration) => (
+          <div key={calibration.id}>
+            <span>
+              {calibration.display_name || calibration.name} · v{calibration.version} ·{' '}
+              {calibration.archived ? '已归档' : calibration.state}
+            </span>
+            <button
+              disabled={!canWrite || busy}
+              onClick={() => {
+                const name = window.prompt('色散曲线显示名称', calibration.display_name || calibration.name)
+                if (name)
+                  void change(
+                    () => api.manageDispersionCalibration(token, calibration.id, 'rename', name),
+                    '名称已更新'
+                  )
+              }}
+            >
+              重命名
+            </button>
+            <button
+              disabled={!canWrite || busy}
+              onClick={() =>
+                void change(
+                  () =>
+                    api.manageDispersionCalibration(
+                      token,
+                      calibration.id,
+                      calibration.archived ? 'restore' : 'archive'
+                    ),
+                  '归档状态已更新'
+                )
+              }
+            >
+              {calibration.archived ? '恢复' : '归档'}
+            </button>
+            {calibration.state === 'draft' && (
+              <button
+                disabled={!canWrite || busy}
+                onClick={async () => {
+                  if (await confirmAction('删除此未发布色散曲线草稿？'))
+                    void change(() => api.manageDispersionCalibration(token, calibration.id, 'delete'), '草稿已删除')
+                }}
+              >
+                删除草稿
+              </button>
+            )}
+          </div>
+        ))}
+      </section>}
+          {view === 'curve' && active && (
+            <DispersionLines
+              locateAll={locateAll}
+              canWrite={canWrite && !busy}
+              active={active}
+              element={element}
+              setElement={setElement}
+              wavelength={wavelength}
+              setWavelength={setWavelength}
+              lineCcd={lineCcd}
+              setLineCcd={setLineCcd}
+              addLine={addLine}
+              updateLine={updateLine}
+              removeLine={removeLine}
+              changeWavelength={(lineId, value) => {
+                if (!reportInvalidNumericInput(document.querySelector('.dispersion-lines-panel'))) return onToast('请先修正波长或间隔')
+                void change(() => api.updateDispersionWavelength(token,active.id,lineId,value),'波长已更新，请重新拟合')
+              }}
+              changeGap={(gap, value) => {
+                if (!reportInvalidNumericInput(document.querySelector('.dispersion-lines-panel'))) return onToast('请先修正波长或间隔')
+                void change(async () => {
+                  await api.updateDispersionGap(token,active.id,gap,value)
+                  if (active.lines.filter(line=>line.saved_position!=null || line.located_position!=null).length>=3)
+                    await api.fitDispersionCalibration(token,active.id,{ name: calibrationName || active.name, degree: 2, use_legacy_limit: true })
+                },'CCD 间隔已修正；定位点充足时已重新拟合')
+              }}
+            />
+          )}
+          {view === 'curve' && active && (
+            <DispersionCalibration
+              calibrationName={calibrationName}
+              setCalibrationName={setCalibrationName}
+              fit={fit}
+              canWrite={canWrite}
+              active={active}
+              latestCalibration={latestCalibration}
+              publish={publish}
+              bindMethodId={bindMethodId}
+              setBindMethodId={setBindMethodId}
+              methods={methods}
+              bind={bind}
+            />
+          )}
+        </main>
+      </TaskLayout>
+    </div>
+  )
 }

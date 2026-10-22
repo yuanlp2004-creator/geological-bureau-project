@@ -1,94 +1,47 @@
-"""系统打印机枚举、虚拟打印机声明和系统调度。"""
-
+"""Windows printer discovery and direct GDI output; no PDF file association."""
 from __future__ import annotations
-
-import json
 import os
-import subprocess
 from pathlib import Path
 from typing import Any
 
-
+# Recognized only when reading defaults saved by earlier versions.
 VIRTUAL_PDF_PRINTER = "geospectrum-pdf"
 
+class PrintCancelled(RuntimeError):
+    pass
 
 class SystemPrinters:
-
     @staticmethod
     def _system_printers() -> list[dict[str, Any]]:
         if os.name != "nt":
             return []
+        import win32print
         try:
-            import win32print  # type: ignore[import-not-found]
-
-            flags = win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS
-            rows = win32print.EnumPrinters(flags)
             default = win32print.GetDefaultPrinter()
-            return [
-                {
-                    "name": row[2],
-                    "display_name": row[2],
-                    "virtual": False,
-                    "system": True,
-                    "default": row[2] == default,
-                }
-                for row in rows
-                if row[2]
-            ]
-        except Exception:
-            pass
-        script = (
-            "$OutputEncoding=[Console]::OutputEncoding=[Text.UTF8Encoding]::new();"
-            "Get-CimInstance Win32_Printer | Select-Object Name,Default | ConvertTo-Json -Compress"
-        )
-        try:
-            completed = subprocess.run(
-                ["powershell", "-NoProfile", "-Command", script],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                timeout=5,
-                check=True,
-            )
-            payload = json.loads(completed.stdout.lstrip("\ufeff") or "[]")
-            rows = payload if isinstance(payload, list) else [payload]
-            return [
-                {
-                    "name": row["Name"],
-                    "display_name": row["Name"],
-                    "virtual": False,
-                    "system": True,
-                    "default": bool(row.get("Default")),
-                }
-                for row in rows
-                if isinstance(row, dict) and row.get("Name")
-            ]
-        except Exception:
-            return []
+        except win32print.error:
+            default = None
+        rows = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS)
+        return [{"name": row[2], "display_name": row[2], "virtual": False, "system": True,
+                 "default": row[2] == default} for row in rows if row[2]]
 
     def printers(self) -> list[dict[str, Any]]:
-        return [
-            {
-                "name": VIRTUAL_PDF_PRINTER,
-                "display_name": "GeoSpectrum PDF（虚拟打印机）",
-                "virtual": True,
-                "system": False,
-                "default": True,
-            },
-            *self._system_printers(),
-        ]
+        return self._system_printers()
+
+    def default_printer(self) -> str:
+        rows = self.printers()
+        return next((row['name'] for row in rows if row['default']), rows[0]['name'] if rows else 'system')
 
     @staticmethod
-    def dispatch_pdf(pdf_path: Path, printer_name: str) -> None:
-        if os.name != "nt":
-            raise RuntimeError("当前系统不支持 Windows 打印调度")
-        try:
-            import win32api  # type: ignore[import-not-found]
+    def papers(printer_name: str) -> list[dict[str, Any]]:
+        from .windows import printer_papers
+        return printer_papers(printer_name)
 
-            result = win32api.ShellExecute(0, "printto", str(pdf_path), f'"{printer_name}"', str(pdf_path.parent), 0)
-            if result <= 32:
-                raise RuntimeError(f"ShellExecute printto failed: {result}")
-            return
-        except ImportError as exc:
-            raise RuntimeError("缺少 pywin32，无法调度系统打印机") from exc
+    @staticmethod
+    def check_connection(printer_name: str, settings: dict) -> dict:
+        from .windows import printer_connection
+        return printer_connection(printer_name, settings)
 
+    @staticmethod
+    def dispatch_pdf(pdf_path: Path, printer_name: str, settings: dict | None = None) -> dict:
+        from .windows import print_pdf
+        return print_pdf(pdf_path, printer_name, settings or {})

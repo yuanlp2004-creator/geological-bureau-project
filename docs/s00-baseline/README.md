@@ -1,5 +1,7 @@
 # S00 事实与黄金样本基线
 
+现状说明（2026-10-16）：本目录保留 S00 执行时的事实与黄金样本，仍用于旧格式/算法兼容追溯。当前功能和交付状态从 [文档索引](../README.md) 阅读。当前缺少历史 `Spec2.02/`、原视觉参考图，AI提示词也已移动；老工具仍固定读取这些原路径，现状不满足原样复验条件。本次未重新生成基线或更改任何黄金值。
+
 本目录是 `PLAN.md` 的 S00 交付物，只锁定事实、兼容口径和黄金样本，不包含 `app/` 工程骨架、数据库迁移、API、React 或 Tauri 产品代码。S00 工具以只读方式使用 `Spec Source/`、`Spec2.02/`、`SpecFile/` 和 `Spec2.02功能研究/` 中的数据资料；`SpecFile/` 是包含 77 个 `Spec Source/` 分类副本的参考集合，所有副本均通过来源清单回溯原件。
 
 ## 交付内容
@@ -22,12 +24,11 @@ S00 的正式步骤验收结论单独记录在 [`docs/acceptance-reports/S00/验
 使用工作区自带 Python：
 
 ```powershell
-& 'C:\Users\Hust\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
-  'C:\Users\Hust\Desktop\地质局项目\docs\s00-baseline\tools\generate_s00.py'
-
-& 'C:\Users\Hust\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
-  'C:\Users\Hust\Desktop\地质局项目\docs\s00-baseline\tools\verify_s00.py'
+cd 'C:\Users\Leo\Desktop\地质局'
+python docs/s00-baseline/tools/verify_s00.py
 ```
+
+该命令仅供输入资料齐备后的复验使用，当前缺失路径会导致失败。`generate_s00.py` 会改写生成清单，只在明确要建立新基线且原输入已恢复时执行，不作为日常启动或开发检查。
 
 生成器会对受控资料做第一遍哈希，验证器重新计算全部哈希并核对修改时间。Access 探针先复制样本到系统临时目录，再调用 32 位 PowerShell + Jet OLEDB 4.0 读取，因此不会在历史目录创建 `.ldb` 锁文件。
 
@@ -35,6 +36,6 @@ S00 的正式步骤验收结论单独记录在 [`docs/acceptance-reports/S00/验
 
 ## 边界
 
-- `UI测试/` 未纳入事实源，也未读取或修改；唯一视觉输入是根级 `docs/ui-test-homepage-reference.png`。
+- `UI测试/` 未纳入事实源，也未读取或修改；S00执行时的视觉输入是 `docs/ui-test-homepage-reference.png`，当前文件缺失，不能当作现存输入。
 - S00 的算法黄金值按 Delphi 源码逐式推导，已足以约束移植；仍登记了与旧版可执行程序输出做第二判据的后续风险。
 - S00 必须同时具备通过的机器校验和正式验收报告；完成后等待明确确认，不能自动进入 S01。

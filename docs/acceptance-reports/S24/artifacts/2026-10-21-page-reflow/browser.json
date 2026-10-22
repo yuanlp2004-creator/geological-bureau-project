@@ -1,0 +1,417 @@
+{
+  "status": "passed",
+  "checks": [
+    "All 25 navigation pages fit both themes/window sizes; refresh actions belong to content headers, filters or tabs without detached title rows",
+    "One device-debug menu entry contains all four permission-controlled tabs",
+    "Software and device parameter drafts survive tab changes",
+    "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+    "Device parameters persist through the existing API and reject duplicate CCD slots",
+    "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+    "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+    "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+    "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+    "Mercury-only read permission reaches the unified entry without requiring settings or device permissions"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    }
+  ],
+  "pageLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "workspace.overview"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "system.settings"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "help.about"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "system.users"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "system.audit"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "methods.lifecycle"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "methods.lines"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "methods.print-preview"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "tools.legacy-methods"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.samples"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "tools.legacy-spectra"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "tools.legacy-results"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.spectra"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "tools.devices"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.dispersion"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.dispersion-curves"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.evaporation"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.acquisition"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.evaporation-curves"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.hardware"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "analysis-tests.raw"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "data.recalculate"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "data.reports"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "system.maintenance"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "key": "help.offline"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "workspace.overview"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "system.settings"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "help.about"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "system.users"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "system.audit"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "methods.lifecycle"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "methods.lines"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "methods.print-preview"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "tools.legacy-methods"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.samples"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "tools.legacy-spectra"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "tools.legacy-results"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.spectra"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "tools.devices"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.dispersion"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.dispersion-curves"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.evaporation"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.acquisition"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.evaporation-curves"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.hardware"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "analysis-tests.raw"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "data.recalculate"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "data.reports"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "system.maintenance"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "key": "help.offline"
+    }
+  ],
+  "gatedEntries": []
+}

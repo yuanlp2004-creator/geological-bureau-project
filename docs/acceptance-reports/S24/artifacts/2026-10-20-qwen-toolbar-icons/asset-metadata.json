@@ -1,0 +1,210 @@
+[
+  {
+    "name": "new-method",
+    "source_cell": [
+      0,
+      0,
+      384,
+      384
+    ],
+    "source_bounds": [
+      105,
+      82,
+      268,
+      293
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      41,
+      16,
+      214,
+      240
+    ],
+    "sha256": "56a6bb954914bba68c08a34158b0f6e3f2c78f61259e7aa5b4551c57f81d75fb"
+  },
+  {
+    "name": "open-method",
+    "source_cell": [
+      384,
+      0,
+      768,
+      384
+    ],
+    "source_bounds": [
+      86,
+      71,
+      293,
+      279
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      16,
+      16,
+      239,
+      240
+    ],
+    "sha256": "a06d70a8ba95b60dfa5fb88c415c542773909f19353e5d54f7a45a31eac8efb0"
+  },
+  {
+    "name": "save-as",
+    "source_cell": [
+      768,
+      0,
+      1152,
+      384
+    ],
+    "source_bounds": [
+      92,
+      79,
+      300,
+      295
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      20,
+      16,
+      236,
+      240
+    ],
+    "sha256": "951a9315c709907b2a6748557515b0761837ca4ad5e8a9a70a48a5df06bcfbf8"
+  },
+  {
+    "name": "conditions",
+    "source_cell": [
+      1152,
+      0,
+      1536,
+      384
+    ],
+    "source_bounds": [
+      99,
+      103,
+      304,
+      272
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      16,
+      35,
+      240,
+      220
+    ],
+    "sha256": "77812365160532cae06040564907330cb94a4e20037868b9641662322010b509"
+  },
+  {
+    "name": "lines",
+    "source_cell": [
+      0,
+      384,
+      384,
+      768
+    ],
+    "source_bounds": [
+      109,
+      87,
+      276,
+      273
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      27,
+      16,
+      228,
+      240
+    ],
+    "sha256": "568ba81ab1b7224d5f9ad1ca505b852a042aec98b0edbf4cf2c4aa52f8dd7cbe"
+  },
+  {
+    "name": "samples",
+    "source_cell": [
+      384,
+      384,
+      768,
+      768
+    ],
+    "source_bounds": [
+      84,
+      76,
+      305,
+      285
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      16,
+      22,
+      240,
+      234
+    ],
+    "sha256": "19cd6097cd5842d1892be17fceb355a4c202cc49cde841e997c6c91d48b0222d"
+  },
+  {
+    "name": "acquisition",
+    "source_cell": [
+      768,
+      384,
+      1152,
+      768
+    ],
+    "source_bounds": [
+      90,
+      72,
+      302,
+      288
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      18,
+      16,
+      238,
+      240
+    ],
+    "sha256": "cdd89ae8c28ebecbd5dc062122ebaeb26c4381498e8624bfdb1cf64ea2e3928e"
+  },
+  {
+    "name": "analysis",
+    "source_cell": [
+      1152,
+      384,
+      1536,
+      768
+    ],
+    "source_bounds": [
+      96,
+      84,
+      294,
+      283
+    ],
+    "final_size": [
+      256,
+      256
+    ],
+    "visible_bounds": [
+      16,
+      16,
+      239,
+      240
+    ],
+    "sha256": "e6d20005a577bf60c62a740cc7dac68027dbbff094aa710167691b15b63e1378"
+  }
+]

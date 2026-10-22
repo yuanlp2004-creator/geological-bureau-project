@@ -1,0 +1,383 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    }
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 1332,
+          "right": 1412
+        },
+        {
+          "left": 274,
+          "right": 445
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 1306,
+          "right": 1412
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.9453125
+        },
+        {
+          "left": 365.9453125,
+          "right": 443.0390625
+        },
+        {
+          "left": 451.0390625,
+          "right": 530.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 949,
+          "right": 1029
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1045,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 923,
+          "right": 1029
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1008
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 60,
+      "controls": [
+        {
+          "left": 964,
+          "right": 1044
+        },
+        {
+          "left": 231,
+          "right": 402
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 8,
+      "controls": [
+        {
+          "left": 938,
+          "right": 1044
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.9453125
+        },
+        {
+          "left": 322.9453125,
+          "right": 400.0390625
+        },
+        {
+          "left": 408.0390625,
+          "right": 487.0390625
+        }
+      ]
+    }
+  ],
+  "native": {
+    "files": [
+      {
+        "id": 1,
+        "button": "Excel",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.xls",
+        "bytes": 492,
+        "sha256": "9d582243ae129c3545d781ac3190f96e62f3fa952a69b727b29b07c475f56cfa"
+      },
+      {
+        "id": 2,
+        "button": "PDF",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report.pdf",
+        "bytes": 3050,
+        "sha256": "30b1054f93c01bd89581831c95e2607cd6f404721b215b62be25ca23169bcfb5"
+      },
+      {
+        "id": 4,
+        "button": "打印",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\report-windows-driver.pdf",
+        "bytes": 86741,
+        "sha256": "227c1700b4a600f875be046e22b184780f6ab2731b3e715ce3b6e537ca0d558e",
+        "driver_pdf": {
+          "producer": "Microsoft: Print To PDF",
+          "pages": 1
+        }
+      },
+      {
+        "id": 5,
+        "button": "Excel",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.xls",
+        "bytes": 599,
+        "sha256": "3b430b4c2a641ce3a94b61a205bf8182e06fdaeb1481dd5fe5a6253eedc7b9a2"
+      },
+      {
+        "id": 6,
+        "button": "PDF",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity.pdf",
+        "bytes": 2768,
+        "sha256": "bc287a76edb7adef721c1e123b0a0a0f8051089199edf7333df93a620c445d2a"
+      },
+      {
+        "id": 8,
+        "button": "打印",
+        "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-hw910ry0\\data\\exports\\native\\intensity-windows-driver.pdf",
+        "bytes": 79381,
+        "sha256": "9d42b963f22a86543c02fead525da2b18cc31d79974ff07c7cbf53caaadc1572",
+        "driver_pdf": {
+          "producer": "Microsoft: Print To PDF",
+          "pages": 1
+        }
+      }
+    ],
+    "driver": {
+      "connected": true,
+      "printer_name": "Microsoft Print to PDF",
+      "driver": "Microsoft Print To PDF",
+      "paper_id": 9,
+      "orientation": 1,
+      "dpi": [
+        600,
+        600
+      ],
+      "printable_pixels": [
+        4961,
+        7016
+      ],
+      "submitted": false
+    },
+    "cancelled": [
+      {
+        "id": 3,
+        "button": "PDF",
+        "file": "cancelled-report.pdf"
+      },
+      {
+        "id": 7,
+        "button": "打印",
+        "file": "cancelled-intensity-print.pdf"
+      }
+    ],
+    "status": "passed"
+  }
+}

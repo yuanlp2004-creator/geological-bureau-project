@@ -16,6 +16,7 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 if str(APP_ROOT) not in sys.path:
     sys.path.insert(0, str(APP_ROOT))
 
+from backend.migrations import SCHEMA_VERSION
 from tools.runtime_resources import RESOURCE_MANIFEST, load_runtime_resources
 
 
@@ -44,7 +45,13 @@ def package_version() -> str:
     cargo = re.search(r'^version\s*=\s*"([^"]+)"', cargo_text, re.MULTILINE)
     backend_text = (APP_ROOT / "backend" / "__init__.py").read_text(encoding="utf-8")
     backend = re.search(r'__version__\s*=\s*"([^"]+)"', backend_text)
-    versions = {"package": package, "tauri": tauri, "frontend": frontend, "cargo": cargo.group(1) if cargo else "", "backend": backend.group(1) if backend else ""}
+    versions = {
+        "package": package,
+        "tauri": tauri,
+        "frontend": frontend,
+        "cargo": cargo.group(1) if cargo else "",
+        "backend": backend.group(1) if backend else "",
+    }
     if len(set(versions.values())) != 1:
         raise RuntimeError(f"component version mismatch: {versions}")
     return package
@@ -114,7 +121,7 @@ def acceptance_statuses() -> dict[str, str]:
 def validate_sidecar_build(sidecar: Path, sidecar_metadata: Path) -> dict[str, Any]:
     sidecar_build = json.loads(sidecar_metadata.read_text(encoding="utf-8"))
     if (
-        sidecar_build.get("schema_version") != 20
+        sidecar_build.get("schema_version") != SCHEMA_VERSION
         or sidecar_build.get("stage") != "S21"
         or sidecar_build.get("sha256") != sha256(sidecar)
         or sidecar_build.get("bytes") != sidecar.stat().st_size
@@ -206,7 +213,15 @@ def main() -> int:
         "release_gates": gates,
         "software_acceptance": software_acceptance,
         "software_acceptance_gate": "passed",
-        "excluded": ["app/.local", "tests", "test output", "cache", "debug files", "node_modules", "src-tauri/target intermediates"],
+        "excluded": [
+            "app/.local",
+            "tests",
+            "test output",
+            "cache",
+            "debug files",
+            "node_modules",
+            "src-tauri/target intermediates",
+        ],
     }
     output_dir = args.output_dir or REPO_ROOT / "docs" / "releases" / version
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,7 @@
 # 方法、谱线与打印模块导读（`methods`）
 
+现状更新：2026-10-17。方法页维护转角及其存储方式，谱线页顶部维护逐线曝光区间；方法页统一“保存”在单事务内校验并生成新有效版本，历史版本保留；界面不再要求单独发布，后台 draft/published 契约兼容。重复摄谱按旧版六项呈现，已隐藏的工作类型、四项额外条件、数值类型/容差等仍保存在兼容载荷，参数打印在末尾兼容附节保留原值。三种分析单位为 `ug/g / mg/g / %`。当前保存与打印规则见 [使用说明](../使用与说明/GeoSpectrum_使用说明.md)，验证见 [当前验收状态](../acceptance-reports/README.md)。
+
 ## 1. 模块定位
 
 清单中的 `methods` 实际覆盖三个紧密相关的服务：
@@ -12,7 +14,7 @@
 
 ## 2. 代码入口
 
-- [`methods/service.py`](../../app/backend/modules/methods/service.py)：方法创建、编辑、发布、复制的完整版本事务和兼容入口。
+- [`methods/service.py`](../../app/backend/modules/methods/service.py)：方法创建、编辑、统一保存、发布、复制的完整版本事务和兼容入口。
 - [`methods/runtime.py`](../../app/backend/modules/methods/runtime.py)：当前方法打开、暂停、删除和状态查询。
 - [`methods/validation.py`](../../app/backend/modules/methods/validation.py)：条件校验；[`methods/geometry.py`](../../app/backend/modules/methods/geometry.py)：CCD/波长换算。
 - [`methods/repository.py`](../../app/backend/modules/methods/repository.py)：版本查询、序号、选项与事务内审计。
@@ -70,10 +72,9 @@
 ## 6. 当前方法流程
 
 ```text
-create/update → 草稿
-  → publish → 发布版本
-  → open → 设为当前方法
-  → pause/resume → 同步方法状态与运行前置条件
+方法编辑 → save（同事务 update + 校验 + publish）
+  → open → 打开为当前方法
+  → 历史 pause/resume API 保留兼容，方法页不展示按钮
   → acquisition/analysis 引用确切 method_version_id
 ```
 
@@ -114,12 +115,14 @@ create/update → 草稿
 - 写操作是否记录审计。
 - 运行三组方法相关测试和受影响的采集/分析测试。
 
-## 2026-09-14 打印结构更新
+## 实现分工
 
-`method_printing/service.py` 保留设置、方法快照、预览入口、打印任务及审计流程；`document.py` 组织文档行和分页；`rendering.py` 管理字体及 HTML/PDF 渲染。D1 已将打印机适配移到 [`backend/printing/`](../../app/backend/printing/__init__.py)，方法和报告共同调用 `SystemPrinters.printers()` 与公开的 `dispatch_pdf()`。原私有调度转发已移除；方法服务的 `printers()` 仍供方法 API 使用。
+谱线的 create/update/delete/reorder 继续在一个外层写事务中执行。`MethodService.bind_line_editor(db)` 返回 [MethodLineEditor](../../app/backend/modules/methods/line_editing.py)：load 提供普通草稿数据，save 统一创建方法版本、更新时间、写入谱线审计并装配方法返回值。谱线服务保留操作规则和先行校验，不再自行更新方法表或调用版本写入私有入口。
 
-打印仍先保存 PDF 和渲染输入、登记任务，再调度打印机。调度失败保留文件并登记失败，不改默认设置。
+方法条件由 `pages/methods/MethodIdentity.tsx`、`MethodGeometry.tsx`、`MethodExcitation.tsx`、`MethodAngles.tsx`、`MethodQuality.tsx` 呈现，`MethodsPage` 持有唯一条件草稿、方法选择、保存和错误状态。`MethodAngles` 将转角和存储方式放在同一行，统一保存方法；原高级存储组件已移除。界面保存时仍沿用 `angle_exposures` 兼容结构，但在提交前将各项 `start_frame/end_frame` 设为1至总帧数，避免隐藏的旧自定义范围继续裁剪新配置；统一保存通过 `/methods/{id}/save` 在一个事务内完成 update、校验及 publish；`expected_latest_version` 阻止覆盖并发的新版本，失败全部回滚。旧 PATCH/publish 保持兼容，不改写历史快照。谱线页没有采集存储表，`SpectralLineEditor` 顶部独立展示“谱线曝光区间”；`SpectralLinesPanel` 保留谱线草稿、创建/保存请求身份与选中项，列表在 `SpectralLineList.tsx`，纯草稿转换及选项在 `spectralLineDraft.tsx`。
 
-## 2026-09-14 内部解耦更新
+方法快照由 `methods/snapshots.py`提供；`method_printing/service.py`控制预览与打印任务，`document.py`组织分页，`rendering.py`输出HTML/PDF，公共打印调度在 `backend/printing/`。`exposure_interval()`向即时测量、分析及重算提供有效区间，旧发布版本按其载荷解释。
 
-`Runtime.method_print_service()` 显式传入方法服务和公共打印适配。`methods/snapshots.py` 的公开快照读取绑定原事务，区分打印最新草稿、指定版本与分析已发布版本，消费者不获取 sqlite3.Row。`service.prepare()` 将原请求模型转为内部 `PrintSettings`；`document.py` 的行组织/分页只使用内部数据，不再导入请求模型或 ReportLab。`rendering.py` 继续负责字体和 HTML/PDF。HTTP 校验与默认设置保持。
+## 2026-10-17 方法操作简化
+
+方法页使用新建、打开方法、保存、另存为、删除和打印；移除暂停/恢复按钮。`POST /methods/{id}/save` 复用同事务 update/publish 实现，沿用原 method.update/method.publish 审计，不新增数据库迁移。保存当前方法更新运行引用，保存其他方法不切换当前方法。旧 open 默认仍拒绝停用状态；方法页显式带 `resume_paused=true`，在原打开事务中恢复并审计，历史版本不变。谱线独立确认后仍需点击方法顶部“保存”使整体配置生效。

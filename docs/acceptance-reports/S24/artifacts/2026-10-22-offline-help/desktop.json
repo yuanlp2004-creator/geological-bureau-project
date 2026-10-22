@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "checks": [
+    "All 36 topics render headings, paragraphs, ordered steps and parameter tables without raw markup",
+    "Full-body search finds operational details beyond titles and keywords",
+    "Documented stable error codes still resolve to the owning report article",
+    "Unmatched query has a clear empty state and clearing restores the complete catalogue",
+    "Keyboard topic selection, section navigation and related reading work",
+    "Out-of-order search responses cannot overwrite the latest query",
+    "Help text is escaped; HTML is shown as text and cannot execute",
+    "Reading and searching work while non-local network requests are blocked",
+    "Wide light and minimum dark layouts remain readable without overflow; catalogue collapse preserves the article"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "overflow": 0,
+      "articleWidth": 867,
+      "indexWidth": 240,
+      "bodyColor": "rgb(35, 55, 77)",
+      "bodyFont": "15px"
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "overflow": 0,
+      "articleWidth": 566,
+      "indexWidth": 220,
+      "bodyColor": "rgb(226, 235, 245)",
+      "bodyFont": "15px"
+    }
+  ]
+}

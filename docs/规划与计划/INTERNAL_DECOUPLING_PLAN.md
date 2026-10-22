@@ -164,7 +164,7 @@ D1–D4 完成意味着上述指定调用链的依赖边界已收拢，不意味
 
 以下不在本次 D1–D4 的清除范围，仍需另行评估：
 
-- 分析 `_line_candidate` 使用方法服务 `_layout` / `_dispersion` / `_reference_position` 的几何辅助；方法打印身份审计仍使用 `_valid_actor`。
+- 分析几何私有辅助依赖已于 2026-09-21 收拢为公开 `bind_geometry` / `locate`，复用原事务和数值规则，见 S16 当日记录；方法打印身份审计仍使用 `_valid_actor`。
 - 后处理仍读取迁移结果表、采集输入表和分析曲线表；重算清理自己创建的分析任务仍直接删除 analysis_runs。报告、迁移等其他消费者的跨表读取未纳入 D3a。
 - methods._json 等历史序列化入口，以及未选定模块中的服务构造/私有辅助尚未统一。
 - 打印应用服务仍以原 HTTP 模型作为边界输入；纯文档层已脱离它。旧 PDT 的输入格式校验和 JSON/BLOB 解码保留在应用层。
@@ -184,3 +184,7 @@ D1–D4 完成意味着上述指定调用链的依赖边界已收拢，不意味
 合并后后端 125 个 Python 文件，conversion.py 为 122 行、repository.py 为 192 行；没有新增源码文件或兼容壳。搬移定义和原目标类的 AST 完全相同，27 项定向、188 项全量、compileall、完整 OpenAPI 与采集/转换/审计记录及 BLOB 对比通过。源码交付，未替换 EXE/安装包。
 
 逐文件清单及理由见 [检查清单](../acceptance-reports/S21/artifacts/small-file-consolidation/audit.json)，验收见 S21 末节。历史 D3/D4 记录中的旧路径表示当时布局；当前事务类位于 conversion.py，记录编解码位于 repository.py，既有解耦边界保持。
+
+## 2026-09-22 重算流程补充事实
+
+重算编排已在原文件内分清样品分析、曲线求值、三类来源和批次保存，未改变提交边界。真实分析结果存在时，现有两处 DELETE analysis_runs 清理会触发不可变谱线结果约束而失败；旧/新实现均已复现。此前清理说明仅代表代码意图，不能解释为成功保证。该业务缺陷与跨模块删除边界保持 open，证据见 [S18 当日记录](../acceptance-reports/S18/验收报告.md)。

@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "batch": "2026-10-19-report-selection",
+  "executed_plan_sha256": "330445711a9992f6595f7f82a9264dea1e03d3b42076f72d3bcd3433085f5ec0",
+  "cause": "Report list omits model; selection stored the summary as a full report, and render read model.rows before detail returned, unmounting the React root.",
+  "product_changes": [
+    "app/frontend/src/api/reports.ts",
+    "app/frontend/src/pages/reports/ReportOutput.tsx",
+    "app/frontend/src/pages/reports/ReportsPage.tsx"
+  ],
+  "regression_test": "app/tests/report_selection_workflow.mjs",
+  "root_pair": {
+    "GeoSpectrum.exe": "dd894b7aa9b45c7c2196f38db7b3f61c708039e591bcc76ad5438ffb08013874",
+    "geospectrum-backend.exe": "92555d789994be4355a85b4ca5d3fd7dd7c31521c5af3c3389d62a458be060cc"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-selection\\previous\\root-entry-20261019-055934",
+  "tests": {
+    "frontend": 15,
+    "browser": 6,
+    "actual_qa_desktop": 6
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "backend_byte_unchanged": true,
+  "schema_version": 23,
+  "api_payloads_permissions_algorithms_changed": false,
+  "desktop_process": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-19-report-selection\\qa\\GeoSpectrum.exe",
+    "sha256": "2354d2762eaf7847d73d1949539853eeaac415d5ff5aecb49962ff9eb68986b6",
+    "pid": 18048,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "data": {
+    "test_database_isolated": true,
+    "live_database_overwritten": false,
+    "live_database_unchanged_during_delivery": true,
+    "live_reports": [
+      {
+        "id": 1,
+        "report_number": "旧数据测试-01-CMT"
+      },
+      {
+        "id": 2,
+        "report_number": "旧数据测试-02-CMT"
+      },
+      {
+        "id": 3,
+        "report_number": "旧数据测试-04-CMT"
+      },
+      {
+        "id": 4,
+        "report_number": "旧数据测试-DAT原值-单位未记录"
+      }
+    ],
+    "qa_accounts_in_live": 0,
+    "source_legacy_files_modified": false
+  },
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "temporary_test_database_removed": true
+}

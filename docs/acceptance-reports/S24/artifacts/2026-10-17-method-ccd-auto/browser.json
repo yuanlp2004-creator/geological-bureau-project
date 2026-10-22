@@ -1,0 +1,101 @@
+{
+  "status": "passed",
+  "checks": [
+    "Three requested blocks removed; layout is read-only; opening causes zero version writes",
+    "Unrelated save preserves existing subset, curve, layout, lines and immutable published snapshot",
+    "Cross-layout curve selection derives and persists exact installed CCDs and layout across reload",
+    "Automatic added-line feedback and API coverage/safety rejection remain active without writing invalid drafts",
+    "Switching back restores the curve CCD set; light/wide and dark/narrow layouts stay inside viewport"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "theme": "light",
+      "density": "comfortable",
+      "width": 1440,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "CCD 布局CCD自动测试布局 · 3×2",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "扫描宽度",
+          "x": 295,
+          "right": 548.5
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 560.5,
+          "right": 814
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 295,
+          "right": 548.5
+        }
+      ]
+    },
+    {
+      "theme": "dark",
+      "density": "compact",
+      "width": 1060,
+      "devicePixelRatio": 1,
+      "overflow": false,
+      "fields": [
+        {
+          "label": "色散曲线请选择色散曲线CCD自动测试曲线default",
+          "x": 252,
+          "right": 501
+        },
+        {
+          "label": "CCD 布局CCD自动测试布局 · 3×2",
+          "x": 513,
+          "right": 762
+        },
+        {
+          "label": "基线波长 (nm)",
+          "x": 774,
+          "right": 1023
+        },
+        {
+          "label": "实际基线波长 (nm)",
+          "x": 252,
+          "right": 501
+        },
+        {
+          "label": "扫描宽度",
+          "x": 513,
+          "right": 762
+        },
+        {
+          "label": "基线偏移0.0000 nm (0 点)偏移清零",
+          "x": 774,
+          "right": 1023
+        },
+        {
+          "label": "分析单位ug/gmg/g%自定义",
+          "x": 252,
+          "right": 501
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "page": "settings",
+    "view": null,
+    "fields_unchanged": 7,
+    "short_field_rows_before": 4,
+    "short_field_rows_after": 1
+  },
+  {
+    "page": "users",
+    "view": null,
+    "fields_unchanged": 4,
+    "short_field_rows_before": 3,
+    "short_field_rows_after": 1
+  },
+  {
+    "page": "methods",
+    "view": "print-preview",
+    "fields_unchanged": 5,
+    "short_field_rows_before": 3,
+    "short_field_rows_after": 2
+  },
+  {
+    "page": "dispersion",
+    "view": null,
+    "fields_unchanged": 7,
+    "short_field_rows_before": 5,
+    "short_field_rows_after": 2
+  }
+]

@@ -8,7 +8,7 @@
 
 ## 2. 代码入口
 
-- 服务：[`modules/spectrum_migration.py`](../../app/backend/modules/spectrum_migration.py)
+- 服务：[`modules/spectrum_migration/service.py`](../../app/backend/modules/spectrum_migration/service.py)
 - 旧库读取边界：[`resources/legacy_reader/read_access.ps1`](../../app/backend/resources/legacy_reader/read_access.ps1)
 - API：[`api/spectrum_migration.py`](../../app/backend/api/spectrum_migration.py)；`/api/v1/migrations/spectra`
 - 请求模型：[`schemas/spectrum_migration.py`](../../app/backend/schemas/spectrum_migration.py)。
@@ -61,3 +61,7 @@ commit(run_id)
 - 大 BLOB 流式路径与普通内存路径是否得到同一规范化结果。
 - 重复暂存、重复提交是否幂等。
 - 运行 S08 迁移测试，并用原始样本回归关键格式。
+
+## 实现分工
+
+`SpectrumMigrationService.stage/commit` 保留源快照、重复导入判断、原子提交及临时包收尾。`spectrum_migration/reader.py::SpectrumAccessReader.read` 拥有进程与只读临时副本；通过 `LegacyAccessReader.streaming_command()` 获取公开的分块读取能力，不再调用旧方法服务私有候选入口。`parsing.py::SpectrumParser` 无数据库依赖，原格式/BLOB 校验整体迁入；`staging.py::SpectrumStaging._stage_streaming` 逐条处理 BLOB 文件并写暂存，未改为整库 BLOB 载入内存。`records.py` 只装配迁移记录。推荐顺序：service.stage → reader.read → parsing / staging → service.commit。

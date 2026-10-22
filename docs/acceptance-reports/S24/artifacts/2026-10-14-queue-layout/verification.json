@@ -1,0 +1,145 @@
+{
+  "status": "passed",
+  "scope": "地质局新建/追加样品队列表单的字段对齐和默认次数勾选",
+  "plan_sha256": "3080107B6B2D1323F73CC0D597AE2E34B238BF79C32735F93266D2BCE74D7F7E",
+  "changed_product_files": [
+    "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "app/frontend/src/styles/remaining-pages.css"
+  ],
+  "view_handlers_unchanged": true,
+  "frontend_unit_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "production_build": "TypeScript / Vite / Tauri release --no-bundle passed",
+  "browser_groups_passed": 5,
+  "desktop_groups_passed": 5,
+  "checks": [
+    "无当前方法时队列入口保持前置条件禁用",
+    "默认次数S/D/普通样及手动覆盖 light/1440",
+    "真实创建/追加、非法次数零提交且保留输入 light/1440",
+    "默认次数S/D/普通样及手动覆盖 dark/1060",
+    "真实创建/追加、非法次数零提交且保留输入 dark/1060"
+  ],
+  "extra_desktop_check": "点击说明文字可以恢复默认次数勾选及对应数值",
+  "display_settings": [
+    "light/comfortable/1440×1000",
+    "dark/compact/1060×1000"
+  ],
+  "layout_comparisons": [
+    {
+      "key": "create-light-1440",
+      "card_height_before": 234,
+      "card_height_after": 195.9375,
+      "checkbox_before": {
+        "x": 1150,
+        "y": 510.1875,
+        "width": 58.90625,
+        "height": 35,
+        "right": 1208.90625,
+        "bottom": 545.1875
+      },
+      "checkbox_after": {
+        "x": 295,
+        "y": 515.15625,
+        "width": 16,
+        "height": 16,
+        "right": 311,
+        "bottom": 531.15625
+      },
+      "nested_labels_before": 1,
+      "nested_labels_after": 0
+    },
+    {
+      "key": "create-dark-1060",
+      "card_height_before": 222,
+      "card_height_after": 179.9375,
+      "checkbox_before": {
+        "x": 786,
+        "y": 514.1875,
+        "width": 58.90625,
+        "height": 31,
+        "right": 844.90625,
+        "bottom": 545.1875
+      },
+      "checkbox_after": {
+        "x": 248,
+        "y": 515.15625,
+        "width": 16,
+        "height": 16,
+        "right": 264,
+        "bottom": 531.15625
+      },
+      "nested_labels_before": 1,
+      "nested_labels_after": 0
+    }
+  ],
+  "page_errors": [],
+  "desktop_close_code": 0,
+  "desktop_owned_pids_remaining": [],
+  "desktop_startup_read_retries": [
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "path": "/api/v1/auth/status",
+      "error": "net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "queue_business_request_failures": [],
+  "production_binaries": {
+    "GeoSpectrum.exe": "3BB6DFC1AEC6384E5FF5698023FFD85A1F7E7995325E899E98BB313979567888",
+    "geospectrum-backend.exe": "663AAEB50FFCB0DDD2E85006A74E83EAF08157F469D6E108D73F187A9E6ACE51"
+  },
+  "desktop_test_binary": {
+    "sha256": "DAA164F7A104FCACFED42246EEC5C174793CA6C37E80EC89088384FCDE097974",
+    "identifier": "cn.geospectrum.desktop.qaqueue20261014",
+    "reason": "用户正式程序正在运行，使用独立标识隔离验证",
+    "same_frontend_assets_as_production": [
+      {
+        "Path": "\\index.html",
+        "Hash": "78A521C9EB5D7D2C2402B8340B524E4F00E199554C2CC46E633A58FA62B092A9"
+      },
+      {
+        "Path": "\\assets\\index-Bvm_wemn.js",
+        "Hash": "E32356BAB490B7E4353A9D45F3BF37B29A582819758E1C8DB878AFC296111412"
+      },
+      {
+        "Path": "\\assets\\index-DLQwisQO.css",
+        "Hash": "1A241F3EF52A42A2852D4FF6295EBC3312579E52121C886272C8D1A174040E5A"
+      }
+    ]
+  },
+  "root_and_app_entries_unchanged": true,
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-14-queue-layout\\previous",
+  "earlier_run": "首次与构建并行的浏览器运行在工作台初始化处显示离线；构建后独立运行与QA全部通过。未修改产品服务逻辑或放宽表单断言。",
+  "limits": [
+    "QA与正式入口EXE标识/哈希不同，其全部前端资源SHA-256相同",
+    "已运行窗口使用旧映像，关闭后重新启动根目录入口生效",
+    "本批只处理队列表单；既有报告、分析视图及旧样品空列表问题未在此批处理",
+    "逻辑视口/模拟数据验证不替代其他DPI、真实设备或整体验收"
+  ],
+  "evidence": [
+    "queue-before-light.png",
+    "queue-after-light.png",
+    "queue-after-dark.png",
+    "queue-existing-dark.png"
+  ]
+}

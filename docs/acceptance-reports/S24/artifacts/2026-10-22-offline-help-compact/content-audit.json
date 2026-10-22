@@ -1,0 +1,143 @@
+{
+  "topics": 33,
+  "body_characters": 8065,
+  "previous_topics": 36,
+  "previous_characters": 19242,
+  "sections": [
+    "前言",
+    "使用手册",
+    "软件介绍",
+    "软件介绍 · 常用操作",
+    "软件介绍 · 新版补充"
+  ],
+  "aliases": {
+    "startup": "quickstart",
+    "exposure": "method-parameters",
+    "standards": "spectral-lines",
+    "method-print": "printing",
+    "alignment": "analysis",
+    "quality": "analysis",
+    "final-results": "analysis",
+    "hardware-acquisition": "devices",
+    "mercury-calibration": "devices",
+    "spectrum-migration": "migration",
+    "result-migration": "migration",
+    "messages": "navigation",
+    "administration": "about"
+  },
+  "source_mapping": {
+    "quickstart": [
+      "前言.htm",
+      "操作规程.htm"
+    ],
+    "preparation": [
+      "测量前的准备.htm"
+    ],
+    "dispersion": [
+      "色散曲线的制作.htm"
+    ],
+    "operation": [
+      "操作规程.htm"
+    ],
+    "precautions": [
+      "操作注意事项.htm"
+    ],
+    "errors": [
+      "常见故障排除.htm"
+    ],
+    "files": [
+      "文件说明.htm"
+    ],
+    "navigation": [
+      "主界面.htm",
+      "工具栏.htm",
+      "信息记录窗口.htm"
+    ],
+    "menus": [
+      "光谱方法.htm",
+      "分析条件.htm",
+      "分析测试.htm",
+      "数据处理.htm",
+      "工具.htm",
+      "帮助.htm"
+    ],
+    "new-method": [
+      "新建方法.htm"
+    ],
+    "open-method": [
+      "打开方法.htm"
+    ],
+    "save-as": [
+      "另存为.htm"
+    ],
+    "printing": [
+      "打印设置.htm"
+    ],
+    "method-parameters": [
+      "方法参数.htm"
+    ],
+    "spectral-lines": [
+      "分析谱线.htm"
+    ],
+    "dispersion-acquisition": [
+      "色散摄谱.htm"
+    ],
+    "evaporation-acquisition": [
+      "蒸发摄谱.htm"
+    ],
+    "sample-acquisition": [
+      "样品摄谱.htm"
+    ],
+    "dispersion-view": [
+      "色散曲线.htm"
+    ],
+    "evaporation": [
+      "蒸发曲线.htm"
+    ],
+    "spectra": [
+      "查看谱图.htm"
+    ],
+    "samples": [
+      "预录样号.htm",
+      "输入样号.htm"
+    ],
+    "analysis": [
+      "样品分析.htm"
+    ],
+    "curves": [
+      "标准曲线.htm"
+    ],
+    "postprocessing": [
+      "重新计算.htm"
+    ],
+    "reports": [
+      "打印报告.htm",
+      "导出报告.htm"
+    ],
+    "intensity-output": [
+      "导出强度.htm"
+    ],
+    "settings": [
+      "软件参数.htm"
+    ],
+    "devices": [
+      "设备参数.htm"
+    ],
+    "methods": [
+      "方法管理.htm"
+    ],
+    "maintenance": [
+      "备份压缩数据库.htm",
+      "备份和压缩数据库.htm"
+    ],
+    "migration": [
+      "文件说明.htm",
+      "打开方法.htm"
+    ],
+    "about": [
+      "帮助.htm"
+    ]
+  },
+  "chm_sha256": "b1e3f2c82f0e74a2d6112f0ac7f0f02094c8459bf4db04d86fdb0ba911bea909",
+  "reduction_percent": 58.1
+}

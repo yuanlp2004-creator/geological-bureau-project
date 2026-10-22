@@ -1,0 +1,89 @@
+{
+  "status": "passed",
+  "batch": "2026-10-20-legacy-shortcuts",
+  "executed_plan_sha256": "1bcccad582c46567aac1369374cdf3097467eca7e765194052dd7590b81022a8",
+  "modified_product_files": [
+    "app/frontend/src/layout/Header.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/analysis/analysis-workspace.css",
+    "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "app/frontend/src/styles/index.ts"
+  ],
+  "added_product_files": [
+    "app/frontend/src/assets/legacy/acquisition.png",
+    "app/frontend/src/assets/legacy/analysis.png",
+    "app/frontend/src/assets/legacy/conditions.png",
+    "app/frontend/src/assets/legacy/lines.png",
+    "app/frontend/src/assets/legacy/new-method.png",
+    "app/frontend/src/assets/legacy/open-method.png",
+    "app/frontend/src/assets/legacy/samples.png",
+    "app/frontend/src/assets/legacy/save-as.png",
+    "app/frontend/src/layout/QuickAccessBar.tsx",
+    "app/frontend/src/layout/quick-access.css",
+    "app/frontend/src/pages/methods/methodShortcuts.ts"
+  ],
+  "tests": {
+    "frontend": 15,
+    "browser": 9,
+    "actual_packaged_desktop": 9,
+    "layouts_per_run": 4
+  },
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "root_pair": {
+    "GeoSpectrum.exe": "629d8c885373aed3827efbf9c13259969d31d5c38475c99b551addc3a78225c7",
+    "geospectrum-backend.exe": "f575bcc5586979a9fdc5c5206b7c1fc0c22cc8de982896367f783de13e3ade09"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-legacy-shortcuts\\previous\\root-entry-20261020-063320",
+  "desktop": {
+    "mode": "desktop",
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-20-legacy-shortcuts\\qa\\GeoSpectrum.exe",
+    "sha256": "32fc3cd5ed2be99e29d7df26feac9060e10e22e9a811a85a3557f9350588ede1",
+    "pid": 26772,
+    "returncodes": [
+      0
+    ],
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "legacy_source_files_preserved": 105,
+  "icon_source": {
+    "path": "Spec Source/Source/Main/FmMain.dfm",
+    "sha256": "b72d02b65bf0c14730454a46db37e656846ca3aacde5d351286458b6258299ed",
+    "image_indices": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      10,
+      14,
+      15
+    ],
+    "pixels": [
+      16,
+      16
+    ],
+    "display_pixels": [
+      24,
+      24
+    ]
+  },
+  "data": {
+    "tests_use_isolated_database": true,
+    "live_database_overwritten": false,
+    "live_main_file_hash_matches_start": true,
+    "user_changes_retained": true
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "test_temp_data_cleaned": true
+}

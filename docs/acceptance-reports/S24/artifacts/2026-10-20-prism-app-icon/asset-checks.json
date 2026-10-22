@@ -1,0 +1,89 @@
+{
+  "pngs": [
+    {
+      "path": "app/frontend/src/assets/brand/geospectrum.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "sha256": "bfa7eee5e7dfd47b065afd20daa4238ea721f62d19f1c1ffd2b124fa68693ae8"
+    },
+    {
+      "path": "app/src-tauri/icons/128x128.png",
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGBA",
+      "sha256": "040e9f78e6bd874bd27f9d1804eab2ae9e7c50b171fc4a8c031916fbd4f605de"
+    },
+    {
+      "path": "app/src-tauri/icons/128x128@2x.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "sha256": "357144e8be3d27409e14c07a7567156176c22425d7dc46f6ccb0bf4e63a7e565"
+    },
+    {
+      "path": "app/src-tauri/icons/32x32.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "sha256": "159e80195ef351dec1ec3e87434c7119c9fa0eb9c85eec3fb19c21ab82786048"
+    },
+    {
+      "path": "app/src-tauri/icons/icon.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "sha256": "201b7163243e4b13b6f7e4c469b6711756a073e1389cd104f76bde15749d27c5"
+    }
+  ],
+  "ico_sizes": [
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    96,
+    128,
+    256
+  ],
+  "frame_order": {
+    "original_order": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "native_order": [
+      256,
+      128,
+      96,
+      64,
+      48,
+      40,
+      32,
+      24,
+      20,
+      16
+    ],
+    "all_frame_payloads_preserved": true,
+    "reason": "Tauri CachedIcon::new_ico decodes entry 0 for the default window icon; place 256px first."
+  }
+}

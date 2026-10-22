@@ -6,12 +6,12 @@
 
 ## 2. 代码入口
 
-- 服务：[`modules/hardware_acquisition.py`](../../app/backend/modules/hardware_acquisition.py)
+- 服务：[`modules/hardware_acquisition/service.py`](../../app/backend/modules/hardware_acquisition/service.py)
 - API：[`api/hardware_acquisition.py`](../../app/backend/api/hardware_acquisition.py)；`/api/v1/hardware-acquisitions`
 - 请求模型：[`schemas/hardware_acquisition.py`](../../app/backend/schemas/hardware_acquisition.py)。
-- 前端：`App.tsx` 中的 `HardwareAcquisitionPage`
+- 前端：[`HardwareAcquisitionPage.tsx`](../../app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx)
 - 测试：[`tests/test_s14_hardware_acquisition.py`](../../app/tests/test_s14_hardware_acquisition.py)
-- 验收状态：[`acceptance-reports/S14/验收报告.md`](../acceptance-reports/S14/验收报告.md)
+- 验收状态：[当前验收状态](../acceptance-reports/README.md)
 
 ## 3. 两类适配器
 
@@ -64,3 +64,7 @@ draft → connecting → connected → pre_excitation
 - 任意失败路径是否尝试关闭设备并记录安全状态。
 - 串口协议未知时是否继续拒绝发送猜测报文。
 - 运行 S14 自动化测试；真实硬件验收仍需外部协议、设备和现场证据。
+
+## 实现分工
+
+`hardware_acquisition/adapters.py` 拥有模拟/未具备协议的串口适配；`rules.py` 对普通数据执行转角排序、阈值、模拟异常及指标判定，无数据库访问。`repository.py::HardwareRepository` 负责轨迹、帧、决策证据和任务装配；`service.py` 保留完整状态机、人工干预、安全停止/关闭、锁及适配器实例。公开 `get_task` 替代 API 对私有装配方法的调用。前端 `HardwareAcquisitionForm/Monitor/Plan` 分离创建、实时控制呈现和计划结果；请求与任务身份留在父页。

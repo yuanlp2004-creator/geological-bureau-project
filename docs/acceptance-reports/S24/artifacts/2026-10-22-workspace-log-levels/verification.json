@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "release": "2026-10-22-workspace-log-levels",
+  "plan_sha256_at_start": "7b7142394e6ae12c7f2922e22d8cd5305f5877749ca50344cc59d7b049b6f655",
+  "backend_tests": 61,
+  "frontend_tests": 15,
+  "browser_checks": 16,
+  "desktop_checks": 16,
+  "page_layouts_each": 50,
+  "device_debug_layouts_each": 16,
+  "runtime_errors": [],
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-workspace-log-levels\\qa\\GeoSpectrum.exe",
+    "pid": 38836,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "log_levels": {
+    "browser": {
+      "actualAnalysisTaskId": 2,
+      "defaultRows": 1,
+      "detailedRows": 1,
+      "detailedContext": "分析 · 信息 · 样品分析 · 任务 2 · analysis.run.started",
+      "briefRows": 0
+    },
+    "desktop": {
+      "actualAnalysisTaskId": 2,
+      "defaultRows": 1,
+      "detailedRows": 1,
+      "detailedContext": "分析 · 信息 · 样品分析 · 任务 2 · analysis.run.started",
+      "briefRows": 0
+    }
+  },
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "source_count": 424,
+  "backend_files_unchanged": 191,
+  "protected_files_unchanged": 160,
+  "schema_version": 23,
+  "source_message_card_matches_after_component_rename": true,
+  "source_drift": {},
+  "workspace_styles_unchanged": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "database": {
+    "path": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "exists": true,
+    "before": "a7b325d08cac439484a7ee8872f666febdfe0541bf3e024346783d118ea3806c",
+    "after": "a7b325d08cac439484a7ee8872f666febdfe0541bf3e024346783d118ea3806c",
+    "main_file_hash_unchanged": true,
+    "qa_used_fresh_isolated_data": true
+  },
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "8900d5ed3472f3453b9005b03f589236bb80f2728f550d17d49dddfa8b5c5485",
+    "geospectrum-backend.exe": "2e5b9684b03fdd5870d9c4348e6fe791248843d1d1b58ef74985ffb535552a04"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-22-workspace-log-levels\\previous-latest",
+  "concurrent_method_hint_changes_preserved": [
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/methods/MethodsPage.tsx"
+  ],
+  "changed_existing_sources": [
+    "app/frontend/src/components/message-panel.css",
+    "app/frontend/src/components/MessagePanel.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "PLAN.md",
+    "docs/acceptance-reports/README.md",
+    "docs/acceptance-reports/S24/验收报告.md"
+  ],
+  "new_product_sources": [
+    "app/frontend/src/components/WorkspaceMessages.tsx"
+  ],
+  "installer_rebuilt": false
+}

@@ -28,13 +28,25 @@ def test_two_apps_keep_database_sessions_keys_and_events_separate(tmp_path: Path
         assert b.get("/health", headers=ka).status_code == 403
         assert a.get("/health", headers=ka).status_code == 200
         assert b.get("/health", headers=kb).status_code == 200
-        assert a.post("/api/v1/auth/bootstrap", headers=ka, json={"username": "admin", "password": "correct-horse"}).status_code == 201
+        assert (
+            a.post(
+                "/api/v1/auth/bootstrap", headers=ka, json={"username": "admin", "password": "correct-horse"}
+            ).status_code
+            == 201
+        )
         assert b.get("/api/v1/auth/status", headers=kb).json() == {"bootstrapped": False}
-        token = a.post("/api/v1/auth/login", headers=ka, json={"username": "admin", "password": "correct-horse"}).json()["access_token"]
+        token = a.post(
+            "/api/v1/auth/login", headers=ka, json={"username": "admin", "password": "correct-horse"}
+        ).json()["access_token"]
         authorization = {"Authorization": f"Bearer {token}"}
         assert a.get("/api/v1/auth/me", headers=ka | authorization).status_code == 200
         assert b.get("/api/v1/auth/me", headers=kb | authorization).status_code == 401
-        assert a.patch("/api/v1/settings", headers=ka | authorization, json={"display": {"density": "compact"}}).status_code == 200
+        assert (
+            a.patch(
+                "/api/v1/settings", headers=ka | authorization, json={"display": {"density": "compact"}}
+            ).status_code
+            == 200
+        )
         assert first.service.get_settings()["display"]["density"] == "compact"
         assert second.service.get_settings()["display"]["density"] == "comfortable"
         # Cached device state belongs to the app, not a module singleton.
@@ -53,7 +65,9 @@ def test_websocket_uses_same_runtime_key_and_session_as_http(tmp_path: Path) -> 
     with TestClient(create_app(runtime=runtime)) as client:
         headers = {"X-GeoSpectrum-Process-Key": "desktop-key"}
         client.post("/api/v1/auth/bootstrap", headers=headers, json={"username": "admin", "password": "correct-horse"})
-        token = client.post("/api/v1/auth/login", headers=headers, json={"username": "admin", "password": "correct-horse"}).json()["access_token"]
+        token = client.post(
+            "/api/v1/auth/login", headers=headers, json={"username": "admin", "password": "correct-horse"}
+        ).json()["access_token"]
         with client.websocket_connect(f"/ws/events?access_token={token}&process_key=wrong") as ws:
             with pytest.raises(WebSocketDisconnect) as exc:
                 ws.receive_json()
@@ -97,8 +111,12 @@ def test_selected_dependencies_are_explicit_and_scoped_to_each_runtime(tmp_path)
         assert printing.printer_backend is not runtime.reports_service().printer_backend
         assert not runtime.config.data_dir.exists()
     backend = Path(__file__).resolve().parents[1] / "backend"
-    for relative in ("modules/analysis/service.py", "modules/method_printing/service.py",
-                     "modules/reports.py", "modules/postprocessing/recalculation.py"):
+    for relative in (
+        "modules/analysis/service.py",
+        "modules/method_printing/service.py",
+        "modules/reports/service.py",
+        "modules/postprocessing/recalculation.py",
+    ):
         tree = ast.parse((backend / relative).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):

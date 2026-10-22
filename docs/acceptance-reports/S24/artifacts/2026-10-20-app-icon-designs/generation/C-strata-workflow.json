@@ -1,0 +1,139 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "加载 DiT 主模型 (INT8)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载文本编码器 (Qwen3-VL W4A8)"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载 VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "prompt": "为GeoSpectrum专业Windows地质光谱分析软件绘制一个全新应用图标。画布1024乘1024像素，正面平视，只能出现一个完整图标。圆角正方形底板占画布约百分之九十，四周均匀留白，底板外部为纯白色，禁止投影。主标记大而清晰，形状简洁有力，减少元素，线条较粗，色块干净，缩小到16、24、32像素后仍能识别。专业、高级、克制的扁平矢量图标风格，轻微渐变即可，边缘平滑锐利，视觉重心稳定。不要照片、3D渲染、玻璃高光、复杂纹理、细网格、坐标轴、刻度、阴影、发光、样机、多款拼贴、水印或题注。\n方向C：地层谱峰。底板为深墨绿色，接近#123D3B，配色独立于常见蓝色科技图标。主标记为一个简洁的山形矿物剖面，山形的内部由三层宽厚、平滑的地层带组成，分别用青绿色、低饱和金黄色、暖米白色；地层起伏节奏简洁，底边稳固、边缘清晰。山形顶部的一段轮廓以一个清晰的分析光谱尖峰自然接续，形成地质山形与单个谱峰融为一体的标记。主图形占底板约百分之六十六，强调地质分析、矿物、可靠的科学仪器。避免复杂风景、天空、树木、建筑、文字、字母、数字，不画股市折线或柱状图。",
+      "negative_prompt": "",
+      "resolution": 1024,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Qwen 2.1 文本/多模态条件编码"
+    }
+  },
+  "6": {
+    "inputs": {
+      "seed": 2026102022,
+      "steps": 30,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "4",
+        1
+      ],
+      "latent_image": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (30 steps / CFG 1.0)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "geospectrum/app-icon-20261020/C-strata",
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "10": {
+    "class_type": "ModelAttentionBackend",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "attention": "comfy kitchen attention"
+    },
+    "_meta": {
+      "title": "Comfy Kitchen Attention (INT8)"
+    }
+  },
+  "11": {
+    "class_type": "EasyCache",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "reuse_threshold": 0.1,
+      "start_percent": 0.15,
+      "end_percent": 0.85,
+      "verbose": false
+    },
+    "_meta": {
+      "title": "EasyCache (0.10 / 0.15-0.85)"
+    }
+  }
+}

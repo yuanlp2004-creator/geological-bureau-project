@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "date": "2026-10-15",
+  "plan_snapshot_sha256": "52DA439B327AAA394CE5CBC81C295928387E371236A868CBC104452F8BE6F684",
+  "specific_browser_groups": 9,
+  "browser_total_checks": 14,
+  "actual_qa_desktop_groups": 9,
+  "qa_closed_normally": true,
+  "qa_owned_processes_remaining": [],
+  "same_frontend_resources": true,
+  "backend_changed": false,
+  "migration_added": false,
+  "user_data_modified": false,
+  "method_conditions_has_storage_range_editors": true,
+  "method_conditions_has_per_line_exposure_editors": false,
+  "angle_editors_only_in_method_conditions": true,
+  "angle_changes_preserve_storage_ranges_and_spectral_intervals": true,
+  "existing_1060_native_horizontal_scrollbar_unchanged": true,
+  "spectral_lines_has_acquisition_storage_editors": false,
+  "spectral_exposure_is_top_section": true,
+  "unified_method_save_for_angles_and_storage": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "current_executables": {
+    "GeoSpectrum.exe": "2F7AE6F2B1143E3106EDD69AF0BA226F2DC943C0B890559C0DA6106FD3F81016",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "previous_executables": {
+    "GeoSpectrum.exe": "BB451F207F689A6E6C39C113690A5C05B16CA12417C0068CA840FA6A346D91AB",
+    "geospectrum-backend.exe": "588CBD7D5CD28B38F7BB50658BB2B5BDFDFAB52F56EB9DAB66D0515FB2BAB045"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-15-method-storage-home\\previous",
+  "changed_files": [
+    "PLAN.md",
+    "app/frontend/src/pages/methods/MethodExposure.tsx",
+    "app/frontend/src/pages/methods/MethodsPage.tsx",
+    "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/tests/legacy_exposure_workflow.mjs",
+    "docs/代码导读/04_方法谱线与打印_methods.md",
+    "docs/使用与说明/GeoSpectrum_使用说明.md"
+  ]
+}

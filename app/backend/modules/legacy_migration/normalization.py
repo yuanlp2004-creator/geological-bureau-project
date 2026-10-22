@@ -27,6 +27,30 @@ class LegacyNormalizer:
     def __init__(self, records: LegacyRecordDecoder):
         self.records = records
 
+    @staticmethod
+    def reference_wavelength(
+        primary: dict[str, Any], legacy_id: int, issues: list[dict[str, Any]]
+    ) -> float:
+        actual = float(_number(primary.get("RealRefWave")))
+        if actual != 0.0:
+            return actual
+        # TDbMtd.ReadMtd uses RefWave when the stored RealRefWave is unset (zero).
+        reference = float(_number(primary.get("RefWave")))
+        field = f"methods.{legacy_id}.conditions.actual_reference_wavelength_nm"
+        code = "legacy_reference_wavelength_defaulted"
+        if not any(issue.get("code") == code and issue.get("field") == field for issue in issues):
+            issues.append(
+                {
+                    "level": "warning",
+                    "code": code,
+                    "field": field,
+                    "message": "旧版实际参考波长为零，按旧版读取规则使用理论参考波长；原值保留在迁移证据中",
+                    "legacy_value": primary.get("RealRefWave"),
+                    "normalized_value_nm": reference,
+                }
+            )
+        return reference
+
     def _normalize_access(
         self,
         access: dict[str, Any],
@@ -63,12 +87,16 @@ class LegacyNormalizer:
             method_wstc = method_wstc_by_id.get(legacy_id)
             if burn is None or method_wstc is None:
                 raise LegacyMigrationError(
-                    "legacy_method_reference_missing", "方法、燃烧条件与色散条件无法一一配对", details={"mtd_id": legacy_id}
+                    "legacy_method_reference_missing",
+                    "方法、燃烧条件与色散条件无法一一配对",
+                    details={"mtd_id": legacy_id},
                 )
             dispersion_name = str(method_wstc.get("WsName") or "")
             if dispersion_name not in dispersion_names:
                 raise LegacyMigrationError(
-                    "legacy_dispersion_reference_missing", "方法引用的色散曲线不在 WSTC 表中", details={"mtd_id": legacy_id, "name": dispersion_name}
+                    "legacy_dispersion_reference_missing",
+                    "方法引用的色散曲线不在 WSTC 表中",
+                    details={"mtd_id": legacy_id, "name": dispersion_name},
                 )
             paired_dispersion = dispersion_by_name[dispersion_name]
             scalar_pairs = {
@@ -91,15 +119,23 @@ class LegacyNormalizer:
                     )
             for blob_field in ("CcdGapPoints", "CcdIndexs", "WsCof"):
                 embedded = method_wstc.get(blob_field)
-                if not isinstance(embedded, dict) or embedded.get("sha256") != paired_dispersion["blob_evidence"][blob_field]["sha256"]:
+                if (
+                    not isinstance(embedded, dict)
+                    or embedded.get("sha256") != paired_dispersion["blob_evidence"][blob_field]["sha256"]
+                ):
                     raise LegacyMigrationError(
                         "legacy_method_dispersion_blob_mismatch",
                         "方法内嵌色散 BLOB 与 WSTC 曲线不一致",
                         details={"mtd_id": legacy_id, "field": blob_field, "name": dispersion_name},
                     )
-            raw_lines = sorted(lines_by_id.get(legacy_id, []), key=lambda row: int(_number(row.get("Order"), integer=True)))
+            raw_lines = sorted(
+                lines_by_id.get(legacy_id, []), key=lambda row: int(_number(row.get("Order"), integer=True))
+            )
             line_ids = [f"legacy-{legacy_id}-{index + 1}" for index in range(len(raw_lines))]
-            wave_targets = [(float(_number(row.get("Wave"))), line_ids[index], int(_number(row.get("LineType"), integer=True))) for index, row in enumerate(raw_lines)]
+            wave_targets = [
+                (float(_number(row.get("Wave"))), line_ids[index], int(_number(row.get("LineType"), integer=True)))
+                for index, row in enumerate(raw_lines)
+            ]
 
             def reference_for(wave: float, allowed: set[int]) -> str | None:
                 if math.isclose(wave, 0.0, abs_tol=1e-7):
@@ -110,24 +146,40 @@ class LegacyNormalizer:
 
             normalized_lines: list[dict[str, Any]] = []
             line_evidence: list[dict[str, Any]] = []
+            frame_count = int(_number(burn.get('BurnCount'), integer=True, default=20))
+            exposure_enabled = bool(_number(primary.get('ExpSegMode'), integer=True))
             for index, row in enumerate(raw_lines):
                 line_type_value = int(_number(row.get("LineType"), integer=True, default=-1))
                 if line_type_value not in LINE_TYPES:
-                    raise LegacyMigrationError("legacy_line_type_invalid", "旧谱线类型无法识别", details={"mtd_id": legacy_id, "index": index})
-                standard_points, standard_evidence = self.records._standard_blob(row.get("Stds"), f"LINES[{legacy_id}:{index}].Stds")
+                    raise LegacyMigrationError(
+                        "legacy_line_type_invalid", "旧谱线类型无法识别", details={"mtd_id": legacy_id, "index": index}
+                    )
+                standard_points, standard_evidence = self.records._standard_blob(
+                    row.get("Stds"), f"LINES[{legacy_id}:{index}].Stds"
+                )
                 line_type = LINE_TYPES[line_type_value]
                 inter_wave = float(_number(row.get("InterWave")))
                 align_wave = float(_number(row.get("AlignWave")))
                 internal_reference = reference_for(inter_wave, {1})
                 alignment_reference = reference_for(align_wave, {1, 2})
                 if not math.isclose(inter_wave, 0.0, abs_tol=1e-7) and internal_reference is None:
-                    raise LegacyMigrationError("legacy_line_reference_missing", "旧谱线内标引用无法配对", details={"mtd_id": legacy_id, "wave": inter_wave})
+                    raise LegacyMigrationError(
+                        "legacy_line_reference_missing",
+                        "旧谱线内标引用无法配对",
+                        details={"mtd_id": legacy_id, "wave": inter_wave},
+                    )
                 if not math.isclose(align_wave, 0.0, abs_tol=1e-7) and alignment_reference is None:
-                    raise LegacyMigrationError("legacy_line_reference_missing", "旧谱线定位引用无法配对", details={"mtd_id": legacy_id, "wave": align_wave})
+                    raise LegacyMigrationError(
+                        "legacy_line_reference_missing",
+                        "旧谱线定位引用无法配对",
+                        details={"mtd_id": legacy_id, "wave": align_wave},
+                    )
                 peak_mode = PEAK_MODES.get(int(_number(row.get("PeakMode"), integer=True)), "max_single_point")
                 peak_width = int(_number(row.get("PeakWidth"), integer=True, default=1))
                 if peak_mode == "max_single_point":
                     peak_width = 1
+                segment_start, segment_end = int(_number(row.get('ExpSegL'), integer=True)), int(_number(row.get('ExpSegR'), integer=True))
+                has_segment = exposure_enabled and 1 <= segment_start < segment_end <= frame_count
                 line = {
                     "id": line_ids[index],
                     "order": index + 1,
@@ -147,7 +199,9 @@ class LegacyNormalizer:
                     "peak_mode": peak_mode,
                     "peak_width_points": peak_width,
                     "fit_mode": FIT_MODES.get(int(_number(row.get("FitMode"), integer=True)), "linear"),
-                    "coordinate_type": "logarithmic" if int(_number(row.get("CoordType"), integer=True)) > 0 else "normal",
+                    "coordinate_type": "logarithmic"
+                    if int(_number(row.get("CoordType"), integer=True)) > 0
+                    else "normal",
                     "unit": str(primary.get("MtdUnit") or "ug/g"),
                     "value_kind": "content",
                     "decimal_places": int(_number(row.get("Digit"), integer=True, default=2)),
@@ -158,6 +212,8 @@ class LegacyNormalizer:
                     "over_limit_tolerance_percent": 0.0,
                     "standard_points": standard_points if line_type == "analysis" else [],
                     "reference_baseline": False,
+                    "exposure_start_frame": segment_start if has_segment else None,
+                    "exposure_end_frame": segment_end if has_segment else None,
                 }
                 normalized_lines.append(line)
                 line_evidence.append(
@@ -168,6 +224,8 @@ class LegacyNormalizer:
                         "legacy_align_wave": align_wave,
                         "normalized_id": line_ids[index],
                         "standards_blob": standard_evidence,
+                        "exposure_start_frame": int(_number(row.get('ExpSegL'), integer=True)) or None,
+                        "exposure_end_frame": int(_number(row.get('ExpSegR'), integer=True)) or None,
                     }
                 )
             migrated_line_count += len(normalized_lines)
@@ -178,12 +236,17 @@ class LegacyNormalizer:
                     "ccd_layout_id": None,
                     "dispersion_calibration_id": None,
                     "legacy_dispersion_name": dispersion_name,
-                    "selected_ccds": list(_blob(method_wstc.get("CcdIndexs"), field=f"MTD_WSTC[{legacy_id}].CcdIndexs")[0]),
+                    "selected_ccds": list(
+                        _blob(method_wstc.get("CcdIndexs"), field=f"MTD_WSTC[{legacy_id}].CcdIndexs")[0]
+                    ),
                     "reference_wavelength_nm": float(_number(primary.get("RefWave"))),
-                    "actual_reference_wavelength_nm": float(_number(primary.get("RealRefWave"))),
+                    "actual_reference_wavelength_nm": self.reference_wavelength(primary, legacy_id, issues),
                     "reference_width_points": int(_number(primary.get("RefWidth"), integer=True, default=21)),
                     "analysis_unit": str(primary.get("MtdUnit") or "ug/g"),
                     "calculation_profile": "legacy_2_0_2",
+                    "legacy_exposure_mode": exposure_enabled,
+                    "legacy_exposure_interval": [int(_number(primary.get('RefSegL'), integer=True)) or 1,
+                                                 int(_number(primary.get('RefSegR'), integer=True)) or int(_number(burn.get('BurnCount'), integer=True, default=20))],
                     "pre_excitation_seconds": float(_number(burn.get("PreBurn"), default=3.0)),
                     "sampling_period_seconds": float(_number(burn.get("BurnCyc"), default=1.0)),
                     "frame_count": frame_count,
@@ -195,7 +258,10 @@ class LegacyNormalizer:
                     "maximum_id_deviation": float(_number(primary.get("LimitIda"), default=5.0)),
                     "rsd_enabled": bool(primary.get("CheckRsd")),
                     "rsd_threshold": float(_number(primary.get("LimitRsd"), default=5.0)),
-                    "angle_exposures": [{"angle_deg": 0.0, "storage_mode": "averaged", "start_frame": 1, "end_frame": frame_count}],
+                    "angle_exposures": [
+                        {"angle_deg": 0.0, "storage_mode": "full_interval" if primary.get('ExpSegMode') else "averaged",
+                         "start_frame": 1, "end_frame": frame_count}
+                    ],
                     "storage_profile": "legacy_specdirect_202",
                 }
             )
@@ -219,9 +285,16 @@ class LegacyNormalizer:
                 }
             )
 
-        orphan_ids = sorted(set(burn_by_id).union(method_wstc_by_id).union(lines_by_id).difference(int(_number(row.get("MtdId"), integer=True)) for row in prim_rows))
+        orphan_ids = sorted(
+            set(burn_by_id)
+            .union(method_wstc_by_id)
+            .union(lines_by_id)
+            .difference(int(_number(row.get("MtdId"), integer=True)) for row in prim_rows)
+        )
         if orphan_ids:
-            raise LegacyMigrationError("legacy_orphan_records", "旧方法表中存在无法配对的孤立记录", details={"mtd_ids": orphan_ids})
+            raise LegacyMigrationError(
+                "legacy_orphan_records", "旧方法表中存在无法配对的孤立记录", details={"mtd_ids": orphan_ids}
+            )
 
         issues.append(
             {
@@ -258,4 +331,3 @@ class LegacyNormalizer:
             },
             "raw_table_counts": table_counts,
         }
-

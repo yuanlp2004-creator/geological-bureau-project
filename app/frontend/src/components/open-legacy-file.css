@@ -1,0 +1,12 @@
+.file-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; margin-left: auto; min-width: 0; }
+.file-actions > .secondary-button, .open-legacy-file > button { white-space: nowrap; }
+.open-legacy-file { position: relative; display: inline-flex; gap: 4px; align-items: center; min-width: 0; }
+.legacy-open-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; width: min(460px, calc(100vw - 48px)); padding: 14px; border: 1px solid var(--line); border-radius: var(--ui-radius, 8px); background: var(--surface); box-shadow: 0 8px 24px #0002; }
+.legacy-open-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.legacy-open-heading strong { color: var(--ink); font-size: 13px; }
+.file-open-status { display: inline-flex; color: var(--muted); }
+.file-open-status > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.legacy-open-path { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; width: 100%; }
+.legacy-open-path .field { flex: 1; min-width: min(280px, 100%); }
+.legacy-open-path textarea { width: 100%; resize: vertical; min-height: 32px; }
+.open-legacy-file .auth-error { flex-basis: 100%; margin: 0; overflow-wrap: anywhere; }

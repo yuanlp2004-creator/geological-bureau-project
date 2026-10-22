@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-08",
+  "read_mode": "read-only backup of original; temporary copy only",
+  "schema": 23,
+  "calibrations": [
+    {
+      "id": 1,
+      "name": "default",
+      "ccd_layout_id": 1,
+      "enabled": 1
+    },
+    {
+      "id": 23,
+      "name": "1米2400靠门-1022",
+      "ccd_layout_id": 23,
+      "enabled": 1
+    },
+    {
+      "id": 24,
+      "name": "1米2400-1031",
+      "ccd_layout_id": 23,
+      "enabled": 1
+    },
+    {
+      "id": 25,
+      "name": "WPS-290",
+      "ccd_layout_id": 23,
+      "enabled": 1
+    },
+    {
+      "id": 26,
+      "name": "wp",
+      "ccd_layout_id": 23,
+      "enabled": 1
+    },
+    {
+      "id": 27,
+      "name": "1米2400靠门-170510",
+      "ccd_layout_id": 23,
+      "enabled": 1
+    },
+    {
+      "id": 28,
+      "name": "Test260601",
+      "ccd_layout_id": 24,
+      "enabled": 1
+    }
+  ],
+  "screenshot_reference_choices": [
+    "1米2400靠门-1022",
+    "1米2400-1031",
+    "WPS-290",
+    "wp",
+    "1米2400靠门-170510"
+  ],
+  "status": "dispersion selector exists; not a feature gap",
+  "browser_validation": "not claimed"
+}

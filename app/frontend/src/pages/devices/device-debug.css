@@ -1,0 +1,19 @@
+.device-debug-page { max-width: 1640px; }
+.device-debug-toolbar { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border-color, #e3eaf0); margin-bottom: 16px; }
+.device-debug-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.device-debug-actions { margin-left: auto; }
+.device-debug-actions .file-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 4px 0; }
+.device-debug-tabs button { border: 0; background: transparent; padding: 11px 20px; border-bottom: 2px solid transparent; color: inherit; cursor: pointer; }
+.device-debug-tabs button.active { color: #1686aa; border-bottom-color: #1686aa; font-weight: 600; }
+.device-debug-panel[hidden] { display: none; }
+:root .app-shell .device-debug-panel > .page-content { padding: 0; max-width: none; }
+.device-parameter-form { padding: 20px; }
+.device-parameter-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.device-parameter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.device-profile-select { max-width: 420px; margin-bottom: 18px; }
+.device-debug-panel .settings-analysis-options { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+:root .app-shell .device-debug-page .acquisition-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+:root .app-shell .device-debug-page .mercury-main { gap: 16px; }
+:root .app-shell .device-debug-page .mercury-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:root .app-shell .device-debug-page .device-profile-select { max-width: none; }
+@media (max-width: 760px) { .device-parameter-grid { grid-template-columns: minmax(0, 1fr); } }

@@ -1,0 +1,16 @@
+.function-icon {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  image-rendering: auto;
+}
+.navigation-entry > .function-icon {
+  align-self: center;
+}
+.navigation-entry.disabled > .function-icon {
+  opacity: .45;
+}
+.sidebar .function-icon[data-icon='conditions'],
+:root[data-theme='dark'] .function-icon[data-icon='conditions'] {
+  filter: brightness(1.7);
+}

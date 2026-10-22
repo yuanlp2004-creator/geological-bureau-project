@@ -27,7 +27,12 @@ def test_upgrade_is_verified_on_copy_and_preserves_data(tmp_path: Path) -> None:
     database = Database(path)
     database.initialize()
     with database.write() as connection:
-        connection.execute("INSERT INTO methods(name, description, work_type, status, created_at, updated_at) VALUES ('upgrade-fixture', '', 'spectral', 'active', 'now', 'now')")
+        connection.execute(
+            (
+                "INSERT INTO methods(name, description, work_type, status, created_at, "
+                "updated_at) VALUES ('upgrade-fixture', '', 'spectral', 'active', 'now', 'now')"
+            )
+        )
         connection.execute("DELETE FROM schema_migrations WHERE version=?", (SCHEMA_VERSION,))
     result = prepare_database_upgrade(path)
     assert result["status"] == "upgraded"
@@ -117,19 +122,30 @@ def test_manifest_only_test_module_connects_every_contract(tmp_path: Path, monke
     assert extension.permissions == ("s21-example.execute",)
     assert "event:s21-example.executed.v1" in extension.capabilities
     with database.read() as connection:
-        assert connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='s21_example_records'").fetchone()
+        assert connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='s21_example_records'"
+        ).fetchone()
 
     import backend.main as main_module
+
     runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
     with TestClient(main_module.create_app(runtime=runtime)) as client:
-        assert client.post("/api/v1/auth/bootstrap", json={"username": "admin", "password": "correct-horse"}).status_code == 201
-        token = client.post("/api/v1/auth/login", json={"username": "admin", "password": "correct-horse"}).json()["access_token"]
+        assert (
+            client.post("/api/v1/auth/bootstrap", json={"username": "admin", "password": "correct-horse"}).status_code
+            == 201
+        )
+        token = client.post("/api/v1/auth/login", json={"username": "admin", "password": "correct-horse"}).json()[
+            "access_token"
+        ]
         response = client.post("/api/v1/extensions/s21-example/execute", headers={"Authorization": f"Bearer {token}"})
         assert response.status_code == 200
         assert response.json()["event_type"] == "s21-example.executed.v1"
     with database.read() as connection:
         assert connection.execute("SELECT COUNT(*) FROM s21_example_records").fetchone()[0] == 1
-        assert connection.execute("SELECT COUNT(*) FROM audit_events WHERE action='s21_example.execute'").fetchone()[0] == 1
+        assert (
+            connection.execute("SELECT COUNT(*) FROM audit_events WHERE action='s21_example.execute'").fetchone()[0]
+            == 1
+        )
 
     monkeypatch.delenv("GEOSPECTRUM_TEST_BUILD")
     monkeypatch.delenv("GEOSPECTRUM_TEST_MODULES_DIR")
@@ -142,6 +158,7 @@ def test_manifest_only_test_module_connects_every_contract(tmp_path: Path, monke
 
 def test_process_key_blocks_untrusted_loopback_requests(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     import backend.main as main_module
+
     runtime = Runtime(AppConfig(data_dir=tmp_path), process_key="one-time-key")
     with TestClient(main_module.create_app(runtime=runtime)) as client:
         assert client.get("/health").status_code == 403
@@ -183,22 +200,23 @@ def test_windows_release_requires_embedded_offline_webview() -> None:
     assert config["bundle"]["windows"]["webviewInstallMode"]["type"] == "offlineInstaller"
 
 
-def test_internal_release_requires_all_software_acceptance_gates(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_internal_release_requires_all_software_acceptance_gates(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     acceptance = tmp_path / "docs" / "acceptance-reports"
     acceptance.mkdir(parents=True)
     statuses_fixture = {
-        f"S{number:02d}": "deferred_external" if number in {1, 14, 15} else "passed"
-        for number in range(21)
+        f"S{number:02d}": "deferred_external" if number in {1, 14, 15} else "passed" for number in range(21)
     }
-    index = "\n".join(
-        f"| {step} | `{status}` | report |" for step, status in statuses_fixture.items()
-    )
+    index = "\n".join(f"| {step} | `{status}` | report |" for step, status in statuses_fixture.items())
     (acceptance / "README.md").write_text(index, encoding="utf-8")
     monkeypatch.setattr(build_release_manifest, "REPO_ROOT", tmp_path)
     statuses = build_release_manifest.acceptance_statuses()
     assert statuses["S17"] == statuses["S18"] == statuses["S19"] == statuses["S20"] == "passed"
     assert statuses["S14"] == statuses["S15"] == "deferred_external"
 
-    (acceptance / "README.md").write_text(index.replace("| S17 | `passed` |", "| S17 | `in_progress` |"), encoding="utf-8")
+    (acceptance / "README.md").write_text(
+        index.replace("| S17 | `passed` |", "| S17 | `in_progress` |"), encoding="utf-8"
+    )
     with pytest.raises(RuntimeError, match="S17"):
         build_release_manifest.acceptance_statuses()

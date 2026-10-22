@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "exe": "C:\\Users\\Leo\\Desktop\\\u5730\u8d28\u5c40\\app\\.local\\releases\\2026-10-15-all-controls-rounding\\qa\\GeoSpectrum.exe",
+  "pid": 37812,
+  "main_windows": 1,
+  "owned_window_titles": [
+    [
+      "",
+      "Tao Thread Event Target"
+    ],
+    [
+      "Default IME",
+      "IME"
+    ],
+    [
+      "GeoSpectrum",
+      "Tauri Window"
+    ],
+    [
+      "MSCTFIME UI",
+      "MSCTFIME UI"
+    ],
+    [
+      "cn.geospectrum.desktop.qaallround20261015-siw",
+      "cn.geospectrum.desktop.qaallround20261015-sic"
+    ]
+  ],
+  "returncode": 0,
+  "closed_normally": true,
+  "remaining_owned_pids": []
+}
