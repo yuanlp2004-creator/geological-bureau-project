@@ -15,6 +15,7 @@ type PanelProps = {
   finish?: () => void
   canFinish?: boolean
   workflowToolbar?: ReactNode
+  lineEditToolbar?: ReactNode
   recordChoices?: { value: string; name: string }[]
   onRecordChoose?: (value: string) => void
   recordDisabled?: boolean
@@ -42,7 +43,7 @@ type PanelProps = {
 
 export function DispersionMonitor({
   view = 'capture',
-  finish, canFinish, workflowToolbar, recordChoices, onRecordChoose, recordDisabled,
+  finish, canFinish, workflowToolbar, lineEditToolbar, recordChoices, onRecordChoose, recordDisabled,
   active,
   start,
   preheat,
@@ -119,7 +120,8 @@ export function DispersionMonitor({
     </> : <div className="empty-state">先在色散摄谱中采集谱图，再到这里制作色散曲线。</div>}
   </section>
   return (
-    <SpectroscopyConsole className="dispersion-run-panel" recordTitle="色散谱带名" recordChoices={recordChoices} showRepeats={false} topActions={workflowToolbar}
+    <SpectroscopyConsole className="dispersion-run-panel" recordTitle="色散谱带名" recordChoices={recordChoices} showRepeats={false}
+      hideIdleTransport leadingActions={lineEditToolbar} topActions={workflowToolbar}
       recordValue={String(active?.id ?? '')} onRecordChoose={onRecordChoose} recordDisabled={recordDisabled} repeats={1}
       lineBar={<CaptureLineBar disabled={busy || running} defaultExposure={active ? `1-${active.frame_count}` : ''} lines={active?.lines.map(line => ({ id: String(line.id), label: `${line.element} ${line.wavelength_nm}`,
         wavelength: line.wavelength_nm, exposure: `1-${active.frame_count}` }))} value={manualLine === null ? '' : String(manualLine)}
@@ -129,7 +131,7 @@ export function DispersionMonitor({
           if (line) setSelectedCcd(line.ccd_index)
         }} />}
       finish={finish ? { run: finish, enabled: Boolean(canFinish) } : undefined}
-      records={<CaptureBandList title="色散谱帧" rows={frames.map(item => ({ id: item.id,
+      records={<CaptureBandList title="色散谱带" variant="band" rows={frames.map(item => ({ id: item.id,
         name: `${item.phase === 'dark' ? '暗帧' : '燃烧帧'} ${item.frame_index + 1}`, detail: `CCD ${item.ccd_index + 1}` }))}
         selected={frameId} locked={recordLocked} disabled={busy || running} onChoose={setFrameId} onLockChange={setRecordLocked} />}
       viewLabel={frame ? `已保存${frame.phase === 'dark' ? '暗帧' : '燃烧帧'} ${frame.frame_index + 1}` : completedView ? '完成谱图 · 燃烧均值' : '实时谱图'}

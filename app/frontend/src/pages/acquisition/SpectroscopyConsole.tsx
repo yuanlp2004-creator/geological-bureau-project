@@ -10,13 +10,14 @@ type Command = { run: () => unknown; enabled: boolean }
 type Props = {
   className: string; name?: string; status?: string; statusLabel?: string; source?: string
   start: Command; preheat: Command; pause: Command; resume: Command; stop: Command; finish?: Command
-  records?: ReactNode; lineBar?: ReactNode; topActions?: ReactNode; inputToolbar?: ReactNode; sampleInput?: ReactNode
+  records?: ReactNode; leadingActions?: ReactNode; lineBar?: ReactNode; topActions?: ReactNode; inputToolbar?: ReactNode; sampleInput?: ReactNode
   recordTitle?: string; recordChoices?: { value: string; name: string; disabled?: boolean }[]
   recordValue?: string; onRecordChoose?: (value: string) => void; recordDisabled?: boolean; repeats?: number
   viewLabel?: string; progress: { label: string; value: ReactNode; title?: string; current?: number; maximum?: number }[]
   ccd: number; ccdIndices: number[]; onCcdChange: (ccd: number) => void; hash?: string
   toolbar?: ReactNode; setup?: ReactNode; children?: ReactNode; bandTitle?: string; showRepeats?: boolean
   canEditSample?: boolean
+  hideIdleTransport?: boolean
 }
 
 /** Keep the legacy operation order inside the modern application shell. */
@@ -59,11 +60,16 @@ export function SpectroscopyConsole(props: Props) {
       </div>
     </header>
     <div className="legacy-main-toolbar">
+      {props.leadingActions && <div className="legacy-leading-actions" role="group" aria-label="谱线增删">{props.leadingActions}</div>}
       {props.lineBar ?? <CaptureLineBar />}
       <div className="legacy-main-actions" role="group" aria-label="工作台操作">
+        {!props.hideIdleTransport && <SpectroscopyToolButton icon="sample-input" label="采后样号与任务详情"
+          disabled={!props.canEditSample || running} onClick={openDetails} />}
         {props.topActions}
-        <SpectroscopyToolButton icon="measure" label={props.status === 'paused' ? '继续' : '启动测量'} disabled={props.status !== 'paused' || !props.resume.enabled} onClick={() => void props.resume.run()} />
-        <SpectroscopyToolButton icon="pause" label="暂停" disabled={!props.pause.enabled || props.status === 'paused'} onClick={() => void props.pause.run()} />
+        {(!props.hideIdleTransport || running) && <>
+          <SpectroscopyToolButton icon="measure" label={props.status === 'paused' ? '继续' : '启动测量'} disabled={props.status !== 'paused' || !props.resume.enabled} onClick={() => void props.resume.run()} />
+          <SpectroscopyToolButton icon="pause" label="暂停" disabled={!props.pause.enabled || props.status === 'paused'} onClick={() => void props.pause.run()} />
+        </>}
         <span className="legacy-tool-separator" />
         <SpectroscopyToolButton icon="close" label="关闭摄谱工作台" disabled={!finish.enabled} onClick={() => void finish.run()} />
       </div>
@@ -75,7 +81,11 @@ export function SpectroscopyConsole(props: Props) {
       <div className="spectroscopy-view" aria-label="实时谱图工作区"><div className="spectroscopy-spectrum">{props.children}</div></div>
       <aside className="spectroscopy-operator" hidden={!rightOpen} aria-label="摄谱输入与控制">
         <header className="legacy-dock-caption"><h2>摄谱窗口</h2><button type="button" className="legacy-dock-close" aria-label="隐藏摄谱窗口" onClick={() => setRightOpen(false)}>×</button></header>
-        <div className="spectroscopy-input-toolbar" aria-label="样号输入工具">{props.inputToolbar}</div>
+        <div className="spectroscopy-input-toolbar" aria-label="样号输入工具">{props.inputToolbar ?? <>
+          <SpectroscopyToolButton icon="input-samples" label="录入样品编号" description="当前摄谱类型无需预录样号" disabled />
+          <SpectroscopyToolButton icon="insert-sample" label="插入样品" description="当前摄谱类型无需预录样号" disabled />
+          <SpectroscopyToolButton icon="clear-samples" label="清除待测样号" description="当前摄谱类型无需预录样号" disabled />
+        </>}</div>
         <fieldset className="spectroscopy-sample-input" data-repeats={props.showRepeats !== false}><legend>样号输入</legend>
           {props.sampleInput ?? <>
             <label><span>{props.recordTitle ?? '谱带名称'}:</span><select aria-label={props.recordTitle ?? '谱带名称'} value={props.recordValue ?? ''}

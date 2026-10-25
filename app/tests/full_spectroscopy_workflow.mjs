@@ -72,6 +72,34 @@ export async function checkFullSpectroscopy(page, result, output) {
         return { left: left.x, middle: middle.x, right: right.x, width: innerWidth, rightEdge: right.right }
       })
       assert.ok(columns.left < columns.middle && columns.middle < columns.right && columns.rightEdge <= columns.width + 1)
+      const toolbar = await host.locator('.legacy-main-toolbar').evaluate(element => {
+        const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, height: r.height } }
+        return { fields: [...element.querySelectorAll('.spectroscopy-line-bar select,.spectroscopy-line-bar input')].map(box),
+          actions: [...element.querySelectorAll('button')].map(node => ({ name: node.getAttribute('aria-label'), ...box(node) })) }
+      })
+      for (let index = 1; index < toolbar.fields.length; index++) assert.ok(toolbar.fields[index].x > toolbar.fields[index - 1].right)
+      if (item.mode === 'dispersion') {
+        assert.deepEqual(toolbar.actions.map(action => action.name), ['增加谱线', '删除所选谱线', '校正谱线', '拟合曲线', '关闭摄谱工作台'])
+        assert.ok(toolbar.actions[1].right < toolbar.fields[0].x)
+        assert.ok(toolbar.actions[2].x > toolbar.fields[2].right && toolbar.actions[2].x - toolbar.fields[2].right < 20)
+        const centers = [...toolbar.actions, ...toolbar.fields].map(value => value.y + value.height / 2)
+        assert.ok(Math.max(...centers) - Math.min(...centers) < 2)
+        assert.deepEqual(await host.locator('.capture-record-table th').allTextContents(), ['', '谱带名称'])
+        assert.equal(await host.getByRole('button', { name: '显示最新谱带', exact: true }).isVisible(), false)
+        const rightTools = host.locator('.spectroscopy-input-toolbar button')
+        assert.equal(await rightTools.count(), 3)
+        for (const button of await rightTools.all()) assert.equal(await button.isDisabled(), true)
+        if (layout.theme === 'light') {
+          await page.screenshot({ path: path.join(output, 'dispersion-layout.png') })
+          const desk = await host.locator('.spectroscopy-console').boundingBox()
+          await page.screenshot({ path: path.join(output, 'dispersion-buttons.png'), clip: { x: desk.x, y: desk.y, width: desk.width, height: 180 } })
+        }
+      }
+      if (item.mode === 'evaporation-acquisition') assert.deepEqual(await host.locator('.capture-record-table th').allTextContents(), ['', '谱带名称'])
+      if (item.mode !== 'dispersion') {
+        assert.deepEqual(toolbar.actions.map(action => action.name), ['采后样号与任务详情', '启动测量', '暂停', '关闭摄谱工作台'])
+        assert.ok(toolbar.actions[0].x > toolbar.fields[2].right && toolbar.actions[0].x - toolbar.fields[2].right < 20)
+      }
       let writes = 0
       const count = request => { if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes++ }
       page.on('request', count)
@@ -116,7 +144,7 @@ export async function checkFullSpectroscopy(page, result, output) {
       }
       page.off('request', count); assert.equal(writes, 0)
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false)
-      result.layouts.push({ ...layout, mode: item.mode, columns, iconButtons: buttons.length, observationWrites: writes })
+      result.layouts.push({ ...layout, mode: item.mode, columns, toolbar, iconButtons: buttons.length, observationWrites: writes })
       check(`${item.mode}/${layout.theme}: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定`)
       if (item.mode === 'sample-acquisition') await host.locator('.spectroscopy-console').screenshot({ path: path.join(output, `workbench-${layout.theme}.png`) })
     }
@@ -185,6 +213,7 @@ export async function checkFullSpectroscopy(page, result, output) {
   await dh.locator('.capture-record-table tbody tr').first().getByRole('button').click()
   const frames = await call(page, `/api/v1/dispersion/tasks/${dispersion.task.id}/frames?ccd_index=0`)
   assert.equal(await pointValue(ds, 123), frames[0].points[123])
+  await dh.getByText('记录操作', { exact: true }).click()
   await dh.getByRole('button', { name: '返回实时谱图', exact: true }).click()
   await dh.getByRole('button', { name: '拟合曲线', exact: true }).click()
   const processing = dh.getByRole('region', { name: '当前色散任务处理' })
@@ -225,7 +254,8 @@ export async function checkFullSpectroscopy(page, result, output) {
   await page.evaluate(token => sessionStorage.setItem('geospectrum.token', token), login.access_token)
   await page.reload(); await page.getByTestId('workspace').waitFor()
   const readOnly = await go(dispersion)
-  for (const name of ['试样摄谱', '预热摄谱', '暂停', '停止摄谱', '增加谱线', '校正谱线'])
+  assert.equal(await readOnly.getByRole('button', { name: '暂停', exact: true }).count(), 0)
+  for (const name of ['试样摄谱', '预热摄谱', '停止摄谱', '增加谱线', '校正谱线'])
     assert.equal(await readOnly.getByRole('button', { name, exact: true }).isDisabled(), true)
   await readOnly.getByRole('button', { name: '拟合曲线', exact: true }).click()
   assert.equal(await readOnly.getByRole('button', { name: '二次拟合', exact: true }).isDisabled(), true)

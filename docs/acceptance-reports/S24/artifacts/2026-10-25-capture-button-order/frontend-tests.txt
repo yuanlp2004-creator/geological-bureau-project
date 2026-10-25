@@ -1,0 +1,27 @@
+
+> geospectrum-frontend@0.1.0 test
+> node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs
+
+✔ same mass fraction in three units and round trip retains standards and intensities (1.1068ms)
+✔ percent output retains tiny nonzero values and uses decimal rounding consistently (12.5291ms)
+✔ custom units are not treated as known conversion factors (0.1523ms)
+✔ old blank-time conversion uses Delphi even rounding (0.8761ms)
+✔ CCD coordinates use one-based input and reject invalid coordinates (0.9979ms)
+✔ ruler uses per-pixel transformed range rather than adding one or five (0.3564ms)
+✔ required blank stays blank and is not coerced to zero (1.05ms)
+✔ intermediate numeric editing states remain editable (0.4593ms)
+✔ explicit zero follows the field minimum (0.1177ms)
+✔ min, max and step use the same contract as the UI (0.1451ms)
+✔ a command whose response is lost is sent only once (2.042ms)
+✔ safe desktop reads can recover while sidecar starts (104.2346ms)
+✔ cancellation stops retries and an already cancelled command is never sent (1.1585ms)
+✔ a hanging command times out without being resubmitted (14.6061ms)
+✔ Windows printing can wait for its dialog without retrying or leaking transport options (1.583ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 766.7956

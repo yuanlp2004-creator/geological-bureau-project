@@ -1,0 +1,400 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "e644ffd8b43e3c43a1550cae19e8efbcd6a7adaf81e4e5c1f8e687d81da0436e",
+  "checks": {
+    "browser": {
+      "checks": 17,
+      "layouts": 9
+    },
+    "desktop": {
+      "checks": 15,
+      "layouts": 9
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 8
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 8
+    }
+  },
+  "frontend_tests": 15,
+  "source_and_frontend_match": true,
+  "unchanged_legacy_source_files": 105,
+  "backend_sources_and_exe_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_executables": {
+    "GeoSpectrum.exe": "7b189ca485d8c4b71aa33102700b27e83abec412528cc1467f850a665c17c43f",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "git_backup": {
+    "commit": "db0a1c754f27ce211b08a2bfbc23bbcb05647b55",
+    "tag": "before-capture-button-order-20261025",
+    "remote_verified": true,
+    "old_executables": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-button-order-20261025\\before"
+  },
+  "toolbar_position_cases": [
+    {
+      "theme": "light",
+      "mode": "sample-acquisition",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 333.890625,
+            "y": 200,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 200,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 200,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 756.671875,
+            "y": 202,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 783.671875,
+            "y": 202,
+            "right": 807.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 810.671875,
+            "y": 202,
+            "right": 834.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 847.671875,
+            "y": 202,
+            "right": 871.671875,
+            "height": 24
+          }
+        ]
+      }
+    },
+    {
+      "theme": "light",
+      "mode": "evaporation-acquisition",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 333.890625,
+            "y": 200,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 200,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 200,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 756.671875,
+            "y": 202,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 783.671875,
+            "y": 202,
+            "right": 807.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 810.671875,
+            "y": 202,
+            "right": 834.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 847.671875,
+            "y": 202,
+            "right": 871.671875,
+            "height": 24
+          }
+        ]
+      }
+    },
+    {
+      "theme": "light",
+      "mode": "dispersion",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 392.890625,
+            "y": 200,
+            "right": 567.890625,
+            "height": 28
+          },
+          {
+            "x": 628.78125,
+            "y": 200,
+            "right": 688.78125,
+            "height": 28
+          },
+          {
+            "x": 749.671875,
+            "y": 200,
+            "right": 809.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "增加谱线",
+            "x": 279,
+            "y": 202,
+            "right": 303,
+            "height": 24
+          },
+          {
+            "name": "删除所选谱线",
+            "x": 303,
+            "y": 202,
+            "right": 327,
+            "height": 24
+          },
+          {
+            "name": "校正谱线",
+            "x": 815.671875,
+            "y": 202,
+            "right": 839.671875,
+            "height": 24
+          },
+          {
+            "name": "拟合曲线",
+            "x": 839.671875,
+            "y": 202,
+            "right": 863.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 876.671875,
+            "y": 202,
+            "right": 900.671875,
+            "height": 24
+          }
+        ]
+      }
+    },
+    {
+      "theme": "dark",
+      "mode": "sample-acquisition",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 290.890625,
+            "y": 192,
+            "right": 449.890625,
+            "height": 28
+          },
+          {
+            "x": 510.78125,
+            "y": 192,
+            "right": 570.78125,
+            "height": 28
+          },
+          {
+            "x": 631.671875,
+            "y": 192,
+            "right": 691.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 697.671875,
+            "y": 194,
+            "right": 721.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 724.671875,
+            "y": 194,
+            "right": 748.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 751.671875,
+            "y": 194,
+            "right": 775.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 788.671875,
+            "y": 194,
+            "right": 812.671875,
+            "height": 24
+          }
+        ]
+      }
+    },
+    {
+      "theme": "dark",
+      "mode": "evaporation-acquisition",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 290.890625,
+            "y": 192,
+            "right": 449.890625,
+            "height": 28
+          },
+          {
+            "x": 510.78125,
+            "y": 192,
+            "right": 570.78125,
+            "height": 28
+          },
+          {
+            "x": 631.671875,
+            "y": 192,
+            "right": 691.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 697.671875,
+            "y": 194,
+            "right": 721.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 724.671875,
+            "y": 194,
+            "right": 748.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 751.671875,
+            "y": 194,
+            "right": 775.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 788.671875,
+            "y": 194,
+            "right": 812.671875,
+            "height": 24
+          }
+        ]
+      }
+    },
+    {
+      "theme": "dark",
+      "mode": "dispersion",
+      "toolbar": {
+        "fields": [
+          {
+            "x": 349.890625,
+            "y": 192,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 192,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 192,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "增加谱线",
+            "x": 236,
+            "y": 194,
+            "right": 260,
+            "height": 24
+          },
+          {
+            "name": "删除所选谱线",
+            "x": 260,
+            "y": 194,
+            "right": 284,
+            "height": 24
+          },
+          {
+            "name": "校正谱线",
+            "x": 756.671875,
+            "y": 194,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "拟合曲线",
+            "x": 780.671875,
+            "y": 194,
+            "right": 804.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 817.671875,
+            "y": 194,
+            "right": 841.671875,
+            "height": 24
+          }
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "Modern sidebar and theme retained. Toolbar groups follow FmView.dfm and BeforeShow per file type.",
+    "Dispersion add/delete precede line selection; locate/fit immediately follow exposure, then exit. Idle transport controls are hidden; active pause/resume remain.",
+    "Sample metadata button returns immediately after exposure. Every toolbar stays in one row without stretch-to-right spacing.",
+    "Dispersion and evaporation use a band-name column. Existing record tools remain in an expandable footer; sample table and top record tools remain.",
+    "Dispersion sample-input tools are disabled according to file type, as in the legacy guide.",
+    "No backend, schema, algorithms or device protocols changed. All writes used isolated seeded databases.",
+    "One parallel browser regression encountered Failed to fetch; an intermediate shell run exited with 0xC0000409. A standalone full rerun passed without changing assertions or product code. Cause not established; first failure retained locally.",
+    "Both final QA processes exited naturally with no owned processes remaining. Installer unchanged; physical printing and real hardware not exercised."
+  ]
+}

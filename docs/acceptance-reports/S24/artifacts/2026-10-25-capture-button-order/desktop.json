@@ -1,0 +1,1073 @@
+{
+  "status": "passed",
+  "checks": [
+    "仅操作区沿用旧版三栏和工具顺序；主导航、页头、返回入口及明暗主题保持，三尺寸无横向溢出",
+    "关闭／恢复停靠面板零写入；条件、测量、消息及采后命名在详情窗口保留",
+    "预录窗口回传样号表、直接选择建立草稿并带出重复；清除选择不删除数据，不自动激发",
+    "sample-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "sample-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "工作台已保存谱带按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常",
+    "当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留",
+    "色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开",
+    "结束返回任务列表，采集记录保留，准备页和当前采集继续分开",
+    "只读账户可浏览完成谱图与曲线，激发、谱线写入和拟合均按原权限禁用"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "name": "wide",
+      "geometry": {
+        "desk": {
+          "x": 274,
+          "y": 153,
+          "width": 1138,
+          "height": 760,
+          "right": 1412,
+          "bottom": 913
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 246,
+          "height": 1000,
+          "right": 246,
+          "bottom": 1000
+        },
+        "topbar": {
+          "x": 246,
+          "y": 0,
+          "width": 1194,
+          "height": 52,
+          "right": 1440,
+          "bottom": 52
+        },
+        "position": "relative",
+        "theme": "light",
+        "themeSurface": "#f5f8fc",
+        "emptyColor": "rgb(245, 248, 252)",
+        "fieldLabelColor": "rgba(0, 0, 0, 0)",
+        "left": {
+          "x": 275,
+          "y": 234,
+          "width": 198.796875,
+          "height": 678,
+          "right": 473.796875,
+          "bottom": 912
+        },
+        "middle": {
+          "x": 473.796875,
+          "y": 234,
+          "width": 710.0078125,
+          "height": 678,
+          "right": 1183.8046875,
+          "bottom": 912
+        },
+        "right": {
+          "x": 1183.8046875,
+          "y": 234,
+          "width": 227.1953125,
+          "height": 678,
+          "right": 1411,
+          "bottom": 912
+        },
+        "plot": {
+          "x": 483.796875,
+          "y": 276,
+          "width": 690.0078125,
+          "height": 601.5,
+          "right": 1173.8046875,
+          "bottom": 877.5
+        },
+        "buttons": [
+          {
+            "x": 1227.8984375,
+            "y": 470.2734375,
+            "width": 140,
+            "height": 32,
+            "right": 1367.8984375,
+            "bottom": 502.2734375
+          },
+          {
+            "x": 1227.8984375,
+            "y": 587.0546875,
+            "width": 140,
+            "height": 32,
+            "right": 1367.8984375,
+            "bottom": 619.0546875
+          },
+          {
+            "x": 1227.8984375,
+            "y": 703.828125,
+            "width": 140,
+            "height": 32,
+            "right": 1367.8984375,
+            "bottom": 735.828125
+          },
+          {
+            "x": 1227.8984375,
+            "y": 820.609375,
+            "width": 140,
+            "height": 32,
+            "right": 1367.8984375,
+            "bottom": 852.609375
+          }
+        ],
+        "icons": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "name": "minimum",
+      "geometry": {
+        "desk": {
+          "x": 231,
+          "y": 153,
+          "width": 798,
+          "height": 460,
+          "right": 1029,
+          "bottom": 613
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 215,
+          "height": 680,
+          "right": 215,
+          "bottom": 680
+        },
+        "topbar": {
+          "x": 215,
+          "y": 0,
+          "width": 845,
+          "height": 52,
+          "right": 1060,
+          "bottom": 52
+        },
+        "position": "relative",
+        "theme": "dark",
+        "themeSurface": "#122235",
+        "emptyColor": "rgb(18, 34, 53)",
+        "fieldLabelColor": "rgba(0, 0, 0, 0)",
+        "left": {
+          "x": 232,
+          "y": 234,
+          "width": 150,
+          "height": 378,
+          "right": 382,
+          "bottom": 612
+        },
+        "middle": {
+          "x": 382,
+          "y": 234,
+          "width": 448,
+          "height": 378,
+          "right": 830,
+          "bottom": 612
+        },
+        "right": {
+          "x": 830,
+          "y": 234,
+          "width": 198,
+          "height": 378,
+          "right": 1028,
+          "bottom": 612
+        },
+        "plot": {
+          "x": 392,
+          "y": 276,
+          "width": 428,
+          "height": 301.5,
+          "right": 820,
+          "bottom": 577.5
+        },
+        "buttons": [
+          {
+            "x": 859.5,
+            "y": 433.890625,
+            "width": 140,
+            "height": 32,
+            "right": 999.5,
+            "bottom": 465.890625
+          },
+          {
+            "x": 859.5,
+            "y": 477.890625,
+            "width": 140,
+            "height": 32,
+            "right": 999.5,
+            "bottom": 509.890625
+          },
+          {
+            "x": 859.5,
+            "y": 521.890625,
+            "width": 140,
+            "height": 32,
+            "right": 999.5,
+            "bottom": 553.890625
+          },
+          {
+            "x": 859.5,
+            "y": 565.890625,
+            "width": 140,
+            "height": 32,
+            "right": 999.5,
+            "bottom": 597.890625
+          }
+        ],
+        "icons": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1125,
+      "height": 760,
+      "theme": "light",
+      "name": "medium",
+      "geometry": {
+        "desk": {
+          "x": 231,
+          "y": 153,
+          "width": 878,
+          "height": 520,
+          "right": 1109,
+          "bottom": 673
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 215,
+          "height": 760,
+          "right": 215,
+          "bottom": 760
+        },
+        "topbar": {
+          "x": 215,
+          "y": 0,
+          "width": 910,
+          "height": 52,
+          "right": 1125,
+          "bottom": 52
+        },
+        "position": "relative",
+        "theme": "light",
+        "themeSurface": "#f5f8fc",
+        "emptyColor": "rgb(245, 248, 252)",
+        "fieldLabelColor": "rgba(0, 0, 0, 0)",
+        "left": {
+          "x": 232,
+          "y": 234,
+          "width": 153.296875,
+          "height": 438,
+          "right": 385.296875,
+          "bottom": 672
+        },
+        "middle": {
+          "x": 385.296875,
+          "y": 234,
+          "width": 524.703125,
+          "height": 438,
+          "right": 910,
+          "bottom": 672
+        },
+        "right": {
+          "x": 910,
+          "y": 234,
+          "width": 198,
+          "height": 438,
+          "right": 1108,
+          "bottom": 672
+        },
+        "plot": {
+          "x": 395.296875,
+          "y": 276,
+          "width": 504.703125,
+          "height": 361.5,
+          "right": 900,
+          "bottom": 637.5
+        },
+        "buttons": [
+          {
+            "x": 939.5,
+            "y": 440.2734375,
+            "width": 140,
+            "height": 32,
+            "right": 1079.5,
+            "bottom": 472.2734375
+          },
+          {
+            "x": 939.5,
+            "y": 497.0546875,
+            "width": 140,
+            "height": 32,
+            "right": 1079.5,
+            "bottom": 529.0546875
+          },
+          {
+            "x": 939.5,
+            "y": 553.828125,
+            "width": 140,
+            "height": 32,
+            "right": 1079.5,
+            "bottom": 585.828125
+          },
+          {
+            "x": 939.5,
+            "y": 610.609375,
+            "width": 140,
+            "height": 32,
+            "right": 1079.5,
+            "bottom": 642.609375
+          }
+        ],
+        "icons": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 473.796875,
+        "right": 1183.8046875,
+        "width": 1440,
+        "rightEdge": 1411
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 333.890625,
+            "y": 200,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 200,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 200,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 756.671875,
+            "y": 202,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 783.671875,
+            "y": 202,
+            "right": 807.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 810.671875,
+            "y": 202,
+            "right": 834.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 847.671875,
+            "y": 202,
+            "right": 871.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 473.796875,
+        "right": 1183.8046875,
+        "width": 1440,
+        "rightEdge": 1411
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 333.890625,
+            "y": 200,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 200,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 200,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 756.671875,
+            "y": 202,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 783.671875,
+            "y": 202,
+            "right": 807.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 810.671875,
+            "y": 202,
+            "right": 834.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 847.671875,
+            "y": 202,
+            "right": 871.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "columns": {
+        "left": 275,
+        "middle": 473.796875,
+        "right": 1183.8046875,
+        "width": 1440,
+        "rightEdge": 1411
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 392.890625,
+            "y": 200,
+            "right": 567.890625,
+            "height": 28
+          },
+          {
+            "x": 628.78125,
+            "y": 200,
+            "right": 688.78125,
+            "height": 28
+          },
+          {
+            "x": 749.671875,
+            "y": 200,
+            "right": 809.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "增加谱线",
+            "x": 279,
+            "y": 202,
+            "right": 303,
+            "height": 24
+          },
+          {
+            "name": "删除所选谱线",
+            "x": 303,
+            "y": 202,
+            "right": 327,
+            "height": 24
+          },
+          {
+            "name": "校正谱线",
+            "x": 815.671875,
+            "y": 202,
+            "right": 839.671875,
+            "height": 24
+          },
+          {
+            "name": "拟合曲线",
+            "x": 839.671875,
+            "y": 202,
+            "right": 863.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 876.671875,
+            "y": 202,
+            "right": 900.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 382,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 290.890625,
+            "y": 192,
+            "right": 449.890625,
+            "height": 28
+          },
+          {
+            "x": 510.78125,
+            "y": 192,
+            "right": 570.78125,
+            "height": 28
+          },
+          {
+            "x": 631.671875,
+            "y": 192,
+            "right": 691.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 697.671875,
+            "y": 194,
+            "right": 721.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 724.671875,
+            "y": 194,
+            "right": 748.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 751.671875,
+            "y": 194,
+            "right": 775.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 788.671875,
+            "y": 194,
+            "right": 812.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 382,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 290.890625,
+            "y": 192,
+            "right": 449.890625,
+            "height": 28
+          },
+          {
+            "x": 510.78125,
+            "y": 192,
+            "right": 570.78125,
+            "height": 28
+          },
+          {
+            "x": 631.671875,
+            "y": 192,
+            "right": 691.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "采后样号与任务详情",
+            "x": 697.671875,
+            "y": 194,
+            "right": 721.671875,
+            "height": 24
+          },
+          {
+            "name": "启动测量",
+            "x": 724.671875,
+            "y": 194,
+            "right": 748.671875,
+            "height": 24
+          },
+          {
+            "name": "暂停",
+            "x": 751.671875,
+            "y": 194,
+            "right": 775.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 788.671875,
+            "y": 194,
+            "right": 812.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "columns": {
+        "left": 232,
+        "middle": 382,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "toolbar": {
+        "fields": [
+          {
+            "x": 349.890625,
+            "y": 192,
+            "right": 508.890625,
+            "height": 28
+          },
+          {
+            "x": 569.78125,
+            "y": 192,
+            "right": 629.78125,
+            "height": 28
+          },
+          {
+            "x": 690.671875,
+            "y": 192,
+            "right": 750.671875,
+            "height": 28
+          }
+        ],
+        "actions": [
+          {
+            "name": "增加谱线",
+            "x": 236,
+            "y": 194,
+            "right": 260,
+            "height": 24
+          },
+          {
+            "name": "删除所选谱线",
+            "x": 260,
+            "y": 194,
+            "right": 284,
+            "height": 24
+          },
+          {
+            "name": "校正谱线",
+            "x": 756.671875,
+            "y": 194,
+            "right": 780.671875,
+            "height": 24
+          },
+          {
+            "name": "拟合曲线",
+            "x": 780.671875,
+            "y": 194,
+            "right": 804.671875,
+            "height": 24
+          },
+          {
+            "name": "关闭摄谱工作台",
+            "x": 817.671875,
+            "y": 194,
+            "right": 841.671875,
+            "height": 24
+          }
+        ]
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    }
+  ],
+  "errors": [],
+  "layoutAttempt": {
+    "width": 1125,
+    "height": 760,
+    "theme": "light",
+    "name": "medium",
+    "geometry": {
+      "desk": {
+        "x": 231,
+        "y": 153,
+        "width": 878,
+        "height": 520,
+        "right": 1109,
+        "bottom": 673
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 215,
+        "height": 760,
+        "right": 215,
+        "bottom": 760
+      },
+      "topbar": {
+        "x": 215,
+        "y": 0,
+        "width": 910,
+        "height": 52,
+        "right": 1125,
+        "bottom": 52
+      },
+      "position": "relative",
+      "theme": "light",
+      "themeSurface": "#f5f8fc",
+      "emptyColor": "rgb(245, 248, 252)",
+      "fieldLabelColor": "rgba(0, 0, 0, 0)",
+      "left": {
+        "x": 232,
+        "y": 234,
+        "width": 153.296875,
+        "height": 438,
+        "right": 385.296875,
+        "bottom": 672
+      },
+      "middle": {
+        "x": 385.296875,
+        "y": 234,
+        "width": 524.703125,
+        "height": 438,
+        "right": 910,
+        "bottom": 672
+      },
+      "right": {
+        "x": 910,
+        "y": 234,
+        "width": 198,
+        "height": 438,
+        "right": 1108,
+        "bottom": 672
+      },
+      "plot": {
+        "x": 395.296875,
+        "y": 276,
+        "width": 504.703125,
+        "height": 361.5,
+        "right": 900,
+        "bottom": 637.5
+      },
+      "buttons": [
+        {
+          "x": 939.5,
+          "y": 440.2734375,
+          "width": 140,
+          "height": 32,
+          "right": 1079.5,
+          "bottom": 472.2734375
+        },
+        {
+          "x": 939.5,
+          "y": 497.0546875,
+          "width": 140,
+          "height": 32,
+          "right": 1079.5,
+          "bottom": 529.0546875
+        },
+        {
+          "x": 939.5,
+          "y": 553.828125,
+          "width": 140,
+          "height": 32,
+          "right": 1079.5,
+          "bottom": 585.828125
+        },
+        {
+          "x": 939.5,
+          "y": 610.609375,
+          "width": 140,
+          "height": 32,
+          "right": 1079.5,
+          "bottom": 642.609375
+        }
+      ],
+      "icons": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "pageOverflow": false,
+      "toolNames": [
+        "上一谱带",
+        "下一谱带",
+        "上一 CCD",
+        "下一 CCD",
+        "十字线",
+        "区域放大",
+        "滚动工具",
+        "适合图像",
+        "一线一点",
+        "一线四点",
+        "十倍 CCD",
+        "横向放大",
+        "横向缩小",
+        "纵向放大",
+        "纵向缩小",
+        "纵向还原",
+        "打印谱图"
+      ]
+    }
+  }
+}

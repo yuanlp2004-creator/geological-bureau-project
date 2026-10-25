@@ -114,6 +114,7 @@ export function SampleAcquisitionMonitor({
       repeats={selected?.repeat_count}
       viewLabel={observedSample ? `已保存谱带 · ${observedSample.sample_name || '未命名'} / ${observedSample.repeat_index + 1}` : '实时谱图'}
       records={<CaptureBandList title={selected?.task_kind === 'evaporation' ? '蒸发谱带' : selected?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
+        variant={selected?.task_kind === 'evaporation' ? 'band' : 'sample'}
         rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', sequence: sample.repeat_index + 1, detail: `重复 ${sample.repeat_index + 1} · ${sample.bands.length} CCD` }))}
         selected={observedSample?.id ?? null} locked={recordLocked} disabled={busy || acquiring}
         onChoose={setSampleId} onLockChange={setRecordLocked} />}
