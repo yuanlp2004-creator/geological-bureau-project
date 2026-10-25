@@ -6,6 +6,8 @@ import { AcquisitionSetupFields, AcquisitionTimingFields, type AcquisitionCondit
 
 // 父页面统一持有草稿、选中项和请求状态。
 export type SampleAcquisitionFormProps = AcquisitionConditionsProps & {
+  formId?: string
+  hideSubmit?: boolean
   saveConditions: () => Promise<void>
   useMethodConditions: boolean
   setUseMethodConditions: React.Dispatch<React.SetStateAction<boolean>>
@@ -79,7 +81,7 @@ export function SampleAcquisitionForm(props: SampleAcquisitionFormProps) {
         </div>
         <Flame size={17} />
       </div>
-      <form className="acquisition-form" onSubmit={create}>
+      <form id={props.formId} className="acquisition-form" onSubmit={create}>
         <>
             <label className="field">
               <span>已发布方法版本</span>
@@ -159,7 +161,6 @@ export function SampleAcquisitionForm(props: SampleAcquisitionFormProps) {
                     <option value="normal">普通样</option>
                     <option value="standard">标准样</option>
                     <option value="blank">空样</option>
-                    <option value="preheat">预热</option>
                   </select>
                 </label>
               </>
@@ -175,7 +176,7 @@ export function SampleAcquisitionForm(props: SampleAcquisitionFormProps) {
             disabled={!canWrite || busy || Boolean(queueItem)}
           />
         </label>
-        <button
+        {!props.hideSubmit && <button
           className="primary-button acquisition-create-button"
           type="submit"
           disabled={
@@ -184,7 +185,7 @@ export function SampleAcquisitionForm(props: SampleAcquisitionFormProps) {
         >
           <TestTube2 size={15} />
           创建任务
-        </button>
+        </button>}
         {sampleKind !== 'preheat' && (
           <>
             <label className="field">

@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "release": "2026-10-24-spectrum-hover",
+  "completed_date": "2026-10-24",
+  "plan_sha256_at_start": "11538df6be9de36e3cc6680af9550c7fcf8b74316134005c337cf5036b1715c9",
+  "product_changes": [
+    "app/frontend/src/components/spectrum-inspector.css"
+  ],
+  "browser_checks": 6,
+  "desktop_checks": 6,
+  "layouts_each": 6,
+  "modes": [
+    "sample-acquisition",
+    "evaporation-acquisition",
+    "dispersion"
+  ],
+  "hover_frame_height_delta_css_px": 0,
+  "hover_width_viewbox_axes_ticks_and_curve_unchanged": true,
+  "hover_leave_lock_and_point_input_verified": true,
+  "horizontal_and_vertical_zoom_box_pan_and_reset_preserved": true,
+  "observation_writes": 0,
+  "isolated_test_data": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "backend_sources_and_binary_unchanged": true,
+  "user_database_hash_unchanged": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "1110d4ce8ad4dd9aef9c505a3df031c5cd6027c52e987f1cb7a9218d152c044f",
+    "geospectrum-backend.exe": "662fc5a0301340ee5d52592e17f133369058e9136e8a2df603fc6b9690ecb436"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-spectrum-hover\\previous",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-spectrum-hover\\qa\\GeoSpectrum.exe",
+    "pid": 35520,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_rebuilt": false
+}

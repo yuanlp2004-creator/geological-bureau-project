@@ -1,0 +1,3750 @@
+{
+  "status": "passed",
+  "checks": [
+    "样品参数区6px/12px、高级设置折叠保留草稿、创建任务通过",
+    "蒸发参数保存使用实际隔离API，无效输入阻止写入",
+    "蒸发参数区6px/12px、高级设置折叠保留草稿、创建任务通过",
+    "全部导航入口在明色大窗口及深色小窗口检查字段与按钮间距，展开高级采集设置"
+  ],
+  "layouts": [
+    {
+      "key": "workspace.overview",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "help.about",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.users",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.audit",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 19,
+      "overflow": 0
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 18,
+      "overflow": 0
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 12,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 3,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-results",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.spectra",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 4,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 8,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 4,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 10,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 19,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 2,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 11,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.raw",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 2,
+      "overflow": 0
+    },
+    {
+      "key": "help.offline",
+      "variant": null,
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "workspace.overview",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "help.about",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.users",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "system.audit",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 19,
+      "overflow": 0
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 18,
+      "overflow": 0
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 12,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 3,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "tools.legacy-results",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.spectra",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 4,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 8,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 4,
+      "overflow": 0
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 1,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 10,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 19,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 2,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 11,
+      "overflow": 0
+    },
+    {
+      "key": "analysis-tests.raw",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 7,
+      "overflow": 0
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 6,
+      "overflow": 0
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 2,
+      "overflow": 0
+    },
+    {
+      "key": "help.offline",
+      "variant": null,
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "fields": 0,
+      "overflow": 0
+    },
+    {
+      "kind": "sample",
+      "parameterSpacing": {
+        "row": "12px",
+        "labels": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "advanced": [
+          {
+            "margin": "0px",
+            "gap": "12px"
+          },
+          {
+            "margin": "0px",
+            "gap": "12px"
+          }
+        ],
+        "save": null
+      }
+    },
+    {
+      "kind": "evaporation",
+      "parameterSpacing": {
+        "row": "12px",
+        "labels": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "advanced": [
+          {
+            "margin": "0px",
+            "gap": "12px"
+          },
+          {
+            "margin": "0px",
+            "gap": "12px"
+          }
+        ],
+        "save": {
+          "column": "1 / -1",
+          "left": 0
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "fields": [
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "备份目录",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid",
+      "width": 1096
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "界面主题",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid settings-display-fields",
+      "width": 355.33
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "信息密度",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid settings-display-fields",
+      "width": 355.33
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "日志级别",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 263.5
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "日志保留天数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 263.5
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "日志上限（字节）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 263.5
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "light",
+      "label": "时区",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 263.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "方法名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 333.89
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "说明",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "method-field-grid",
+      "width": 620.11
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "色散曲线",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "method-field-grid",
+      "width": 519
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "基线波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "实际基线波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "扫描宽度",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "基线偏移",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "分析单位",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "预激时间 (s)",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "采样周期 (s)",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 253.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "转角 (°)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-angle-entry",
+      "width": 166
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "存储方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-angle-entry",
+      "width": 283
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "普通样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 154.42
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "标准样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 154.42
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "管理样",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 154.42
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "重复摄谱最大允许误差[^P]",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 178.58
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "light",
+      "label": "最大允许Rsd[%]",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 178.58
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "谱线类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "元素",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "理论波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "实际波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "定位谱线",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "内标谱线",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 394
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "扫描点数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "背景位置",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.67
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "峰值方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "计算点数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "拟合方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.67
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "单位",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "小数位数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.67
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "最低峰值",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "最小倍数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 258.66
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "优先级",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 257.33
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "有效下限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 257.33
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "light",
+      "label": "有效上限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 257.34
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "打印机",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "print-setting-grid",
+      "width": 542.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "纸张",
+      "gap": 6,
+      "field": "field print-paper-field",
+      "parent": "print-setting-grid",
+      "width": 542.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "方向",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 265.75
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "版式",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 265.75
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "字体大小 (pt)",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 265.75
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "报告每行元素数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "报告每页样品数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "报告时间",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "上边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "右边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "下边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "light",
+      "label": "左边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "light",
+      "label": "方法库 · DIRECT.MTD",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 1096
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "light",
+      "label": "设备配置 · DIRECT.CFG",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 1096
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "light",
+      "label": "软件选项 · DIRECT.OPT",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 1096
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "选择样品队列",
+      "gap": 6,
+      "field": "field",
+      "parent": "queue-context-controls",
+      "width": 640.16
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "样号长度",
+      "gap": 6,
+      "field": "field small-field",
+      "parent": "sample-entry-fields",
+      "width": 120
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "队列名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-fields",
+      "width": 404
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "样品名",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-fields",
+      "width": 404
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "重复次数",
+      "gap": 6,
+      "field": "field small-field",
+      "parent": "sample-entry-fields",
+      "width": 120
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "light",
+      "label": "SAM 编码",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-actions",
+      "width": 301
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "variant": null,
+      "theme": "light",
+      "label": "谱文件路径",
+      "gap": 6,
+      "field": "field",
+      "parent": "surface migration-source-surface",
+      "width": 1096
+    },
+    {
+      "key": "tools.legacy-results",
+      "variant": null,
+      "theme": "light",
+      "label": "文件路径",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-path-form",
+      "width": 981
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "light",
+      "label": "空白传输时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "light",
+      "label": "谱带观察等待 (ms)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "light",
+      "label": "屏幕物理宽度 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "light",
+      "label": "屏幕水平分辨率 (px)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field device-profile-select",
+      "parent": "surface device-parameter-form",
+      "width": 1096
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "档案名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "设备类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "串口号 COM",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "波特率",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "CCD 安装插槽",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "CCD 点宽 (μm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "light",
+      "label": "保护时间 (ms)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 540
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "light",
+      "label": "待连接设备档案",
+      "gap": 6,
+      "field": "field device-profile-picker",
+      "parent": "device-connection-grid",
+      "width": 644
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "light",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "debug-toolbar",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "light",
+      "label": "模拟样本",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "advanced-field-grid",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "light",
+      "label": "随机种子",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "advanced-field-grid",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "会话名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 206.39
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 206.41
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 206.39
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "稳定帧数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 1095.98
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "模拟峰偏移（点）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 540.98
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "light",
+      "label": "故障脚本",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 541
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "数据来源",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "采样周期（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "light",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "surface-heading",
+      "width": 160
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "采样周期 (秒)",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "倒计时（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "模拟帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "light",
+      "label": "种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "已发布方法版本",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "样品队列",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "临时样号",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "样品类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "重复次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "存储设置来源",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "样号长度",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "保存模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "采样周期 (秒)",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "激发参数与默认次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "倒计时（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 252
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "模拟帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "light",
+      "label": "种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 122
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field",
+      "parent": "evaporation-curve-toolbar",
+      "width": 150
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "theme": "light",
+      "label": "曲线数据",
+      "gap": 6,
+      "field": "field",
+      "parent": "evaporation-curve-toolbar",
+      "width": 150
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "方法转角区间",
+      "gap": 6,
+      "field": "field",
+      "parent": "surface hardware-create",
+      "width": 1096
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 206.39
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 206.41
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 206.39
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "执行策略",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 206.41
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "异常策略",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 540.98
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "重试上限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 541
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "转角计划 JSON",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "advanced-settings-body",
+      "width": 1095.98
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "模拟样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 207.98
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "随机种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 208
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "light",
+      "label": "模拟异常脚本 JSON",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "advanced-field-grid",
+      "width": 1095.98
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "转换存储模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 256.75
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "CCD 索引",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 256.75
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "起始帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 256.75
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "结束帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 256.75
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "目标 CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 256.75
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "方法版本",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-version-grid",
+      "width": 540
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "light",
+      "label": "计算模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-version-grid",
+      "width": 540
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "报告编号（可选）",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 354.66
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "报告模板",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 354.67
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "表格形式",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 354.66
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "样品筛选",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-filter-fields",
+      "width": 286.88
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "元素筛选",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-filter-fields",
+      "width": 286.88
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "light",
+      "label": "Windows 打印机",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-export-form",
+      "width": 1096
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "theme": "light",
+      "label": "备份目录",
+      "gap": 6,
+      "field": "field maintenance-backup-directory",
+      "parent": "maintenance-task-content",
+      "width": 680
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "theme": "light",
+      "label": "保留天数",
+      "gap": 6,
+      "field": "field maintenance-log-settings",
+      "parent": "maintenance-task-content",
+      "width": 120
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "备份目录",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid",
+      "width": 779
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "界面主题",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid settings-display-fields",
+      "width": 384.5
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "信息密度",
+      "gap": 6,
+      "field": "field",
+      "parent": "field-grid settings-display-fields",
+      "width": 384.5
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "日志级别",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "日志保留天数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "日志上限（字节）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "system.settings",
+      "variant": null,
+      "theme": "dark",
+      "label": "时区",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "方法名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 220.14
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "说明",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "method-field-grid",
+      "width": 408.84
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "色散曲线",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "method-field-grid",
+      "width": 360.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "基线波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "实际基线波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "扫描宽度",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "基线偏移",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "分析单位",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-field-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "预激时间 (s)",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样周期 (s)",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 174.25
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "转角 (°)",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-angle-entry",
+      "width": 166
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "存储方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "method-angle-entry",
+      "width": 120.5
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "普通样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 249
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "标准样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 249
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "管理样",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 249
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "重复摄谱最大允许误差[^P]",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 249
+    },
+    {
+      "key": "methods.lifecycle",
+      "variant": null,
+      "theme": "dark",
+      "label": "最大允许Rsd[%]",
+      "gap": 6,
+      "field": "field",
+      "parent": "numeric-grid",
+      "width": 249
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "谱线类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "元素",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "理论波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "实际波长 (nm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "定位谱线",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "内标谱线",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "扫描点数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "背景位置",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "峰值方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "计算点数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "拟合方式",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "单位",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "小数位数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "最低峰值",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "最小倍数",
+      "gap": 6,
+      "field": "field",
+      "parent": "spectral-form-grid dense",
+      "width": 251.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "优先级",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 250.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "有效下限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 250.5
+    },
+    {
+      "key": "methods.lines",
+      "variant": null,
+      "theme": "dark",
+      "label": "有效上限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 250.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "打印机",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "print-setting-grid",
+      "width": 380
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "纸张",
+      "gap": 6,
+      "field": "field print-paper-field",
+      "parent": "print-setting-grid",
+      "width": 380
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "方向",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 184.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "版式",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 184.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "字体大小 (pt)",
+      "gap": 6,
+      "field": "field",
+      "parent": "print-setting-grid",
+      "width": 184.5
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "报告每行元素数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "报告每页样品数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "报告时间",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "上边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "右边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "下边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "methods.print-preview",
+      "variant": null,
+      "theme": "dark",
+      "label": "左边距 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 182.25
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "dark",
+      "label": "方法库 · DIRECT.MTD",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 779
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "dark",
+      "label": "设备配置 · DIRECT.CFG",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 779
+    },
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "dark",
+      "label": "软件选项 · DIRECT.OPT",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-paths",
+      "width": 779
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "选择样品队列",
+      "gap": 6,
+      "field": "field",
+      "parent": "queue-context-controls",
+      "width": 323.16
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "样号长度",
+      "gap": 6,
+      "field": "field small-field",
+      "parent": "sample-entry-fields",
+      "width": 120
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "队列名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-fields",
+      "width": 245.5
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "样品名",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-fields",
+      "width": 245.5
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "重复次数",
+      "gap": 6,
+      "field": "field small-field",
+      "parent": "sample-entry-fields",
+      "width": 120
+    },
+    {
+      "key": "analysis-tests.samples",
+      "variant": null,
+      "theme": "dark",
+      "label": "SAM 编码",
+      "gap": 6,
+      "field": "field",
+      "parent": "sample-entry-actions",
+      "width": 301
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "variant": null,
+      "theme": "dark",
+      "label": "谱文件路径",
+      "gap": 6,
+      "field": "field",
+      "parent": "surface migration-source-surface",
+      "width": 779
+    },
+    {
+      "key": "tools.legacy-results",
+      "variant": null,
+      "theme": "dark",
+      "label": "文件路径",
+      "gap": 6,
+      "field": "field",
+      "parent": "migration-path-form",
+      "width": 664
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "dark",
+      "label": "空白传输时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "dark",
+      "label": "谱带观察等待 (ms)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "dark",
+      "label": "屏幕物理宽度 (mm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "软件参数",
+      "theme": "dark",
+      "label": "屏幕水平分辨率 (px)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field device-profile-select",
+      "parent": "surface device-parameter-form",
+      "width": 779
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "档案名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "设备类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "串口号 COM",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "波特率",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "CCD 安装插槽",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "CCD 点宽 (μm)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "设备参数",
+      "theme": "dark",
+      "label": "保护时间 (ms)",
+      "gap": 6,
+      "field": "field",
+      "parent": "device-parameter-grid",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "dark",
+      "label": "待连接设备档案",
+      "gap": 6,
+      "field": "field device-profile-picker",
+      "parent": "device-connection-grid",
+      "width": 779
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "dark",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "debug-toolbar",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "dark",
+      "label": "模拟样本",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "advanced-field-grid",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "调试对中",
+      "theme": "dark",
+      "label": "随机种子",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "advanced-field-grid",
+      "width": 160
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "会话名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "mercury-form",
+      "width": 381.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "稳定帧数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 779
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "模拟峰偏移（点）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 382.5
+    },
+    {
+      "key": "tools.devices",
+      "variant": "汞灯调试",
+      "theme": "dark",
+      "label": "故障脚本",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 382.5
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "数据来源",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-source-grid",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样周期（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "variant": null,
+      "theme": "dark",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "dispersion-number-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field compact-field",
+      "parent": "surface-heading",
+      "width": 160
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样周期 (秒)",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "倒计时（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "模拟帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "variant": null,
+      "theme": "dark",
+      "label": "种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "已发布方法版本",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "样品队列",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "临时样号",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "样品类型",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "重复次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "存储设置来源",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "样号长度",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "保存模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "空白次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "预激时间（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "采样周期 (秒)",
+      "gap": 6,
+      "field": "field",
+      "parent": "acquisition-form",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "激发参数与默认次数",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "倒计时（秒）",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-settings-body",
+      "width": 224
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "模拟帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "label": "种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 108
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD",
+      "gap": 6,
+      "field": "field",
+      "parent": "evaporation-curve-toolbar",
+      "width": 150
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "variant": null,
+      "theme": "dark",
+      "label": "曲线数据",
+      "gap": 6,
+      "field": "field",
+      "parent": "evaporation-curve-toolbar",
+      "width": 150
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "方法转角区间",
+      "gap": 6,
+      "field": "field",
+      "parent": "surface hardware-create",
+      "width": 779
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "任务名称",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 381.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "设备档案",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 381.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 381.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "执行策略",
+      "gap": 6,
+      "field": "field",
+      "parent": "hardware-form",
+      "width": 381.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "异常策略",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 382.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "重试上限",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 382.5
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "转角计划 JSON",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "advanced-settings-body",
+      "width": 779
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "模拟样品",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "随机种子",
+      "gap": 6,
+      "field": "field",
+      "parent": "advanced-field-grid",
+      "width": 184.25
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "variant": null,
+      "theme": "dark",
+      "label": "模拟异常脚本 JSON",
+      "gap": 6,
+      "field": "field span-2",
+      "parent": "advanced-field-grid",
+      "width": 779
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "转换存储模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 745
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "CCD 索引",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 745
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "起始帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 745
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "结束帧",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 745
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "目标 CCD 布局",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-interval-grid",
+      "width": 745
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "方法版本",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-version-grid",
+      "width": 779
+    },
+    {
+      "key": "data.recalculate",
+      "variant": null,
+      "theme": "dark",
+      "label": "计算模式",
+      "gap": 6,
+      "field": "field",
+      "parent": "postprocessing-version-grid",
+      "width": 779
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "报告编号（可选）",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 249
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "报告模板",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 249
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "表格形式",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-format-fields",
+      "width": 249
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "样品筛选",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-filter-fields",
+      "width": 249
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "元素筛选",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-filter-fields",
+      "width": 249
+    },
+    {
+      "key": "data.reports",
+      "variant": null,
+      "theme": "dark",
+      "label": "Windows 打印机",
+      "gap": 6,
+      "field": "field",
+      "parent": "report-export-form",
+      "width": 779
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "theme": "dark",
+      "label": "备份目录",
+      "gap": 6,
+      "field": "field maintenance-backup-directory",
+      "parent": "maintenance-task-content",
+      "width": 639
+    },
+    {
+      "key": "system.maintenance",
+      "variant": null,
+      "theme": "dark",
+      "label": "保留天数",
+      "gap": 6,
+      "field": "field maintenance-log-settings",
+      "parent": "maintenance-task-content",
+      "width": 120
+    }
+  ],
+  "closeButtons": [
+    {
+      "key": "tools.legacy-methods",
+      "variant": null,
+      "theme": "light",
+      "button": "DIRECT.MTD + CFG + OPT0.32 MBC:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin",
+      "gap": 2.59,
+      "parent": "legacy-source-list"
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "button": "纵向放大",
+      "gap": 4,
+      "parent": "inspector-tools"
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "variant": null,
+      "theme": "dark",
+      "button": "纵向缩小",
+      "gap": 4,
+      "parent": "inspector-tools"
+    }
+  ]
+}

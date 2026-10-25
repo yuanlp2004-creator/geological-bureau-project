@@ -180,16 +180,18 @@ export async function checkRequestRaces(page, checks) {
       burn_frame_count: 3,
       pre_excitation_seconds: 0
     })
-    r.taskA = await r.api.startAcquisitionTask(r.props.token, a.id)
+    r.startedA = await r.api.startAcquisitionTask(r.props.token, a.id)
+    r.taskA = a
     r.taskB = b
     r.api.acquisitionTasks = async () => [r.taskA, r.taskB]
     r.api.acquisitionTask = async (_token, id) => id === r.taskA.id ? r.taskA : r.taskB
+    r.api.startAcquisitionTask = async () => r.startedA
     r.api.stepAcquisitionTask = (_token, id) => r.defer(`step-${id}`)
     r.root.render(r.React.createElement(EvaporationAcquisitionPage, r.props))
   })
   await host.getByRole('button', { name: /RACE-TASK-B/ }).waitFor()
   // The current workbench keeps the running task selected until its command settles.
-  await host.getByRole('button', { name: /单步/ }).click()
+  await host.getByRole('button', { name: '试样摄谱', exact: true }).click()
   await page.waitForFunction(() => !!window.__race.pending[`step-${window.__race.taskA.id}`])
   assert.equal(await host.getByRole('button', { name: /RACE-TASK-B/ }).isDisabled(), true)
   await page.evaluate(() => {
@@ -199,27 +201,10 @@ export async function checkRequestRaces(page, checks) {
   })
   await host.getByRole('button', { name: /RACE-TASK-B/ }).click()
   assert.match(await host.locator('button.active').filter({ hasText: 'RACE-TASK-B' }).innerText(), /RACE-TASK-B/)
-  checks.push('manual acquisition locks task selection in flight and unlocks after completion')
-  await page.evaluate(async () => {
-    const r = window.__race
-    delete r.pending[`step-${r.taskA.id}`]
-    r.taskA = await r.originals.acquisitionTask(r.props.token, r.taskA.id)
-    const { EvaporationAcquisitionPage } = await import('/src/pages/acquisition/EvaporationAcquisitionPage.tsx')
-    r.root.render(r.React.createElement(EvaporationAcquisitionPage, { ...r.props, key: 'automatic-race' }))
-  })
-  await host.getByRole('button', { name: /RACE-TASK-A/ }).click()
-  await host.getByRole('button', { name: '连续采集', exact: true }).click()
-  await page.waitForFunction(() => !!window.__race.pending[`step-${window.__race.taskA.id}`])
-  assert.equal(await host.getByRole('button', { name: /RACE-TASK-B/ }).isDisabled(), true)
-  await page.evaluate(() => {
-    const r = window.__race
-    r.taskA = { ...r.taskA, status: 'completed', completed_repeats: 1 }
-    r.pending[`step-${r.taskA.id}`](r.taskA)
-  })
-  await host.getByRole('button', { name: /RACE-TASK-B/ }).click()
   assert.equal(await host.locator('button.active').filter({ hasText: 'RACE-TASK-B' }).count(), 1)
-  assert.equal(await host.getByRole('button', { name: '停止连续', exact: true }).count(), 0)
-  checks.push('automatic acquisition locks selection until completion, stops its timer and allows the next task')
+  for (const label of ['单步', '连续采集', '停止连续'])
+    assert.equal(await host.getByRole('button', { name: label, exact: true }).count(), 0)
+  checks.push('one-click acquisition locks selection until completion, stops its timer and allows the next task')
   await page.evaluate(() => {
     const r = window.__race
     r.root.unmount()

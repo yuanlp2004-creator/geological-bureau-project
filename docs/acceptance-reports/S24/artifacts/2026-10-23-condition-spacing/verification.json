@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "release": "2026-10-23-condition-spacing",
+  "completed_date": "2026-10-24",
+  "plan_sha256_at_start": "81057092ca6ea907c28fb47aa47f99471d06a460b4a9ca8984c61c4e8462936c",
+  "product_changes": [
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css"
+  ],
+  "label_control_gap_css_px": 6,
+  "vertical_group_and_action_gap_css_px": 12,
+  "browser_checks": 3,
+  "desktop_checks": 3,
+  "layouts_each": 4,
+  "save_and_create_on_isolated_database": true,
+  "failed_save_draft_and_retry_checked": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "backend_sources_and_binary_unchanged": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "7db0628a335844073aa17e76ea6d95aa29e335acaa8afadf2d169e77b36abce1",
+    "geospectrum-backend.exe": "662fc5a0301340ee5d52592e17f133369058e9136e8a2df603fc6b9690ecb436"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-23-condition-spacing\\previous",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-23-condition-spacing\\qa\\GeoSpectrum.exe",
+    "pid": 33188,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_rebuilt": false
+}

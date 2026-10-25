@@ -104,6 +104,19 @@ def start_dispersion_task(
         raise dispersion_error(exc) from exc
 
 
+@router.post("/api/v1/dispersion/tasks/{task_id}/preheat", tags=["dispersion"])
+def preheat_dispersion_task(
+    task_id: int,
+    session: Session = Depends(require_permission("dispersion.execute")),
+    _: Session = Depends(require_permission("dispersion.write")),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
+    try:
+        return runtime.messages.task(runtime.dispersion_service().preheat_task(task_id, session.user_id), source='dispersion', category='acquisition')
+    except DispersionError as exc:
+        raise dispersion_error(exc) from exc
+
+
 @router.post("/api/v1/dispersion/tasks/{task_id}/step", tags=["dispersion"])
 def step_dispersion_task(
     task_id: int,

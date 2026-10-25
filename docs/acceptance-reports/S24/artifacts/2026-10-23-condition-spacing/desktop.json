@@ -1,0 +1,139 @@
+{
+  "status": "passed",
+  "checks": [
+    "七个标签到控件均为6px；来源行、数字行、分组及两个操作间均为12px，四种布局无溢出",
+    "保存激发条件实际写入隔离库",
+    "保存失败保留草稿，重试及重载后沿用条件，新建任务按钮可用"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "labelGaps": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "sourceRows": [
+        12,
+        12
+      ],
+      "groupGap": 12,
+      "numberRow": 12,
+      "saveGap": 12,
+      "createGap": 12,
+      "leftDelta": 0,
+      "fieldWidths": [
+        122,
+        122,
+        122,
+        122
+      ],
+      "pageOverflow": 0,
+      "formOverflow": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "density": "compact",
+      "labelGaps": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "sourceRows": [
+        12,
+        12
+      ],
+      "groupGap": 12,
+      "numberRow": 12,
+      "saveGap": 12,
+      "createGap": 12,
+      "leftDelta": 0,
+      "fieldWidths": [
+        122,
+        122,
+        122,
+        122
+      ],
+      "pageOverflow": 0,
+      "formOverflow": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "density": "comfortable",
+      "labelGaps": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "sourceRows": [
+        12,
+        12
+      ],
+      "groupGap": 12,
+      "numberRow": 12,
+      "saveGap": 12,
+      "createGap": 12,
+      "leftDelta": 0,
+      "fieldWidths": [
+        108,
+        108,
+        108,
+        108
+      ],
+      "pageOverflow": 0,
+      "formOverflow": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "labelGaps": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "sourceRows": [
+        12,
+        12
+      ],
+      "groupGap": 12,
+      "numberRow": 12,
+      "saveGap": 12,
+      "createGap": 12,
+      "leftDelta": 0,
+      "fieldWidths": [
+        108,
+        108,
+        108,
+        108
+      ],
+      "pageOverflow": 0,
+      "formOverflow": 0
+    }
+  ],
+  "errors": []
+}

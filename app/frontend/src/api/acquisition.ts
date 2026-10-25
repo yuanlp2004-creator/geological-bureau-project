@@ -212,9 +212,13 @@ export const acquisitionApi = {
       headers: { Authorization: `Bearer ${token}` }
     }),
   stepAcquisitionTask: (token: string, taskId: number) =>
-    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step`, {
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step?single_repeat=true`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
+    }),
+  preheatAcquisitionTask: (token: string, taskId: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/preheat`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }
     }),
   pauseAcquisitionTask: (token: string, taskId: number) =>
     request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/pause`, {

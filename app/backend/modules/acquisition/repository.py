@@ -242,7 +242,7 @@ class AcquisitionRepository:
             sample_kind = _sample_kind(sample_name)
         elif task_kind == "evaporation":
             repeat_count = 1
-            sample_kind = "evaporation"
+            sample_kind = "preheat" if payload.get("sample_kind") == "preheat" else "evaporation"
             sample_name = str(payload.get("sample_name", "")).strip()
             naming_mode = "post" if not sample_name else naming_mode
             storage_mode = "full_interval"

@@ -15,6 +15,8 @@
   --ui-danger-bg: #fff2f1;
   --ui-space: 20px;
   --ui-control: 36px;
+  --ui-field-gap: 6px;
+  --ui-form-row-gap: 12px;
   --ink: var(--ui-text);
   --muted: var(--ui-muted);
   --line-strong: var(--ui-control-border);
@@ -141,6 +143,9 @@
 :root .app-shell .refined-page :is(.field > span, .toggle-row strong) {
   color: var(--ui-text);
   font-size: 13px;
+}
+:root .app-shell .refined-page .field > span {
+  margin-bottom: var(--ui-field-gap);
 }
 :root .app-shell .refined-page :is(input:not([type='checkbox']), select, textarea) {
   min-width: 0;

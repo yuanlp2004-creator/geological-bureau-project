@@ -1,18 +1,22 @@
 import { formatAnalysisValue } from '../../components/analysisUnits'
-import { Activity, AlertTriangle, CheckCircle2, ListChecks, RefreshCw } from 'lucide-react'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { AlertTriangle, CheckCircle2, ListChecks, RefreshCw } from 'lucide-react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { api, type AcquisitionOptions, type AcquisitionTask } from '../../api'
 import type { AcquisitionMeasurements } from '../../api/acquisition'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
-import { FormDisclosure, TaskLayout } from '../../layout/TaskLayout'
-import { Chevron, EMPTY_POINTS, Props, SAMPLE_OPTIONS, stateLabel } from './acquisitionView'
+import { PageFileActions } from '../../components/PageFileActions'
+import { EMPTY_POINTS, Props, SAMPLE_OPTIONS, stateLabel } from './acquisitionView'
 import { SampleAcquisitionForm, type SampleAcquisitionFormProps } from './SampleAcquisitionForm'
 import { EvaporationAcquisitionForm } from './EvaporationAcquisitionForm'
 import { SampleAcquisitionMonitor } from './SampleAcquisitionMonitor'
 import { SampleAcquisitionResults } from './SampleAcquisitionResults'
-import { useSpectroscopySession } from './spectroscopySession'
-export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind }: Props & {
+import { useSpectroscopySession, type SpectroscopyMode } from './spectroscopySession'
+import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
+import { SpectroscopyTaskList } from './SpectroscopyTaskList'
+export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange }: Props & {
   taskKind: AcquisitionTask['task_kind']
+  actionsTarget?: HTMLElement | null
+  onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
 }) {
   const isSample = taskKind === 'sample'
   const title = isSample ? '样品摄谱' : '蒸发摄谱'
@@ -21,23 +25,35 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const [tasks, setTasks] = useState<AcquisitionTask[]>([])
 
   const [selected, setSelected] = useState<AcquisitionTask | null>(null)
+  const [screen, setScreen] = useState<'tasks' | 'capture'>('tasks')
+  const [createOpen, setCreateOpen] = useState(false)
+  const createFormId = useId()
+  useLayoutEffect(() => {
+    onCaptureChange?.(isSample ? 'sample-acquisition' : 'evaporation-acquisition', screen === 'capture')
+  }, [isSample, screen, onCaptureChange])
 
   const [createError, setCreateError] = useState<string | null>(null)
 
   const [loading, setLoading] = useState(false)
 
   const [auto, setAuto] = useState(false)
+  const autoTask = useRef<number | null>(null)
 
   useEffect(() => {
     if (!canExecute) setAuto(false)
   }, [canExecute])
   const [busy, setBusy] = useState(false)
   const pageRef = useRef<HTMLDivElement>(null)
-  const runningTask = tasks.find((task) => !['draft', 'completed', 'failed', 'stopped'].includes(task.status))
+  const runningTask = tasks.find((task) => !['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(task.status))
   const embedded = useSpectroscopySession(isSample ? 'sample-acquisition' : 'evaporation-acquisition',
     runningTask ? `${title}任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
       : busy || loading ? `${title}操作尚未完成，请稍后切换摄谱方式。` : null)
-  const Heading = embedded ? 'h2' : 'h1'
+  useEffect(() => {
+    if (!runningTask) return
+    setSelected(current => current?.id === runningTask.id ? current : runningTask)
+    setScreen('capture')
+    setCreateOpen(false)
+  }, [runningTask])
 
   const busyRef = useRef(false)
 
@@ -47,7 +63,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
 
   useLayoutEffect(() => {
     selectionGeneration.current++
-    setAuto(false)
+    if (autoTask.current !== selected?.id) setAuto(false)
     return () => {
       selectionGeneration.current++
     }
@@ -259,7 +275,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       !auto ||
       !canExecute ||
       !selected ||
-      !['countdown', 'pre_excitation', 'burn', 'dark', 'between_repeats'].includes(selected.status)
+      !['countdown', 'pre_excitation', 'burn', 'dark'].includes(selected.status)
     )
       return
     const generation = selectionGeneration.current
@@ -270,6 +286,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       () => {
         if (
           cancelled ||
+          autoTask.current !== selected.id ||
           generation !== selectionGeneration.current ||
           busyRef.current ||
           controlPending.current
@@ -282,12 +299,16 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             if (cancelled || generation !== selectionGeneration.current) return
             setSelected(next)
             setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-            if (['completed', 'failed', 'stopped'].includes(next.status)) setAuto(false)
+            if (['between_repeats', 'completed', 'failed', 'stopped'].includes(next.status)) {
+              autoTask.current = null
+              setAuto(false)
+            }
           })
           .catch((error) => {
             if (cancelled || generation !== selectionGeneration.current) return
             setAuto(false)
-            onToast(error instanceof Error ? error.message : '连续采集失败')
+            autoTask.current = null
+            onToast(error instanceof Error ? error.message : '摄谱推进失败')
           })
           .finally(() => {
             busyRef.current = false
@@ -334,7 +355,10 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     ? `${selected.progress.toFixed(1)}% · ${selected.completed_repeats}/${selected.repeat_count} 重复`
     : '--'
 
-  const apply = async (action: 'start' | 'step' | 'pause' | 'resume' | 'stop') => {
+  const formalTask = selected?.sample_kind === 'preheat'
+    ? tasks.find((task) => task.id === selected.excitation_condition.preheat_source_task_id)
+    : selected
+  const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop') => {
     if (!selected) return
     if (controlPending.current) return onToast('当前采集控制操作尚未完成，请稍后再试')
     const automaticStep = pendingStep.current
@@ -342,7 +366,12 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       return onToast('当前采集操作尚未完成，请稍后再试')
     const generation = ++selectionGeneration.current
 
-    if (action !== 'step' && action !== 'stop' && !canExecute) return onToast('当前账户没有采集执行权限')
+    if (!canExecute) return onToast('当前账户没有采集执行权限')
+    if (action === 'preheat' && !canWrite) return onToast('当前账户没有采集写入权限')
+    if (action === 'pause' || action === 'stop') {
+      autoTask.current = null
+      setAuto(false)
+    }
     controlPending.current = true
     setBusy(true)
     try {
@@ -351,18 +380,24 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       busyRef.current = true
       const methods = {
         start: api.startAcquisitionTask,
-        step: api.stepAcquisitionTask,
+        preheat: api.preheatAcquisitionTask,
         pause: api.pauseAcquisitionTask,
         resume: api.resumeAcquisitionTask,
         stop: api.stopAcquisitionTask
       }
 
-      const next = await methods[action](token, selected.id)
+      const target = action === 'start' ? formalTask : selected
+      if (!target) return onToast('请先选择正式摄谱任务')
+      const next = await methods[action](token, target.id)
 
       if (generation !== selectionGeneration.current) return
       setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      if (action === 'stop' || ['completed', 'failed', 'stopped'].includes(next.status)) setAuto(false)
+      setTasks((current) => current.some((item) => item.id === next.id)
+        ? current.map((item) => (item.id === next.id ? next : item)) : [next, ...current])
+      const capture = ['start', 'preheat', 'resume'].includes(action)
+        && ['countdown', 'pre_excitation', 'burn', 'dark'].includes(next.status)
+      autoTask.current = capture ? next.id : null
+      setAuto(capture)
     } catch (error) {
       if (generation === selectionGeneration.current)
         onToast(error instanceof Error ? error.message : '采集控制失败')
@@ -417,6 +452,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       setTasks((current) => [next, ...current])
       setSelected(next)
       onToast('采集任务已创建')
+      setCreateOpen(false)
+      setScreen('capture')
     } catch (error) {
       setCreateError(error instanceof Error ? error.message : '创建采集任务失败')
       onToast(error instanceof Error ? error.message : '创建采集任务失败')
@@ -542,62 +579,36 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     <div
       ref={pageRef}
       className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} sample-acquisition-page refined-page remaining-page`}
-      data-testid={`${taskKind}-acquisition-page`}
+      data-testid={`${taskKind}-acquisition-page`} data-stage={screen}
     >
-      {!embedded && <section className="page-action-toolbar">
-        
-        <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} className={loading ? 'spin' : ''} />
-          刷新
-        </button>
-      </section>}
-      <TaskLayout
-        showEmptyRail
-        actions={embedded && <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} className={loading ? 'spin' : ''} />刷新
-        </button>}
-        className="sample-acquisition-grid"
-        hasItems={Boolean(tasks.length)}
-        current={
-          selected ? `${selected.name} · ${stateLabel[selected.status] ?? selected.status}` : '尚未选择'
-        }
-      >
-        <aside className="surface acquisition-task-list">
-          <div className="surface-heading">
-            <div>
-              <h2>
-                {isSample ? '样品任务' : '蒸发实验'} <span className="count-badge">{tasks.length}</span>
-              </h2>
-            </div>
-            <Activity size={17} />
-          </div>
-          {tasks.length === 0 ? (
-            <div className="empty-state">暂无{title}任务</div>
-          ) : (
-            <div className="acquisition-task-rows">
-              {tasks.map((item) => {
-                const metadata = `${item.task_kind === 'evaporation' ? '蒸发' : item.sample_name || '临时样品'} · ${stateLabel[item.status]}`
-
-                return (
-                  <button
-                    key={item.id}
-                    disabled={busy || Boolean(runningTask && runningTask.id !== item.id)}
-                    className={selected?.id === item.id ? 'active' : ''}
-                    onClick={() => setSelected(item)}
-                  >
-                    <span className={`task-state-dot ${item.status}`} />
-                    <span>
-                      <strong title={item.name}>{item.name}</strong>
-                      <small title={metadata}>{metadata}</small>
-                    </span>
-                    <Chevron item={item} />
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </aside>
-        <main className="sample-acquisition-main">
+      <PageFileActions target={actionsTarget}>
+        {screen === 'capture' ? <>
+          {isSample && selected?.status === 'completed' && canWrite && <button type="button" className="secondary-button"
+            disabled={busy || loading || Boolean(runningTask)} onClick={() => setCreateOpen(true)}>下一样品</button>}
+          <button type="button" className="secondary-button" disabled={busy || loading || Boolean(runningTask)}
+            onClick={() => { if (!runningTask && !busy) setScreen('tasks') }}>返回任务列表</button>
+        </> : <>
+          <button type="button" className="secondary-button" onClick={() => void load()} disabled={loading || busy}>
+            <RefreshCw size={15} className={loading ? 'spin' : ''} />刷新
+          </button>
+          <button type="button" className="primary-button" disabled={!canWrite || busy || loading || Boolean(runningTask)}
+            onClick={() => setCreateOpen(true)}>新建任务</button>
+        </>}
+      </PageFileActions>
+      <SpectroscopyTaskDialog open={createOpen} title={`建立${title}任务`} busy={busy || loading}
+        error={createError} onCancel={() => setCreateOpen(false)} actions={<button type="submit" form={createFormId} className="primary-button"
+          disabled={!canWrite || form.busy || !profileId || (isSample && (!methodKey || (Boolean(queueId) && !queueItemId)))}>创建任务</button>}>
+        {isSample ? <SampleAcquisitionForm {...form} formId={createFormId} hideSubmit /> : <EvaporationAcquisitionForm {...form} formId={createFormId} hideSubmit />}
+      </SpectroscopyTaskDialog>
+      {screen === 'tasks' && <SpectroscopyTaskList title={title} busy={busy || loading} runningId={runningTask?.id}
+        tasks={tasks.map(item => ({ id: item.id, name: item.name, status: stateLabel[item.status],
+          details: `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`,
+          completed: item.status === 'completed' }))}
+        onChoose={id => {
+          const task = tasks.find(item => item.id === id)
+          if (task && !busy && (!runningTask || runningTask.id === id)) { setSelected(task); setScreen('capture') }
+        }} />}
+      <main className="sample-acquisition-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>
           {queueProgressMessage && <p role="status" className="acquisition-management-note">{queueProgressMessage}</p>}
           <SampleAcquisitionMonitor
             setup={
@@ -606,17 +617,14 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
                   canWrite={canWrite} selected={selected} renameValue={renameValue} setRenameValue={setRenameValue}
                   rename={rename} nameLength={renameLength} setNameLength={setRenameLength} busy={busy}
                 />}
-                <FormDisclosure title={`建立${title}任务`} error={createError} hasItems={false} objectKey={selected?.id}>
-                  {isSample ? <SampleAcquisitionForm {...form} /> : <EvaporationAcquisitionForm {...form} />}
-                </FormDisclosure>
               </>
             }
             selected={selected}
             apply={apply}
             busy={busy}
             canExecute={canExecute && (!runningTask || selected?.id === runningTask.id)}
-            setAuto={setAuto}
-            auto={auto}
+            canStart={Boolean(formalTask && formalTask.sample_kind !== 'preheat' && ['draft', 'between_repeats'].includes(formalTask.status))}
+            canPreheat={canWrite && Boolean(selected && ['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(selected.status))}
             progressLabel={progressLabel}
             ccdIndex={ccdIndex}
             setCcdIndex={setCcdIndex}
@@ -712,7 +720,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             </section>
           )}
         </main>
-      </TaskLayout>
+
     </div>
   )
 }

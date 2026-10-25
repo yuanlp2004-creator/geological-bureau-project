@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "release": "2026-10-24-form-spacing",
+  "completed_date": "2026-10-24",
+  "plan_sha256_at_start": "206fc761c887ac6bcc7fe9e0add253079cbfc08ad808804e609d0f5f7f950176",
+  "product_changes": [
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/styles/remaining-pages.css",
+    "app/frontend/src/styles/visual-refinement.css"
+  ],
+  "label_control_gap_css_px": 6,
+  "vertical_group_and_action_gap_css_px": 12,
+  "browser_checks": 4,
+  "desktop_checks": 4,
+  "layouts_each": 58,
+  "navigation_entries": 25,
+  "device_debug_tabs": 4,
+  "browser_vertical_field_observations": 308,
+  "desktop_vertical_field_observations": 308,
+  "save_and_create_on_isolated_database": true,
+  "invalid_input_blocks_save": true,
+  "advanced_collapse_preserves_draft": true,
+  "evaporation_save_separate_row": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "backend_sources_and_binary_unchanged": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "qa_used_isolated_data": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "f41b54a8b7ce142b889811e5ba8d94c93898bce2098757e5cefe998bd8da6b6a",
+    "geospectrum-backend.exe": "662fc5a0301340ee5d52592e17f133369058e9136e8a2df603fc6b9690ecb436"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-form-spacing\\previous",
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-form-spacing\\qa\\GeoSpectrum.exe",
+    "pid": 31800,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "installer_rebuilt": false
+}

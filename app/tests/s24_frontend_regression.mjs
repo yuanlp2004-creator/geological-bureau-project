@@ -183,7 +183,7 @@ try {
   await form.waitFor({ state: 'hidden' })
   await page.getByRole('button', { name: '收起列表', exact: true }).click()
   assert.ok(!(await page.locator('.acquisition-task-list').isVisible()))
-  await page.getByRole('button', { name: '开始', exact: true }).click()
+  await page.getByRole('button', { name: '试样摄谱', exact: true }).click()
   await page
     .locator('.acquisition-monitor .state-chip')
     .filter({ hasText: /倒计时|预激发|燃烧/ })
@@ -193,11 +193,11 @@ try {
   await capture('sample-paused-collapsed')
   await page.getByRole('button', { name: '展开列表', exact: true }).click()
   await page.getByRole('button', { name: '继续', exact: true }).click()
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 160; i++) {
     task = await call(`/acquisitions/tasks/${task.id}`, undefined, 'GET')
     if (['completed', 'failed', 'stopped'].includes(task.status)) break
-    await page.getByRole('button', { name: '单步', exact: true }).click()
-    await page.waitForLoadState('networkidle')
+    if (task.status === 'between_repeats') await page.getByRole('button', { name: '试样摄谱', exact: true }).click()
+    await page.waitForTimeout(100)
   }
   assert.equal(task.status, 'completed')
   assert.equal(task.completed_repeats, 2)

@@ -132,6 +132,13 @@ class AcquisitionService:
     def _start(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         task, _, profile = self.repository._context(task_id)
         status = str(task["status"])
+        if status == AcquisitionState.BETWEEN_REPEATS.value:
+            try:
+                self._begin_next_repeat(task_id, actor_user_id)
+            except AcquisitionError as exc:
+                self._fail_task(task_id, exc.code, exc.message, actor_user_id)
+                raise
+            return self.repository._task_dict(task_id)
         if status in {
             state.value
             for state in (
@@ -212,7 +219,7 @@ class AcquisitionService:
                     "between_repeats",
                     int(task["current_repeat_index"]) + 1,
                     completed_repeats,
-                    "当前重复已完成，等待下一次采集",
+                    "本次摄谱已完成，请装样后再次点击试样摄谱",
                     utc_now(),
                     task_id,
                 ),
@@ -335,11 +342,11 @@ class AcquisitionService:
             self.repository._audit(db, actor_user_id, "acquisition.task.failed", task_id, {"code": code, "message": message})
         self._close_adapter(task_id)
 
-    def step(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def step(self, task_id: int, actor_user_id: int | None = None, *, single_repeat: bool = False) -> dict[str, Any]:
         with self._control_scope(task_id):
-            return self._step(task_id, actor_user_id)
+            return self._step(task_id, actor_user_id, single_repeat=single_repeat)
 
-    def _step(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def _step(self, task_id: int, actor_user_id: int | None = None, *, single_repeat: bool = False) -> dict[str, Any]:
         task, _, profile = self.repository._context(task_id)
         status = str(task["status"])
         if status == AcquisitionState.COUNTDOWN.value:
@@ -359,6 +366,8 @@ class AcquisitionService:
                 self.repository._message(db, task_id, "info", "task.countdown", "倒计时推进", {"remaining_seconds": remaining})
             return self.repository._task_dict(task_id)
         if status == AcquisitionState.BETWEEN_REPEATS.value:
+            if single_repeat:
+                return self.repository._task_dict(task_id)
             self._begin_next_repeat(task_id, actor_user_id)
             return self.repository._task_dict(task_id)
         if status not in {
@@ -599,6 +608,26 @@ class AcquisitionService:
 
     def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
         return self.repository.create_task(payload, actor_user_id)
+
+    def preheat(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        """Run one independent warm-up without consuming a formal sample or repeat."""
+        with self._control_scope(task_id):
+            source = self.repository._task_dict(task_id)
+            if source["status"] not in {"draft", "between_repeats", "completed", "failed", "stopped"}:
+                raise AcquisitionError("acquisition_task_busy", "当前摄谱尚未结束，不能预热", status_code=409)
+            parent_id = source["excitation_condition"].get("preheat_source_task_id", task_id)
+            payload = {key: source[key] for key in (
+                "task_kind", "device_profile_id", "ccd_layout_id", "ccd_indices", "method_id", "method_version",
+                "burn_frame_count", "dark_frame_count", "countdown_seconds", "pre_excitation_seconds",
+                "sampling_period_seconds", "burn_cycle_seconds", "dark_cycle_seconds",
+            )}
+            payload.update(name=f"预热 · {source['name']}"[:120], sample_name="预热样品", sample_kind="preheat",
+                           repeat_count=1, storage_mode="full_interval",
+                           excitation_conditions={"preheat_source_task_id": parent_id},
+                           simulator_sample=source["simulator"].get("sample", "280-288.acq"),
+                           seed=source["simulator"].get("seed", 0))
+            warmup = self.create_task(payload, actor_user_id)
+            return self.start(warmup["id"], actor_user_id)
 
     def frames(
         self,

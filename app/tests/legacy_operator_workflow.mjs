@@ -258,8 +258,13 @@ export async function checkLegacyOperators(page, fixture, result, output) {
 
   host = await go('sample-acquisition')
   await host.locator('.acquisition-task-rows button').filter({ hasText: 'Queue operator QA' }).click()
-  await host.getByRole('button', { name: '开始', exact: true }).click()
-  await host.getByRole('button', { name: '连续采集', exact: true }).click()
+  await host.getByRole('button', { name: '试样摄谱', exact: true }).click()
+  for (let attempt = 0; attempt < 160; attempt++) {
+    const current = (await call(page, '/api/v1/acquisitions/tasks')).find(item => item.queue_id === fixture.queue_id)
+    if (current.status === 'completed') break
+    if (current.status === 'between_repeats') await host.getByRole('button', { name: '试样摄谱', exact: true }).click()
+    await page.waitForTimeout(100)
+  }
   await host.getByText('已带出下一样号：QUEUEB，请创建任务后激发。', { exact: true }).waitFor({ timeout: 30000 })
   await openForm(host, '建立样品摄谱任务')
   assert.equal(await host.locator('label').filter({ has: page.getByText('预录样品', { exact: true }) }).locator('select').inputValue(), String(fixture.queue_item_ids[1]))

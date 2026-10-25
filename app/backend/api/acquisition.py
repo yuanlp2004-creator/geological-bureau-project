@@ -83,15 +83,29 @@ def start_acquisition_task(
         raise acquisition_error(exc) from exc
 
 
+@router.post("/api/v1/acquisitions/tasks/{task_id}/preheat", tags=["acquisition"])
+def preheat_acquisition_task(
+    task_id: int,
+    session: Session = Depends(require_permission("acquisition.execute")),
+    _: Session = Depends(require_permission("acquisition.write")),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
+    try:
+        return runtime.messages.task(runtime.acquisition_service().preheat(task_id, session.user_id), source='acquisition', category='acquisition')
+    except (AcquisitionError, SampleQueueError) as exc:
+        raise acquisition_error(exc) from exc
+
+
 @router.post("/api/v1/acquisitions/tasks/{task_id}/step", tags=["acquisition"])
 def step_acquisition_task(
     task_id: int,
+    single_repeat: bool = Query(default=False),
     session: Session = Depends(require_permission("acquisition.execute")),
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.acquisition_service().step(task_id, session.user_id), source='acquisition', category='acquisition')
+        return runtime.messages.task(runtime.acquisition_service().step(task_id, session.user_id, single_repeat=single_repeat), source='acquisition', category='acquisition')
     except (AcquisitionError, SampleQueueError) as exc:
         raise acquisition_error(exc) from exc
 

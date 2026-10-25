@@ -62,8 +62,12 @@ export async function checkAcquisitionSplit(page, checks, output) {
       assert.equal(response.status(), 200)
       current = await response.json()
     }
-    await control('开始', 'start'); await control('暂停', 'pause'); await control('继续', 'resume')
-    for (let i = 0; i < 8 && current.status !== 'completed'; i++) await control('单步', 'step')
+    await control('试样摄谱', 'start'); await control('暂停', 'pause'); await control('继续', 'resume')
+    for (let i = 0; i < 160 && current.status !== 'completed'; i++) {
+      current = await call(page, `/api/v1/acquisitions/tasks/${task.id}`)
+      if (current.status === 'between_repeats') await control('试样摄谱', 'start')
+      await page.waitForTimeout(100)
+    }
     assert.equal(current.status, 'completed'); assert.ok(current.result_sha256)
     await host.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
     return current

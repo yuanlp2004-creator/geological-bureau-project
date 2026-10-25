@@ -5,9 +5,16 @@
 .inspector-tools { margin-bottom: 12px; }
 .inspector-tools label, .inspector-readout label { display: flex; align-items: center; gap: 8px; }
 .inspector-tools select { width: auto; min-width: 120px; }
-.inspector-readout { margin-top: 8px; font-variant-numeric: tabular-nums; }
+.inspector-readout {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); flex: 0 0 auto;
+  margin-top: 8px; font-variant-numeric: tabular-nums;
+}
 .inspector-readout input { width: 100px; }
-.inspector-readout small { color: var(--muted); }
+/* Keep cursor text and range on separate rows so hovering cannot resize the plot. */
+.inspector-readout output, .inspector-readout > small {
+  min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.inspector-readout > small { grid-column: 1 / -1; color: var(--muted); }
 .spectrum-inspector .spectrum-plot {
   width: 100%; height: clamp(280px, 32vw, 380px); border: 1px solid var(--line);
   border-radius: 6px; background: var(--surface, var(--panel)); touch-action: none;

@@ -31,7 +31,7 @@ export const stateLabel: Record<string, string> = {
   pre_excitation: '预激发',
   burn: '燃烧',
   dark: '暗帧',
-  between_repeats: '下一重复',
+  between_repeats: '等待下次摄谱',
   paused: '已暂停',
   stopping: '停止中',
   completed: '已完成',

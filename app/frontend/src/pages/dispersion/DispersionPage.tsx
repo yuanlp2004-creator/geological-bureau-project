@@ -14,19 +14,32 @@ import {
   type MethodRecord
 } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
-import { FormDisclosure, TaskLayout } from '../../layout/TaskLayout'
+import { TaskLayout } from '../../layout/TaskLayout'
 import { DispersionCalibration } from './DispersionCalibration'
 import { DispersionLines } from './DispersionLines'
 import { DispersionMonitor } from './DispersionMonitor'
 import { DispersionSetup } from './DispersionSetup'
 import { Props, runningStates, statusLabels } from './dispersionView'
-import { useSpectroscopySession } from '../acquisition/spectroscopySession'
+import { useSpectroscopySession, type SpectroscopyMode } from '../acquisition/spectroscopySession'
+import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
+import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
 
-export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTarget, view = 'capture' }: Props & { actionsTarget?: HTMLElement | null; view?: 'capture' | 'curve' }) {
+export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, onToast, actionsTarget, onCaptureChange, view = 'capture' }: Props & {
+  actionsTarget?: HTMLElement | null
+  onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
+  canReadMethods?: boolean
+  view?: 'capture' | 'curve'
+}) {
   const [options, setOptions] = useState<DispersionOptions | null>(null)
   const [tasks, setTasks] = useState<DispersionTask[]>([])
   const [methods, setMethods] = useState<MethodRecord[]>([])
   const [active, setActive] = useState<DispersionTask | null>(null)
+  const [screen, setScreen] = useState<'tasks' | 'capture'>('tasks')
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  useLayoutEffect(() => {
+    onCaptureChange?.('dispersion', view === 'capture' && screen === 'capture')
+  }, [view, screen, onCaptureChange])
   const [profileId, setProfileId] = useState<number | null>(null)
   const [layoutId, setLayoutId] = useState<number | null>(null)
   const [legacySource, setLegacySource] = useState('')
@@ -53,7 +66,12 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
   const embedded = useSpectroscopySession('dispersion', runningTask
     ? `色散摄谱任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
     : busy ? '色散摄谱操作尚未完成，请稍后切换摄谱方式。' : null)
-  const Heading = embedded ? 'h2' : 'h1'
+  useEffect(() => {
+    if (view !== 'capture' || !runningTask) return
+    setActive(current => current?.id === runningTask.id ? current : runningTask)
+    setScreen('capture')
+    setCreateOpen(false)
+  }, [runningTask, view])
 
   const generation = useRef(0)
   const mounted = useRef(false)
@@ -131,7 +149,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
       const [nextOptions, nextTasks, nextMethods] = await Promise.all([
         api.dispersionOptions(token),
         api.dispersionTasks(token),
-        api.methods(token)
+        view === 'curve' && canReadMethods ? api.methods(token) : Promise.resolve([])
       ])
       if (!valid()) return
       if (!defaultsLoaded.current && nextOptions.preliminary_defaults) {
@@ -141,9 +159,10 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
         setFrameCount(saved.frame_count); setDarkFrameCount(saved.dark_frame_count)
       }
       setOptions(nextOptions)
-      setTasks(nextTasks)
+      const visibleTasks = view === 'curve' ? nextTasks.filter((task) => !task.condition.preheat) : nextTasks
+      setTasks(visibleTasks)
       setActive((current) =>
-        current ? (nextTasks.find((item) => item.id === current.id) ?? nextTasks[0] ?? null) : (nextTasks[0] ?? null)
+        current ? (visibleTasks.find((item) => item.id === current.id) ?? visibleTasks[0] ?? null) : (visibleTasks[0] ?? null)
       )
       setMethods(nextMethods.filter((item) => item.current_version !== null && item.status !== 'deleted'))
       setProfileId((current) => current ?? nextOptions.device_profiles[0]?.id ?? null)
@@ -154,7 +173,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
     } finally {
       if (valid()) setBusy(false)
     }
-  }, [onToast, token])
+  }, [canReadMethods, onToast, token, view])
 
   useEffect(() => {
     void load()
@@ -191,7 +210,8 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
     if (!canWrite || profileId === null || layoutId === null) return
     if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid')))
       return onToast('请先修正采集参数')
-    await perform(
+    setCreateError(null)
+    const created = await perform(
       () =>
         api.createDispersionTask(token, {
           name: `色散采集 ${new Date().toLocaleTimeString('zh-CN')}`,
@@ -207,11 +227,21 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
         }),
       '色散任务已创建'
     )
+    if (created) { setCreateOpen(false); setScreen('capture') }
+    else setCreateError('任务未创建，参数已保留，请检查错误提示后重试。')
   }
+  const formalTask = active?.condition.preheat
+    ? tasks.find((task) => task.id === active.condition.preheat_source_task_id) : active
   const start = async () => {
-    if (!active || !canExecute) return
+    if (!formalTask || !canExecute) return
     stopIntent.current = false
-    const next = await perform(() => api.startDispersionTask(token, active.id), '采集已开始')
+    const next = await perform(() => api.startDispersionTask(token, formalTask.id), '试样摄谱已开始')
+    if (next && !stopIntent.current) setAutoRun(true)
+  }
+  const preheat = async () => {
+    if (!active || !canExecute || !canWrite) return
+    stopIntent.current = false
+    const next = await perform(() => api.preheatDispersionTask(token, active.id), '预热摄谱已开始')
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const resume = async () => {
@@ -240,7 +270,6 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
   }
   const pause = () => halt('pause')
   const stop = () => halt('stop')
-  const step = () => active && perform(() => api.stepDispersionTask(token, active.id))
   const change = (work: (id: number) => Promise<unknown>, message = '') => {
     if (!active || !canWrite) return
     const id = active.id
@@ -282,6 +311,15 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
     )
   }
 
+  const monitor = <DispersionMonitor view={view} active={active} start={start} preheat={preheat}
+            canStart={Boolean(formalTask && !formalTask.condition.preheat && formalTask.status === 'draft')}
+            canPreheat={canWrite && Boolean(active && ['draft', 'completed', 'failed', 'stopped'].includes(active.status))}
+            canExecute={canExecute && (!runningTask || active?.id === runningTask.id)} pause={pause} resume={resume}
+            busy={busy} stop={stop} selectedCcd={selectedCcd} setSelectedCcd={setSelectedCcd}
+            currentCcd={currentCcd} lockedPoint={lockedPoint} manualLine={manualLine} setManualLine={setManualLine}
+            canWrite={canWrite} change={change} token={token} setLockedPoint={setLockedPoint}
+            />
+
   const fileActions = <PageFileActions target={actionsTarget}>
         {view === 'curve' && <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="dispersion" label="打开色散文件" disabled={busy || Boolean(runningTask)} onOpened={async result => {
         await load()
@@ -292,6 +330,36 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
           刷新
         </button>
       </PageFileActions>
+
+  if (view === 'capture') return <div className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} dispersion-page refined-page remaining-page`}
+    data-testid="dispersion-page" data-view={view} data-stage={screen}>
+    <PageFileActions target={actionsTarget}>
+      {screen === 'capture' ? <button type="button" className="secondary-button" disabled={busy || Boolean(runningTask)}
+        onClick={() => { if (!runningTask && !busy) setScreen('tasks') }}>返回任务列表</button> : <>
+        <button type="button" className="secondary-button" disabled={busy} onClick={() => void load()}><RefreshCw size={15} />刷新</button>
+        <button type="button" className="primary-button" disabled={!canWrite || busy || Boolean(runningTask)}
+          onClick={() => setCreateOpen(true)}>新建任务</button>
+      </>}
+    </PageFileActions>
+    <SpectroscopyTaskDialog open={createOpen} title="建立色散摄谱任务" busy={busy} error={createError} onCancel={() => setCreateOpen(false)}
+      actions={<button type="button" className="primary-button" disabled={!canWrite || busy || profileId === null || layoutId === null}
+        onClick={() => void createTask()}>新建任务</button>}>
+      <DispersionSetup legacySource={legacySource} setLegacySource={setLegacySource} options={options}
+        profileId={profileId} setProfileId={setProfileId} layoutId={layoutId} setLayoutId={setLayoutId}
+        preSeconds={preSeconds} setPreSeconds={setPreSeconds} samplingPeriod={samplingPeriod} setSamplingPeriod={setSamplingPeriod}
+        frameCount={frameCount} setFrameCount={setFrameCount} darkFrameCount={darkFrameCount} setDarkFrameCount={setDarkFrameCount}
+        createTask={createTask} saveConditions={saveConditions} canWrite={canWrite && !busy && !runningTask} busy={busy} hideSubmit />
+    </SpectroscopyTaskDialog>
+    {screen === 'tasks' && <SpectroscopyTaskList title="色散摄谱" busy={busy} runningId={runningTask?.id}
+      tasks={tasks.map(task => ({ id: task.id, name: task.name, status: statusLabels[task.status],
+        details: `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`,
+        completed: task.status === 'completed' }))}
+      onChoose={id => {
+        const task = tasks.find(item => item.id === id)
+        if (task && !busy && (!runningTask || runningTask.id === id)) { void choose(task); setScreen('capture') }
+      }} />}
+    <main className="dispersion-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>{monitor}</main>
+  </div>
 
   return (
     <div className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} dispersion-page refined-page remaining-page`} data-testid="dispersion-page" data-view={view}>
@@ -324,17 +392,7 @@ export function DispersionPage({ token, canWrite, canExecute, onToast, actionsTa
           </div>
         </aside>
         <main className="dispersion-main">
-          <DispersionMonitor view={view} setup={view === 'capture' && <FormDisclosure title="新建任务与采集条件" hasItems={false} objectKey={active?.id}>
-            <DispersionSetup legacySource={legacySource} setLegacySource={setLegacySource} options={options}
-              profileId={profileId} setProfileId={setProfileId} layoutId={layoutId} setLayoutId={setLayoutId}
-              preSeconds={preSeconds} setPreSeconds={setPreSeconds} samplingPeriod={samplingPeriod} setSamplingPeriod={setSamplingPeriod}
-              frameCount={frameCount} setFrameCount={setFrameCount} darkFrameCount={darkFrameCount} setDarkFrameCount={setDarkFrameCount}
-              createTask={createTask} saveConditions={saveConditions} canWrite={canWrite && !busy && !runningTask} busy={busy} />
-          </FormDisclosure>} active={active} start={start} canExecute={canExecute && (!runningTask || active?.id === runningTask.id)} pause={pause} resume={resume}
-            step={step} busy={busy} stop={stop} selectedCcd={selectedCcd} setSelectedCcd={setSelectedCcd}
-            currentCcd={currentCcd} lockedPoint={lockedPoint} manualLine={manualLine} setManualLine={setManualLine}
-            canWrite={canWrite} change={change} token={token} setLockedPoint={setLockedPoint}
-            autoRun={autoRun} setAutoRun={setAutoRun} />
+          {monitor}
       {view === 'curve' && <section className="surface spectroscopy-calibration-versions">
         <h2>色散曲线版本管理</h2>
         {active?.calibrations.map((calibration) => (

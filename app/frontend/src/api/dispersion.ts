@@ -188,6 +188,10 @@ export const dispersionApi = {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     }),
+  preheatDispersionTask: (token: string, taskId: number) =>
+    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/preheat`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }
+    }),
   pauseDispersionTask: (token: string, taskId: number) =>
     request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/pause`, {
       method: 'POST',

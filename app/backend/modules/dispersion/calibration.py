@@ -365,6 +365,8 @@ class CalibrationService:
         self, task_id: int, payload: dict[str, Any], actor_user_id: int | None = None
     ) -> dict[str, Any]:
         context = self.repository._context(task_id)
+        if json.loads(context.task["condition_json"] or "{}").get("preheat"):
+            raise DispersionError("preheat_not_calibration_source", "预热谱图仅供观察，不能制作正式色散曲线", status_code=409)
         degree = int(payload.get("degree", 2))
         with self.database.read() as db:
             rows = db.execute(

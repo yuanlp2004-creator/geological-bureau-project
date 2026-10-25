@@ -263,7 +263,7 @@
     .report-export-form
   ) {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  gap: var(--ui-form-row-gap) 16px;
 }
 :root .app-shell .remaining-page :is(.span-2, .postprocessing-directory-field) {
   min-width: 0;

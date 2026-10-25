@@ -1,0 +1,976 @@
+{
+  "status": "passed",
+  "checks": [
+    "sample-acquisition/1440/light: hover, leave, lock, read and zoom preserve plot geometry",
+    "evaporation-acquisition/1440/light: hover, leave, lock, read and zoom preserve plot geometry",
+    "dispersion/1440/light: hover, leave, lock, read and zoom preserve plot geometry",
+    "sample-acquisition/1060/dark: hover, leave, lock, read and zoom preserve plot geometry",
+    "evaporation-acquisition/1060/dark: hover, leave, lock, read and zoom preserve plot geometry",
+    "dispersion/1060/dark: hover, leave, lock, read and zoom preserve plot geometry"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "initial": {
+        "frame": {
+          "width": 567,
+          "height": 375.1328125
+        },
+        "viewBox": "0 0 565 373.125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+        "ticks": [
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 567,
+          "height": 375.1328125
+        },
+        "viewBox": "0 0 565 373.125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 512.8–1536.3 · 强度 0.0–10301.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "a0a694057502925661f9c0e63cb160f4e2f9500e655e0bc9cbfb9c9f99b0a604"
+      },
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "initial": {
+        "frame": {
+          "width": 567,
+          "height": 375.1328125
+        },
+        "viewBox": "0 0 565 373.125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+        "ticks": [
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 567,
+            "height": 375.1328125
+          },
+          "viewBox": "0 0 565 373.125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "580b176edd02cb94c78c5b3112c27d5e13d1ef76bf0c55ba60b54864bf3fc8e7"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 567,
+          "height": 375.1328125
+        },
+        "viewBox": "0 0 565 373.125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 512.8–1536.3 · 强度 0.0–10301.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"323.125\" x2=\"531\" y2=\"323.125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"323.125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "a0a694057502925661f9c0e63cb160f4e2f9500e655e0bc9cbfb9c9f99b0a604"
+      },
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "initial": {
+        "frame": {
+          "width": 567,
+          "height": 507.7109375
+        },
+        "viewBox": "0 0 565 505.703125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+        "ticks": [
+          "0",
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,500",
+          "5,000",
+          "7,500",
+          "10,000",
+          "12,500"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"455.703125\" x2=\"531\" y2=\"455.703125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"455.703125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "1dfa502d7443543b51fefd892e73e8673fb205b2026f5be05a27f12b3f97ae0a"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 567,
+            "height": 507.7109375
+          },
+          "viewBox": "0 0 565 505.703125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"455.703125\" x2=\"531\" y2=\"455.703125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"455.703125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "1dfa502d7443543b51fefd892e73e8673fb205b2026f5be05a27f12b3f97ae0a"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 567,
+            "height": 507.7109375
+          },
+          "viewBox": "0 0 565 505.703125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"455.703125\" x2=\"531\" y2=\"455.703125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"455.703125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "1dfa502d7443543b51fefd892e73e8673fb205b2026f5be05a27f12b3f97ae0a"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 567,
+            "height": 507.7109375
+          },
+          "viewBox": "0 0 565 505.703125",
+          "readout": {
+            "width": 567,
+            "height": 62.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"455.703125\" x2=\"531\" y2=\"455.703125\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"455.703125\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "1dfa502d7443543b51fefd892e73e8673fb205b2026f5be05a27f12b3f97ae0a"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 567,
+          "height": 507.7109375
+        },
+        "viewBox": "0 0 565 505.703125",
+        "readout": {
+          "width": 567,
+          "height": 62.59375
+        },
+        "range": "视野 511.8–1535.3 · 强度 0.0–14187.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,500",
+          "5,000",
+          "7,500",
+          "10,000",
+          "12,500"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"455.703125\" x2=\"531\" y2=\"455.703125\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"455.703125\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "6a3c22adbe8ed6997cd97dff661494b951bf54739acbbea78e9a105b5d838d32"
+      },
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "initial": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+        "ticks": [
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 512.8–1536.3 · 强度 0.0–10301.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "dfea4d381d6d2fa28dd330e58f7b35039492302746db0ae2ebb9bdee06078290"
+      },
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "initial": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+        "ticks": [
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 1.0–2048.0 · 强度 0.0–10301.0",
+          "ticks": [
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,000",
+            "4,000",
+            "6,000",
+            "8,000",
+            "10,000"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "a04e7714af32d758502f34d05ce411eedf9703460f8420d0992de0dcba8f13ef"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 512.8–1536.3 · 强度 0.0–10301.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,000",
+          "4,000",
+          "6,000",
+          "8,000",
+          "10,000"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "dfea4d381d6d2fa28dd330e58f7b35039492302746db0ae2ebb9bdee06078290"
+      },
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "initial": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+        "ticks": [
+          "0",
+          "500",
+          "1,000",
+          "1,500",
+          "2,000",
+          "0",
+          "2,500",
+          "5,000",
+          "7,500",
+          "10,000",
+          "12,500"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "04b2cb40e1fe37cfbfcec3f8629138cc9da0b4a630f9bc4eaa7d5109335ef924"
+      },
+      "states": [
+        {
+          "phase": "hover-0.1",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "04b2cb40e1fe37cfbfcec3f8629138cc9da0b4a630f9bc4eaa7d5109335ef924"
+        },
+        {
+          "phase": "hover-0.85",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "04b2cb40e1fe37cfbfcec3f8629138cc9da0b4a630f9bc4eaa7d5109335ef924"
+        },
+        {
+          "phase": "hover-0.4",
+          "frame": {
+            "width": 305,
+            "height": 220
+          },
+          "viewBox": "0 0 303 218",
+          "readout": {
+            "width": 305,
+            "height": 58.59375
+          },
+          "range": "视野 0.0–2047.0 · 强度 0.0–14187.0",
+          "ticks": [
+            "0",
+            "500",
+            "1,000",
+            "1,500",
+            "2,000",
+            "0",
+            "2,500",
+            "5,000",
+            "7,500",
+            "10,000",
+            "12,500"
+          ],
+          "axes": [
+            "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+            "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+          ],
+          "curveSha256": "04b2cb40e1fe37cfbfcec3f8629138cc9da0b4a630f9bc4eaa7d5109335ef924"
+        }
+      ],
+      "zoomed": {
+        "frame": {
+          "width": 305,
+          "height": 220
+        },
+        "viewBox": "0 0 303 218",
+        "readout": {
+          "width": 305,
+          "height": 58.59375
+        },
+        "range": "视野 511.8–1535.3 · 强度 0.0–14187.0",
+        "ticks": [
+          "600",
+          "800",
+          "1,000",
+          "1,200",
+          "1,400",
+          "0",
+          "2,500",
+          "5,000",
+          "7,500",
+          "10,000",
+          "12,500"
+        ],
+        "axes": [
+          "<line x1=\"54\" y1=\"168\" x2=\"269\" y2=\"168\" class=\"plot-axis\"></line>",
+          "<line x1=\"54\" y1=\"42\" x2=\"54\" y2=\"168\" class=\"plot-axis\"></line>"
+        ],
+        "curveSha256": "b3e115152af77f3fd73f672c8ed4d910744a70d98beaf703fd420a09882cfdea"
+      },
+      "observationWrites": 0
+    }
+  ],
+  "errors": []
+}

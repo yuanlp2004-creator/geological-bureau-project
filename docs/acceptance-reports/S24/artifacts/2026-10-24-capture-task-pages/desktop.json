@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "checks": [
+    "样品任务独立新建、无效输入零提交、取消与失败保留草稿、重试进入；创建不激发，采集时禁止返回，完成后下一样品入口正常",
+    "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+    "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+    "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+    "色散曲线制作及打开旧文件入口保持独立可达",
+    "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "dialog": {
+        "x": 340,
+        "y": 24,
+        "width": 760,
+        "height": 952
+      },
+      "console": {
+        "x": 274,
+        "y": 205.1875,
+        "width": 1123,
+        "height": 760
+      }
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "dialog": {
+        "x": 340,
+        "y": 180.8125,
+        "width": 760,
+        "height": 638.3671875
+      },
+      "console": {
+        "x": 274,
+        "y": 205.1875,
+        "width": 1123,
+        "height": 760
+      }
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "dialog": {
+        "x": 340,
+        "y": 291.109375,
+        "width": 760,
+        "height": 417.78125
+      },
+      "console": {
+        "x": 274,
+        "y": 205.1875,
+        "width": 1123,
+        "height": 760
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "dialog": {
+        "x": 150,
+        "y": 24,
+        "width": 760,
+        "height": 632
+      },
+      "console": {
+        "x": 231,
+        "y": 201.1875,
+        "width": 798,
+        "height": 440
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "dialog": {
+        "x": 150,
+        "y": 34.8125,
+        "width": 760,
+        "height": 610.3671875
+      },
+      "console": {
+        "x": 231,
+        "y": 201.1875,
+        "width": 798,
+        "height": 440
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "dialog": {
+        "x": 150,
+        "y": 108.8125,
+        "width": 760,
+        "height": 462.375
+      },
+      "console": {
+        "x": 231,
+        "y": 201.1875,
+        "width": 798,
+        "height": 440
+      }
+    }
+  ],
+  "errors": []
+}

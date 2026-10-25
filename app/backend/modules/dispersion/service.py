@@ -74,6 +74,8 @@ class DispersionService:
                     "residual_limit_points",
                 )
             }
+            if payload.get("preheat"):
+                condition.update(preheat=True, preheat_source_task_id=payload["preheat_source_task_id"])
             cursor = db.execute(
                 (
                     "INSERT INTO dispersion_tasks(name, status, device_profile_id, ccd_layout_id, "
@@ -116,6 +118,22 @@ class DispersionService:
 
     def get_task(self, task_id: int) -> dict[str, Any]:
         return self.repository._task_dict(task_id)
+
+    @_task_command
+    def preheat_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        source = self.repository._task_dict(task_id)
+        if source["status"] not in {"draft", "completed", "failed", "stopped"}:
+            raise DispersionError("dispersion_task_busy", "当前摄谱尚未结束，不能预热", status_code=409)
+        payload = {key: source[key] for key in (
+            "device_profile_id", "ccd_layout_id", "ccd_indices", "frame_count", "dark_frame_count",
+            "pre_excitation_seconds", "sampling_period_seconds", "residual_limit_points",
+        )}
+        payload.update(name=f"预热 · {source['name']}"[:120], preheat=True,
+                       preheat_source_task_id=source["condition"].get("preheat_source_task_id", task_id),
+                       sample=source["condition"].get("sample") or "280-288.acq",
+                       seed=source["condition"].get("seed") or 0)
+        warmup = self.create_task(payload, actor_user_id)
+        return self.start_task(warmup["id"], actor_user_id)
 
     def _adapter(self, task_id: int, profile: sqlite3.Row) -> AcqSimulatorAdapter:
         adapter = self._adapters.get(task_id)

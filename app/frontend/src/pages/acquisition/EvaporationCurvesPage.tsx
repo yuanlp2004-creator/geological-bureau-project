@@ -30,7 +30,7 @@ export function EvaporationCurvesPage({ token, onToast }: { token: string; onToa
       const [next, old] = await Promise.all([api.acquisitionTasks(token, 'evaporation'), request<Array<{id:number;sample_name:string}>>('/api/v1/spectrum-migration/evaporation-records', {headers:{Authorization:`Bearer ${token}`}})])
       if (ticket !== listGeneration.current) return
       setLegacy(old)
-      const experiments = next.filter((task) => task.task_kind === 'evaporation')
+      const experiments = next.filter((task) => task.task_kind === 'evaporation' && task.sample_kind !== 'preheat')
       setTasks(experiments)
       setSelectedId((current) => experiments.some((task) => task.id === current) ? current : experiments[0]?.id ?? null)
       setRefresh((value) => value + 1)

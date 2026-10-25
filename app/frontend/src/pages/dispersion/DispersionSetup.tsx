@@ -28,6 +28,7 @@ type PanelProps = {
   saveConditions: () => Promise<void>
   canWrite: boolean
   busy: boolean
+  hideSubmit?: boolean
 }
 
 export function DispersionSetup({
@@ -50,6 +51,7 @@ export function DispersionSetup({
   saveConditions,
   canWrite,
   busy,
+  hideSubmit = false,
 }: PanelProps) {
   return (
     <section className="surface dispersion-setup">
@@ -120,14 +122,14 @@ export function DispersionSetup({
       </div>
       <button className="secondary-button" onClick={() => void saveConditions()}
         disabled={!canWrite || busy}>保存激发条件</button>
-      <button
+      {!hideSubmit && <button
         className="primary-button full-button"
         onClick={() => void createTask()}
         disabled={!canWrite || busy || profileId === null || layoutId === null}
       >
         <Plus size={15} />
         新建任务
-      </button>
+      </button>}
     </section>
   )
 }

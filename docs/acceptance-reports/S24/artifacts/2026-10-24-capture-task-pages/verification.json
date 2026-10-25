@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "release": "2026-10-24-capture-task-pages",
+  "completed_date": "2026-10-24",
+  "plan_sha256_at_start": "a67cc95f5c389b6ea1c96bb49a437ebed756b8ffda6704532eb4c5d21a78bd12",
+  "product_changes": [
+    "app/backend/modules/offline_help.py",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/EvaporationAcquisitionForm.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/dispersion/DispersionSetup.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyTaskDialog.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyTaskList.tsx"
+  ],
+  "frontend_unit_tests": 15,
+  "help_maintenance_tests": 4,
+  "checks": {
+    "browser": 6,
+    "desktop": 6,
+    "legacy-browser": 5,
+    "legacy-desktop": 5
+  },
+  "layouts": {
+    "browser": 6,
+    "desktop": 6,
+    "legacy-browser": 8,
+    "legacy-desktop": 8
+  },
+  "preparation_keeps_three_mode_tabs": true,
+  "task_list_and_native_creation_dialog": true,
+  "capture_has_no_mode_tabs_task_rail_or_creation_form": true,
+  "create_does_not_start_acquisition": true,
+  "cancel_failed_request_and_mode_switch_preserve_drafts": true,
+  "invalid_input_blocks_creation": true,
+  "creation_retry_and_read_only_permissions_verified": true,
+  "manual_repeat_and_preheat_preserved": true,
+  "in_flight_stop_preserves_frames": true,
+  "hover_does_not_stretch_axes": true,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "isolated_test_data": true,
+  "backend_business_api_and_migrations_unchanged": true,
+  "backend_change_is_help_text_only": true,
+  "database_exists": true,
+  "database_main_hash_unchanged": true,
+  "root_inventory_unchanged": true,
+  "app_inventory_unchanged": true,
+  "root_pair_updated": true,
+  "files": {
+    "GeoSpectrum.exe": "9e1d0126c015cd7592f3261f169a925ab5f4f3fdd0c7600368c2e50c4356d0a5",
+    "geospectrum-backend.exe": "763c5ffb66d70c30ede0a28b4210b7a021ffa76c5173fd460d6290bdec03b109"
+  },
+  "previous_pair": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-capture-task-pages\\previous",
+  "desktop_processes": {
+    "desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-capture-task-pages\\qa\\GeoSpectrum.exe",
+      "pid": 14036,
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    },
+    "legacy-desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-24-capture-task-pages\\qa\\GeoSpectrum.exe",
+      "pid": 20364,
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "installer_rebuilt": false
+}

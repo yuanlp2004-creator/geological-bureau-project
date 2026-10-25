@@ -53,9 +53,8 @@ export async function checkContractAdditions(page, output) {
   await acquisitionPage.getByRole('button', { name: '创建任务', exact: true }).click()
   const task = await (await creating).json()
   assert.equal(task.name_length, 20)
-  await acquisitionPage.getByRole('button', { name: '开始', exact: true }).click()
-  const stepping = page.waitForResponse(/* 等待真实采样次数。 */ (r) => r.url().endsWith(`/tasks/${task.id}/step`))
-  await acquisitionPage.getByRole('button', { name: '单步', exact: true }).click()
+  const stepping = page.waitForResponse(/* 等待真实采样次数。 */ (r) => new URL(r.url()).pathname.endsWith(`/tasks/${task.id}/step`))
+  await acquisitionPage.getByRole('button', { name: '试样摄谱', exact: true }).click()
   await stepping
   const measurements = acquisitionPage.getByTestId('acquisition-measurements')
   await page.waitForFunction(/* 等待首帧的真实数值上屏。 */ () => [...document.querySelectorAll('[data-testid="acquisition-measurements"] tbody tr')]
@@ -68,13 +67,12 @@ export async function checkContractAdditions(page, output) {
   let releaseStep, stepSeen
   const seen = new Promise(/* 记录已发送的自动步进。 */ (resolve) => { stepSeen = resolve })
   const held = new Promise(/* 控制真实响应的释放时机。 */ (resolve) => { releaseStep = resolve })
-  await page.route(`**/api/v1/acquisitions/tasks/${task.id}/step`, /* 仅延迟真实响应，不伪造测量。 */ async (route) => {
+  await page.route(`**/api/v1/acquisitions/tasks/${task.id}/step?*`, /* 仅延迟真实响应，不伪造测量。 */ async (route) => {
     const response = await route.fetch()
     stepSeen()
     await held
     await route.fulfill({ response })
   })
-  await acquisitionPage.getByRole('button', { name: '连续采集', exact: true }).click()
   await seen
   const discardedResponse = page.waitForResponse(/* 等待唯一删除请求。 */ (r) => r.url().endsWith(`/tasks/${task.id}/discard`))
   await measurements.getByRole('button', { name: '删除异常样品（能量不足）', exact: true }).click()
@@ -82,9 +80,9 @@ export async function checkContractAdditions(page, output) {
   const discarded = await (await discardedResponse).json()
   assert.equal(discarded.status, 'stopped')
   assert.ok(discarded.samples.every(/* 所有重复移出可用样品。 */ (sample) => sample.discarded))
-  await page.unroute(`**/api/v1/acquisitions/tasks/${task.id}/step`)
+  await page.unroute(`**/api/v1/acquisitions/tasks/${task.id}/step?*`)
   assert.deepEqual((await call(page, `/api/v1/acquisitions/tasks/${task.id}/measurements`)).rows, [])
-  checks.push('在途连续采集删除等待收尾，停止并移除异常样品')
+  checks.push('单次摄谱在途响应期间删除等待收尾，停止并移除异常样品')
 
   const createToggle = acquisitionPage.locator('.disclosure-toggle').filter({ hasText: /建立.*任务/ })
   if (await createToggle.getAttribute('aria-expanded') === 'false') await createToggle.click()
