@@ -324,12 +324,12 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     }, 'CCD 间隔已修正；定位点充足时已重新拟合')
   }
   const monitor = <DispersionMonitor view={view} active={active} start={start} preheat={preheat}
+            recordChoices={tasks.map(task => ({ value: String(task.id), name: task.name }))}
+            recordDisabled={busy || Boolean(runningTask)} onRecordChoose={value => {
+              if (!busy && !runningTask) { const task = tasks.find(task => String(task.id) === value); if (task) setActive(task) }
+            }}
             finish={() => setScreen('tasks')} canFinish={!busy && !runningTask}
             workflowToolbar={active && !active.condition.preheat && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
-              <select aria-label="当前色散谱线" value={manualLine ?? ''} disabled={busy || Boolean(runningTask)}
-                onChange={event => setManualLine(event.target.value ? Number(event.target.value) : null)}>
-                <option value="">选择谱线</option>{active.lines.map(line => <option key={line.id} value={line.id}>{line.element} {line.wavelength_nm}</option>)}
-              </select>
               <SpectroscopyToolButton icon="add-line" label="增加谱线" description="展开当前色散任务的谱线编辑表单"
                 disabled={!canWrite || busy || Boolean(runningTask)} onClick={() => setProcessingOpen(true)} />
               <SpectroscopyToolButton icon="delete-line" label="删除所选谱线" disabled={!canWrite || busy || Boolean(runningTask) || manualLine === null}

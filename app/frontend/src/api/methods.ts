@@ -248,6 +248,8 @@ export const methodsApi = {
     request<MethodRecord[]>(`/api/v1/methods${includeDeleted ? '?include_deleted=true' : ''}`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
+  methodVersions: (token: string, methodId: number) =>
+    request<MethodVersion[]>(`/api/v1/methods/${methodId}/versions`, { headers: { Authorization: `Bearer ${token}` } }),
   methodOptions: (token: string) =>
     request<MethodOptions>('/api/v1/methods/options', { headers: { Authorization: `Bearer ${token}` } }),
   currentMethod: (token: string) =>

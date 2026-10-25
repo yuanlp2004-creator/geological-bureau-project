@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "dd038a6bd062b22b8e430b512768f4ce46a708fb428b09f58485029e984e46b0",
+  "checks": {
+    "browser": {
+      "checks": 17,
+      "layouts": 8
+    },
+    "desktop": {
+      "checks": 15,
+      "layouts": 8
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 8
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 8
+    }
+  },
+  "frontend_tests": 15,
+  "backend_tests": 16,
+  "icons_css_px": 16,
+  "buttons_css_px": {
+    "wide": 24,
+    "narrow_spectrum_toolbar": 20,
+    "narrow_minimum": 18
+  },
+  "source_and_frontend_match": true,
+  "unchanged_legacy_source_files": 105,
+  "backend_sources_and_exe_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_executables": {
+    "GeoSpectrum.exe": "c7e5cb296b30e8ba715f5b36e768edd07c13370b243c9ce248e72ef2ebc28d8b",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "git_backup": {
+    "commit": "1ef9df7b73f7b37641e4d8954b3d0e0ce00391bc",
+    "tag": "before-legacy-excitation-layout-20261025",
+    "remote": "https://github.com/yuanlp2004-creator/geological-bureau-project",
+    "remote_verified": true,
+    "old_executables": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\legacy-excitation-layout-20261025\\before",
+    "original_pre_icons_tag": "before-spectroscopy-icons-20261025"
+  },
+  "notes": [
+    "All business writes used isolated seeded databases. No user database was overwritten or rolled back.",
+    "Layout follows legacy docking. Existing app navigation, task preparation and permission protections remain.",
+    "Sample line selection shows wavelength and exposure from the exact published task version; both inputs are read-only.",
+    "Small sample toolbar fits without scrolling; additional dispersion actions may scroll horizontally.",
+    "One isolated QA WebView target disconnected before login; a complete standalone rerun passed. The startup cause is not established.",
+    "Physical printing, real hardware, signatures and installer updates were not performed."
+  ]
+}

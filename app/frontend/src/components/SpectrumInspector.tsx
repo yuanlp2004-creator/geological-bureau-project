@@ -16,6 +16,7 @@ type Props = {
   iconToolbar?: boolean
   physicalScale?: { pointWidthUm?: number; screenWidthMm?: number; screenResolutionPx?: number }
   bandNavigation?: { previous: () => void; next: () => void; canPrevious: boolean; canNext: boolean }
+  ccdNavigation?: { current: number; indices: number[]; choose: (ccd: number) => void }
   onPrint?: (range: SpectrumViewRange) => void
   printDisabledReason?: string
   toolbar?: import('react').ReactNode
@@ -25,7 +26,7 @@ type Props = {
 
 // 只维护观察视图。调用方用任务/CCD作为key，切换对象时清空锁定点和缩放。
 export function SpectrumInspector({ points, label, pointOrigin = 1, markers = [], fitPlot = false, iconToolbar = false,
-  physicalScale, bandNavigation, onPrint, printDisabledReason, toolbar,
+  physicalScale, bandNavigation, ccdNavigation, onPrint, printDisabledReason, toolbar,
   emptyText = '暂无可显示的谱图', onPick }: Props) {
   const full = useMemo<Range>(() => ({
     xMin: pointOrigin, xMax: Math.max(pointOrigin + 1, points.length - 1 + pointOrigin),
@@ -99,6 +100,19 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
       {iconToolbar && bandNavigation && <div className="inspector-tool-modes" role="group" aria-label="谱带切换">
         <SpectroscopyToolButton icon="previous-band" label="上一谱带" disabled={!bandNavigation.canPrevious} onClick={bandNavigation.previous} />
         <SpectroscopyToolButton icon="next-band" label="下一谱带" disabled={!bandNavigation.canNext} onClick={bandNavigation.next} />
+      </div>}
+      {iconToolbar && ccdNavigation && <div className="inspector-tool-modes spectroscopy-ccd-tools" role="group" aria-label="CCD切换">
+        <SpectroscopyToolButton icon="previous-ccd" label="上一 CCD"
+          disabled={ccdNavigation.indices.indexOf(ccdNavigation.current) <= 0}
+          onClick={() => ccdNavigation.choose(ccdNavigation.indices[ccdNavigation.indices.indexOf(ccdNavigation.current) - 1])} />
+        <SpectroscopyToolButton icon="next-ccd" label="下一 CCD"
+          disabled={ccdNavigation.indices.indexOf(ccdNavigation.current) < 0 || ccdNavigation.indices.indexOf(ccdNavigation.current) >= ccdNavigation.indices.length - 1}
+          onClick={() => ccdNavigation.choose(ccdNavigation.indices[ccdNavigation.indices.indexOf(ccdNavigation.current) + 1])} />
+        <label className="spectroscopy-ccd-choice"><span aria-hidden="true">CCD</span><select aria-label="选择CCD" title={`CCD ${ccdNavigation.current + 1}`} value={ccdNavigation.current} disabled={!ccdNavigation.indices.length}
+          onChange={event => ccdNavigation.choose(Number(event.target.value))}>
+          {!ccdNavigation.indices.length && <option value={ccdNavigation.current}>等待采集</option>}
+          {ccdNavigation.indices.map(ccd => <option key={ccd} value={ccd}>{ccd + 1}</option>)}
+        </select></label>
       </div>}
       {iconToolbar ? <div className="inspector-tool-modes" role="group" aria-label="谱图工具">
         {([['crosshair', '十字线', 'crosshair'], ['pan', '滚动工具', 'pan'], ['box', '区域放大', 'box-zoom']] as const).map(([value, name, icon]) => (

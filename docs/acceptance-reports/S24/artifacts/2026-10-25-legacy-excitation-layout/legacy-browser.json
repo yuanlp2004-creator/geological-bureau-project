@@ -1,0 +1,93 @@
+{
+  "status": "passed",
+  "checks": [
+    "预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持",
+    "每次点击只完成一次重复，等待时不自动激发；二次手动摄谱完成并关联队列，下一样品不自动启动",
+    "蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验",
+    "色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集",
+    "帧响应延迟时停止仍可收尾，原始帧保留，停止后没有自动继续"
+  ],
+  "layouts": [
+    {
+      "name": "sample-preheat",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "control_width": 199.1875,
+      "right": 1397,
+      "bottom": 890.953125,
+      "overflow": false
+    },
+    {
+      "name": "sample-preheat",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "control_width": 170,
+      "right": 1029,
+      "bottom": 570.953125,
+      "overflow": false
+    },
+    {
+      "name": "sample-waiting",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "control_width": 199.1875,
+      "right": 1397,
+      "bottom": 890.953125,
+      "overflow": false
+    },
+    {
+      "name": "sample-waiting",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "control_width": 170,
+      "right": 1029,
+      "bottom": 570.953125,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-completed",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "control_width": 199.1875,
+      "right": 1397,
+      "bottom": 890.953125,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-completed",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "control_width": 170,
+      "right": 1029,
+      "bottom": 570.953125,
+      "overflow": false
+    },
+    {
+      "name": "dispersion-completed",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "control_width": 199.1875,
+      "right": 1397,
+      "bottom": 890.953125,
+      "overflow": false
+    },
+    {
+      "name": "dispersion-completed",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "control_width": 170,
+      "right": 1029,
+      "bottom": 570.953125,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

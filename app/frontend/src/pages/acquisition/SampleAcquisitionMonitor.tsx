@@ -5,16 +5,19 @@ import { stateLabel } from './acquisitionView'
 import { SpectroscopyConsole } from './SpectroscopyConsole'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CaptureBandList } from './CaptureBandList'
+import { SampleCaptureLineBar } from './CaptureLineBar'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
   setup?: ReactNode
   token: string
   canExport: boolean
+  canReadMethods: boolean
   onToast: (message: string) => void
   finish: () => void
   canFinish: boolean
   inputToolbar?: ReactNode
+  sampleInput?: ReactNode
   selected: AcquisitionTask | null
   apply: (action: "start" | "preheat" | "pause" | "resume" | "stop") => Promise<void>
   busy: boolean
@@ -31,7 +34,7 @@ type PanelProps = {
 
 export function SampleAcquisitionMonitor({
   setup,
-  token, canExport, onToast, finish, canFinish, inputToolbar,
+  token, canExport, canReadMethods, onToast, finish, canFinish, inputToolbar, sampleInput,
   selected,
   apply,
   busy,
@@ -100,10 +103,15 @@ export function SampleAcquisitionMonitor({
     } finally { setPrinting(false) }
   }
   return (
-    <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar}
+    <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar} sampleInput={sampleInput}
+      lineBar={<SampleCaptureLineBar token={token} canReadMethods={canReadMethods} methodId={selected?.method_id ?? null}
+        version={selected?.method_version ?? null} frames={selected?.burn_frame_count ?? 0} />}
+      recordTitle={selected?.task_kind === 'evaporation' ? '蒸发谱带名' : '样品编号'}
+      recordValue={String(selected?.id ?? '')} recordChoices={selected ? [{ value: String(selected.id), name: selected.sample_name || selected.name }] : []}
+      repeats={selected?.repeat_count}
       viewLabel={observedSample ? `已保存谱带 · ${observedSample.sample_name || '未命名'} / ${observedSample.repeat_index + 1}` : '实时谱图'}
-      records={<CaptureBandList title={selected?.task_kind === 'evaporation' ? '蒸发谱带' : '样品谱带'}
-        rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', detail: `重复 ${sample.repeat_index + 1} · ${sample.bands.length} CCD` }))}
+      records={<CaptureBandList title={selected?.task_kind === 'evaporation' ? '蒸发谱带' : selected?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
+        rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', sequence: sample.repeat_index + 1, detail: `重复 ${sample.repeat_index + 1} · ${sample.bands.length} CCD` }))}
         selected={observedSample?.id ?? null} locked={recordLocked} disabled={busy || acquiring}
         onChoose={setSampleId} onLockChange={setRecordLocked} />}
       finish={{ run: finish, enabled: canFinish }} setup={<>
@@ -135,6 +143,7 @@ export function SampleAcquisitionMonitor({
       {selected && <>
         {error && <p role="alert">{error}</p>}
         <SpectrumInspector fitPlot iconToolbar key={`${selected.id}:${ccd}:${observedSample?.id ?? 'live'}`} points={points}
+          ccdNavigation={{ current: ccd, indices: selected.ccd_indices, choose: setCcdIndex }}
           label={`CCD ${ccd + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}
           physicalScale={{ pointWidthUm: selected.layout.point_width_um, screenWidthMm: selected.profile.screen_width_mm, screenResolutionPx: selected.profile.screen_resolution_px }}
           bandNavigation={{ previous: () => setSampleId(completed[recordIndex - 1]?.id ?? null), next: () => setSampleId(completed[recordIndex + 1]?.id ?? null),

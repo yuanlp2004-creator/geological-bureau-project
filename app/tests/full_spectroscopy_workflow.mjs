@@ -100,7 +100,7 @@ export async function checkFullSpectroscopy(page, result, output) {
       await page.mouse.move(plot.x + plot.width * .7, plot.y + plot.height * .7, { steps: 4 }); await page.mouse.up()
       assert.notDeepEqual(await readRange(scope), original)
       await reset.click(); await scope.getByRole('button', { name: '十字线', exact: true }).click()
-      const ccd = host.locator('.spectroscopy-curve-toolbar select')
+      const ccd = host.getByRole('combobox', { name: '选择CCD', exact: true })
       if (item.task.ccd_indices.length > 1) {
         await host.getByRole('button', { name: '下一 CCD', exact: true }).click()
         assert.equal(await ccd.inputValue(), String(item.task.ccd_indices[1]))

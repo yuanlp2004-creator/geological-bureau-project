@@ -1,0 +1,547 @@
+{
+  "status": "passed",
+  "checks": [
+    "sample-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "sample-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "工作台已保存谱带按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常",
+    "当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留",
+    "色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开",
+    "结束返回任务列表，采集记录保留，准备页和当前采集继续分开",
+    "只读账户可浏览完成谱图与曲线，激发、谱线写入和拟合均按原权限禁用",
+    "顶部谱线栏读取任务绑定的确切已发布版本，波长及曝光区间只读展示",
+    "常驻样号下拉直接切换预录样品、自动带出次数、继承当前条件、不重复建任务、不自动激发",
+    "激发中禁止切换样号；一次点击只完成一次重复，剩余重复等待人工点击"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 490.984375,
+        "right": 1171.8046875,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 18,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 490.984375,
+        "right": 1171.8046875,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 18,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "columns": {
+        "left": 275,
+        "middle": 490.984375,
+        "right": 1171.8046875,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 21,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 401,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 18,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 401,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 18,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "columns": {
+        "left": 232,
+        "middle": 401,
+        "right": 830,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 21,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "mode": "sample-input",
+      "geometry": {
+        "left": {
+          "x": 275,
+          "y": 179,
+          "width": 212.984375,
+          "height": 736,
+          "right": 487.984375,
+          "bottom": 915
+        },
+        "middle": {
+          "x": 490.984375,
+          "y": 179,
+          "width": 677.8203125,
+          "height": 736,
+          "right": 1168.8046875,
+          "bottom": 915
+        },
+        "right": {
+          "x": 1171.8046875,
+          "y": 179,
+          "width": 224.1953125,
+          "height": 736,
+          "right": 1396,
+          "bottom": 915
+        },
+        "sample": {
+          "x": 1176.8046875,
+          "y": 237,
+          "width": 214.1953125,
+          "height": 97.7421875,
+          "right": 1391,
+          "bottom": 334.7421875
+        },
+        "commands": {
+          "x": 1176.8046875,
+          "y": 342.7421875,
+          "width": 214.1953125,
+          "height": 541.2109375,
+          "right": 1391,
+          "bottom": 883.953125
+        },
+        "lineBar": {
+          "x": 275,
+          "y": 146,
+          "width": 1121,
+          "height": 30,
+          "right": 1396,
+          "bottom": 176
+        },
+        "buttons": [
+          {
+            "y": 420.8984375,
+            "x": 1227.8984375,
+            "width": 112
+          },
+          {
+            "y": 546.9140625,
+            "x": 1227.8984375,
+            "width": 112
+          },
+          {
+            "y": 672.9296875,
+            "x": 1227.8984375,
+            "width": 112
+          },
+          {
+            "y": 798.9453125,
+            "x": 1227.8984375,
+            "width": 112
+          }
+        ],
+        "icons": [
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          }
+        ],
+        "tool": {
+          "x": 279,
+          "y": 205.5,
+          "width": 24,
+          "height": 24,
+          "right": 303,
+          "bottom": 229.5
+        },
+        "spectrumTool": {
+          "x": 492.984375,
+          "y": 181.5,
+          "width": 24,
+          "height": 24,
+          "right": 516.984375,
+          "bottom": 205.5
+        },
+        "commandsOverflow": false,
+        "toolsOverflow": false,
+        "ccdWidth": 27.45068359375,
+        "ccdAvailable": 40,
+        "viewport": 1440,
+        "overflow": false
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "mode": "sample-input",
+      "geometry": {
+        "left": {
+          "x": 232,
+          "y": 179,
+          "width": 166,
+          "height": 416,
+          "right": 398,
+          "bottom": 595
+        },
+        "middle": {
+          "x": 401,
+          "y": 179,
+          "width": 426,
+          "height": 416,
+          "right": 827,
+          "bottom": 595
+        },
+        "right": {
+          "x": 830,
+          "y": 179,
+          "width": 198,
+          "height": 416,
+          "right": 1028,
+          "bottom": 595
+        },
+        "sample": {
+          "x": 835,
+          "y": 237,
+          "width": 188,
+          "height": 97.7421875,
+          "right": 1023,
+          "bottom": 334.7421875
+        },
+        "commands": {
+          "x": 835,
+          "y": 342.7421875,
+          "width": 188,
+          "height": 221.2109375,
+          "right": 1023,
+          "bottom": 563.953125
+        },
+        "lineBar": {
+          "x": 232,
+          "y": 146,
+          "width": 796,
+          "height": 30,
+          "right": 1028,
+          "bottom": 176
+        },
+        "buttons": [
+          {
+            "y": 380.8984375,
+            "x": 873,
+            "width": 112
+          },
+          {
+            "y": 426.9140625,
+            "x": 873,
+            "width": 112
+          },
+          {
+            "y": 472.9296875,
+            "x": 873,
+            "width": 112
+          },
+          {
+            "y": 518.9453125,
+            "x": 873,
+            "width": 112
+          }
+        ],
+        "icons": [
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          },
+          {
+            "width": 16,
+            "height": 16
+          }
+        ],
+        "tool": {
+          "x": 236,
+          "y": 205.5,
+          "width": 24,
+          "height": 24,
+          "right": 260,
+          "bottom": 229.5
+        },
+        "spectrumTool": {
+          "x": 403,
+          "y": 183.5,
+          "width": 20,
+          "height": 20,
+          "right": 423,
+          "bottom": 203.5
+        },
+        "commandsOverflow": false,
+        "toolsOverflow": false,
+        "ccdWidth": 27.45068359375,
+        "ccdAvailable": 32,
+        "viewport": 1060,
+        "overflow": false
+      }
+    }
+  ],
+  "errors": []
+}

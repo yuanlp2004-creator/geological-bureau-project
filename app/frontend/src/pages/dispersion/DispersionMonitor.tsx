@@ -7,6 +7,7 @@ import { DispersionSpectrum } from './DispersionSpectrum'
 import { runningStates, statusLabels } from './dispersionView'
 import { SpectrumInspector } from '../../components/SpectrumInspector'
 import { CaptureBandList } from '../acquisition/CaptureBandList'
+import { CaptureLineBar } from '../acquisition/CaptureLineBar'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
@@ -14,6 +15,9 @@ type PanelProps = {
   finish?: () => void
   canFinish?: boolean
   workflowToolbar?: ReactNode
+  recordChoices?: { value: string; name: string }[]
+  onRecordChoose?: (value: string) => void
+  recordDisabled?: boolean
   active: DispersionTask | null
   start: () => Promise<void>
   preheat: () => Promise<void>
@@ -38,7 +42,7 @@ type PanelProps = {
 
 export function DispersionMonitor({
   view = 'capture',
-  finish, canFinish, workflowToolbar,
+  finish, canFinish, workflowToolbar, recordChoices, onRecordChoose, recordDisabled,
   active,
   start,
   preheat,
@@ -115,7 +119,15 @@ export function DispersionMonitor({
     </> : <div className="empty-state">先在色散摄谱中采集谱图，再到这里制作色散曲线。</div>}
   </section>
   return (
-    <SpectroscopyConsole className="dispersion-run-panel"
+    <SpectroscopyConsole className="dispersion-run-panel" recordTitle="色散谱带名" recordChoices={recordChoices}
+      recordValue={String(active?.id ?? '')} onRecordChoose={onRecordChoose} recordDisabled={recordDisabled} repeats={1}
+      lineBar={<CaptureLineBar disabled={busy || running} lines={active?.lines.map(line => ({ id: String(line.id), label: `${line.element} ${line.wavelength_nm}`,
+        wavelength: line.wavelength_nm, exposure: `1-${active.frame_count}` }))} value={manualLine === null ? '' : String(manualLine)}
+        choose={id => {
+          const line = active?.lines.find(line => String(line.id) === id)
+          setManualLine(line?.id ?? null)
+          if (line) setSelectedCcd(line.ccd_index)
+        }} />}
       finish={finish ? { run: finish, enabled: Boolean(canFinish) } : undefined}
       records={<CaptureBandList title="色散谱帧" rows={frames.map(item => ({ id: item.id,
         name: `${item.phase === 'dark' ? '暗帧' : '燃烧帧'} ${item.frame_index + 1}`, detail: `CCD ${item.ccd_index + 1}` }))}
@@ -146,6 +158,7 @@ export function DispersionMonitor({
       </>}>
       {frameError && <p role="alert">{frameError}</p>}
       {active && <SpectrumInspector fitPlot iconToolbar key={`${active.id}:${selectedCcd}:${frameId ?? (completedView ? 'mean' : 'live')}`} points={historical ? frame?.points ?? [] : completedView ? mean : currentCcd?.points ?? []}
+        ccdNavigation={{ current: selectedCcd, indices: active.ccd_indices, choose: setSelectedCcd }}
         physicalScale={{ pointWidthUm: active.layout.point_width_um, screenWidthMm: active.profile.screen_width_mm, screenResolutionPx: active.profile.screen_resolution_px }}
         bandNavigation={{ previous: () => setFrameId(frames[framePosition - 1]?.id ?? null), next: () => setFrameId(frames[framePosition + 1]?.id ?? null),
           canPrevious: !busy && !running && !recordLocked && framePosition > 0, canNext: !busy && !running && !recordLocked && framePosition < frames.length - 1 }}

@@ -14,11 +14,12 @@ import { useSpectroscopySession, type SpectroscopyMode } from './spectroscopySes
 import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from './SpectroscopyTaskList'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
-export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, onOpenSamples }: Props & {
+export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadMethods = false, onOpenSamples }: Props & {
   taskKind: AcquisitionTask['task_kind']
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
   canExport?: boolean
+  canReadMethods?: boolean
   onOpenSamples?: () => void
 }) {
   const isSample = taskKind === 'sample'
@@ -361,6 +362,45 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const formalTask = selected?.sample_kind === 'preheat'
     ? tasks.find((task) => task.id === selected.excitation_condition.preheat_source_task_id)
     : selected
+  const inputTask = formalTask ?? selected
+  const inputQueue = options?.queues.find(item => item.id === inputTask?.queue_id)
+  const availableTasks = tasks.filter(item => item.sample_kind !== 'preheat' && (!isSample || (
+    item.method_id === inputTask?.method_id && item.method_version === inputTask?.method_version
+    && (inputTask?.queue_id ? item.queue_id === inputTask.queue_id : !item.queue_id))))
+  const pendingSamples = inputQueue?.items.filter(item => !item.spectrum_hash && item.repeats > 0
+    && !tasks.some(task => task.queue_item_id === item.id && task.sample_kind !== 'preheat')) ?? []
+  const chooseCaptureSample = async (value: string) => {
+    if (busy || loading || runningTask || busyRef.current || controlPending.current || !inputTask) return
+    if (value.startsWith('task:')) {
+      const task = availableTasks.find(item => `task:${item.id}` === value)
+      if (task) { setAuto(false); autoTask.current = null; setSelected(task) }
+      return
+    }
+    const item = pendingSamples.find(item => `queue:${item.id}` === value)
+    if (!item || !canWrite || !isSample || !inputQueue) return
+    const generation = ++selectionGeneration.current
+    controlPending.current = true
+    busyRef.current = true
+    setBusy(true)
+    try {
+      // Choose the next target using the current immutable acquisition conditions, never a form draft.
+      const payload = Object.fromEntries((['device_profile_id', 'ccd_layout_id', 'ccd_indices', 'method_id', 'method_version',
+        'burn_frame_count', 'dark_frame_count', 'countdown_seconds', 'pre_excitation_seconds',
+        'sampling_period_seconds', 'burn_cycle_seconds', 'dark_cycle_seconds', 'storage_mode'] as const).map(key => [key, inputTask[key]]))
+      const next = await api.createAcquisitionTask(token, { ...payload, task_kind: 'sample',
+        name: `${inputTask.name} · ${item.pre_name}`.slice(0, 120), queue_id: inputQueue.id, queue_item_id: item.id,
+        sample_name: item.post_name ?? item.pre_name, name_length: inputQueue.name_length,
+        sample_kind: inputTask.sample_kind, repeat_count: item.repeats,
+        use_method_intervals: Object.keys((inputTask.simulator.exposure_by_ccd as object | undefined) ?? {}).length > 0,
+        simulator_sample: inputTask.simulator.sample, seed: inputTask.simulator.seed })
+      if (generation !== selectionGeneration.current) return
+      setTasks(current => [next, ...current]); setSelected(next)
+      setQueueProgressMessage('')
+      onToast('样号已选择，请点击试样摄谱开始本次激发')
+    } catch (error) {
+      if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '切换样号失败')
+    } finally { controlPending.current = false; busyRef.current = false; setBusy(false) }
+  }
   const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop') => {
     if (!selected) return
     if (controlPending.current) return onToast('当前采集控制操作尚未完成，请稍后再试')
@@ -614,7 +654,18 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       <main className="sample-acquisition-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>
           {queueProgressMessage && <p role="status" className="acquisition-management-note">{queueProgressMessage}</p>}
           <SampleAcquisitionMonitor
-            token={token} canExport={canExport} onToast={onToast} finish={() => setScreen('tasks')}
+            token={token} canExport={canExport} canReadMethods={canReadMethods} onToast={onToast} finish={() => setScreen('tasks')}
+            sampleInput={<>
+              <label><span>{isSample ? '样品编号:' : '蒸发谱带名:'}</span>
+                <select aria-label={isSample ? '样品编号' : '蒸发谱带名'} value={inputTask ? `task:${inputTask.id}` : ''}
+                  disabled={busy || loading || Boolean(runningTask)} onChange={event => void chooseCaptureSample(event.target.value)}>
+                  {availableTasks.map(item => <option key={item.id} value={`task:${item.id}`}>{item.sample_name || item.name}</option>)}
+                  {pendingSamples.length > 0 && <optgroup label="待测样品">{pendingSamples.map(item => <option key={item.id}
+                    value={`queue:${item.id}`} disabled={!canWrite}>{item.post_name ?? item.pre_name}</option>)}</optgroup>}
+                </select>
+              </label>
+              <label><span>重复摄谱:</span><input aria-label="重复摄谱" readOnly value={inputTask?.repeat_count ?? 1} /></label>
+            </>}
             canFinish={!busy && !loading && !runningTask}
             inputToolbar={<>
               <SpectroscopyToolButton icon="input-samples" label="输入样品编号" description="建立下一样品任务并输入样号"
