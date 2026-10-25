@@ -66,7 +66,7 @@ export function SampleAcquisitionMonitor({
       ] : []}
       ccd={ccdIndex} ccdIndices={selected?.ccd_indices ?? []} onCcdChange={setCcdIndex} hash={selected?.last_event?.details.sha256}>
       {selected && <>
-        <SpectrumInspector fitPlot key={`${selected.id}:${ccdIndex}`} points={selectedPoints}
+        <SpectrumInspector fitPlot iconToolbar key={`${selected.id}:${ccdIndex}`} points={selectedPoints}
           label={`CCD ${ccdIndex + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}采集曲线`}
           emptyText="开始采集后显示实时 CCD 曲线" />
           <div className="acquisition-facts">

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NumericInput } from './NumericInput'
 import { SpectrumPlot, type SpectrumPlotCursor, type SpectrumPlotMarker } from './SpectrumPlot'
+import { SpectroscopyIcon, type SpectroscopyIconName } from './SpectroscopyIcon'
 import './spectrum-inspector.css'
 
 type Range = { xMin: number; xMax: number; yMin: number; yMax: number }
@@ -10,12 +11,13 @@ type Props = {
   pointOrigin?: 0 | 1
   markers?: SpectrumPlotMarker[]
   fitPlot?: boolean
+  iconToolbar?: boolean
   emptyText?: string
   onPick?: (pointIndex: number | null) => void
 }
 
 // 只维护观察视图。调用方用任务/CCD作为key，切换对象时清空锁定点和缩放。
-export function SpectrumInspector({ points, label, pointOrigin = 1, markers = [], fitPlot = false,
+export function SpectrumInspector({ points, label, pointOrigin = 1, markers = [], fitPlot = false, iconToolbar = false,
   emptyText = '暂无可显示的谱图', onPick }: Props) {
   const full = useMemo<Range>(() => ({
     xMin: pointOrigin, xMax: Math.max(pointOrigin + 1, points.length - 1 + pointOrigin),
@@ -66,18 +68,33 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
     onPick?.(index)
   }
   return <div className="spectrum-inspector" aria-label={label}>
-    <div className="inspector-tools" role="group" aria-label="谱图观察工具">
-      <label>工具 <select aria-label="谱图工具" value={tool} disabled={!hasPoints}
+    <div className={`inspector-tools${iconToolbar ? ' inspector-icon-tools' : ''}`} role="group" aria-label="谱图观察工具">
+      {iconToolbar ? <div className="inspector-tool-modes" role="group" aria-label="谱图工具">
+        {([['crosshair', '十字线', 'crosshair'], ['pan', '滚动工具', 'pan'], ['box', '区域放大', 'box-zoom']] as const).map(([value, name, icon]) => (
+          <button key={value} type="button" className="secondary-button inspector-icon-button" disabled={!hasPoints}
+            aria-label={name} title={name} aria-pressed={tool === value} onClick={() => setTool(value)}>
+            <SpectroscopyIcon name={icon} />
+          </button>
+        ))}
+      </div> : <label>工具 <select aria-label="谱图工具" value={tool} disabled={!hasPoints}
         onChange={(event) => setTool(event.target.value as typeof tool)}>
         <option value="crosshair">十字线</option><option value="pan">滚动工具</option><option value="box">区域放大</option>
-      </select></label>
-      <button className="secondary-button" disabled={!hasPoints} onClick={() => zoom('x', 0.5)}>横向放大</button>
-      <button className="secondary-button" disabled={!hasPoints} onClick={() => zoom('x', 2)}>横向缩小</button>
-      <button className="secondary-button" disabled={!hasPoints} onClick={() => zoom('y', 0.5)}>纵向放大</button>
-      <button className="secondary-button" disabled={!hasPoints} onClick={() => zoom('y', 2)}>纵向缩小</button>
-      <button className="secondary-button" disabled={!hasPoints} onClick={reset}>适合图像</button>
-      <button className="secondary-button" disabled={!liveCursor} aria-pressed={locked} onClick={() => toggleLock()}>
-        {locked ? '解除锁定' : '锁定点位'}
+      </select></label>}
+      {([
+        ['横向放大', 'zoom-x-in', () => zoom('x', 0.5)],
+        ['横向缩小', 'zoom-x-out', () => zoom('x', 2)],
+        ['纵向放大', 'zoom-y-in', () => zoom('y', 0.5)],
+        ['纵向缩小', 'zoom-y-out', () => zoom('y', 2)],
+        ['适合图像', 'fit', reset]
+      ] satisfies [string, SpectroscopyIconName, () => void][]).map(([name, icon, action]) => (
+        <button key={name} type="button" className={`secondary-button${iconToolbar ? ' inspector-icon-button' : ''}`}
+          disabled={!hasPoints} aria-label={name} title={name} onClick={action}>
+          {iconToolbar ? <SpectroscopyIcon name={icon} /> : name}
+        </button>
+      ))}
+      <button type="button" className={`secondary-button${iconToolbar ? ' inspector-icon-button' : ''}`} disabled={!liveCursor}
+        aria-label={locked ? '解除锁定' : '锁定点位'} title={locked ? '解除锁定' : '锁定点位'} aria-pressed={locked} onClick={() => toggleLock()}>
+        {iconToolbar ? <SpectroscopyIcon name="lock" /> : locked ? '解除锁定' : '锁定点位'}
       </button>
     </div>
     {hasPoints ? <>

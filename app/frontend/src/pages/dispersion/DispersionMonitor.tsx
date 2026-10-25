@@ -104,7 +104,7 @@ export function DispersionMonitor({
       toolbar={<>
         <span><Crosshair size={14} />最新帧峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position}` : '--'}（点位 0 起）</span>
       </>}>
-      {active && <SpectrumInspector fitPlot key={`${active.id}:${selectedCcd}`} points={currentCcd?.points ?? []}
+      {active && <SpectrumInspector fitPlot iconToolbar key={`${active.id}:${selectedCcd}`} points={currentCcd?.points ?? []}
         pointOrigin={0} label={`CCD ${selectedCcd + 1} 色散采集曲线`} emptyText="开始采集后显示实时 CCD 曲线" />}
     </SpectroscopyConsole>
   )

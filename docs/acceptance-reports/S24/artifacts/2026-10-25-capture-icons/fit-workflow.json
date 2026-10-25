@@ -1,0 +1,149 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "加载 DiT 主模型 (INT8)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载文本编码器 (Qwen3-VL W4A8)"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载 VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "prompt": "把参考图中的“适合图像”工具栏图标保真高清重绘为一个独立图标。中央一个浅蓝色圆形，圆内是一根白色水平双向箭头：同一根水平杆的最左端朝左、最右端朝右，左右两端都必须有明显的三角箭头。图形必须左右完全对称。绝对不是单向右箭头，不是播放按钮。保留原图浅蓝色和白色主配色。现代简洁扁平矢量风格，边缘清晰平滑，24像素显示也易认，无阴影、无发光。768乘768纯白背景，图标居中，直径约500像素，四周留白。仅一个图标，无文字、边框、水印。",
+      "negative_prompt": "",
+      "resolution": 0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_1": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Qwen 2.1 文本/多模态条件编码"
+    }
+  },
+  "6": {
+    "inputs": {
+      "seed": 2026102513,
+      "steps": 30,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "4",
+        1
+      ],
+      "latent_image": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (30 steps / CFG 1.0)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "geospectrum/capture-icons-20261025/fit-v2",
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "10": {
+    "class_type": "ModelAttentionBackend",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "attention": "comfy kitchen attention"
+    },
+    "_meta": {
+      "title": "Comfy Kitchen Attention (INT8)"
+    }
+  },
+  "11": {
+    "class_type": "EasyCache",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "reuse_threshold": 0.1,
+      "start_percent": 0.15,
+      "end_percent": 0.85,
+      "verbose": false
+    },
+    "_meta": {
+      "title": "EasyCache (0.10 / 0.15-0.85)"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "geospectrum-capture-icons-20261025/fit-reference.png"
+    }
+  }
+}

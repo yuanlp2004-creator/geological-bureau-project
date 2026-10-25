@@ -1,0 +1,149 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "加载 DiT 主模型 (INT8)"
+    }
+  },
+  "2": {
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载文本编码器 (Qwen3-VL W4A8)"
+    }
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载 VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "prompt": "请把参考图中的12个经典Windows光谱仪图标保真高清重绘。严格保持四列三行的位置、数量、主题、主配色。每格只放一个独立图标。\n第一行：灰蓝色十字线与中心小圆点；带虚线选区的小放大镜；灰蓝色手掌形滚动工具；浅蓝色圆形中一条白色水平双向箭头。\n第二行：蓝色圆形中白色加号；蓝色圆形中白色减号；绿色圆形中白色向上箭头；绿色圆形中白色向下箭头。\n第三行：银色锁梁与金黄色锁体的闭合挂锁；金黄色闪电叠加绿色向右箭头；蓝色圆角小方块内保留一个清晰的大写白色英文字母B；深蓝色圆形中白色停止方块。\n这是科学仪器桌面软件工具栏图标，常规显示20像素，要清晰易认。采用统一简洁的现代扁平矢量风格，线条中等偏粗，边缘平滑锐利，色彩饱满，保留旧版形状识别特征，不改变加减和箭头方向。不要像素锯齿、照片、3D质感、发光、阴影或复杂小细节。\n画布1536乘1152像素，四列三行，每格384乘384像素。每个图标居中，主体占各格宽度约百分之六十五，均匀留白，视觉大小一致。纯白背景RGB255,255,255，无网格、分隔线、格子边框、说明文字、数字、水印。除预热图标内一个B字母以外无文字。白色箭头、加减号和停止方块必须保留。仅重绘这12个图标，不增减、合并、调换。",
+      "negative_prompt": "",
+      "resolution": 0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_1": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImage21",
+    "_meta": {
+      "title": "Qwen 2.1 文本/多模态条件编码"
+    }
+  },
+  "6": {
+    "inputs": {
+      "seed": 2026102512,
+      "steps": 30,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "4",
+        1
+      ],
+      "latent_image": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler (30 steps / CFG 1.0)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "geospectrum/capture-icons-20261025/icons-v1",
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "10": {
+    "class_type": "ModelAttentionBackend",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "attention": "comfy kitchen attention"
+    },
+    "_meta": {
+      "title": "Comfy Kitchen Attention (INT8)"
+    }
+  },
+  "11": {
+    "class_type": "EasyCache",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "reuse_threshold": 0.1,
+      "start_percent": 0.15,
+      "end_percent": 0.85,
+      "verbose": false
+    },
+    "_meta": {
+      "title": "EasyCache (0.10 / 0.15-0.85)"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "geospectrum-capture-icons-20261025/legacy-capture-icons.png"
+    }
+  }
+}

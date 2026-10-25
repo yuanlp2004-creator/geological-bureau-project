@@ -1,0 +1,75 @@
+{
+  "status": "passed",
+  "batch": "2026-10-25-capture-icons",
+  "executed_plan_sha256": "2f0e5838c2fdede4fd1857774a3577caabfab1523183ebef35b96503c4ee46d0",
+  "git_baseline": {
+    "commit": "6fc7a0d316286a6884ecf05d988c2cdad7ec1c8d",
+    "tag": "before-spectroscopy-icons-20261025",
+    "remote_verified": true
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "050654f5c94c7532fc954023403f6e90b4c120636e0cf3466e2fadb1a9727d30",
+    "geospectrum-backend.exe": "763c5ffb66d70c30ede0a28b4210b7a021ffa76c5173fd460d6290bdec03b109"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-icons-20261025\\before",
+  "builds": [
+    "TypeScript/Vite",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "tests": {
+    "browser_checks": 13,
+    "actual_packaged_desktop_checks": 13,
+    "layouts_each": 6,
+    "legacy_capture_browser_checks": 5,
+    "legacy_capture_desktop_checks": 5,
+    "legacy_layouts_each": 8,
+    "empty_spectrum_tools_disabled": true,
+    "observation_writes": 0
+  },
+  "generation": {
+    "provider": "local ComfyUI 127.0.0.1:8188",
+    "model": "qwen_image_2.1_int8_convrot.safetensors",
+    "encoder": "qwen3vl_8b_w4a8.safetensors",
+    "vae": "qwen_image_2.1_vae_bf16.safetensors",
+    "steps": 30,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "seed": 2026102512,
+    "reference_size": [
+      1536,
+      1152
+    ],
+    "output_icons": 12,
+    "final_size": [
+      256,
+      256
+    ],
+    "display_css_px": 20,
+    "job": "61318e78-0169-4e34-9bd8-d1648e8edae3",
+    "fit_correction_job": "42916d6c-7d4c-457b-9f4f-9fb278d92d46",
+    "fit_correction_seed": 2026102513,
+    "canonical_workflow_unchanged": true,
+    "external_prompt_api_used": false
+  },
+  "legacy_hashes_preserved": {
+    "Spec Source/Source/Common/DmResource.dfm": "b6de5850453437868e22bf35f4c3cf0fdde968c459b071bf441af09d23cd9a11",
+    "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm": "58f7945a5d9b63750daf489899bbf55a9e3eed52aeb6a5e23c47f1c0efb8a3fc",
+    "Spec Source/Source/Main/mmAnalyze/FmView.pas": "fb748411b1ad8a8f997cf0abf7a241f081aafecd8331b35313144ec8e1c5c153",
+    "Spec Source/Source/Main/mmAnalyze/FmView.dfm": "9c512968d3025d031a5b879a4f25f1c0e763eb55670708c0ee68aad8f163d7e4",
+    "Spec Source/Res/Images/Lock.bmp": "b41b8227c153de560606c92a64e5c7243251c80c8bc6897306316a0638d9e2bf"
+  },
+  "backend_bytes_unchanged": true,
+  "schema_version": 23,
+  "tests_use_isolated_seeded_data": true,
+  "live_user_database_overwritten": false,
+  "root_and_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "diagnostics": [
+    "Initial QA renderer discovery returned no pages; fresh isolated launch passed and exited normally.",
+    "Test navigation updated for header portal actions and explicit task-list refresh; product behavior unchanged."
+  ]
+}

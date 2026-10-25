@@ -1,0 +1,14 @@
+{
+  "repository": "https://github.com/yuanlp2004-creator/geological-bureau-project",
+  "commit": "6fc7a0d316286a6884ecf05d988c2cdad7ec1c8d",
+  "tag": "before-spectroscopy-icons-20261025",
+  "verified_remote_refs": {
+    "refs/heads/main": "6fc7a0d316286a6884ecf05d988c2cdad7ec1c8d",
+    "refs/tags/before-spectroscopy-icons-20261025": "6fc7a0d316286a6884ecf05d988c2cdad7ec1c8d"
+  },
+  "root_executable_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-icons-20261025\\before",
+  "baseline_executables": {
+    "GeoSpectrum.exe": "9e1d0126c015cd7592f3261f169a925ab5f4f3fdd0c7600368c2e50c4356d0a5",
+    "geospectrum-backend.exe": "763c5ffb66d70c30ede0a28b4210b7a021ffa76c5173fd460d6290bdec03b109"
+  }
+}

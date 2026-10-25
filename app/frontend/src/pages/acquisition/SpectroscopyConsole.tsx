@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
-import { Activity, Flame, PauseCircle, PlayCircle, Square } from 'lucide-react'
+import { Activity, PauseCircle, PlayCircle } from 'lucide-react'
 import { CopyableCode } from '../../components/InformationDisplay'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
 type Command = { run: () => unknown; enabled: boolean }
 type Props = {
@@ -52,12 +53,12 @@ export function SpectroscopyConsole(props: Props) {
     <div className="spectroscopy-setup">{props.setup}</div>
     <div className="spectroscopy-command-area">
     <div className="spectroscopy-controls monitor-actions dispersion-controls" aria-label="摄谱控制">
-      {button('试样摄谱', props.start, <PlayCircle size={15} />, 'primary-button')}
-      {button('预热摄谱', props.preheat, <Flame size={15} />)}
+      {button('试样摄谱', props.start, <SpectroscopyIcon name="capture" />, 'primary-button')}
+      {button('预热摄谱', props.preheat, <SpectroscopyIcon name="preheat" />)}
       {props.status === 'paused'
         ? button('继续', props.resume, <PlayCircle size={15} />)
         : button('暂停', props.pause, <PauseCircle size={15} />)}
-      {button('停止摄谱', props.stop, <Square size={14} />, 'secondary-button danger')}
+      {button('停止摄谱', props.stop, <SpectroscopyIcon name="stop" />, 'secondary-button danger')}
     </div>
     {props.name ? <>
       <div className="runtime-source">{props.source}</div>

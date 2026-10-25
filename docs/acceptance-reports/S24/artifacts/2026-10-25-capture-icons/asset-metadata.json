@@ -1,0 +1,314 @@
+[
+  {
+    "name": "crosshair",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      18,
+      240,
+      237
+    ],
+    "sha256": "b760dbc63774355bbc30ae5a63e1cab91570f6d6ddbb5629cb172a2d1979ebe9",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      95,
+      93,
+      292,
+      286
+    ]
+  },
+  {
+    "name": "box-zoom",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      19,
+      16,
+      237,
+      240
+    ],
+    "sha256": "a3f0ebd0bcb936991df5a0f3e80bb35a71957ba0253b244833f24f3bbcb67e9b",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      97,
+      90,
+      289,
+      287
+    ]
+  },
+  {
+    "name": "pan",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      27,
+      240,
+      228
+    ],
+    "sha256": "8262a198966e64bf1aaa3e0eafd3d371c94ef528ac591204a2a399a3b76c9cb4",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      103,
+      98,
+      285,
+      261
+    ]
+  },
+  {
+    "name": "fit",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      17,
+      240,
+      238
+    ],
+    "sha256": "71edd4c0ae7792341130c737ba3ed449d61ef5908a5d54b40266ef41b2ef96ef",
+    "source": "fit-v2.png",
+    "source_bounds": [
+      154,
+      154,
+      619,
+      612
+    ]
+  },
+  {
+    "name": "zoom-x-in",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ],
+    "sha256": "bb85af6fe179cc2db5c0e53d2339b726a2e480018c557c5df2bec17577b6c822",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      100,
+      91,
+      289,
+      280
+    ]
+  },
+  {
+    "name": "zoom-x-out",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      16,
+      239,
+      240
+    ],
+    "sha256": "18327273de00ced4bbcb242b29b238615d680d689644630428f9f636ecc8fefb",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      100,
+      91,
+      288,
+      280
+    ]
+  },
+  {
+    "name": "zoom-y-in",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ],
+    "sha256": "248597ca7b2176431bce8024bc3414911c69ed765aaa82e404c187f4006426cd",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      97,
+      91,
+      294,
+      288
+    ]
+  },
+  {
+    "name": "zoom-y-out",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ],
+    "sha256": "9d8fead361fe0dc27d2b7954d5206c9bcafde9d0d99e872534b78df4e99ffd01",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      95,
+      91,
+      288,
+      287
+    ]
+  },
+  {
+    "name": "lock",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      50,
+      16,
+      206,
+      240
+    ],
+    "sha256": "61832b312440437cc51b662c8e4327a7ee644f29054deff5dcdf44d5919340db",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      126,
+      82,
+      260,
+      274
+    ]
+  },
+  {
+    "name": "capture",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ],
+    "sha256": "f29cd42cf2bb08816029a08634a3789391388afad4e2a553e4e80bbb62a5eb87",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      96,
+      89,
+      291,
+      287
+    ]
+  },
+  {
+    "name": "preheat",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      24,
+      16,
+      231,
+      240
+    ],
+    "sha256": "c7dde958755c8434031de63954a7500dfbbbdc0e2b1ee7054513fe46e2f7298d",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      111,
+      98,
+      273,
+      273
+    ]
+  },
+  {
+    "name": "stop",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "visible_bounds": [
+      18,
+      16,
+      238,
+      240
+    ],
+    "sha256": "d3e9ec5a4d274a9a13fb871189f524bbf1e06b8ad437c3cece4ca912dfb1fd1e",
+    "source": "generated-sheet-v1.png",
+    "source_bounds": [
+      94,
+      87,
+      290,
+      287
+    ]
+  }
+]
