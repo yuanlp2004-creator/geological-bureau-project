@@ -167,10 +167,29 @@ try {
   const dispersion = await call(page, dispersionBase, { name: '人工色散摄谱', frame_count: 2, dark_frame_count: 1, pre_excitation_seconds: 0 })
   await page.reload(); await page.locator('[data-navigation-group="analysis-tests"]').waitFor()
   host = await go('dispersion', dispersion.name)
+  const toolbarGeometry = () => host.locator('.legacy-main-toolbar').evaluate(element => {
+    const outer = element.getBoundingClientRect()
+    return [...element.querySelectorAll('button')].map(button => { const r = button.getBoundingClientRect();
+      return { name: button.getAttribute('aria-label'), x: r.x - outer.x, y: r.y - outer.y, width: r.width, height: r.height } })
+  })
+  const formalToolbar = await toolbarGeometry()
   const dispWarmup = await command(host, '预热摄谱', `/${dispersion.id}/preheat`)
   const dispHeat = await task(dispersionBase, dispWarmup.id, task => task.status === 'completed')
   assert.equal(dispHeat.condition.preheat, true); assert.equal(dispHeat.calibrations.length, 0)
   await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor()
+  const preheatToolbar = await toolbarGeometry()
+  assert.deepEqual(preheatToolbar.map(button => button.name), formalToolbar.map(button => button.name))
+  for (let index = 0; index < formalToolbar.length; index++) {
+    for (const key of ['x', 'y', 'width', 'height']) assert.ok(Math.abs(formalToolbar[index][key] - preheatToolbar[index][key]) <= .5)
+  }
+  for (const name of ['增加谱线', '删除所选谱线', '校正谱线', '拟合曲线']) {
+    assert.equal(await host.getByRole('button', { name, exact: true }).isVisible(), true)
+    assert.equal(await host.getByRole('button', { name, exact: true }).isDisabled(), true)
+  }
+  const preheatDesk = await host.locator('.spectroscopy-console').boundingBox()
+  await page.screenshot({ path: path.join(output, 'dispersion-preheat-buttons.png'), clip: { x: preheatDesk.x, y: preheatDesk.y, width: preheatDesk.width, height: 180 } })
+  await page.screenshot({ path: path.join(output, 'dispersion-preheat.png') })
+  result.layouts.push({ name: 'dispersion-preheat-toolbar', width: 1440, height: 1000, theme: 'light', formalToolbar, preheatToolbar })
   await command(host, '试样摄谱', `/${dispersion.id}/start`)
   await task(dispersionBase, dispersion.id, task => task.status === 'completed')
   await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor(); await screenshot(host, 'dispersion-completed')

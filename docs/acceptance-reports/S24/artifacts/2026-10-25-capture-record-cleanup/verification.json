@@ -1,0 +1,127 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "8ac3938c0f5252233963e27e53fd1fa0b9c761cffd2e1462c76379cddb581038",
+  "checks": {
+    "browser": {
+      "checks": 17,
+      "layouts": 9
+    },
+    "desktop": {
+      "checks": 15,
+      "layouts": 9
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 9
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 9
+    }
+  },
+  "frontend_tests": 15,
+  "source_and_frontend_match": true,
+  "unchanged_legacy_source_files": 105,
+  "backend_sources_and_exe_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_executables": {
+    "GeoSpectrum.exe": "06c777a6f06616be1bce6cd12846a96e636ed527002ca8887fd3cf8e3c9ff834",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "git_backup": {
+    "commit": "f6f0530705698e5daa815ac177bf995466e81af7",
+    "tag": "before-capture-record-cleanup-20261025",
+    "remote_verified": true,
+    "old_executables": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-record-cleanup-20261025\\before"
+  },
+  "preheat_toolbar_comparison": {
+    "name": "dispersion-preheat-toolbar",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light",
+    "formalToolbar": [
+      {
+        "name": "增加谱线",
+        "x": 4,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "删除所选谱线",
+        "x": 28,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "校正谱线",
+        "x": 540.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "拟合曲线",
+        "x": 564.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "关闭摄谱工作台",
+        "x": 601.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      }
+    ],
+    "preheatToolbar": [
+      {
+        "name": "增加谱线",
+        "x": 4,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "删除所选谱线",
+        "x": 28,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "校正谱线",
+        "x": 540.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "拟合曲线",
+        "x": 564.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      },
+      {
+        "name": "关闭摄谱工作台",
+        "x": 601.671875,
+        "y": 7,
+        "width": 24,
+        "height": 24
+      }
+    ]
+  },
+  "notes": [
+    "The reported discrepancy was a preheat task; the previous example showed a formal dispersion task. The former hid the complete edit/fit groups.",
+    "Both task states now retain identical toolbar positions; preheat edit, delete, locate and fit are disabled and produce no calibration.",
+    "Removed the record toolbar, expand-to-record-actions area and local record-selection lock from sample, evaporation and dispersion views.",
+    "Rows still select real saved spectra. Only while browsing a selected record is a text return-to-current-spectrum action shown.",
+    "Point lock in the readout and running/request navigation protections remain. No backend, schema, algorithm or device protocol changed.",
+    "One earlier QA regression target disconnected while clicking login, before the capture page loaded. Its failure was retained locally; a standalone complete rerun passed without product changes or relaxed assertions. Cause not established.",
+    "All writes used isolated seeded databases. Both final QA processes exited naturally with no owned processes remaining. Installer unchanged."
+  ]
+}

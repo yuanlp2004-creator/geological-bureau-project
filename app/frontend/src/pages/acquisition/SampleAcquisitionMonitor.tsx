@@ -52,7 +52,6 @@ export function SampleAcquisitionMonitor({
   const acquiring = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark', 'stopping'].includes(selected.status))
   const enabled = Boolean(selected && !busy && canExecute)
   const [sampleId, setSampleId] = useState<number | null>(null)
-  const [recordLocked, setRecordLocked] = useState(false)
   const [band, setBand] = useState<{ key: string; points: number[]; sha256?: string } | null>(null)
   const [error, setError] = useState('')
   const [printing, setPrinting] = useState(false)
@@ -61,8 +60,8 @@ export function SampleAcquisitionMonitor({
   const completed = selected?.samples.filter(sample => sample.finalized && !sample.discarded && sample.status === 'completed') ?? []
   const observedSample = completed.find(sample => sample.id === sampleId)
   const observedKey = `${token}:${selected?.id}:${observedSample?.id}:${ccd}`
-  useEffect(() => { setSampleId(null); setRecordLocked(false) }, [selected?.id])
-  useEffect(() => { if (acquiring) { setSampleId(null); setRecordLocked(false) } }, [acquiring])
+  useEffect(() => { setSampleId(null) }, [selected?.id])
+  useEffect(() => { if (acquiring) setSampleId(null) }, [acquiring])
   const newestSampleId = completed[completed.length - 1]?.id
   useEffect(() => {
     if (newestSampleId !== undefined && ['completed', 'between_repeats'].includes(selected?.status ?? '')) setSampleId(newestSampleId)
@@ -116,8 +115,7 @@ export function SampleAcquisitionMonitor({
       records={<CaptureBandList title={selected?.task_kind === 'evaporation' ? '蒸发谱带' : selected?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
         variant={selected?.task_kind === 'evaporation' ? 'band' : 'sample'}
         rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', sequence: sample.repeat_index + 1, detail: `重复 ${sample.repeat_index + 1} · ${sample.bands.length} CCD` }))}
-        selected={observedSample?.id ?? null} locked={recordLocked} disabled={busy || acquiring}
-        onChoose={setSampleId} onLockChange={setRecordLocked} />}
+        selected={observedSample?.id ?? null} disabled={busy || acquiring} onChoose={setSampleId} />}
       finish={{ run: finish, enabled: canFinish }} setup={<>
       {selected && <dl className="spectroscopy-task-summary" aria-label="当前任务条件">
         <div><dt>{selected.task_kind === 'evaporation' ? '保存模式' : '方法版本'}</dt>
@@ -151,7 +149,7 @@ export function SampleAcquisitionMonitor({
           label={`CCD ${ccd + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}
           physicalScale={{ pointWidthUm: selected.layout.point_width_um, screenWidthMm: selected.profile.screen_width_mm, screenResolutionPx: selected.profile.screen_resolution_px }}
           bandNavigation={{ previous: () => setSampleId(completed[recordIndex - 1]?.id ?? null), next: () => setSampleId(completed[recordIndex + 1]?.id ?? null),
-            canPrevious: !busy && !acquiring && !recordLocked && recordIndex > 0, canNext: !busy && !acquiring && !recordLocked && recordIndex < completed.length - 1 }}
+            canPrevious: !busy && !acquiring && recordIndex > 0, canNext: !busy && !acquiring && recordIndex < completed.length - 1 }}
           onPrint={canExport ? range => void print(range) : undefined}
           printDisabledReason={printing ? '正在生成谱图PDF' : busy || acquiring ? '采集操作完成后可打印' : !observedSample ? '选择左侧已保存谱带后可打印' : !observed ? '等待已保存谱带读取完成' : undefined}
           emptyText={error || (observedSample ? '正在读取已保存谱带…' : '开始采集后显示实时 CCD 曲线')} />

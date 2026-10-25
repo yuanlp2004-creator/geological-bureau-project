@@ -72,6 +72,8 @@ export async function checkFullSpectroscopy(page, result, output) {
         return { left: left.x, middle: middle.x, right: right.x, width: innerWidth, rightEdge: right.right }
       })
       assert.ok(columns.left < columns.middle && columns.middle < columns.right && columns.rightEdge <= columns.width + 1)
+      assert.equal(await host.locator('.capture-record-options,.capture-record-toolbar').count(), 0)
+      assert.equal(await host.getByRole('button', { name: /锁定谱带记录/ }).count(), 0)
       const toolbar = await host.locator('.legacy-main-toolbar').evaluate(element => {
         const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, height: r.height } }
         return { fields: [...element.querySelectorAll('.spectroscopy-line-bar select,.spectroscopy-line-bar input')].map(box),
@@ -191,21 +193,20 @@ export async function checkFullSpectroscopy(page, result, output) {
     const pdf = await readFile(destination); assert.equal(pdf.subarray(0, 4).toString(), '%PDF'); assert.ok(pdf.length > 1000)
   }
   check('工作台已保存谱带按当前可见范围生成真实PDF，桌面取消保存不改变谱带')
-  await host.getByRole('button', { name: '锁定谱带记录', exact: true }).click()
-  assert.equal(await rows.last().getByRole('button').isDisabled(), true)
-  await host.getByRole('button', { name: '解锁谱带记录', exact: true }).click()
+  assert.equal(await rows.last().getByRole('button').isDisabled(), false)
   await scope.getByRole('button', { name: '下一谱带', exact: true }).click()
   assert.equal(await rows.last().getAttribute('aria-selected'), 'true')
-  check('已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常')
+  check('已保存均值谱带点值与后端原值一致；移除记录锁后列表和谱带前后切换正常')
   if (!process.env.QA_CDP) {
-    await host.getByRole('button', { name: '返回实时谱图', exact: true }).click()
+    await host.getByRole('button', { name: '返回当前谱图', exact: true }).click()
+    assert.equal(await host.getByRole('button', { name: '返回当前谱图', exact: true }).count(), 0)
     const route = `**/acquisitions/samples/${item.task.samples[0].id}/bands*`
     await page.route(route, route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'QA已保存谱带读取失败' }) }))
     await rows.first().getByRole('button').click()
     await host.getByRole('alert').filter({ hasText: 'QA已保存谱带读取失败' }).waitFor()
     assert.equal(await scope.locator('svg').count(), 0)
     await page.unroute(route)
-    await host.getByRole('button', { name: '返回实时谱图', exact: true }).click()
+    await host.getByRole('button', { name: '返回当前谱图', exact: true }).click()
     await rows.first().getByRole('button').click(); await scope.locator('svg .spectrum-line').waitFor()
     check('读取已保存谱带失败时明确提示并清空曲线，切回后可重试，无实时数据冒充')
   }
@@ -213,8 +214,10 @@ export async function checkFullSpectroscopy(page, result, output) {
   await dh.locator('.capture-record-table tbody tr').first().getByRole('button').click()
   const frames = await call(page, `/api/v1/dispersion/tasks/${dispersion.task.id}/frames?ccd_index=0`)
   assert.equal(await pointValue(ds, 123), frames[0].points[123])
-  await dh.getByText('记录操作', { exact: true }).click()
-  await dh.getByRole('button', { name: '返回实时谱图', exact: true }).click()
+  await dh.locator('.spectroscopy-records').screenshot({ path: path.join(output, 'record-list-clean.png') })
+  assert.equal(await dh.getByRole('button', { name: '返回当前谱图', exact: true }).count(), 1)
+  await dh.getByRole('button', { name: '返回当前谱图', exact: true }).click()
+  assert.equal(await dh.getByRole('button', { name: '返回当前谱图', exact: true }).count(), 0)
   await dh.getByRole('button', { name: '拟合曲线', exact: true }).click()
   const processing = dh.getByRole('region', { name: '当前色散任务处理' })
   await processing.waitFor()

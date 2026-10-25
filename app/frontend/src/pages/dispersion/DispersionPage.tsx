@@ -329,17 +329,17 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
               if (!busy && !runningTask) { const task = tasks.find(task => String(task.id) === value); if (task) setActive(task) }
             }}
             finish={() => setScreen('tasks')} canFinish={!busy && !runningTask}
-            lineEditToolbar={active && !active.condition.preheat && <>
-              <SpectroscopyToolButton icon="add-line" label="增加谱线" description="展开当前色散任务的谱线编辑表单"
-                disabled={!canWrite || busy || Boolean(runningTask)} onClick={() => setProcessingOpen(true)} />
-              <SpectroscopyToolButton icon="delete-line" label="删除所选谱线" disabled={!canWrite || busy || Boolean(runningTask) || manualLine === null}
+            lineEditToolbar={active && <>
+              <SpectroscopyToolButton icon="add-line" label="增加谱线" description={active.condition.preheat ? '预热谱仅供观察，请返回正式色散任务编辑谱线' : '展开当前色散任务的谱线编辑表单'}
+                disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask)} onClick={() => setProcessingOpen(true)} />
+              <SpectroscopyToolButton icon="delete-line" label="删除所选谱线" disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask) || manualLine === null}
                 onClick={() => { if (manualLine !== null) void removeLine(manualLine) }} />
             </>}
-            workflowToolbar={active && !active.condition.preheat && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
-              <SpectroscopyToolButton icon="line-correction" label="校正谱线" description="定位当前色散任务的全部谱线"
-                disabled={!canWrite || busy || Boolean(runningTask) || !active.lines.length || !active.burn_frames_captured} onClick={() => void locateAll()} />
-              <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="展开当前任务的定位、拟合与保存"
-                disabled={busy || Boolean(runningTask) || !active.burn_frames_captured} onClick={() => setProcessingOpen(value => !value)} aria-pressed={processingOpen} />
+            workflowToolbar={active && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
+              <SpectroscopyToolButton icon="line-correction" label="校正谱线" description={active.condition.preheat ? '预热谱仅供观察，请返回正式色散任务定位谱线' : '定位当前色散任务的全部谱线'}
+                disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask) || !active.lines.length || !active.burn_frames_captured} onClick={() => void locateAll()} />
+              <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description={active.condition.preheat ? '预热不生成正式曲线，请返回正式色散任务拟合' : '展开当前任务的定位、拟合与保存'}
+                disabled={Boolean(active.condition.preheat) || busy || Boolean(runningTask) || !active.burn_frames_captured} onClick={() => setProcessingOpen(value => !value)} aria-pressed={processingOpen} />
             </div>}
             canStart={Boolean(formalTask && !formalTask.condition.preheat && formalTask.status === 'draft')}
             canPreheat={canWrite && Boolean(active && ['draft', 'completed', 'failed', 'stopped'].includes(active.status))}
