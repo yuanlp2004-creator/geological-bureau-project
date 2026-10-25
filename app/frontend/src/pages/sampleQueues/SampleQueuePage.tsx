@@ -6,6 +6,7 @@ import type { MethodConditions } from '../../api/methods'
 import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { SampleNumberTable } from './SampleNumberTable'
 import { SectionHeading } from '../../components/SectionHeading'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
 export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: string; onToast: (message: string) => void; entryRequest?: number }) {
   const [queues, setQueues] = useState<SampleQueue[]>([])
@@ -256,7 +257,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: s
               <div className="page-intro-actions file-actions">
                 <span className="status-chip">{selected.expanded_bands} 谱带</span>
                 <button className="icon-button compact danger" title="清空队列" disabled={locked} onClick={() => void clearQueue()}>
-                  <Trash2 size={14} />
+                  <SpectroscopyIcon name="sample-list-clear" />
                 </button>
               </div>
             )}
@@ -304,7 +305,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: s
               <label className="field"><span>SAM 编码</span><select value={samEncoding} disabled={locked} onChange={e => setSamEncoding(e.target.value as typeof samEncoding)}>
                 <option value="">旧版 GB18030（自动识别 UTF-8 BOM）</option><option value="utf-8-sig">UTF-8</option><option value="gb18030">GB18030</option></select></label>
               <button className="primary-button" disabled={locked} onClick={() => void entryCommand()}>
-                <Plus size={15} />
+                <SpectroscopyIcon name={selected ? 'insert-sample' : 'sample-list-input'} />
                 {selected ? '插入样品' : '创建队列'}
               </button>
             </div>

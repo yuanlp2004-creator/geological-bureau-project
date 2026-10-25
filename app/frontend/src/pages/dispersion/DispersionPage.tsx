@@ -23,6 +23,7 @@ import { Props, runningStates, statusLabels } from './dispersionView'
 import { useSpectroscopySession, type SpectroscopyMode } from '../acquisition/spectroscopySession'
 import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
+import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 
 export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, onToast, actionsTarget, onCaptureChange, view = 'capture' }: Props & {
   actionsTarget?: HTMLElement | null
@@ -36,6 +37,8 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const [active, setActive] = useState<DispersionTask | null>(null)
   const [screen, setScreen] = useState<'tasks' | 'capture'>('tasks')
   const [createOpen, setCreateOpen] = useState(false)
+  const [processingOpen, setProcessingOpen] = useState(false)
+  useEffect(() => setProcessingOpen(false), [active?.id])
   const [createError, setCreateError] = useState<string | null>(null)
   useLayoutEffect(() => {
     onCaptureChange?.('dispersion', view === 'capture' && screen === 'capture')
@@ -279,7 +282,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     }, message)
   }
   const addLine = () => {
-    if (!reportInvalidNumericInput(document.querySelector('.dispersion-line-form'))) return onToast('请先修正谱线波长')
+    if (!reportInvalidNumericInput(document.querySelector('[data-testid="dispersion-add-line-form"]'))) return onToast('请先修正谱线波长')
     return change(
       (id) => api.addDispersionLine(token, id, { element, wavelength_nm: wavelength, ccd_index: lineCcd }),
       '谱线已添加'
@@ -311,7 +314,31 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     )
   }
 
+  const changeGapAndRefit = (gap: number, value: number, selector = '.dispersion-lines-panel') => {
+    if (!active) return
+    if (!reportInvalidNumericInput(document.querySelector(selector))) return onToast('请先修正波长或间隔')
+    void change(async () => {
+      await api.updateDispersionGap(token, active.id, gap, value)
+      if (active.lines.filter(line => line.saved_position != null || line.located_position != null).length >= 3)
+        await api.fitDispersionCalibration(token, active.id, { name: calibrationName || active.name, degree: 2, use_legacy_limit: true })
+    }, 'CCD 间隔已修正；定位点充足时已重新拟合')
+  }
   const monitor = <DispersionMonitor view={view} active={active} start={start} preheat={preheat}
+            finish={() => setScreen('tasks')} canFinish={!busy && !runningTask}
+            workflowToolbar={active && !active.condition.preheat && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
+              <select aria-label="当前色散谱线" value={manualLine ?? ''} disabled={busy || Boolean(runningTask)}
+                onChange={event => setManualLine(event.target.value ? Number(event.target.value) : null)}>
+                <option value="">选择谱线</option>{active.lines.map(line => <option key={line.id} value={line.id}>{line.element} {line.wavelength_nm}</option>)}
+              </select>
+              <SpectroscopyToolButton icon="add-line" label="增加谱线" description="展开当前色散任务的谱线编辑表单"
+                disabled={!canWrite || busy || Boolean(runningTask)} onClick={() => setProcessingOpen(true)} />
+              <SpectroscopyToolButton icon="delete-line" label="删除所选谱线" disabled={!canWrite || busy || Boolean(runningTask) || manualLine === null}
+                onClick={() => { if (manualLine !== null) void removeLine(manualLine) }} />
+              <SpectroscopyToolButton icon="line-correction" label="校正谱线" description="定位当前色散任务的全部谱线"
+                disabled={!canWrite || busy || Boolean(runningTask) || !active.lines.length || !active.burn_frames_captured} onClick={() => void locateAll()} />
+              <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="展开当前任务的定位、拟合与保存"
+                disabled={busy || Boolean(runningTask) || !active.burn_frames_captured} onClick={() => setProcessingOpen(value => !value)} aria-pressed={processingOpen} />
+            </div>}
             canStart={Boolean(formalTask && !formalTask.condition.preheat && formalTask.status === 'draft')}
             canPreheat={canWrite && Boolean(active && ['draft', 'completed', 'failed', 'stopped'].includes(active.status))}
             canExecute={canExecute && (!runningTask || active?.id === runningTask.id)} pause={pause} resume={resume}
@@ -358,7 +385,28 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
         const task = tasks.find(item => item.id === id)
         if (task && !busy && (!runningTask || runningTask.id === id)) { void choose(task); setScreen('capture') }
       }} />}
-    <main className="dispersion-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>{monitor}</main>
+    <main className="dispersion-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>{monitor}
+      {processingOpen && active && !active.condition.preheat && <section className="capture-processing" aria-label="当前色散任务处理">
+        <DispersionLines locateAll={locateAll} canWrite={canWrite && !busy && !runningTask} active={active}
+          element={element} setElement={setElement} wavelength={wavelength} setWavelength={setWavelength}
+          lineCcd={lineCcd} setLineCcd={setLineCcd} addLine={addLine} updateLine={updateLine} removeLine={removeLine}
+          changeWavelength={(lineId, value) => {
+            if (reportInvalidNumericInput(document.querySelector('.capture-processing')))
+              void change(() => api.updateDispersionWavelength(token, active.id, lineId, value), '波长已更新，请重新拟合')
+          }}
+          changeGap={(gap, value) => changeGapAndRefit(gap, value, '.capture-processing')} />
+        <div className="inspector-frame-tools"><span>锁定实际点位：{lockedPoint ?? '未选择'}</span>
+          <select aria-label="人工定位谱线" value={manualLine ?? ''} onChange={event => setManualLine(event.target.value ? Number(event.target.value) : null)}>
+            <option value="">选择当前CCD谱线</option>{active.lines.filter(line => line.ccd_index === selectedCcd).map(line => <option key={line.id} value={line.id}>{line.element} {line.wavelength_nm}</option>)}
+          </select>
+          <button type="button" disabled={!canWrite || busy || Boolean(runningTask) || lockedPoint === null || manualLine === null}
+            onClick={() => { if (lockedPoint !== null && manualLine !== null) void change(id => api.setDispersionPosition(token, id, manualLine, lockedPoint), '人工点位已设置') }}>采用锁定点位</button>
+        </div>
+        <DispersionCalibration calibrationName={calibrationName} setCalibrationName={setCalibrationName} fit={fit}
+          canWrite={canWrite && !busy && !runningTask} active={active} latestCalibration={latestCalibration} publish={publish}
+          bindMethodId={bindMethodId} setBindMethodId={setBindMethodId} methods={methods} bind={bind} />
+      </section>}
+    </main>
   </div>
 
   return (
@@ -462,14 +510,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
                 if (!reportInvalidNumericInput(document.querySelector('.dispersion-lines-panel'))) return onToast('请先修正波长或间隔')
                 void change(() => api.updateDispersionWavelength(token,active.id,lineId,value),'波长已更新，请重新拟合')
               }}
-              changeGap={(gap, value) => {
-                if (!reportInvalidNumericInput(document.querySelector('.dispersion-lines-panel'))) return onToast('请先修正波长或间隔')
-                void change(async () => {
-                  await api.updateDispersionGap(token,active.id,gap,value)
-                  if (active.lines.filter(line=>line.saved_position!=null || line.located_position!=null).length>=3)
-                    await api.fitDispersionCalibration(token,active.id,{ name: calibrationName || active.name, degree: 2, use_legacy_limit: true })
-                },'CCD 间隔已修正；定位点充足时已重新拟合')
-              }}
+              changeGap={changeGapAndRefit}
             />
           )}
           {view === 'curve' && active && (

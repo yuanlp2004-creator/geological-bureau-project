@@ -1,0 +1,322 @@
+[
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 1,
+    "name": "previous-band",
+    "label": "上一谱带",
+    "description": "鲜绿色方块内白色向左三角形，左侧有白色竖线"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 0,
+    "name": "next-band",
+    "label": "下一谱带",
+    "description": "鲜绿色方块内白色向右三角形，右侧有白色竖线"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 3,
+    "name": "previous-ccd",
+    "label": "上一CCD",
+    "description": "绿色圆形内白色向左箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 2,
+    "name": "next-ccd",
+    "label": "下一CCD",
+    "description": "绿色圆形内白色向右箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 26,
+    "name": "select-ccd",
+    "label": "选择CCD",
+    "description": "蓝色窗口标题条，下方六个彩色小方格"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 4,
+    "name": "crosshair",
+    "label": "十字线",
+    "description": "灰蓝色十字线，中心小圆点"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 6,
+    "name": "box-zoom",
+    "label": "区域放大",
+    "description": "灰蓝色放大镜，后方虚线选区"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 5,
+    "name": "pan",
+    "label": "滚动工具",
+    "description": "灰蓝色轮廓的手掌"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 7,
+    "name": "fit",
+    "label": "适合图像",
+    "description": "浅蓝色圆形中白色水平双向箭头，左右两端都有三角箭头，左右对称，绝非单向箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 8,
+    "name": "scale-1",
+    "label": "一线一点",
+    "description": "青蓝色圆角小方块，中央白色字符1:1，只能写1:1"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 9,
+    "name": "scale-4",
+    "label": "一线四点",
+    "description": "青蓝色圆角小方块，中央白色字符1:4，只能写1:4"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 10,
+    "name": "scale-10",
+    "label": "十倍CCD",
+    "description": "青蓝色圆角小方块，中央白色数字10，只能写10"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 11,
+    "name": "zoom-x-in",
+    "label": "横向放大",
+    "description": "蓝色圆形，中央白色加号"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 12,
+    "name": "zoom-x-out",
+    "label": "横向缩小",
+    "description": "蓝色圆形，中央白色减号"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 24,
+    "name": "zoom-y-in",
+    "label": "纵向放大",
+    "description": "绿色圆形，中央白色向上箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 25,
+    "name": "zoom-y-out",
+    "label": "纵向缩小",
+    "description": "绿色圆形，中央白色向下箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 27,
+    "name": "reset-y",
+    "label": "纵向还原",
+    "description": "绿色环形回转箭头，内侧白色向左箭头"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 14,
+    "name": "print",
+    "label": "打印谱图",
+    "description": "灰蓝色桌面打印机，上方露出白纸"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 15,
+    "name": "add-line",
+    "label": "增加谱线",
+    "description": "橙红色圆环，中央清晰加号，四周白色留白"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 16,
+    "name": "delete-line",
+    "label": "删除谱线",
+    "description": "橙红色圆环，中央清晰减号，四周白色留白"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 28,
+    "name": "sample-input",
+    "label": "输入送样号",
+    "description": "白色列表纸、蓝色横线，右侧一支红色铅笔"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 17,
+    "name": "reference-correction",
+    "label": "校参考线",
+    "description": "两条交叉的绿色谱线和灰蓝色准星"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 18,
+    "name": "line-correction",
+    "label": "校正谱线",
+    "description": "蓝色坐标轴，中央红色山峰光谱曲线，绿色基线"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 23,
+    "name": "fit-curve",
+    "label": "拟合曲线",
+    "description": "蓝灰色坐标网格中上升蓝色拟合曲线、橙色数据点"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 19,
+    "name": "measure",
+    "label": "开始测量",
+    "description": "蓝色圆形中白色向右播放三角形"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 20,
+    "name": "pause",
+    "label": "暂停测量",
+    "description": "蓝色圆形中两根白色暂停竖条"
+  },
+  {
+    "source": "Spec Source/Source/Common/DmResource.dfm",
+    "image_list": "IlGlobal",
+    "index": 22,
+    "name": "close",
+    "label": "结束关闭",
+    "description": "蓝紫色打开的门，门后一点绿色区域"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 0,
+    "name": "capture",
+    "label": "试样摄谱",
+    "description": "金黄色闪电叠加绿色向右箭头"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 3,
+    "name": "preheat",
+    "label": "预热摄谱",
+    "description": "蓝色圆角小方块内大写英文字母B，只能写B"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 4,
+    "name": "stop",
+    "label": "停止摄谱",
+    "description": "深蓝色圆形内白色停止方块"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 5,
+    "name": "finish",
+    "label": "结束摄谱",
+    "description": "蓝紫色打开的门，门后一点绿色区域"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 6,
+    "name": "input-samples",
+    "label": "输入样品编号",
+    "description": "白色列表纸、蓝色横线、红色铅笔"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 10,
+    "name": "insert-sample",
+    "label": "插入样品编号",
+    "description": "橙红色圆环中清晰白色加号"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.dfm",
+    "image_list": "IlIgnit",
+    "index": 7,
+    "name": "clear-samples",
+    "label": "清除样品编号",
+    "description": "绿色刷柄、金黄色刷毛的一把小扫帚"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.dfm",
+    "image_list": "IlSamp",
+    "index": 0,
+    "name": "sample-list-input",
+    "label": "录入样品编号",
+    "description": "白色列表纸、蓝色横线、红色铅笔"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.dfm",
+    "image_list": "IlSamp",
+    "index": 1,
+    "name": "sample-list-clear",
+    "label": "清除样品编号",
+    "description": "绿色刷柄、金黄色刷毛的一把小扫帚"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.dfm",
+    "image_list": "IlSamp",
+    "index": 4,
+    "name": "multi-view",
+    "label": "多样查看",
+    "description": "蓝色窗口中红绿蓝三条叠加光谱曲线"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.dfm",
+    "image_list": "IlSamp",
+    "index": 2,
+    "name": "record-lock",
+    "label": "锁定记录",
+    "description": "银色锁梁、金黄色锁体的闭合挂锁"
+  },
+  {
+    "source": "Spec Source/Source/Main/mmAnalyze/FmDockAwareSam.dfm",
+    "image_list": "IlSamp",
+    "index": 3,
+    "name": "record-unlock",
+    "label": "解锁记录",
+    "description": "银色锁梁、金黄色锁体的打开挂锁"
+  },
+  {
+    "source": "Spec Source/Res/Images/Lock.bmp",
+    "image_list": "bitmap",
+    "index": 0,
+    "name": "lock",
+    "label": "锁定点位",
+    "description": "银色锁梁、金黄色锁体的闭合挂锁"
+  }
+]

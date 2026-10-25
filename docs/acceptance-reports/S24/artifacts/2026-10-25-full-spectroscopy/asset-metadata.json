@@ -1,0 +1,682 @@
+[
+  {
+    "name": "previous-band",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 0,
+    "sha256": "1f394fb0fcd407af01dbc6ee408fb9202ae0ab01f51429acacb7d007b8d956e3",
+    "visible_bounds": [
+      17,
+      16,
+      239,
+      240
+    ]
+  },
+  {
+    "name": "next-band",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 1,
+    "sha256": "f3a404b2a5af6409bbaea034c69c1f637afc715771e4d421a1f00f0280829788",
+    "visible_bounds": [
+      16,
+      21,
+      240,
+      234
+    ]
+  },
+  {
+    "name": "previous-ccd",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 2,
+    "sha256": "4528dcfb31ee7ef157f8f2ef04393ac66a3664da7a520e9edda7839aee2518c7",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ]
+  },
+  {
+    "name": "next-ccd",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 3,
+    "sha256": "33db1a5b038cfe043bb57fe8abc054e3a2ca917734aaec1d62240d18bce83d87",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "select-ccd",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 4,
+    "sha256": "f23313eb553a417e6d6894363c37cbd64d8f77646330693b867a7b60e3a7d7d4",
+    "visible_bounds": [
+      16,
+      24,
+      240,
+      232
+    ]
+  },
+  {
+    "name": "crosshair",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 5,
+    "sha256": "abc7cb56de78c29557fda7bb7058fc4fa05400e1729aa70768a95ab7482e0f26",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "box-zoom",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 6,
+    "sha256": "d50e85a3bef9e9900949b02bd145184b00d74f95108f50805b5686c120d9857f",
+    "visible_bounds": [
+      16,
+      18,
+      240,
+      237
+    ]
+  },
+  {
+    "name": "pan",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 1,
+    "source_cell": 7,
+    "sha256": "7ae73f51ac18122b666e4a212988252ac3e70de6affc0385d9407bf1fb52f16a",
+    "visible_bounds": [
+      19,
+      16,
+      236,
+      240
+    ]
+  },
+  {
+    "name": "fit",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 0,
+    "sha256": "ccbb66e5e4a735e030407e0319ad706495ac0f5fb6373bb3507b4df492bfd130",
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ]
+  },
+  {
+    "name": "scale-1",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 1,
+    "sha256": "c1e187c5c2a54c77a5608e39a9957fbdb9dc3a72270cc461dcb35b83e577e0d5",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ]
+  },
+  {
+    "name": "scale-4",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 2,
+    "sha256": "d3d12ea270cbe80e702d12a4a31e191a25f6b3f23867513ad609d36228addb28",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "scale-10",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 3,
+    "sha256": "57fc81953df998c2c6d852e0b674f83caef6a76f13d51f68c7624d522471d640",
+    "visible_bounds": [
+      19,
+      16,
+      236,
+      240
+    ]
+  },
+  {
+    "name": "zoom-x-in",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 4,
+    "sha256": "46d7859256b84b3fd3e3318b25879ccc82d7821cf186f70edfa3e44e71f9f4a6",
+    "visible_bounds": [
+      18,
+      16,
+      237,
+      240
+    ]
+  },
+  {
+    "name": "zoom-x-out",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 5,
+    "sha256": "f242eb0f06a784a4a22ed714e1fbd9026cbb0586d35c56bce4f3bb95ddb49908",
+    "visible_bounds": [
+      18,
+      16,
+      237,
+      240
+    ]
+  },
+  {
+    "name": "zoom-y-in",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 6,
+    "sha256": "31467d92598463d81e4bfeac8a670bff173f379a555820e551922ebbdd9f3792",
+    "visible_bounds": [
+      18,
+      16,
+      238,
+      240
+    ]
+  },
+  {
+    "name": "zoom-y-out",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 2,
+    "source_cell": 7,
+    "sha256": "b7fab8066e1b2de4991eb90ebbaa4961243f3ca1525b891113f93a5684790be1",
+    "visible_bounds": [
+      17,
+      16,
+      239,
+      240
+    ]
+  },
+  {
+    "name": "reset-y",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 0,
+    "sha256": "a7813de956b602ab7b15db413b9e575ec7475a008f017f8ce841d44b9c1c7468",
+    "visible_bounds": [
+      16,
+      17,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "print",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 1,
+    "sha256": "5ae9f92cefee5bd816efccd05b01d7f301f4c3a6b32b94b3bfd43c72ffeb7319",
+    "visible_bounds": [
+      16,
+      19,
+      240,
+      236
+    ]
+  },
+  {
+    "name": "add-line",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 2,
+    "sha256": "0fea83b50dc6844e93b17dd888376cd9a15eed7a4e3bfda0f979de670fe6a29f",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "delete-line",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 3,
+    "sha256": "5160bece6e655dbdb04171c739447d8e7b419d1b18d959913f7a926e0fb54efd",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ]
+  },
+  {
+    "name": "sample-input",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 4,
+    "sha256": "fae83f41ec35c69c488cd2696a9ae8050e88bdb109552593c187d22ec5f41b56",
+    "visible_bounds": [
+      16,
+      22,
+      240,
+      233
+    ]
+  },
+  {
+    "name": "reference-correction",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 5,
+    "sha256": "f7c26a9f01ddccd6f1bdcd4bdade27915493a9dc67f1bcf19c808aaef0cae0ec",
+    "visible_bounds": [
+      16,
+      30,
+      240,
+      225
+    ]
+  },
+  {
+    "name": "line-correction",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 6,
+    "sha256": "41f09117bc21f4f8f7e400f40f5a6ea25dd181b09d652d052ad28a8462ba4ad2",
+    "visible_bounds": [
+      16,
+      30,
+      240,
+      225
+    ]
+  },
+  {
+    "name": "fit-curve",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 3,
+    "source_cell": 7,
+    "sha256": "e57d58b5ad4450031bfc6eb5f3a4b9bec1bb78a41a7e374cd7185711d20f10ac",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      239
+    ]
+  },
+  {
+    "name": "measure",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 0,
+    "sha256": "207adb84c2b769748267355043e8fde8495c675bbda1c5977cd5fd0fb40dbbe4",
+    "visible_bounds": [
+      16,
+      16,
+      240,
+      240
+    ]
+  },
+  {
+    "name": "pause",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 1,
+    "sha256": "0d48fb5c7823e600fed5c439e4ef473d0252e29b3a66fb0b397b3ba7a7a3af67",
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ]
+  },
+  {
+    "name": "close",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 2,
+    "sha256": "a25baa1c5d375498fb5cc9ae9c5784da808288701eb33f92bbb8f1a9469e326c",
+    "visible_bounds": [
+      45,
+      16,
+      210,
+      240
+    ]
+  },
+  {
+    "name": "capture",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 3,
+    "sha256": "b38864e6cb2fa7636d1af29abe87d09c6e835a1b3b6485f89a9da8d8d60bf5ee",
+    "visible_bounds": [
+      19,
+      16,
+      237,
+      240
+    ]
+  },
+  {
+    "name": "preheat",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 4,
+    "sha256": "e48806a3af9f58df38651d02c74baa5a4dc0d4f48f3389997c2e12b68bd62fbf",
+    "visible_bounds": [
+      21,
+      16,
+      235,
+      240
+    ]
+  },
+  {
+    "name": "stop",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 5,
+    "sha256": "8f9eb2c97ede29413de9113d54fe36df55f6b8ba84f478f4e15a411fefaae1c8",
+    "visible_bounds": [
+      16,
+      16,
+      239,
+      240
+    ]
+  },
+  {
+    "name": "finish",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 6,
+    "sha256": "b916bf9368cf812d4a4be4750852b1c8310413788d3ca39d410a4be1b2d776a6",
+    "visible_bounds": [
+      47,
+      16,
+      208,
+      240
+    ]
+  },
+  {
+    "name": "input-samples",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 4,
+    "source_cell": 7,
+    "sha256": "8627160929574f73f091a7de8bf1ddea543f4e13f572aaa5568cfdf8bee39561",
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ]
+  },
+  {
+    "name": "insert-sample",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 0,
+    "sha256": "2cc705064300eb57b479c887e0bd48b6fdc20e825138dac3053e94ebdb2f781a",
+    "visible_bounds": [
+      17,
+      16,
+      238,
+      240
+    ]
+  },
+  {
+    "name": "clear-samples",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 1,
+    "sha256": "2db58b8faccdc29e9a193ded4a2845ae71d775f8caec8b44d26dcf1a7462921d",
+    "visible_bounds": [
+      30,
+      16,
+      225,
+      240
+    ]
+  },
+  {
+    "name": "sample-list-input",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 2,
+    "sha256": "a8cb0ddf33fe1de6719cb65f3a72df3dc06f1995ed54ef80aa75564ace8681b8",
+    "visible_bounds": [
+      19,
+      16,
+      237,
+      240
+    ]
+  },
+  {
+    "name": "sample-list-clear",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 3,
+    "sha256": "4f29a86beb3675b6c2d61b03b6514ab8ab3dcd7650418f2c0f9651776d4af262",
+    "visible_bounds": [
+      30,
+      16,
+      225,
+      240
+    ]
+  },
+  {
+    "name": "multi-view",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 4,
+    "sha256": "b90da3e572ce7ff1f28e4c065b1b662c2cda1cc08007ffa91a99595aacdab31e",
+    "visible_bounds": [
+      16,
+      30,
+      240,
+      226
+    ]
+  },
+  {
+    "name": "record-lock",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 5,
+    "sha256": "ca95996abc5a2ca3cdccbc651ce1873ae9b271fa605c1e7b0ed256a2343b1bce",
+    "visible_bounds": [
+      46,
+      16,
+      209,
+      240
+    ]
+  },
+  {
+    "name": "record-unlock",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 6,
+    "sha256": "ce782cfb7f4315aeb1f299b9f1a5eec83f5a869f1b4f6a2129872bec47adffdb",
+    "visible_bounds": [
+      49,
+      16,
+      206,
+      240
+    ]
+  },
+  {
+    "name": "lock",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "source_sheet": 5,
+    "source_cell": 7,
+    "sha256": "c6cfff1906f01c8db89e8529d9dadb06ee41090b42b52fcbf26ff1af85f40541",
+    "visible_bounds": [
+      47,
+      16,
+      208,
+      240
+    ]
+  }
+]

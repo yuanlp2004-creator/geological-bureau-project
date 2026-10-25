@@ -1,11 +1,10 @@
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { calculationProfileLabel } from '../../components/calculationProfile'
 import {
   BarChart3,
-  PlayCircle,
   RefreshCw,
   ShieldAlert,
-  Square,
   StepForward,
   PanelLeftClose,
   PanelLeftOpen
@@ -548,7 +547,7 @@ export function AnalysisPage({
                 <div className="analysis-actions">
                   {selected.status === 'draft' && (
                     <button className="primary-button" onClick={() => void act('start')} disabled={busy || !canExecute}>
-                      <PlayCircle size={15} />
+                      <SpectroscopyIcon name="measure" />
                       开始
                     </button>
                   )}
@@ -560,7 +559,7 @@ export function AnalysisPage({
                   )}
                   {canExecute && active.has(selected.status) && (
                     <button className="secondary-button danger" onClick={() => void act('cancel')}>
-                      <Square size={14} />
+                      <SpectroscopyIcon name="stop" />
                       取消
                     </button>
                   )}

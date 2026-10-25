@@ -1,6 +1,7 @@
 import {
   SlidersHorizontal
 } from 'lucide-react'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import {
   type DispersionCalibrationVersion,
   type DispersionTask,
@@ -57,7 +58,7 @@ export function DispersionCalibration({
               .length < 3
           }
         >
-          二次拟合
+          <SpectroscopyIcon name="fit-curve" />二次拟合
         </button>
         {latestCalibration?.state === 'draft' && (
           <button

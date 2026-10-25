@@ -110,6 +110,7 @@ class AcquisitionRepository:
             "id": layout["id"],
             "name": layout["name"],
             "points_per_ccd": layout["points_per_ccd"],
+            "point_width_um": layout["point_width"],
             "ccd_indices": self._layout_indices(layout),
         }
         result["profile"] = {
@@ -117,6 +118,8 @@ class AcquisitionRepository:
             "name": profile["name"],
             "transport": profile["transport"],
             "mirror": bool(profile["mirror"]),
+            "screen_width_mm": profile["screen_width_mm"],
+            "screen_resolution_px": profile["screen_resolution_px"],
         }
         samples = [
             self._sample_dict(row, db)

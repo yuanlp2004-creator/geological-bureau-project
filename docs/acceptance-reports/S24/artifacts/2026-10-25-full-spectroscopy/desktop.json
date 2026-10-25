@@ -1,0 +1,116 @@
+{
+  "status": "passed",
+  "checks": [
+    "sample-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "sample-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "工作台已保存谱带按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常",
+    "当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留",
+    "色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开",
+    "结束返回任务列表，采集记录保留，准备页和当前采集继续分开",
+    "只读账户可浏览完成谱图与曲线，激发、谱线写入和拟合均按原权限禁用"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 447,
+        "right": 1132,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 16,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 275,
+        "middle": 447,
+        "right": 1132,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 16,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "columns": {
+        "left": 275,
+        "middle": 447,
+        "right": 1132,
+        "width": 1440,
+        "rightEdge": 1396
+      },
+      "iconButtons": 19,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 370,
+        "right": 798,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 16,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 232,
+        "middle": 370,
+        "right": 798,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 16,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "columns": {
+        "left": 232,
+        "middle": 370,
+        "right": 798,
+        "width": 1060,
+        "rightEdge": 1028
+      },
+      "iconButtons": 19,
+      "observationWrites": 0
+    }
+  ],
+  "errors": []
+}

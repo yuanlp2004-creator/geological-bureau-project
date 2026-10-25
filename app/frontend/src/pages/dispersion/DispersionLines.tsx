@@ -1,18 +1,11 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Crosshair,
-  Plus,
-  RefreshCw,
-  Save,
-  Trash2
-} from 'lucide-react'
+import { RefreshCw, Save } from 'lucide-react'
 import {
   type DispersionLine,
   type DispersionTask
 } from '../../api'
 import { NumericInput } from '../../components/NumericInput'
 import { useEffect, useState } from 'react'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
@@ -63,7 +56,7 @@ export function DispersionLines({
           onClick={() => void locateAll()}
           disabled={!canWrite || active.lines.length === 0 || active.burn_frames_captured === 0}
         >
-          <Crosshair size={15} />
+          <SpectroscopyIcon name="line-correction" />
           全部定位
         </button>
       </div>
@@ -78,7 +71,7 @@ export function DispersionLines({
           onClick={() => changeGap(gap, gapUm)}>应用间隔并重算</button>
       </div>
       {active.condition.original_layout_id != null && <p className="field-help">已生成修正后的 CCD 布局；发布色散后，方法请选择此布局与色散曲线。已有方法和结果保持。</p>}
-      <div className="dispersion-line-form">
+      <div className="dispersion-line-form" data-testid="dispersion-add-line-form">
         <label className="field">
           <span>元素</span>
           <input value={element} onChange={(event) => setElement(event.target.value)} />
@@ -98,7 +91,7 @@ export function DispersionLines({
           </select>
         </label>
         <button className="primary-button" onClick={() => void addLine()} disabled={!canWrite}>
-          <Plus size={15} />
+          <SpectroscopyIcon name="add-line" />
           添加
         </button>
       </div>
@@ -140,21 +133,21 @@ export function DispersionLines({
                         onClick={() => void updateLine(line, 'locate')}
                         disabled={!canWrite || active.burn_frames_captured === 0}
                       >
-                        <Crosshair size={14} />
+                        <SpectroscopyIcon name="line-correction" />
                       </button>
                       <button
                         title="向短波移动"
                         onClick={() => void updateLine(line, 'short')}
                         disabled={!canWrite}
                       >
-                        <ArrowLeft size={14} />
+                        <SpectroscopyIcon name="previous-ccd" />
                       </button>
                       <button
                         title="向长波移动"
                         onClick={() => void updateLine(line, 'long')}
                         disabled={!canWrite}
                       >
-                        <ArrowRight size={14} />
+                        <SpectroscopyIcon name="next-ccd" />
                       </button>
                       <button
                         title="保存实测位置"
@@ -171,7 +164,7 @@ export function DispersionLines({
                         <RefreshCw size={14} />
                       </button>
                       <button title="删除谱线" onClick={() => void removeLine(line.id)} disabled={!canWrite}>
-                        <Trash2 size={14} />
+                        <SpectroscopyIcon name="delete-line" />
                       </button>
                     </div>
                   </td>

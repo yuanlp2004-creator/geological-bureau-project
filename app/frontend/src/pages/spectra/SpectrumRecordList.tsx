@@ -3,6 +3,7 @@ import {
   Database
 } from 'lucide-react'
 import { type SpectrumRecordSummary } from '../../api'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
 // State and request ownership remain in the page.
 type PanelProps = {
@@ -84,7 +85,7 @@ export function SpectrumRecordList({
           )
         })}
       </div>
-      <small className="spectrum-overlay-note">可叠加 1–8 个原始样品；点击图例设置优先曲线。</small>
+      <small className="spectrum-overlay-note"><SpectroscopyIcon name="multi-view" />可叠加 1–8 个原始样品；点击图例设置优先曲线。</small>
     </aside>
   )
 }

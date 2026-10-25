@@ -1,13 +1,20 @@
-import { type AcquisitionTask } from '../../api'
+import { api, saveFile, type AcquisitionTask } from '../../api'
 import type { DeviceCcd } from '../../api/devices'
-import { SpectrumInspector } from '../../components/SpectrumInspector'
+import { SpectrumInspector, type SpectrumViewRange } from '../../components/SpectrumInspector'
 import { stateLabel } from './acquisitionView'
 import { SpectroscopyConsole } from './SpectroscopyConsole'
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { CaptureBandList } from './CaptureBandList'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
   setup?: ReactNode
+  token: string
+  canExport: boolean
+  onToast: (message: string) => void
+  finish: () => void
+  canFinish: boolean
+  inputToolbar?: ReactNode
   selected: AcquisitionTask | null
   apply: (action: "start" | "preheat" | "pause" | "resume" | "stop") => Promise<void>
   busy: boolean
@@ -24,6 +31,7 @@ type PanelProps = {
 
 export function SampleAcquisitionMonitor({
   setup,
+  token, canExport, onToast, finish, canFinish, inputToolbar,
   selected,
   apply,
   busy,
@@ -38,9 +46,67 @@ export function SampleAcquisitionMonitor({
   boundMethod,
 }: PanelProps) {
   const running = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark', 'between_repeats'].includes(selected.status))
+  const acquiring = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark', 'stopping'].includes(selected.status))
   const enabled = Boolean(selected && !busy && canExecute)
+  const [sampleId, setSampleId] = useState<number | null>(null)
+  const [recordLocked, setRecordLocked] = useState(false)
+  const [band, setBand] = useState<{ key: string; points: number[]; sha256?: string } | null>(null)
+  const [error, setError] = useState('')
+  const [printing, setPrinting] = useState(false)
+  const generation = useRef(0)
+  const ccd = selected?.ccd_indices.includes(ccdIndex) ? ccdIndex : selected?.ccd_indices[0] ?? ccdIndex
+  const completed = selected?.samples.filter(sample => sample.finalized && !sample.discarded && sample.status === 'completed') ?? []
+  const observedSample = completed.find(sample => sample.id === sampleId)
+  const observedKey = `${token}:${selected?.id}:${observedSample?.id}:${ccd}`
+  useEffect(() => { setSampleId(null); setRecordLocked(false) }, [selected?.id])
+  useEffect(() => { if (acquiring) { setSampleId(null); setRecordLocked(false) } }, [acquiring])
+  const newestSampleId = completed[completed.length - 1]?.id
+  useEffect(() => {
+    if (newestSampleId !== undefined && ['completed', 'between_repeats'].includes(selected?.status ?? '')) setSampleId(newestSampleId)
+  }, [selected?.id, selected?.status, newestSampleId])
+  useEffect(() => {
+    generation.current++
+    setBand(null); setError('')
+    if (!observedSample) return
+    let cancelled = false
+    void api.acquisitionBands(token, observedSample.id, true).then(bands => {
+      if (cancelled) return
+      const next = bands.find(item => item.ccd_index === ccd)
+      if (!next?.mean_points?.length) return setError('当前CCD没有已保存谱带')
+      setBand({ key: observedKey, points: next.mean_points, sha256: next.mean_sha256 })
+    }).catch(failure => { if (!cancelled) setError(failure instanceof Error ? failure.message : '读取已保存谱带失败') })
+    return () => { cancelled = true; generation.current++ }
+  }, [token, observedSample?.id, ccd, observedKey])
+  const observed = observedSample ? band?.key === observedKey ? band : null : null
+  const points = observedSample ? observed?.points ?? [] : selectedPoints
+  const recordIndex = completed.findIndex(sample => sample.id === sampleId)
+  const print = async (range: SpectrumViewRange) => {
+    if (!selected || !observedSample || !observed || !canExport || printing || busy || acquiring) return
+    const ticket = generation.current
+    setPrinting(true)
+    try {
+      const recordId = `sample:${observedSample.id}`
+      const result = await api.printSpectrumPdf(token, recordId, {
+        print_scope: 'visible', print_layers: ['curve'], print_scale: 'fit_long', paper: 'A4',
+        visible_x_min: range.xMin - 1, visible_x_max: range.xMax - 1, visible_y_min: range.yMin, visible_y_max: range.yMax,
+        ccd: selected.ccd_indices.indexOf(ccd), line: 0, mode: 'mean', reference_shift: 0,
+        selected_record_ids: [recordId], priority_record_id: recordId, frame_phase: 'burn', frame_index: 0
+      })
+      if (ticket !== generation.current) return
+      const path = await saveFile(result.blob, `摄谱-${observedSample.sample_name || observedSample.id}-CCD${ccd + 1}.pdf`)
+      if (ticket === generation.current) onToast(path ? `谱图PDF已保存：${path}` : '已取消保存')
+    } catch (failure) {
+      if (ticket === generation.current) onToast(failure instanceof Error ? failure.message : '打印谱图失败')
+    } finally { setPrinting(false) }
+  }
   return (
-    <SpectroscopyConsole className="acquisition-monitor" setup={<>
+    <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar}
+      viewLabel={observedSample ? `已保存谱带 · ${observedSample.sample_name || '未命名'} / ${observedSample.repeat_index + 1}` : '实时谱图'}
+      records={<CaptureBandList title={selected?.task_kind === 'evaporation' ? '蒸发谱带' : '样品谱带'}
+        rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', detail: `重复 ${sample.repeat_index + 1} · ${sample.bands.length} CCD` }))}
+        selected={observedSample?.id ?? null} locked={recordLocked} disabled={busy || acquiring}
+        onChoose={setSampleId} onLockChange={setRecordLocked} />}
+      finish={{ run: finish, enabled: canFinish }} setup={<>
       {selected && <dl className="spectroscopy-task-summary" aria-label="当前任务条件">
         <div><dt>{selected.task_kind === 'evaporation' ? '保存模式' : '方法版本'}</dt>
           <dd>{selected.task_kind === 'evaporation' ? '全时原始区间'
@@ -64,18 +130,23 @@ export function SampleAcquisitionMonitor({
         { label: '当前阶段', value: selected.last_message || stateLabel[selected.status], title: selected.last_message || stateLabel[selected.status] },
         { label: '燃烧帧 / 暗帧', value: `${selected.burn_frames_captured}/${selected.burn_frame_count} · ${selected.dark_frames_captured}/${selected.dark_frame_count}` }
       ] : []}
-      ccd={ccdIndex} ccdIndices={selected?.ccd_indices ?? []} onCcdChange={setCcdIndex} hash={selected?.last_event?.details.sha256}>
+      ccd={ccd} ccdIndices={selected?.ccd_indices ?? []} onCcdChange={setCcdIndex}
+      hash={observedSample ? observed?.sha256 : selected?.last_event?.details.sha256}>
       {selected && <>
-        <SpectrumInspector fitPlot iconToolbar key={`${selected.id}:${ccdIndex}`} points={selectedPoints}
-          label={`CCD ${ccdIndex + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}采集曲线`}
-          emptyText="开始采集后显示实时 CCD 曲线" />
+        {error && <p role="alert">{error}</p>}
+        <SpectrumInspector fitPlot iconToolbar key={`${selected.id}:${ccd}:${observedSample?.id ?? 'live'}`} points={points}
+          label={`CCD ${ccd + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}
+          physicalScale={{ pointWidthUm: selected.layout.point_width_um, screenWidthMm: selected.profile.screen_width_mm, screenResolutionPx: selected.profile.screen_resolution_px }}
+          bandNavigation={{ previous: () => setSampleId(completed[recordIndex - 1]?.id ?? null), next: () => setSampleId(completed[recordIndex + 1]?.id ?? null),
+            canPrevious: !busy && !acquiring && !recordLocked && recordIndex > 0, canNext: !busy && !acquiring && !recordLocked && recordIndex < completed.length - 1 }}
+          onPrint={canExport ? range => void print(range) : undefined}
+          printDisabledReason={printing ? '正在生成谱图PDF' : busy || acquiring ? '采集操作完成后可打印' : !observedSample ? '选择左侧已保存谱带后可打印' : !observed ? '等待已保存谱带读取完成' : undefined}
+          emptyText={error || (observedSample ? '正在读取已保存谱带…' : '开始采集后显示实时 CCD 曲线')} />
           <div className="acquisition-facts">
             <div>
               <span>峰值 / 位置</span>
               <strong>
-                {selectedCcd
-                  ? `${selectedCcd.peak.toLocaleString('zh-CN')} / ${selectedCcd.peak_position + 1}`
-                  : '--'}
+                {points.length ? `${Math.max(...points).toLocaleString('zh-CN', { maximumFractionDigits: 3 })} / ${points.indexOf(Math.max(...points)) + 1}` : '--'}
               </strong>
             </div>
             <div>

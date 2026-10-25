@@ -97,7 +97,7 @@ export type DispersionTask = {
     point_width_um: number
     gap_points: number[]
   }
-  profile: { id: number; name: string; transport: string }
+  profile: { id: number; name: string; transport: string; screen_width_mm?: number; screen_resolution_px?: number }
   created_at: string
   updated_at: string
 }

@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "batch": "2026-10-25-full-spectroscopy",
+  "executed_plan_sha256": "ddcce4e485a27d1870d64f80a68b88f92ddf0b3eb4392fa3916ca5a5b6e14e6f",
+  "baseline": {
+    "commit": "b8c66faf18388a9e3af3f55effa7937a61784e5d",
+    "tag": "before-full-spectroscopy-workbench-20261025",
+    "remote_verified": true
+  },
+  "root_pair": {
+    "GeoSpectrum.exe": "1148a7ea35e4181310297c183a742922c87adae2e9c72e9fe2d42fad06ec7d9f",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\full-spectroscopy-20261025\\before",
+  "production_qa_sources_equal": true,
+  "production_qa_frontend_equal": true,
+  "builds": [
+    "TypeScript/Vite",
+    "PyInstaller sidecar",
+    "production Tauri",
+    "isolated QA Tauri"
+  ],
+  "tests": {
+    "backend": 16,
+    "frontend": 15,
+    "browser": 13,
+    "actual_desktop": 12,
+    "layouts_each": 6,
+    "capture_regression_browser": 5,
+    "capture_regression_desktop": 5,
+    "capture_regression_layouts_each": 8,
+    "read_only_permissions": "passed",
+    "observation_writes": 0,
+    "saved_band_failure_clears_plot": true,
+    "physical_scale_uses_task_layout_and_profile": true,
+    "current_task_line_positioning_and_fit": "passed"
+  },
+  "generation": {
+    "provider": "local ComfyUI 127.0.0.1:8188",
+    "model": "qwen_image_2.1_int8_convrot.safetensors",
+    "encoder": "qwen3vl_8b_w4a8.safetensors",
+    "vae": "qwen_image_2.1_vae_bf16.safetensors",
+    "icons": 40,
+    "legacy_button_positions": 38,
+    "sheets": 5,
+    "reference_size": [
+      1536,
+      768
+    ],
+    "icon_size": [
+      256,
+      256
+    ],
+    "css_size": 20,
+    "steps": 30,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "seeds": [
+      2026102540,
+      2026102541,
+      2026102542,
+      2026102543,
+      2026102544
+    ],
+    "jobs": [
+      {
+        "prompt_id": "b554b662-2ae3-4784-8b61-d8da82aab684",
+        "number": 51,
+        "node_errors": {}
+      },
+      {
+        "prompt_id": "cce085fc-c0a1-47f4-8a07-706278106bb5",
+        "number": 52,
+        "node_errors": {}
+      },
+      {
+        "prompt_id": "cc8a6515-51b9-429c-beaf-a901a2abf878",
+        "number": 53,
+        "node_errors": {}
+      },
+      {
+        "prompt_id": "b8b7accf-c6ff-4623-b5ea-e30254aecbbd",
+        "number": 54,
+        "node_errors": {}
+      },
+      {
+        "prompt_id": "3051c67a-afa5-49dc-8c9f-a49c34b5e22e",
+        "number": 55,
+        "node_errors": {}
+      }
+    ],
+    "canonical_workflow_unchanged": true,
+    "external_prompt_api_used": false,
+    "idle_models_released_after_generation": true
+  },
+  "backend_changes": [
+    "app/backend/modules/acquisition/repository.py",
+    "app/backend/modules/dispersion/repository.py"
+  ],
+  "backend_change_scope": "five read-only numeric metadata fields; no acquisition or fitting algorithm change",
+  "schema_version": 23,
+  "legacy_source_hashes_preserved": 106,
+  "tests_use_isolated_seeded_data": true,
+  "user_database_overwritten": false,
+  "root_app_inventory_unchanged": true,
+  "installer_updated": false,
+  "desktop_processes": {
+    "desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-25-full-spectroscopy\\qa\\GeoSpectrum.exe",
+      "pid": 33672,
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    },
+    "legacy-desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-25-full-spectroscopy\\qa\\GeoSpectrum.exe",
+      "pid": 10000,
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "print_validation": {
+    "browser_pdf_generated": true,
+    "desktop_pdf_ipc_payload_verified": true,
+    "cancel_callback_verified": true,
+    "native_save_dialog_tested": false
+  },
+  "scope_notes": [
+    "Spectral records listed at capture are scoped to the current task; file-wide multi-sample overlay remains in spectrum viewing.",
+    "Sample-number insertion and clearing retain the existing queue page and its data protection.",
+    "Only formal dispersion acquisition opens inline line fitting; preheat is excluded.",
+    "Separate task preparation and manual excitation per repeat are retained."
+  ]
+}

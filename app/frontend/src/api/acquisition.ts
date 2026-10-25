@@ -94,8 +94,8 @@ export type AcquisitionTask = {
   result_sha256: string | null
   failure_code: string | null
   failure_message: string | null
-  layout: { id: number; name: string; points_per_ccd: number; ccd_indices: number[] }
-  profile: { id: number; name: string; transport: string; mirror: boolean }
+  layout: { id: number; name: string; points_per_ccd: number; ccd_indices: number[]; point_width_um?: number }
+  profile: { id: number; name: string; transport: string; mirror: boolean; screen_width_mm?: number; screen_resolution_px?: number }
   samples: AcquisitionSample[]
   messages: AcquisitionMessage[]
   intervals: Array<{
@@ -255,7 +255,7 @@ export const acquisitionApi = {
       { headers: { Authorization: `Bearer ${token}` } }
     ),
   acquisitionBands: (token: string, sampleId: number, includePoints = false) =>
-    request<Array<Record<string, unknown>>>(
+    request<Array<{ id: number; sample_id: number; ccd_index: number; mean_points?: number[]; mean_sha256: string }>>(
       `/api/v1/acquisitions/samples/${sampleId}/bands${includePoints ? '?include_points=true' : ''}`,
       { headers: { Authorization: `Bearer ${token}` } }
     ),

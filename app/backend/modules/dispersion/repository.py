@@ -163,6 +163,8 @@ class DispersionRepository:
             "id": context.profile["id"],
             "name": context.profile["name"],
             "transport": context.profile["transport"],
+            "screen_width_mm": context.profile["screen_width_mm"],
+            "screen_resolution_px": context.profile["screen_resolution_px"],
         }
         task["lines"] = [
             self._line_decode(row)

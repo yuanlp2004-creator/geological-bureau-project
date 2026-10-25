@@ -13,10 +13,13 @@ import { SampleAcquisitionResults } from './SampleAcquisitionResults'
 import { useSpectroscopySession, type SpectroscopyMode } from './spectroscopySession'
 import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from './SpectroscopyTaskList'
-export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange }: Props & {
+import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, onOpenSamples }: Props & {
   taskKind: AcquisitionTask['task_kind']
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
+  canExport?: boolean
+  onOpenSamples?: () => void
 }) {
   const isSample = taskKind === 'sample'
   const title = isSample ? '样品摄谱' : '蒸发摄谱'
@@ -611,6 +614,14 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       <main className="sample-acquisition-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>
           {queueProgressMessage && <p role="status" className="acquisition-management-note">{queueProgressMessage}</p>}
           <SampleAcquisitionMonitor
+            token={token} canExport={canExport} onToast={onToast} finish={() => setScreen('tasks')}
+            canFinish={!busy && !loading && !runningTask}
+            inputToolbar={<>
+              <SpectroscopyToolButton icon="input-samples" label="输入样品编号" description="建立下一样品任务并输入样号"
+                disabled={!canWrite || busy || Boolean(runningTask)} onClick={() => setCreateOpen(true)} />
+              {isSample && onOpenSamples && <SpectroscopyToolButton icon="sample-input" label="预录样号"
+                description="打开样品编号表录入、插入或清除待测样号" disabled={busy || Boolean(runningTask)} onClick={onOpenSamples} />}
+            </>}
             setup={
               <>
                 {selected && <SampleAcquisitionResults

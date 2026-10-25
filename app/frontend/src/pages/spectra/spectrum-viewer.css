@@ -478,3 +478,5 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.spectrum-reference-label { display: inline-flex; align-items: center; gap: 4px; }
+.spectrum-overlay-note > .spectroscopy-action-icon { display: inline-block; vertical-align: middle; margin-right: 5px; }

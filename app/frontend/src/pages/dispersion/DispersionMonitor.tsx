@@ -1,14 +1,19 @@
 import { Crosshair } from 'lucide-react'
-import { api, type DispersionTask } from '../../api'
+import { api, type DispersionFrame, type DispersionTask } from '../../api'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { DeviceCcd } from '../../api/devices'
 import { SpectroscopyConsole } from '../acquisition/SpectroscopyConsole'
 import { DispersionSpectrum } from './DispersionSpectrum'
 import { runningStates, statusLabels } from './dispersionView'
 import { SpectrumInspector } from '../../components/SpectrumInspector'
+import { CaptureBandList } from '../acquisition/CaptureBandList'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
   view?: 'capture' | 'curve'
+  finish?: () => void
+  canFinish?: boolean
+  workflowToolbar?: ReactNode
   active: DispersionTask | null
   start: () => Promise<void>
   preheat: () => Promise<void>
@@ -33,6 +38,7 @@ type PanelProps = {
 
 export function DispersionMonitor({
   view = 'capture',
+  finish, canFinish, workflowToolbar,
   active,
   start,
   preheat,
@@ -58,6 +64,34 @@ export function DispersionMonitor({
   const enabled = Boolean(active && !busy && canExecute)
   const total = (active?.frame_count ?? 0) + (active?.dark_frame_count ?? 0)
   const captured = (active?.burn_frames_captured ?? 0) + (active?.dark_frames_captured ?? 0)
+  const [frameId, setFrameId] = useState<number | null>(null)
+  const [recordLocked, setRecordLocked] = useState(false)
+  const [saved, setSaved] = useState<{ key: string; frames: DispersionFrame[] } | null>(null)
+  const [frameError, setFrameError] = useState('')
+  const frameKey = `${token}:${active?.id}:${selectedCcd}`
+  useEffect(() => { setFrameId(null); setRecordLocked(false) }, [active?.id, selectedCcd])
+  useEffect(() => { setLockedPoint(null) }, [active?.id, selectedCcd, frameId, setLockedPoint])
+  useEffect(() => {
+    setSaved(null); setFrameError('')
+    if (!active || running || view !== 'capture' || !captured) return
+    let cancelled = false
+    void api.dispersionFrames(token, active.id, selectedCcd).then(frames => {
+      if (!cancelled) setSaved({ key: frameKey, frames })
+    }).catch(error => { if (!cancelled) setFrameError(error instanceof Error ? error.message : '读取已保存谱帧失败') })
+    return () => { cancelled = true }
+  }, [frameKey, view, running, captured, active?.status])
+  useEffect(() => { if (running) { setFrameId(null); setRecordLocked(false) } }, [running])
+  const frames = saved?.key === frameKey ? saved.frames : []
+  const frame = frames.find(item => item.id === frameId)
+  const historical = frameId !== null
+  const framePosition = frames.findIndex(item => item.id === frameId)
+  const completedView = active?.status === 'completed' || active?.status === 'stopped'
+  const mean = useMemo(() => {
+    const burns = frames.filter(item => item.phase === 'burn')
+    const length = burns[0]?.points.length ?? 0
+    if (!length || burns.some(item => item.points.length !== length)) return []
+    return Array.from({ length }, (_, index) => burns.reduce((sum, item) => sum + item.points[index], 0) / burns.length)
+  }, [saved, frameKey])
   if (view === 'curve') return <section className="surface dispersion-curve-monitor" data-testid="dispersion-curve-monitor">
     <div className="surface-heading"><h2>{active?.name ?? '选择已采集色散谱图'}</h2>
       <label className="field compact-field"><span>CCD</span><select value={selectedCcd} aria-label="色散曲线CCD" disabled={!active}
@@ -81,7 +115,13 @@ export function DispersionMonitor({
     </> : <div className="empty-state">先在色散摄谱中采集谱图，再到这里制作色散曲线。</div>}
   </section>
   return (
-    <SpectroscopyConsole className="dispersion-run-panel" setup={active && <dl className="spectroscopy-task-summary" aria-label="当前任务条件">
+    <SpectroscopyConsole className="dispersion-run-panel"
+      finish={finish ? { run: finish, enabled: Boolean(canFinish) } : undefined}
+      records={<CaptureBandList title="色散谱帧" rows={frames.map(item => ({ id: item.id,
+        name: `${item.phase === 'dark' ? '暗帧' : '燃烧帧'} ${item.frame_index + 1}`, detail: `CCD ${item.ccd_index + 1}` }))}
+        selected={frameId} locked={recordLocked} disabled={busy || running} onChoose={setFrameId} onLockChange={setRecordLocked} />}
+      viewLabel={frame ? `已保存${frame.phase === 'dark' ? '暗帧' : '燃烧帧'} ${frame.frame_index + 1}` : completedView ? '完成谱图 · 燃烧均值' : '实时谱图'}
+      setup={active && <dl className="spectroscopy-task-summary" aria-label="当前任务条件">
       <div><dt>设备档案</dt><dd>{active.profile.name}</dd></div>
       <div><dt>CCD 布局</dt><dd>{active.layout.name}</dd></div>
       <div><dt>燃烧帧 / 暗帧</dt><dd>{active.frame_count} / {active.dark_frame_count}</dd></div>
@@ -100,12 +140,18 @@ export function DispersionMonitor({
         { label: '当前阶段', value: statusLabels[active.status] },
         { label: '燃烧帧 / 暗帧', value: `${active.burn_frames_captured}/${active.frame_count} · ${active.dark_frames_captured}/${active.dark_frame_count}` }
       ] : []}
-      ccd={selectedCcd} ccdIndices={active?.ccd_indices ?? []} onCcdChange={setSelectedCcd} hash={active?.last_event?.details.sha256}
+      ccd={selectedCcd} ccdIndices={active?.ccd_indices ?? []} onCcdChange={setSelectedCcd} hash={historical ? frame?.sha256 : active?.last_event?.details.sha256}
       toolbar={<>
         <span><Crosshair size={14} />最新帧峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position}` : '--'}（点位 0 起）</span>
       </>}>
-      {active && <SpectrumInspector fitPlot iconToolbar key={`${active.id}:${selectedCcd}`} points={currentCcd?.points ?? []}
-        pointOrigin={0} label={`CCD ${selectedCcd + 1} 色散采集曲线`} emptyText="开始采集后显示实时 CCD 曲线" />}
+      {frameError && <p role="alert">{frameError}</p>}
+      {active && <SpectrumInspector fitPlot iconToolbar key={`${active.id}:${selectedCcd}:${frameId ?? (completedView ? 'mean' : 'live')}`} points={historical ? frame?.points ?? [] : completedView ? mean : currentCcd?.points ?? []}
+        physicalScale={{ pointWidthUm: active.layout.point_width_um, screenWidthMm: active.profile.screen_width_mm, screenResolutionPx: active.profile.screen_resolution_px }}
+        bandNavigation={{ previous: () => setFrameId(frames[framePosition - 1]?.id ?? null), next: () => setFrameId(frames[framePosition + 1]?.id ?? null),
+          canPrevious: !busy && !running && !recordLocked && framePosition > 0, canNext: !busy && !running && !recordLocked && framePosition < frames.length - 1 }}
+        toolbar={workflowToolbar} onPick={historical ? undefined : setLockedPoint}
+        pointOrigin={0} label={`CCD ${selectedCcd + 1} 色散${historical ? '已保存谱帧' : completedView ? '燃烧均值谱图' : '采集曲线'}`}
+        emptyText={historical || completedView ? frameError || (!captured ? '当前任务没有可显示的燃烧帧' : saved?.key === frameKey && !mean.length ? '没有可显示的燃烧均值谱图' : '正在读取已保存谱帧…') : '开始采集后显示实时 CCD 曲线'} />}
     </SpectroscopyConsole>
   )
 }

@@ -17,6 +17,7 @@ import { SpectrumPlot, type SpectrumPlotCursor, type SpectrumPlotCurve } from '.
 import { SpectrumQueryToolbar } from './SpectrumQueryToolbar'
 import { SpectrumRecordList } from './SpectrumRecordList'
 import { SpectrumViewToolbar } from './SpectrumViewToolbar'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { SpectrumPointDetails } from '../../components/SpectrumPointDetails'
 import { parseCcdCoordinate } from '../../components/legacyObservation'
 
@@ -481,7 +482,7 @@ export function SpectrumViewerPage({ token, onToast }: { token: string; onToast:
             disabled={!active || busy}
             title="生成当前可见范围的打印 PDF"
           >
-            <Printer size={15} />
+            <SpectroscopyIcon name="print" />
             打印 PDF
           </button>
         </div>}
@@ -582,7 +583,7 @@ export function SpectrumViewerPage({ token, onToast }: { token: string; onToast:
                   ))}
                 </div>
                 <label className="spectrum-reference">
-                  <span>参考校正</span>
+                  <span className="spectrum-reference-label"><SpectroscopyIcon name="reference-correction" />参考校正</span>
                   <EmptyableNumberInput step="0.001" value={referenceShift} onValueChange={setReferenceShift} />
                   <span>
                     {curves.some((curve) => curve.data.some((item) => item.point.wavelength_nm != null)) ? 'nm' : '点'}
@@ -597,7 +598,7 @@ export function SpectrumViewerPage({ token, onToast }: { token: string; onToast:
                     onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); locate() } }}
                   />
                   <button className="tool-button" onClick={locate}>
-                    定位并锁定
+                    <SpectroscopyIcon name="line-correction" />定位并锁定
                   </button>
                 </label>
                 {raw && (

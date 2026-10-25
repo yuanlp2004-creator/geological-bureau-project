@@ -146,6 +146,45 @@
 }
 
 /* Preparation and acquisition occupy separate page states. */
+:root .app-shell .spectroscopy-console.has-records { grid-template-columns: 172px minmax(0, 1fr) 264px; }
+:root .app-shell .spectroscopy-console-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+:root .app-shell .spectroscopy-console-heading > div { min-width: 0; }
+:root .app-shell .spectroscopy-console-heading h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root .app-shell .spectroscopy-console .spectroscopy-controls button { white-space: nowrap; font-size: 12px; gap: 4px; padding-inline: 4px; }
+:root .app-shell .spectroscopy-task-summary { gap: 8px; margin-bottom: 10px; }
+:root .app-shell .spectroscopy-task-summary > div { grid-template-columns: 76px minmax(0, 1fr); gap: 4px; }
+:root .app-shell .spectroscopy-task-summary :is(dt, dd) { font-size: 12px; }
+:root .app-shell .spectroscopy-progress strong { font-size: 11px; white-space: nowrap; }
+:root .app-shell .spectroscopy-records { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-right: 1px solid var(--line); background: var(--surface); }
+:root .app-shell .spectroscopy-records > header { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); }
+:root .app-shell .spectroscopy-records h2 { margin: 0; font-size: 13px; }
+:root .app-shell .spectroscopy-console .inspector-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding: 5px; }
+:root .app-shell .spectroscopy-input-toolbar { display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+:root .app-shell .capture-live-record { margin: 8px; padding: 6px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink); text-align: left; font-size: 12px; }
+:root .app-shell .capture-live-record.active { border-color: var(--blue); background: var(--ui-soft); }
+:root .app-shell .capture-record-table { flex: 1; min-height: 0; overflow: auto; }
+:root .app-shell .capture-record-table table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+:root .app-shell .capture-record-table th:first-child { width: 42px; }
+:root .app-shell .capture-record-table :is(th, td) { padding: 5px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+:root .app-shell .capture-record-table button { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; padding: 3px 0; border: 0; background: transparent; color: var(--ink); text-align: left; }
+:root .app-shell .capture-record-table strong { font-size: 12px; overflow-wrap: anywhere; font-weight: 500; }
+:root .app-shell .capture-record-table small { font-size: 10px; color: var(--muted); }
+:root .app-shell .capture-record-table tr[aria-selected="true"] { background: var(--ui-soft); box-shadow: inset 3px 0 var(--blue); }
+:root .app-shell .capture-record-empty { padding: 10px; color: var(--muted); font-size: 12px; }
+:root .app-shell .inspector-workflow-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); padding-top: 4px; width: 100%; }
+:root .app-shell .inspector-workflow-tools select { min-width: 100px; max-width: 180px; }
+:root .app-shell .capture-processing { display: grid; gap: 16px; margin-top: 16px; }
+:root .app-shell .capture-processing > .inspector-frame-tools { padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+@media (max-width: 1200px) {
+  :root .app-shell .spectroscopy-console.has-records { grid-template-columns: 138px minmax(0, 1fr) 230px; }
+  :root .app-shell .spectroscopy-spectrum .spectrum-inspector .spectrum-plot { min-height: 160px; }
+  :root .app-shell .spectroscopy-records > header { flex-wrap: wrap; }
+  :root .app-shell .capture-record-table th:first-child { width: 36px; }
+}
+@media (max-width: 800px) {
+  :root .app-shell .spectroscopy-console.has-records { grid-template-columns: minmax(0, 1fr); }
+  :root .app-shell .spectroscopy-records { max-height: 240px; border-right: 0; border-bottom: 1px solid var(--line); }
+}
 :root .app-shell .spectroscopy-page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 :root .app-shell [data-capture-screen][hidden] { display: none !important; }
 :root .app-shell .spectroscopy-workbench .spectroscopy-mode-content:is(.sample-acquisition-page, .dispersion-page[data-view='capture']) { padding-inline: 0; padding-bottom: 0; }

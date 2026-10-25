@@ -69,7 +69,12 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
                 canReadMethods={permissions.includes('methods.read')} canExecute={permissions.includes('dispersion.execute')} onToast={onToast} />
             ) : (
               <AcquisitionWorkspace token={token} actionsTarget={item.page === mode ? actionsTarget : undefined} onCaptureChange={reportScreen} taskKind={item.page === 'sample-acquisition' ? 'sample' : 'evaporation'}
-                canWrite={permissions.includes('acquisition.write')} canExecute={permissions.includes('acquisition.execute')} onToast={onToast} />
+                canWrite={permissions.includes('acquisition.write')} canExecute={permissions.includes('acquisition.execute')}
+                canExport={permissions.includes('spectra.read') && permissions.includes('spectra.export')}
+                onOpenSamples={permissions.includes('samples.read') ? () => {
+                  const entry = entries.find(entry => entry.key === 'analysis-tests.samples')
+                  if (entry && !reason) onNavigate(entry)
+                } : undefined} onToast={onToast} />
             )}
           </div>
         ))}
