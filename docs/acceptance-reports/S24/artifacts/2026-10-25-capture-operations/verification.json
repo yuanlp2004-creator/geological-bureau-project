@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "325eadde61b3cb6b72271b244849b34e9221fdc6fe163c03d3b51792020c24c9",
+  "checks": {
+    "browser": {
+      "checks": 17,
+      "layouts": 9
+    },
+    "desktop": {
+      "checks": 15,
+      "layouts": 9
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 8
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 8
+    }
+  },
+  "frontend_tests": 15,
+  "source_and_frontend_match": true,
+  "unchanged_legacy_source_files": 105,
+  "backend_sources_and_exe_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_executables": {
+    "GeoSpectrum.exe": "cc6c47521f3eceb3c567020918e288c500b0a09b2c08ce57b9d06198590d1c79",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "git_backup": {
+    "commit": "87333d7673a5328fbdb1672744ab8c006fa4fe72",
+    "tag": "before-capture-operations-20261025",
+    "remote_verified": true,
+    "old_executables": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-operations-20261025\\before"
+  },
+  "notes": [
+    "Only the operation grouping follows the legacy desk. Modern sidebar, header, toolbar, messages and theme remain visible.",
+    "Task details and spectrum readout have visible buttons. Return-to-task-list remains in the modern page header.",
+    "Sixteen-pixel redrawn icons and the operation order are retained; simulated legacy window chrome and cyan labels are removed.",
+    "CCD picker overlay initially intercepted the next tool. Its width and clipping were scoped; the complete real click workflow passed after correction.",
+    "All test writes used isolated seeded databases. No user database or old input was modified.",
+    "Both final QA processes exited naturally with no owned processes remaining.",
+    "No device protocols, algorithms, APIs or schema changed. Real hardware and physical printing were not exercised. Installer unchanged."
+  ]
+}

@@ -4,7 +4,7 @@ import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { CaptureLineBar } from './CaptureLineBar'
 import { LegacyDeskDock } from './legacyDesk'
-import './legacy-excitation.css'
+import './capture-operation-layout.css'
 
 type Command = { run: () => unknown; enabled: boolean }
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
   canEditSample?: boolean
 }
 
-/** The current capture occupies the legacy window; supplementary information opens on request. */
+/** Keep the legacy operation order inside the modern application shell. */
 export function SpectroscopyConsole(props: Props) {
   const root = useRef<HTMLElement>(null)
   const details = useRef<HTMLDialogElement>(null)
@@ -42,26 +42,26 @@ export function SpectroscopyConsole(props: Props) {
     const dialog = root.current?.querySelector<HTMLDialogElement>('.spectrum-observer-dialog')
     if (dialog && !dialog.open) dialog.showModal()
   }
-  const command = (text: string, shortcut: string, value: Command, icon: 'capture' | 'preheat' | 'stop' | 'finish') =>
-    <button type="button" aria-label={text} title={`${text} (${shortcut})`} disabled={!value.enabled} onClick={() => { setMenu(null); void value.run() }}>
-      <SpectroscopyIcon name={icon} /><span>{text}(<u>{shortcut}</u>)</span>
+  const command = (text: string, value: Command, icon: 'capture' | 'preheat' | 'stop' | 'finish') =>
+    <button type="button" aria-label={text} title={icon === 'finish' ? '结束当前摄谱，返回任务列表' : text} disabled={!value.enabled} onClick={() => { setMenu(null); void value.run() }}>
+      <SpectroscopyIcon name={icon} /><span>{text}</span>
     </button>
   return <section ref={root} className={`spectroscopy-console legacy-capture-desk ${props.className} ${!leftOpen ? 'left-closed' : ''} ${!rightOpen ? 'right-closed' : ''}`}
     data-testid="spectroscopy-console" data-status={props.status} aria-label="摄谱激发工作台"
     onContextMenu={event => { event.preventDefault(); setMenu({ x: Math.min(event.clientX, window.innerWidth - 220), y: Math.min(event.clientY, window.innerHeight - 210) }) }}>
     <header className="legacy-window-caption" tabIndex={0} title="右键或Shift+F10打开工作台菜单"
       onKeyDown={event => { if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) { event.preventDefault(); setMenu({ x: 8, y: 25 }) } }}>
-      摄谱激发 - {label} - [{props.name ?? ''}]
+      <div className="capture-task-caption"><span>{label}</span><strong title={props.name}>{props.name}</strong></div>
+      <div className="capture-detail-actions">
+        {(!leftOpen || !rightOpen) && <button type="button" onClick={() => { setLeftOpen(true); setRightOpen(true) }}>恢复面板</button>}
+        <button type="button" onClick={openDetails}>任务详情</button>
+        <button type="button" onClick={openObserver}>谱图读数</button>
+      </div>
     </header>
     <div className="legacy-main-toolbar">
       {props.lineBar ?? <CaptureLineBar />}
       <div className="legacy-main-actions" role="group" aria-label="工作台操作">
-        <SpectroscopyToolButton icon="sample-input" label="采后样号与任务详情" disabled={!props.canEditSample || running} onClick={openDetails} />
-        <SpectroscopyToolButton icon="reference-correction" label="参考线校正" description="当前任务条件只读；参考线校正在谱图查看中进行" disabled />
-        {props.topActions ?? <>
-          <SpectroscopyToolButton icon="line-correction" label="校正谱线" description="当前采集模式不修改方法谱线" disabled />
-          <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="请使用对应的曲线处理入口" disabled />
-        </>}
+        {props.topActions}
         <SpectroscopyToolButton icon="measure" label={props.status === 'paused' ? '继续' : '启动测量'} disabled={props.status !== 'paused' || !props.resume.enabled} onClick={() => void props.resume.run()} />
         <SpectroscopyToolButton icon="pause" label="暂停" disabled={!props.pause.enabled || props.status === 'paused'} onClick={() => void props.pause.run()} />
         <span className="legacy-tool-separator" />
@@ -88,8 +88,8 @@ export function SpectroscopyConsole(props: Props) {
         <fieldset className="spectroscopy-command-area"><legend>激发控制</legend>
           {running && <output className="legacy-running-state" role="status">{props.statusLabel} {props.progress[0]?.value}</output>}
           <div className="spectroscopy-controls" aria-label="摄谱控制">
-            {command('试样摄谱', 'I', props.start, 'capture')}{command('预热摄谱', 'B', props.preheat, 'preheat')}
-            {command('停止摄谱', 'S', props.stop, 'stop')}{command('结束', 'O', finish, 'finish')}
+            {command('试样摄谱', props.start, 'capture')}{command('预热摄谱', props.preheat, 'preheat')}
+            {command('停止摄谱', props.stop, 'stop')}{command('结束', finish, 'finish')}
           </div>
         </fieldset>
       </aside>
