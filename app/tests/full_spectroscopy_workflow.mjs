@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
+import { leaveLegacyCapture, openSpectrumReadout, closeSpectrumReadout } from './legacy_desk_test_support.mjs'
 
 // One isolated workflow covers the legacy operating surface, read-only browsing and mode boundaries.
 export async function checkFullSpectroscopy(page, result, output) {
@@ -26,6 +27,7 @@ export async function checkFullSpectroscopy(page, result, output) {
     tasks.push({ mode, domain, task, origin: dispersion ? 0 : 1 })
   }
   const go = async item => {
+    await leaveLegacyCapture(page)
     const entry = entries.find(entry => entry.page === item.mode && (!entry.view || entry.view === 'capture'))
     await navigate(page, entry.group, entry.label, `[data-testid="${item.mode}-page"]`)
     const back = page.getByRole('button', { name: '返回任务列表', exact: true })
@@ -36,14 +38,19 @@ export async function checkFullSpectroscopy(page, result, output) {
     return host
   }
   const readRange = async scope => {
+    await openSpectrumReadout(scope)
     const text = await scope.locator('.inspector-readout > small').textContent()
     const [, x1, x2, y1, y2] = text.match(/视野 ([\d.-]+)–([\d.-]+) · 强度 ([\d.-]+)–([\d.-]+)/)
+    await closeSpectrumReadout(scope)
     return [Number(x1), Number(x2), Number(y1), Number(y2)]
   }
   const pointValue = async (scope, point) => {
+    await openSpectrumReadout(scope)
     const input = scope.getByLabel('读取点位', { exact: true })
     await input.fill(String(point)); await input.blur()
-    return Number((await scope.getByLabel('谱图点位读数').textContent()).match(/强度 ([\d,.-]+)/)[1].replaceAll(',', ''))
+    const value = Number((await scope.getByLabel('谱图点位读数').textContent()).match(/强度 ([\d,.-]+)/)[1].replaceAll(',', ''))
+    await closeSpectrumReadout(scope)
+    return value
   }
   for (const layout of [{ width: 1440, height: 1000, theme: 'light', density: 'comfortable' },
     { width: 1060, height: 680, theme: 'dark', density: 'compact' }]) {
@@ -163,14 +170,14 @@ export async function checkFullSpectroscopy(page, result, output) {
   assert.equal(await rows.last().getAttribute('aria-selected'), 'true')
   check('已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常')
   if (!process.env.QA_CDP) {
-    await host.getByRole('button', { name: '实时 / 最新帧', exact: true }).click()
+    await host.getByRole('button', { name: '返回实时谱图', exact: true }).click()
     const route = `**/acquisitions/samples/${item.task.samples[0].id}/bands*`
     await page.route(route, route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'QA已保存谱带读取失败' }) }))
     await rows.first().getByRole('button').click()
     await host.getByRole('alert').filter({ hasText: 'QA已保存谱带读取失败' }).waitFor()
     assert.equal(await scope.locator('svg').count(), 0)
     await page.unroute(route)
-    await host.getByRole('button', { name: '实时 / 最新帧', exact: true }).click()
+    await host.getByRole('button', { name: '返回实时谱图', exact: true }).click()
     await rows.first().getByRole('button').click(); await scope.locator('svg .spectrum-line').waitFor()
     check('读取已保存谱带失败时明确提示并清空曲线，切回后可重试，无实时数据冒充')
   }
@@ -178,8 +185,8 @@ export async function checkFullSpectroscopy(page, result, output) {
   await dh.locator('.capture-record-table tbody tr').first().getByRole('button').click()
   const frames = await call(page, `/api/v1/dispersion/tasks/${dispersion.task.id}/frames?ccd_index=0`)
   assert.equal(await pointValue(ds, 123), frames[0].points[123])
-  await dh.getByRole('button', { name: '实时 / 最新帧', exact: true }).click()
-  await ds.getByRole('button', { name: '拟合曲线', exact: true }).click()
+  await dh.getByRole('button', { name: '返回实时谱图', exact: true }).click()
+  await dh.getByRole('button', { name: '拟合曲线', exact: true }).click()
   const processing = dh.getByRole('region', { name: '当前色散任务处理' })
   await processing.waitFor()
   assert.equal(await processing.getByRole('heading', { name: '谱线定位与位置' }).isVisible(), true)
@@ -192,7 +199,9 @@ export async function checkFullSpectroscopy(page, result, output) {
     await processing.getByRole('button', { name: '添加', exact: true }).click()
     const response = await created; assert.equal(response.status(), 201, await response.text())
     const line = await response.json()
+    await openSpectrumReadout(ds)
     await ds.getByLabel('读取点位', { exact: true }).fill(String(position)); await ds.getByLabel('读取点位', { exact: true }).blur()
+    await closeSpectrumReadout(ds)
     await processing.getByLabel('人工定位谱线').selectOption(String(line.id))
     const positioned = page.waitForResponse(response => response.url().includes(`/lines/${line.id}/position?`) && response.request().method() === 'POST')
     await processing.getByRole('button', { name: '采用锁定点位', exact: true }).click()
@@ -204,6 +213,7 @@ export async function checkFullSpectroscopy(page, result, output) {
   const calibration = await fitResponse.json(); assert.equal(calibration.point_count, 3)
   check('当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留')
   check('色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开')
+  await dh.getByRole('button', { name: '关闭色散处理窗口', exact: true }).click()
   await dh.getByRole('button', { name: '结束', exact: true }).click()
   assert.equal(await dh.getByTestId('spectroscopy-console').isVisible(), false)
   assert.equal(await dh.getByRole('heading', { name: '色散摄谱任务' }).isVisible(), true)

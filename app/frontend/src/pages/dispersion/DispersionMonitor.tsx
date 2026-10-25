@@ -119,9 +119,9 @@ export function DispersionMonitor({
     </> : <div className="empty-state">先在色散摄谱中采集谱图，再到这里制作色散曲线。</div>}
   </section>
   return (
-    <SpectroscopyConsole className="dispersion-run-panel" recordTitle="色散谱带名" recordChoices={recordChoices}
+    <SpectroscopyConsole className="dispersion-run-panel" recordTitle="色散谱带名" recordChoices={recordChoices} showRepeats={false} topActions={workflowToolbar}
       recordValue={String(active?.id ?? '')} onRecordChoose={onRecordChoose} recordDisabled={recordDisabled} repeats={1}
-      lineBar={<CaptureLineBar disabled={busy || running} lines={active?.lines.map(line => ({ id: String(line.id), label: `${line.element} ${line.wavelength_nm}`,
+      lineBar={<CaptureLineBar disabled={busy || running} defaultExposure={active ? `1-${active.frame_count}` : ''} lines={active?.lines.map(line => ({ id: String(line.id), label: `${line.element} ${line.wavelength_nm}`,
         wavelength: line.wavelength_nm, exposure: `1-${active.frame_count}` }))} value={manualLine === null ? '' : String(manualLine)}
         choose={id => {
           const line = active?.lines.find(line => String(line.id) === id)
@@ -157,12 +157,12 @@ export function DispersionMonitor({
         <span><Crosshair size={14} />最新帧峰值 {currentCcd ? `${currentCcd.peak} @ ${currentCcd.peak_position}` : '--'}（点位 0 起）</span>
       </>}>
       {frameError && <p role="alert">{frameError}</p>}
-      {active && <SpectrumInspector fitPlot iconToolbar key={`${active.id}:${selectedCcd}:${frameId ?? (completedView ? 'mean' : 'live')}`} points={historical ? frame?.points ?? [] : completedView ? mean : currentCcd?.points ?? []}
+      {active && <SpectrumInspector fitPlot iconToolbar classic key={`${active.id}:${selectedCcd}:${frameId ?? (completedView ? 'mean' : 'live')}`} points={historical ? frame?.points ?? [] : completedView ? mean : currentCcd?.points ?? []}
         ccdNavigation={{ current: selectedCcd, indices: active.ccd_indices, choose: setSelectedCcd }}
         physicalScale={{ pointWidthUm: active.layout.point_width_um, screenWidthMm: active.profile.screen_width_mm, screenResolutionPx: active.profile.screen_resolution_px }}
         bandNavigation={{ previous: () => setFrameId(frames[framePosition - 1]?.id ?? null), next: () => setFrameId(frames[framePosition + 1]?.id ?? null),
           canPrevious: !busy && !running && !recordLocked && framePosition > 0, canNext: !busy && !running && !recordLocked && framePosition < frames.length - 1 }}
-        toolbar={workflowToolbar} onPick={historical ? undefined : setLockedPoint}
+        onPick={historical ? undefined : setLockedPoint}
         pointOrigin={0} label={`CCD ${selectedCcd + 1} 色散${historical ? '已保存谱帧' : completedView ? '燃烧均值谱图' : '采集曲线'}`}
         emptyText={historical || completedView ? frameError || (!captured ? '当前任务没有可显示的燃烧帧' : saved?.key === frameKey && !mean.length ? '没有可显示的燃烧均值谱图' : '正在读取已保存谱帧…') : '开始采集后显示实时 CCD 曲线'} />}
     </SpectroscopyConsole>

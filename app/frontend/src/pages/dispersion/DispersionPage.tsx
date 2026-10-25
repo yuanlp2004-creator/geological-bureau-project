@@ -387,6 +387,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       }} />}
     <main className="dispersion-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>{monitor}
       {processingOpen && active && !active.condition.preheat && <section className="capture-processing" aria-label="当前色散任务处理">
+        <button type="button" className="legacy-processing-close" aria-label="关闭色散处理窗口" onClick={() => setProcessingOpen(false)}>关闭</button>
         <DispersionLines locateAll={locateAll} canWrite={canWrite && !busy && !runningTask} active={active}
           element={element} setElement={setElement} wavelength={wavelength} setWavelength={setWavelength}
           lineCcd={lineCcd} setLineCcd={setLineCcd} addLine={addLine} updateLine={updateLine} removeLine={removeLine}

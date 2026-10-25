@@ -1,0 +1,841 @@
+{
+  "status": "passed",
+  "checks": [
+    "原图同尺寸：25像素标题／工具栏、固定216/217侧栏、蓝色图框留白、青色提示条、行头与四按钮位置逐项核对",
+    "关闭／恢复停靠面板零写入；条件、测量、消息及采后命名在详情窗口保留",
+    "预录窗口保存期间禁止关闭及离开，失败保留输入后恢复操作",
+    "预录窗口回传样号表、直接选择建立草稿并带出重复；清除选择不删除数据，不自动激发",
+    "sample-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/light: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "sample-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "evaporation-acquisition/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "dispersion/dark: 三分区、完整工具、真实比例、纵向还原、CCD切换及悬停稳定",
+    "工作台已保存谱带按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "已保存均值谱带点值与后端原值一致，谱带前后切换及记录锁定正常",
+    "读取已保存谱带失败时明确提示并清空曲线，切回后可重试，无实时数据冒充",
+    "当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留",
+    "色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开",
+    "结束返回任务列表，采集记录保留，准备页和当前采集继续分开",
+    "只读账户可浏览完成谱图与曲线，激发、谱线写入和拟合均按原权限禁用"
+  ],
+  "layouts": [
+    {
+      "width": 1125,
+      "height": 639,
+      "name": "reference",
+      "geometry": {
+        "desk": {
+          "x": 0,
+          "y": 0,
+          "width": 1125,
+          "height": 639
+        },
+        "title": {
+          "x": 0,
+          "y": 0,
+          "width": 1125,
+          "height": 25,
+          "right": 1125,
+          "bottom": 25
+        },
+        "mainToolbar": {
+          "x": 0,
+          "y": 25,
+          "width": 1125,
+          "height": 25,
+          "right": 1125,
+          "bottom": 50
+        },
+        "left": {
+          "x": 0,
+          "y": 50,
+          "width": 216,
+          "height": 589,
+          "right": 216,
+          "bottom": 639
+        },
+        "middle": {
+          "x": 217,
+          "y": 50,
+          "width": 688,
+          "height": 589,
+          "right": 905,
+          "bottom": 639
+        },
+        "right": {
+          "x": 908,
+          "y": 50,
+          "width": 217,
+          "height": 589,
+          "right": 1125,
+          "bottom": 639
+        },
+        "toolbar": {
+          "x": 217,
+          "y": 50,
+          "width": 688,
+          "height": 25,
+          "right": 905,
+          "bottom": 75
+        },
+        "plot": {
+          "x": 251,
+          "y": 89,
+          "width": 620,
+          "height": 538,
+          "right": 871,
+          "bottom": 627
+        },
+        "banner": {
+          "x": 304,
+          "y": 99,
+          "width": 514,
+          "height": 17,
+          "right": 818,
+          "bottom": 116
+        },
+        "sample": {
+          "x": 913,
+          "y": 102,
+          "width": 209,
+          "height": 84,
+          "right": 1122,
+          "bottom": 186
+        },
+        "commands": {
+          "x": 913,
+          "y": 196,
+          "width": 209,
+          "height": 443,
+          "right": 1122,
+          "bottom": 639
+        },
+        "sampleLabels": [
+          {
+            "x": 923.5,
+            "y": 128,
+            "height": 13
+          },
+          {
+            "x": 1027.5,
+            "y": 128,
+            "height": 13
+          }
+        ],
+        "buttons": [
+          {
+            "x": 967.5,
+            "y": 239.75,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 964.5,
+            "y": 350.25,
+            "width": 106,
+            "height": 23
+          },
+          {
+            "x": 967.5,
+            "y": 460.75,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 964.5,
+            "y": 571.25,
+            "width": 106,
+            "height": 23
+          }
+        ],
+        "emptyColor": "rgb(166, 202, 240)",
+        "bannerColor": "rgb(0, 255, 255)",
+        "controlsStyle": [
+          {
+            "name": "选择谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "定位谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "曝光区间",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "样品编号",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "重复摄谱",
+            "radius": "0px",
+            "arrow": true
+          }
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "name": "wide",
+      "geometry": {
+        "desk": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1000
+        },
+        "title": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 25,
+          "right": 1440,
+          "bottom": 25
+        },
+        "mainToolbar": {
+          "x": 0,
+          "y": 25,
+          "width": 1440,
+          "height": 25,
+          "right": 1440,
+          "bottom": 50
+        },
+        "left": {
+          "x": 0,
+          "y": 50,
+          "width": 216,
+          "height": 950,
+          "right": 216,
+          "bottom": 1000
+        },
+        "middle": {
+          "x": 217,
+          "y": 50,
+          "width": 1003,
+          "height": 950,
+          "right": 1220,
+          "bottom": 1000
+        },
+        "right": {
+          "x": 1223,
+          "y": 50,
+          "width": 217,
+          "height": 950,
+          "right": 1440,
+          "bottom": 1000
+        },
+        "toolbar": {
+          "x": 217,
+          "y": 50,
+          "width": 1003,
+          "height": 25,
+          "right": 1220,
+          "bottom": 75
+        },
+        "plot": {
+          "x": 251,
+          "y": 89,
+          "width": 935,
+          "height": 899,
+          "right": 1186,
+          "bottom": 988
+        },
+        "banner": {
+          "x": 304,
+          "y": 99,
+          "width": 829,
+          "height": 17,
+          "right": 1133,
+          "bottom": 116
+        },
+        "sample": {
+          "x": 1228,
+          "y": 102,
+          "width": 209,
+          "height": 84,
+          "right": 1437,
+          "bottom": 186
+        },
+        "commands": {
+          "x": 1228,
+          "y": 196,
+          "width": 209,
+          "height": 804,
+          "right": 1437,
+          "bottom": 1000
+        },
+        "sampleLabels": [
+          {
+            "x": 1238.5,
+            "y": 128,
+            "height": 13
+          },
+          {
+            "x": 1342.5,
+            "y": 128,
+            "height": 13
+          }
+        ],
+        "buttons": [
+          {
+            "x": 1282.5,
+            "y": 284.875,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 1279.5,
+            "y": 485.625,
+            "width": 106,
+            "height": 23
+          },
+          {
+            "x": 1282.5,
+            "y": 686.375,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 1279.5,
+            "y": 887.125,
+            "width": 106,
+            "height": 23
+          }
+        ],
+        "emptyColor": "rgb(166, 202, 240)",
+        "bannerColor": "rgb(0, 255, 255)",
+        "controlsStyle": [
+          {
+            "name": "选择谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "定位谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "曝光区间",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "样品编号",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "重复摄谱",
+            "radius": "0px",
+            "arrow": true
+          }
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "name": "minimum",
+      "geometry": {
+        "desk": {
+          "x": 0,
+          "y": 0,
+          "width": 1060,
+          "height": 680
+        },
+        "title": {
+          "x": 0,
+          "y": 0,
+          "width": 1060,
+          "height": 25,
+          "right": 1060,
+          "bottom": 25
+        },
+        "mainToolbar": {
+          "x": 0,
+          "y": 25,
+          "width": 1060,
+          "height": 25,
+          "right": 1060,
+          "bottom": 50
+        },
+        "left": {
+          "x": 0,
+          "y": 50,
+          "width": 216,
+          "height": 630,
+          "right": 216,
+          "bottom": 680
+        },
+        "middle": {
+          "x": 217,
+          "y": 50,
+          "width": 623,
+          "height": 630,
+          "right": 840,
+          "bottom": 680
+        },
+        "right": {
+          "x": 843,
+          "y": 50,
+          "width": 217,
+          "height": 630,
+          "right": 1060,
+          "bottom": 680
+        },
+        "toolbar": {
+          "x": 217,
+          "y": 50,
+          "width": 623,
+          "height": 25,
+          "right": 840,
+          "bottom": 75
+        },
+        "plot": {
+          "x": 251,
+          "y": 89,
+          "width": 555,
+          "height": 579,
+          "right": 806,
+          "bottom": 668
+        },
+        "banner": {
+          "x": 304,
+          "y": 99,
+          "width": 449,
+          "height": 17,
+          "right": 753,
+          "bottom": 116
+        },
+        "sample": {
+          "x": 848,
+          "y": 102,
+          "width": 209,
+          "height": 84,
+          "right": 1057,
+          "bottom": 186
+        },
+        "commands": {
+          "x": 848,
+          "y": 196,
+          "width": 209,
+          "height": 484,
+          "right": 1057,
+          "bottom": 680
+        },
+        "sampleLabels": [
+          {
+            "x": 858.5,
+            "y": 128,
+            "height": 13
+          },
+          {
+            "x": 962.5,
+            "y": 128,
+            "height": 13
+          }
+        ],
+        "buttons": [
+          {
+            "x": 902.5,
+            "y": 244.875,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 899.5,
+            "y": 365.625,
+            "width": 106,
+            "height": 23
+          },
+          {
+            "x": 902.5,
+            "y": 486.375,
+            "width": 100,
+            "height": 23
+          },
+          {
+            "x": 899.5,
+            "y": 607.125,
+            "width": 106,
+            "height": 23
+          }
+        ],
+        "emptyColor": "rgb(166, 202, 240)",
+        "bannerColor": "rgb(0, 255, 255)",
+        "controlsStyle": [
+          {
+            "name": "选择谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "定位谱线",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "曝光区间",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "样品编号",
+            "radius": "0px",
+            "arrow": true
+          },
+          {
+            "name": "重复摄谱",
+            "radius": "0px",
+            "arrow": true
+          }
+        ],
+        "pageOverflow": false,
+        "toolNames": [
+          "上一谱带",
+          "下一谱带",
+          "上一 CCD",
+          "下一 CCD",
+          "十字线",
+          "区域放大",
+          "滚动工具",
+          "适合图像",
+          "一线一点",
+          "一线四点",
+          "十倍 CCD",
+          "横向放大",
+          "横向缩小",
+          "纵向放大",
+          "纵向缩小",
+          "纵向还原",
+          "打印谱图"
+        ]
+      }
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 1223,
+        "width": 1440,
+        "rightEdge": 1440
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 1223,
+        "width": 1440,
+        "rightEdge": 1440
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "density": "comfortable",
+      "mode": "dispersion",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 1223,
+        "width": 1440,
+        "rightEdge": 1440
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "sample-acquisition",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 843,
+        "width": 1060,
+        "rightEdge": 1060
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "evaporation-acquisition",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 843,
+        "width": 1060,
+        "rightEdge": 1060
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "density": "compact",
+      "mode": "dispersion",
+      "columns": {
+        "left": 0,
+        "middle": 217,
+        "right": 843,
+        "width": 1060,
+        "rightEdge": 1060
+      },
+      "iconButtons": 17,
+      "observationWrites": 0
+    }
+  ],
+  "errors": [],
+  "layoutAttempt": {
+    "width": 1060,
+    "height": 680,
+    "name": "minimum",
+    "geometry": {
+      "desk": {
+        "x": 0,
+        "y": 0,
+        "width": 1060,
+        "height": 680
+      },
+      "title": {
+        "x": 0,
+        "y": 0,
+        "width": 1060,
+        "height": 25,
+        "right": 1060,
+        "bottom": 25
+      },
+      "mainToolbar": {
+        "x": 0,
+        "y": 25,
+        "width": 1060,
+        "height": 25,
+        "right": 1060,
+        "bottom": 50
+      },
+      "left": {
+        "x": 0,
+        "y": 50,
+        "width": 216,
+        "height": 630,
+        "right": 216,
+        "bottom": 680
+      },
+      "middle": {
+        "x": 217,
+        "y": 50,
+        "width": 623,
+        "height": 630,
+        "right": 840,
+        "bottom": 680
+      },
+      "right": {
+        "x": 843,
+        "y": 50,
+        "width": 217,
+        "height": 630,
+        "right": 1060,
+        "bottom": 680
+      },
+      "toolbar": {
+        "x": 217,
+        "y": 50,
+        "width": 623,
+        "height": 25,
+        "right": 840,
+        "bottom": 75
+      },
+      "plot": {
+        "x": 251,
+        "y": 89,
+        "width": 555,
+        "height": 579,
+        "right": 806,
+        "bottom": 668
+      },
+      "banner": {
+        "x": 304,
+        "y": 99,
+        "width": 449,
+        "height": 17,
+        "right": 753,
+        "bottom": 116
+      },
+      "sample": {
+        "x": 848,
+        "y": 102,
+        "width": 209,
+        "height": 84,
+        "right": 1057,
+        "bottom": 186
+      },
+      "commands": {
+        "x": 848,
+        "y": 196,
+        "width": 209,
+        "height": 484,
+        "right": 1057,
+        "bottom": 680
+      },
+      "sampleLabels": [
+        {
+          "x": 858.5,
+          "y": 128,
+          "height": 13
+        },
+        {
+          "x": 962.5,
+          "y": 128,
+          "height": 13
+        }
+      ],
+      "buttons": [
+        {
+          "x": 902.5,
+          "y": 244.875,
+          "width": 100,
+          "height": 23
+        },
+        {
+          "x": 899.5,
+          "y": 365.625,
+          "width": 106,
+          "height": 23
+        },
+        {
+          "x": 902.5,
+          "y": 486.375,
+          "width": 100,
+          "height": 23
+        },
+        {
+          "x": 899.5,
+          "y": 607.125,
+          "width": 106,
+          "height": 23
+        }
+      ],
+      "emptyColor": "rgb(166, 202, 240)",
+      "bannerColor": "rgb(0, 255, 255)",
+      "controlsStyle": [
+        {
+          "name": "选择谱线",
+          "radius": "0px",
+          "arrow": true
+        },
+        {
+          "name": "定位谱线",
+          "radius": "0px",
+          "arrow": true
+        },
+        {
+          "name": "曝光区间",
+          "radius": "0px",
+          "arrow": true
+        },
+        {
+          "name": "样品编号",
+          "radius": "0px",
+          "arrow": true
+        },
+        {
+          "name": "重复摄谱",
+          "radius": "0px",
+          "arrow": true
+        }
+      ],
+      "pageOverflow": false,
+      "toolNames": [
+        "上一谱带",
+        "下一谱带",
+        "上一 CCD",
+        "下一 CCD",
+        "十字线",
+        "区域放大",
+        "滚动工具",
+        "适合图像",
+        "一线一点",
+        "一线四点",
+        "十倍 CCD",
+        "横向放大",
+        "横向缩小",
+        "纵向放大",
+        "纵向缩小",
+        "纵向还原",
+        "打印谱图"
+      ]
+    }
+  }
+}

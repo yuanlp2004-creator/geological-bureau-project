@@ -104,6 +104,9 @@ export function SampleAcquisitionMonitor({
   }
   return (
     <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar} sampleInput={sampleInput}
+      bandTitle={selected?.task_kind === 'evaporation' ? '蒸发数据' : selected?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
+      showRepeats={selected?.task_kind !== 'evaporation'}
+      canEditSample={completed.length > 0}
       lineBar={<SampleCaptureLineBar token={token} canReadMethods={canReadMethods} methodId={selected?.method_id ?? null}
         version={selected?.method_version ?? null} frames={selected?.burn_frame_count ?? 0} />}
       recordTitle={selected?.task_kind === 'evaporation' ? '蒸发谱带名' : '样品编号'}
@@ -132,7 +135,7 @@ export function SampleAcquisitionMonitor({
       preheat={{ run: () => apply('preheat'), enabled: enabled && canPreheat }}
       pause={{ run: () => apply('pause'), enabled: enabled && running && selected?.status !== 'between_repeats' }}
       resume={{ run: () => apply('resume'), enabled: enabled && selected?.status === 'paused' }}
-      stop={{ run: () => apply('stop'), enabled: enabled && !['completed', 'failed', 'stopped'].includes(selected?.status ?? '') }}
+      stop={{ run: () => apply('stop'), enabled: enabled && ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping', 'between_repeats'].includes(selected?.status ?? '') }}
       progress={selected ? [
         { label: '总进度', value: progressLabel, current: selected.progress, maximum: 100 },
         { label: '当前阶段', value: selected.last_message || stateLabel[selected.status], title: selected.last_message || stateLabel[selected.status] },
@@ -142,7 +145,7 @@ export function SampleAcquisitionMonitor({
       hash={observedSample ? observed?.sha256 : selected?.last_event?.details.sha256}>
       {selected && <>
         {error && <p role="alert">{error}</p>}
-        <SpectrumInspector fitPlot iconToolbar key={`${selected.id}:${ccd}:${observedSample?.id ?? 'live'}`} points={points}
+        <SpectrumInspector fitPlot iconToolbar classic key={`${selected.id}:${ccd}:${observedSample?.id ?? 'live'}`} points={points}
           ccdNavigation={{ current: ccd, indices: selected.ccd_indices, choose: setCcdIndex }}
           label={`CCD ${ccd + 1} ${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}
           physicalScale={{ pointWidthUm: selected.layout.point_width_um, screenWidthMm: selected.profile.screen_width_mm, screenResolutionPx: selected.profile.screen_resolution_px }}

@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "5483ae6c30a30c24b78a504096be0c24df49ade365994ffbeb3f741ac50a3558",
+  "checks": {
+    "browser": {
+      "checks": 17,
+      "layouts": 9
+    },
+    "desktop": {
+      "checks": 15,
+      "layouts": 9
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 8
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 8
+    }
+  },
+  "frontend_tests": 15,
+  "backend_tests": 20,
+  "icons_css_px": 16,
+  "toolbar_button_css_px": 23,
+  "reference_viewport_css_px": {
+    "width": 1125,
+    "height": 639
+  },
+  "reference_colors": {
+    "plot": "#A6CAF0",
+    "panel": "#F0F0F0",
+    "banner": "#00FFFF"
+  },
+  "source_and_frontend_match": true,
+  "unchanged_legacy_source_files": 105,
+  "backend_sources_and_exe_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "root_executables": {
+    "GeoSpectrum.exe": "c203c40b3fe7897b8cbef0f2a08f68df2ece4f76cfeddab7f7e43276ce508ae2",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "git_backup": {
+    "commit": "b54f7beca0227cd6997f69d6db11661ccc3e72bd",
+    "tag": "before-exact-excitation-20261025",
+    "remote": "https://github.com/yuanlp2004-creator/geological-bureau-project",
+    "remote_verified": true,
+    "old_executables": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\exact-excitation-20261025\\before",
+    "original_pre_icons_tag": "before-spectroscopy-icons-20261025"
+  },
+  "notes": [
+    "Capture uses the complete viewport. Task preparation, permissions and data safeguards remain.",
+    "Geometry and colors are compared at the legacy logical viewport; OS text rendering and redrawn icon shapes are not pixel-identical.",
+    "Sample line wavelength and exposure reflect the exact published task version and remain read-only.",
+    "Existing queue editor is embedded; pending mutations block dismissal and retain input on failure.",
+    "All business writes used isolated seeded databases. No user database was overwritten or rolled back.",
+    "One browser refresh failed to restore the workspace after a mocked 503; two complete reruns passed. Cause not established.",
+    "One earlier isolated QA target disconnected at login. Hiding the QA window was moved after workspace readiness; final suites passed with normal exit.",
+    "Real hardware, physical printing, signing and installer updates were not performed."
+  ]
+}

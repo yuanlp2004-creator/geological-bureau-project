@@ -1,5 +1,5 @@
 import { confirmAction } from '../../platform/dialogs'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Download, Plus, RefreshCw, Trash2, FolderOpen } from 'lucide-react'
 import { api, saveFile, type SampleQueue } from '../../api'
 import type { MethodConditions } from '../../api/methods'
@@ -8,7 +8,7 @@ import { SampleNumberTable } from './SampleNumberTable'
 import { SectionHeading } from '../../components/SectionHeading'
 import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
-export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: string; onToast: (message: string) => void; entryRequest?: number }) {
+export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, onBusyChange }: { token: string; onToast: (message: string) => void; entryRequest?: number; onUseQueue?: (queue: SampleQueue) => void; onBusyChange?: (busy: boolean) => void }) {
   const [queues, setQueues] = useState<SampleQueue[]>([])
   const [selected, setSelected] = useState<SampleQueue | null>(null)
   const [name, setName] = useState('现场样品')
@@ -23,6 +23,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: s
   const [entryBusy,setEntryBusy] = useState(false)
   const [editingItem, setEditingItem] = useState(false)
   const locked = entryBusy || editingItem
+  useLayoutEffect(() => { onBusyChange?.(locked); return () => onBusyChange?.(false) }, [locked, onBusyChange])
   useEffect(() => {
     let live = true
     void api.currentMethod(token).then((current) => { if (live) setMethodDefaults(current.referenced_version?.conditions ?? null) }).catch(() => { if (live) setMethodDefaults(null) })
@@ -200,6 +201,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0 }: { token: s
   return (
     <div className="page-content sample-queue-page refined-page remaining-page">
       
+      {onUseQueue && <button type="button" className="primary-button" disabled={!selected?.items.length || locked} onClick={() => { if (selected) onUseQueue(selected) }}>使用此样号表</button>}
       <div className="sample-queue-grid">
         <section className="surface queue-context">
           <div className="surface-heading"><SectionHeading title="样品队列" /></div>

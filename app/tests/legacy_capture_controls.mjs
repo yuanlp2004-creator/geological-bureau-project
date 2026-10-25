@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawn, spawnSync } from 'node:child_process'
 import { call, navigate } from './contract_browser_support.mjs'
+import { leaveLegacyCapture } from './legacy_desk_test_support.mjs'
 
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const work = path.join(app, '.local/diagnostics/legacy-capture-20261023')
@@ -53,6 +54,7 @@ async function command(host, label, suffix) {
   return response.json()
 }
 async function go(mode, name) {
+  await leaveLegacyCapture(page)
   const label = { sample: '样品摄谱', evaporation: '蒸发摄谱', dispersion: '色散摄谱' }[mode]
   const selector = mode === 'dispersion' ? '[data-testid="dispersion-page"][data-view="capture"]' : `[data-testid="${mode}-acquisition-page"]`
   await navigate(page, 'analysis-tests', label, selector)
@@ -95,7 +97,6 @@ try {
       if (!page) await delay(100)
     }
     assert.ok(page, 'QA desktop renderer did not load')
-    await page.evaluate(() => window.__TAURI__.core.invoke('plugin:window|hide'))
   } else {
     data = await mkdtemp(path.join(tmpdir(), 'geospectrum-legacy-capture-'))
     const seeded = spawnSync('python', ['-X', 'utf8', 'tests/seed_s24_ui.py', data], { cwd: app, windowsHide: true, encoding: 'utf8' })
@@ -112,6 +113,7 @@ try {
   await page.getByLabel('密码', { exact: true }).fill('QaTest-2026!')
   await page.getByRole('button', { name: '登录', exact: true }).click()
   await page.getByTestId('workspace').waitFor()
+  if (process.env.QA_CDP) await page.evaluate(() => window.__TAURI__.core.invoke('plugin:window|hide'))
   const method = await call(page, '/api/v1/methods', { name: '手动激发验证', conditions: {
     exposure_mode: 'simple_mean', frame_count: 2,
     angle_exposures: [{ angle_deg: 0, storage_mode: 'averaged', start_frame: 1, end_frame: 2 }]
@@ -128,14 +130,14 @@ try {
   let host = await go('sample', sample.name)
   const warmup = await command(host, '预热摄谱', `/${sample.id}/preheat`)
   const heated = await task(base, warmup.id, task => task.status === 'completed')
-  await host.locator('.state-chip.completed').waitFor()
+  await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor()
   assert.equal(heated.sample_kind, 'preheat'); assert.equal(heated.samples[0].bands.length, 0)
   assert.equal((await call(page, `${base}/${sample.id}`)).status, 'draft')
   await screenshot(host, 'sample-preheat')
   result.checks.push('预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持')
   await command(host, '试样摄谱', `/${sample.id}/start`)
   const first = await task(base, sample.id, task => task.status === 'between_repeats')
-  await host.locator('.state-chip.between_repeats').waitFor()
+  await host.locator('.legacy-capture-desk[data-status="between_repeats"]').waitFor()
   assert.equal(first.completed_repeats, 1); assert.equal(first.samples.length, 1)
   await delay(1000)
   assert.equal((await call(page, `${base}/${sample.id}`)).samples.length, 1)
@@ -154,11 +156,11 @@ try {
   const evapWarmup = await command(host, '预热摄谱', `/${evaporation.id}/preheat`)
   const evapHeat = await task(base, evapWarmup.id, task => task.status === 'completed')
   assert.equal(evapHeat.sample_kind, 'preheat'); assert.equal(evapHeat.samples[0].bands.length, 0)
-  await host.locator('.state-chip.completed').waitFor()
+  await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor()
   await command(host, '试样摄谱', `/${evaporation.id}/start`)
   const evapFinal = await task(base, evaporation.id, task => task.status === 'completed')
   assert.equal(evapFinal.completed_repeats, 1); assert.ok(evapFinal.samples[0].bands.length)
-  await host.locator('.state-chip.completed').waitFor(); await screenshot(host, 'evaporation-completed')
+  await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor(); await screenshot(host, 'evaporation-completed')
   result.checks.push('蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验')
 
   const dispersionBase = '/api/v1/dispersion/tasks'
@@ -168,10 +170,10 @@ try {
   const dispWarmup = await command(host, '预热摄谱', `/${dispersion.id}/preheat`)
   const dispHeat = await task(dispersionBase, dispWarmup.id, task => task.status === 'completed')
   assert.equal(dispHeat.condition.preheat, true); assert.equal(dispHeat.calibrations.length, 0)
-  await host.locator('.state-chip.completed').waitFor()
+  await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor()
   await command(host, '试样摄谱', `/${dispersion.id}/start`)
   await task(dispersionBase, dispersion.id, task => task.status === 'completed')
-  await host.locator('.state-chip.completed').waitFor(); await screenshot(host, 'dispersion-completed')
+  await host.locator('.legacy-capture-desk[data-status="completed"]').waitFor(); await screenshot(host, 'dispersion-completed')
   result.checks.push('色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集')
 
   const stoppedTask = await call(page, base, { name: '停止竞态检查', method_id: method.id, burn_frame_count: 20,

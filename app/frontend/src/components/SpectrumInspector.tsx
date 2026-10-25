@@ -14,6 +14,7 @@ type Props = {
   markers?: SpectrumPlotMarker[]
   fitPlot?: boolean
   iconToolbar?: boolean
+  classic?: boolean
   physicalScale?: { pointWidthUm?: number; screenWidthMm?: number; screenResolutionPx?: number }
   bandNavigation?: { previous: () => void; next: () => void; canPrevious: boolean; canNext: boolean }
   ccdNavigation?: { current: number; indices: number[]; choose: (ccd: number) => void }
@@ -25,7 +26,7 @@ type Props = {
 }
 
 // 只维护观察视图。调用方用任务/CCD作为key，切换对象时清空锁定点和缩放。
-export function SpectrumInspector({ points, label, pointOrigin = 1, markers = [], fitPlot = false, iconToolbar = false,
+export function SpectrumInspector({ points, label, pointOrigin = 1, markers = [], fitPlot = false, iconToolbar = false, classic = false,
   physicalScale, bandNavigation, ccdNavigation, onPrint, printDisabledReason, toolbar,
   emptyText = '暂无可显示的谱图', onPick }: Props) {
   const full = useMemo<Range>(() => ({
@@ -38,6 +39,7 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
   const [locked, setLocked] = useState(false)
   const [point, setPoint] = useState<number>(pointOrigin)
   const root = useRef<HTMLDivElement>(null)
+  const observerDialog = useRef<HTMLDialogElement>(null)
   const [plotWidth, setPlotWidth] = useState(960)
   const [scale, setScale] = useState<1 | 4 | 10 | null>(null)
   useEffect(() => {
@@ -95,6 +97,21 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
     setTool('crosshair')
     onPick?.(index)
   }
+  const plot = <SpectrumPlot fitContainer={fitPlot} curves={curves} xStart={view.xMin} xEnd={view.xMax} yStart={view.yMin} yEnd={view.yMax}
+    tool={tool} cursor={liveCursor} locked={locked}
+    onCursor={(next) => { setCursor(next); if (next) setPoint(next.datum.x) }} onToggleLock={toggleLock}
+    onPan={(x, y) => setRange({ xMin: view.xMin - x * (view.xMax - view.xMin), xMax: view.xMax - x * (view.xMax - view.xMin),
+      yMin: view.yMin + y * (view.yMax - view.yMin), yMax: view.yMax + y * (view.yMax - view.yMin) })}
+    onBoxSelect={next => { setScale(null); setRange(next) }} markers={markers}
+    xAxisLabel={`CCD 点位 (${pointOrigin} 起)`} yAxisLabel="强度 (ADC)" />
+  const readout = <div className="inspector-readout">
+    <label>读取点位 <NumericInput min={pointOrigin} max={points.length - 1 + pointOrigin} step={1} value={point}
+      onValueChange={readPoint} data-observation-input="true" onFocus={() => { setLocked(false); onPick?.(null) }} /></label>
+    <output aria-label="谱图点位读数">{liveCursor
+      ? `点位 ${liveCursor.datum.x} · 强度 ${liveCursor.datum.y.toLocaleString('zh-CN', { maximumFractionDigits: 6 })}${locked ? ' · 已锁定' : ''}`
+      : '移动鼠标查看强度，单击曲线锁定点位'}</output>
+    <small>视野 {view.xMin.toFixed(1)}–{view.xMax.toFixed(1)} · 强度 {view.yMin.toFixed(1)}–{view.yMax.toFixed(1)}</small>
+  </div>
   return <div ref={root} className="spectrum-inspector" aria-label={label}>
     <div className={`inspector-tools${iconToolbar ? ' inspector-icon-tools' : ''}`} role="group" aria-label="谱图观察工具">
       {iconToolbar && bandNavigation && <div className="inspector-tool-modes" role="group" aria-label="谱带切换">
@@ -103,19 +120,21 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
       </div>}
       {iconToolbar && ccdNavigation && <div className="inspector-tool-modes spectroscopy-ccd-tools" role="group" aria-label="CCD切换">
         <SpectroscopyToolButton icon="previous-ccd" label="上一 CCD"
-          disabled={ccdNavigation.indices.indexOf(ccdNavigation.current) <= 0}
+          disabled={(classic && !hasPoints) || ccdNavigation.indices.indexOf(ccdNavigation.current) <= 0}
           onClick={() => ccdNavigation.choose(ccdNavigation.indices[ccdNavigation.indices.indexOf(ccdNavigation.current) - 1])} />
         <SpectroscopyToolButton icon="next-ccd" label="下一 CCD"
-          disabled={ccdNavigation.indices.indexOf(ccdNavigation.current) < 0 || ccdNavigation.indices.indexOf(ccdNavigation.current) >= ccdNavigation.indices.length - 1}
+          disabled={(classic && !hasPoints) || ccdNavigation.indices.indexOf(ccdNavigation.current) < 0 || ccdNavigation.indices.indexOf(ccdNavigation.current) >= ccdNavigation.indices.length - 1}
           onClick={() => ccdNavigation.choose(ccdNavigation.indices[ccdNavigation.indices.indexOf(ccdNavigation.current) + 1])} />
-        <label className="spectroscopy-ccd-choice"><span aria-hidden="true">CCD</span><select aria-label="选择CCD" title={`CCD ${ccdNavigation.current + 1}`} value={ccdNavigation.current} disabled={!ccdNavigation.indices.length}
+        <label className={classic ? 'classic-ccd-picker' : 'spectroscopy-ccd-choice'} title={`CCD ${ccdNavigation.current + 1}`}>
+          {classic ? <SpectroscopyIcon name="select-ccd" /> : <span aria-hidden="true">CCD</span>}
+          {classic && <span aria-hidden="true" />}<select aria-label="选择CCD" title={`CCD ${ccdNavigation.current + 1}`} value={ccdNavigation.current} disabled={!ccdNavigation.indices.length || (classic && !hasPoints)}
           onChange={event => ccdNavigation.choose(Number(event.target.value))}>
           {!ccdNavigation.indices.length && <option value={ccdNavigation.current}>等待采集</option>}
-          {ccdNavigation.indices.map(ccd => <option key={ccd} value={ccd}>{ccd + 1}</option>)}
+          {ccdNavigation.indices.map(ccd => <option key={ccd} value={ccd}>{classic ? `CCD ${ccd + 1}` : ccd + 1}</option>)}
         </select></label>
       </div>}
       {iconToolbar ? <div className="inspector-tool-modes" role="group" aria-label="谱图工具">
-        {([['crosshair', '十字线', 'crosshair'], ['pan', '滚动工具', 'pan'], ['box', '区域放大', 'box-zoom']] as const).map(([value, name, icon]) => (
+        {([['crosshair', '十字线', 'crosshair'], ['box', '区域放大', 'box-zoom'], ['pan', '滚动工具', 'pan']] as const).map(([value, name, icon]) => (
           <button key={value} type="button" className="secondary-button inspector-icon-button" disabled={!hasPoints}
             aria-label={name} title={name} aria-pressed={tool === value} onClick={() => setTool(value)}>
             <SpectroscopyIcon name={icon} />
@@ -147,32 +166,20 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
       ))}
       {iconToolbar && <SpectroscopyToolButton icon="reset-y" label="纵向还原" disabled={!hasPoints}
         onClick={() => setRange({ ...view, yMin: full.yMin, yMax: full.yMax })} />}
-      <button type="button" className={`secondary-button${iconToolbar ? ' inspector-icon-button' : ''}`} disabled={!liveCursor}
+      {!classic && <button type="button" className={`secondary-button${iconToolbar ? ' inspector-icon-button' : ''}`} disabled={!liveCursor}
         aria-label={locked ? '解除锁定' : '锁定点位'} title={locked ? '解除锁定' : '锁定点位'} aria-pressed={locked} onClick={() => toggleLock()}>
         {iconToolbar ? <SpectroscopyIcon name="lock" /> : locked ? '解除锁定' : '锁定点位'}
-      </button>
-      {iconToolbar && onPrint && <SpectroscopyToolButton icon="print" label="打印谱图" description={printDisabledReason ?? '打印当前可见的已保存谱带'}
-        disabled={!hasPoints || Boolean(printDisabledReason)} onClick={() => onPrint(view)} />}
+      </button>}
+      {iconToolbar && (onPrint || classic) && <SpectroscopyToolButton icon="print" label="打印谱图" description={printDisabledReason ?? '打印当前可见的已保存谱带'}
+        disabled={!hasPoints || !onPrint || Boolean(printDisabledReason)} onClick={() => onPrint?.(view)} />}
       {toolbar}
     </div>
     {hasPoints ? <>
-      <SpectrumPlot fitContainer={fitPlot} curves={curves} xStart={view.xMin} xEnd={view.xMax} yStart={view.yMin} yEnd={view.yMax}
-        tool={tool} cursor={liveCursor} locked={locked}
-        onCursor={(next) => { setCursor(next); if (next) setPoint(next.datum.x) }} onToggleLock={toggleLock}
-        onPan={(x, y) => setRange({ xMin: view.xMin - x * (view.xMax - view.xMin),
-          xMax: view.xMax - x * (view.xMax - view.xMin), yMin: view.yMin + y * (view.yMax - view.yMin),
-          yMax: view.yMax + y * (view.yMax - view.yMin) })}
-        onBoxSelect={next => { setScale(null); setRange(next) }} markers={markers}
-        xAxisLabel={`CCD 点位 (${pointOrigin} 起)`} yAxisLabel="强度 (ADC)" />
-      <div className="inspector-readout">
-        <label>读取点位 <NumericInput min={pointOrigin} max={points.length - 1 + pointOrigin}
-          step={1} value={point} onValueChange={readPoint} data-observation-input="true"
-          onFocus={() => { setLocked(false); onPick?.(null) }} /></label>
-        <output aria-label="谱图点位读数">{liveCursor
-          ? `点位 ${liveCursor.datum.x} · 强度 ${liveCursor.datum.y.toLocaleString('zh-CN', { maximumFractionDigits: 6 })}${locked ? ' · 已锁定' : ''}`
-          : '移动鼠标查看强度，单击曲线锁定点位'}</output>
-        <small>视野 {view.xMin.toFixed(1)}–{view.xMax.toFixed(1)} · 强度 {view.yMin.toFixed(1)}–{view.yMax.toFixed(1)}</small>
-      </div>
+      {classic ? <div className="legacy-plot-frame" onDoubleClick={() => observerDialog.current?.showModal()}>{plot}</div> : plot}
+      {classic ? <dialog ref={observerDialog} className="spectrum-observer-dialog" aria-label="谱图点位与视野">
+        <header><h2>谱图点位与视野</h2><button type="button" aria-label="关闭谱图读数" onClick={() => observerDialog.current?.close()}>×</button></header>
+        {readout}<button type="button" aria-label={locked ? '解除锁定' : '锁定点位'} disabled={!liveCursor} onClick={() => toggleLock()}>{locked ? '解除锁定' : '锁定点位'}</button>
+      </dialog> : readout}
       {markers.length > 0 && <div className="inspector-markers" aria-label="谱线位置">
         {markers.map((marker) => <button className={`secondary-button ${marker.kind}`} key={marker.key}
           title={marker.label} onClick={() => setRange({ ...full,
@@ -180,6 +187,6 @@ export function SpectrumInspector({ points, label, pointOrigin = 1, markers = []
           {marker.label}
         </button>)}
       </div>}
-    </> : <div className="inspector-empty">{emptyText}</div>}
+    </> : <div className="inspector-empty" title={emptyText}>{classic ? <span className="legacy-empty-banner">[无谱带可显示]</span> : emptyText}</div>}
   </div>
 }

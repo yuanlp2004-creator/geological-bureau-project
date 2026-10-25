@@ -72,6 +72,7 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
                 canWrite={permissions.includes('acquisition.write')} canExecute={permissions.includes('acquisition.execute')}
                 canExport={permissions.includes('spectra.read') && permissions.includes('spectra.export')}
                 canReadMethods={permissions.includes('methods.read')}
+                canWriteSamples={permissions.includes('samples.write')}
                 onOpenSamples={permissions.includes('samples.read') ? () => {
                   const entry = entries.find(entry => entry.key === 'analysis-tests.samples')
                   if (entry && !reason) onNavigate(entry)
