@@ -10,6 +10,8 @@
   --line: #dfe6ee;
   --surface: #fff;
   --blue: #236cdf;
+  --action-blue: #205fc8;
+  --action-blue-hover: #194da4;
   --cyan: #20a8ac;
   --green: #1d9872;
   --amber: #de9141;
@@ -37,8 +39,8 @@ button {
   display: flex;
 }
 .sidebar {
-  width: 246px;
-  flex: 0 0 246px;
+  width: 216px;
+  flex: 0 0 216px;
   display: flex;
   flex-direction: column;
   padding: 26px 15px 18px;
@@ -2473,6 +2475,12 @@ button {
 .navigation-group-item {
   position: relative;
   min-width: 0;
+}
+.navigation-group {
+  gap: 10px;
+}
+.navigation-group-icon {
+  flex-shrink: 0;
 }
 .navigation-group > span {
   min-width: 0;

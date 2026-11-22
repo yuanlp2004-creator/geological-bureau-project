@@ -1,5 +1,5 @@
 /* The acquisition desk and the three viewers share one outer page gutter. */
-:root .app-shell { --spectroscopy-page-inline:var(--page-heading-inline); --spectroscopy-page-top:var(--page-heading-top); --spectroscopy-page-max:1640px; }
+:root .app-shell { --spectroscopy-page-inline:var(--page-heading-inline); --spectroscopy-page-top:var(--page-heading-top); --spectroscopy-page-max:1640px; --spectrum-entry-width:120px; }
 :root .app-shell .spectroscopy-workbench.page-content { padding-inline:var(--spectroscopy-page-inline); }
 :root .app-shell .page-scroll-region:has(.spectroscopy-workbench,.legacy-viewing-page) { scrollbar-gutter:stable; }
 :root .app-shell .legacy-viewing-page { max-width:none; padding:0; }
@@ -50,7 +50,7 @@
 :root .app-shell .legacy-peak-plot .plot-label { fill:#24652c; }
 :root .app-shell .legacy-peak-plot .plot-grid { stroke:#8d9299; stroke-dasharray:4 3; }
 :root .app-shell .legacy-peak-plot .plot-axis { stroke:#8d9299; }
-:root .app-shell .legacy-peak-plot .spectrum-line.priority { stroke:#f12222 !important; stroke-width:1; }
+:root .app-shell .legacy-peak-plot .spectrum-line.priority { stroke:var(--spec-primary-curve,#f12222) !important; stroke-width:var(--spec-curve-width,1); }
 :root .app-shell .legacy-multi-point-table {
  --point-row-height:25px;
  --point-visible-rows:3;
@@ -132,11 +132,11 @@
 .spectrum-concentration-method { color:var(--ui-muted); margin-bottom:4px; }
 .spectrum-concentration-panel ul { margin:0; padding:0; list-style:none; }
 .spectrum-concentration-panel li {
-  display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.05fr); gap:8px; align-items:baseline;
+  display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:2px 6px; align-items:baseline;
   border-top:1px solid var(--line); padding:4px 0;
 }
-.spectrum-concentration-panel li > :last-child { text-align:right; font-variant-numeric:tabular-nums; }
-.spectrum-concentration-unavailable { color:var(--ui-muted); }
+.spectrum-concentration-value { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.spectrum-concentration-message { grid-column:1 / -1; text-align:left; color:var(--muted); font-size:11.5px; line-height:1.45; }
 .spectrum-record-list .spectrum-concentration-panel small { white-space:normal; overflow:visible; }
 :root .app-shell .legacy-viewing-page .legacy-view-center .inspector-tools { flex-wrap:wrap; }
 :root .app-shell .legacy-viewing-page .legacy-view-center .inspector-tools .inspector-icon-button { flex:0 0 22px; width:22px; min-width:22px; height:24px; min-height:24px; padding:3px; }
@@ -211,3 +211,62 @@
 :root .app-shell .legacy-toolbar-separator { height:22px; width:1px; margin-inline:calc((var(--spectrum-tool-group-gap) - 1px) / 2); background:var(--line); flex:0 0 1px; }
 :root .app-shell .legacy-exposure-range { display:inline-flex; align-items:center; height:24px; border:1px solid var(--line); background:var(--surface); }
 :root .app-shell .legacy-view-top input[aria-invalid="true"][data-observation-input] { border-color: var(--danger, #b42318); }
+
+/* Shared palette for the sample analysis and spectrum viewer workbenches. */
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) {
+  --spec-board: #dfe9f5;
+  --spec-board-border: #bacde0;
+  --spec-plot: var(--surface);
+  --spec-banner: #edf4fc;
+  --spec-label: #294761;
+  --spec-axis: #7b91a6;
+  --spec-grid: #c5d1de;
+  --spec-primary-curve: #c32d35;
+  --spec-curve-width: 1.25px;
+  --spec-crosshair: var(--blue);
+}
+:root[data-theme='dark'] .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) {
+  --spec-board: #253c54;
+  --spec-board-border: #46607b;
+  --spec-banner: #1d3046;
+  --spec-label: #d6e5f4;
+  --spec-axis: #819bb5;
+  --spec-grid: #415871;
+  --spec-primary-curve: #ff8685;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-spectrum-visual {
+  background: var(--spec-board);
+  border-color: var(--spec-board-border);
+  border-radius: 6px;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-spectrum-banner {
+  padding-inline: 8px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--spec-board-border);
+  background: var(--spec-banner);
+  color: var(--spec-label);
+  font-variant-numeric: tabular-nums;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-peak-plot .plot-background { fill: var(--spec-plot); }
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) :is(.legacy-peak-plot .plot-label,.legacy-grayscale text) {
+  fill: var(--spec-label);
+  font-variant-numeric: tabular-nums;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-peak-plot .plot-axis { stroke: var(--spec-axis); }
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-peak-plot .plot-grid { stroke: var(--spec-grid); }
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-peak-plot .plot-crosshair { stroke: var(--spec-crosshair); }
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-peak-plot .spectrum-line.priority {
+  filter: none;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-plot-readout {
+  padding-inline: 7px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgb(17 36 59 / 12%);
+  font-variant-numeric: tabular-nums;
+}
+:root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page[data-viewing='spectra']) .legacy-view-top label > input:not([type='checkbox']) {
+  width: var(--spectrum-entry-width);
+  padding-inline: 5px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

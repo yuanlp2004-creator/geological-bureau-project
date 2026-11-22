@@ -34,11 +34,12 @@ function RecordConcentrations({ token, recordId }: { token: string; recordId: st
    {!preview.rows.length ? <div>该方法没有启用的分析谱线</div> :
      <ul aria-label="元素浓度">{preview.rows.map(row => <li key={row.line_id}>
        <span>{row.element} <small>{row.wavelength_nm.toFixed(4)} nm</small></span>
-       {row.concentration === null ? <span className="spectrum-concentration-unavailable">{row.message || '无法计算'}</span> :
-         <span title={row.curve_source === 'published' ? '已发布标准曲线' : '用方法中的标准点拟合'}>
+       {row.concentration !== null &&
+         <span className="spectrum-concentration-value" title={row.curve_source === 'published' ? '已发布标准曲线' : '用方法中的标准点拟合'}>
            {formatAnalysisValue(row.concentration, row.decimal_places)} {row.unit}
-           {row.message && <small>{row.message}</small>}
          </span>}
+       {(row.message || row.concentration === null) &&
+         <span className="spectrum-concentration-message">{row.message || '无法计算'}</span>}
      </li>)}</ul>}
  </>
 }

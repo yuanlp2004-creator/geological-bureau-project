@@ -1,13 +1,29 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
+  BarChart3,
   ChevronRight,
+  CircleHelp,
+  LayoutDashboard,
+  Settings2,
+  SlidersHorizontal,
+  Wrench,
 } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { type CurrentMethodState } from '../api'
 import { AppIcon } from '../components/AppIcon'
 import { FunctionIcon, iconForEntry } from '../components/FunctionIcon'
 import { groupedNavigation, navigationAvailability, type NavigationEntry, type NavigationGroupId } from '../navigation'
+
+const navigationGroupIcons = {
+  workspace: LayoutDashboard,
+  methods: SlidersHorizontal,
+  'analysis-tests': Activity,
+  data: BarChart3,
+  tools: Wrench,
+  system: Settings2,
+  help: CircleHelp,
+} satisfies Record<NavigationGroupId, typeof Activity>
 
 export function Sidebar({
   activeEntry,
@@ -155,6 +171,7 @@ export function Sidebar({
       >
         <nav className="nav-list" aria-label="业务域导航">
           {groups.map((group) => {
+            const Icon = navigationGroupIcons[group.id]
             const direct = group.id === 'workspace' ? group.entries[0] : null
             const active = activeEntry?.group === group.id
             const groupOpened = opened?.id === group.id && group.id !== 'workspace'
@@ -172,8 +189,9 @@ export function Sidebar({
                   onKeyDown={(event) => handleGroupKey(event, group.id)}
                   title={group.description}
                 >
+                  <Icon size={16} strokeWidth={1.75} className="navigation-group-icon" aria-hidden="true" />
                   <span>{group.label}</span>
-                  {!direct && <ChevronRight size={14} className="navigation-chevron" />}
+                  {!direct && <ChevronRight size={14} className="navigation-chevron" aria-hidden="true" />}
                 </button>
                 {groupOpened && (
                   <div

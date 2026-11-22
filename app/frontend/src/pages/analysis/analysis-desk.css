@@ -1,14 +1,13 @@
-/* FmViewSingle: original tools, cyan record banner, blue spectrum board. */
+/* FmViewSingle layout and tool positions. */
 :root .app-shell .analysis-legacy-page.analysis-workbench.remaining-page { display:block; height:auto; min-height:0; overflow:visible; max-width:none; padding-bottom:8px; }
 :root .app-shell .page-scroll-region .analysis-legacy-page .analysis-hero { margin-bottom:var(--page-heading-content-gap,16px) !important; }
 :root .app-shell .analysis-legacy-page .analysis-header-actions { flex-wrap:wrap; gap:6px; }
 :root .app-shell .analysis-legacy-page .analysis-header-actions select { width:180px; max-width:22vw; min-height:28px; height:28px; font-size:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
-:root .app-shell .analysis-legacy-page > .legacy-view-desk { border-radius:0; background:#f0f0f0; }
+:root .app-shell .analysis-legacy-page > .legacy-view-desk { border-radius:0; background:var(--surface-soft); }
 :root .app-shell .analysis-desk-body { grid-template-columns:23% minmax(0,1fr); flex:1; min-height:0; }
 :root .app-shell .analysis-desk-body.left-hidden { grid-template-columns:minmax(0,1fr); }
 :root .app-shell .analysis-desk-top { background:var(--surface-soft); }
 :root .app-shell .analysis-desk-top label > select { width:223px; }
-:root .app-shell .analysis-desk-top label > input { width:76px; }
 :root .app-shell .analysis-legacy-page .analysis-desk-top :is(input,select) { height:24px; min-height:24px; padding:2px 5px; border-radius:0; }
 :root .app-shell .analysis-desk-body .analysis-sample-rail { display:flex; flex-direction:column; gap:0; min-height:0; padding:0; }
 :root .app-shell .analysis-sample-rail .legacy-view-table-wrap { flex:1 1 0; min-height:0; max-height:none; overflow:auto; }
@@ -16,16 +15,14 @@
 :root .app-shell .analysis-sample-rail .legacy-view-table :is(th,td) { height:25px; padding:1px 3px; line-height:23px; text-align:center; font-size:12px; }
 :root .app-shell .analysis-sample-rail .legacy-view-table td button { display:block; width:100%; min-width:0; height:23px; min-height:23px; padding:0; border:0; border-radius:0; background:transparent; color:inherit; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 :root .app-shell .analysis-sample-rail .legacy-view-footer { text-align:center; margin-top:auto; flex-shrink:0; }
-:root .app-shell .analysis-desk-spectrum { display:flex; flex-direction:column; padding:0; min-width:0; min-height:0; background:#f0f0f0; }
-:root .app-shell .analysis-desk-spectrum .legacy-spectrum-visual { margin:16px 5.625%; padding:8px 10px 4px; background:#a8c9eb; }
-:root .app-shell .analysis-desk-spectrum .legacy-spectrum-banner { background:#00ffff; color:#ff0000; }
-:root .app-shell .analysis-desk-spectrum .legacy-peak-plot .plot-background { fill:#fff; }
+:root .app-shell .analysis-desk-spectrum { display:flex; flex-direction:column; padding:0; min-width:0; min-height:0; background:var(--surface-soft); }
+:root .app-shell .analysis-desk-spectrum .legacy-spectrum-visual { margin:16px 5.625%; padding:8px 10px 4px; }
 :root .app-shell .analysis-desk-spectrum .plot-axis-title { display:none; }
 :root .app-shell .analysis-desk-spectrum .spectrum-plot > .plot-tick-label[text-anchor='middle'] { visibility:hidden; }
 :root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled { opacity:1; }
 :root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled img { filter:grayscale(1); opacity:.55; }
-:root .app-shell .analysis-sample-rail .legacy-view-table tr[aria-selected='true'] { background:#fff; color:#111; }
-:root .app-shell .analysis-sample-rail .row-selection-arrow { color:#111; }
+:root .app-shell .analysis-sample-rail .legacy-view-table tr[aria-selected='true'] { background:var(--surface); color:var(--ink); }
+:root .app-shell .analysis-sample-rail .row-selection-arrow { color:var(--ink); }
 :root .app-shell .analysis-desk-spectrum .legacy-grayscale { height:106px; flex-basis:106px; }
 :root .app-shell .analysis-desk-error { padding:5px 8px; color:#b42318; background:#fff4f2; font-size:12px; }
 :root .app-shell .analysis-desk-error button { margin-left:12px; }

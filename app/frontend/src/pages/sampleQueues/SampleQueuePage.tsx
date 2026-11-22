@@ -8,7 +8,6 @@ import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from 
 import { SampleNumberTable } from './SampleNumberTable'
 import { useSamImport } from './useSamImport'
 import { SectionHeading } from '../../components/SectionHeading'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
 export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation, onBusyChange, insertion }: {
   token: string
@@ -344,7 +343,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
               <div className="page-intro-actions file-actions">
                 <span className="status-chip">{selected.expanded_bands} 谱带</span>
                 <button className="icon-button compact danger" title="清空队列" disabled={locked} onClick={() => void clearQueue()}>
-                  <SpectroscopyIcon name="sample-list-clear" />
+                  <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -384,7 +383,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
             </div>
             {(!selected || !confirmInDialog) && <div className="sample-entry-actions">
               <button className="primary-button" disabled={locked} onClick={() => void entryCommand(true)}>
-                <SpectroscopyIcon name={selected ? 'insert-sample' : 'sample-list-input'} />
+                <Plus size={16} strokeWidth={1.75} aria-hidden="true" />
                 {selected ? '插入样品' : '创建队列'}
               </button>
             </div>}

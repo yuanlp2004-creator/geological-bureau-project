@@ -38,9 +38,11 @@ export function SpectroscopyConsole(props: Props) {
   const canUseRightDock = rightOpen && !running && props.status !== 'between_repeats'
   const finish = props.finish ?? { run: () => {}, enabled: false }
   const label = props.bandTitle ?? (props.recordTitle === '色散谱带名' ? '色散数据' : props.recordTitle === '蒸发谱带名' ? '蒸发数据' : '样品')
-  const command = (text: string, value: Command, icon: 'capture' | 'preheat' | 'stop' | 'finish') => {
-    const lockable = text === '试样摄谱' && props.showRepeats !== false
+  const command = (text: string, value: Command, kind: 'start' | 'single-turn' | 'preheat' | 'stop' | 'finish') => {
+    const icon = kind === 'start' || kind === 'single-turn' ? 'capture' : kind
+    const lockable = kind === 'start' && props.showRepeats !== false
     return <button type="button" ref={lockable ? captureButton : undefined} aria-label={text}
+      data-command={kind}
       aria-description={lockable && captureLocked ? '已锁定键盘焦点，按 Esc 解除锁定' : undefined}
       onContextMenu={lockable ? event => menu.open(event, 'capture') : undefined}
       onKeyDown={lockable ? event => { if (event.key === 'Escape') setCaptureLocked(false) } : undefined}
@@ -99,8 +101,8 @@ export function SpectroscopyConsole(props: Props) {
         <fieldset className="spectroscopy-command-area"><legend>激发控制</legend>
           {props.context && <div className="capture-context" role="group" aria-label="摄谱记录与状态">{props.context}</div>}
           {running && <output className="legacy-running-state" role="status">{props.statusLabel} {props.progress[0]?.value}</output>}
-          <div className="spectroscopy-controls" aria-label="摄谱控制" data-single-turn={Boolean(props.singleTurn)}>
-            {command('试样摄谱', props.start, 'capture')}{props.singleTurn && command('仅摄本转角', props.singleTurn, 'capture')}
+          <div className="spectroscopy-controls" aria-label="摄谱控制">
+            {command('试样摄谱', props.start, 'start')}{props.singleTurn && command('仅摄本转角', props.singleTurn, 'single-turn')}
             {command('预热摄谱', props.preheat, 'preheat')}
             {command('停止摄谱', props.stop, 'stop')}{command('结束', finish, 'finish')}
           </div>

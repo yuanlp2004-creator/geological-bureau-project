@@ -376,7 +376,7 @@ export function MethodsPage({
                 </button>
                 {selected.published_version && (!selected.is_current || selected.status === 'paused') && selected.status !== 'deleted' && (
                   <button
-                    className="primary-button"
+                    className="secondary-button"
                     onClick={() => void runAction(() => api.openMethod(token, selected.id, true), '当前方法已打开')}
                     disabled={busy || unsaved || Boolean(conditionProblem)}
                     title={unsaved ? '请先保存修改，再打开方法' : undefined}
@@ -416,7 +416,7 @@ export function MethodsPage({
             </button>
             {canWrite && (
               <button
-                className="primary-button"
+                className={selected ? 'secondary-button' : 'primary-button'}
                 disabled={busy}
                 onClick={() => {
                   setComposer('create')

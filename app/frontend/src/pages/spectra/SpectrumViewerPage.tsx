@@ -752,7 +752,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
       </table>
     </div>
   )
-  return <div className="page-content spectrum-viewer-page legacy-viewing-page" data-source-sha={active?.source_sha256??''} data-file-group={currentGroup} data-testid={viewing==='evaporation'?'evaporation-spectrum-page':'spectrum-viewer-page'}>
+  return <div className="page-content spectrum-viewer-page legacy-viewing-page" data-viewing={viewing} data-source-sha={active?.source_sha256??''} data-file-group={currentGroup} data-testid={viewing==='evaporation'?'evaporation-spectrum-page':'spectrum-viewer-page'}>
     {menu.target && active?.id === menu.target.data.recordId && <ContextMenu target={menu.target} close={menu.close}
       label={menuLine ? '谱线位置菜单' : '谱图菜单'} groups={menuLine ? menuGroups : [...menuGroups, frameActions]} />}
     {fileMenu.target && <ContextMenu target={fileMenu.target} close={fileMenu.close} label="谱文件菜单" groups={[[

@@ -40,7 +40,7 @@ export function SpectralLineList({
           </h2>
         </div>
         {canWrite && (
-          <button className="primary-button" onClick={beginCreate} disabled={busy}>
+          <button className="secondary-button" onClick={beginCreate} disabled={busy}>
             <Plus size={15} />
             添加谱线
           </button>

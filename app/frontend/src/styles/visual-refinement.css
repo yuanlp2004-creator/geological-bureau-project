@@ -5,7 +5,7 @@
   --ui-soft: #f5f8fc;
   --ui-border: #d8e2ec;
   --ui-control-border: #8193a7;
-  --ui-accent: #205fc8;
+  --ui-accent: var(--action-blue);
   --ui-selected: #edf4ff;
   --ui-success: #176b50;
   --ui-success-bg: #eaf7f0;
@@ -110,10 +110,10 @@
 }
 :root .app-shell .refined-page .primary-button {
   color: #fff;
-  background: #205fc8;
+  background: var(--action-blue);
 }
 :root .app-shell .refined-page .primary-button:hover:not(:disabled) {
-  background: #194da4;
+  background: var(--action-blue-hover);
 }
 :root .app-shell .refined-page :is(.secondary-button, .tool-button, .icon-button) {
   color: var(--ui-text);
