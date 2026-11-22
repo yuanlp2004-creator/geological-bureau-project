@@ -13,6 +13,7 @@ OPEN_RULES = {
     'dispersion': ({'.wdt'}, 'spectrum-migration.write', 'dispersion.write'),
     'evaporation': ({'.edt'}, 'spectrum-migration.write', 'acquisition.read'),
     'edt-conversion': ({'.edt'}, 'spectrum-migration.write', 'postprocessing.write'),
+    'full-time': ({'.cmt'}, 'spectrum-migration.write', 'postprocessing.read'),
     'recalculate': ({'.pdt'}, 'result-migration.write', 'postprocessing.execute'),
     'reports': ({'.dat'}, 'result-migration.write', 'reports.write'),
     'intensity': ({'.pdt'}, 'result-migration.write', 'postprocessing.export'),

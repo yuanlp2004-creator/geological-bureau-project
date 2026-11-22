@@ -103,6 +103,56 @@ def test_discard_completed_sample_blocks_new_analysis_and_releases_queue(method_
     assert complete(service, service.create_task(payload))["status"] == "completed"
 
 
+def test_delete_evaporation_session_disposes_all_angles_atomically(method_client):
+    client, runtime, headers = method_client
+    service = runtime.acquisition_service()
+    payload = {"task_kind": "evaporation", "name": "双角蒸发", "ccd_indices": [0], "storage_mode": "full_interval",
+               "burn_frame_count": 1, "dark_frame_count": 0, "pre_excitation_seconds": 0}
+    sibling = complete(service, service.create_task(payload))
+    tasks = [service.create_task(payload, capture_turn={
+        "group": "delete-test", "turn_index": index, "angle_deg": angle, "multiple": True,
+    }) for index, angle in enumerate((17, 4))]
+    first, second = (task["id"] for task in tasks)
+    path = f"/api/v1/acquisitions/evaporation-sessions/{first}"
+    assert client.delete(path).status_code == 401
+    complete(service, tasks[0])
+    assert client.delete(path, headers=headers).status_code == 409
+    complete(service, tasks[1])
+    group = "evaporation:delete-test"
+    spectra = "/api/v1/spectra/records"
+    records = client.get(spectra, headers=headers, params={"group": group}).json()
+    assert {(row["task_id"], row["angle_deg"], row["turn_index"]) for row in records} == {(first, 17, 0), (second, 4, 1)}
+    assert {row["band_name"] for row in records} == {"双角蒸发 · 17°", "双角蒸发 · 4°"}
+    for row in records:
+        spectrum = client.get(f"/api/v1/spectra/{row['id']}", headers=headers, params={"exposure_start": 1, "exposure_end": 1})
+        assert spectrum.status_code == 200
+        assert spectrum.json()["ccd"]["points"]
+        details = client.get(f"/api/v1/spectra/{row['id']}/point-details", headers=headers, params={"point": 0})
+        assert details.status_code == 200
+        assert details.json()["rows"][0]["value"] == spectrum.json()["ccd"]["points"][0]["value"]
+    frames = {task_id: service.frames(task_id, include_points=True) for task_id in (first, second)}
+    with runtime.database.write() as db:
+        db.execute(f"""CREATE TRIGGER fail_second_disposal BEFORE INSERT ON acquisition_sample_disposals
+            WHEN (SELECT task_id FROM acquisition_samples WHERE id=NEW.sample_id)={second}
+            BEGIN SELECT RAISE(ABORT, 'sample already analyzed'); END""")
+    assert client.delete(path, headers=headers).json()["detail"]["code"] == "sample_already_analyzed"
+    assert client.get(spectra, headers=headers, params={"group": group}).json() == records
+    with runtime.database.write() as db:
+        db.execute("DROP TRIGGER fail_second_disposal")
+    for _ in range(2):
+        assert client.delete(path, headers=headers).status_code == 204
+    assert client.get(spectra, headers=headers, params={"group": group}).json() == []
+    assert client.get(f"/api/v1/spectra/{records[0]['id']}", headers=headers).status_code == 404
+    visible = client.get("/api/v1/acquisitions/tasks", headers=headers, params={
+        "task_kind": "evaporation", "include_discarded": "false", "limit": "1",
+    }).json()
+    assert [task["id"] for task in visible] == [sibling["id"]]
+    assert {task["id"] for task in service.list_tasks()} == {first, second, sibling["id"]}
+    assert all(service.frames(task_id, include_points=True) == frames[task_id] for task_id in frames)
+    with runtime.database.read() as db:
+        assert db.execute("SELECT COUNT(*) FROM audit_events WHERE action='acquisition.sample.discard'").fetchone()[0] == 2
+
+
 # 已被分析引用的样品必须拒绝删除，检查记录与哈希整体不变。
 def test_analyzed_sample_discard_is_atomic_and_forbidden(tmp_path):
     database = Database(tmp_path / "analyzed.sqlite3")
@@ -194,7 +244,7 @@ def test_contract_v22_upgrade_and_failure_rollback(tmp_path, monkeypatch):
         assert list(db.iterdump()) == before
     database.initialize()
     with database.read() as db:
-        assert int(db.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0]) == SCHEMA_VERSION == 23
+        assert int(db.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0]) == SCHEMA_VERSION
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
 
@@ -213,5 +263,6 @@ def test_measurement_and_discard_permission_boundaries(method_client):
     discard = f"/api/v1/acquisitions/tasks/{task['id']}/discard"
     assert client.get(measurements, headers=reader).status_code == 200
     assert client.post(discard, headers=reader, json={"reason": "能量不足"}).status_code == 403
+    assert client.delete(f"/api/v1/acquisitions/evaporation-sessions/{task['id']}", headers=reader).status_code == 403
     assert client.get(measurements).status_code == 401
     assert client.post(discard, json={"reason": "能量不足"}).status_code == 401

@@ -4,6 +4,18 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class DispersionSpectrumPrintRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    ccd: int = Field(ge=0, le=255)
+    exposure_start: int = Field(ge=1, le=255)
+    exposure_end: int = Field(ge=1, le=255)
+    x_min: float = Field(allow_inf_nan=False)
+    x_max: float = Field(allow_inf_nan=False)
+    y_min: float = Field(allow_inf_nan=False)
+    y_max: float = Field(allow_inf_nan=False)
+
+
 class DispersionLineInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -11,6 +23,13 @@ class DispersionLineInput(BaseModel):
     wavelength_nm: float = Field(gt=0, le=2000)
     ccd_index: int = Field(default=0, ge=0, le=255)
     actual_position: float | None = Field(default=None, ge=0, le=100000)
+
+
+class DispersionPointInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ccd_index: int = Field(ge=0, le=255)
+    point_index: int = Field(ge=0, le=100000)
 
 
 class DispersionTaskCreate(BaseModel):

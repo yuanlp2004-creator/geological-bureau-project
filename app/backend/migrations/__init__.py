@@ -15,8 +15,17 @@ from .v21_calibration_metadata import _migrate_v21
 
 from .v22_contract_samples import _migrate_v22
 from .v23_contract_closure import _migrate_v23
+from .v24_acquisition_turns import _migrate_v24
+from .v25_manual_turns import _migrate_v25
+from .v26_dispersion_locate_anchor import _migrate_v26
+from .v27_capture_context import _migrate_v27
+from .v28_prepared_import import _migrate_v28
+from .v29_bluetooth_hidden import _migrate_v29
+from .v30_sample_turn_bands import _migrate_v30
+from .v31_analysis_numbering import _migrate_v31
+from .v32_capture_disposals import _migrate_v32
 
-SCHEMA_VERSION = 23
+SCHEMA_VERSION = 32
 SCHEMA_BASELINE_VERSION = 10
 
 MIGRATIONS = (
@@ -33,4 +42,13 @@ MIGRATIONS = (
     (21, "calibration_metadata", _migrate_v21),
     (22, "contract_samples", _migrate_v22),
     (23, "contract_closure", _migrate_v23),
+    (24, "acquisition", _migrate_v24),
+    (25, "hardware_acquisition", _migrate_v25),
+    (26, "dispersion", _migrate_v26),
+    (27, "capture_context", _migrate_v27),
+    (28, "postprocessing", _migrate_v28),
+    (29, "devices", _migrate_v29),
+    (30, "acquisition", _migrate_v30),
+    (31, "analysis", _migrate_v31),
+    (32, "capture_context", _migrate_v32),
 )

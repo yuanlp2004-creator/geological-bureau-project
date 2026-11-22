@@ -184,7 +184,8 @@ class ReportService:
                         {
                             "report_number": "",
                             "sample_name": sample_name,
-                            'sample_id':sample.get('acquisition_task_id',sample_name),
+                            "sample_id": (f"{run['id']}:{sample['sample_group_position']}" if "sample_group_position" in sample
+                                          else sample.get("acquisition_task_id", sample_name)),
                             "element": value.get("element"),
                             "wavelength_nm": float(value.get("wavelength_nm") or 0.0),
                             "calculated_value": float(value["value"]),

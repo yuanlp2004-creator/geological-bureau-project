@@ -54,7 +54,7 @@ export function Workspace({
   const selectAll = selected.length === filteredEvents.length && filteredEvents.length > 0
   const hasCurrentMethod = currentMethod?.method_id != null
   const hasPage = (page: Page) => entries.some((entry) => entry.page === page)
-  const hasQuickAccess = hasPage('methods') || hasPage('settings') || hasPage('about')
+  const hasQuickAccess = hasPage('methods') || hasPage('about')
   const isDesktop = '__TAURI__' in window
 
   const clearEvents = async () => {
@@ -172,14 +172,6 @@ export function Workspace({
                   label="方法管理"
                   detail="版本、条件与当前方法"
                   onClick={() => onNavigate('methods')}
-                />
-              )}
-              {hasPage('settings') && (
-                <QuickAction
-                  icon="settings"
-                  label="软件设置"
-                  detail="目录、显示、日志与打印"
-                  onClick={() => onNavigate('settings')}
                 />
               )}
               {hasPage('about') && (

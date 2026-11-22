@@ -1,14 +1,16 @@
 import { request, requestRaw } from './client'
+import type { SamEncoding } from './sampleQueues'
 export type CalibrationPreview = { method_version_id: number; source_key: string; save_allowed: boolean; positions: Array<{
   line_id: string; line_type: string; element: string; theoretical_wavelength_nm: number; stored_wavelength_nm: number; measured_wavelength_nm: number;
-  theoretical_point: number; stored_point: number; measured_point: number; ccd_index: number; found: boolean
+  theoretical_point: number; stored_point: number; measured_point: number; ccd_index: number; found: boolean; turn_index?: number; angle_deg?: number
 }> }
 export const previewDailyCalibration = (token: string, runId: number, sample: number) => request<CalibrationPreview>(`/api/v1/analyses/runs/${runId}/spectra/${sample}/calibration`, { headers: { Authorization: `Bearer ${token}` } })
-export const saveDailyCalibration = (token: string, runId: number, sample: number, mode: 'measured' | 'theoretical' | 'stored', scope: 'reference' | 'all') =>
-  request<{ latest_version: number }>(`/api/v1/analyses/runs/${runId}/spectra/${sample}/calibration`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ mode, scope }) })
+export const saveDailyCalibration = (token: string, runId: number, sample: number, mode: 'measured' | 'theoretical' | 'stored', scope: 'reference' | 'all', measuredLineIds?: string[]) =>
+  request<{ latest_version: number }>(`/api/v1/analyses/runs/${runId}/spectra/${sample}/calibration`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ mode, scope, measured_line_ids: measuredLineIds }) })
 export const exportLineTimeSeries = async (token: string, runId: number, sample: number, includeMean: boolean) =>
   (await requestRaw(`/api/v1/analyses/runs/${runId}/spectra/${sample}/time-series`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ include_mean: includeMean }) })).blob()
 export type AnalysisStatus = 'draft' | 'running' | 'paused' | 'completed' | 'cancelled' | 'failed'
+export type AnalysisSampleNumber = { name: string; repeats: number }
 export type AnalysisSampleOption = {
   id: number
   sample_name: string
@@ -33,8 +35,10 @@ export type AnalysisOptions = {
     version: number
     name: string
     calculation_profile: 'legacy_2_0_2' | 'modern_v1'
+    repeat_defaults?: AnalysisRepeatDefaults
   }>
 }
+export type AnalysisRepeatDefaults = { sample_repeats: number; standard_repeats: number; control_repeats: number }
 export type AnalysisLineResult = {
   id: number
   sample_position: number
@@ -84,6 +88,7 @@ export type AnalysisQcMember = {
   last_decision_id: number | null
 }
 export type AnalysisQcGroup = {
+  sample_group_position?: number
   management_sample: boolean
   acquisition_task_id: number
   sample_name: string
@@ -150,6 +155,12 @@ export type AnalysisCurveSnapshot = {
     correlation: number | null
     rmse: number
     maximum_absolute_error: number
+    sample_preview?: Array<{
+      sample_name: string
+      intensity: number | null
+      calculated_value: number | null
+      management_sample: boolean
+    }>
   }
 }
 export type AnalysisCurveLine = {
@@ -183,14 +194,20 @@ export type AnalysisSpectrum = {
   sample_name: string
   bands: Array<{
     ccd_index: number
+    turn_index?: number
+    angle_deg?: number
     mean_sha256: string
     mean_points: number[]
+    observation_frame_count?: number
+    wavelengths_nm?: number[]
   }>
   lines: Array<{
     id: string
     element: string
     wavelength_nm: number
     ccd_index: number
+    turn_index?: number
+    angle_deg?: number
     point: number
     exposure_interval?: [number, number] | null
   }>
@@ -199,12 +216,26 @@ export function getAnalysisSpectrum(
   token: string,
   runId: number,
   position: number,
-  lineId?: string | null
+  lineId?: string | null,
+  exposure?: { bandPosition: number; start: number; end: number }
 ): Promise<AnalysisSpectrum> {
-  return request(`/api/v1/analyses/runs/${runId}/spectra/${position}${lineId ? `?line_id=${encodeURIComponent(lineId)}` : ''}`, {
+  const query = new URLSearchParams()
+  if (lineId) query.set('line_id', lineId)
+  if (exposure) {
+    query.set('band_position', String(exposure.bandPosition))
+    query.set('exposure_start', String(exposure.start))
+    query.set('exposure_end', String(exposure.end))
+  }
+  return request(`/api/v1/analyses/runs/${runId}/spectra/${position}${query.size ? `?${query}` : ''}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
 }
+
+export const printAnalysisSpectrum = async (token: string, runId: number, position: number,
+  payload: { ccd: number; band_position?: number; line_id: string | null; exposure_start?: number; exposure_end?: number;
+    x_min: number; x_max: number; y_min: number; y_max: number }) =>
+  (await requestRaw(`/api/v1/analyses/runs/${runId}/spectra/${position}/print`, { method: 'POST',
+    headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) })).blob()
 
 export type AnalysisRun = {
   id: number
@@ -220,6 +251,10 @@ export type AnalysisRun = {
   current_sample_position: number
   current_line_position: number
   input_sha256: string
+  input_snapshot?: {
+    samples?: Array<{ sample_group_position?: number }>
+    sample_numbering?: { source_sample_ids: number[]; entries: AnalysisSampleNumber[] }
+  }
   result_sha256: string | null
   failure_code: string | null
   failure_message: string | null
@@ -317,6 +352,18 @@ export type AnalysisRun = {
   updated_at: string
 }
 export const analysisApi = {
+  readAnalysisSampleNumbers: (token: string, bytes: Uint8Array, encoding?: SamEncoding) =>
+    request<{ entries: AnalysisSampleNumber[] }>('/api/v1/analyses/sample-numbers/read', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ content_base64: btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join('')), encoding }),
+    }),
+  writeAnalysisSampleNumbers: async (token: string, entries: AnalysisSampleNumber[]) =>
+    (await requestRaw('/api/v1/analyses/sample-numbers/write', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ entries }),
+    })).blob(),
 
   importLegacyAnalysisSources: (token: string, ids: number[], methodVersionId: number) =>
     request<{ sample_ids: number[] }>(
@@ -374,6 +421,7 @@ export const analysisApi = {
     runId: number,
     payload: {
       acquisition_task_id: number
+      sample_group_position?: number
       line_id: string
       action: 'accept' | 'exclude' | 'restore'
       line_result_id?: number | null

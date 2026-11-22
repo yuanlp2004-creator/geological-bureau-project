@@ -16,6 +16,9 @@ export type HardwareTaskState =
   | 'safety_stopped'
   | 'deferred_external'
 export type HardwarePlanStep = {
+  ccd_indices?: number[]
+  baseline_ccd_index?: number | null
+  peak_ccd_index?: number | null
   storage_mode: 'averaged' | 'full_interval'
   start_frame: number
   end_frame: number
@@ -25,7 +28,10 @@ export type HardwarePlanStep = {
   order_index: number
   source_index: number
   angle_deg: number
-  wavelength_nm: number
+  original_angle_deg?: number
+  wavelength_nm: number | null
+  duration_seconds?: number | null
+  captured_seconds?: number
   priority: number
   key_band: boolean
   expected_peak_position: number
@@ -35,6 +41,7 @@ export type HardwarePlanStep = {
   correction_offset: number
 }
 export type HardwareTask = {
+  execution_mode: 'automatic' | 'manual'
   method_id: number | null
   method_version: number | null
   analysis_sample?: HardwareAnalysisSample | null
@@ -99,6 +106,10 @@ export type HardwareOptions = {
     method_id: number
     version: number
     name: string
+    ccd_layout_id?: string | number
+    sampling_period_seconds?: number
+    turn_angles?: number[]
+    turns?: Array<{ angle_deg: number; storage_mode: 'averaged' | 'full_interval'; start_frame: number; end_frame: number }>
   }>
   states: HardwareTaskState[]
   strategies: Array<'short_to_long' | 'key_first'>

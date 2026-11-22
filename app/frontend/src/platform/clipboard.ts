@@ -8,5 +8,5 @@ export async function copyText(text: string): Promise<void> {
   document.body.append(area); area.select()
   const copied = document.execCommand('copy')
   area.remove(); active?.focus()
-  if (!copied) throw new Error('当前环境未允许复制，请选择表格内容复制')
+  if (!copied) throw new Error('当前环境未允许复制')
 }

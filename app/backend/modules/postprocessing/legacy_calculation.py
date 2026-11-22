@@ -114,6 +114,8 @@ def recalculate_legacy(
                     "calculated_value": value,
                     "unit": line.get("unit", ""),
                     "curve_snapshot_id": evaluator["curve_snapshot_id"],
+                    **({"curve_variant_sha256": evaluator["curve_variant_sha256"]}
+                       if "curve_variant_sha256" in evaluator else {}),
                     "calculation_profile": calculation_profile,
                 }
             )

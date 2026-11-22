@@ -55,11 +55,10 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
             "maintenance",
         }
         navigation = [entry for item in capabilities.json()["capabilities"] for entry in item["navigation_entries"]]
-        assert len(navigation) == 25
-        assert (
-            next(entry for entry in navigation if entry["key"] == "analysis-tests.hardware")["status"]
-            == "deferred_external"
-        )
+        assert len(navigation) == 23
+        assert all(entry['page'] != 'settings' for entry in navigation)
+        assert any(entry["key"] == "tools.legacy-migration" for entry in navigation)
+        assert all(entry["key"] != "analysis-tests.hardware" for entry in navigation)
         diagnostics = client.get("/api/v1/diagnostics", headers=headers)
         assert diagnostics.status_code == 200
         assert diagnostics.json()["sqlite_integrity"] == "ok"
@@ -67,9 +66,9 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
         settings = client.get("/api/v1/settings", headers=headers)
         assert settings.status_code == 200
         assert settings.json()["directories"]["data"] == "data"
-        updated = client.patch("/api/v1/settings", headers=headers, json={"display": {"density": "compact"}})
+        updated = client.patch("/api/v1/settings", headers=headers, json={"analysis": {"wait_time_ms": 120}})
         assert updated.status_code == 200
-        assert updated.json()["display"]["density"] == "compact"
+        assert updated.json()["analysis"]["wait_time_ms"] == 120
         invalid = client.patch("/api/v1/settings", headers=headers, json={"display": {"unknown": True}})
         assert invalid.status_code == 422
         assert invalid.json()["detail"]["code"] == "request_validation_failed"
@@ -91,7 +90,8 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
             assert rejected.status_code == 422
             assert rejected.json()["detail"]["code"] == "request_validation_failed"
         unchanged = client.get("/api/v1/settings", headers=headers).json()
-        assert unchanged["display"]["density"] == "compact"
+        assert unchanged["analysis"]["wait_time_ms"] == 120
+        assert unchanged["display"]["density"] == "comfortable"
         assert unchanged["logging"]["retention_days"] == 30
         assert unchanged["logging"]["max_bytes"] == 5_242_880
         with runtime.database.read() as connection:

@@ -32,6 +32,7 @@ class _RecalculationInputs:
     fingerprint: str
     method_payload: dict[str, Any]
     evaluators: dict[str, dict[str, Any]]
+    curve_variants: dict[str, dict[str, Any]] = field(default_factory=dict)
     allow_older_method: bool = False
     method_modified_at: str | None = None
 
@@ -147,6 +148,9 @@ class RecalculationService:
         method_version_id = int(payload.get("method_version_id"))
         profile = str(payload.get("calculation_profile") or "legacy_2_0_2")
         curve_ids = [int(value) for value in payload.get("curve_snapshot_ids") or []]
+        drafts = {int(key): value for key, value in (payload.get("curve_drafts") or {}).items()}
+        if not drafts.keys() <= set(curve_ids):
+            raise PostProcessingError("postprocessing_curve_draft_unselected", "重算草稿必须对应所选曲线快照", status_code=422)
         expected_measure_time = payload.get("expected_measure_time")
         fingerprint = _sha(
             {
@@ -156,6 +160,7 @@ class RecalculationService:
                 "curve_snapshot_ids": curve_ids,
                 "expected_measure_time": expected_measure_time,
                 'allow_older_method': bool(payload.get('allow_older_method')),
+                **({"curve_drafts": drafts} if drafts else {}),
             }
         )
         with self.database.read() as db:
@@ -167,8 +172,18 @@ class RecalculationService:
             return self.repository._recalc_dict(existing)
         if method is None:
             raise PostProcessingError("postprocessing_method_not_found", "目标方法版本不存在或未发布", status_code=404)
+        variants = {}
         try:
             evaluators = self.analysis.curve_evaluators(curve_ids, method_version_id, profile)
+            for evaluator in evaluators.values():
+                snapshot_id = evaluator["curve_snapshot_id"]
+                if snapshot_id not in drafts:
+                    continue
+                snapshot = self.analysis.recalculation_curve(snapshot_id, drafts[snapshot_id])["snapshot"]
+                variants[str(snapshot_id)] = {key: snapshot[key] for key in
+                    ("line_id", "fit_mode", "coordinate_type", "points", "fit", "result_sha256")}
+                evaluator.update(fit=snapshot["fit"], coordinate_type=snapshot["coordinate_type"],
+                                 curve_variant_sha256=snapshot["result_sha256"])
         except AnalysisError as exc:
             raise PostProcessingError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
         inputs = _RecalculationInputs(
@@ -180,6 +195,7 @@ class RecalculationService:
             fingerprint=fingerprint,
             method_payload=method.payload,
             evaluators=evaluators,
+            curve_variants=variants,
             allow_older_method=bool(payload.get('allow_older_method')),
             method_modified_at=method.payload.get('legacy_migration', {}).get('modified_at'),
         )
@@ -306,6 +322,8 @@ class RecalculationService:
                     "unit": next((line.get("unit", "") for line in inputs.method_payload.get("lines", [])
                                   if str(line.get("id")) == str(item["line_id"])), ""),
                     "curve_snapshot_id": evaluator["curve_snapshot_id"],
+                    **({"curve_variant_sha256": evaluator["curve_variant_sha256"]}
+                       if "curve_variant_sha256" in evaluator else {}),
                     "calculation_profile": inputs.profile,
                 }
             )
@@ -467,14 +485,15 @@ class RecalculationService:
         ).fetchone()
         if row is None:
             raise PostProcessingError("postprocessing_recalc_not_found", "重算批次不存在", status_code=404)
+        previous = json.loads(row["result_json"])
         if (
             int(row["method_version_id"]) != inputs.method_version_id
             or str(row["calculation_profile"]) != inputs.profile
             or json.loads(row["curve_snapshot_ids_json"]) != inputs.curve_ids
+            or previous.get("curve_variants", {}) != inputs.curve_variants
         ):
             return None, {"id": source_id, "code": "recalculation_version_mismatch"}
         else:
-            previous = json.loads(row["result_json"])
             return {
                 "id": source_id,
                 "source_sha256": row["result_sha256"],
@@ -493,6 +512,8 @@ class RecalculationService:
         """在调用方事务中写入批次结果及审计，不自行提交。"""
         status = "blocked" if blocked else "completed"
         result["blocked"] = blocked
+        if inputs.curve_variants:
+            result["curve_variants"] = inputs.curve_variants
         digest = _sha(result)
         run_id = f"s18-recalc-{uuid.uuid4().hex}"
         report = {
@@ -506,6 +527,8 @@ class RecalculationService:
             'allow_older_method': inputs.allow_older_method,
             'method_modified_at': inputs.method_modified_at,
         }
+        if inputs.curve_variants:
+            report["curve_variant_sha256"] = {key: curve["result_sha256"] for key, curve in inputs.curve_variants.items()}
         first_block = blocked[0] if blocked else None
         db.execute(
             (

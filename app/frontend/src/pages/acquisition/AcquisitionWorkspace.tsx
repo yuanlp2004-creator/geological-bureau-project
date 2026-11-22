@@ -1,28 +1,30 @@
-import { formatAnalysisValue } from '../../components/analysisUnits'
-import { AlertTriangle, CheckCircle2, ListChecks, RefreshCw } from 'lucide-react'
+import { ensureCaptureConnection } from './captureConnection'
+import { groupedCaptureTasks, updateCaptureTask } from './CaptureTurnPages'
+import { RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { api, type AcquisitionOptions, type AcquisitionTask } from '../../api'
-import type { AcquisitionMeasurements } from '../../api/acquisition'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
-import { EMPTY_POINTS, Props, SAMPLE_OPTIONS, stateLabel } from './acquisitionView'
-import { SampleAcquisitionForm, type SampleAcquisitionFormProps } from './SampleAcquisitionForm'
+import { EMPTY_POINTS, Props, stateLabel } from './acquisitionView'
+import { SampleAcquisitionForm } from './SampleAcquisitionForm'
 import { EvaporationAcquisitionForm } from './EvaporationAcquisitionForm'
 import { SampleAcquisitionMonitor } from './SampleAcquisitionMonitor'
-import { SampleAcquisitionResults } from './SampleAcquisitionResults'
 import { useSpectroscopySession, type SpectroscopyMode } from './spectroscopySession'
 import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from './SpectroscopyTaskList'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { SampleQueuePage } from '../sampleQueues/SampleQueuePage'
-export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadMethods = false, canWriteSamples = false, onOpenSamples }: Props & {
+export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadSpectra = false, canReadMethods = false, canWriteSamples = false, onOpenSamples, onViewSpectra, currentMethodKey }: Props & {
   taskKind: AcquisitionTask['task_kind']
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
   canExport?: boolean
+  canReadSpectra?: boolean
   canReadMethods?: boolean
   canWriteSamples?: boolean
   onOpenSamples?: () => void
+  onViewSpectra?: (group: string) => void
+  currentMethodKey?: string
 }) {
   const isSample = taskKind === 'sample'
   const title = isSample ? '样品摄谱' : '蒸发摄谱'
@@ -35,8 +37,11 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const [createOpen, setCreateOpen] = useState(false)
   const [sampleEditorOpen, setSampleEditorOpen] = useState(false)
   const [sampleEditorBusy, setSampleEditorBusy] = useState(false)
+  const [sampleEditorActions, setSampleEditorActions] = useState<HTMLSpanElement | null>(null)
   const [inputCleared, setInputCleared] = useState(false)
   const [captureQueueId, setCaptureQueueId] = useState<number | null>(null)
+  const [clearedQueueId,setClearedQueueId]=useState<number|null>(null)
+  const [insertTarget,setInsertTarget]=useState<{queueId:number;itemId:number}|undefined>()
   useEffect(() => { if (screen === 'tasks') { setInputCleared(false); setCaptureQueueId(null) } }, [screen])
   const createFormId = useId()
   useLayoutEffect(() => {
@@ -64,7 +69,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     setSelected(current => current?.id === runningTask.id ? current : runningTask)
     setScreen('capture')
     setCreateOpen(false)
-  }, [runningTask])
+  }, [runningTask, selected?.id])
 
   const busyRef = useRef(false)
 
@@ -80,55 +85,31 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     }
   }, [selected?.id, token])
 
-  const [taskName, setTaskName] = useState(isSample ? '样品采集' : '蒸发实验')
+  const [taskName, setTaskName] = useState('')
 
-  const [profileId, setProfileId] = useState<number | null>(null)
 
-  const [layoutId, setLayoutId] = useState<string>('default')
 
-  const [methodKey, setMethodKey] = useState('')
 
-  const [queueId, setQueueId] = useState('')
 
-  const [queueItemId, setQueueItemId] = useState('')
 
-  const [sampleName, setSampleName] = useState('')
 
-  const [nameLength, setNameLength] = useState<12 | 20>(12)
-  const [renameLength, setRenameLength] = useState<12 | 20>(12)
-  const [measurements, setMeasurements] = useState<AcquisitionMeasurements | null>(null)
-  const [measurementError, setMeasurementError] = useState('')
-  const [sampleKind, setSampleKind] = useState<'test' | 'normal' | 'standard' | 'blank' | 'preheat'>('test')
 
-  const [storageMode, setStorageMode] = useState<'averaged' | 'full_interval'>('averaged')
 
-  const [useMethodIntervals, setUseMethodIntervals] = useState(false)
-  const [useMethodConditions, setUseMethodConditions] = useState(true)
-  const [managementSample, setManagementSample] = useState(false)
-  const [repeatCount, setRepeatCount] = useState(1)
+  const [burnCount, setBurnCount] = useState(20)
 
-  const [burnCount, setBurnCount] = useState(3)
+  const [darkCount, setDarkCount] = useState(8)
 
-  const [darkCount, setDarkCount] = useState(1)
-
-  const [countdown, setCountdown] = useState(0)
 
   const [preExcitation, setPreExcitation] = useState(1)
 
   const [samplingPeriod, setSamplingPeriod] = useState(1)
 
-  const [burnCycle, setBurnCycle] = useState(1)
 
-  const [darkCycle, setDarkCycle] = useState(1)
 
-  const [simulatorSample, setSimulatorSample] = useState(SAMPLE_OPTIONS[0])
-
-  const [seed, setSeed] = useState(13)
-
-  const [renameValue, setRenameValue] = useState('')
 
   const [ccdIndex, setCcdIndex] = useState(0)
   const defaultsLoaded = useRef(false)
+  const [saveExcitation, setSaveExcitation] = useState(false)
   const advancingTask = useRef<number | null>(null)
   const [queueProgressMessage, setQueueProgressMessage] = useState('')
 
@@ -148,67 +129,13 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       const currentQueue = fresh.queues.find((item) => item.id === selected.queue_id)
       const currentItem = currentQueue?.items.find((item) => item.id === selected.queue_item_id)
       const next = currentQueue?.items.find((item) => item.position > (currentItem?.position ?? -1) && !item.spectrum_hash)
-      setQueueId(String(selected.queue_id))
-      setQueueItemId(next ? String(next.id) : '')
       if (next) {
-        setSampleName(next.post_name ?? next.pre_name)
-        setRepeatCount(next.repeats || 1)
-        setQueueProgressMessage(`已带出下一样号：${(next.post_name ?? next.pre_name) || '空样'}，请创建任务后激发。`)
+        setQueueProgressMessage(`已带出下一样号：${(next.post_name ?? next.pre_name) || '空样'}，可选择下一样品后激发。`)
       } else setQueueProgressMessage('已到样品编号表尾部')
     }).catch((error) => { if (live) onToast(error instanceof Error ? error.message : '读取下一样号失败') })
     return () => { live = false }
   }, [selected?.id, selected?.status, selected?.queue_id, selected?.queue_item_id, isSample, token, onToast])
 
-  const inheritedConditions = options?.methods.find((item) => `${item.method_id}:${item.method_version}` === methodKey)?.conditions
-  useEffect(() => {
-    if (taskKind !== 'sample' || sampleKind === 'preheat' || !useMethodConditions || !inheritedConditions) return
-    setBurnCount(inheritedConditions.frame_count)
-    setLayoutId(String(inheritedConditions.ccd_layout_id))
-    setDarkCount(inheritedConditions.dark_frame_count)
-    setPreExcitation(inheritedConditions.pre_excitation_seconds)
-    setSamplingPeriod(inheritedConditions.sampling_period_seconds)
-    setBurnCycle(inheritedConditions.sampling_period_seconds)
-    setDarkCycle(inheritedConditions.sampling_period_seconds)
-    setRepeatCount(managementSample || sampleName.toUpperCase().startsWith('D') ? inheritedConditions.control_repeats
-      : sampleKind === 'standard' ? inheritedConditions.standard_repeats : inheritedConditions.sample_repeats)
-  }, [taskKind, useMethodConditions, inheritedConditions, managementSample, sampleKind, sampleName])
-  const preliminaryMode = taskKind === 'evaporation' ? 'edt' : sampleKind === 'preheat' ? 'wdt' : null
-  const preliminary = useRef({ edt: { pre: 1, period: 1, burn: 3, dark: 1 }, wdt: { pre: 1, period: 1, burn: 3, dark: 1 } })
-  const previousPreliminary = useRef<typeof preliminaryMode>(null)
-  useEffect(() => {
-    if (previousPreliminary.current) preliminary.current[previousPreliminary.current] = { pre: preExcitation, period: samplingPeriod, burn: burnCount, dark: darkCount }
-    if (preliminaryMode) {
-      const saved = preliminary.current[preliminaryMode]
-      setPreExcitation(saved.pre); setSamplingPeriod(saved.period); setBurnCycle(saved.period); setDarkCycle(saved.period)
-      setBurnCount(saved.burn); setDarkCount(saved.dark); setRepeatCount(1)
-    }
-    previousPreliminary.current = preliminaryMode
-  }, [preliminaryMode])
-
-  useEffect(() => {
-    setRenameLength(selected?.name_length === 20 ? 20 : 12)
-    setMeasurements(null)
-  }, [selected?.id, token])
-  useEffect(() => {
-    if (!selected || !isSample) return
-    let cancelled = false
-    const generation = selectionGeneration.current
-    void api
-      .acquisitionMeasurements(token, selected.id)
-      .then((next) => {
-        if (cancelled || generation !== selectionGeneration.current) return
-        setMeasurements(next)
-        setMeasurementError('')
-      })
-      .catch((error) => {
-        if (cancelled || generation !== selectionGeneration.current) return
-        setMeasurements(null)
-        setMeasurementError(error instanceof Error ? error.message : '即时测量读取失败')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [isSample, selected, token])
   const loadGeneration = useRef(0)
   useEffect(() => () => { loadGeneration.current++ }, [token, taskKind])
   const load = useCallback(async () => {
@@ -217,31 +144,19 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     try {
       const [nextOptions, nextTasks] = await Promise.all([
         api.acquisitionOptions(token),
-        api.acquisitionTasks(token, taskKind)
+        api.acquisitionTasks(token, taskKind, false)
       ])
 
       if (generation !== loadGeneration.current) return
       if (!defaultsLoaded.current && !isSample && nextOptions.preliminary_defaults) {
         defaultsLoaded.current = true
         const saved = nextOptions.preliminary_defaults.evaporation
-        preliminary.current.edt = { pre: saved.pre_excitation_seconds, period: saved.sampling_period_seconds,
-          burn: saved.frame_count, dark: saved.dark_frame_count }
         setPreExcitation(saved.pre_excitation_seconds); setSamplingPeriod(saved.sampling_period_seconds)
-        setBurnCycle(saved.sampling_period_seconds); setDarkCycle(saved.sampling_period_seconds)
         setBurnCount(saved.frame_count); setDarkCount(saved.dark_frame_count)
       }
       const matchingTasks = nextTasks.filter((item) => item.task_kind === taskKind)
       setOptions(nextOptions)
       setTasks(matchingTasks)
-      setProfileId((current) => current ?? nextOptions.profiles[0]?.id ?? null)
-      setLayoutId((current) => current || String(nextOptions.layouts[0]?.id ?? 'default'))
-      setMethodKey((current) =>
-        nextOptions.methods.some((item) => `${item.method_id}:${item.method_version}` === current)
-          ? current
-          : nextOptions.methods[0]
-            ? `${nextOptions.methods[0].method_id}:${nextOptions.methods[0].method_version}`
-            : ''
-      )
       setSelected((current) =>
         matchingTasks.find((item) => item.id === current?.id) ?? matchingTasks[0] ?? null
       )
@@ -251,7 +166,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     } finally {
       if (generation === loadGeneration.current) setLoading(false)
     }
-  }, [onToast, taskKind, title, token])
+  }, [isSample, onToast, taskKind, title, token])
 
   useEffect(() => {
     void load()
@@ -259,7 +174,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const selectedNeedsPoints = selected?.last_event?.ccds.some((item) => !Array.isArray(item.points)) ?? false
 
   useEffect(() => {
-    if (!selected || !selectedNeedsPoints) return
+    if (screen !== 'capture' || !selected || !selectedNeedsPoints) return
     let cancelled = false
 
     const taskId = selected.id
@@ -270,7 +185,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       .then((next) => {
         if (cancelled || generation !== selectionGeneration.current) return
         setSelected((current) => (current?.id === taskId ? next : current))
-        setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
+      setTasks(current => updateCaptureTask(current, next))
       })
       .catch((error) => {
         if (!cancelled && generation === selectionGeneration.current)
@@ -279,7 +194,25 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     return () => {
       cancelled = true
     }
-  }, [onToast, selected, selectedNeedsPoints, token])
+  }, [onToast, screen, selected, selectedNeedsPoints, token])
+
+  const deleteTask = async (id: number) => {
+    const task = tasks.find(item => item.id === id)
+    if (!task || !canWrite || busyRef.current || busy || loading || runningTask) throw new Error('当前摄谱任务无法删除')
+    busyRef.current = true
+    setBusy(true)
+    try {
+      await api.deleteAcquisitionTask(token, id)
+      const removed = new Set([id, ...(task.capture_turns?.map(turn => turn.id) ?? [])])
+      setTasks(current => current.filter(task => !removed.has(task.id)))
+      setSelected(current => current && removed.has(current.id) ? null : current)
+      onToast(`${title}任务已删除`)
+      await load()
+    } finally {
+      busyRef.current = false
+      setBusy(false)
+    }
+  }
 
   useEffect(() => {
     if (
@@ -309,8 +242,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
           .then((next) => {
             if (cancelled || generation !== selectionGeneration.current) return
             setSelected(next)
-            setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-            if (['between_repeats', 'completed', 'failed', 'stopped'].includes(next.status)) {
+            setTasks(current => updateCaptureTask(current, next))
+            if (['between_repeats', 'completed', 'failed', 'stopped', 'paused'].includes(next.status)) {
               autoTask.current = null
               setAuto(false)
             }
@@ -336,13 +269,6 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       window.clearInterval(timer)
     }
   }, [auto, canExecute, onToast, selected, token])
-  const queue = options?.queues.find((item) => String(item.id) === queueId)
-
-  const queueItem = queue?.items.find((item) => String(item.id) === queueItemId)
-
-  const displayedRepeatCount = queueItem ? queueItem.repeats || 1 : repeatCount
-
-  const [methodId, methodVersion] = methodKey.split(':').map(Number)
 
   const selectedCcd =
     selected?.last_event?.ccds.find((item) => item.ccd_index === ccdIndex) ?? selected?.last_event?.ccds[0]
@@ -353,15 +279,6 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     (item) => item.method_id === selected?.method_id && item.method_version === selected?.method_version
   )
 
-  const messageTone = selected?.messages.some((item) => item.level === 'error')
-    ? 'error'
-    : selected?.messages.some((item) => item.level === 'warning')
-      ? 'warning'
-      : selected?.messages.some((item) => item.level === 'success')
-        ? 'success'
-        : 'info'
-
-
   const progressLabel = selected
     ? `${selected.progress.toFixed(1)}% · ${selected.completed_repeats}/${selected.repeat_count} 重复`
     : '--'
@@ -369,13 +286,26 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const formalTask = selected?.sample_kind === 'preheat'
     ? tasks.find((task) => task.id === selected.excitation_condition.preheat_source_task_id)
     : selected
+  const chooseEvaporationTurn = async (id: number) => {
+    if (busy || loading || runningTask || busyRef.current || controlPending.current) return
+    const generation = ++selectionGeneration.current
+    setBusy(true)
+    try {
+      const next = await api.acquisitionTask(token, id, true)
+      if (generation !== selectionGeneration.current) return
+      setSelected(next)
+      setTasks(current => updateCaptureTask(current, next))
+    } catch (error) {
+      if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '读取转角摄谱失败')
+    } finally { setBusy(false) }
+  }
   const inputTask = formalTask ?? selected
   const inputQueue = options?.queues.find(item => item.id === (captureQueueId ?? inputTask?.queue_id))
   const availableTasks = tasks.filter(item => item.sample_kind !== 'preheat' && (!isSample || (
     item.method_id === inputTask?.method_id && item.method_version === inputTask?.method_version
     && (inputQueue ? item.queue_id === inputQueue.id : !item.queue_id))))
-  const pendingSamples = inputQueue?.items.filter(item => !item.spectrum_hash && item.repeats > 0
-    && !tasks.some(task => task.queue_item_id === item.id && task.sample_kind !== 'preheat')) ?? []
+  const pendingSamples = (inputQueue?.id===clearedQueueId?[]:inputQueue?.items.filter(item => !item.spectrum_hash && item.repeats > 0
+    && !tasks.some(task => task.queue_item_id === item.id && task.sample_kind !== 'preheat')) ?? [])
   const chooseCaptureSample = async (value: string) => {
     if (busy || loading || runningTask || busyRef.current || controlPending.current || !inputTask) return
     if (value.startsWith('task:')) {
@@ -394,11 +324,11 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       const payload = Object.fromEntries((['device_profile_id', 'ccd_layout_id', 'ccd_indices', 'method_id', 'method_version',
         'burn_frame_count', 'dark_frame_count', 'countdown_seconds', 'pre_excitation_seconds',
         'sampling_period_seconds', 'burn_cycle_seconds', 'dark_cycle_seconds', 'storage_mode'] as const).map(key => [key, inputTask[key]]))
+      await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition')
       const next = await api.createAcquisitionTask(token, { ...payload, task_kind: 'sample',
-        name: `${inputTask.name} · ${item.pre_name}`.slice(0, 120), queue_id: inputQueue.id, queue_item_id: item.id,
+        name: inputTask.name, queue_id: inputQueue.id, queue_item_id: item.id,
         sample_name: item.post_name ?? item.pre_name, name_length: inputQueue.name_length,
-        sample_kind: inputTask.sample_kind, repeat_count: item.repeats,
-        use_method_intervals: Object.keys((inputTask.simulator.exposure_by_ccd as object | undefined) ?? {}).length > 0,
+        sample_kind: inputTask.sample_kind, repeat_count: item.repeats, management_sample: (item.post_name ?? item.pre_name).toUpperCase().startsWith('D'),
         simulator_sample: inputTask.simulator.sample, seed: inputTask.simulator.seed })
       if (generation !== selectionGeneration.current) return
       setTasks(current => [next, ...current]); setSelected(next)
@@ -409,8 +339,10 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '切换样号失败')
     } finally { controlPending.current = false; busyRef.current = false; setBusy(false) }
   }
-  const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop') => {
+  const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop', turnIndex?: number, singleTurn = false) => {
     if (!selected) return
+    if ((action === 'start' || action === 'preheat') && runningTask && !(action === 'start' && selected.turns?.awaiting_turn))
+      return onToast('当前摄谱尚未结束，请先完成或停止摄谱')
     if (controlPending.current) return onToast('当前采集控制操作尚未完成，请稍后再试')
     const automaticStep = pendingStep.current
     if (busyRef.current && !(automaticStep && ['pause', 'stop'].includes(action)))
@@ -437,14 +369,13 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         stop: api.stopAcquisitionTask
       }
 
-      const target = action === 'start' ? formalTask : selected
+      const target = action === 'start' || action === 'preheat' ? formalTask : selected
       if (!target) return onToast('请先选择正式摄谱任务')
-      const next = await methods[action](token, target.id)
+      const next = await methods[action](token, target.id, turnIndex, singleTurn)
 
       if (generation !== selectionGeneration.current) return
       setSelected(next)
-      setTasks((current) => current.some((item) => item.id === next.id)
-        ? current.map((item) => (item.id === next.id ? next : item)) : [next, ...current])
+      setTasks(current => updateCaptureTask(current, next))
       const capture = ['start', 'preheat', 'resume'].includes(action)
         && ['countdown', 'pre_excitation', 'burn', 'dark'].includes(next.status)
       autoTask.current = capture ? next.id : null
@@ -463,43 +394,15 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     event.preventDefault()
     if (runningTask) return onToast('当前任务尚未结束，请先完成或停止摄谱')
     if (!canWrite) return onToast('当前账户没有采集写入权限')
-    if (
-      taskKind === 'sample' &&
-      (!Number.isInteger(methodId) || methodId < 1 || !Number.isInteger(methodVersion) || methodVersion < 1)
-    )
-      return onToast('请选择已发布方法版本')
     setCreateError(null)
     setBusy(true)
     try {
-      const next = await api.createAcquisitionTask(token, {
-        task_kind: taskKind,
-        name: taskName,
-        device_profile_id: profileId,
-        ccd_layout_id: layoutId,
-        method_id: taskKind === 'sample' ? methodId : undefined,
-        method_version: taskKind === 'sample' ? methodVersion : undefined,
-        queue_id: isSample && queueId ? Number(queueId) : undefined,
-        queue_item_id: isSample && queueItemId ? Number(queueItemId) : undefined,
-        sample_name: sampleName,
-
-        name_length: nameLength,
-        sample_kind: sampleKind,
-        use_method_intervals: taskKind === 'sample' && useMethodIntervals,
-        use_method_conditions: taskKind === 'sample' && sampleKind !== 'preheat' && useMethodConditions,
-        management_sample: taskKind === 'sample' && managementSample,
-        storage_mode: taskKind === 'evaporation' ? 'full_interval' : storageMode,
-        repeat_count: isSample ? displayedRepeatCount : 1,
-        burn_frame_count: burnCount,
-        dark_frame_count: darkCount,
-        countdown_seconds: countdown,
-        pre_excitation_seconds: preExcitation,
-        sampling_period_seconds: samplingPeriod,
-        burn_cycle_seconds: burnCycle,
-        dark_cycle_seconds: darkCycle,
-        simulator_sample: simulatorSample,
-        seed
-      })
-
+      if (!reportInvalidNumericInput(pageRef.current?.querySelector('.acquisition-form') ?? null)) return
+      const next = isSample ? await api.createSampleSession(token, taskName)
+        : await api.createEvaporationSession(token, { name: taskName, pre_excitation_seconds: preExcitation,
+          sampling_period_seconds: samplingPeriod, frame_count: burnCount, dark_frame_count: darkCount,
+          save_conditions: saveExcitation })
+      if (!isSample) { defaultsLoaded.current = false; setSaveExcitation(false); setTaskName('') }
       setTasks((current) => [next, ...current])
       setSelected(next)
       setInputCleared(false)
@@ -515,207 +418,26 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     }
   }
 
-  const saveConditions = async () => {
-    if (!canWrite || busy) return
-    if (!reportInvalidNumericInput(pageRef.current?.querySelector('.acquisition-form') ?? null)) return onToast('请先修正激发参数')
-    setBusy(true)
-    try {
-      await api.saveEvaporationDefaults(token, { pre_excitation_seconds: preExcitation,
-        sampling_period_seconds: samplingPeriod, frame_count: burnCount, dark_frame_count: darkCount })
-      onToast('蒸发激发条件已保存，下次新建时自动载入')
-    } catch (error) { onToast(error instanceof Error ? error.message : '保存激发条件失败') }
-    finally { setBusy(false) }
-  }
-
-  const rename = async () => {
-    const sample = selected?.samples.find((item) => item.status === 'completed' && !item.discarded)
-
-    if (!selected || !sample || !renameValue.trim() || !canWrite || busy || loading) return
-    setBusy(true)
-    try {
-      const next = await api.renameAcquisitionSample(
-        token,
-        selected.id,
-        sample.id,
-        renameValue.trim(),
-        renameLength
-      )
-
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      setRenameValue('')
-      onToast('采集后名称已保存，数据哈希未改变')
-    } catch (error) {
-      onToast(error instanceof Error ? error.message : '采集后命名失败')
-    } finally { setBusy(false) }
-  }
-
-  const discard = async () => {
-    if (!selected || !canWrite || controlPending.current) return
-    const automaticStep = pendingStep.current
-    if (busyRef.current && !automaticStep) return onToast('当前采集控制尚未完成')
-    const generation = ++selectionGeneration.current
-    controlPending.current = true
-    setAuto(false)
-    setBusy(true)
-    setMeasurements(null)
-    try {
-      if (automaticStep) await automaticStep
-      if (generation !== selectionGeneration.current) return
-      busyRef.current = true
-      const next = await api.discardAcquisitionSample(token, selected.id, '激发能量不足')
-      if (generation !== selectionGeneration.current) return
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      onToast('异常样品已删除，原始帧保留供追溯，可重新摄谱')
-    } catch (error) {
-      if (generation === selectionGeneration.current)
-        onToast(error instanceof Error ? error.message : '删除异常样品失败')
-    } finally {
-      controlPending.current = false
-      busyRef.current = false
-      setBusy(false)
+  const form = { create, canWrite, busy: busy || loading || Boolean(runningTask), taskName, setTaskName }
+  const openCreate = async () => {
+    if (!isSample && !defaultsLoaded.current) {
+      setBusy(true)
+      try {
+        const fresh = await api.acquisitionOptions(token)
+        setOptions(fresh)
+        const saved = fresh.preliminary_defaults?.evaporation
+        if (saved) { setPreExcitation(saved.pre_excitation_seconds); setSamplingPeriod(saved.sampling_period_seconds); setBurnCount(saved.frame_count); setDarkCount(saved.dark_frame_count) }
+        defaultsLoaded.current = true
+      } catch (error) { onToast(error instanceof Error ? error.message : '读取蒸发激发条件失败'); return }
+      finally { setBusy(false) }
     }
-  }
-  const captureDetails = <>
-          {isSample && selected && (
-            <section className="surface acquisition-measurements" data-testid="acquisition-measurements">
-              <div className="surface-heading">
-                <div>
-                  <h2>即时测量结果</h2>
-                  <p>{measurementError || measurements?.message || '正在读取当前测量…'}</p>
-                </div>
-                <button
-                  className="secondary-button danger"
-                  onClick={() => void discard()}
-                  disabled={!canWrite || busy || !selected.samples.some((item) => !item.discarded)}
-                >
-                  删除异常样品（能量不足）
-                </button>
-              </div>
-              <div className="sample-table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>样号 / 重复</th>
-                      <th>元素 / 波长</th>
-                      <th>峰位</th>
-                      <th>峰强度</th>
-                      <th>净强度</th>
-                      <th>定量信号</th>
-                      <th>浓度</th>
-                      <th>状态 / 曲线</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {measurements?.rows.map((row) => (
-                      <tr key={`${row.sample_id}-${row.line_id}`}>
-                        <td>
-                          {row.sample_name || '未命名'} / {row.repeat_index + 1}
-                        </td>
-                        <td>
-                          {row.element} / {row.wavelength_nm.toFixed(3)}
-                        </td>
-                        <td>{row.peak_position ?? '—'}</td>
-                        <td>{row.peak_height?.toPrecision(6) ?? '—'}</td>
-                        <td>{row.net_signal?.toPrecision(6) ?? '—'}</td>
-                        <td>{row.quantitative_signal?.toPrecision(6) ?? '—'}</td>
-                        <td>
-                          {row.concentration === null
-                            ? '—'
-                            : `${formatAnalysisValue(row.concentration, row.decimal_places)} ${row.unit}`}
-                        </td>
-                        <td>
-                          {row.message}
-                          {row.curve_snapshot_id ? ` · #${row.curve_snapshot_id}` : ''}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          )}
-          {selected && (
-            <section className="surface acquisition-messages">
-              <div className="surface-heading">
-                <div>
-                  <h2>
-                    全部采集消息 <span className="count-badge">{selected.messages.length}</span>
-                  </h2>
-                </div>
-                <span className={`message-summary-icon ${messageTone}`}>
-                  {messageTone === 'error' || messageTone === 'warning' ? (
-                    <AlertTriangle size={16} />
-                  ) : messageTone === 'success' ? (
-                    <CheckCircle2 size={16} />
-                  ) : (
-                    <ListChecks size={16} />
-                  )}
-                </span>
-              </div>
-              <div className="message-list">
-                {[...selected.messages].reverse().map((item) => (
-                  <div key={item.id} className={item.level}>
-                    <span>{item.created_at.slice(11, 19)}</span>
-                    <strong title={item.message}>{item.message}</strong>
-                    <code title={item.code}>{item.code}</code>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-  </>
-  const form: SampleAcquisitionFormProps = {
-    saveConditions,
-    useMethodIntervals: useMethodIntervals,
-    useMethodConditions: useMethodConditions,
-    setUseMethodConditions: setUseMethodConditions,
-    setUseMethodIntervals: setUseMethodIntervals,
-    managementSample: managementSample,
-    setManagementSample: setManagementSample,
-    create: create,
-    canWrite: canWrite,
-    busy: busy || loading || Boolean(runningTask),
-    taskName: taskName,
-    setTaskName: setTaskName,
-    profileId: profileId,
-    setProfileId: setProfileId,
-    options: options,
-    layoutId: layoutId,
-    setLayoutId: setLayoutId,
-    methodKey: methodKey,
-    setMethodKey: setMethodKey,
-    queueId: queueId,
-    setQueueId: setQueueId,
-    setQueueItemId: setQueueItemId,
-    queue: queue,
-    queueItemId: queueItemId,
-    sampleName: sampleName,
-    setSampleName: setSampleName,
-    nameLength: queue?.name_length === 20 ? 20 : queue ? 12 : nameLength,
-    setNameLength: setNameLength,
-    sampleKind: sampleKind,
-    setSampleKind: setSampleKind,
-    storageMode: storageMode,
-    setStorageMode: setStorageMode,
-    burnCount: burnCount,
-    setBurnCount: setBurnCount,
-    darkCount: darkCount,
-    setDarkCount: setDarkCount,
-    queueItem: queueItem,
-    displayedRepeatCount: displayedRepeatCount,
-    setRepeatCount: setRepeatCount,
-    countdown: countdown,
-    setCountdown: setCountdown,
-    preExcitation: preExcitation,
-    setPreExcitation: setPreExcitation,
-    samplingPeriod: samplingPeriod,
-    setSamplingPeriod: setSamplingPeriod,
-    simulatorSample: simulatorSample,
-    setSimulatorSample: setSimulatorSample,
-    seed: seed,
-    setSeed: setSeed,
+    if (!taskName) {
+      const methodName = options?.methods.find(item => `${item.method_id}:${item.method_version}` === currentMethodKey)?.name ?? '样品'
+      const now = new Date()
+      const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`
+      setTaskName(`${methodName.replace(/[\\/:*?<>|" ]/g,'_')}_${stamp}`.slice(0,120))
+    }
+    setCreateError(null); setCreateOpen(true)
   }
   return (
     <div
@@ -725,8 +447,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     >
       <PageFileActions target={actionsTarget}>
         {screen === 'capture' ? <>
-          {isSample && selected?.status === 'completed' && canWrite && <button type="button" className="secondary-button"
-            disabled={busy || loading || Boolean(runningTask)} onClick={() => setCreateOpen(true)}>下一样品</button>}
+          {formalTask?.status === 'completed' && canWrite && <button type="button" className="secondary-button"
+            disabled={busy || loading || Boolean(runningTask)} onClick={() => { if (isSample) { const next = pendingSamples[0]; if (next) void chooseCaptureSample(`queue:${next.id}`); else onToast('已到样品编号表尾部') } else openCreate() }}>{isSample ? '下一样品' : '新一轮摄谱'}</button>}
           <button type="button" className="secondary-button" disabled={busy || loading || Boolean(runningTask)}
             onClick={() => { if (!runningTask && !busy) setScreen('tasks') }}>返回任务列表</button>
         </> : <>
@@ -734,80 +456,96 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             <RefreshCw size={15} className={loading ? 'spin' : ''} />刷新
           </button>
           <button type="button" className="primary-button" disabled={!canWrite || busy || loading || Boolean(runningTask)}
-            onClick={() => setCreateOpen(true)}>新建任务</button>
+            onClick={openCreate}>新建任务</button>
         </>}
       </PageFileActions>
-      <SpectroscopyTaskDialog open={createOpen} title={`建立${title}任务`} busy={busy || loading}
+      <SpectroscopyTaskDialog open={createOpen} title={isSample ? '样品摄谱' : '蒸发曲线摄谱'} busy={busy || loading}
         error={createError} onCancel={() => setCreateOpen(false)} actions={<button type="submit" form={createFormId} className="primary-button"
-          disabled={!canWrite || form.busy || !profileId || (isSample && (!methodKey || (Boolean(queueId) && !queueItemId)))}>创建任务</button>}>
-        {isSample ? <SampleAcquisitionForm {...form} formId={createFormId} hideSubmit /> : <EvaporationAcquisitionForm {...form} formId={createFormId} hideSubmit />}
+          disabled={!canWrite || form.busy || !taskName.trim()}>确定</button>}>
+        {isSample ? <SampleAcquisitionForm {...form} formId={createFormId} hideSubmit /> : <EvaporationAcquisitionForm formId={createFormId} create={create} disabled={form.busy || !canWrite}
+          name={taskName} onName={setTaskName} saveConditions={saveExcitation} onSaveConditions={setSaveExcitation}
+          conditions={{ pre_excitation_seconds: preExcitation, sampling_period_seconds: samplingPeriod, frame_count: burnCount, dark_frame_count: darkCount }}
+          onCondition={(key, value) => { if (key === 'pre_excitation_seconds') setPreExcitation(value); else if (key === 'sampling_period_seconds') setSamplingPeriod(value); else if (key === 'frame_count') setBurnCount(value); else setDarkCount(value) }} />}
       </SpectroscopyTaskDialog>
-      <SpectroscopyTaskDialog open={sampleEditorOpen} title="预录样号" busy={sampleEditorBusy} onCancel={() => {
+      <SpectroscopyTaskDialog open={sampleEditorOpen} title="预录样号" busy={sampleEditorBusy} dismissLabel="关闭" onCancel={() => {
         setSampleEditorOpen(false)
         void api.acquisitionOptions(token).then(setOptions).catch(error => onToast(error instanceof Error ? error.message : '刷新样号失败'))
-      }} actions={<button type="button" disabled={sampleEditorBusy} onClick={() => {
-        setSampleEditorOpen(false)
-        void api.acquisitionOptions(token).then(setOptions).catch(error => onToast(error instanceof Error ? error.message : '刷新样号失败'))
-      }}>关闭</button>}>
-        {sampleEditorOpen && canWriteSamples && <SampleQueuePage token={token} onToast={onToast} onBusyChange={setSampleEditorBusy} onUseQueue={queue => {
-          setOptions(current => current ? { ...current, queues: [...current.queues.filter(item => item.id !== queue.id), queue] } : current)
-          setCaptureQueueId(queue.id); setInputCleared(true); setSampleEditorOpen(false)
-        }} />}
+      }} actions={<span ref={setSampleEditorActions} />}>
+        {sampleEditorOpen && canWriteSamples && <SampleQueuePage insertion={insertTarget} token={token} onToast={onToast}
+          onBusyChange={setSampleEditorBusy} confirmation={{
+            target: sampleEditorActions,
+            onConfirm: queue => {
+              setOptions(current => current ? { ...current, queues: [...current.queues.filter(item => item.id !== queue.id), queue] } : current)
+              setCaptureQueueId(queue.id)
+              setClearedQueueId(null)
+              setInputCleared(true)
+              setSampleEditorOpen(false)
+            },
+          }} />}
       </SpectroscopyTaskDialog>
       {screen === 'tasks' && <SpectroscopyTaskList title={title} busy={busy || loading} runningId={runningTask?.id}
-        tasks={tasks.map(item => ({ id: item.id, name: item.name, status: stateLabel[item.status],
-          details: `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`,
-          completed: item.status === 'completed' }))}
+        tasks={groupedCaptureTasks(tasks.filter(item => !item.capture_turn?.group || item.sample_kind !== 'preheat')).map(item => ({ id: item.id, name: item.name,
+          status: item.capture_turns?.length ? `${item.capture_turns.filter(turn => turn.status === 'completed').length}/${item.capture_turns.length} 转角完成` : stateLabel[item.status],
+          details: item.capture_turns?.map(turn => `${turn.angle_deg}°`).join(' / ') || `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`,
+          completed: item.capture_turns?.length ? item.capture_turns.every(turn => turn.status === 'completed') : item.status === 'completed' }))}
+        onView={onViewSpectra ? id => {
+          const turn = tasks.find(task => task.id === id)?.capture_turn
+          onViewSpectra(!isSample && turn?.multiple && turn.group ? `evaporation:${turn.group}` : `task:${id}`)
+        } : undefined}
+        onDelete={canWrite ? deleteTask : undefined}
         onChoose={id => {
           const task = tasks.find(item => item.id === id)
-          if (task && !busy && (!runningTask || runningTask.id === id)) { setSelected(task); setScreen('capture') }
+          if (task && !busy && (!runningTask || runningTask.id === id)) {
+            setBusy(true)
+            void (async () => {
+              try {
+                if (['draft','between_repeats'].includes(task.status))
+                  await ensureCaptureConnection(token, task.device_profile_id, task.profile.transport, 'acquisition')
+                setSelected(task); setScreen('capture')
+              } catch (error) { onToast(error instanceof Error ? error.message : '仪器连接检查失败') }
+              finally { setBusy(false) }
+            })()
+          }
         }} />}
       <main className="sample-acquisition-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>
           {queueProgressMessage && <p role="status" className="acquisition-management-note">{queueProgressMessage}</p>}
           <SampleAcquisitionMonitor
-            token={token} canExport={canExport} canReadMethods={canReadMethods} onToast={onToast} finish={() => setScreen('tasks')}
+            token={token} canExport={canExport} canReadSpectra={canReadSpectra} canReadMethods={canReadMethods} onToast={onToast} finish={() => setScreen('tasks')}
+            formalTask={formalTask} onChooseTurnTask={id => void chooseEvaporationTurn(id)} onShowFormalTask={() => { if (formalTask) void chooseCaptureSample(`task:${formalTask.id}`) }}
             sampleInput={<>
               <label><span>{isSample ? '样品编号:' : '蒸发谱带名:'}</span>
-                <select aria-label={isSample ? '样品编号' : '蒸发谱带名'} value={!inputCleared && inputTask ? `task:${inputTask.id}` : ''}
+                {!isSample ? <input aria-label="蒸发谱带名" readOnly title="本次摄谱的谱带名称" value={inputTask?.sample_name || inputTask?.name || ''} />
+                  : <select aria-label="样品编号" value={!inputCleared && inputTask ? `task:${inputTask.id}` : ''}
                   disabled={busy || loading || Boolean(runningTask)} onChange={event => void chooseCaptureSample(event.target.value)}>
                   <option value="" />
                   {availableTasks.map(item => <option key={item.id} value={`task:${item.id}`}>{isSample ? item.sample_name : item.sample_name || item.name}</option>)}
                   {pendingSamples.length > 0 && <optgroup label="待测样品">{pendingSamples.map(item => <option key={item.id}
                     value={`queue:${item.id}`} disabled={!canWrite}>{item.post_name ?? item.pre_name}</option>)}</optgroup>}
-                </select>
+                </select>}
               </label>
               {isSample && <label><span>重复摄谱:</span><input aria-label="重复摄谱" readOnly value={!inputCleared ? inputTask?.repeat_count ?? 1 : 1} /></label>}
             </>}
             canFinish={!busy && !loading && !runningTask}
             inputToolbar={<>
               <SpectroscopyToolButton icon="input-samples" label="录入样品编号" description="打开预录样号窗口"
-                disabled={!onOpenSamples || !canWriteSamples || busy || Boolean(runningTask)} onClick={() => setSampleEditorOpen(true)} />
-              <SpectroscopyToolButton icon="insert-sample" label="插入样品" description="建立下一样品任务并输入样号"
-                disabled={!canWrite || !inputTask?.sample_name || busy || Boolean(runningTask)} onClick={() => setCreateOpen(true)} />
-              <SpectroscopyToolButton icon="clear-samples" label="清除待测样号" description="仅清除当前待测选择，保留全部任务和已采谱带"
-                disabled={!isSample || busy || Boolean(runningTask)} onClick={() => setInputCleared(true)} />
+                disabled={!isSample || !onOpenSamples || !canWriteSamples || busy || Boolean(runningTask)} onClick={() => {setInsertTarget(undefined);setSampleEditorOpen(true)}} />
+              <SpectroscopyToolButton icon="insert-sample" label="插入样品" description="打开样号表，在当前样品之前插入样号"
+                disabled={!isSample || !canWriteSamples || !inputQueue || !inputTask?.queue_item_id || busy || Boolean(runningTask)} onClick={() => {if(inputQueue&&inputTask?.queue_item_id){setInsertTarget({queueId:inputQueue.id,itemId:inputTask.queue_item_id});setSampleEditorOpen(true)}}} />
+              <SpectroscopyToolButton icon="clear-samples" label="清除待测样号" description="清除本次待测样号列表和选择，保留已保存队列、任务和谱带"
+                disabled={!isSample || busy || Boolean(runningTask)} onClick={() => {setInputCleared(true);setClearedQueueId(inputQueue?.id??null)}} />
             </>}
-            setup={
-              <>
-                {selected && <SampleAcquisitionResults
-                  canWrite={canWrite} selected={selected} renameValue={renameValue} setRenameValue={setRenameValue}
-                  rename={rename} nameLength={renameLength} setNameLength={setRenameLength} busy={busy}
-                />}
-                {captureDetails}
-              </>
-            }
             selected={selected}
             apply={apply}
             busy={busy}
             canExecute={canExecute && (!runningTask || selected?.id === runningTask.id)}
-            canStart={Boolean(!inputCleared && formalTask && formalTask.sample_kind !== 'preheat' && ['draft', 'between_repeats'].includes(formalTask.status))}
+            canStart={Boolean(!inputCleared && formalTask && formalTask.sample_kind !== 'preheat' &&
+              (formalTask.status === 'paused' && formalTask.turns?.awaiting_turn || !runningTask && ['draft', 'between_repeats'].includes(formalTask.status)))}
             canPreheat={canWrite && Boolean(selected && ['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(selected.status))}
             progressLabel={progressLabel}
             ccdIndex={ccdIndex}
             setCcdIndex={setCcdIndex}
             selectedCcd={selectedCcd}
             selectedPoints={selectedPoints}
-            boundMethod={boundMethod}
           />
         </main>
 

@@ -39,3 +39,8 @@ class SampleQueueImport(BaseModel):
     content_base64: str | None = Field(default=None, max_length=7_000_000)
     queue_name: str | None = Field(default=None, max_length=120)
     encoding: Literal['gb18030','utf-8-sig'] | None = None
+
+
+class SampleQueueSelection(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    queue_id: int | None = Field(default=None, ge=1)

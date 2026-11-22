@@ -36,3 +36,11 @@
 :root .app-shell .data-processing-recalculate .postprocessing-page { padding: 0; }
 :root .app-shell .data-processing-page.data-processing-recalculate > .hero-row { margin-bottom: 12px; }
 :root .app-shell .data-processing-recalculate .postprocessing-recalculation-surface .surface-heading { flex-wrap: wrap; gap: 8px; }
+.recalculation-curve-surface {
+  --analysis-rule: var(--ui-border);
+  height: clamp(370px, calc(100dvh - 292px), 790px);
+  border: 1px solid var(--analysis-rule);
+  overflow: hidden;
+}
+.recalculation-curve-surface > .postprocessing-empty { height: 100%; align-content: center; }
+:root .app-shell .recalculation-curve-surface .postprocessing-recalculate-button { width: auto; margin: 0; }

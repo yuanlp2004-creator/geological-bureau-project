@@ -1,11 +1,25 @@
 """Acquisition models, moved without validation changes."""
 from __future__ import annotations
 from typing import Any, Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class SampleSessionCreate(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    name: str = Field(min_length=1, max_length=120)
+
+    @field_validator('name')
+    @classmethod
+    def valid_number(cls, value: str) -> str:
+        value = value.strip()
+        if not value or any(char in '\\/:*?<>|"' or ord(char) < 32 for char in value):
+            raise ValueError('摄谱编号不能为空或包含文件名非法字符')
+        return value
 
 
 class AcquisitionTaskCreate(BaseModel):
-    use_method_conditions: bool = False
+    # 旧客户端字段保留兼容；样品的已有方法条件始终优先，不再提供切换语义。
+    use_method_conditions: bool = True
     use_method_intervals: bool = False
     management_sample: bool = False
     model_config = ConfigDict(extra="forbid")

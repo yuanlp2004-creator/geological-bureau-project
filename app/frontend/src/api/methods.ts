@@ -237,9 +237,6 @@ export type MethodOptions = {
 }
 
 export const methodsApi = {
-  upgradeLegacyMethod: (token: string, methodId: number) => request<MethodRecord>(`/api/v1/methods/${methodId}/legacy-semantics`, {
-    method: 'POST', headers: { Authorization: `Bearer ${token}` }
-  }),
   referenceOffset: (token: string, conditions: MethodConditions) =>
     request<{ wavelength_delta_nm: number; point_delta: number; ccd_index: number }>('/api/v1/methods/reference-offset', {
       method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(conditions)
@@ -310,14 +307,14 @@ export const methodsApi = {
     }),
   spectralLineOptions: (token: string) =>
     request<SpectralLineOptions>('/api/v1/spectral-lines/options', { headers: { Authorization: `Bearer ${token}` } }),
-  methodLines: (token: string, methodId: number) =>
-    request<MethodLineCollection>(`/api/v1/methods/${methodId}/lines`, {
+  methodLines: (token: string, methodId: number, version?: number) =>
+    request<MethodLineCollection>(`/api/v1/methods/${methodId}/lines${version === undefined ? '' : `?version=${version}`}`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
   detectLine: (
     token: string,
     methodId: number,
-    payload: { wavelength_nm: number; actual_wavelength_nm?: number | null; scan_width_points?: number }
+    payload: { line_id?: string; wavelength_nm: number; actual_wavelength_nm?: number | null; scan_width_points?: number }
   ) =>
     request<LineDetectability>(`/api/v1/methods/${methodId}/lines/detect`, {
       method: 'POST',

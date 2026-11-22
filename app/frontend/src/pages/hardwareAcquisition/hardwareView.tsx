@@ -1,5 +1,16 @@
 
-export type Props = { token: string; canWrite: boolean; canExecute: boolean; canSaveSample?: boolean; onToast: (message: string) => void }
+export type Props = { token: string; canWrite: boolean; canExecute: boolean; canSaveSample?: boolean;
+  currentMethodId?: number; actionsTarget?: HTMLElement | null; onLockChange?: (reason: string | null) => void;
+  onToast: (message: string) => void }
+
+export const anomalyLabels: Record<string, string> = {
+  baseline_low: '基线强度偏低', baseline_high: '基线强度偏高', baseline_shift: '基线位置偏移',
+  peak_shift: '峰位偏移', frame_fault: '原始帧损坏', turn_timeout: '转角超时', none: '正常'
+}
+export const decisionLabels: Record<string, string> = {
+  accept: '已确认', correct: '自动校正后重采', retry: '重新采集', manual: '等待人工处理', stop: '安全停止'
+}
+export const anomalyText = (value: unknown) => String(value ?? '').split(',').map(key => anomalyLabels[key] ?? key).join('、')
 
 export const labels: Record<string, string> = {
   draft: '草稿',
@@ -22,16 +33,6 @@ export const labels: Record<string, string> = {
   confirmed: '已确认',
   manual: '人工处理'
 }
-
-export const defaultTurns = JSON.stringify(
-  [
-    { angle_deg: 10, wavelength_nm: 250, priority: 0, key_band: false, expected_peak_position: 1024 },
-    { angle_deg: 20, wavelength_nm: 280, priority: 1, key_band: true, expected_peak_position: 1024 },
-    { angle_deg: 30, wavelength_nm: 310, priority: 0, key_band: false, expected_peak_position: 1024 }
-  ],
-  null,
-  2
-)
 
 export const terminalStates = new Set(['completed', 'failed', 'stopped', 'safety_stopped', 'deferred_external'])
 

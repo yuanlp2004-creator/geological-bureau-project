@@ -13,6 +13,31 @@ from .serialization import _json, _sha
 from .algorithms import fit_curve, evaluate_curve, FIT_MODES, COORDINATE_TYPES
 from .repository import AnalysisRepository
 from .control_adaptation import adapt_control
+from .legacy_curves import evaluate_legacy_standard, legacy_curve_chart
+
+
+def published_line_curves(db, version_id: int, profile: str) -> dict[str, dict]:
+    curves: dict[str, dict] = {}
+    for curve in db.execute(
+        "SELECT c.line_id, s.id, s.fit_json, s.coordinate_type FROM analysis_active_curves c "
+        "JOIN analysis_curve_snapshots s ON s.id=c.curve_snapshot_id JOIN analysis_runs r ON r.id=c.run_id "
+        "WHERE r.method_version_id=? AND r.calculation_profile=? AND s.publishable=1 "
+        "AND s.qc_snapshot_id=(SELECT id FROM analysis_qc_snapshots WHERE run_id=r.id ORDER BY sequence DESC LIMIT 1) "
+        "ORDER BY c.updated_at DESC, s.id DESC", (version_id, profile),
+    ):
+        curves.setdefault(curve["line_id"], dict(curve))
+    return curves
+
+
+def fit_standard_points(points, fit_mode, coordinate, profile):
+    active = [item for item in points if item["adjusted_intensity"] is not None and item["active"]]
+    fit = fit_curve([item["adjusted_intensity"] for item in active],
+                    [item["standard_value"] for item in active], fit_mode, coordinate,
+                    calculation_profile=profile)
+    if profile == "legacy_2_0_2":
+        # CalResult caps against the standard series, including its disabled points.
+        fit["legacy_maximum_content"] = max(item["standard_value"] for item in points)
+    return fit
 
 
 class CurveService:
@@ -87,12 +112,14 @@ class CurveService:
                 if index is None
                 else next((item for item in workspace["points"] if item["point_index"] == int(index)), None)
             )
-            # 按动作只改对应参数；restore 恢复点强度，restore_all 同时恢复原始启用状态。
+            # The old Raw/RawAll controls restore intensity while retaining point activation.
+            # Keep the existing API default for clients that explicitly use the full reset.
             if action == "adapt_control":
                 control_id = request.get("control_task_id")
                 group = next((item for item in json.loads(qc['groups_json'])
                               if item['line_id'] == line_id and item.get('management_sample')
-                              and item['acquisition_task_id'] == control_id), None)
+                              and item['acquisition_task_id'] == control_id
+                              and item.get('sample_group_position') == request.get('control_sample_group_position')), None)
                 if group is None:
                     raise AnalysisError('analysis_control_not_found', '当前谱线没有所选管理样的有效质控组')
                 target = request.get('control_value')
@@ -126,7 +153,8 @@ class CurveService:
             elif action == "restore_all":
                 for item in workspace["points"]:
                     item["adjusted_intensity"] = item["original_intensity"]
-                    item["active"] = item["original_active"]
+                    if request.get('restore_activation', True):
+                        item["active"] = item["original_active"]
             else:
                 raise AnalysisError("analysis_curve_action_invalid", "曲线调整动作无效", status_code=422)
             after = {
@@ -178,21 +206,31 @@ class CurveService:
 
     @staticmethod
     def _fit_diagnostics(fit: dict[str, Any], points: list[dict[str, Any]], coordinate_type: str) -> dict[str, Any]:
+        legacy = fit.get("calculation_profile") == "legacy_2_0_2"
         rows: list[dict[str, Any]] = []
         for point in points:
-            calculated = evaluate_curve(fit, float(point["adjusted_intensity"]), coordinate_type)
+            intensity = float(point["adjusted_intensity"])
+            try:
+                calculated = (evaluate_legacy_standard(fit, intensity) if legacy
+                              else evaluate_curve(fit, intensity, coordinate_type))
+            except (AnalysisError, ArithmeticError):
+                if point["active"]:
+                    raise
+                continue
             expected = float(point["standard_value"])
+            residual = calculated - expected
             rows.append(
                 {
                     **point,
                     "calculated_value": calculated,
-                    "residual": calculated - expected,
-                    "relative_error_percent": None if expected == 0 else 100.0 * (calculated - expected) / expected,
+                    "residual": residual,
+                    "relative_error_percent": None if expected == 0 else 100.0 * (-residual if legacy else residual) / expected,
                 }
             )
-        expected_values = [float(item["standard_value"]) for item in rows]
-        calculated_values = [float(item["calculated_value"]) for item in rows]
-        mean_x, mean_y = sum(expected_values) / len(rows), sum(calculated_values) / len(rows)
+        active = [item for item in rows if item["active"]]
+        expected_values = [float(item["standard_value"]) for item in active]
+        calculated_values = [float(item["calculated_value"]) for item in active]
+        mean_x, mean_y = sum(expected_values) / len(active), sum(calculated_values) / len(active)
         numerator = sum((x - mean_x) * (y - mean_y) for x, y in zip(expected_values, calculated_values, strict=True))
         denominator = math.sqrt(
             sum((x - mean_x) ** 2 for x in expected_values) * sum((y - mean_y) ** 2 for y in calculated_values)
@@ -200,9 +238,43 @@ class CurveService:
         return {
             "points": rows,
             "correlation": None if denominator == 0 else numerator / denominator,
-            "rmse": math.sqrt(sum(item["residual"] ** 2 for item in rows) / len(rows)),
-            "maximum_absolute_error": max(abs(item["residual"]) for item in rows),
+            "rmse": math.sqrt(sum(item["residual"] ** 2 for item in active) / len(active)),
+            "maximum_absolute_error": max(abs(item["residual"]) for item in active),
         }
+
+    @staticmethod
+    def _sample_preview(fit: dict[str, Any], groups: list[dict[str, Any]], line_id: str, coordinate: str) -> list[dict[str, Any]]:
+        rows = []
+        for group in groups:
+            if group["line_id"] != line_id or group["sample_kind"] == "standard":
+                continue
+            intensity = group["statistics"]["mean"]
+            calculated = None
+            if intensity is not None:
+                try:
+                    calculated = evaluate_curve(fit, float(intensity), coordinate)
+                except (AnalysisError, ArithmeticError):
+                    pass
+            rows.append({"sample_name": group["sample_name"], "intensity": intensity,
+                         "calculated_value": calculated, "management_sample": group.get("management_sample", False)})
+        return rows
+
+    @classmethod
+    def _fit_points(cls, points, fit_mode, coordinate, profile):
+        measured = [item for item in points if item["adjusted_intensity"] is not None]
+        active = [item for item in measured if item["active"]]
+        fit = fit_standard_points(points, fit_mode, coordinate, profile)
+        if profile == "legacy_2_0_2":
+            diagnostics = cls._fit_diagnostics(fit, measured, coordinate)
+            chart = legacy_curve_chart(fit, [item["adjusted_intensity"] for item in measured])
+        else:
+            diagnostics = cls._fit_diagnostics(fit, active, coordinate)
+            low = min(float(item["adjusted_intensity"]) for item in active)
+            high = max(float(item["adjusted_intensity"]) for item in active)
+            intensities = [low + (high - low) * index / 120 for index in range(121)]
+            chart = [{"intensity": intensity, "value": evaluate_curve(fit, intensity, coordinate)}
+                     for intensity in intensities]
+        return fit, diagnostics, chart
 
     def fit_standard_curve(
         self, run_id: int, line_id: str, request: dict[str, Any], actor_user_id: int | None = None
@@ -222,31 +294,12 @@ class CurveService:
                 workspace["adjustment_set_id"] = None
             workspace["fit_mode"] = fit_mode
             workspace["coordinate_type"] = coordinate_type
-            active = [item for item in workspace["points"] if item["active"] and item["adjusted_intensity"] is not None]
-            fit = fit_curve(
-                [item["adjusted_intensity"] for item in active],
-                [item["standard_value"] for item in active],
-                workspace["fit_mode"],
-                workspace["coordinate_type"],
-                calculation_profile=run["calculation_profile"],
-            )
-            diagnostics = self._fit_diagnostics(fit, active, workspace["coordinate_type"])
+            coordinate = workspace["coordinate_type"]
+            fit, diagnostics, chart = self._fit_points(workspace["points"], fit_mode, coordinate, run["calculation_profile"])
+            diagnostics["sample_preview"] = self._sample_preview(fit, json.loads(qc["groups_json"]), line_id, coordinate)
             adjustment_id = workspace["adjustment_set_id"] or self._save_workspace(
                 db, run_id, line_id, int(qc["id"]), workspace, actor_user_id
             )
-            minimum_x, maximum_x = (
-                min(float(item["adjusted_intensity"]) for item in active),
-                max(float(item["adjusted_intensity"]) for item in active),
-            )
-            chart = [
-                {
-                    "intensity": minimum_x + (maximum_x - minimum_x) * index / 120,
-                    "value": evaluate_curve(
-                        fit, minimum_x + (maximum_x - minimum_x) * index / 120, workspace["coordinate_type"]
-                    ),
-                }
-                for index in range(121)
-            ]
             sequence = int(
                 db.execute(
                     "SELECT COALESCE(MAX(sequence),0)+1 FROM analysis_curve_snapshots WHERE run_id=? AND line_id=?",
@@ -308,6 +361,50 @@ class CurveService:
                 },
             )
         return self.repository.run(run_id)
+
+    def recalculation_curves(self, limit: int) -> list[dict[str, Any]]:
+        with self.database.read() as db:
+            return [dict(row) for row in db.execute(
+                "SELECT cs.id, cs.line_id, cs.fit_mode, cs.coordinate_type, cs.result_sha256, "
+                "ar.method_version_id, ar.calculation_profile FROM analysis_curve_snapshots cs "
+                "JOIN analysis_runs ar ON ar.id=cs.run_id WHERE cs.publishable=1 ORDER BY cs.id DESC LIMIT ?",
+                (limit,),
+            )]
+
+    def recalculation_curve(self, snapshot_id: int, draft: dict[str, Any] | None = None) -> dict[str, Any]:
+        with self.database.read() as db:
+            row = db.execute(
+                "SELECT cs.*, ar.method_version_id, ar.calculation_profile FROM analysis_curve_snapshots cs "
+                "JOIN analysis_runs ar ON ar.id=cs.run_id WHERE cs.id=? AND cs.publishable=1",
+                (snapshot_id,),
+            ).fetchone()
+            if row is None:
+                raise AnalysisError("analysis_curve_snapshot_not_found", "可用于重算的曲线快照不存在", status_code=404)
+            method = self.repository.methods.bind_snapshots(db).by_id(row["method_version_id"], published_only=True)
+            line = next((item for item in _analysis_lines(method.payload) if str(item["id"]) == row["line_id"]), None) if method else None
+            if line is None:
+                raise AnalysisError("analysis_curve_line_not_found", "曲线快照对应的谱线不存在", status_code=404)
+            snapshot = self.repository._curve_row(row)
+        snapshot["diagnostics"].pop("sample_preview", None)
+        if draft is not None:
+            by_index = {point["point_index"]: point for point in snapshot["points"]}
+            seen = set()
+            for change in draft["points"]:
+                index = change["point_index"]
+                if index not in by_index or index in seen:
+                    raise AnalysisError("analysis_curve_point_not_found", "重算草稿包含未知或重复的标准点", status_code=422)
+                seen.add(index)
+                by_index[index].update(active=change["active"], adjusted_intensity=change["adjusted_intensity"])
+            mode, coordinate = draft["fit_mode"], draft["coordinate_type"]
+            fit, diagnostics, chart = self._fit_points(snapshot["points"], mode, coordinate, row["calculation_profile"])
+            snapshot.update(fit_mode=mode, coordinate_type=coordinate, fit=fit, diagnostics=diagnostics, chart=chart)
+            snapshot["result_sha256"] = _sha({
+                "base_sha256": row["result_sha256"], "fit_mode": mode, "coordinate_type": coordinate,
+                "points": snapshot["points"], "fit": fit,
+            })
+        return {"line_id": row["line_id"], "element": line["element"],
+                "wavelength_nm": line["wavelength_nm"], "unit": line.get("unit", ""),
+                "decimal_places": line.get("decimal_places", 3), "snapshot": snapshot}
 
     def curve_evaluators(
         self, snapshot_ids: list[int], method_version_id: int, calculation_profile: str
@@ -422,6 +519,8 @@ class CurveService:
                     "sample_kind": group["sample_kind"],
                     "is_standard": is_standard,
                     "standard_value": standard_value,
+                    **({"sample_group_position": group["sample_group_position"]}
+                       if "sample_group_position" in group else {}),
                     "effective_count": group["statistics"]["effective_count"],
                     "intensity": intensity,
                     "calculated_value": calculated,
@@ -430,8 +529,8 @@ class CurveService:
                     (
                         "INSERT OR IGNORE INTO analysis_curve_results(run_id, curve_snapshot_id, "
                         "acquisition_task_id, sample_name, sample_kind, is_standard, standard_value, "
-                        "effective_count, intensity, calculated_value, result_sha256, created_at) VALUES "
-                        "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                        "effective_count, intensity, calculated_value, result_sha256, created_at, sample_group_position) VALUES "
+                        "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     ),
                     (
                         run_id,
@@ -446,6 +545,7 @@ class CurveService:
                         calculated,
                         _sha(result),
                         utc_now(),
+                        group.get("sample_group_position"),
                     ),
                 )
             db.execute(
@@ -513,13 +613,16 @@ class CurveService:
                     (snapshot_id,),
                 ).fetchall():
                     task_id = int(row["acquisition_task_id"])
+                    group_position = row["sample_group_position"]
+                    group_key = task_id if group_position is None else group_position
                     line = line_by_id[line_id]
-                    sample_meta[task_id] = {
+                    sample_meta[group_key] = {
                         "acquisition_task_id": task_id,
+                        **({"sample_group_position": group_position} if group_position is not None else {}),
                         "sample_name": row["sample_name"],
                         "sample_kind": row["sample_kind"],
                     }
-                    candidates.setdefault((task_id, str(line["element"])), []).append(
+                    candidates.setdefault((group_key, str(line["element"])), []).append(
                         {
                             "line_id": line_id,
                             "wavelength_nm": float(line["wavelength_nm"]),

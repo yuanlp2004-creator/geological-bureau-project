@@ -1,7 +1,14 @@
 /** Native file commands and the browser download fallback. */
+export async function selectBackupDirectory(current: string): Promise<string | null> {
+  const invoke = window.__TAURI__?.core?.invoke
+  if (invoke) return invoke<string | null>('select_backup_directory')
+  const value = window.prompt('输入备份目录的完整路径', current)
+  return value?.trim() || null
+}
+
 export async function selectLegacyDirectory(): Promise<string | null> {
   const invoke = window.__TAURI__?.core?.invoke
-  if (!invoke) throw new Error('浏览器模式请填写一次旧版目录，再点击检测目录；桌面版支持直接选择文件夹。')
+  if (!invoke) throw new Error('浏览器模式请填写下方文件路径，或在桌面版选择旧版目录。')
   return invoke<string | null>('select_legacy_directory')
 }
 
@@ -11,6 +18,7 @@ const exportContentType = (fileName: string): string => {
   if (extension === 'csv') return 'text/csv'
   if (extension === 'json') return 'application/json'
   if (extension === 'xls') return 'application/vnd.ms-excel'
+  if (extension === 'xlsx') return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   return 'text/plain'
 }
 

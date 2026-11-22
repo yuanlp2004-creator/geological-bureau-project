@@ -21,11 +21,13 @@ from backend.db import Database, utc_now
 from backend.modules.analysis import AnalysisError, AnalysisService, legacy_gaussian
 from backend.modules.analysis.algorithms import _search_peak
 from backend.modules.methods import MethodService
+from backend.modules.spectrum_viewer import SpectrumViewerService
 from backend.schemas import MethodCondition
 
 
 def _seed(
-    database: Database, *, flat_gaussian: bool = False, complete_conditions: bool = False
+    database: Database, *, flat_gaussian: bool = False, complete_conditions: bool = False,
+    copper_standards: list[dict] | None = None,
 ) -> tuple[int, list[int]]:
     database.initialize()
     with database.write() as db:
@@ -109,7 +111,7 @@ def _seed(
                 "minimum_peak_ratio": 1.1,
                 "internal_standard_mode": "none",
                 "alignment_line_id": "AL",
-                "standard_points": [],
+                "standard_points": copper_standards or [],
             },
             {
                 "id": "A-background",
@@ -235,6 +237,29 @@ def _finish(service: AnalysisService, run: dict) -> dict:
             return current
         current = service.step(run["id"])
     raise AssertionError("analysis did not settle")
+
+
+def test_spectrum_concentration_preview_fits_stored_points_for_bound_method(tmp_path: Path) -> None:
+    database = Database(tmp_path / "spectrum-concentration.sqlite3")
+    points = [
+        {"name": f"S{i}", "value": intensity / 10, "adjusted_intensity": intensity,
+         "intensity_valid": True, "active": True}
+        for i, intensity in enumerate((100, 300, 600, 900), start=1)
+    ]
+    points.append({"name": "S5", "value": 600, "adjusted_intensity": 700, "intensity_valid": False, "active": True})
+    _, sample_ids = _seed(database, copper_standards=points)
+
+    preview = SpectrumViewerService(database).concentrations(f"sample:{sample_ids[0]}")
+    copper, zinc, nickel = preview["rows"]
+    assert preview["method_name"] == "S16 测试方法"
+    assert [row["element"] for row in (copper, zinc, nickel)] == ["Cu", "Zn", "Ni"]
+    assert copper["quantitative_signal"] == pytest.approx(790)
+    assert copper["concentration"] == pytest.approx(79)
+    assert copper["unit"] == "ug/g"
+    assert copper["curve_source"] == "method_standards"
+    assert zinc["concentration"] is None and "标准点不足" in zinc["message"]
+    with database.read() as db:
+        assert db.execute("SELECT COUNT(*) FROM analysis_curve_snapshots").fetchone()[0] == 0
 
 
 def test_s16_legacy_gaussian_golden_vectors() -> None:

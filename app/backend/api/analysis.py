@@ -1,12 +1,16 @@
 """Analysis API boundary; business services retain their existing behavior."""
 
 from __future__ import annotations
+import base64
+import binascii
 from typing import Any, Literal
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse, Response
 from ..schemas.analysis import (
     AnalysisRunCreate,
+    AnalysisSampleNumbersFile,
+    AnalysisSampleNumbersExport,
     AnalysisIntervention,
     AnalysisQcDecision,
     AnalysisCurveAction,
@@ -16,15 +20,38 @@ from ..schemas.analysis import (
     AnalysisCalibrationRequest,
     AnalysisTimeSeriesRequest,
     AnalysisIntensityOutputRequest,
+    AnalysisSpectrumPrintRequest,
 )
 from ..auth import Session
 from ..schemas.system import SettingsIntensityOutput,SettingsPatch
 from ..modules.analysis import AnalysisError
+from ..modules.sample_queues import SampleQueueError, read_sample_numbers, write_sample_numbers
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
 
 router = APIRouter()
 RunStatus = Literal["draft", "running", "paused", "completed", "cancelled", "failed"]
+
+
+@router.post("/api/v1/analyses/sample-numbers/read", tags=["analysis"])
+def read_analysis_sample_numbers(payload: AnalysisSampleNumbersFile,
+    _: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
+    try:
+        return {"entries": read_sample_numbers(base64.b64decode(payload.content_base64, validate=True), payload.encoding)}
+    except binascii.Error as exc:
+        raise HTTPException(422, detail={"code": "sam_payload_invalid", "message": "无法读取样号文件"}) from exc
+    except SampleQueueError as exc:
+        raise HTTPException(exc.status_code, detail=exc.detail()) from exc
+
+
+@router.post("/api/v1/analyses/sample-numbers/write", tags=["analysis"])
+def write_analysis_sample_numbers(payload: AnalysisSampleNumbersExport,
+    _: Session = Depends(require_permission("analysis.execute"))) -> Response:
+    try:
+        content = write_sample_numbers([item.model_dump() for item in payload.entries])
+        return Response(content=content, media_type="application/octet-stream")
+    except SampleQueueError as exc:
+        raise HTTPException(422, detail={"code": exc.code, "message": str(exc)}) from exc
 
 
 @router.post('/api/v1/analyses/runs/{run_id}/intensity-output', tags=['analysis'])
@@ -333,46 +360,98 @@ def import_legacy_analysis_sources(
         raise analysis_error(exc) from exc
 
 
+def observation_exposure(start: int | None, end: int | None) -> tuple[int, int] | None:
+    if start is None and end is None:
+        return None
+    if start is None or end is None or end < start:
+        raise HTTPException(status_code=422, detail='请选择有效的观察曝光区间')
+    return start, end
+
+
 @router.get('/api/v1/analyses/runs/{run_id}/spectra/{sample_position}', tags=['analysis'])
 def analysis_spectrum(
     run_id: int, sample_position: int,
     line_id: str | None = Query(default=None, min_length=1, max_length=100),
+    band_position: int | None = Query(default=None, ge=0),
+    exposure_start: int | None = Query(default=None, ge=1),
+    exposure_end: int | None = Query(default=None, ge=1),
     _: Session = Depends(require_permission('analysis.read')), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
     try:
-        return runtime.analysis_service().spectrum(run_id, sample_position, runtime.acquisition_service(), line_id)
+        return runtime.analysis_service().spectrum(run_id, sample_position, runtime.acquisition_service(), line_id,
+            band_position=band_position, observation_interval=observation_exposure(exposure_start, exposure_end))
     except AnalysisError as exc:
         raise analysis_error(exc) from exc
 
 
-def _analysis_point_details(runtime: Runtime, run_id: int, sample_position: int, ccd: int, point: int) -> dict:
+@router.post('/api/v1/analyses/runs/{run_id}/spectra/{sample_position}/print', tags=['analysis'])
+def print_analysis_spectrum(run_id: int, sample_position: int, payload: AnalysisSpectrumPrintRequest,
+    session: Session = Depends(require_permission('analysis.print')), *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    from ..modules.spectrum_pdf import render_spectrum_pdf
+    if payload.x_min >= payload.x_max or payload.y_min >= payload.y_max:
+        raise HTTPException(status_code=422, detail='请选择有效的谱图打印范围')
+    try:
+        service = runtime.analysis_service()
+        interval = observation_exposure(payload.exposure_start, payload.exposure_end)
+        spectrum = service.spectrum(run_id, sample_position, runtime.acquisition_service(), payload.line_id,
+                                    band_position=payload.band_position, observation_interval=interval)
+        if payload.band_position is not None:
+            band = spectrum['bands'][payload.band_position] if payload.band_position < len(spectrum['bands']) else None
+            if band is not None and band['ccd_index'] != payload.ccd:
+                raise AnalysisError('analysis_ccd_invalid', '打印谱带与CCD不匹配')
+        else:
+            matching = [item for item in spectrum['bands'] if item['ccd_index'] == payload.ccd]
+            band = matching[0] if len(matching) == 1 else None
+        if band is None:
+            raise AnalysisError('analysis_ccd_invalid', '所选 CCD 不在当前分析样品中')
+        # Print exactly the verified, exposure-normalized values used by the analysis view.
+        curve = {'id': f'analysis:{run_id}:{sample_position}', 'label': spectrum['sample_name'],
+                 'color': '#f12222', 'priority': True,
+                 'points': [(index + 1, value) for index, value in enumerate(band['mean_points'])]}
+        content, metadata = render_spectrum_pdf([curve], curve['id'], 'mean', payload.ccd, 0, 0,
+            payload.x_min, payload.x_max, payload.y_min, payload.y_max, layers=['grayscale', 'curve'])
+        service.record_observation_print(run_id, {'output': 'analysis-spectrum', 'sample_position': sample_position,
+            'ccd': payload.ccd, 'turn_index': band.get('turn_index'), 'angle_deg': band.get('angle_deg'), 'line_id': payload.line_id,
+            'exposure_interval': spectrum['exposure_interval'], 'mean_sha256': band['mean_sha256'], **metadata}, session.user_id)
+        return Response(content, media_type='application/pdf', headers={
+            'Content-Disposition': f'attachment; filename="analysis-{run_id}-sample-{sample_position + 1}.pdf"'})
+    except AnalysisError as exc:
+        raise analysis_error(exc) from exc
+
+
+def _analysis_point_details(runtime: Runtime, run_id: int, sample_position: int, ccd: int, point: int | None,
+                            band_position: int | None = None) -> dict:
     from ..modules.spectrum_viewer import SpectrumViewerError
     try:
         spectrum = runtime.analysis_service().spectrum(run_id, sample_position, runtime.acquisition_service())
-        physical = next((index for index, band in enumerate(spectrum['bands']) if band['ccd_index'] == ccd), None)
-        if physical is None:
+        bands = spectrum['bands']
+        if band_position is None:
+            band_position = next((index for index, band in enumerate(bands) if band['ccd_index'] == ccd), -1)
+        if not 0 <= band_position < len(bands) or bands[band_position]['ccd_index'] != ccd:
             raise AnalysisError('analysis_ccd_invalid', '所选 CCD 不在当前分析样品中')
-        return runtime.spectrum_viewer_service().point_details(f"sample:{spectrum['acquisition_sample_id']}", ccd=physical, point=point)
+        return runtime.spectrum_viewer_service().point_details(f"sample:{spectrum['acquisition_sample_id']}", ccd=band_position, point=point)
     except SpectrumViewerError as exc:
         raise AnalysisError(exc.code, exc.message, status_code=exc.status_code) from exc
 
 
 @router.get('/api/v1/analyses/runs/{run_id}/spectra/{sample_position}/point-details', tags=['analysis'])
-def analysis_point_details(run_id: int, sample_position: int, ccd: int = Query(ge=0), point: int = Query(ge=0),
+def analysis_point_details(run_id: int, sample_position: int, ccd: int = Query(ge=0), point: int = Query(ge=0), all_points: bool = False,
+    band_position: int | None = Query(default=None, ge=0),
     _: Session = Depends(require_permission('analysis.read')), *, runtime: Runtime = Depends(get_runtime)) -> dict:
     try:
-        return _analysis_point_details(runtime, run_id, sample_position, ccd, point)
+        return _analysis_point_details(runtime, run_id, sample_position, ccd, None if all_points else point, band_position)
     except AnalysisError as exc:
         raise analysis_error(exc) from exc
 
 
 @router.post('/api/v1/analyses/runs/{run_id}/spectra/{sample_position}/point-details/copy', tags=['analysis'])
 def copy_analysis_point_details(run_id: int, sample_position: int, ccd: int = Query(ge=0), point: int = Query(ge=0),
+    band_position: int | None = Query(default=None, ge=0),
     orientation: str = Query(pattern='^(vertical|horizontal)$'), session: Session = Depends(require_permission('analysis.print')),
     *, runtime: Runtime = Depends(get_runtime)) -> dict:
     from ..modules.spectrum_viewer import point_details_text
     try:
-        details = _analysis_point_details(runtime, run_id, sample_position, ccd, point)
+        details = _analysis_point_details(runtime, run_id, sample_position, ccd, point, band_position)
         text = point_details_text(details, orientation)
         runtime.analysis_service().record_observation_export(run_id,
             {'sample_position': sample_position, 'ccd': ccd, 'point': point,
@@ -384,10 +463,11 @@ def copy_analysis_point_details(run_id: int, sample_position: int, ccd: int = Qu
 
 @router.post('/api/v1/analyses/runs/{run_id}/spectra/{sample_position}/point-details/print', tags=['analysis'])
 def print_analysis_point_details(run_id: int, sample_position: int, ccd: int = Query(ge=0), point: int = Query(ge=0),
+    band_position: int | None = Query(default=None, ge=0),
     session: Session = Depends(require_permission('analysis.print')), *, runtime: Runtime = Depends(get_runtime)) -> Response:
     from ..modules.spectrum_pdf import render_point_details_pdf
     try:
-        details = _analysis_point_details(runtime, run_id, sample_position, ccd, point)
+        details = _analysis_point_details(runtime, run_id, sample_position, ccd, point, band_position)
         content = render_point_details_pdf(details)
         runtime.analysis_service().record_observation_print(run_id,
             {'output': 'raw-point-details', 'sample_position': sample_position, 'ccd': ccd, 'point': point, 'sha256': details['sha256']}, session.user_id)

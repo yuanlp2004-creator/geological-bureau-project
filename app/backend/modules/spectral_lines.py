@@ -225,7 +225,26 @@ def detect_wavelength(
     wavelength_nm: Any,
     actual_wavelength_nm: Any = None,
     scan_width_points: Any = 9,
+    line_id: str | None = None,
 ) -> dict[str, Any]:
+    exposures = conditions.get('angle_exposures', [])
+    if isinstance(exposures, list) and len(exposures) > 1:
+        candidates = []
+        for index, exposure in enumerate(exposures):
+            if not isinstance(exposure, dict) or not exposure.get('ccd_indices') or exposure.get('dispersion_calibration_id') is None:
+                return {'detectable': False, 'reason_code': 'sample_turn_mapping_missing',
+                        'message': '多转角方法缺少转角、CCD及色散标定的明确关联'}
+            if line_id is not None and exposure.get('line_ids') is not None and str(line_id) not in map(str, exposure['line_ids']):
+                continue
+            candidate = detect_wavelength(method_service, db, {**conditions, 'angle_exposures': [exposure],
+                'selected_ccds': exposure['ccd_indices'], 'dispersion_calibration_id': exposure['dispersion_calibration_id']},
+                wavelength_nm, actual_wavelength_nm, scan_width_points, line_id)
+            if candidate['detectable']:
+                candidates.append({**candidate, 'angle_slot': index + 1, 'angle_deg': exposure['angle_deg']})
+        if len(candidates) != 1:
+            return {'detectable': False, 'reason_code': 'sample_line_turn_ambiguous' if candidates else 'sample_line_turn_missing',
+                    'message': '谱线对应多个转角，关联不明确' if candidates else '谱线没有有效的转角与标定关联'}
+        return candidates[0]
     if (
         isinstance(wavelength_nm, bool)
         or not isinstance(wavelength_nm, (int, float))
@@ -289,10 +308,9 @@ def detect_wavelength(
     if isinstance(scan_width_points, bool) or not isinstance(scan_width_points, int):
         return {"detectable": False, "reason_code": "scan_width_invalid", "message": "扫描宽度必须是整数"}
     frame_index = ccd_index // int(layout["ccds_per_frame"])
-    exposures = conditions.get("angle_exposures", [])
     angle = (
-        exposures[frame_index].get("angle_deg")
-        if isinstance(exposures, list) and frame_index < len(exposures) and isinstance(exposures[frame_index], dict)
+        exposures[0].get("angle_deg")
+        if isinstance(exposures, list) and len(exposures) == 1 and isinstance(exposures[0], dict)
         else None
     )
     return {
@@ -303,7 +321,7 @@ def detect_wavelength(
         "ccd_label": f"CCD {ccd_index + 1}",
         "point_index": round(point_index, 3),
         "frame_index": frame_index,
-        "angle_slot": frame_index + 1,
+        "angle_slot": 1 if angle is not None else None,
         "angle_deg": angle,
     }
 
@@ -393,7 +411,7 @@ def validate_spectral_lines(
         if wave is not None and line_type != "baseline":
             nonbaseline_waves.append((index, wave))
         detection = (
-            detect_wavelength(method_service, db, conditions, wave, actual, line.get("scan_width_points"))
+            detect_wavelength(method_service, db, conditions, wave, actual, line.get("scan_width_points"), line.get('id'))
             if wave is not None and actual is not None
             else None
         )
@@ -632,9 +650,14 @@ class SpectralLineService:
         row.payload = payload
         return self.methods.bind_line_editor(db).save(row, actor_user_id, action, line_id, details)
 
-    def list(self, method_id: int) -> dict[str, Any]:
+    def list(self, method_id: int, *, version: int | None = None) -> dict[str, Any]:
         with self.database.read() as db:
-            draft, payload = self._payload(db, method_id)
+            if version is None:
+                draft, payload = self._payload(db, method_id)
+            else:
+                draft = self.methods.bind_snapshots(db).for_print(method_id, version)
+                payload = deepcopy(draft.payload)
+                payload['lines'] = canonical_lines(payload.get('lines'), payload.get('conditions', {}))
             conditions = payload.get("conditions", {})
             lines = []
             for line in payload["lines"]:
@@ -646,6 +669,7 @@ class SpectralLineService:
                     item.get("wavelength_nm"),
                     item.get("actual_wavelength_nm"),
                     item.get("scan_width_points"),
+                    item.get('id'),
                 )
                 lines.append(item)
             return {"method_id": method_id, "version": draft.version, "state": draft.state, "lines": lines,
@@ -653,12 +677,15 @@ class SpectralLineService:
                     "frame_count": conditions.get('frame_count', 20)}
 
     def detect(
-        self, method_id: int, wavelength_nm: float, actual_wavelength_nm: float | None, scan_width_points: int
+        self, method_id: int, wavelength_nm: float, actual_wavelength_nm: float | None, scan_width_points: int,
+        line_id: str | None = None,
     ) -> dict[str, Any]:
         with self.database.read() as db:
             _, payload = self._payload(db, method_id)
+            if line_id is not None and not any(str(line['id']) == line_id for line in payload['lines']):
+                raise MethodDomainError('line_not_found', '当前方法中不存在该谱线', fields=['line_id'], status_code=404)
             return detect_wavelength(
-                self.methods, db, payload.get("conditions", {}), wavelength_nm, actual_wavelength_nm, scan_width_points
+                self.methods, db, payload.get("conditions", {}), wavelength_nm, actual_wavelength_nm, scan_width_points, line_id
             )
 
     def create(self, method_id: int, value: SpectralLineInput, actor_user_id: int) -> dict[str, Any]:

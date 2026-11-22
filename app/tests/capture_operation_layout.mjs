@@ -92,8 +92,17 @@ export async function checkCaptureOperations(page, result, output) {
   page.off('request', count); assert.equal(writes, 0)
   result.checks.push('关闭／恢复停靠面板零写入；条件、测量、消息及采后命名在详情窗口保留')
   const queue = await call(page, '/api/v1/sample-queues', { name: '操作布局样号表', name_length: 12, items: [{ pre_name: 'EXACT-A', repeats: 2 }] })
+  const currentQueue = await call(page, '/api/v1/sample-queues/current')
   await desk.getByRole('button', { name: '录入样品编号', exact: true }).click()
   const editor = page.getByRole('dialog', { name: '预录样号', exact: true })
+  assert.deepEqual(await editor.locator('footer button').allTextContents(), ['关闭', '确认'])
+  assert.equal(await editor.getByRole('button', { name: '使用此样号表', exact: true }).count(), 0)
+  assert.equal(await editor.getByRole('button', { name: '插入样品', exact: true }).count(), 0)
+  await editor.getByLabel('选择样品队列').selectOption(String(queue.id))
+  await editor.getByRole('button', { name: '关闭', exact: true }).click()
+  await editor.waitFor({ state: 'hidden' })
+  assert.equal((await call(page, '/api/v1/sample-queues/current'))?.id, currentQueue?.id)
+  await desk.getByRole('button', { name: '录入样品编号', exact: true }).click()
   await editor.getByLabel('选择样品队列').selectOption(String(queue.id))
   if (!process.env.QA_CDP) {
     let release, began
@@ -105,7 +114,7 @@ export async function checkCaptureOperations(page, result, output) {
       await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ detail: 'QA样号保存失败' }) })
     })
     await editor.getByLabel('样品名', { exact: true }).fill('EXACT-B')
-    await editor.getByRole('button', { name: '插入样品', exact: true }).click()
+    await editor.getByLabel('样品名', { exact: true }).press('Enter')
     await request
     const failed = page.waitForResponse(response => response.status() === 503 && response.url().includes('/sample-queues/'))
     try {
@@ -118,7 +127,9 @@ export async function checkCaptureOperations(page, result, output) {
     assert.equal(await editor.getByLabel('样品名', { exact: true }).inputValue(), 'EXACT-B')
     result.checks.push('预录窗口保存期间禁止关闭及离开，失败保留输入后恢复操作')
   }
-  await editor.getByRole('button', { name: '使用此样号表', exact: true }).click()
+  await editor.getByRole('button', { name: '确认', exact: true }).click()
+  await editor.waitFor({ state: 'hidden' })
+  assert.equal((await call(page, '/api/v1/sample-queues/current')).id, queue.id)
   const sample = desk.getByRole('combobox', { name: '样品编号', exact: true })
   assert.equal(await sample.inputValue(), '')
   const created = page.waitForResponse(response => response.url().endsWith('/acquisitions/tasks') && response.request().method() === 'POST')

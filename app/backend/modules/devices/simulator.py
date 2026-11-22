@@ -1,5 +1,6 @@
 from __future__ import annotations
 import threading
+import time
 import uuid
 from importlib.resources import files
 from importlib.resources.abc import Traversable
@@ -70,6 +71,7 @@ class AcqSimulatorAdapter:
                     "device_not_connected", "Connect a simulator profile before starting debug", status_code=409
                 )
             path = _bundled_sample(sample)
+            receive_start_ms = time.perf_counter_ns() // 1_000_000
             payload = path.read_bytes()
             profile = self.profile
             parsed = parse_acq_frame(
@@ -87,17 +89,20 @@ class AcqSimulatorAdapter:
             self._fault_frame = fault_frame
             self._seed = int(seed)
             self.state = AcquisitionState.DEBUGGING
-            return self._frame_event("frame", correlation_id=correlation_id, message="实时调试已开始")
+            return self._frame_event(receive_start_ms, correlation_id=correlation_id, message="实时调试已开始")
 
-    def _frame_event(self, event_type: str, *, correlation_id: str, message: str = "") -> DeviceEvent:
+    def _frame_event(self, receive_start_ms: int, *, correlation_id: str, message: str = "") -> DeviceEvent:
         assert self._frame is not None
         details = {
             key: self._frame[key] for key in ("sha256", "frame_size", "byte_length", "headers", "mirror", "ccd_indices")
         }
         details["seed"] = self._seed
         details["virtual_time_ms"] = self._frame_index * 1000
+        details["transport"] = "simulator"
+        details["receive_start_ms"] = receive_start_ms
+        details["receive_end_ms"] = time.perf_counter_ns() // 1_000_000
         return DeviceEvent(
-            event_type,
+            "frame",
             self.state,
             correlation_id=correlation_id,
             frame_index=self._frame_index,
@@ -121,8 +126,9 @@ class AcqSimulatorAdapter:
                     message="模拟 CCD 传输故障",
                     details={"code": "simulated_fault", "frame_index": self._frame_index},
                 )
+            receive_start_ms = time.perf_counter_ns() // 1_000_000
             self._frame_index += 1
-            return self._frame_event("frame", correlation_id=correlation_id)
+            return self._frame_event(receive_start_ms, correlation_id=correlation_id)
 
     def stop_debug(self, *, correlation_id: str) -> DeviceEvent:
         with self._lock:

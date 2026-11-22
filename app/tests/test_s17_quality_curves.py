@@ -151,7 +151,8 @@ def test_s17_seeded_acquisition_produces_distinct_standard_and_repeat_intensitie
     assert Path(exported["path"]).read_bytes().startswith(b"%PDF-")
 
 
-def _seed_completed_run(database: Database, *, payload_transform=None, calculation_profile="modern_v1") -> tuple[int, int]:
+def _seed_completed_run(database: Database, *, payload_transform=None, calculation_profile="modern_v1",
+                        sample_specs=None, split_normal_repeats=False) -> tuple[int, int]:
     database.initialize()
     with database.write() as db:
         layout_id = int(db.execute("SELECT id FROM ccd_layouts WHERE name='default'").fetchone()[0])
@@ -199,7 +200,7 @@ def _seed_completed_run(database: Database, *, payload_transform=None, calculati
                 (method_id, json.dumps(payload, ensure_ascii=False, separators=(",", ":")), now),
             ).lastrowid
         )
-        sample_specs = {
+        sample_specs = sample_specs if sample_specs is not None else {
             "S1": [0.98, 1.00, 1.02],
             "S2": [1.98, 2.00, 2.02],
             "S3": [2.98, 3.00, 3.02],
@@ -258,6 +259,17 @@ def _seed_completed_run(database: Database, *, payload_transform=None, calculati
                 )
                 run_samples.append((sample_id, sample_name, value))
         snapshot = {"method_version_id": version_id, "samples": [item[0] for item in run_samples]}
+        if split_normal_repeats:
+            entries = [{"name": name, "repeats": len(values)} for name, values in sample_specs.items() if name != "N1"]
+            entries.extend({"name": "N1", "repeats": 1} for _ in sample_specs["N1"])
+            positions = [(group, repeat, entry["name"]) for group, entry in enumerate(entries)
+                         for repeat in range(entry["repeats"])]
+            snapshot["samples"] = [
+                {"id": sample_id, "sample_group_position": group, "numbered_repeat_index": repeat,
+                 "numbered_kind": "standard" if name.startswith("S") else "normal"}
+                for (sample_id, _, _), (group, repeat, name) in zip(run_samples, positions)
+            ]
+            snapshot["sample_numbering"] = {"source_sample_ids": [item[0] for item in run_samples], "entries": entries}
         run_id = int(
             db.execute(
                 (
@@ -314,6 +326,79 @@ def _seed_completed_run(database: Database, *, payload_transform=None, calculati
                 ),
             )
     return run_id, version_id
+
+
+def test_numbering_keeps_groups_from_the_same_task_distinct_in_results_and_reports(tmp_path):
+    database = Database(tmp_path / "numbered.sqlite3")
+    run_id, _ = _seed_completed_run(database, split_normal_repeats=True)
+    runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
+    service = runtime.analysis_service()
+    run = service.build_quality(run_id)
+    normal = [group for group in run["quality"]["latest_snapshot"]["groups"] if group["sample_name"] == "N1"]
+    assert [group["sample_group_position"] for group in normal] == [4, 5]
+    assert normal[0]["acquisition_task_id"] == normal[1]["acquisition_task_id"]
+    service.decide_quality(run_id, {"acquisition_task_id": normal[0]["acquisition_task_id"],
+        "sample_group_position": 4, "line_id": "L1", "action": "accept", "reason": "接受该组"})
+    run = service.fit_standard_curve(run_id, "L1", {"reason": "拟合编号批次"})
+    curve_id = run["curves"]["lines"][0]["snapshots"][-1]["id"]
+    service.publish_standard_curve(run_id, "L1", curve_id, "发布编号批次")
+    run = service.merge_results(run_id, "合并编号批次")
+    rows = run["curves"]["merges"][-1]["results"]
+    assert [(row["sample_name"], row["sample_group_position"]) for row in rows] == [("N1", 4), ("N1", 5)]
+    with database.read() as db:
+        model = runtime.reports_service()._build_model(db, [run_id], "standard", {})
+    assert {row["sample_id"] for row in model["rows"]} == {f"{run_id}:4", f"{run_id}:5"}
+
+
+def seed_legacy_standard_curve(database: Database) -> tuple[int, int]:
+    intensities = [.428, .611, .900, 1.584, 3.140, 5.241, 8.005, 10.847, 11.295]
+    concentrations = [2.1, 5.1, 10.5, 20.5, 50, 100, 200, 500, 1000]
+    def legacy_boron(payload):
+        payload["lines"][0].update(
+            element="B", wavelength_nm=249.7733, actual_wavelength_nm=249.7733,
+            coordinate_type="logarithmic",
+            standard_points=[{"name": f"S{i}", "value": value, "active": True}
+                             for i, value in enumerate(concentrations, 1)],
+        )
+        return payload
+
+    return _seed_completed_run(
+        database, payload_transform=legacy_boron, calculation_profile="legacy_2_0_2",
+        sample_specs={**{f"S{i}": [value] for i, value in enumerate(intensities, 1)}, "N1": [2.5]},
+    )
+
+
+def test_legacy_standard_list_matches_screenshot_and_uses_raw_fit(tmp_path: Path) -> None:
+    database = Database(tmp_path / "legacy-standard-curve.sqlite3")
+    run_id, _ = seed_legacy_standard_curve(database)
+    service = Runtime(AppConfig(data_dir=tmp_path), database=database).analysis_service()
+    service.build_quality(run_id)
+    run = service.fit_standard_curve(run_id, "L1", {})
+    snapshot = run["curves"]["lines"][0]["snapshots"][-1]
+    rows = snapshot["diagnostics"]["points"]
+    # The screenshot only exposes intensities rounded to three decimals.
+    assert [item["calculated_value"] for item in rows] == pytest.approx(
+        [2.397, 4.296, 8.109, 20.510, 63.077, 146.259, 293.060, 482.581, 515.690], abs=.06
+    )
+    assert [item["relative_error_percent"] for item in rows] == pytest.approx(
+        [-14.16, 15.76, 22.77, -.05, -26.15, -46.26, -46.53, 3.48, 48.43], abs=.10
+    )
+    assert snapshot["diagnostics"]["correlation"] == pytest.approx(.910176, abs=.00001)
+    assert [row["sample_name"] for row in snapshot["diagnostics"]["sample_preview"]] == ["N1"]
+
+    # Keep the historical snapshot and test inactive standards above the fitted range.
+    run = service.curve_action(run_id, "L1", {"action": "adjust", "point_index": 8, "adjusted_intensity": 200,
+                                             "reason": "test raw standard evaluation"})
+    run = service.curve_action(run_id, "L1", {"action": "set_active", "point_index": 8, "active": False,
+                                             "reason": "test active-only correlation"})
+    run = service.fit_standard_curve(run_id, "L1", {})
+    before, after = run["curves"]["lines"][0]["snapshots"]
+    assert before["result_sha256"] == snapshot["result_sha256"]
+    assert after["fit"]["legacy_maximum_content"] == 1000
+    assert not after["diagnostics"]["points"][-1]["active"]
+    assert after["diagnostics"]["points"][-1]["calculated_value"] > 1000
+    assert after["chart"][-1]["value"] > 1000
+    assert evaluate_curve(after["fit"], 200, "logarithmic") == pytest.approx(1000, rel=1e-6)
 
 
 def test_s17_repeat_statistics_boundaries() -> None:

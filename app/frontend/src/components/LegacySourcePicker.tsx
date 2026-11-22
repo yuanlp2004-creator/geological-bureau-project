@@ -15,7 +15,6 @@ export function LegacySourcePicker({
   selectedPath: string
   onSelect: (source: LegacySource) => void
 }) {
-  const [root, setRoot] = useState(() => sessionStorage.getItem('geospectrum.legacy-directory') ?? '')
   const [scan, setScan] = useState<LegacySourceScan | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -49,7 +48,6 @@ export function LegacySourcePicker({
     try {
       const directory = await selectLegacyDirectory()
       if (directory) {
-        setRoot(directory)
         sessionStorage.setItem('geospectrum.legacy-directory', directory)
         void detect(directory)
       }
@@ -67,7 +65,6 @@ export function LegacySourcePicker({
           className="secondary-button"
           disabled={busy || disabled}
           onClick={() => {
-            setRoot('')
             sessionStorage.removeItem('geospectrum.legacy-directory')
             void detect()
           }}
@@ -81,29 +78,6 @@ export function LegacySourcePicker({
         </button>
         <span>选择文件后自动填入下方路径</span>
       </div>
-      <details className="legacy-source-custom">
-        <summary>指定其他目录</summary>
-        <div className="legacy-source-actions">
-          <input
-            aria-label="旧版目录"
-            value={root}
-            onChange={(event) => setRoot(event.target.value)}
-            placeholder="旧版程序或数据文件夹"
-            disabled={busy || disabled}
-          />
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={busy || disabled || !root.trim()}
-            onClick={() => {
-              sessionStorage.setItem('geospectrum.legacy-directory', root.trim())
-              void detect(root.trim())
-            }}
-          >
-            检测目录
-          </button>
-        </div>
-      </details>
       {error && (
         <p className="auth-error" role="alert">
           {error}

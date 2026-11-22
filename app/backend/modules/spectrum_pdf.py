@@ -1,6 +1,7 @@
 from __future__ import annotations
 import hashlib
 import io
+import math
 from pathlib import Path
 from typing import Any
 from reportlab.lib import colors
@@ -158,7 +159,7 @@ def render_spectrum_pdf(curves, record_id, mode, ccd, line, reference_shift, vis
             next_x = values[index + 1][0] if index + 1 < len(values) else visible_x_max
             start = left + ((x - visible_x_min) / x_span) * plot_width
             end = left + ((next_x - visible_x_min) / x_span) * plot_width
-            pdf.setFillGray(max(0, min(1, (255 - round(value * 255 / grayscale_max)) / 255)))
+            pdf.setFillGray(max(0, min(1, (255 - round(math.sqrt(max(0, value) / grayscale_max) * 255)) / 255)))
             pdf.rect(start, grayscale_top - 25.4 * mm, max(end - start, 0.1), 25.4 * mm, stroke=0, fill=1)
         pdf.restoreState()
         pdf.setFont(font, 7); pdf.setFillColor(colors.HexColor('#536a7f'))

@@ -484,6 +484,61 @@ def test_recalculation_uses_exact_curve_and_preserves_pdt_source(tmp_path: Path,
     assert float(rows[0]["calculated_value"]) == pytest.approx(18 / value_scale, rel=1e-6)
 
 
+def seed_recalculation_curve_review(database: Database, data_dir: Path) -> dict:
+    from tests.test_s17_quality_curves import seed_legacy_standard_curve
+
+    run_id, version_id = seed_legacy_standard_curve(database)
+    runtime = Runtime(AppConfig(data_dir=data_dir), database=database)
+    analysis = runtime.analysis_service()
+    analysis.build_quality(run_id)
+    run = analysis.fit_standard_curve(run_id, "L1", {})
+    snapshot = run["curves"]["lines"][0]["snapshots"][-1]
+    matrix = struct.pack("<8f", 5., 0., 5., 0., 3.5, 1., 10., 1.)
+    with database.write() as db:
+        now = utc_now()
+        db.execute("INSERT INTO result_migration_runs(id,fingerprint,format,status,source_json,parser_json,"
+                   "staging_json,report_json,created_at,updated_at) VALUES "
+                   "('curve-review-pdt','curve-review-pdt','pdt','committed','{}','{}','{}','{}',?,?)", (now, now))
+        payload = {
+            "method_target_id": run["method_id"], "method_match_status": "matched",
+            "line_count": 2, "band_count": 2,
+            "lines": [{"index": 0, "element": "基线", "wavelength_nm": 253.65, "back": 0, "digits": 2},
+                      {"index": 1, "element": "B", "wavelength_nm": 249.7733, "back": 1, "digits": 2}],
+            "sample_rows": [{"expanded_index": 0, "name": "PDT-1"}, {"expanded_index": 1, "name": "PDT-2"}],
+        }
+        source_id = db.execute("INSERT INTO result_matrices(import_run_id,source_sha256,record_index,format,payload_json,"
+                               "matrix_blob,matrix_sha256) VALUES ('curve-review-pdt','pdt-source',0,'pdt',?,?,?)",
+                               (json.dumps(payload), matrix, "curve-review-pdt")).lastrowid
+    return {"run_id": run_id, "method_id": run["method_id"], "version_id": version_id, "curve_id": snapshot["id"],
+            "curve_sha": snapshot["result_sha256"], "source_id": f"result:{source_id}"}
+
+
+def test_recalculation_refits_a_local_variant_and_keeps_source_curve(tmp_path: Path) -> None:
+    database, service = _fixture(tmp_path)
+    fixture = seed_recalculation_curve_review(database, tmp_path)
+    curve_id = fixture["curve_id"]
+    base = service.recalculation_curve(curve_id)["snapshot"]
+    draft = {"fit_mode": "linear", "coordinate_type": "logarithmic",
+             "points": [{"point_index": 0, "active": True, "adjusted_intensity": .7}]}
+    variant = service.recalculation_curve(curve_id, draft)["snapshot"]
+    assert variant["result_sha256"] != base["result_sha256"]
+    assert variant["points"][0]["original_intensity"] == base["points"][0]["original_intensity"]
+    request = {"source_record_ids": [fixture["source_id"]], "method_version_id": fixture["version_id"],
+               "calculation_profile": "legacy_2_0_2", "curve_snapshot_ids": [curve_id]}
+    baseline = service.recalculate(request)
+    amended = service.recalculate(request | {"curve_drafts": {curve_id: draft}})
+    assert amended["status"] == baseline["status"] == "completed"
+    assert amended["id"] != baseline["id"]
+    assert service.recalculate(request | {"curve_drafts": {curve_id: draft}})["id"] == amended["id"]
+    assert amended["result"]["curve_variants"][str(curve_id)]["fit"] == variant["fit"]
+    amended_rows = amended["result"]["sources"][0]["lines"]
+    assert amended_rows[0]["calculated_value"] != baseline["result"]["sources"][0]["lines"][0]["calculated_value"]
+    assert amended_rows[0]["curve_variant_sha256"] == variant["result_sha256"]
+    assert service.recalculation_curve(curve_id)["snapshot"] == base
+    with pytest.raises(PostProcessingError, match="未知或重复"):
+        service.recalculation_curve(curve_id, draft | {"points": draft["points"] * 2})
+
+
 @pytest.mark.parametrize("fail_step", [False, True])
 def test_recalculation_uses_one_injected_analysis_and_preserves_failures(tmp_path, fail_step):
     from backend.modules.analysis import AnalysisError

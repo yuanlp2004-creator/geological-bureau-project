@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { nudgeStandardIntensity, parseCcdCoordinate, roundHalfEven } from '../frontend/src/components/legacyObservation.ts'
+import { nudgeStandardIntensity, parseCcdCoordinate, roundHalfEven, legacyGray } from '../frontend/src/components/legacyObservation.ts'
 
 test('old blank-time conversion uses Delphi even rounding', () => {
   assert.equal(roundHalfEven(9 / 2), 4)
@@ -20,4 +20,12 @@ test('ruler uses per-pixel transformed range rather than adding one or five', ()
   assert.equal(nudgeStandardIntensity(10, [10, 100], false, 90, 5, 1), 15)
   assert.ok(Math.abs(nudgeStandardIntensity(1, [1, 100], true, 100, 1, 1) - 100 ** 0.01) < 1e-12)
   assert.equal(nudgeStandardIntensity(1, [1, 100], false, 1, 5, -1), 1)
+})
+
+test('legacy display grayscale follows square-root contrast and minimum drawing maximum',()=>{
+  assert.equal(legacyGray(0,5000),255)
+  assert.equal(legacyGray(1250,5000),127)
+  assert.equal(legacyGray(5000,5000),0)
+  assert.equal(legacyGray(-1,5000),255)
+  assert.equal(legacyGray(5000,1000),0)
 })

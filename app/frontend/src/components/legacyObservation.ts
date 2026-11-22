@@ -4,6 +4,11 @@ export function roundHalfEven(value: number): number {
   return Math.abs(fraction - 0.5) < 1e-10 ? floor + (floor % 2) : Math.round(value)
 }
 
+/** FmViewSingle.SetIEBmpBlack: square-root contrast, with a minimum drawing maximum of 5000. */
+export function legacyGray(value: number, maximum: number): number {
+  return Math.max(0, Math.min(255, 255 - roundHalfEven(255 * Math.sqrt(Math.max(0, value) / Math.max(5000, maximum)))))
+}
+
 export function parseCcdCoordinate(text: string): { ccd: number; point: number } | null {
   const trimmed = text.trim()
   const body = trimmed.startsWith('(') && trimmed.endsWith(')') ? trimmed.slice(1, -1) : trimmed

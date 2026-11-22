@@ -48,13 +48,15 @@ class PostProcessingRepository:
             raise PostProcessingError("postprocessing_record_invalid", "不支持的后处理记录 ID")
         return kind, value
 
-    def edt_records(self, limit: int = 200) -> list[dict[str, Any]]:
+    def edt_records(self, limit: int | None = 200, source_sha256: str | None = None) -> list[dict[str, Any]]:
         with self.database.read() as db:
             rows = db.execute(
                 "SELECT id, format, source_sha256, record_index, sample_no, sample_name, band_name, long_name, measure_time, "
                 "frame_count, ccd_count, points_per_ccd, ccd_indices_json, layout_json, ignition_json, details_json "
-                "FROM spectrum_bands WHERE format IN ('edt','cmt') ORDER BY id DESC LIMIT ?",
-                (max(1, min(int(limit), 500)),),
+                "FROM spectrum_bands WHERE format IN ('edt','cmt') "
+                + ("AND source_sha256=? ORDER BY record_index, id" if source_sha256 else "ORDER BY id DESC")
+                + (" LIMIT ?" if limit is not None else ""),
+                (*([source_sha256] if source_sha256 else []), *([max(1, min(int(limit), 500))] if limit is not None else [])),
             ).fetchall()
         return [
             {
@@ -189,7 +191,7 @@ class PostProcessingRepository:
                 ).fetchall()
             ]
 
-    def recalculation_options(self, limit: int = 300) -> dict[str, Any]:
+    def recalculation_options(self, limit: int, curves: list[dict[str, Any]]) -> dict[str, Any]:
         maximum = max(1, min(int(limit), 500))
         with self.database.read() as db:
             reader = self.methods.bind_snapshots(db)
@@ -237,22 +239,16 @@ class PostProcessingRepository:
                         "measure_time": row["measure_time"],
                     }
                 )
-            curves = [
-                dict(row)
-                for row in db.execute(
-                    "SELECT cs.id, cs.line_id, cs.fit_mode, cs.coordinate_type, cs.result_sha256, "
-                    "ar.method_version_id, ar.calculation_profile "
-                    "FROM analysis_curve_snapshots cs JOIN analysis_runs ar ON ar.id=cs.run_id "
-                    "WHERE cs.publishable=1 ORDER BY cs.id DESC LIMIT ?",
-                    (maximum,),
-                ).fetchall()
-            ]
             versions = reader.by_ids([item["method_version_id"] for item in curves])
+            lines = {version_id: {str(line["id"]): line for line in (version.payload.get("lines") or []) if "id" in line}
+                     for version_id, version in versions.items()}
             curves = [
                 {
                     **item,
                     "method_name": versions[item["method_version_id"]].method.name,
                     "method_version": versions[item["method_version_id"]].version,
+                    **{key: value for key, value in lines[item["method_version_id"]].get(item["line_id"], {}).items()
+                       if key in {"element", "wavelength_nm"}},
                 }
                 for item in curves
                 if item["method_version_id"] in versions

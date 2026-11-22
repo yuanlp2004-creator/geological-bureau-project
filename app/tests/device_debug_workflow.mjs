@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
+import { checkAlignmentViews } from './alignment_workflow.mjs'
 
 // Use a fresh isolated database, in either a browser or the packaged WebView2.
 export async function checkDeviceDebug(page, fixture, result, output) {
@@ -10,7 +11,7 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   const panel = () => page.locator('.device-debug-panel:visible')
   const caps = await call(page, '/api/v1/capabilities')
   const entries = caps.capabilities.flatMap(item => item.navigation_entries)
-  assert.equal(entries.length, 25)
+  assert.equal(entries.length, 26)
   assert.equal(entries.filter(entry => entry.key === 'tools.devices').length, 1)
   assert.equal(entries.some(entry => entry.key === 'tools.mercury'), false)
   const formalWrites = []
@@ -19,22 +20,29 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   }
   page.on('request', observe)
   await open()
-  assert.deepEqual(await page.locator('.device-debug-page').getByRole('tab').allTextContents(), ['软件参数','设备参数','调试对中','汞灯调试'])
-  check('One device-debug menu entry contains all four permission-controlled tabs')
+  assert.deepEqual(await page.locator('.device-debug-page').getByRole('tab').allTextContents(), ['软件参数','设备参数','设备连接','调试对中'])
+  check('Device debug contains four permission-controlled tabs including Windows Bluetooth connection')
 
   await tab('软件参数').click()
   const dark = panel().getByLabel('空白传输时间（秒）', { exact: true })
+  assert.deepEqual(await panel().locator('label > span').allTextContents(), ['暂停等待时间（ms）','空白传输时间（秒）'])
+  assert.equal(await panel().getByLabel('显示测量信息',{exact:true}).isChecked(),true)
+  const monitor = panel().getByLabel('监控测量谱带', {exact:true})
+  const wait = panel().getByLabel('暂停等待时间（ms）', {exact:true})
+  await monitor.uncheck(); assert.equal(await wait.isDisabled(),true)
+  await monitor.check(); assert.equal(await wait.isEnabled(),true)
+  await wait.fill('145')
   await dark.fill('9')
   await tab('设备参数').click()
-  const name = panel().getByLabel('档案名称', { exact: true })
-  await name.waitFor()
-  const deviceName = await name.inputValue()
-  await name.fill(`${deviceName}-draft`)
+  const port = panel().getByLabel('通讯口', { exact: true })
+  await port.waitFor()
+  const originalPort = await port.inputValue()
+  await port.selectOption('5')
   await tab('软件参数').click()
   assert.equal(await dark.inputValue(), '9')
   await tab('设备参数').click()
-  assert.equal(await name.inputValue(), `${deviceName}-draft`)
-  await name.fill(deviceName)
+  assert.equal(await port.inputValue(), '5')
+  await port.selectOption(originalPort)
   check('Software and device parameter drafts survive tab changes')
 
   await tab('软件参数').click()
@@ -51,25 +59,63 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   assert.equal((await savedSoftware).status(), 200)
   const settingsAfter = await call(page, '/api/v1/settings')
   assert.equal(settingsAfter.analysis.dark_round_time_seconds, 9)
+  assert.equal(settingsAfter.analysis.wait_time_ms, 150)
+  assert.deepEqual(settingsAfter.display, settingsBefore.display)
   for (const key of ['directories','logging','printing','time']) assert.deepEqual(settingsAfter[key], settingsBefore[key])
   assert.equal(settingsAfter.display.theme, settingsBefore.display.theme)
   check('Software parameters save through the real API; failure retains input and unrelated settings remain intact')
 
   await tab('设备参数').click()
-  const slots = panel().getByLabel('CCD 安装插槽', {exact:true})
+  assert.equal(await panel().getByRole('region',{name:'电脑设置',exact:true}).isVisible(),true)
+  assert.equal(await panel().getByRole('region',{name:'CCD设置',exact:true}).isVisible(),true)
+  assert.equal(await panel().getByRole('button',{name:'CCD设置',exact:true}).count(),0)
+  for (const label of ['CCD容量','CCD点数','CCD点宽（μm）','尾首间隔（μm）','允许漂移（μm）'])
+    assert.equal(await panel().getByLabel(label,{exact:true}).getAttribute('readonly'), '')
+  assert.equal(await panel().getByLabel('镜像CCD',{exact:true}).isDisabled(),true)
+  const slots = panel().getByLabel('安装插槽', {exact:true})
+  assert.equal(await slots.getAttribute('readonly'), '')
+  await slots.focus(); await slots.press('Control+Alt+w')
   const originalSlots = await slots.inputValue()
   await slots.fill('1,1')
   await page.getByRole('button', {name:'保存设备参数'}).click()
   await page.getByText(/CCD 安装插槽须为/).waitFor()
   await slots.fill(originalSlots)
-  const port = panel().getByLabel('串口号 COM', {exact:true})
-  await port.fill('4')
+  await port.selectOption('4')
   const savedDevice = page.waitForResponse(response => response.request().method() === 'PATCH' && /\/devices\/profiles\/\d+$/.test(response.url()))
   await page.getByRole('button', {name:'保存设备参数'}).click()
   const profile = await (await savedDevice).json()
   assert.equal(profile.port, 4)
   assert.equal((await call(page, `/api/v1/devices/profiles/${profile.id}`)).port, 4)
   check('Device parameters persist through the existing API and reject duplicate CCD slots')
+
+  const width = panel().getByLabel('屏幕宽度（cm）',{exact:true})
+  await width.fill('0')
+  await page.getByRole('button',{name:'保存设备参数'}).click()
+  await page.getByText('请先修正设备参数中的无效数值',{exact:true}).waitFor()
+  assert.equal(await width.isVisible(),true)
+  await width.fill('42')
+  await page.route('**/api/v1/settings',rejected)
+  await page.getByRole('button',{name:'保存设备参数'}).click()
+  await page.getByText(/通讯参数已保存，屏幕参数保存失败，请重试/).waitFor()
+  assert.equal(await width.inputValue(),'42')
+  assert.equal((await call(page,'/api/v1/settings')).display.screen_width_mm,settingsBefore.display.screen_width_mm)
+  await page.unroute('**/api/v1/settings',rejected)
+  const screenSaved = page.waitForResponse(response=>response.request().method()==='PATCH' && response.url().endsWith('/api/v1/settings'))
+  await page.getByRole('button',{name:'保存设备参数'}).click()
+  assert.equal((await screenSaved).status(),200)
+  const screenSettings = await call(page,'/api/v1/settings')
+  assert.equal(screenSettings.display.screen_width_mm,420)
+  const screenProfile = await call(page,`/api/v1/devices/profiles/${profile.id}`)
+  assert.equal(screenProfile.screen_width_mm,420)
+  assert.equal(screenProfile.screen_resolution_px,screenSettings.display.screen_resolution_px)
+  assert.equal(screenProfile.protection_time_ms,profile.protection_time_ms)
+  assert.equal(screenProfile.mirror,profile.mirror)
+  assert.equal(screenProfile.enabled,profile.enabled)
+  assert.deepEqual(screenSettings.analysis,settingsAfter.analysis)
+  await page.getByRole('button',{name:'连接测试',exact:true}).click()
+  await page.getByText('模拟设备连接测试通过',{exact:true}).first().waitFor()
+  assert.equal((await call(page,'/api/v1/devices/diagnostics')).adapter.connected,false)
+  check('Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass')
 
   await tab('调试对中').click()
   const debug = page.getByTestId('acquisition-page')
@@ -87,45 +133,37 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   assert.equal(debugStarted.spectrum_records_created, 0)
   const backgroundFrame = await page.waitForResponse(response => response.url().endsWith('/devices/debug/step'))
   assert.ok((await backgroundFrame.json()).event.frame_index > debugStarted.event.frame_index)
-  await tab('汞灯调试').click()
-  assert.equal(await tab('汞灯调试').getAttribute('aria-selected'), 'true')
+  await tab('设备参数').click()
+  assert.equal(await tab('设备参数').getAttribute('aria-selected'), 'true')
   await tab('调试对中').click()
+  await debug.locator('svg.alignment-plot').first().waitFor()
   assert.equal(await debug.getByRole('button',{name:'停止',exact:true}).isEnabled(),true)
+  const rejectStop = route => route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'QA alignment stop rejected'})})
+  await page.route('**/devices/debug/stop',rejectStop)
+  await debug.getByRole('button',{name:'停止',exact:true}).click()
+  await page.getByText('QA alignment stop rejected',{exact:true}).waitFor()
+  assert.equal(await debug.getByRole('button',{name:'停止',exact:true}).isEnabled(),true)
+  assert.equal(await debug.getByRole('button',{name:'开始',exact:true}).isDisabled(),true)
+  let lateSteps=0
+  const observeStep=request=>{if(request.url().endsWith('/devices/debug/step'))lateSteps++}
+  page.on('request',observeStep)
+  await page.waitForTimeout(1100)
+  page.off('request',observeStep)
+  assert.equal(lateSteps,0,'failed Stop must pause polling and retain its retry action')
+  await page.unroute('**/devices/debug/stop',rejectStop)
   const stopped = page.waitForResponse(response => response.url().endsWith('/devices/debug/stop'))
   await debug.getByRole('button', {name:'停止', exact:true}).click()
   assert.equal((await stopped).status(), 200)
-  await debug.getByRole('button', {name:'断开', exact:true}).click()
+  await checkAlignmentViews(page,debug,result,output)
+  await debug.getByRole('button', {name:'开始', exact:true}).click()
+  const finished = page.waitForResponse(response => response.url().endsWith('/devices/disconnect'))
+  await debug.getByRole('button', {name:'结束调试', exact:true}).click()
+  assert.equal((await finished).status(),200)
+  assert.equal((await call(page,'/api/v1/devices/diagnostics')).adapter.connected,false)
   check('Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records')
 
-  await tab('汞灯调试').click()
-  const mercury = page.getByTestId('mercury-calibration-page')
-  const mercuryName = mercury.getByLabel('会话名称', {exact:true})
-  if (!await mercuryName.isVisible()) await mercury.getByRole('button', {name:'建立校准会话',exact:true}).click()
-  await mercuryName.fill('QA mercury merged')
-  await tab('软件参数').click(); await tab('汞灯调试').click()
-  assert.equal(await mercuryName.inputValue(), 'QA mercury merged')
-  const created = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/mercury-calibrations/sessions'))
-  await mercury.locator('form button[type="submit"]').click()
-  const session = await (await created).json()
-  await mercury.getByRole('button', {name:'启动',exact:true}).click()
-  await tab('调试对中').click()
-  assert.equal(await tab('调试对中').getAttribute('aria-selected'), 'true')
-  assert.equal((await call(page, `/api/v1/mercury-calibrations/sessions/${session.id}`)).status,'stabilizing')
-  await tab('汞灯调试').click()
-  for (let i=0;i<8;i++) {
-    const value = await call(page, `/api/v1/mercury-calibrations/sessions/${session.id}`)
-    if (value.status === 'ready') break
-    const stepped = page.waitForResponse(response => response.url().endsWith(`/sessions/${session.id}/step`))
-    await mercury.getByRole('button', {name:'单步',exact:true}).click(); await stepped
-  }
-  const apply = mercury.getByRole('button', {name:'应用建议',exact:true})
-  await page.waitForFunction(() => [...document.querySelectorAll('.mercury-actions button')].some(button => button.textContent.includes('应用建议') && !button.disabled))
-  await apply.click()
-  const rollback = mercury.getByRole('button', {name:'回滚',exact:true})
-  await rollback.click()
-  await page.waitForFunction(() => document.querySelector('.mercury-monitor .state-chip')?.textContent === '已回滚')
-  assert.equal((await call(page, `/api/v1/mercury-calibrations/sessions/${session.id}`)).status, 'rolled_back')
-  check('Mercury draft, active session and calibration application/rollback survive unrestricted tab changes')
+  assert.equal(await page.getByTestId('mercury-calibration-page').count(),0)
+  assert.equal(await tab('汞灯调试').count(),0)
 
   for (const [theme,density] of [['light','comfortable'],['dark','compact']]) for (const [width,height] of [[1440,1000],[1060,680]]) {
     if (process.env.QA_CDP) await page.evaluate(async ({width,height}) => {
@@ -134,36 +172,83 @@ export async function checkDeviceDebug(page, fixture, result, output) {
     else await page.setViewportSize({width,height})
     await page.waitForFunction(width => Math.abs(innerWidth-width)<2,width)
     await page.evaluate(({theme,density}) => { document.documentElement.dataset.theme=theme;document.documentElement.dataset.density=density }, {theme,density})
-    for (const label of ['软件参数','设备参数','调试对中','汞灯调试']) {
+    for (const label of ['软件参数','设备参数','调试对中']) {
       await tab(label).click()
-      const title=panel().getByRole('heading',{name:label,exact:true})
-      assert.equal(await title.count(),1,`${label}: keep a designed title inside its content card`)
-      assert.equal(await title.evaluate(node=>Boolean(node.closest('.surface .section-heading'))),true)
-      const design=await title.evaluate(node=>({decorative:Boolean(node.closest('.section-heading').querySelector('svg,img')),size:parseFloat(getComputedStyle(node).fontSize)}))
-      assert.ok(!design.decorative && design.size<=17,`${label}: card subtitle must remain compact and plain ${JSON.stringify(design)}`)
+      if (['软件参数','设备参数'].includes(label)) assert.equal(await panel().getByRole('heading',{name:label,exact:true}).count(),0)
+      const titles = label === '软件参数' ? ['分析参数'] : label === '设备参数' ? ['电脑设置','CCD设置'] : []
+      for (const name of titles) {
+        const title=panel().getByRole('heading',{name,exact:true})
+        assert.equal(await title.count(),1)
+        if (['软件参数','设备参数'].includes(label)) assert.equal(await title.evaluate(node=>Boolean(node.closest('.surface .section-heading'))),true)
+        const design=await title.evaluate(node=>({decorative:Boolean(node.closest('.section-heading')?.querySelector('svg,img')),size:parseFloat(getComputedStyle(node).fontSize)}))
+        assert.ok(!design.decorative && design.size<=17,`${name}: card subtitle must remain compact and plain ${JSON.stringify(design)}`)
+      }
       assert.equal(await page.getByTestId('page-heading').getByRole('heading',{name:'设备调试',exact:true}).count(),1)
       assert.equal(await page.locator('.device-debug-page h1').count(),0)
       const sizes = await page.evaluate(() => ({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}))
       assert.ok(sizes.scroll <= sizes.width+1, `${label} overflow ${JSON.stringify(sizes)}`)
       const toolbar=await page.locator('.device-debug-toolbar').boundingBox()
-      const firstCard=await panel().locator('.surface:visible').first().boundingBox()
+      const firstCard=await panel().locator('.surface:visible, .device-debug-desk:visible, .alignment-desk:visible').first().boundingBox()
       assert.ok(toolbar && firstCard && Math.abs(toolbar.x-firstCard.x)<2,`${label}: nested page padding misaligns content`)
-      if(label==='汞灯调试') {
-        const rail=page.locator('.mercury-session-list'),main=page.locator('.mercury-main')
-        const left=await rail.boundingBox(),right=await main.boundingBox()
-        assert.ok(left && right && left.x+left.width<=right.x+1 && Math.abs(left.y-right.y)<2,`Mercury queue must stay beside its main content: ${JSON.stringify({left,right})}`)
-        await mercury.getByRole('button',{name:'收起列表',exact:true}).click()
-        assert.equal(await rail.isVisible(),false)
-        await mercury.getByRole('button',{name:'展开列表',exact:true}).click()
-        assert.equal(await rail.isVisible(),true)
+      if(label==='调试对中') {
+        const boxes=await panel().locator('.alignment-plot').evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}}))
+        assert.equal(boxes.length,3)
+        assert.ok(boxes.every(box=>box.height>=127 && Math.abs(box.x-boxes[0].x)<1 && Math.abs(box.width-boxes[0].width)<1),JSON.stringify(boxes))
+        assert.ok(boxes[0].bottom<boxes[1].y && boxes[1].bottom<boxes[2].y,JSON.stringify(boxes))
+        assert.equal(await panel().locator('.alignment-tools').count(),1)
+        const tool=panel().getByRole('button',{name:'区域放大',exact:true})
+        assert.equal(await tool.evaluate(node=>node.getBoundingClientRect().width),24)
+
+      }
+      if(label==='调试对中'&&height===1000) {
+        await page.waitForFunction(()=>{const n=document.querySelector('.page-scroll-region');return n.scrollHeight-n.clientHeight<2})
       }
       result.layouts.push({theme,width,height,tab:label})
+      if(label==='调试对中') await panel().screenshot({path:path.join(output,`desk-${label}-${theme}-${width}.png`)})
       if (theme === 'light' && width === 1060 && ['软件参数','设备参数'].includes(label))
         await page.screenshot({path:path.join(output,`device-debug-${label}-1060.png`),fullPage:true})
+      if (label === '设备参数') {
+        const profileSelect = await panel().locator('.device-profile-select select').boundingBox()
+        const createProfile = await panel().getByRole('button',{name:'新建串口档案',exact:true}).boundingBox()
+        assert.ok(profileSelect && createProfile && Math.abs(profileSelect.y-createProfile.y)<1 && Math.abs(profileSelect.height-createProfile.height)<1,JSON.stringify({profileSelect,createProfile}))
+        const ccd = panel().locator('.legacy-ccd-parameters')
+        assert.equal(await ccd.isVisible(),true)
+        const geometry = await ccd.evaluate(node=>({right:node.getBoundingClientRect().right,scroll:node.scrollWidth,width:node.clientWidth}))
+        assert.ok(geometry.right <= width && geometry.scroll <= geometry.width+1,JSON.stringify(geometry))
+        const computerCard = await panel().getByRole('region',{name:'电脑设置',exact:true}).boundingBox()
+        const ccdCard = await panel().getByRole('region',{name:'CCD设置',exact:true}).boundingBox()
+        assert.ok(computerCard && ccdCard)
+        if (width > 1250) assert.ok(Math.abs(computerCard.y-ccdCard.y)<2 && computerCard.x+computerCard.width<=ccdCard.x,JSON.stringify({computerCard,ccdCard}))
+        else assert.ok(computerCard.y+computerCard.height<=ccdCard.y && Math.abs(computerCard.x-ccdCard.x)<2,JSON.stringify({computerCard,ccdCard}))
+        result.layouts.push({theme,width,height,tab:'设备参数 / 两框同时显示'})
+        await page.screenshot({path:path.join(output,`device-ccd-${theme}-${width}.png`)})
+      }
     }
     await page.screenshot({path:path.join(output,`device-debug-${theme}-${width}.png`),fullPage:true})
   }
-  check('All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens')
+  check('All three tabs fit light/dark themes and both desktop window sizes')
+  for (const [width,height] of [[2560,1200],[1440,1000]]) {
+    if (process.env.QA_CDP) await page.evaluate(({width,height}) => window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height})
+    else await page.setViewportSize({width,height})
+    await page.waitForFunction(width=>Math.abs(innerWidth-width)<2,width)
+    for (const label of ['调试对中']) {
+      await tab(label).click()
+      for (const expanded of [false,true]) {
+        const messages=page.getByTestId('runtime-messages')
+        const isExpanded=!(await messages.getAttribute('class')).includes('is-collapsed')
+        if (expanded!==isExpanded) await messages.getByRole('button',{name:expanded?'展开信息记录':'收起信息记录',exact:true}).click()
+        await page.waitForFunction(()=>{
+          const desk=document.querySelector('.device-debug-panel:not([hidden]) :is(.device-debug-desk,.alignment-desk)')
+          const viewport=desk.closest('.page-scroll-region')
+          return Math.abs(Math.max(desk.classList.contains('alignment-desk')?650:360,Math.floor(viewport.getBoundingClientRect().bottom-desk.getBoundingClientRect().top-(desk.classList.contains('alignment-desk')?viewport.scrollTop:0)-8))-desk.getBoundingClientRect().height)<2
+        })
+        result.layouts.push({width,height,tab:label,expanded})
+        if(width===2560&&!expanded) await panel().screenshot({path:path.join(output,`desk-${label}-wide.png`)})
+      }
+    }
+  }
+  await page.getByRole('button',{name:'收起信息记录',exact:true}).click()
+  check('Alignment fills wide windows and follows information-panel expansion without leaving a bottom gap')
   assert.deepEqual(formalWrites, [])
   page.off('request', observe)
 
@@ -180,24 +265,25 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   await tab('软件参数').click(); assert.equal(await page.getByRole('button',{name:'保存软件参数'}).isDisabled(),true)
   await tab('设备参数').click(); assert.equal(await page.getByRole('button',{name:'保存设备参数'}).isDisabled(),true)
   await tab('调试对中').click(); assert.equal(await panel().getByRole('button',{name:'连接诊断'}).isDisabled(),true)
-  await tab('汞灯调试').click(); assert.equal(await panel().getByRole('button',{name:'启动',exact:true}).isDisabled(),true)
-  const denied = await page.evaluate(async ({profileId,sessionId}) => {
+  const denied = await page.evaluate(async ({profileId}) => {
     const config = window.__TAURI__?.core ? await window.__TAURI__.core.invoke('runtime_config') : null
     const headers = {'Content-Type':'application/json',Authorization:`Bearer ${sessionStorage.getItem('geospectrum.token')}`,
       ...(config ? {'X-GeoSpectrum-Process-Key':config.process_key} : {})}
     return Promise.all([['/api/v1/settings','PATCH',{}],[`/api/v1/devices/profiles/${profileId}`,'PATCH',{}],
-      ['/api/v1/devices/debug/start','POST',{}],[`/api/v1/mercury-calibrations/sessions/${sessionId}/start`,'POST',null]]
+      ['/api/v1/devices/debug/start','POST',{}]]
       .map(async ([url,method,body]) => (await fetch(`${config?.api_base || ''}${url}`,{method,headers,...(body ? {body:JSON.stringify(body)} : {})})).status))
-  },{profileId:profile.id,sessionId:session.id})
-  assert.deepEqual(denied,[403,403,403,403])
-  check('A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights')
+  },{profileId:profile.id})
+  assert.deepEqual(denied,[403,403,403])
+  check('A real read-only role can inspect all three tabs without gaining parameter-write or device-execution rights')
   await page.getByRole('button', {name:'退出登录',exact:true}).click()
   await page.getByRole('heading', {name:'登录工作台'}).waitFor()
   await page.getByLabel('用户名',{exact:true}).fill('mercury_observer')
   await page.getByLabel('密码',{exact:true}).fill('Observer-QA-2026!')
   await page.getByRole('button',{name:'登录',exact:true}).click()
-  await open()
-  assert.deepEqual(await page.locator('.device-debug-page').getByRole('tab').allTextContents(),['汞灯调试'])
-  await panel().getByTestId('mercury-calibration-page').waitFor()
-  check('Mercury-only read permission reaches the unified entry without requiring settings or device permissions')
+  assert.equal(await page.getByRole('menuitem',{name:'设备调试',exact:true}).count(),0)
+  const limited = await call(page,'/api/v1/capabilities')
+  const legacyPermissions = ['runtime-events.read','mercury-calibration.read']
+  const deviceEntry = limited.capabilities.flatMap(item=>item.navigation_entries).find(entry=>entry.key==='tools.devices')
+  assert.equal(deviceEntry.required_any.some(permission=>legacyPermissions.includes(permission)),false)
+  check('Legacy Mercury-only permission no longer exposes an empty device-debug entry')
 }

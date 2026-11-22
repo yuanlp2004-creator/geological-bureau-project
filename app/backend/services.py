@@ -61,6 +61,14 @@ DEFAULT_SETTINGS: dict[str, dict[str, Any]] = {
 }
 
 ALLOWED_SETTING_GROUPS = frozenset(DEFAULT_SETTINGS)
+# These retired preferences keep their API shape for older clients. Runtime
+# behavior uses defaults; analysis, printing, backup paths and screen calibration
+# remain editable through their owning pages.
+FIXED_SETTING_NAMES = {
+    "logging": frozenset(DEFAULT_SETTINGS["logging"]),
+    "display": frozenset({"theme", "density", "show_status_bar"}),
+    "time": frozenset(DEFAULT_SETTINGS["time"]),
+}
 SETTING_MODELS: dict[str, type[BaseModel]] = {
     "directories": SettingsDirectories,
     "logging": SettingsLogging,
@@ -104,20 +112,22 @@ class AppService:
                 continue
             candidate = {**result[group], name: value}
             try:
-                result[group] = SETTING_MODELS[group].model_validate(candidate).model_dump()
+                validated = SETTING_MODELS[group].model_validate(candidate).model_dump()
+                if name not in FIXED_SETTING_NAMES.get(group, ()):
+                    result[group] = validated
             except ValidationError:
                 invalid.append((key, raw_value, "invalid_value"))
         if invalid:
             self._repair_invalid_settings(invalid)
         return SettingsResponse.model_validate(result).model_dump()
 
-    def save_preliminary_conditions(self, kind: str, conditions: PreliminaryConditions, actor_user_id: int) -> dict:
+    def save_preliminary_conditions(self, kind: str, conditions: PreliminaryConditions, actor_user_id: int, *, connection=None) -> dict:
         """Public settings boundary used by each acquisition workflow with its own permission."""
         if kind not in {"evaporation", "dispersion"}:
             raise ValueError("未知预备摄谱类型")
         return self.update_settings(SettingsPatch.model_validate({
             "preliminary": {kind: conditions.model_dump()}
-        }), actor_user_id)["preliminary"][kind]
+        }), actor_user_id, connection=connection)["preliminary"][kind]
 
     def _repair_invalid_settings(self, invalid: list[tuple[str, str, str]]) -> None:
         """Remove only still-current invalid rows and leave an auditable repair record."""
@@ -154,6 +164,8 @@ class AppService:
                 for name, value in values.items():
                     if name not in DEFAULT_SETTINGS[group]:
                         raise ValueError(f"unknown setting: {group}.{name}")
+                    if name in FIXED_SETTING_NAMES.get(group, ()):
+                        continue
                     current[group][name] = value
                     connection.execute(
                         "INSERT INTO app_settings(key, value_json, updated_at) VALUES (?, ?, ?) "

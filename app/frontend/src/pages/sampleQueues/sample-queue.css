@@ -146,9 +146,8 @@
   }
 }
 .sample-number-sheet { width: 100%; margin-top: 12px; min-width: 0; }
-.sample-number-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-.sample-number-toolbar small, .sample-number-toolbar nav { color: var(--muted); font-size: 11px; }
-.sample-number-toolbar nav { display: flex; align-items: center; gap: 8px; }
+.sample-number-toolbar { margin-bottom: 10px; }
+.sample-number-toolbar nav { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
 .sample-number-scroll { overflow: auto; border: 1px solid var(--line); border-radius: 2px; }
 .sample-number-table { min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--ink); }
 :root .app-shell .sample-queue-page .sample-number-table { width: 100%; }
@@ -161,7 +160,8 @@
 .sample-number-table td { height: 28px; }
 .sample-number-cell { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 4px; background: var(--surface); color: var(--ink); text-align: left; border-radius: 0; }
 .sample-number-cell:hover { background: var(--surface-soft); }
-.sample-number-cell[aria-pressed="true"] { background: var(--ui-selected); box-shadow: inset 0 0 0 1px var(--ui-accent); }
+.sample-number-cell[aria-pressed="true"] { background: var(--ui-selected); }
+.sample-number-cell[data-sample-active="true"] { box-shadow: inset 0 0 0 1px var(--ui-accent); }
 .sample-number-cell:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
 :root .app-shell .sample-queue-page .sample-number-table .sample-number-cell strong { display: block; width: 100%; min-width: 0; font: 12px/13px Consolas, 'Microsoft YaHei UI', monospace; white-space: normal; word-break: break-all; }
 .sample-number-empty { display: block; height: 28px; }
@@ -174,6 +174,14 @@
 .sample-number-detail dt { margin-bottom: 5px; color: var(--muted); font-size: 10px; }
 .sample-number-detail dd { margin: 0; color: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
 .sample-number-detail p { margin: 0; color: var(--muted); font-size: 11px; }
+:root .app-shell .viewer-operation-dialog:has(.sam-encoding-preview) { width: min(560px, calc(100vw - 32px)); }
+.sam-encoding-preview p { overflow-wrap: anywhere; }
+.sam-encoding-differences { max-height: 48dvh; overflow: auto; border: 1px solid var(--line); }
+.sam-encoding-differences table { width: 100%; border-collapse: collapse; }
+.sam-encoding-differences :is(th, td) { padding: 6px 10px; text-align: left; overflow-wrap: anywhere; }
+.sam-encoding-differences thead { position: sticky; top: 0; background: var(--surface-soft); }
+.sam-encoding-differences tbody tr { border-top: 1px solid var(--line); }
+.sam-encoding-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 @media (max-width: 1100px) {
   .sample-number-detail dl { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }

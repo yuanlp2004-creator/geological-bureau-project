@@ -100,8 +100,6 @@ try {
     ['hardware-acquisition'],
     ['mercury-calibration'],
     ['migration'],
-    ['spectrum-migration'],
-    ['result-migration'],
     ['settings'],
     ['users'],
     ['audit'],
@@ -112,6 +110,12 @@ try {
   for (const [key, view] of pages) {
     await navigate(key, view)
     await capture(`${key}-${view || 'main'}`)
+    if (key === 'migration') {
+      for (const label of ['谱图数据', '分析结果']) {
+        await page.getByRole('tab', { name: label, exact: true }).click()
+        await capture(`migration-${label}`)
+      }
+    }
   }
   console.log('PASS: all remaining pages and subviews reachable')
   if (process.env.QA_CAPTURE_ONLY === '1') {

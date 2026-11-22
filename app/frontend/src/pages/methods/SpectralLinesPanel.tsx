@@ -87,11 +87,13 @@ export function SpectralLinesPanel({
   }, [creating, selected])
 
   useEffect(() => {
-    if (!Number.isFinite(draft.wavelength_nm)) return
+    setDetectability(null)
+    if (!Number.isFinite(draft.wavelength_nm) || (!creating && !selected)) return
     let active = true
     const timer = window.setTimeout(() => {
       void api
         .detectLine(token, methodId, {
+          line_id: creating ? undefined : selected?.id,
           wavelength_nm: draft.wavelength_nm,
           actual_wavelength_nm: draft.actual_wavelength_nm,
           scan_width_points: draft.scan_width_points
@@ -107,7 +109,7 @@ export function SpectralLinesPanel({
       active = false
       window.clearTimeout(timer)
     }
-  }, [draft.actual_wavelength_nm, draft.scan_width_points, draft.wavelength_nm, methodId, token])
+  }, [creating, selected?.id, draft.actual_wavelength_nm, draft.scan_width_points, draft.wavelength_nm, methodId, token])
 
   const updateDraft = <K extends keyof SpectralLineInput>(key: K, value: SpectralLineInput[K]) =>
     setDraft((previous) => ({ ...previous, [key]: value }))

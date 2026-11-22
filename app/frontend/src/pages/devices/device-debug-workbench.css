@@ -1,0 +1,49 @@
+:root .app-shell .device-debug-workbench[data-stage='capture'] { width: 100%; max-width: none; padding: 0; }
+:root .app-shell .device-debug-workbench[data-stage='capture'] .device-debug-desk { min-height: 360px; }
+.device-debug-selection label { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; font-size: 12px; }
+:root .app-shell .device-debug-desk .device-debug-selection :is(select, button) { min-height: 28px; height: 28px; max-width: 280px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.device-debug-selection label:first-child select { width: clamp(160px, 23vw, 280px); }
+.device-debug-selection .device-debug-source { margin-left: auto; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.device-debug-desk .legacy-record-dock { display: flex; flex-direction: column; overflow: hidden; }
+.device-debug-records { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: auto; }
+.device-debug-records .capture-record-table { flex: 1; padding: 0; border: 0; border-radius: 0; box-shadow: none; align-self: stretch; }
+.device-debug-records .capture-record-table :is(th, td):last-child { text-align: left; }
+.device-debug-records .capture-record-table button { display: block; width: 100%; padding: 3px; border: 0; border-radius: 0; color: var(--ink); background: transparent; text-align: left; }
+.device-debug-records .capture-record-table :is(strong, small) { display: block; font-size: 11px; font-weight: 400; overflow-wrap: anywhere; }
+.device-debug-records .capture-record-table small { margin-top: 3px; color: var(--muted); }
+.device-debug-control-content { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 8px; padding: 8px; overflow: auto; scrollbar-gutter: stable; }
+.device-debug-control-content > fieldset { margin: 0; }
+.device-debug-commands { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+:root .app-shell .device-debug-desk :is(.device-debug-commands, .mercury-actions) button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: flex-start; gap: 8px; width: min(140px, 100%); height: 32px; min-height: 32px; padding: 4px 10px; margin: 0; border: 1px solid var(--ui-control-border, var(--line)); border-radius: 6px; background: var(--surface); color: var(--ink); font-size: 12px; white-space: nowrap; }
+.device-debug-commands button span { flex: 1; text-align: center; }
+.device-debug-commands button:disabled { opacity: .5; }
+.device-debug-control-content .device-debug-run { display: flex; flex-direction: column; flex: 1 0 130px; }
+.device-debug-run .device-debug-commands { flex: 1; justify-content: space-around; }
+.device-debug-fields { display: grid; gap: 8px; }
+:root .app-shell .device-debug-desk .field :is(input, select) { width: 100%; min-width: 0; min-height: 28px; height: 28px; padding: 2px 5px; }
+.device-debug-desk .advanced-settings { margin: 0; }
+.device-debug-desk .advanced-settings > summary, .device-debug-details > summary { padding-block: 6px; color: var(--muted); font-size: 11px; cursor: pointer; }
+.device-debug-details dl { display: grid; gap: 8px; margin: 8px 0; font-size: 11px; }
+.device-debug-details dt { color: var(--muted); }.device-debug-details dd { margin: 2px 0 0; color: var(--ink); overflow-wrap: anywhere; }
+.device-debug-error { color: var(--danger); font-size: 11px; overflow-wrap: anywhere; }
+.device-debug-status { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; min-height: 26px; padding: 4px 8px; border-top: 1px solid var(--line); background: var(--ui-soft); color: var(--muted); font-size: 11px; }
+.device-debug-status > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.device-debug-status > span:first-child { flex: 1; }
+:root .app-shell .device-debug-desk .mercury-monitor { display: flex; flex-direction: column; flex: 1; gap: 8px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+:root .app-shell .device-debug-desk .mercury-monitor .surface-heading { display: flex; flex: 0 0 auto; flex-direction: column; flex-wrap: nowrap; gap: 8px; margin: 0; padding: 0; align-items: stretch; }
+:root .app-shell .device-debug-desk .mercury-monitor .section-heading { flex: 0 0 auto; }
+.device-debug-desk .mercury-monitor .section-heading h2 { display: none; }
+:root .app-shell .device-debug-desk .mercury-actions { display: flex; flex: 0 0 auto; flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px; }
+:root .app-shell .device-debug-desk .mercury-metrics { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+:root .app-shell .device-debug-desk .mercury-metrics > div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; min-height: 0; padding: 5px; font-size: 11px; }
+:root .app-shell .device-debug-desk .mercury-monitor :is(.runtime-source, .mercury-last-message, .mercury-alert) { padding: 6px; margin: 0; font-size: 11px; overflow-wrap: anywhere; }
+.device-debug-evidence { width: min(1080px, 92vw); max-height: 85dvh; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); overflow: auto; }
+.device-debug-evidence:not([open]) { display: none; }
+.device-debug-evidence::backdrop { background: rgb(0 0 0 / 35%); }
+.device-debug-evidence > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.device-debug-evidence h2 { margin: 0; font-size: 16px; }
+.device-debug-evidence .mercury-evidence { margin-top: 12px; }
+@media (max-width: 1180px) {
+  .device-debug-status { gap: 8px; font-size: 10px; }
+  .device-debug-control-content { gap: 6px; padding: 6px; }
+}

@@ -1,40 +1,52 @@
 import { confirmAction } from '../../platform/dialogs'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Download, Plus, RefreshCw, Trash2, FolderOpen } from 'lucide-react'
 import { api, saveFile, type SampleQueue } from '../../api'
 import type { MethodConditions } from '../../api/methods'
 import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { SampleNumberTable } from './SampleNumberTable'
+import { useSamImport } from './useSamImport'
 import { SectionHeading } from '../../components/SectionHeading'
 import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 
-export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, onBusyChange }: { token: string; onToast: (message: string) => void; entryRequest?: number; onUseQueue?: (queue: SampleQueue) => void; onBusyChange?: (busy: boolean) => void }) {
+export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation, onBusyChange, insertion }: {
+  token: string
+  onToast: (message: string) => void
+  entryRequest?: number
+  confirmation?: { target: HTMLElement | null; onConfirm: (queue: SampleQueue) => void }
+  onBusyChange?: (busy: boolean) => void
+  insertion?: { queueId: number; itemId: number }
+}) {
+  const confirmInDialog = Boolean(confirmation)
+  const [selectedItemId,setSelectedItemId]=useState<number|null>(insertion?.itemId??null)
   const [queues, setQueues] = useState<SampleQueue[]>([])
-  const [selected, setSelected] = useState<SampleQueue | null>(null)
+  const [selected, setSelected] = useState<SampleQueue | null>()
   const [name, setName] = useState('现场样品')
   const [entryName, setEntryName] = useState('')
   const [nameLength, setNameLength] = useState<10 | 12 | 20>(12)
-  const [repeats, setRepeats] = useState(1)
+  const [manualRepeats, setManualRepeats] = useState<number | null>(null)
   const [methodDefaults, setMethodDefaults] = useState<MethodConditions | null>(null)
-  const [useMethodRepeats, setUseMethodRepeats] = useState(true)
-  const [samEncoding,setSamEncoding] = useState<'gb18030'|'utf-8-sig'|''>('')
+  const { importSam, samPreview } = useSamImport()
   const fileRef = useRef<HTMLInputElement>(null)
   const entryRef = useRef<HTMLInputElement>(null)
   const [entryBusy,setEntryBusy] = useState(false)
   const [editingItem, setEditingItem] = useState(false)
-  const locked = entryBusy || editingItem
+  const [loading, setLoading] = useState(true)
+  const locked = entryBusy || editingItem || loading
   useLayoutEffect(() => { onBusyChange?.(locked); return () => onBusyChange?.(false) }, [locked, onBusyChange])
   useEffect(() => {
     let live = true
     void api.currentMethod(token).then((current) => { if (live) setMethodDefaults(current.referenced_version?.conditions ?? null) }).catch(() => { if (live) setMethodDefaults(null) })
     return () => { live = false }
   }, [token])
-  useEffect(() => {
-    if (!useMethodRepeats || !methodDefaults) return
-    const prefix = entryName.trim().toUpperCase()
-    setRepeats(prefix.startsWith('S') ? methodDefaults.standard_repeats : prefix.startsWith('D') ? methodDefaults.control_repeats : methodDefaults.sample_repeats)
-  }, [entryName, methodDefaults, useMethodRepeats])
-  const [loading, setLoading] = useState(true)
+  const repeatsFor = (sampleName: string) => {
+    if (manualRepeats !== null) return manualRepeats
+    const prefix = sampleName.trim().charAt(0).toUpperCase()
+    return (prefix === 'S' ? methodDefaults?.standard_repeats
+      : prefix === 'D' ? methodDefaults?.control_repeats : methodDefaults?.sample_repeats) ?? 1
+  }
+  const repeats = repeatsFor(entryName)
   const handledEntry = useRef(0)
   useEffect(() => {
     if (!entryRequest || handledEntry.current === entryRequest || loading || locked) return
@@ -45,23 +57,36 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const next = await api.sampleQueues(token)
+      const [next, currentQueue] = await Promise.all([api.sampleQueues(token), api.currentSampleQueue(token)])
       setQueues(next)
-      setSelected((current) =>
-        current ? (next.find((item) => item.id === current.id) ?? next[0] ?? null) : (next[0] ?? null)
-      )
+      setSelected(current => {
+        const id = confirmInDialog && current !== undefined ? current?.id : insertion?.queueId ?? currentQueue?.id ?? current?.id
+        return next.find(item => item.id === id) ?? null
+      })
     } catch (error) {
       onToast(error instanceof Error ? error.message : '无法读取样品队列')
     } finally {
       setLoading(false)
     }
-  }, [token, onToast])
+  }, [token, onToast, insertion?.queueId, confirmInDialog])
   useEffect(() => {
     void load()
   }, [load])
   useEffect(() => {
     if (selected) setNameLength(selected.name_length)
   }, [selected?.id, selected?.name_length])
+
+  const chooseQueue = async (queue: SampleQueue | null) => {
+    if (locked) return
+    if (confirmInDialog) {
+      setSelected(queue)
+      return
+    }
+    setEntryBusy(true)
+    try { await api.selectSampleQueue(token, queue?.id ?? null); setSelected(queue) }
+    catch (error) { onToast(error instanceof Error ? error.message : '选择样号表失败') }
+    finally { setEntryBusy(false) }
+  }
 
   const changeNameLength = async (length: 10 | 12 | 20) => {
     if (locked) return
@@ -85,6 +110,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
     setEntryBusy(true)
     try {
       const next = await api.createSampleQueue(token, { name, name_length: nameLength === 10 ? undefined : nameLength, items: [{ pre_name: entryName.trim().startsWith(',')?'':entryName, repeats:entryName.trim().startsWith(',')?0:repeats }] })
+      if (!confirmInDialog) await api.selectSampleQueue(token, next.id)
       setQueues((current) => [next, ...current])
       setSelected(next)
       advanceName()
@@ -98,7 +124,11 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
     if (locked) return
     setEntryBusy(true)
     try {
-      const next = await api.importSampleQueue(token, file.name, new Uint8Array(await file.arrayBuffer()),undefined,file.lastModified,samEncoding || undefined)
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      const next = await importSam(file.name, encoding =>
+        api.importSampleQueue(token, file.name, bytes, undefined, file.lastModified, encoding))
+      if (!next) return
+      if (!confirmInDialog) await api.selectSampleQueue(token, next.id)
       setQueues((current) => [next, ...current.filter((item) => item.id !== next.id)])
       setSelected(next)
       onToast(`已导入 ${next.record_count} 条样品记录`)
@@ -120,21 +150,25 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
   }
 
   const exportQueue = async () => {
-    if (!selected) return
-    const result = await api.exportSampleQueue(token, selected.id)
-    const path = await saveFile(result.blob, `queue-${selected.id}.sam`)
-    onToast(path ? `SAM 文件已保存：${path}` : '已取消保存')
+    if (!selected || locked) return
+    setEntryBusy(true)
+    try {
+      const result = await api.exportSampleQueue(token, selected.id)
+      const path = await saveFile(result.blob, `queue-${selected.id}.sam`)
+      onToast(path ? `SAM 文件已保存：${path}` : '已取消保存')
+    } catch(error){onToast(error instanceof Error?error.message:'SAM 导出失败')}
+    finally{setEntryBusy(false)}
   }
 
-  const addItem = async () => {
+  const addItem = async (insert = false) => {
     if (!selected || entryBusy) return
     if (!reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) return onToast('请先修正重复次数')
     setEntryBusy(true)
     try {
-      const next = await api.updateSampleQueue(token, selected.id, [
-        ...selected.items.map((item) => ({ id: item.id, pre_name: item.pre_name, repeats: item.repeats })),
-        { pre_name: entryName.trim().startsWith(',')?'':entryName, repeats:entryName.trim().startsWith(',')?0:repeats }
-      ])
+      const items: Array<{id?:number;pre_name:string;repeats:number}>=selected.items.map(item=>({id:item.id,pre_name:item.pre_name,repeats:item.repeats}))
+      const anchor=insert?items.findIndex(item=>item.id===selectedItemId):-1
+      items.splice(anchor<0?items.length:anchor,0,{pre_name:entryName.trim().startsWith(',')?'':entryName,repeats:entryName.trim().startsWith(',')?0:repeats})
+      const next = await api.updateSampleQueue(token, selected.id, items)
       setSelected(next)
       setQueues((current) => current.map((item) => (item.id === next.id ? next : item)))
       advanceName()
@@ -148,7 +182,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
     setEntryName(/^\d+$/.test(value) ? (BigInt(value)+1n).toString() : '')
     entryRef.current?.focus()
   }
-  const entryCommand = async () => {
+  const entryCommand = async (insert = false) => {
     if (locked) return
     const value=entryName.trim()
     if (value.startsWith('.')) { setEntryName('');entryRef.current?.blur();onToast('样号录入已结束');return }
@@ -157,7 +191,8 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
       if (item) { setEntryBusy(true);try { await deleteItem(item.id);setEntryName('') } finally { setEntryBusy(false) } }
       return
     }
-    if (selected) await addItem();else await create()
+    if (selected) await addItem(insert || insertion?.queueId === selected.id)
+    else await create()
   }
 
   const clearQueue = async () => {
@@ -198,10 +233,60 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
     } finally { setEntryBusy(false) }
   }
 
+  const pasteItems = async (changes: Array<{ position: number; name: string }>) => {
+    if (locked) throw new Error('队列正忙，请稍后粘贴。')
+    if ((manualRepeats !== null || !methodDefaults) && !reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) {
+      throw new Error('请先修正重复次数。')
+    }
+    const items: Array<{ id?: number; pre_name: string; repeats: number }> = (selected?.items ?? [])
+      .map(item => ({ id: item.id, pre_name: item.pre_name, repeats: item.repeats }))
+    const lastPosition = Math.max(...changes.map(cell => cell.position))
+    while (items.length <= lastPosition) items.push({ pre_name: '', repeats: 0 })
+    for (const { position, name: text } of changes) {
+      const trimmed = text.trim()
+      const preName = trimmed === ',' ? '' : trimmed
+      const previous = selected?.items[position]
+      if (previous?.pre_name === preName) continue
+      if (previous?.spectrum_hash) throw new Error(`第 ${position + 1} 项已关联采集，整批样号未保存。`)
+      items[position] = {
+        id: previous?.id, pre_name: preName,
+        repeats: preName ? previous?.pre_name ? previous.repeats : repeatsFor(preName) : 0,
+      }
+    }
+    setEntryBusy(true)
+    try {
+      const next = selected ? await api.updateSampleQueue(token, selected.id, items)
+        : await api.createSampleQueue(token, { name, name_length: nameLength === 10 ? undefined : nameLength, items })
+      setSelected(next)
+      setQueues(current => selected ? current.map(queue => queue.id === next.id ? next : queue) : [next, ...current])
+      if (!selected && !confirmInDialog) {
+        try { await api.selectSampleQueue(token, next.id) }
+        catch {
+          onToast('样号已保存到新队列，请重新选择该队列以将其设为当前队列。')
+          return
+        }
+      }
+      onToast(`已粘贴 ${changes.length} 个样号位置`)
+    } finally { setEntryBusy(false) }
+  }
+
+  const confirmQueue = async () => {
+    if (!confirmation || !selected?.items.length || locked) return
+    setEntryBusy(true)
+    try {
+      const queue = await api.selectSampleQueue(token, selected.id)
+      if (queue) confirmation.onConfirm(queue)
+    } catch (error) {
+      onToast(error instanceof Error ? error.message : '选择样号表失败')
+    } finally { setEntryBusy(false) }
+  }
+
   return (
     <div className="page-content sample-queue-page refined-page remaining-page">
-      
-      {onUseQueue && <button type="button" className="primary-button" disabled={!selected?.items.length || locked} onClick={() => { if (selected) onUseQueue(selected) }}>使用此样号表</button>}
+      {confirmation?.target && createPortal(
+        <button type="button" className="primary-button" disabled={!selected?.items.length || locked}
+          onClick={() => void confirmQueue()}>确认</button>, confirmation.target
+      )}
       <div className="sample-queue-grid">
         <section className="surface queue-context">
           <div className="surface-heading"><SectionHeading title="样品队列" /></div>
@@ -212,7 +297,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
               value={selected?.id ?? ''}
               title={selected?.name}
               disabled={loading || locked}
-              onChange={(event) => setSelected(queues.find((queue) => queue.id === Number(event.target.value)) ?? null)}
+              onChange={(event) => void chooseQueue(queues.find((queue) => queue.id === Number(event.target.value)) ?? null)}
             >
               <option value="">{loading ? '正在读取…' : '新建队列'}</option>
               {queues.map((queue) => (
@@ -237,7 +322,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
                 if (file) void importFile(file)
               }}
             />
-          <button className="secondary-button" disabled={locked} onClick={() => setSelected(null)}>
+          <button className="secondary-button" disabled={locked} onClick={() => void chooseQueue(null)}>
             <Plus size={15} />
             新建队列
           </button>
@@ -293,31 +378,24 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, onUseQueue, 
               </label>
               <label className="field small-field">
                 <span>重复次数</span>
-                <EmptyableNumberInput min={0} max={10} value={repeats} disabled={locked} onValueChange={(value) => { setUseMethodRepeats(false); setRepeats(value) }} />
+                <EmptyableNumberInput min={0} max={10} value={repeats} disabled={locked}
+                  onValueChange={value => { if (value !== repeats) setManualRepeats(value) }} />
               </label>
             </div>
-            <div className="sample-entry-actions">
-              {methodDefaults && (
-                <label className="checkbox-row sample-repeat-default">
-                  <input type="checkbox" checked={useMethodRepeats} disabled={locked} onChange={(event) => setUseMethodRepeats(event.target.checked)} />
-                  <span>按当前方法默认次数</span>
-                </label>
-              )}
-              <small>回车录入并递增数字样号；逗号插空，点号结束，斜杠删除末项。</small>
-              <label className="field"><span>SAM 编码</span><select value={samEncoding} disabled={locked} onChange={e => setSamEncoding(e.target.value as typeof samEncoding)}>
-                <option value="">旧版 GB18030（自动识别 UTF-8 BOM）</option><option value="utf-8-sig">UTF-8</option><option value="gb18030">GB18030</option></select></label>
-              <button className="primary-button" disabled={locked} onClick={() => void entryCommand()}>
+            {(!selected || !confirmInDialog) && <div className="sample-entry-actions">
+              <button className="primary-button" disabled={locked} onClick={() => void entryCommand(true)}>
                 <SpectroscopyIcon name={selected ? 'insert-sample' : 'sample-list-input'} />
                 {selected ? '插入样品' : '创建队列'}
               </button>
-            </div>
+            </div>}
           </div>
-          {selected && (
-            <SampleNumberTable key={selected.id} items={selected.items} nameLength={selected.name_length}
-              onDelete={deleteItem} onEdit={editItem} onEditingChange={setEditingItem} busy={entryBusy} />
-          )}
+          <SampleNumberTable initialSelectedId={selected?.id === insertion?.queueId ? insertion?.itemId : undefined}
+            onSelectionChange={setSelectedItemId} key={selected?.id ?? 'new'} items={selected?.items ?? []}
+            nameLength={selected?.name_length ?? nameLength} onDelete={deleteItem} onEdit={editItem}
+            onPaste={pasteItems} onEditingChange={setEditingItem} busy={entryBusy || loading} />
         </section>
       </div>
+      {samPreview}
     </div>
   )
 }

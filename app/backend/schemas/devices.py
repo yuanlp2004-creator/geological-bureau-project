@@ -47,6 +47,13 @@ class DeviceConnectRequest(BaseModel):
     profile_id: int = Field(ge=1)
 
 
+class DevicePortSelection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    transport: Literal["simulator", "serial"]
+    port: int | None = Field(default=None, ge=1, le=256)
+    bluetooth_address: str | None = Field(default=None, pattern=r'^[0-9A-Fa-f]{12}$')
+
+
 class DeviceDebugStartRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     sample: str = Field(default="280-288.acq", min_length=1, max_length=100)

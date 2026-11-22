@@ -59,3 +59,23 @@ def _evaluate(coefficients: list[float], value: float) -> float:
 
 def _calibration_position(wavelength: float, coefficients: list[float]) -> float:
     return _evaluate(coefficients, wavelength)
+
+
+def legacy_results(coefficients: list[float], points: list[dict]) -> dict | None:
+    """FmWstc.DisplayStep/DisplayWsCof; error is measured minus fitted step."""
+    if len(coefficients) != 3 or len(points) < 2:
+        return None
+    ordered = sorted(points, key=lambda point: (point['ccd_index'], point['measured_position']))
+    first = ordered[0]
+    differences = [point['measured_position'] - first['measured_position'] for point in ordered[1:]]
+    distinct = not any(math.isclose(value, 0, abs_tol=1e-12) for value in differences)
+    rows = [{**point, 'step_error': point['measured_position'] - point['predicted_position']} for point in ordered]
+    return {
+        'quadratic_coefficient': coefficients[0], 'linear_coefficient': coefficients[1], 'intercept': coefficients[2],
+        'wave_per_step': sum((point['wavelength_nm'] - first['wavelength_nm']) / difference
+                             for point, difference in zip(ordered[1:], differences)) / len(differences) if distinct else None,
+        'wavelength_range': [first['wavelength_nm'], ordered[-1]['wavelength_nm']],
+        'step_range': [min(first['measured_position'], first['predicted_position']),
+                       max(ordered[-1]['measured_position'], ordered[-1]['predicted_position'])],
+        'maximum_error': max(abs(row['step_error']) for row in rows), 'rows': rows,
+    }

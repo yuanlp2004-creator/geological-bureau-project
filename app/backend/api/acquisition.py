@@ -1,8 +1,12 @@
 """Acquisition API boundary; business services retain their existing behavior."""
 
 from __future__ import annotations
+from ..schemas.acquisition import SampleSessionCreate
+from ..schemas.preliminary import PreliminaryCaptureCreate
+from .preliminary import create_preliminary_session
+from ..modules.devices import DeviceError
 from typing import Any, Literal
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from ..schemas.acquisition import AcquisitionTaskCreate, AcquisitionIntervalMark, AcquisitionRename, AcquisitionDiscard
 from ..schemas.system import PreliminaryConditions
 from ..auth import Session
@@ -12,6 +16,47 @@ from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
 
 router = APIRouter()
+
+
+@router.post('/api/v1/acquisitions/evaporation-sessions', status_code=201, tags=['acquisition'])
+def create_evaporation_session(payload: PreliminaryCaptureCreate,
+                               session: Session = Depends(require_permission('acquisition.write')), *,
+                               runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return create_preliminary_session('evaporation', payload, runtime, session)
+    except (AcquisitionError, SampleQueueError) as exc:
+        raise acquisition_error(exc) from exc
+
+
+@router.get('/api/v1/acquisitions/sample-context', tags=['acquisition'])
+def current_sample_context(_: Session = Depends(require_permission('acquisition.read')), *,
+                           runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.acquisition_service().current_sample_context()
+    except AcquisitionError as exc:
+        raise acquisition_error(exc) from exc
+
+
+@router.post('/api/v1/acquisitions/sample-sessions', status_code=201, tags=['acquisition'])
+def create_sample_session(payload: SampleSessionCreate,
+                          session: Session = Depends(require_permission('acquisition.write')), *,
+                          runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        context = runtime.acquisition_service().current_sample_context()
+        if context['profile']['transport'] == 'serial':
+            if 'acquisition.execute' not in session.permissions:
+                raise HTTPException(status_code=403, detail='permission denied')
+            runtime.devices_service().test_connection(context['profile']['id'], actor_user_id=session.user_id)
+        task = runtime.acquisition_service().create_task({
+            'task_kind': 'sample', 'name': payload.name,
+            'method_id': context['method']['id'], 'method_version': context['method']['version'],
+            'device_profile_id': context['profile']['id'],
+            'queue_id': context['queue']['id'], 'queue_item_id': context['item']['id'],
+            'management_sample': context['item']['name'].upper().startswith('D'),
+        }, session.user_id)
+        return runtime.messages.task(task, source='acquisition', category='acquisition')
+    except (AcquisitionError, SampleQueueError, DeviceError) as exc:
+        raise acquisition_error(exc) from exc
 
 
 def acquisition_error(exc: AcquisitionError | SampleQueueError) -> HTTPException:
@@ -36,11 +81,37 @@ def save_evaporation_defaults(payload: PreliminaryConditions,
 def list_acquisition_tasks(
     limit: int = Query(default=50, ge=1, le=200),
     task_kind: Literal["sample", "evaporation"] | None = Query(default=None),
+    include_discarded: bool = Query(default=True),
     _: Session = Depends(require_permission("acquisition.read")),
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
-    return runtime.acquisition_service().list_tasks(limit, task_kind=task_kind)
+    return runtime.acquisition_service().list_tasks(limit, task_kind=task_kind, include_discarded=include_discarded)
+
+
+@router.delete("/api/v1/acquisitions/evaporation-sessions/{task_id}", status_code=204,
+               response_class=Response, tags=["acquisition"])
+def delete_evaporation_session(
+    task_id: int, session: Session = Depends(require_permission("acquisition.write")),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> Response:
+    try:
+        runtime.acquisition_service().discard_session(task_id, session.user_id, completed_evaporation_only=True)
+    except (AcquisitionError, SampleQueueError) as exc:
+        raise acquisition_error(exc) from exc
+    return Response(status_code=204)
+
+
+@router.delete("/api/v1/acquisitions/tasks/{task_id}", status_code=204, response_class=Response, tags=["acquisition"])
+def delete_acquisition_task(
+    task_id: int, session: Session = Depends(require_permission("acquisition.write")),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> Response:
+    try:
+        runtime.acquisition_service().discard_session(task_id, session.user_id)
+    except (AcquisitionError, SampleQueueError) as exc:
+        raise acquisition_error(exc) from exc
+    return Response(status_code=204)
 
 
 @router.post("/api/v1/acquisitions/tasks", status_code=201, tags=["acquisition"])
@@ -76,9 +147,12 @@ def start_acquisition_task(
     session: Session = Depends(require_permission("acquisition.execute")),
     *,
     runtime: Runtime = Depends(get_runtime),
+    turn_index: int | None = Query(default=None, ge=0),
+    single_turn: bool = Query(default=False),
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.acquisition_service().start(task_id, session.user_id), source='acquisition', category='acquisition')
+        task = runtime.acquisition_service().start(task_id, session.user_id, turn_index=turn_index, single_turn=single_turn)
+        return runtime.messages.task(task, source='acquisition', category='acquisition')
     except (AcquisitionError, SampleQueueError) as exc:
         raise acquisition_error(exc) from exc
 
@@ -88,10 +162,11 @@ def preheat_acquisition_task(
     task_id: int,
     session: Session = Depends(require_permission("acquisition.execute")),
     _: Session = Depends(require_permission("acquisition.write")),
-    *, runtime: Runtime = Depends(get_runtime),
+    *, runtime: Runtime = Depends(get_runtime), turn_index: int | None = Query(default=None, ge=0),
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.acquisition_service().preheat(task_id, session.user_id), source='acquisition', category='acquisition')
+        task = runtime.acquisition_service().preheat(task_id, session.user_id, turn_index=turn_index)
+        return runtime.messages.task(task, source='acquisition', category='acquisition')
     except (AcquisitionError, SampleQueueError) as exc:
         raise acquisition_error(exc) from exc
 
@@ -155,6 +230,7 @@ def acquisition_frames(
     repeat_index: int | None = Query(default=None, ge=0, le=10),
     phase: str | None = Query(default=None),
     ccd_index: int | None = Query(default=None, ge=0, le=255),
+    turn_index: int | None = Query(default=None, ge=0),
     include_points: bool = Query(default=False),
     _: Session = Depends(require_permission("acquisition.read")),
     *,
@@ -162,7 +238,7 @@ def acquisition_frames(
 ) -> list[dict[str, Any]]:
     try:
         return runtime.acquisition_service().frames(
-            task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index, include_points=include_points
+            task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index, include_points=include_points, turn_index=turn_index
         )
     except (AcquisitionError, SampleQueueError) as exc:
         raise acquisition_error(exc) from exc

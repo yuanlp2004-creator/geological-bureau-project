@@ -1,4 +1,6 @@
+import { ensureCaptureConnection } from '../acquisition/captureConnection'
 import { PageFileActions } from '../../components/PageFileActions'
+import { RowSelectionArrow } from '../../components/RowSelectionArrow'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { confirmAction } from '../../platform/dialogs'
 import {
@@ -7,16 +9,15 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   api,
-  type DispersionCalibrationVersion,
   type DispersionLine,
   type DispersionOptions,
   type DispersionTask,
   type MethodRecord
 } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
+import { ExposureIntervalInput } from '../../components/ExposureIntervalInput'
 import { TaskLayout } from '../../layout/TaskLayout'
-import { DispersionCalibration } from './DispersionCalibration'
-import { DispersionLines } from './DispersionLines'
+import { DispersionCurveDialog } from './DispersionCurveDialog'
 import { DispersionMonitor } from './DispersionMonitor'
 import { DispersionSetup } from './DispersionSetup'
 import { Props, runningStates, statusLabels } from './dispersionView'
@@ -24,11 +25,22 @@ import { useSpectroscopySession, type SpectroscopyMode } from '../acquisition/sp
 import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { LegacyViewingDesk } from '../../components/LegacyViewingDesk'
+import { CaptureLineBar } from '../acquisition/CaptureLineBar'
+import { captureAngleName, CaptureTurnPages, groupedCaptureTasks, updateCaptureTask } from '../acquisition/CaptureTurnPages'
+import { parseCcdCoordinate } from '../../components/legacyObservation'
+import { ViewerDialog } from '../spectra/ViewerDialog'
+import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
+import { spectralLineMenuGroups } from '../../components/spectrumMenu'
+import '../../components/legacy-viewing.css'
 
-export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, onToast, actionsTarget, onCaptureChange, view = 'capture' }: Props & {
+export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, canExport = false, onToast, actionsTarget, onCaptureChange, onCloseCurve, onViewSpectra, view = 'capture' }: Props & {
+  canExport?: boolean
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
   canReadMethods?: boolean
+  onCloseCurve?:()=>void
+  onViewSpectra?: (group: string, recordId?: string) => void
   view?: 'capture' | 'curve'
 }) {
   const [options, setOptions] = useState<DispersionOptions | null>(null)
@@ -38,30 +50,37 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const [screen, setScreen] = useState<'tasks' | 'capture'>('tasks')
   const [createOpen, setCreateOpen] = useState(false)
   const [processingOpen, setProcessingOpen] = useState(false)
+  const [detailDock, setDetailDock] = useState<HTMLElement | null>(null)
   useEffect(() => setProcessingOpen(false), [active?.id])
+  const [versionsOpen, setVersionsOpen] = useState(false)
+  const [filesOpen, setFilesOpen] = useState(false)
+  const fileMenu = useContextMenu<null>()
+  const lineMenu = useContextMenu<{ taskId: number; lineId: number }>()
+  const [prioritizeLine,setPrioritizeLine] = useState(true)
   const [createError, setCreateError] = useState<string | null>(null)
   useLayoutEffect(() => {
     onCaptureChange?.('dispersion', view === 'capture' && screen === 'capture')
   }, [view, screen, onCaptureChange])
-  const [profileId, setProfileId] = useState<number | null>(null)
-  const [layoutId, setLayoutId] = useState<number | null>(null)
-  const [legacySource, setLegacySource] = useState('')
-  const [preSeconds, setPreSeconds] = useState(3)
+  const [preSeconds, setPreSeconds] = useState(1)
   const [samplingPeriod, setSamplingPeriod] = useState(1)
   const [lockedPoint, setLockedPoint] = useState<number | null>(null)
+  useEffect(() => { setLockedPoint(null) }, [active?.id])
   const [manualLine, setManualLine] = useState<number | null>(null)
-  const [frameCount, setFrameCount] = useState(3)
-  const [darkFrameCount, setDarkFrameCount] = useState(1)
+  const [frameCount, setFrameCount] = useState(20)
+  const [darkFrameCount, setDarkFrameCount] = useState(8)
   const defaultsLoaded = useRef(false)
+  const [curveName, setCurveName] = useState('')
+  const [saveExcitation, setSaveExcitation] = useState(false)
   const [selectedCcd, setSelectedCcd] = useState(0)
+  const [targetPoint,setTargetPoint]=useState<{ccd:number;point:number}|null>(null)
+  useEffect(()=>setTargetPoint(null),[active?.id])
+  const [exposure, setExposure] = useState({ start: 1, end: 1 })
+  const [showCurveLines,setShowCurveLines]=useState(true)
+  const availableViewFrames = active?.condition.source_record_id ? active.frame_count : active?.burn_frames_captured ?? 0
+  useEffect(() => { setExposure({ start: 1, end: Math.max(1, availableViewFrames) }) }, [active?.id])
   useEffect(() => {
-    setLockedPoint(null)
-    setManualLine(null)
-  }, [active?.id, selectedCcd])
-  const [element, setElement] = useState('Fe')
-  const [wavelength, setWavelength] = useState(253.65)
-  const [lineCcd, setLineCcd] = useState(0)
-  const [calibrationName, setCalibrationName] = useState('S12 色散曲线')
+    setManualLine(current => active?.lines.some(line => line.id === current && line.ccd_index === selectedCcd) ? current : null)
+  }, [active?.id, active?.lines, selectedCcd])
   const [bindMethodId, setBindMethodId] = useState<number | null>(null)
   const [autoRun, setAutoRun] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -74,7 +93,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     setActive(current => current?.id === runningTask.id ? current : runningTask)
     setScreen('capture')
     setCreateOpen(false)
-  }, [runningTask, view])
+  }, [runningTask, view, active?.id])
 
   const generation = useRef(0)
   const mounted = useRef(false)
@@ -96,11 +115,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   }, [token])
   const applyTask = (task: DispersionTask) => {
     setActive(task)
-    setTasks((items) =>
-      items.some((item) => item.id === task.id)
-        ? items.map((item) => (item.id === task.id ? task : item))
-        : [task, ...items]
-    )
+    setTasks(items => updateCaptureTask(items, task))
   }
   const perform = async (work: () => Promise<DispersionTask>, message = '') => {
     if (operation.current) {
@@ -128,19 +143,24 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       if (valid()) setBusy(false)
     }
   }
-  const choose = async (task: DispersionTask) => {
+  const choose = async (id: number, checkConnection = true) => {
     generation.current++
     stopIntent.current = true
     setAutoRun(false)
-    setBusy(false)
-    setActive(task)
+    setBusy(true)
     const valid = ticket()
     try {
-      const fresh = await api.dispersionTask(token, task.id)
-      if (valid()) applyTask(fresh)
+      const fresh = await api.dispersionTask(token, id)
+      if (checkConnection && view !== 'curve' && ['draft','ready'].includes(fresh.status))
+        await ensureCaptureConnection(token, fresh.device_profile_id, fresh.profile.transport, 'dispersion')
+      if (valid()) {
+        setSelectedCcd(current => fresh.ccd_indices.includes(current) ? current : fresh.ccd_indices[0] ?? 0)
+        applyTask(fresh)
+        if (view !== 'curve') setScreen('capture')
+      }
     } catch (error) {
       if (valid()) onToast(error instanceof Error ? error.message : '读取任务失败')
-    }
+    } finally { if (valid()) setBusy(false) }
   }
   const loadRequest = useRef(0)
   const load = useCallback(async () => {
@@ -151,7 +171,14 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     try {
       const [nextOptions, nextTasks, nextMethods] = await Promise.all([
         api.dispersionOptions(token),
-        api.dispersionTasks(token),
+        (async () => {
+          const tasks: DispersionTask[] = []
+          for (let offset = 0; ; offset += 200) {
+            const page = await api.dispersionTasks(token, 200, offset)
+            tasks.push(...page)
+            if (page.length < 200) return tasks
+          }
+        })(),
         view === 'curve' && canReadMethods ? api.methods(token) : Promise.resolve([])
       ])
       if (!valid()) return
@@ -168,8 +195,6 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
         current ? (visibleTasks.find((item) => item.id === current.id) ?? visibleTasks[0] ?? null) : (visibleTasks[0] ?? null)
       )
       setMethods(nextMethods.filter((item) => item.current_version !== null && item.status !== 'deleted'))
-      setProfileId((current) => current ?? nextOptions.device_profiles[0]?.id ?? null)
-      setLayoutId((current) => current ?? nextOptions.ccd_layouts[0]?.id ?? null)
       setBindMethodId((current) => current ?? nextMethods.find((item) => item.current_version !== null)?.id ?? null)
     } catch (error) {
       if (valid()) onToast(error instanceof Error ? error.message : '无法读取色散任务')
@@ -178,13 +203,28 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     }
   }, [canReadMethods, onToast, token, view])
 
+  const deleteTask = async (id: number) => {
+    const task = tasks.find(item => item.id === id)
+    if (!task || !canWrite || busy || operation.current || runningTask) throw new Error('当前色散任务无法删除')
+    setBusy(true)
+    try {
+      await api.deleteDispersionTask(token, id)
+      const removed = new Set([id, ...(task.capture_turns?.map(turn => turn.id) ?? [])])
+      setTasks(current => current.filter(item => !removed.has(item.id)))
+      setActive(current => current && removed.has(current.id) ? null : current)
+      onToast('色散摄谱任务已删除')
+      await load()
+    } finally {
+      setBusy(false)
+    }
+  }
+
   useEffect(() => {
     void load()
   }, [load])
   useEffect(() => {
     if (!active || !active.ccd_indices.includes(selectedCcd)) setSelectedCcd(active?.ccd_indices[0] ?? 0)
-    if (!active || !active.ccd_indices.includes(lineCcd)) setLineCcd(active?.ccd_indices[0] ?? 0)
-  }, [active, lineCcd, selectedCcd])
+  }, [active, selectedCcd])
   useEffect(() => {
     if (!autoRun || !active || !runningStates.has(active.status) || busy || stopIntent.current) return
     const timer = window.setTimeout(() => {
@@ -195,56 +235,64 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
 
   const currentCcd =
     active?.last_event?.ccds.find((item) => item.ccd_index === selectedCcd) ?? active?.last_event?.ccds[0]
-  const latestCalibration = active?.calibrations[0] ?? null
+  const latestCalibration = active?.calibrations.find(item => item.state === 'published' && !item.archived) ?? null
 
-  const saveConditions = async () => {
-    if (!canWrite || busy) return
-    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid'))) return onToast('请先修正激发参数')
-    setBusy(true)
-    try {
-      await api.saveDispersionDefaults(token, { pre_excitation_seconds: preSeconds,
-        sampling_period_seconds: samplingPeriod, frame_count: frameCount, dark_frame_count: darkFrameCount })
-      onToast('色散激发条件已保存，下次新建时自动载入')
-    } catch (error) { onToast(error instanceof Error ? error.message : '保存激发条件失败') }
-    finally { setBusy(false) }
+  const openCreate = async () => {
+    if (!defaultsLoaded.current) {
+      setBusy(true)
+      try {
+        const fresh = await api.dispersionOptions(token)
+        setOptions(fresh)
+        const saved = fresh.preliminary_defaults
+        if (saved) { setPreSeconds(saved.pre_excitation_seconds); setSamplingPeriod(saved.sampling_period_seconds); setFrameCount(saved.frame_count); setDarkFrameCount(saved.dark_frame_count) }
+        defaultsLoaded.current = true
+      } catch (error) { onToast(error instanceof Error ? error.message : '读取色散激发条件失败'); return }
+      finally { setBusy(false) }
+    }
+    if (!curveName) {
+      const now = new Date()
+      setCurveName(`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`)
+    }
+    setCreateError(null); setCreateOpen(true)
   }
   const createTask = async () => {
     if (runningTask) return onToast('当前任务尚未结束，请先完成或停止摄谱')
-    if (!canWrite || profileId === null || layoutId === null) return
-    if (!reportInvalidNumericInput(document.querySelector('.dispersion-number-grid')))
-      return onToast('请先修正采集参数')
+    if (!canWrite || busy || !curveName.trim()) return
+    if (!reportInvalidNumericInput(document.querySelector('.dispersion-setup'))) return onToast('请先修正采集参数')
     setCreateError(null)
-    const created = await perform(
-      () =>
-        api.createDispersionTask(token, {
-          name: `色散采集 ${new Date().toLocaleTimeString('zh-CN')}`,
-          device_profile_id: profileId,
-          ccd_layout_id: layoutId,
-          source_record_id: legacySource ? Number(legacySource) : undefined,
-          frame_count: frameCount,
-          dark_frame_count: darkFrameCount,
-          pre_excitation_seconds: preSeconds,
-          sampling_period_seconds: samplingPeriod,
-          sample: '280-288.acq',
-          seed: 12
-        }),
-      '色散任务已创建'
-    )
-    if (created) { setCreateOpen(false); setScreen('capture') }
-    else setCreateError('任务未创建，参数已保留，请检查错误提示后重试。')
+    const created = await perform(async () => {
+      try { return await api.createDispersionSession(token, { name: curveName, frame_count: frameCount,
+        dark_frame_count: darkFrameCount, pre_excitation_seconds: preSeconds,
+        sampling_period_seconds: samplingPeriod, save_conditions: saveExcitation }) }
+      catch (error) { setCreateError(error instanceof Error ? error.message : '创建色散摄谱失败'); throw error }
+    }, '色散任务已创建')
+    if (created) { defaultsLoaded.current = false; setSaveExcitation(false); setCurveName(''); setCreateOpen(false); setScreen('capture') }
   }
   const formalTask = active?.condition.preheat
     ? tasks.find((task) => task.id === active.condition.preheat_source_task_id) : active
+  const sourceKey = (task: DispersionTask) => String(task.condition.source_sha256 ?? 'native')
+  const bandName = (task: DispersionTask) => options?.legacy_sources
+    ?.find(source => source.id === Number(task.condition.source_record_id))?.band_name ?? captureAngleName(task)
+  const savedBands = tasks.filter(task => task.status === 'completed' && !task.condition.preheat
+    && sourceKey(task) === (formalTask ? sourceKey(formalTask) : 'native'))
+    .sort((a, b) => Number(a.condition.source_record_id ?? a.id) - Number(b.condition.source_record_id ?? b.id))
+    .map(task => ({ id: task.id, name: bandName(task) }))
+  const turnPages = active?.capture_turn && <CaptureTurnPages current={active.capture_turn.turn_index}
+    pages={(active.capture_turns ?? []).map(item => ({ ...item, state: statusLabels[item.status as DispersionTask['status']] ?? item.status }))}
+    disabled={busy || Boolean(runningTask)} choose={index => {
+      const page = active.capture_turns?.find(item => item.turn_index === index)
+      if (page && !busy && !runningTask) void choose(page.id, false)
+    }} />
   const start = async () => {
-    if (!formalTask || !canExecute) return
+    if (!formalTask || formalTask.condition.preheat || formalTask.status !== 'draft' || !canExecute || busy || runningTask) return
     stopIntent.current = false
     const next = await perform(() => api.startDispersionTask(token, formalTask.id), '试样摄谱已开始')
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const preheat = async () => {
-    if (!active || !canExecute || !canWrite) return
+    if (!formalTask || formalTask.condition.preheat || !canExecute || !canWrite || busy || runningTask) return
     stopIntent.current = false
-    const next = await perform(() => api.preheatDispersionTask(token, active.id), '预热摄谱已开始')
+    const next = await perform(() => api.preheatDispersionTask(token, formalTask.id), '预热摄谱已开始')
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const resume = async () => {
@@ -274,19 +322,34 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const pause = () => halt('pause')
   const stop = () => halt('stop')
   const change = (work: (id: number) => Promise<unknown>, message = '') => {
-    if (!active || !canWrite) return
+    if (!active || !canWrite || busy || runningTask || active.condition.preheat) return
     const id = active.id
     return perform(async () => {
       await work(id)
       return api.dispersionTask(token, id)
     }, message)
   }
-  const addLine = () => {
-    if (!reportInvalidNumericInput(document.querySelector('[data-testid="dispersion-add-line-form"]'))) return onToast('请先修正谱线波长')
-    return change(
-      (id) => api.addDispersionLine(token, id, { element, wavelength_nm: wavelength, ccd_index: lineCcd }),
-      '谱线已添加'
-    )
+  const addPoint = () => {
+    if (lockedPoint === null) return
+    return change(async id => {
+      const line=await api.addDispersionPoint(token,id,selectedCcd,lockedPoint)
+      setManualLine(line.id)
+    }, '谱线已增加，请在拟合窗口填写已知波长')
+  }
+  const locateCoordinate = async (value:string) => {
+    if (!active || busy || runningTask) return
+    const valid=ticket()
+    try {
+      const parsed=parseCcdCoordinate(value)
+      const coordinate=parsed ? {ccd_index:parsed.ccd,point_index:parsed.point}
+        : /^\d+(?:\.\d+)?$/.test(value.trim()) && Number(value)>0
+          ? await api.dispersionCoordinate(token,active.id,Number(value)) : null
+      if (!valid()) return
+      if (!coordinate || !active.ccd_indices.includes(coordinate.ccd_index) || coordinate.point_index>=active.layout.points_per_ccd)
+        return onToast('请输入有效波长或 CCD,点位（均从1起），且应在当前谱带范围内')
+      setManualLine(null);setSelectedCcd(coordinate.ccd_index)
+      setTargetPoint({ccd:coordinate.ccd_index,point:coordinate.point_index})
+    } catch(error) {if(valid())onToast(error instanceof Error?error.message:'谱线定位失败')}
   }
   const updateLine = (line: DispersionLine, action: 'locate' | 'short' | 'long' | 'save' | 'restore') =>
     change((id) =>
@@ -298,12 +361,12 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
             ? api.saveDispersionLinePosition(token, id, line.id)
             : api.restoreDispersionLinePosition(token, id, line.id)
     )
-  const locateAll = () => change((id) => api.locateAllDispersionLines(token, id), '定位结果已刷新，请检查各谱线状态')
-  const removeLine = (lineId: number) => change((id) => api.deleteDispersionLine(token, id, lineId))
-  const fit = () =>
-    change((id) => api.fitDispersionCalibration(token, id, { name: calibrationName, degree: 2, use_legacy_limit: true }), '拟合结果已刷新')
-  const publish = (calibration: DispersionCalibrationVersion) =>
-    change(() => api.publishDispersionCalibration(token, calibration.id), '不可变色散曲线版本已发布')
+  const locateAll = () => change(async id => {
+    const result = await api.locateAllDispersionLines(token, id, true)
+    onToast(result.all_succeeded ? `已定位 ${result.located.length} 条谱线` :
+      `定位完成：${result.located.length} 条成功，${result.errors.length} 条失败；失败谱线位置未改变。${result.errors[0]?.message ?? ''}`)
+  })
+  const removeLine = (lineId: number) => change(async id => {await api.deleteDispersionLine(token,id,lineId);setManualLine(null)}, '谱线已删除')
   const bind = () => {
     if (!latestCalibration || bindMethodId === null) return
     const method = methods.find((item) => item.id === bindMethodId)
@@ -314,45 +377,71 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     )
   }
 
-  const changeGapAndRefit = (gap: number, value: number, selector = '.dispersion-lines-panel') => {
-    if (!active) return
-    if (!reportInvalidNumericInput(document.querySelector(selector))) return onToast('请先修正波长或间隔')
-    void change(async () => {
-      await api.updateDispersionGap(token, active.id, gap, value)
-      if (active.lines.filter(line => line.saved_position != null || line.located_position != null).length >= 3)
-        await api.fitDispersionCalibration(token, active.id, { name: calibrationName || active.name, degree: 2, use_legacy_limit: true })
-    }, 'CCD 间隔已修正；定位点充足时已重新拟合')
-  }
-  const monitor = <DispersionMonitor view={view} active={active} start={start} preheat={preheat}
-            recordChoices={tasks.map(task => ({ value: String(task.id), name: task.name }))}
+  const lineActions = active && <>
+    <SpectroscopyToolButton icon="add-line" label="增加谱线" description="先在谱图上单击选点，再增加该点位的谱线；波长在拟合窗口填写"
+      disabled={Boolean(active.condition.preheat)||!canWrite||busy||Boolean(runningTask)||lockedPoint===null} onClick={()=>void addPoint()}/>
+    <SpectroscopyToolButton icon="delete-line" label="删除谱线" disabled={Boolean(active.condition.preheat)||!canWrite||busy||Boolean(runningTask)||manualLine===null}
+      onClick={()=>{if(manualLine!==null)void removeLine(manualLine)}}/>
+  </>
+  const curveActions = active && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
+    <SpectroscopyToolButton icon="line-correction" label="校正谱线" description="在固定搜索范围内寻峰；无有效峰时保留原位置，人工移动后重新确定范围"
+      disabled={Boolean(active.condition.preheat)||!canWrite||busy||Boolean(runningTask)||!active.lines.length||!active.burn_frames_captured} onClick={()=>void locateAll()}/>
+    <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="至少四条谱线；打开波长、CCD间隔、拟合与保存窗口"
+      disabled={!canWrite||Boolean(active.condition.preheat)||busy||Boolean(runningTask)||active.lines.length<4} onClick={()=>setProcessingOpen(true)} aria-pressed={processingOpen}/>
+
+  </div>
+  const focusedLine=active?.lines.find(line=>line.id===manualLine&&line.ccd_index===selectedCcd)
+  const focusPoint=focusedLine && prioritizeLine ? focusedLine.located_position??focusedLine.expected_position : targetPoint?.ccd===selectedCcd?targetPoint.point:null
+  const monitor = <DispersionMonitor detailDock={view === 'curve' ? detailDock : null} focusPoint={focusPoint} locate={value=>void locateCoordinate(value)} onToast={onToast} recordNumber={options?.legacy_sources?.find(source=>source.id===Number(active?.condition.source_record_id))?.band_id??active?.id} displayName={options?.legacy_sources?.find(source=>source.id===Number(active?.condition.source_record_id))?.band_name||active?.name} view={view} exposure={exposure} active={active} start={start} preheat={preheat}
+            formalTask={formalTask} turnPages={turnPages} savedBands={savedBands}
+            onShowFormalTask={() => { if (formalTask && !busy && !runningTask) void choose(formalTask.id, false) }}
+            recordChoices={tasks.filter(task => view === 'curve' || !task.condition.preheat).map(task => ({ value: String(task.id), name: bandName(task) }))}
             recordDisabled={busy || Boolean(runningTask)} onRecordChoose={value => {
-              if (!busy && !runningTask) { const task = tasks.find(task => String(task.id) === value); if (task) setActive(task) }
+              if (!busy && !runningTask) { const task = tasks.find(task => String(task.id) === value); if (task) void choose(task.id) }
             }}
             finish={() => setScreen('tasks')} canFinish={!busy && !runningTask}
-            lineEditToolbar={active && <>
-              <SpectroscopyToolButton icon="add-line" label="增加谱线" description={active.condition.preheat ? '预热谱仅供观察，请返回正式色散任务编辑谱线' : '展开当前色散任务的谱线编辑表单'}
-                disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask)} onClick={() => setProcessingOpen(true)} />
-              <SpectroscopyToolButton icon="delete-line" label="删除所选谱线" disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask) || manualLine === null}
-                onClick={() => { if (manualLine !== null) void removeLine(manualLine) }} />
-            </>}
-            workflowToolbar={active && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
-              <SpectroscopyToolButton icon="line-correction" label="校正谱线" description={active.condition.preheat ? '预热谱仅供观察，请返回正式色散任务定位谱线' : '定位当前色散任务的全部谱线'}
-                disabled={Boolean(active.condition.preheat) || !canWrite || busy || Boolean(runningTask) || !active.lines.length || !active.burn_frames_captured} onClick={() => void locateAll()} />
-              <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description={active.condition.preheat ? '预热不生成正式曲线，请返回正式色散任务拟合' : '展开当前任务的定位、拟合与保存'}
-                disabled={Boolean(active.condition.preheat) || busy || Boolean(runningTask) || !active.burn_frames_captured} onClick={() => setProcessingOpen(value => !value)} aria-pressed={processingOpen} />
-            </div>}
-            canStart={Boolean(formalTask && !formalTask.condition.preheat && formalTask.status === 'draft')}
-            canPreheat={canWrite && Boolean(active && ['draft', 'completed', 'failed', 'stopped'].includes(active.status))}
+            lineEditToolbar={lineActions}
+            workflowToolbar={curveActions}
+            canStart={!runningTask && Boolean(formalTask && !formalTask.condition.preheat && formalTask.status === 'draft')}
+            canPreheat={canWrite && !runningTask && Boolean(formalTask && ['draft', 'completed', 'failed', 'stopped'].includes(formalTask.status))}
             canExecute={canExecute && (!runningTask || active?.id === runningTask.id)} pause={pause} resume={resume}
             busy={busy} stop={stop} selectedCcd={selectedCcd} setSelectedCcd={setSelectedCcd}
-            currentCcd={currentCcd} lockedPoint={lockedPoint} manualLine={manualLine} setManualLine={setManualLine}
-            canWrite={canWrite} change={change} token={token} setLockedPoint={setLockedPoint}
+            currentCcd={currentCcd} manualLine={manualLine} setManualLine={setManualLine}
+            token={token} canExport={canExport} setLockedPoint={setLockedPoint}
             />
 
+  const openLineMenu = (event: React.MouseEvent) => {
+    const target = event.target as Element
+    const marker = target.closest('[data-marker-key]') as HTMLElement | null
+    const row = target.closest('[data-line-id]') as HTMLElement | null
+    if (!marker && !row) return
+    const identifier = Number(marker?.getAttribute('data-marker-key')?.split('-')[0] ?? row?.dataset.lineId)
+    const line = active?.lines.find(line => line.id === identifier)
+    if (!active || !line) return
+    setManualLine(line.id);setSelectedCcd(line.ccd_index)
+    lineMenu.open(event, { taskId: active.id, lineId: line.id })
+  }
+  const moveKey = (event: React.KeyboardEvent) => {
+    if (!event.ctrlKey || !['ArrowLeft','ArrowRight'].includes(event.key) || processingOpen || (event.target as Element).closest('input,select,textarea,dialog')) return
+    const line = active?.lines.find(line => line.id === manualLine)
+    if (line) {event.preventDefault();void updateLine(line,event.key === 'ArrowLeft' ? 'short' : 'long')}
+  }
+  const orderedLines = active?.legacy_lines?.map(row=>active.lines.find(line=>line.id===row.line_id)!).filter(Boolean) ?? active?.lines ?? []
+  const menuLine = orderedLines.find(line => line.id === lineMenu.target?.data.lineId)
+  const lineWriteDisabled = !canWrite || busy || Boolean(runningTask || active?.condition.preheat)
+  const positionMenu = lineMenu.target && menuLine && active?.id === lineMenu.target.data.taskId &&
+    <ContextMenu target={lineMenu.target} close={lineMenu.close} label="谱线位置菜单"
+      groups={spectralLineMenuGroups(orderedLines, menuLine, line => { setManualLine(line.id); setSelectedCcd(line.ccd_index) },
+        { label: '优先显示', checked: prioritizeLine, run: () => setPrioritizeLine(value => !value) },
+        [{ label: '删除谱线', disabled: lineWriteDisabled, run: () => void removeLine(menuLine.id) }], [
+          { label: '还原实际位置', disabled: lineWriteDisabled || menuLine.saved_position == null, run: () => void updateLine(menuLine, 'restore') },
+          ...(['restore', 'save'] as const).map(action => ({ label: action === 'save' ? '保存全部位置' : '还原全部位置',
+            disabled: lineWriteDisabled, run: () => void change(id => api.allDispersionPositions(token, id, action), action === 'save' ? '全部位置已保存' : '全部位置已还原') }))
+        ])} />
   const fileActions = <PageFileActions target={actionsTarget}>
         {view === 'curve' && <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="dispersion" label="打开色散文件" disabled={busy || Boolean(runningTask)} onOpened={async result => {
         await load()
-        if (result.task_ids?.[0]) await choose(await api.dispersionTask(token, result.task_ids[0]))
+        if (result.task_ids?.[0]) await choose(result.task_ids[0])
       }}/>}
         <button className="secondary-button" onClick={() => void load()} disabled={busy}>
           <RefreshCw size={15} className={busy ? 'spin' : ''} />
@@ -361,90 +450,105 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       </PageFileActions>
 
   if (view === 'capture') return <div className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} dispersion-page refined-page remaining-page`}
-    data-testid="dispersion-page" data-view={view} data-stage={screen}>
+    data-testid="dispersion-page" data-view={view} data-stage={screen} onContextMenuCapture={openLineMenu} onKeyDown={moveKey}>
+    {positionMenu}
     <PageFileActions target={actionsTarget}>
       {screen === 'capture' ? <button type="button" className="secondary-button" disabled={busy || Boolean(runningTask)}
         onClick={() => { if (!runningTask && !busy) setScreen('tasks') }}>返回任务列表</button> : <>
         <button type="button" className="secondary-button" disabled={busy} onClick={() => void load()}><RefreshCw size={15} />刷新</button>
         <button type="button" className="primary-button" disabled={!canWrite || busy || Boolean(runningTask)}
-          onClick={() => setCreateOpen(true)}>新建任务</button>
+          onClick={openCreate}>新建任务</button>
       </>}
     </PageFileActions>
-    <SpectroscopyTaskDialog open={createOpen} title="建立色散摄谱任务" busy={busy} error={createError} onCancel={() => setCreateOpen(false)}
-      actions={<button type="button" className="primary-button" disabled={!canWrite || busy || profileId === null || layoutId === null}
-        onClick={() => void createTask()}>新建任务</button>}>
-      <DispersionSetup legacySource={legacySource} setLegacySource={setLegacySource} options={options}
-        profileId={profileId} setProfileId={setProfileId} layoutId={layoutId} setLayoutId={setLayoutId}
-        preSeconds={preSeconds} setPreSeconds={setPreSeconds} samplingPeriod={samplingPeriod} setSamplingPeriod={setSamplingPeriod}
-        frameCount={frameCount} setFrameCount={setFrameCount} darkFrameCount={darkFrameCount} setDarkFrameCount={setDarkFrameCount}
-        createTask={createTask} saveConditions={saveConditions} canWrite={canWrite && !busy && !runningTask} busy={busy} hideSubmit />
+    <SpectroscopyTaskDialog open={createOpen} title="色散曲线摄谱" busy={busy} error={createError} onCancel={() => setCreateOpen(false)}
+      actions={<button type="button" className="primary-button" disabled={!canWrite || busy || !curveName.trim()}
+        onClick={() => void createTask()}>确定</button>}>
+      <DispersionSetup name={curveName} onName={setCurveName} disabled={!canWrite || busy || Boolean(runningTask)}
+        saveConditions={saveExcitation} onSaveConditions={setSaveExcitation}
+        conditions={{ pre_excitation_seconds: preSeconds, sampling_period_seconds: samplingPeriod, frame_count: frameCount, dark_frame_count: darkFrameCount }}
+        onCondition={(key, value) => { if (key === 'pre_excitation_seconds') setPreSeconds(value); else if (key === 'sampling_period_seconds') setSamplingPeriod(value); else if (key === 'frame_count') setFrameCount(value); else setDarkFrameCount(value) }} />
     </SpectroscopyTaskDialog>
     {screen === 'tasks' && <SpectroscopyTaskList title="色散摄谱" busy={busy} runningId={runningTask?.id}
-      tasks={tasks.map(task => ({ id: task.id, name: task.name, status: statusLabels[task.status],
-        details: `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`,
-        completed: task.status === 'completed' }))}
+      tasks={groupedCaptureTasks(tasks.filter(task => !task.capture_turn?.group || !task.condition.preheat)).map(task => ({ id: task.id, name: task.name,
+        status: task.capture_turns?.length ? `${task.capture_turns.filter(turn => turn.status === 'completed').length}/${task.capture_turns.length} 转角完成` : statusLabels[task.status],
+        details: task.capture_turns?.map(turn => `${turn.angle_deg}°`).join(' / ') || `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`,
+        completed: task.capture_turns?.length ? task.capture_turns.every(turn => turn.status === 'completed') : task.status === 'completed' }))}
+      onView={onViewSpectra ? id => {
+        const task = tasks.find(item => item.id === id)
+        if (!task) return
+        const { source_record_id, source_sha256 } = task.condition
+        if (source_record_id && source_sha256) {
+          onViewSpectra(`raw:${source_sha256}`, `raw:${source_record_id}`)
+        } else {
+          const turn = task.capture_turn
+          onViewSpectra(`dispersion:${turn?.multiple && turn.group ? turn.group : task.id}`)
+        }
+      } : undefined}
+      onDelete={canWrite ? deleteTask : undefined}
       onChoose={id => {
         const task = tasks.find(item => item.id === id)
-        if (task && !busy && (!runningTask || runningTask.id === id)) { void choose(task); setScreen('capture') }
+        if (task && !busy && (!runningTask || runningTask.id === id)) { void choose(task.id) }
       }} />}
     <main className="dispersion-main spectroscopy-capture-page" data-capture-screen hidden={screen !== 'capture'}>{monitor}
-      {processingOpen && active && !active.condition.preheat && <section className="capture-processing" aria-label="当前色散任务处理">
-        <button type="button" className="legacy-processing-close" aria-label="关闭色散处理窗口" onClick={() => setProcessingOpen(false)}>关闭</button>
-        <DispersionLines locateAll={locateAll} canWrite={canWrite && !busy && !runningTask} active={active}
-          element={element} setElement={setElement} wavelength={wavelength} setWavelength={setWavelength}
-          lineCcd={lineCcd} setLineCcd={setLineCcd} addLine={addLine} updateLine={updateLine} removeLine={removeLine}
-          changeWavelength={(lineId, value) => {
-            if (reportInvalidNumericInput(document.querySelector('.capture-processing')))
-              void change(() => api.updateDispersionWavelength(token, active.id, lineId, value), '波长已更新，请重新拟合')
-          }}
-          changeGap={(gap, value) => changeGapAndRefit(gap, value, '.capture-processing')} />
-        <div className="inspector-frame-tools"><span>锁定实际点位：{lockedPoint ?? '未选择'}</span>
-          <select aria-label="人工定位谱线" value={manualLine ?? ''} onChange={event => setManualLine(event.target.value ? Number(event.target.value) : null)}>
-            <option value="">选择当前CCD谱线</option>{active.lines.filter(line => line.ccd_index === selectedCcd).map(line => <option key={line.id} value={line.id}>{line.element} {line.wavelength_nm}</option>)}
-          </select>
-          <button type="button" disabled={!canWrite || busy || Boolean(runningTask) || lockedPoint === null || manualLine === null}
-            onClick={() => { if (lockedPoint !== null && manualLine !== null) void change(id => api.setDispersionPosition(token, id, manualLine, lockedPoint), '人工点位已设置') }}>采用锁定点位</button>
-        </div>
-        <DispersionCalibration calibrationName={calibrationName} setCalibrationName={setCalibrationName} fit={fit}
-          canWrite={canWrite && !busy && !runningTask} active={active} latestCalibration={latestCalibration} publish={publish}
-          bindMethodId={bindMethodId} setBindMethodId={setBindMethodId} methods={methods} bind={bind} />
-      </section>}
+      {processingOpen && active && !active.condition.preheat && <DispersionCurveDialog key={active.id} active={active} token={token} busy={busy}
+        canWrite={canWrite && !runningTask} gapLimits={options?.gap_limits_um ?? [9659,9959]} curves={options?.calibration_versions ?? []} change={change} onClose={() => setProcessingOpen(false)} />}
+
     </main>
   </div>
 
-  return (
-    <div className={`${embedded ? 'spectroscopy-mode-content' : 'page-content'} dispersion-page refined-page remaining-page`} data-testid="dispersion-page" data-view={view}>
-      {!embedded && <section className="page-action-toolbar">
-        
-
-        {fileActions}
-      </section>}
-      {embedded && view === 'curve' && fileActions}
-
-      <TaskLayout
-        showEmptyRail
-        actions={embedded && view !== 'curve' && <button className="secondary-button" onClick={() => void load()} disabled={busy}>
-          <RefreshCw size={15} className={busy ? 'spin' : ''} />刷新
-        </button>}
-        className="dispersion-shell"
-        hasItems={Boolean(tasks.length)}
-        current={active ? `${active.name} · ${statusLabels[active.status] ?? active.status}` : '尚未选择'}
-      >
-        <aside className="surface dispersion-sidebar">
-          <div className="surface-heading"><h2>色散任务 <span className="count-badge">{tasks.length}</span></h2></div>
-          <div className="dispersion-task-list">
-            {tasks.length === 0 ? <small>尚无色散任务</small> : tasks.map((task) => (
-              <button key={task.id} className={active?.id === task.id ? 'active' : ''}
-                disabled={busy || Boolean(runningTask && runningTask.id !== task.id)} onClick={() => void choose(task)}>
-                <span className={`dispersion-state ${task.status}`} /><strong title={task.name}>{task.name}</strong>
-                <small>{statusLabels[task.status]} · {task.burn_frames_captured}/{task.frame_count}</small>
-              </button>
-            ))}
-          </div>
-        </aside>
-        <main className="dispersion-main">
+  if(view === 'curve') {
+    const key=active ? sourceKey(active) : sourceKey(tasks[0] ?? {condition:{}} as DispersionTask)
+    const visible=tasks.filter(task => !task.condition.preheat && sourceKey(task)===key).sort((a,b)=>Number(a.condition.source_record_id??a.id)-Number(b.condition.source_record_id??b.id))
+    const groups=Array.from(new Set(tasks.filter(task=>!task.condition.preheat).map(sourceKey)))
+    const fileSelectionDisabled = busy || Boolean(runningTask)
+    const openFileMenu = (event: React.MouseEvent) => fileMenu.open(event, null)
+    return <div className="dispersion-page legacy-viewing-page" data-testid="dispersion-page" data-view="curve" onContextMenuCapture={openLineMenu} onKeyDown={moveKey}>
+      {positionMenu}
+      {fileActions}
+      {fileMenu.target && <ContextMenu target={fileMenu.target} close={fileMenu.close} label="色散文件菜单" groups={[[
+        { label: '选择色散文件', disabled: fileSelectionDisabled, run: () => setFilesOpen(true) },
+        { label: '色散曲线版本管理', disabled: fileSelectionDisabled || !active, run: () => setVersionsOpen(true) },
+        ...(!showCurveLines ? [{ label: '显示色散谱线列表', run: () => setShowCurveLines(true) }] : [])
+      ]]} />}
+      <LegacyViewingDesk>
+        <div className="legacy-view-top" role="toolbar" aria-label="色散谱线操作栏">
+          {lineActions}<CaptureLineBar locate={value=>void locateCoordinate(value)} lines={active?.lines.map(line=>({id:String(line.id),label:`${line.element} ${line.wavelength_nm || "待填波长"}`,wavelength:line.wavelength_nm}))}
+            value={manualLine===null?'':String(manualLine)} disabled={busy} choose={id=>{const line=active?.lines.find(line=>String(line.id)===id);setManualLine(line?.id??null);if(line)setSelectedCcd(line.ccd_index)}}
+            exposureInput={<ExposureIntervalInput key={active?.id} {...exposure} max={availableViewFrames}
+              disabled={busy||Boolean(runningTask)||availableViewFrames===0} onCommit={(start, end) => setExposure({ start, end })}/>}/>
+          {curveActions}
+          <span className="legacy-toolbar-separator" aria-hidden="true"/>
+          <SpectroscopyToolButton icon="finish" label="关闭色散曲线" disabled={!onCloseCurve||busy||Boolean(runningTask)} onClick={onCloseCurve}/>
+        </div>
+        <div className={`legacy-view-body${showCurveLines?' has-line-rail':''}`}>
+          <aside className="legacy-view-rail dispersion-sidebar" aria-label="色散文件" tabIndex={0} onContextMenu={openFileMenu}><header><h2>色散文件</h2></header>
+            <div className="legacy-view-table-wrap dispersion-task-list"><table className="legacy-view-table"><thead><tr><th className="row-indicator"/><th>谱带名称</th></tr></thead><tbody>
+              {visible.map(task=><tr key={task.id} aria-selected={active?.id===task.id}><td className="row-indicator">{active?.id===task.id&&<RowSelectionArrow />}</td><td>
+                <button disabled={busy || Boolean(runningTask && runningTask.id!==task.id)} onClick={()=>void choose(task.id)} title={bandName(task)}>{bandName(task)}</button></td></tr>)}
+            </tbody></table></div><div className="legacy-view-footer">{(options?.legacy_sources?.find(source=>source.id===Number(active?.condition.source_record_id))?.measure_time||active?.updated_at)?.replace('T',' ').slice(0,19)??'尚未选择谱带'}</div>
+          </aside>
           {monitor}
-      {view === 'curve' && <section className="surface spectroscopy-calibration-versions">
+          {showCurveLines && <aside className="legacy-view-rail right spectrum-point-rail" ref={setDetailDock}><header><h2>色散谱线列表</h2><button aria-label="隐藏色散谱线列表" onClick={()=>setShowCurveLines(false)}>×</button></header>
+            <div className="legacy-view-table-wrap"><table className="legacy-view-table"><thead><tr><th>谱线 / 波长</th><th>实际点位</th></tr></thead><tbody>
+              {active?.lines.map(line=><tr key={line.id} data-line-id={line.id} aria-selected={manualLine===line.id}><td><button onClick={()=>{setManualLine(line.id);setSelectedCcd(line.ccd_index)}}>{line.element} {line.wavelength_nm || "待填波长"}</button></td>
+                <td>{line.located_position?.toFixed(2)??'未定位'}</td></tr>)}
+            </tbody></table></div>
+          </aside>}
+        </div>
+      </LegacyViewingDesk>
+      {filesOpen && <ViewerDialog title="选择色散文件" onClose={() => setFilesOpen(false)}>
+        <div className="viewer-dialog-fields"><label>色散文件<select aria-label="色散数据文件" value={key} disabled={fileSelectionDisabled} onChange={event=>{
+          const task=tasks.find(task=>!task.condition.preheat&&sourceKey(task)===event.target.value)
+          if(task){setFilesOpen(false);void choose(task.id)}
+        }}>
+          {!groups.length&&<option value="">尚无色散文件</option>}
+          {groups.map(group=><option value={group} key={group}>{group==='native'?'本机色散采集':options?.legacy_sources?.find(source=>source.source_sha256===group)?.source_filename||`WDT · ${group.slice(0,12)}`}</option>)}
+        </select></label></div>
+      </ViewerDialog>}
+      {processingOpen && active && <DispersionCurveDialog key={active.id} active={active} token={token} busy={busy}
+        canWrite={canWrite && !runningTask} gapLimits={options?.gap_limits_um ?? [9659,9959]} curves={options?.calibration_versions ?? []} change={change} onClose={() => setProcessingOpen(false)} />}
+      {versionsOpen && <ViewerDialog title="色散曲线版本管理" onClose={() => setVersionsOpen(false)}>
+      <details className="surface spectroscopy-calibration-versions observation-details"><summary>色散曲线版本管理</summary>
         <h2>色散曲线版本管理</h2>
         {active?.calibrations.map((calibration) => (
           <div key={calibration.id}>
@@ -494,45 +598,15 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
             )}
           </div>
         ))}
-      </section>}
-          {view === 'curve' && active && (
-            <DispersionLines
-              locateAll={locateAll}
-              canWrite={canWrite && !busy}
-              active={active}
-              element={element}
-              setElement={setElement}
-              wavelength={wavelength}
-              setWavelength={setWavelength}
-              lineCcd={lineCcd}
-              setLineCcd={setLineCcd}
-              addLine={addLine}
-              updateLine={updateLine}
-              removeLine={removeLine}
-              changeWavelength={(lineId, value) => {
-                if (!reportInvalidNumericInput(document.querySelector('.dispersion-lines-panel'))) return onToast('请先修正波长或间隔')
-                void change(() => api.updateDispersionWavelength(token,active.id,lineId,value),'波长已更新，请重新拟合')
-              }}
-              changeGap={changeGapAndRefit}
-            />
-          )}
-          {view === 'curve' && active && (
-            <DispersionCalibration
-              calibrationName={calibrationName}
-              setCalibrationName={setCalibrationName}
-              fit={fit}
-              canWrite={canWrite}
-              active={active}
-              latestCalibration={latestCalibration}
-              publish={publish}
-              bindMethodId={bindMethodId}
-              setBindMethodId={setBindMethodId}
-              methods={methods}
-              bind={bind}
-            />
-          )}
-        </main>
-      </TaskLayout>
+      </details>
+      {latestCalibration && <div className="dispersion-bind"><label className="field"><span>绑定已发布方法版本</span>
+        <select aria-label="绑定已发布方法版本" value={bindMethodId ?? ''} onChange={event => setBindMethodId(Number(event.target.value))}>
+          {methods.map(method => <option key={method.id} value={method.id}>{method.name} · v{method.current_version}</option>)}
+        </select></label><button disabled={!canWrite || busy || bindMethodId === null} onClick={() => void bind()}>绑定修订</button></div>}
+      </ViewerDialog>}
+
     </div>
-  )
+  }
+
+  return null
 }

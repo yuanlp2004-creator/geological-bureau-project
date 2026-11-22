@@ -3,15 +3,14 @@ import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { calculationProfileLabel } from '../../components/calculationProfile'
 import {
   BarChart3,
-  RefreshCw,
   ShieldAlert,
   StepForward,
-  PanelLeftClose,
-  PanelLeftOpen
 } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { api, savePdfFile, type AnalysisCurveSnapshot, type AnalysisOptions, type AnalysisRun } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
+import { PreviewFrame } from '../../components/PreviewFrame'
+import type { AnalysisSampleNumber } from '../../api/analysis'
 import { FormDisclosure } from '../../layout/TaskLayout'
 import { AnalysisCurves } from './AnalysisCurves'
 import { AnalysisIntervention } from './AnalysisIntervention'
@@ -19,6 +18,8 @@ import { AnalysisQuality } from './AnalysisQuality'
 import { AnalysisRawResults } from './AnalysisRawResults'
 import { IntensityOutput } from './IntensityOutput'
 import { AnalysisSpectrum } from './AnalysisSpectrum'
+import { AnalysisDesk } from './AnalysisDesk'
+import { ViewerDialog } from '../spectra/ViewerDialog'
 import { AnalysisRunForm } from './AnalysisRunForm'
 import { AnalysisSamples } from './AnalysisSamples'
 import { AnalysisStandards } from './AnalysisStandards'
@@ -34,6 +35,7 @@ export function AnalysisPage({
   canCurve,
   canPrint,
   canSaveMethod = false,
+  information,
   onCurrentRunChange,
   onToast
 }: Props) {
@@ -58,6 +60,9 @@ export function AnalysisPage({
   const [adjustments, setAdjustments] = useState<Record<string, number>>({})
   const [preview, setPreview] = useState<{ title: string; html: string } | null>(null)
   const [railCollapsed, setRailCollapsed] = useState(false)
+  const [manager, setManager] = useState<'setup' | 'review' | null>(initialView === 'raw' ? null : 'review')
+  const [paused, setPaused] = useState(false)
+  const [spectrumRevision, setSpectrumRevision] = useState(0)
 
   const epoch = useRef(0),
     mounted = useRef(false),
@@ -92,6 +97,7 @@ export function AnalysisPage({
         : [next, ...current]
     )
     if (next.checkpoint?.status === 'pending') setAdjustedPosition(next.checkpoint.automatic_position)
+    if (next.checkpoint?.status === 'pending') setManager('review')
   }, [])
 
   const loadRequest = useRef(0)
@@ -105,6 +111,7 @@ export function AnalysisPage({
       if (!valid()) return
       setOptions(nextOptions)
       setRuns(nextRuns)
+      setSpectrumRevision(value => value + 1)
       if (nextRuns[0]) {
         const next = await api.analysisRun(token, nextRuns[0].id)
         if (valid()) update(next)
@@ -139,7 +146,7 @@ export function AnalysisPage({
     if (!sampleIds.length) return reject('请至少选择一个已完成采集样品')
     setCreateError(null)
     const methodVersionId = options?.samples.find((sample) => sampleIds.includes(sample.id))?.method_version_id
-    await mutate(
+    const created = await mutate(
       () =>
         api.createAnalysisRun(token, {
           name,
@@ -151,6 +158,7 @@ export function AnalysisPage({
         }),
       '分析运行已建立，输入哈希和方法版本已锁定'
     )
+    if (created) { setManager(null); setPaused(false) }
   }
 
   const choose = async (run: AnalysisRun) => {
@@ -158,6 +166,7 @@ export function AnalysisPage({
     epoch.current++
     cancelIntent.current = true
     setSelected(run)
+    setPaused(false)
     setPreview(null)
     setBusy(false)
     const valid = ticket()
@@ -216,12 +225,15 @@ export function AnalysisPage({
       try {
         const next = await api.cancelAnalysisRun(token, id)
         if (valid()) update(next)
+        return true
       } catch (error) {
         if (valid()) onToast(error instanceof Error ? error.message : '取消失败，请重试')
+        return false
       }
       return
     }
     cancelIntent.current = false
+    setPaused(false)
     await mutate(() => (action === 'start' ? api.startAnalysisRun : api.stepAnalysisRun)(token, id), '', true)
   }
   const intervene = async (action: 'accept' | 'discard') => {
@@ -250,6 +262,7 @@ export function AnalysisPage({
       () =>
         api.decideAnalysisQuality(token, selected.id, {
           acquisition_task_id: group.acquisition_task_id,
+          sample_group_position: group.sample_group_position,
           line_id: group.line_id,
           action,
           line_result_id: lineResultId,
@@ -359,6 +372,7 @@ export function AnalysisPage({
   const curveLine = selected?.curves.lines.find((item) => item.line_id === curveLineId) ?? selected?.curves.lines[0]
   const activeSnapshot = curveLine?.snapshots.find((item) => item.id === curveLine.active_curve_snapshot_id)
   const shownSnapshot = curveLine?.snapshots[curveLine.snapshots.length - 1] ?? activeSnapshot
+  const standardCurveView = manager === 'review' && currentView === 'curve' && Boolean(curveLine)
   const qcGroups =
     selected?.quality.latest_snapshot?.groups.filter((group) => !curveLineId || group.line_id === curveLineId) ?? []
 
@@ -378,6 +392,9 @@ export function AnalysisPage({
     setViewByRun((current) => ({ ...current, [selected.id]: view }))
     onViewChange(view)
   }
+  const lastLine = lineIndex === (selected?.curves.lines.length ?? 0) - 1
+  const nextLineDisabled = busy || !lineSaved || (lastLine && (!allSaved || !canCurve))
+  const nextLineLabel = lastLine ? '完成并保存结果' : '下一条谱线'
   const nextLine = async () => {
     if (!selected || busy || !lineSaved) return
     const next = selected.curves.lines[lineIndex + 1]
@@ -390,30 +407,19 @@ export function AnalysisPage({
     }
   }
 
-  return (
-    <div className={`page-content analysis-page refined-page remaining-page analysis-workbench${!selected ? ' analysis-preparing' : ''}${!runs.length ? ' analysis-no-batches' : ''}`} data-navigation-view={currentView}>
-      <section className="analysis-hero">
-        <div className="analysis-title"><span className="analysis-title-icon"><BarChart3 size={22} /></span><div><h1>样品分析</h1><p>测量与复核 · 标准曲线 · 样品结果</p></div></div>
-        <div className="analysis-header-actions file-actions">
-          <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="analysis" label="打开样品文件" disabled={busy || active.has(selected?.status ?? '')} onOpened={async result => {
-            const ids = result.records?.filter(record => record.sample_no > 0 && Boolean(record.sample_name?.trim())).map(record => record.id) ?? result.record_ids
-            setLegacyIds(ids)
-            const next = await api.analysisOptions(token)
-            setOptions(next)
-            if (!ids.length) { setOpenedLegacy(value => value + 1); onToast('文件已保存，但没有可直接分析的已编号样品，请核对样号'); return }
-            const candidates = next.method_versions.filter(method => method.calculation_profile === 'legacy_2_0_2')
-            const method = candidates.find(method => method.method_version_id === legacyMethod) ?? (candidates.length === 1 ? candidates[0] : null)
-            if (!method) { setOpenedLegacy(value => value + 1); onToast('文件已保存，请选择对应方法，随后自动接入分析'); return }
-            const adapted = await api.importLegacyAnalysisSources(token, ids, method.method_version_id)
-            setLegacyMethod(method.method_version_id); setSampleIds(adapted.sample_ids); setProfile('legacy_2_0_2')
-            setOptions(await api.analysisOptions(token))
-            onToast('旧样品已打开并接入准备分析')
-          }}/><button className="secondary-button" aria-expanded={!railCollapsed} onClick={() => setRailCollapsed(!railCollapsed)}>
-          {railCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}{railCollapsed ? '展开列表' : '收起列表'}
-        </button><button className="secondary-button" onClick={() => void load()} disabled={busy}>
-          <RefreshCw size={15} />刷新
-        </button></div>
-      </section>
+  const saveSampleNames = async (ids: number[], numbering: AnalysisSampleNumber[] | null) => {
+    if (!selected || !canExecute || busy || active.has(selected.status)) return false
+    return mutate(() => api.createAnalysisRun(token, {
+      name: selected.name, acquisition_sample_ids: ids,
+      method_version_id: selected.method_version_id, calculation_profile: selected.calculation_profile,
+      slow_mode: selected.slow_mode, intervention_timeout_seconds: selected.intervention_timeout_seconds,
+      ...(numbering ? { sample_numbering: numbering } : { sample_names: ids.map(() => '') })
+    }), numbering ? '当前分析副本的样品编号已保存' : '当前分析副本的样品编号已清除')
+  }
+
+  const reviewTitle = standardCurveView ? '标准曲线' : '分析结果与复核'
+  const managerContent = manager && (
+      <div className={`analysis-manager${standardCurveView ? ' standard-curve-manager' : ''}`} data-mode={manager}>
       <div className={`analysis-layout task-columns ${railCollapsed ? 'rail-hidden' : ''}`}>
         <aside className="surface analysis-sidebar">
           <div className="surface-heading">
@@ -452,7 +458,7 @@ export function AnalysisPage({
               )}
           </>}
         </aside>
-        <main className="analysis-main">
+        <div className="analysis-main">
 
           <div className="analysis-setup" onClickCapture={(event) => {
             const toggle = event.target instanceof Element ? event.target.closest('button.disclosure-toggle') : null
@@ -634,6 +640,8 @@ export function AnalysisPage({
                   showPreview={showPreview}
                   canPrint={canPrint}
                   printCurve={printCurve}
+                  selectLine={(lineId) => setLineByRun((current) => ({ ...current, [selected.id]: lineId }))}
+                  next={{ label: nextLineLabel, disabled: nextLineDisabled, action: () => void nextLine() }}
                 />
               )}
               {currentView === 'standards' && curveLine && (
@@ -673,31 +681,73 @@ export function AnalysisPage({
 
                 </aside>
               </div>
-              {selected.status === 'completed' && <div className="analysis-progress-actions">
+              {selected.status === 'completed' && !standardCurveView && <div className="analysis-progress-actions">
                 <span>{lineIndex + 1} / {selected.curves.lines.length} 条谱线 · {lineSaved ? '本线曲线已保存' : '检查重复值后，拟合并保存本线曲线'}</span>
                 <button className="secondary-button" disabled={busy || lineIndex <= 0}
                   onClick={() => { setLineByRun((current) => ({ ...current, [selected.id]: selected.curves.lines[lineIndex - 1].line_id })); changeView('curve') }}>上一条谱线</button>
-                <button className="primary-button" disabled={busy || !lineSaved || (lineIndex === selected.curves.lines.length - 1 && (!allSaved || !canCurve))}
-                  onClick={() => void nextLine()}>{lineIndex === selected.curves.lines.length - 1 ? '完成并保存结果' : '下一条谱线'}</button>
+                <button className="primary-button" disabled={nextLineDisabled}
+                  onClick={() => void nextLine()}>{nextLineLabel}</button>
               </div>}
 
             </section>
           )}
 
-        </main>
-      </div>
-      {preview && (
-        <div className="analysis-preview-modal" role="dialog" aria-modal="true" aria-label={preview.title}>
-          <div>
-            <header>
-              <strong>{preview.title}</strong>
-              <button className="secondary-button" onClick={() => setPreview(null)}>
-                关闭
-              </button>
-            </header>
-            <iframe title={preview.title} srcDoc={preview.html} />
-          </div>
         </div>
+      </div>
+      </div>
+  )
+
+  return (
+    <div className={`page-content analysis-page refined-page remaining-page analysis-workbench analysis-legacy-page${!selected ? ' analysis-preparing' : ''}${!runs.length ? ' analysis-no-batches' : ''}${manager === 'review' ? ' analysis-review-open' : ''}`} data-navigation-view={currentView}>
+      <section className="analysis-hero">
+        <div className="analysis-title"><span className="analysis-title-icon"><BarChart3 size={22} /></span><div><h1>样品分析</h1></div></div>
+        <div className="analysis-header-actions file-actions">
+          <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="analysis" label="打开样品文件" disabled={busy || active.has(selected?.status ?? '')} onOpened={async result => {
+            const ids = result.records?.filter(record => record.sample_no > 0 && Boolean(record.sample_name?.trim())).map(record => record.id) ?? result.record_ids
+            setLegacyIds(ids)
+            const next = await api.analysisOptions(token)
+            setOptions(next)
+            if (!ids.length) { setOpenedLegacy(value => value + 1); onToast('文件已保存，但没有可直接分析的已编号样品，请核对样号'); return }
+            const candidates = next.method_versions.filter(method => method.calculation_profile === 'legacy_2_0_2')
+            const method = candidates.find(method => method.method_version_id === legacyMethod) ?? (candidates.length === 1 ? candidates[0] : null)
+            if (!method) { setOpenedLegacy(value => value + 1); setManager('setup'); onToast('文件已保存，请选择对应方法，随后自动接入分析'); return }
+            const adapted = await api.importLegacyAnalysisSources(token, ids, method.method_version_id)
+            setLegacyMethod(method.method_version_id); setSampleIds(adapted.sample_ids); setProfile('legacy_2_0_2')
+            setOptions(await api.analysisOptions(token))
+            setManager('setup')
+            onToast('旧样品已打开并接入准备分析')
+          }}/><select aria-label="选择分析批次" value={selected?.id ?? ''} disabled={busy || active.has(selected?.status ?? '')} onChange={event => { const run = runs.find(item => item.id === Number(event.target.value)); if (run) void choose(run) }}>
+            <option value="">选择分析批次</option>{runs.map(run => <option key={run.id} value={run.id}>{run.name} · {statusLabels[run.status]}</option>)}
+          </select></div>
+      </section>
+      <AnalysisDesk key={selected?.id ?? 'empty'} token={token} run={selected} canSaveMethod={canSaveMethod} canPrint={canPrint} canExecute={canExecute}
+        information={information}
+        revision={spectrumRevision}
+        sampleSources={grouped}
+        repeatDefaults={options?.method_versions.find(method => method.method_version_id === selected?.method_version_id)?.repeat_defaults}
+        onSaveSampleNames={saveSampleNames} onShowRail={() => setRailCollapsed(false)}
+        onReview={() => { changeView(selected?.status === 'completed' ? 'curve' : 'raw'); setManager('review') }}
+        busy={busy} paused={paused} railCollapsed={railCollapsed} followSample={options?.preferences?.look_band} onHideRail={() => setRailCollapsed(true)}
+        onToast={onToast} onPrepare={() => setManager('setup')}
+        onStart={() => { if (checkpoint) { changeView('raw'); setManager('review') } else void act(selected?.status === 'draft' ? 'start' : 'step') }}
+        onPause={() => { cancelIntent.current = true; setPaused(true) }}
+        onClose={() => { void (async () => { if (selected && active.has(selected.status) && !await act('cancel')) return; setSelected(null); setPaused(false) })() }} />
+      {manager === 'setup' && (
+        <ViewerDialog title="分析设置" onClose={() => setManager(null)}>{managerContent}</ViewerDialog>
+      )}
+      {manager === 'review' && (
+        <section className="analysis-inline-review" aria-labelledby="analysis-review-title">
+          <header className="analysis-inline-review-header">
+            <h2 id="analysis-review-title">{reviewTitle}</h2>
+            <button type="button" className="secondary-button" onClick={() => setManager(null)}>返回谱图</button>
+          </header>
+          {managerContent}
+        </section>
+      )}
+      {preview && (
+        <ViewerDialog title={preview.title} onClose={() => setPreview(null)}>
+          <PreviewFrame className="standard-curve-preview" title={preview.title} srcDoc={preview.html} />
+        </ViewerDialog>
       )}
     </div>
   )

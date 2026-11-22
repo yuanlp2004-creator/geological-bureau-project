@@ -1,117 +1,40 @@
-import { type SpectrumRecord, type SpectrumRecordSummary } from '../../api'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
+import type { SpectrumRecord, SpectrumRecordSummary } from '../../api'
+import { ObservationToolbar } from '../../components/ObservationToolbar'
+import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { LegacyCcdPicker } from '../../components/LegacyCcdPicker'
+import type { SpectrumAxis } from '../../components/spectrumZoom'
 
-// State and request ownership remain in the page.
-type PanelProps = {
-  moveRecord: (delta: number) => void
-  visibleRecords: SpectrumRecordSummary[]
-  selectedId: string | null
-  moveBand: (delta: number) => void
-  raw: boolean
-  ccd: number
-  active: SpectrumRecord
-  line: number
-  resetView: (resetCorrection?: boolean) => void
-  setZoomX: React.Dispatch<React.SetStateAction<number>>
-  setPanX: React.Dispatch<React.SetStateAction<number>>
-  setZoomY: React.Dispatch<React.SetStateAction<number>>
-  recordLocked: boolean
-  setRecordLocked: React.Dispatch<React.SetStateAction<boolean>>
-  pixelScale: (mode: 1 | 4 | 10) => void
+type Props = {
+  moveRecord: (delta: number) => void; visibleRecords: SpectrumRecordSummary[]; selectedId: string | null
+  moveBand: (delta: number) => void; raw: boolean; ccd: number; active: SpectrumRecord; line: number
+  resetView: (resetCorrection?: boolean, horizontalOnly?: boolean) => void
+  zoom: (axis: SpectrumAxis, factor: number) => void
+  resetY: () => void
+  recordLocked: boolean; multiView: boolean
+  pixelScale: (mode: 1 | 4 | 10) => void; pixelMode: 1 | 4 | 10 | null
+  tool: 'crosshair' | 'pan' | 'box'; setTool: (value: 'crosshair' | 'pan' | 'box') => void
+  print: () => void; busy: boolean
 }
-
-export function SpectrumViewToolbar({
-  moveRecord,
-  visibleRecords,
-  selectedId,
-  moveBand,
-  raw,
-  ccd,
-  active,
-  line,
-  resetView,
-  setZoomX,
-  setZoomY,
-  recordLocked,
-  setRecordLocked,
-  pixelScale,
-}: PanelProps) {
-  return (
-    <div className="spectrum-toolbar">
-      <div className="spectrum-toolbar-group">
-        <button className="icon-button" disabled={recordLocked} onClick={() => moveRecord(-1)} title="上一条记录">
-          <SpectroscopyIcon name="previous-band" />
-        </button>
-        <span className="spectrum-position">
-          记录 {Math.max(1, visibleRecords.findIndex((item) => item.id === selectedId) + 1)} /{' '}
-          {visibleRecords.length}
-        </span>
-        <button className="icon-button" disabled={recordLocked} onClick={() => moveRecord(1)} title="下一条记录">
-          <SpectroscopyIcon name="next-band" />
-        </button>
-        <button className={`tool-button ${recordLocked?'active':''}`} onClick={() => setRecordLocked(v => !v)} aria-pressed={recordLocked}>
-          <SpectroscopyIcon name={recordLocked ? 'record-unlock' : 'record-lock'} />{recordLocked?'解锁谱带记录':'锁定谱带记录'}</button>
-        <span className="toolbar-rule" />
-        <button className="icon-button" onClick={() => moveBand(-1)} title={raw ? '上一 CCD' : '上一谱线'}>
-          <SpectroscopyIcon name="previous-ccd" />
-        </button>
-        <span className="spectrum-position">
-          {raw
-            ? `CCD ${ccd + 1} / ${active.layout?.ccd_count ?? 0}`
-            : `谱线 ${line + 1} / ${active.line_count ?? 0}`}
-        </span>
-        <button className="icon-button" onClick={() => moveBand(1)} title={raw ? '下一 CCD' : '下一谱线'}>
-          <SpectroscopyIcon name="next-ccd" />
-        </button>
-      </div>
-      <div className="spectrum-toolbar-group">
-        <button className="icon-button" title="适合图像" aria-label="适合图像" onClick={() => resetView()}>
-          <SpectroscopyIcon name="fit" />
-        </button>
-        <button
-          className="icon-button" title="一线一点（100%）" aria-label="100%"
-          onClick={() => {
-            pixelScale(1)
-          }}
-        >
-          <SpectroscopyIcon name="scale-1" />
-        </button>
-        <button className="icon-button" title="一线四点（400%）" aria-label="400%" onClick={() => pixelScale(4)}>
-          <SpectroscopyIcon name="scale-4" />
-        </button>
-        <button className="icon-button" title="十倍 CCD" aria-label="十倍 CCD" disabled={!raw} onClick={() => pixelScale(10)}><SpectroscopyIcon name="scale-10" /></button>
-        <button
-          className="icon-button"
-          onClick={() => setZoomX((value) => Math.min(32, value * 2))}
-          title="横向放大"
-        >
-          <SpectroscopyIcon name="zoom-x-in" />
-        </button>
-        <button
-          className="icon-button"
-          onClick={() => setZoomX((value) => Math.max(1, value / 2))}
-          title="横向缩小"
-        >
-          <SpectroscopyIcon name="zoom-x-out" />
-        </button>
-        <button
-          className="icon-button"
-          onClick={() => setZoomY((value) => Math.min(32, value * 2))}
-          title="纵向放大"
-        >
-          <SpectroscopyIcon name="zoom-y-in" />
-        </button>
-        <button
-          className="icon-button"
-          onClick={() => setZoomY((value) => Math.max(1, value / 2))}
-          title="纵向缩小"
-        >
-          <SpectroscopyIcon name="zoom-y-out" />
-        </button>
-        <button className="icon-button" onClick={() => resetView(true)} title="还原视图与参考校正">
-          <SpectroscopyIcon name="reset-y" />
-        </button>
-      </div>
-    </div>
-  )
+export function SpectrumViewToolbar(p: Props) {
+  const position = p.visibleRecords.findIndex(item => item.id === p.selectedId)
+  const count = p.raw ? Number(p.active.layout?.ccd_count ?? 0) : p.active.line_count ?? 0
+  const index = p.raw ? p.ccd : p.line
+  const bandLabels = p.active.layout?.band_labels as string[] | undefined
+  return <ObservationToolbar disabled={p.busy} tool={p.tool} setTool={p.setTool} fit={() => p.resetView(false,true)} showPan={!p.multiView}
+      navigation={<>
+        <SpectroscopyToolButton icon="previous-band" label="上一条记录" disabled={p.busy || p.recordLocked || position <= 0} onClick={() => p.moveRecord(-1)} />
+        <SpectroscopyToolButton icon="next-band" label="下一条记录" disabled={p.busy || p.recordLocked || position < 0 || position >= p.visibleRecords.length - 1} onClick={() => p.moveRecord(1)} />
+        <SpectroscopyToolButton icon="previous-ccd" label={p.raw ? '上一 CCD' : '上一谱线'} disabled={p.busy || index <= 0} onClick={() => p.moveBand(-1)} />
+        <SpectroscopyToolButton icon="next-ccd" label={p.raw ? '下一 CCD' : '下一谱线'} disabled={p.busy || index >= count - 1} onClick={() => p.moveBand(1)} />
+        <LegacyCcdPicker aria-label={p.raw ? '选择CCD' : '选择结果谱线'} title={`${p.raw ? 'CCD' : '谱线'} ${index + 1}`} value={index} disabled={p.busy || !count}
+          onChange={event => p.moveBand(Number(event.target.value) - index)}>
+          {Array.from({ length: count }, (_, i) => <option key={i} value={i}>{p.raw ? bandLabels?.[i] ?? `CCD ${i + 1}` : `谱线 ${i + 1}`}</option>)}
+        </LegacyCcdPicker>
+      </>}
+      scales={<>{([1, 4, 10] as const).map(value => <SpectroscopyToolButton key={value}
+        icon={value === 1 ? 'scale-1' : value === 4 ? 'scale-4' : 'scale-10'}
+        label={value === 1 ? '100%' : value === 4 ? '400%' : '十倍 CCD'}
+        description={value === 1 ? '一线一点（100%）' : value === 4 ? '一线四点（400%）' : '十倍 CCD'}
+        disabled={!p.raw || p.busy} aria-pressed={p.pixelMode === value} onClick={() => p.pixelScale(value)} />)}</>}
+      zoom={p.zoom} resetY={p.resetY} print={p.print} />
 }

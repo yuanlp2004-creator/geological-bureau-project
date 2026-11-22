@@ -11,6 +11,7 @@ from ..schemas.sample_queues import (
     SampleQueueUpdate,
     SampleQueueRename,
     SampleQueueImport,
+    SampleQueueSelection,
 )
 from ..auth import Session
 from ..modules.sample_queues import SampleQueueError
@@ -31,6 +32,22 @@ def list_sample_queues(
     _: Session = Depends(require_permission("samples.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> list[dict]:
     return runtime.sample_queue_service().list()
+
+
+@router.get('/api/v1/sample-queues/current', tags=['sample-queues'])
+def current_sample_queue(_: Session = Depends(require_permission('samples.read')), *,
+                         runtime: Runtime = Depends(get_runtime)) -> dict | None:
+    return runtime.sample_queue_service().current_queue()
+
+
+@router.put('/api/v1/sample-queues/current', tags=['sample-queues'])
+def select_sample_queue(payload: SampleQueueSelection,
+                        session: Session = Depends(require_permission('samples.write')), *,
+                        runtime: Runtime = Depends(get_runtime)) -> dict | None:
+    try:
+        return runtime.sample_queue_service().select_queue(payload.queue_id, session.user_id)
+    except SampleQueueError as exc:
+        raise sample_queue_error(exc) from exc
 
 
 @router.get("/api/v1/sample-queues/{queue_id}", tags=["sample-queues"])

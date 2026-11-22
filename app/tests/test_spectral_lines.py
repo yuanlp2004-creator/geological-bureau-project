@@ -165,6 +165,29 @@ def test_options_baseline_and_live_detectability(line_client) -> None:
     assert uncovered.json()["reason_code"] == "wavelength_not_on_ccd"
 
 
+def test_capture_lines_use_exact_method_version(line_client) -> None:
+    client, _, headers = line_client
+    method_id = _method(client, headers)["id"]
+    _create_line(client, headers, method_id, _line(254.0))
+    published = client.post(f"/api/v1/methods/{method_id}/publish", headers=headers)
+    assert published.status_code == 200, published.text
+    version = published.json()["current_version"]
+    url = f"/api/v1/methods/{method_id}/lines?version={version}"
+    original = client.get(url, headers=headers).json()
+    _create_line(client, headers, method_id, _line(255.0))
+
+    restored = client.get(url, headers=headers)
+    assert restored.status_code == 200, restored.text
+    assert restored.json() == original
+    assert restored.json()["state"] == "published"
+    assert all(line["detectability"]["detectable"] for line in original["lines"])
+    assert len(_collection(client, headers, method_id)["lines"]) == len(original["lines"]) + 1
+    missing = client.get(f"/api/v1/methods/{method_id}/lines?version=9999", headers=headers)
+    assert missing.status_code == 404
+    assert missing.json()["detail"]["code"] == "method_version_not_found"
+    assert client.get(f"/api/v1/methods/{method_id}/lines?version=0", headers=headers).status_code == 422
+
+
 def test_atomic_validation_duplicate_width_and_standard_rules(line_client) -> None:
     client, _, headers = line_client
     method_id = _method(client, headers)["id"]

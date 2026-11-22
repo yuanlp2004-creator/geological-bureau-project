@@ -280,6 +280,12 @@
   height: 390px;
   cursor: crosshair;
 }
+.spectrum-plot:focus {
+  outline: none;
+}
+.spectrum-plot:focus-visible > .plot-axis {
+  stroke-width: 2;
+}
 .spectrum-plot.tool-pan {
   cursor: grab;
   touch-action: none;

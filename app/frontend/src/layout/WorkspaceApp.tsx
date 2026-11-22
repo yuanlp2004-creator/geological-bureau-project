@@ -15,9 +15,9 @@ import { DeviceDebugPage } from '../pages/devices/DeviceDebugPage'
 import { SpectroscopyWorkbench } from '../pages/acquisition/SpectroscopyWorkbench'
 import { EvaporationCurvesPage } from '../pages/acquisition/EvaporationCurvesPage'
 import { isSpectroscopyMode } from '../pages/acquisition/spectroscopySession'
-import { HardwareAcquisitionPage } from '../pages/hardwareAcquisition/HardwareAcquisitionPage'
 import { AnalysisPage } from '../pages/analysis/AnalysisPage'
 import { DataProcessingPage } from '../pages/postprocessing/DataProcessingPage'
+import { PreparedImportPage } from '../pages/postprocessing/PreparedImportPage'
 import { MaintenancePage } from '../pages/maintenance/MaintenancePage'
 import { HelpPage } from '../pages/help/HelpPage'
 import { entryForPage, navigationAvailability, navigationEntries, type NavigationEntry, type Page } from '../navigation'
@@ -31,25 +31,23 @@ import { Header } from './Header'
 import { Workspace } from '../pages/workspace/WorkspacePage'
 import { MethodsPage } from '../pages/methods/MethodsPage'
 import type { MethodShortcutAction, MethodShortcutRequest } from '../pages/methods/methodShortcuts'
-import { LegacyMigrationPage } from '../pages/migration/LegacyMigrationPage'
-import { SpectrumMigrationPage } from '../pages/migration/SpectrumMigrationPage'
-import { ResultMigrationPage } from '../pages/migration/ResultMigrationPage'
+import { MigrationWorkspace } from '../pages/migration/MigrationWorkspace'
 import { SpectrumViewerPage } from '../pages/spectra/SpectrumViewerPage'
 import { SampleQueuePage } from '../pages/sampleQueues/SampleQueuePage'
-import { SettingsPage } from '../pages/settings/SettingsPage'
 import { AboutPage } from '../pages/about/AboutPage'
 import { UsersPage } from '../pages/auth/UsersPage'
 import { AuditPage } from '../pages/auth/AuditPage'
 import { ExtensionPage } from '../pages/extensions/ExtensionPage'
 
 export function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser; onLogout: () => void }) {
-  const [target, setTarget] = useState<{ page: Page; key: string; view: string | null }>({
+  const [target, setTarget] = useState<{ page: Page; key: string; view: string | null; spectrumFileGroup?: string; spectrumRecordId?: string }>({
     page: 'workspace',
     key: 'workspace.overview',
     view: null
   })
   const [events, setEvents] = useState<RuntimeEvent[]>([])
   const [dockHeight, setDockHeight] = useState(184)
+  const [informationExpanded, setInformationExpanded] = useState<boolean>()
   const canReadEvents = user.permissions.includes('runtime-events.read')
   const [settings, setSettings] = useState<Settings | null>(null)
   const [pageActionsTarget, setPageActionsTarget] = useState<HTMLDivElement | null>(null)
@@ -114,13 +112,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     root.dataset.timezone = settings?.time.timezone || 'Asia/Shanghai'
   }, [settings])
   useEffect(() => {
-    if (page !== 'settings') return
-    void api
-      .settings(token)
-      .then(setSettings)
-      .catch((error) => showToast(error instanceof Error ? error.message : '无法刷新软件设置'))
-  }, [page, showToast, token])
-  useEffect(() => {
     if (!canReadEvents) return
     const interval = window.setInterval(() => {
       void api
@@ -136,7 +127,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     return () => window.clearTimeout(timeout)
   }, [toast])
 
-  const handleNavigation = (entry: NavigationEntry) => {
+  const handleNavigation = (entry: NavigationEntry, spectrumFileGroup?: string, spectrumRecordId?: string) => {
     if ((entry.page !== page || entry.view !== target.view) && isSpectroscopyMode(page)
       && (isSpectroscopyMode(entry.page) || entry.page === 'evaporation-curves') && spectroscopyLock.current) {
       showToast(spectroscopyLock.current)
@@ -148,7 +139,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       return false
     }
     if (entry.extension) setActiveExtension(entry.extension)
-    setTarget({ page: entry.page, key: entry.key, view: entry.view })
+    setTarget({ page: entry.page, key: entry.key, view: entry.view, spectrumFileGroup, spectrumRecordId })
     return true
   }
   const handleMethodShortcut = (action: MethodShortcutAction) => {
@@ -163,29 +154,14 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     const entry = entryForPage(entries, nextPage, nextPage === 'methods' ? 'lifecycle' : undefined)
     if (entry) handleNavigation(entry)
   }
+  const viewSpectrumFile = (group: string, recordId?: string) => {
+    const entry = entryForPage(entries, 'spectra')
+    if (entry) handleNavigation(entry, group, recordId)
+    else showToast('当前账号没有谱图查看权限')
+  }
   const handleInternalView = (nextPage: Page, view: string) => {
     const entry = entryForPage(entries, nextPage, nextPage === 'analysis' ? undefined : view)
     if (entry) setTarget({ page: entry.page, key: entry.key, view })
-  }
-
-  const saveSettings = async (nextSettings: Settings) => {
-    try {
-      const saved = await api.saveSettings(token, nextSettings)
-      setSettings(saved)
-      showToast('软件设置已保存')
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : '保存失败')
-    }
-  }
-
-  const resetSettings = async () => {
-    try {
-      const defaults = await api.resetSettings(token)
-      setSettings(defaults)
-      showToast('软件设置已恢复默认值')
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : '恢复失败')
-    }
   }
 
   return (
@@ -252,14 +228,13 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 onToast={showToast}
               />
             )}
-            {page === 'migration' && <LegacyMigrationPage token={token} currentUser={user} onToast={showToast} />}
-            {page === 'spectrum-migration' && (
-              <SpectrumMigrationPage token={token} currentUser={user} onToast={showToast} />
-            )}
-            {page === 'result-migration' && (
-              <ResultMigrationPage token={token} currentUser={user} onToast={showToast} />
-            )}
-            {page === 'spectra' && <SpectrumViewerPage token={token} onToast={showToast} />}
+            {page === 'migration' && <MigrationWorkspace token={token} currentUser={user} onToast={showToast} />}
+            {page === 'spectra' && <SpectrumViewerPage key={JSON.stringify([target.spectrumFileGroup, target.spectrumRecordId])}
+              token={token} initialFileGroup={target.spectrumFileGroup} initialRecordId={target.spectrumRecordId}
+              actionsTarget={pageActionsTarget} canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
+            {page === 'prepared-import' && <PreparedImportPage token={token} currentMethod={currentMethod}
+              canWrite={user.permissions.includes('postprocessing.write')} onToast={showToast}
+              onViewSpectra={viewSpectrumFile} />}
             {(page === 'postprocessing' || page === 'reports') && (
               <DataProcessingPage token={token} page={page} initialView={target.view}
                 reportSource={reportSource} onReportSourceChange={setReportSource}
@@ -268,23 +243,14 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             {page === 'samples' && <SampleQueuePage token={token} onToast={showToast} entryRequest={sampleEntryRequest} />}
             {(page === 'acquisition' || page === 'mercury-calibration') && (
               <DeviceDebugPage token={token} permissions={user.permissions} settings={settings}
-                initialView={page === 'mercury-calibration' ? 'mercury' : target.view}
+                initialView={page === 'mercury-calibration' ? 'alignment' : target.view}
                 onSettingsChange={setSettings} onViewChange={view => handleInternalView('acquisition', view)} onToast={showToast} />
             )}
             {isSpectroscopyMode(page) && (
               <SpectroscopyWorkbench mode={page} view={page === 'dispersion' && target.view === 'curve' ? 'curve' : 'capture'} token={token} permissions={user.permissions} entries={entries}
-                currentMethod={currentMethod} onNavigate={handleNavigation} onLockChange={updateSpectroscopyLock} onToast={showToast} />
+                currentMethod={currentMethod} onNavigate={handleNavigation} onViewSpectra={viewSpectrumFile} onLockChange={updateSpectroscopyLock} onToast={showToast} />
             )}
-            {page === 'evaporation-curves' && <EvaporationCurvesPage token={token} onToast={showToast} />}
-            {page === 'hardware-acquisition' && (
-              <HardwareAcquisitionPage
-                canSaveSample={user.permissions.includes('hardware-acquisition.execute') && user.permissions.includes('acquisition.write')}
-                token={token}
-                canWrite={user.permissions.includes('hardware-acquisition.write')}
-                canExecute={user.permissions.includes('hardware-acquisition.execute')}
-                onToast={showToast}
-              />
-            )}
+            {page === 'evaporation-curves' && <EvaporationCurvesPage token={token} actionsTarget={pageActionsTarget} canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
             {page === 'analysis' && (
               <AnalysisPage
                 token={token}
@@ -296,6 +262,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 canCurve={user.permissions.includes('analysis.curve')}
                 canPrint={user.permissions.includes('analysis.print')}
                 canSaveMethod={user.permissions.includes('methods.write')}
+                information={canReadEvents ? { expanded: Boolean(informationExpanded), setExpanded: setInformationExpanded } : undefined}
                 onCurrentRunChange={rememberAnalysis}
                 onToast={showToast}
               />
@@ -308,9 +275,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               />
             )}
             {page === 'help' && <HelpPage token={token} onToast={showToast} />}
-            {page === 'settings' && settings && (
-              <SettingsPage settings={settings} onSave={saveSettings} onReset={resetSettings} onToast={showToast} actionsTarget={pageActionsTarget} />
-            )}
             {page === 'about' && (
               <AboutPage about={about} />
             )}
@@ -320,7 +284,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               <ExtensionPage token={token} extension={activeExtension} onToast={showToast} />
             )}
             </div>
-            {canReadEvents && <MessagePanel key={user.id} events={events} userId={user.id} onHeightChange={setDockHeight} />}
+            {canReadEvents && <MessagePanel key={user.id} events={events} userId={user.id} onHeightChange={setDockHeight}
+              expanded={informationExpanded} onExpandedChange={setInformationExpanded} />}
           </main>
         </>
       )}

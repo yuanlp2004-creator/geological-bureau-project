@@ -42,35 +42,12 @@
 .app-shell .maintenance-backup-directory {
   max-width: 680px;
 }
-:root .app-shell .maintenance-simple .maintenance-task .maintenance-log-settings {
-  width: 120px;
-  max-width: 120px;
-}
 .app-shell .maintenance-task > button {
   min-width: 116px;
   white-space: nowrap;
 }
 .app-shell .maintenance-simple .maintenance-row strong {
   overflow-wrap: anywhere;
-}
-.app-shell .maintenance-diagnostics {
-  margin-top: 18px;
-  padding: 20px;
-}
-.app-shell .maintenance-diagnostics > summary {
-  color: var(--ui-text);
-  font-weight: 600;
-  cursor: pointer;
-}
-.app-shell .maintenance-diagnostics > summary:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 4px;
-}
-.app-shell .maintenance-diagnostics .system-diagnostics {
-  margin-top: 20px;
-  padding: 0;
-  border: 0;
-  box-shadow: none;
 }
 .app-shell .about-software-card {
   max-width: 680px;
@@ -80,61 +57,23 @@
   font-size: 18px;
   line-height: 1.6;
 }
-.app-shell .about-software-details,
-.app-shell .system-diagnostic-paths {
+.app-shell .about-software-details {
   margin: 24px 0 0;
 }
-.app-shell .about-software-details > div,
-.app-shell .system-diagnostic-paths > div {
+.app-shell .about-software-details > div {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
   gap: 12px;
   padding: 12px 0;
 }
-.app-shell .about-software-details dt,
-.app-shell .system-diagnostic-paths dt {
+.app-shell .about-software-details dt {
   color: var(--ui-muted);
 }
-.app-shell .about-software-details dd,
-.app-shell .system-diagnostic-paths dd {
+.app-shell .about-software-details dd {
   margin: 0;
   overflow-wrap: anywhere;
-}
-.app-shell .system-diagnostics .diagnostic-grid {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-.app-shell .system-diagnostics pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.app-shell .system-diagnostics .capability-row {
-  grid-template-columns: minmax(0, 1fr) minmax(100px, .5fr) 96px;
-}
-.app-shell .system-diagnostics .capability-row p {
-  margin: 6px 0;
 }
 /* Short parameters share rows; paths, permissions and result lists retain their width. */
-:root .app-shell .settings-page .settings-analysis-fields {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-:root .app-shell .settings-page .settings-analysis-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-}
-:root .app-shell .settings-page .settings-analysis-options .checkbox-row {
-  margin: 0;
-}
-:root .app-shell .settings-page .settings-section .settings-display-fields {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: end;
-}
-:root .app-shell .settings-page .settings-display-fields .toggle-row {
-  margin: 0;
-  min-height: var(--ui-control);
-}
 :root .app-shell .auth-page .inline-form:not(.role-create-form) {
   grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
   align-items: end;
@@ -149,15 +88,6 @@
 :root .app-shell .methods-page .print-setting-grid .print-paper-field {
   grid-column: span 2;
 }
-:root .app-shell .dispersion-page .dispersion-source-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-:root .app-shell .dispersion-page .dispersion-number-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
 :root .app-shell .reports-page .report-source-fields {
   display: grid;
   grid-template-columns: minmax(200px, 320px) minmax(160px, 240px);
@@ -165,22 +95,9 @@
   align-items: start;
   margin-bottom: 16px;
 }
-@media (max-width: 1200px) {
-  :root .app-shell .settings-page .settings-analysis-fields,
-  :root .app-shell .settings-page .settings-section .settings-display-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  :root .app-shell .dispersion-page .dispersion-source-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  :root .app-shell .dispersion-page .dispersion-source-grid > :first-child {
-    grid-column: 1 / -1;
-  }
-}
 @media (max-width: 900px) {
   :root .app-shell .auth-page .inline-form:not(.role-create-form),
-  :root .app-shell .methods-page .print-setting-grid,
-  :root .app-shell .dispersion-page .dispersion-number-grid {
+  :root .app-shell .methods-page .print-setting-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -400,7 +317,7 @@
 :root
   .app-shell
   .remaining-page
-  :is(.sample-queue-grid, .acquisition-layout, .reports-grid, .auth-grid, .about-layout, .migration-top-grid) {
+  :is(.sample-queue-grid, .acquisition-layout, .reports-grid, .auth-grid, .about-layout) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
@@ -432,29 +349,7 @@
 }
 :root .app-shell .remaining-page .sample-entry-actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-:root .app-shell .remaining-page .sample-entry-actions .primary-button {
-  margin-left: auto;
-}
-:root .app-shell .remaining-page .sample-repeat-default {
-  margin: 0;
-  gap: 8px;
-  color: var(--ui-muted);
-  font-size: 13px;
-  line-height: 1.5;
-  cursor: pointer;
-}
-:root .app-shell .remaining-page .sample-repeat-default input[type='checkbox'] {
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
+  justify-content: flex-end;
 }
 @media (max-width: 900px) {
   :root .app-shell .remaining-page :is(.sample-entry-fields, .sample-entry-existing .sample-entry-fields) {
@@ -653,15 +548,6 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-:root .app-shell .remaining-page .settings-layout {
-  grid-template-columns: minmax(0, 1fr);
-}
-:root .app-shell .remaining-page .settings-section .field-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-:root .app-shell .remaining-page .settings-section:first-child .field-grid {
-  grid-template-columns: minmax(0, 1fr);
-}
 :root .app-shell .remaining-page .role-row {
   grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr);
 }
@@ -785,10 +671,7 @@
   stroke: #83baff;
 }
 
-:root .app-shell .remaining-page .settings-section:last-child {
-  grid-column: auto;
-}
-:root .app-shell .remaining-page :is(.settings-effect-note, .migration-note, .surface-note, .curve-empty span) {
+:root .app-shell .remaining-page :is(.migration-note, .surface-note, .curve-empty span) {
   font-size: 12px;
   color: var(--ui-muted);
 }
@@ -827,10 +710,6 @@
   background: var(--ui-selected);
   color: var(--ui-accent);
   box-shadow: inset 0 -2px var(--ui-accent);
-}
-:root .app-shell .remaining-page .reader-facts :is(dt, dd) {
-  font-size: 12px;
-  color: var(--ui-muted);
 }
 :root .app-shell .remaining-page :is(.acquisition-progress, .acquisition-facts, .curve-meta) strong {
   font-variant-numeric: tabular-nums;

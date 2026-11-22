@@ -26,6 +26,7 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
 
   const detailRequest = useRef(0)
   const previewRequest = useRef(0)
+  const confirming = useRef(false)
   useEffect(() => () => { detailRequest.current++; previewRequest.current++ }, [token])
   const closePreview = () => {
     previewRequest.current++
@@ -112,6 +113,9 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
   }
   const confirm = async () => {
     if (!active || !canWrite) return onToast('请选择报告并确认写入权限')
+    if (confirming.current || busy || outputBusy) return
+    confirming.current = true
+    setBusy(true)
     try {
       const next = await api.confirmReport(token, active.id)
       setActive((current) => current?.id === next.id ? next : current)
@@ -119,7 +123,7 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
       onToast('报告已确认，可导出或打印')
     } catch (error) {
       onToast(error instanceof Error ? error.message : '报告确认失败')
-    }
+    } finally {confirming.current=false;setBusy(false)}
   }
   return <div className="page-content reports-page refined-page remaining-page" data-testid="reports-page">
     <section className="page-action-toolbar" style={embedded ? {display: 'contents'} : undefined}>

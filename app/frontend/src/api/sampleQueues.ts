@@ -1,6 +1,8 @@
 /** 样号、重复数、顺序和 SAM 文件接口；采集完成计数及关联由后端维护。 */
 import { request, requestRaw } from './client'
 
+export type SamEncoding = 'gb18030' | 'utf-8-sig'
+
 export type SampleQueueItem = {
   id: number
   queue_id: number
@@ -28,6 +30,9 @@ export type SampleQueue = {
 }
 
 export const sampleQueuesApi = {
+  currentSampleQueue: (token: string) => request<SampleQueue | null>('/api/v1/sample-queues/current', { headers: { Authorization: `Bearer ${token}` } }),
+  selectSampleQueue: (token: string, queueId: number | null) => request<SampleQueue | null>('/api/v1/sample-queues/current', {
+    method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ queue_id: queueId }) }),
   sampleQueues: /* 读取样品队列历史列表。 */ (token: string) =>
     request<SampleQueue[]>('/api/v1/sample-queues', { headers: { Authorization: `Bearer ${token}` } }),
   createSampleQueue: /* 创建样品队列，返回服务处理结果。 */ (
@@ -81,7 +86,7 @@ export const sampleQueuesApi = {
     content: string | Uint8Array,
     queueName?: string,
     lastModifiedMs?: number,
-    encoding?: 'gb18030' | 'utf-8-sig'
+    encoding?: SamEncoding
   ) =>
     request<SampleQueue & { source_sha256: string }>('/api/v1/sample-queues/import', {
       method: 'POST',

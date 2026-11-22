@@ -178,7 +178,7 @@ def test_authentication_and_permission_matrix(auth_client) -> None:
         for entry in capability["navigation_entries"]
         if any(permission in me.json()["permissions"] for permission in entry["required_any"])
     ]
-    assert len(visible_entries) == 25
+    assert len(visible_entries) == 23
     assert any(entry["key"] == "help.about" for entry in visible_entries)
     roles = client.get("/api/v1/roles", headers=headers)
     assert roles.status_code == 200

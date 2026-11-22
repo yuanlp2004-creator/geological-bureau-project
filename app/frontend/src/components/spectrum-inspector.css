@@ -6,9 +6,21 @@
 .inspector-tools label, .inspector-readout label { display: flex; align-items: center; gap: 8px; }
 .inspector-tools select { width: auto; min-width: 120px; }
 .inspector-tool-modes { display: flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 2px; border-right: 1px solid var(--line); }
-.spectroscopy-action-icon { display: block; width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; image-rendering: auto; }
+:root .app-shell .inspector-icon-tools { column-gap: var(--spectrum-tool-gap); }
+:root .app-shell .inspector-icon-tools > .inspector-tool-modes {
+  column-gap: var(--spectrum-tool-gap);
+  padding-inline-end: calc(var(--spectrum-tool-group-gap) - var(--spectrum-tool-gap) - 1px);
+  margin-inline-end: 0;
+}
+.spectroscopy-action-icon { display: block; width: 20px; height: 20px; flex: none; object-fit: contain; image-rendering: auto; }
+:root .app-shell .inspector-icon-button {
+  display: inline-flex; align-items: center; justify-content: center;
+}
+:root .app-shell .legacy-ccd-picker, :root .app-shell .classic-ccd-picker {
+  justify-content: center;
+}
 :root .app-shell .inspector-icon-tools .inspector-icon-button {
-  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 34px;
+  flex: 0 0 34px;
   width: 34px; min-width: 34px; height: 34px; min-height: 34px; padding: 6px;
 }
 :root .app-shell .inspector-icon-tools .inspector-icon-button[aria-pressed="true"] {
@@ -38,6 +50,10 @@
 .plot-position-marker line { stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .plot-position-marker.expected { stroke: #b0701f; fill: #b0701f; }
 .plot-position-marker.located { stroke: #27805d; fill: #27805d; }
+.plot-position-marker[aria-pressed="true"] line { stroke-width: 2; }
+.plot-position-marker[role="button"] { cursor: pointer; }
+.plot-position-marker:focus { outline: none; }
+.plot-position-marker:focus-visible circle { stroke: #1570a6; stroke-width: 3; }
 .inspector-markers { margin-top: 12px; }
 .inspector-markers button { max-width: 100%; white-space: normal; text-align: left; overflow-wrap: anywhere; }
 .inspector-markers .expected { border-left: 3px solid #b0701f; }

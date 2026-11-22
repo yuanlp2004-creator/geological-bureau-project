@@ -4,6 +4,7 @@ import { AlertTriangle, Download, FileText, Info, Printer, RefreshCw, Save } fro
 import { api, saveFile, type MethodPrintSettings, type PrinterOption, type PrintJob } from '../../api'
 import { CopyableCode } from '../../components/InformationDisplay'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
+import { PreviewFrame } from '../../components/PreviewFrame'
 import { NumberField } from './NumberField'
 import { formatDateTime } from '../../components/dateFormat'
 
@@ -346,7 +347,7 @@ export function MethodPrintPanel({
         </div>
         <div className="preview-frame-shell">
           {previewHtml ? (
-            <iframe
+            <PreviewFrame
               className={settings.orientation}
               title={`${methodName} 方法参数预览`}
               srcDoc={previewHtml}

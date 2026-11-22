@@ -20,6 +20,7 @@ import { reportsApi } from './reports'
 
 export { ApiError } from './client'
 export { eventSocketUrl } from './events'
+export type { PreparedTarget, PreparedImportOptions, PreparedImportInput } from './postprocessing'
 export { saveFile, savePdfFile, selectLegacyDirectory } from '../platform/files'
 export type { EventSeverity, RuntimeEvent, Settings, Capability, About, Diagnostics, ModuleDiagnostic } from './system'
 export type { LegacySourceKind, LegacySource, LegacySourceScan } from './legacySources'
@@ -44,7 +45,7 @@ export type {
   MethodOptions
 } from './methods'
 export type { BackupRecord, MaintenanceStatus, HelpTopic } from './maintenance'
-export type { DeviceProfile, DeviceCcd, DeviceEvent, DeviceDiagnostics, DeviceDebugResult } from './devices'
+export type { DeviceProfile, DeviceCcd, DeviceEvent, DeviceDiagnostics, DeviceDebugResult, DevicePort, BluetoothDevice } from './devices'
 export type {
   DispersionState,
   DispersionLine,

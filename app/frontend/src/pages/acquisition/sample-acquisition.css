@@ -9,8 +9,7 @@
 .acquisition-task-list,
 .acquisition-create,
 .acquisition-monitor,
-.acquisition-detail-grid,
-.acquisition-messages {
+.acquisition-detail-grid {
   min-width: 0;
   padding: 20px;
 }
@@ -219,8 +218,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-.interval-form,
-.rename-form {
+.interval-form {
   display: flex;
   align-items: end;
   flex-wrap: wrap;
@@ -230,18 +228,15 @@
 .interval-form .field {
   flex: 1 1 115px;
 }
-.interval-form .secondary-button,
-.rename-form .secondary-button {
+.interval-form .secondary-button {
   white-space: nowrap;
 }
-.interval-list,
-.sample-result-list {
+.interval-list {
   display: grid;
   gap: 5px;
   margin-top: 13px;
 }
-.interval-list > div,
-.sample-result-list > div {
+.interval-list > div {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -249,78 +244,18 @@
   border: 1px solid #edf1f4;
   background: #fafcfd;
 }
-.interval-list strong,
-.sample-result-list strong {
+.interval-list strong {
   color: #4e6576;
   font-size: 10px;
 }
-.interval-list span,
-.sample-result-list small {
+.interval-list span {
   color: #91a2ae;
   font-size: 9px;
-}
-.sample-result-list small {
-  margin-left: auto;
 }
 .compact-empty {
   margin-top: 12px;
   padding: 13px;
   border: 1px dashed #dce5eb;
-}
-.rename-form input {
-  flex: 1 1 160px;
-  min-width: 0;
-}
-.message-list {
-  display: grid;
-  gap: 4px;
-  max-height: 180px;
-  overflow: auto;
-  margin-top: 9px;
-}
-.message-list > div {
-  display: grid;
-  grid-template-columns: 62px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 9px;
-  border-left: 2px solid #dce5eb;
-  background: #fafcfd;
-}
-.message-list > div.warning {
-  border-left-color: #ca9b6c;
-}
-.message-list > div.error {
-  border-left-color: #c77d72;
-}
-.message-list > div.success {
-  border-left-color: #58a888;
-}
-.message-summary-icon {
-  display: inline-grid;
-  place-items: center;
-  color: #718599;
-}
-.message-summary-icon.success {
-  color: #258765;
-}
-.message-summary-icon.warning {
-  color: #b27a31;
-}
-.message-summary-icon.error {
-  color: #c55e59;
-}
-.message-list span,
-.message-list code {
-  color: #95a5b0;
-  font:
-    9px 'DM Sans',
-    monospace;
-}
-.message-list strong {
-  color: #61798b;
-  font-size: 10px;
-  font-weight: 500;
 }
 .monitor-empty {
   min-height: 220px;

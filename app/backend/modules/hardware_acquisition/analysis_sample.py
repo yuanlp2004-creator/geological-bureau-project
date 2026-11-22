@@ -53,8 +53,8 @@ def save_analysis_sample(service, task_id: int, payload: dict, actor: int | None
             if config.get('method_content_sha256') != method.content_sha256:
                 raise HardwareError('hardware_sample_method_changed', '已确认结果的方法快照不一致', status_code=409)
             raw = db.execute('SELECT * FROM hardware_exposure_frames WHERE task_id=? AND step_id=? AND attempt=? '
-                             'AND ccd_index=? ORDER BY frame_index',
-                             (task_id, exposure['step_id'], exposure['attempt'], ccd)).fetchall()
+                             'AND ccd_index=? AND frame_index<=? ORDER BY frame_index',
+                             (task_id, exposure['step_id'], exposure['attempt'], ccd, exposure['end_frame'])).fetchall()
             if [r['frame_index'] for r in raw] != list(range(1, exposure['end_frame']+1)):
                 raise HardwareError('hardware_sample_frames_missing', '已确认尝试的原始帧不完整')
             if any(len(bytes(r['points_blob'])) != exposure['points_count']*2

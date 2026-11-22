@@ -24,6 +24,37 @@ def test_s12_polynomial_fit_reproduces_golden_probe() -> None:
     assert _evaluate(coefficients, 265.0) == pytest.approx(0.08 * 265.0**2 + 5.5 * 265.0 - 4200.0, abs=1e-7)
 
 
+def test_native_dispersion_pdf_uses_selected_ccd_frames_and_visible_range(dispersion_client):
+    from backend.modules.dispersion import DispersionService
+
+    client, runtime, headers = dispersion_client
+    service = DispersionService(runtime.database)
+    task = service.create_task({'name': '新版色散PDF', 'frame_count': 2, 'dark_frame_count': 0,
+                                'ccd_indices': [0, 1], 'pre_excitation_seconds': 0})
+    task_id = task['id']
+    service.start_task(task_id)
+    for _ in range(6):
+        task = service.step_task(task_id)
+        if task['status'] == 'completed':
+            break
+    assert task['status'] == 'completed'
+    url = f'/api/v1/dispersion/tasks/{task_id}/observation-spectrum'
+    frame = service.frames(task_id, ccd_index=1, phase='burn')[1]
+    interval = {'ccd': 1, 'exposure_start': 2, 'exposure_end': 2}
+    view = client.get(url, headers=headers, params=interval)
+    assert view.is_success, view.text
+    assert view.json()['points'] == frame['points']
+    assert view.json()['frame_sha256'] == [frame['points_sha256']]
+    bounds = {'x_min': 10, 'x_max': 30, 'y_min': 0, 'y_max': 65535}
+    pdf = client.post(url + '/print-pdf', headers=headers, json=interval | bounds)
+    assert pdf.is_success, pdf.text
+    assert pdf.content.startswith(b'%PDF-')
+    assert pdf.headers['X-Visible-Point-Count'] == '21'
+    assert client.post(url + '/print-pdf', headers=headers, json=interval | bounds | {'ccd': 3}).is_client_error
+    assert client.get(url, headers=headers, params=interval | {'exposure_end': 3}).is_client_error
+    assert client.post(url + '/print-pdf', json=interval | bounds).status_code == 401
+
+
 def test_s12_duplicate_insufficient_and_residual_failures_keep_draft(tmp_path: Path) -> None:
     database = Database(tmp_path / "dispersion.sqlite3")
     database.initialize()
@@ -208,14 +239,17 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert added_line.status_code == 201, added_line.text
     line_id = added_line.json()["id"]
     located = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/locate", headers=headers)
-    assert located.status_code == 200, located.text
-    assert located.json()["located_position"] is not None
+    # Simulator burn/dark replays cancel here; flat data must not manufacture a peak.
+    assert located.status_code == 409, located.text
+    assert located.json()['detail']['code'] == 'dispersion_peak_not_found'
+    unchanged = next(line for line in runtime.dispersion_service().get_task(task_id)['lines'] if line['id'] == line_id)
+    assert unchanged['located_position'] is None
     moved = client.post(
         f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/move",
         headers=headers,
         json={"direction": "short", "steps": 1},
     )
-    assert moved.json()["located_position"] == pytest.approx(located.json()["located_position"] - 1)
+    assert moved.json()["located_position"] == pytest.approx(added_line.json()["expected_position"] - 1)
     saved = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}/position/save", headers=headers)
     assert saved.json()["position_state"] == "saved"
     client.post(
@@ -227,7 +261,8 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert restored.json()["located_position"] == pytest.approx(saved.json()["saved_position"])
     located_all = client.post(f"/api/v1/dispersion/tasks/{task_id}/lines/locate-all", headers=headers)
     assert located_all.status_code == 200
-    assert any(line["id"] == line_id for line in located_all.json()["located"])
+    assert not located_all.json()['all_succeeded']
+    assert any(error['line_id'] == line_id and error['code'] == 'dispersion_peak_not_found' for error in located_all.json()['errors'])
     assert client.delete(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}", headers=headers).status_code == 200
 
     fitted = client.post(

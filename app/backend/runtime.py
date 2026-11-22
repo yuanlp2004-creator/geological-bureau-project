@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import threading
+from functools import partial
 
 from .config import AppConfig
 from .db import Database
@@ -38,6 +40,7 @@ class Runtime:
         self.messages = RuntimeMessages(self.service)
         self.auth_service = AuthService(self.database)
         self.process_key = process_key
+        self.device_exit_gate = threading.Event()
         self.event_subscribers: set[asyncio.Queue[dict]] = set()
         self._device_service_instance = None
         self._dispersion_service_instance = None
@@ -79,12 +82,27 @@ class Runtime:
 
     def devices_service(self) -> DeviceService:
         if self._device_service_instance is None or self._device_service_instance.database is not self.database:
-            self._device_service_instance = DeviceService(self.database)
+            self._device_service_instance = DeviceService(
+                self.database, exit_gate=self.device_exit_gate,
+                on_serial_notice=partial(self.messages.serial_notice, source='devices'),
+            )
         return self._device_service_instance
+
+    def active_serial_captures(self) -> list[dict]:
+        result = []
+        for owner, service in (('样品 / 蒸发摄谱', self._acquisition_service_instance),
+                               ('色散摄谱', self._dispersion_service_instance)):
+            if service is not None:
+                result.extend({"owner": owner, **item} for item in service.active_serial_connections())
+        return result
 
     def dispersion_service(self) -> DispersionService:
         if self._dispersion_service_instance is None or self._dispersion_service_instance.database is not self.database:
-            self._dispersion_service_instance = DispersionService(self.database)
+            self._dispersion_service_instance = DispersionService(
+                self.database, exit_gate=self.device_exit_gate,
+                on_frame_saved=partial(self.messages.capture_frame, source='dispersion'),
+                on_serial_notice=partial(self.messages.serial_notice, source='dispersion'),
+            )
         return self._dispersion_service_instance
 
     def acquisition_service(self) -> AcquisitionService:
@@ -92,7 +110,11 @@ class Runtime:
             self._acquisition_service_instance is None
             or self._acquisition_service_instance.database is not self.database
         ):
-            self._acquisition_service_instance = AcquisitionService(self.database)
+            self._acquisition_service_instance = AcquisitionService(
+                self.database, exit_gate=self.device_exit_gate,
+                on_frame_saved=partial(self.messages.capture_frame, source='acquisition'),
+                on_serial_notice=partial(self.messages.serial_notice, source='acquisition'),
+            )
         return self._acquisition_service_instance
 
     def hardware_acquisition_service(self) -> HardwareAcquisitionService:
@@ -102,6 +124,22 @@ class Runtime:
         ):
             self._hardware_acquisition_service_instance = HardwareAcquisitionService(self.database)
         return self._hardware_acquisition_service_instance
+
+    def shutdown(self) -> list[dict]:
+        self.device_exit_gate.set()
+        errors = []
+        for service in (self._acquisition_service_instance, self._dispersion_service_instance,
+                        self._device_service_instance, self._hardware_acquisition_service_instance):
+            if service is not None:
+                try:
+                    errors.extend(service.shutdown() or [])
+                except Exception as exc:
+                    errors.append({"message": str(exc)})
+                    import logging
+                    logging.getLogger(__name__).exception("Device shutdown did not confirm instrument stop")
+        if not errors:
+            self.messages.close()
+        return errors
 
     def mercury_calibration_service(self) -> MercuryCalibrationService:
         if (

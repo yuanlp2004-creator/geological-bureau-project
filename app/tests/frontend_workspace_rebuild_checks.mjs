@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 
-// Verify the restored workspace, existing navigation and saved themes in browser or desktop.
+// Verify the restored workspace, existing navigation and fixed default appearance in browser or desktop.
 export async function checkWorkspacePrerequisites(page) {
  const workspace=page.getByTestId('workspace')
  await workspace.getByRole('heading',{name:'尚未选择运行方法',exact:true}).waitFor()
@@ -26,7 +26,7 @@ export async function checkWorkspaceLayout(page,call,output) {
  await page.locator('[data-navigation-group="workspace"]').click()
  await workspace.waitFor()
  checks.push('restored method, messages and side-column layout; original sample-queue and method entries navigate correctly')
- for(const [theme,density] of [['light','comfortable'],['dark','compact']]){
+ for(const [theme,density] of [['light','comfortable']]){
   await call(page,'/api/v1/settings',{display:{theme,density}},'PATCH')
   await page.getByRole('button',{name:'刷新服务状态',exact:true}).click()
   await page.waitForFunction(({theme,density})=>document.documentElement.dataset.theme===theme&&document.documentElement.dataset.density===density,{theme,density})
@@ -37,7 +37,7 @@ export async function checkWorkspaceLayout(page,call,output) {
    await page.screenshot({path:output+`/workspace-${theme}-${width}.png`,fullPage:true})
   }
  }
- checks.push('1060/1440/1920 viewports in actual saved light/comfortable and dark/compact themes have no window overflow')
+ checks.push('1060/1440/1920 viewports using the default light/comfortable appearance have no window overflow')
  const desktop=await page.evaluate(()=> '__TAURI__' in window)
  assert.ok((await workspace.locator('.protocol-surface').innerText()).includes(desktop?'桌面程序':'浏览器预览'))
  await workspace.getByText('10 秒刷新',{exact:true}).waitFor()

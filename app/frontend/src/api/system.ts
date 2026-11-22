@@ -15,7 +15,7 @@ export type RuntimeEvent = {
 }
 
 export type Settings = {
-  analysis?: { dark_round_time_seconds: number;log_analysis?:boolean;look_band?:boolean;wait_time_ms?:number;cmt_band_mean?:boolean }
+  analysis?: { dark_round_time_seconds: number;log_analysis?:boolean;look_band?:boolean;wait_time_ms?:number;cmt_band_mean?:boolean;dispersion_nominal_gap_um?:number;dispersion_allow_gap_error_um?:number }
   intensity_output?: {save_intensity:boolean;print_intensity:boolean;print_to_text:boolean;save_positions:boolean}
   preliminary?: { evaporation: PreliminaryConditions; dispersion: PreliminaryConditions }
   directories: { data: string; methods: string; samples: string; exports: string; backups: string }

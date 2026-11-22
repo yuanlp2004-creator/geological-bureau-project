@@ -190,6 +190,7 @@ def test_analysis_full_spectrum_integrity_and_membership(tmp_path):
 
 # v14 升级的任意 SQL 失败必须原子回滚，成功后保留旧数据及全部历史迁移。
 def test_v23_upgrade_failure_rolls_back(tmp_path, monkeypatch):
+    from backend.migrations import SCHEMA_VERSION
     import backend.migrations.v23_contract_closure as db_module
     database = Database(tmp_path / 'upgrade.sqlite3')
     checkpoint(database.path, 22)
@@ -203,7 +204,7 @@ def test_v23_upgrade_failure_rolls_back(tmp_path, monkeypatch):
     monkeypatch.setattr(db_module, 'SQL', sql)
     database.initialize()
     with database.read() as db:
-        assert int(db.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0]) == 23
+        assert int(db.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0]) == SCHEMA_VERSION
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []
 
 

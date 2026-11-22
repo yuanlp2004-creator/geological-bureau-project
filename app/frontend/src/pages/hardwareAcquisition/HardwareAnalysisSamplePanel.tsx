@@ -12,9 +12,9 @@ export function HardwareAnalysisSamplePanel({ token, task, canSave, onSaved, onT
   const ready = task.status === 'completed' && !!task.method_id
   return <section className="surface hardware-analysis-sample" aria-label="转角结果保存为分析样品">
     <div className="surface-heading"><h2>分析样品</h2></div>
-    {task.analysis_sample ? <p role="status">已保存：{task.analysis_sample.sample_name}。可在“定量分析与慢进”和“谱图查看”中选择。</p> : <>
+    {task.analysis_sample ? <p role="status">已保存：{task.analysis_sample.sample_name}。可在“样品分析”和“谱图查看”中选择。</p> : <>
       <p>{!task.method_id ? '建立任务时绑定已发布方法，完成采集后即可保存分析样品。'
-        : !ready ? '完成全部转角采集并确认结果后，可保存分析样品。' : '保存后可在“定量分析与慢进”和“谱图查看”中选择该样品。'}</p>
+        : !ready ? '完成全部转角采集并确认结果后，可保存分析样品。' : '保存后可在“样品分析”和“谱图查看”中选择该样品。'}</p>
       {canSave && <form className="hardware-analysis-sample-form" onSubmit={async event => {
         event.preventDefault()
         if (!ready || inFlight.current || !name.trim()) return

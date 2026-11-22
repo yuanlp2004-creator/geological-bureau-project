@@ -498,9 +498,12 @@ class LegacyMigrationService:
         # Re-read archived sections to include new preference fields in pre-existing imports.
         archived=json.loads(row['cfg_json'])
         if archived.get('sections'):cfg=_typed_cfg(archived['sections'])
+        archived_opt=json.loads(row['opt_json'])
+        if archived_opt.get('sections'):opt=_typed_opt(archived_opt['sections'])
         analyze=cfg['analyze'];page=opt['page_setup']
         dark=int(analyze['dark_round_time']); dark=8 if dark<6 else min(20,dark)
         patch={'analysis':{'dispersion_allow_gap_error_um':opt['ccd']['allow_gap_error'],
+                           'dispersion_nominal_gap_um':opt['ccd'].get('nominal_gap_um',9809),
                            'dark_round_time_seconds':dark,'look_band':analyze['look_band'],'log_analysis':analyze['log_analysis'],
                            'wait_time_ms':analyze['wait_time_ms'],'cmt_band_mean':analyze.get('cmt_band_mean',False)},
                'printing':{'font_size_pt':page['font_size'],'elements_per_line':page['elements_per_line'],

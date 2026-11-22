@@ -53,7 +53,7 @@ export async function checkPageLayout(page, result, output) {
         assert.ok(!position.inCard && position.icon && Math.abs(position.left-position.bodyLeft)<2 && position.bottom<=position.bodyTop+1,`${entry.label}: main title belongs above the page body at its left edge ${JSON.stringify(position)}`)
       }
       if(['sample-acquisition','evaporation-acquisition'].includes(entry.page)) await page.getByRole('heading',{name:'摄谱工作台',exact:true}).waitFor()
-      const designedPages=['settings','users','audit','migration','spectrum-migration','result-migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing','acquisition']
+      const designedPages=['settings','users','audit','migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing','acquisition']
       if(designedPages.includes(entry.page)) {
         await page.locator('.section-heading:visible').first().waitFor()
         const invalid=await page.locator('.section-heading:visible').evaluateAll(headings=>headings.filter(node=>!node.closest('.surface')||node.querySelector('svg,img')||!node.querySelector('h2')).length)
@@ -63,7 +63,7 @@ export async function checkPageLayout(page, result, output) {
       assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),theme)
       assert.ok(size.scroll<=size.width+1,`${entry.label}: horizontal overflow ${JSON.stringify(size)}`)
       assert.equal(await page.locator('.page-content .page-intro:visible, .page-content > .hero-row:visible').count(),0,`${entry.label}: old title gap`)
-      const reflowPages=['users','audit','about','migration','spectrum-migration','result-migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing']
+      const reflowPages=['users','audit','about','migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing']
       if(reflowPages.includes(entry.page)) {
         if(theme==='light') await page.waitForLoadState('networkidle')
         assert.equal(await page.locator('.main-area .page-content').first().locator(':scope > .page-action-toolbar:visible').count(),0,`${entry.label}: detached action row`)
@@ -72,7 +72,7 @@ export async function checkPageLayout(page, result, output) {
           .filter(button=>!button.closest('.surface-heading,.task-context,.spectrum-query-panel,.queue-context,.output-workspace-toolbar,.product-header'))
           .map(button=>button.textContent.trim()))
         assert.deepEqual(misplaced,[],`${entry.label}: refresh outside its content context`)
-        if(['migration','spectrum-migration'].includes(entry.page)) {
+        if(entry.page==='migration') {
           const header=page.locator('.migration-source-surface > .surface-heading')
           assert.equal(await header.locator('button:not([type="button"])').count(),0,`${entry.label}: header actions must not submit the migration form`)
         }
@@ -84,5 +84,5 @@ export async function checkPageLayout(page, result, output) {
   }
   assert.ok(result.pageLayouts.some(item=>item.key==='tools.devices'))
   assert.ok(result.pageLayouts.some(item=>item.key==='analysis-tests.spectra'))
-  result.checks.push('All 25 navigation pages fit both themes/window sizes; decorative main titles sit above the page at its left edge and cards keep plain subtitles')
+  result.checks.push('Reachable navigation pages fit both themes/window sizes; decorative main titles sit above the page at its left edge and cards keep plain subtitles')
 }

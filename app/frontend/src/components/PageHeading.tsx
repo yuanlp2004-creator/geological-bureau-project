@@ -7,7 +7,7 @@ export function PageHeading({ entry, actionsRef }: { entry: NavigationEntry; act
     <div className="app-page-heading-inner">
       <div className="app-page-heading-title">
         <span className="app-page-heading-icon" aria-hidden="true"><FunctionIcon name={iconForEntry(entry)} size={26} /></span>
-        <div className="app-page-heading-copy"><h1>{entry.label}</h1><p>{entry.description}</p></div>
+        <div className="app-page-heading-copy"><h1>{entry.label}</h1></div>
       </div>
       <div ref={actionsRef} className="app-page-heading-actions" />
     </div>

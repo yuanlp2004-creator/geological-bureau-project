@@ -1,220 +1,77 @@
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
-  PauseCircle,
-  PlayCircle,
-  RotateCcw,
-  ShieldAlert,
-  Square,
-  Wrench
-} from 'lucide-react'
-import { type HardwareTask } from '../../api'
-import type { HardwarePlanStep } from '../../api/hardwareAcquisition'
-import { CopyableCode } from '../../components/InformationDisplay'
-import { activeStates, labels, terminalStates } from './hardwareView'
+import type { HardwareTask } from '../../api'
+import type { ReactNode } from 'react'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
+import { activeStates, anomalyText, decisionLabels, labels, terminalStates } from './hardwareView'
 
-// 父页面统一持有草稿、选中项和请求状态。
-type PanelProps = {
-  selected: HardwareTask | null
-  apply: (action: "start" | "step" | "pause" | "resume" | "stop") => Promise<void>
-  busy: boolean
-  canExecute: boolean
-  setAuto: React.Dispatch<React.SetStateAction<boolean>>
-  auto: boolean
-  currentStep: HardwarePlanStep | undefined
-  isExternal: boolean
-  interventionNote: string
-  setInterventionNote: React.Dispatch<React.SetStateAction<string>>
-  intervene: (action: "accept" | "retry" | "stop") => Promise<void>
-}
+type Action = 'start' | 'step' | 'pause' | 'resume' | 'stop' | 'accept' | 'retry'
+type Props = { selected: HardwareTask; control: (action: Action) => Promise<void>; busy: boolean; canExecute: boolean;
+  auto: boolean; controlError: string; interventionNote: string; setInterventionNote: (note: string) => void; children?: ReactNode }
 
-export function HardwareAcquisitionMonitor({
-  selected,
-  apply,
-  busy,
-  canExecute,
-  setAuto,
-  auto,
-  currentStep,
-  isExternal,
-  interventionNote,
-  setInterventionNote,
-  intervene,
-}: PanelProps) {
-  return (
-    <section className="surface hardware-monitor">
-      <div className="surface-heading">
-        <div>
-          <h2 title={selected?.name}>
-            {selected?.name ?? '选择一个任务'}{' '}
-            {selected && (
-              <span className={`state-chip ${selected.status}`}>
-                {labels[selected.status] ?? selected.status}
-              </span>
-            )}
-          </h2>
-        </div>
-        <div className="hardware-actions">
-          <button
-            className="primary-button"
-            onClick={() => void apply('start')}
-            disabled={!selected || busy || !canExecute || selected.status !== 'draft'}
-          >
-            <PlayCircle size={15} />
-            启动
-          </button>
-          <button
-            className="secondary-button"
-            onClick={() => setAuto((value) => !value)}
-            disabled={!selected || busy || !canExecute || !activeStates.has(selected.status)}
-          >
-            <Activity size={15} />
-            {auto ? '停止自动推进' : '自动推进'}
-          </button>
-          <button
-            className="secondary-button"
-            onClick={() => void apply('step')}
-            disabled={!selected || busy || !canExecute || !activeStates.has(selected.status)}
-          >
-            <ChevronRight size={15} />
-            单步
-          </button>
-          <button
-            className="icon-button compact"
-            title="暂停"
-            onClick={() => void apply('pause')}
-            disabled={!selected || busy || !canExecute || !activeStates.has(selected.status)}
-          >
-            <PauseCircle size={16} />
-          </button>
-          <button
-            className="icon-button compact danger"
-            title="安全停止"
-            onClick={() => void apply('stop')}
-            disabled={!selected || busy || !canExecute || terminalStates.has(selected.status)}
-          >
-            <Square size={14} />
-          </button>
-        </div>
-      </div>
-      {selected ? (
-        <>
-          <div className="runtime-source">
-            {selected.transport === 'simulator'
-              ? '模拟设备 · 仅用于软件验证'
-              : '真实串口 · 转角协议缺失时禁止执行'}
-          </div>
-          <div className="hardware-progress">
-            <div>
-              <span>总进度</span>
-              <strong>{selected.progress.toFixed(1)}%</strong>
-            </div>
-            <div>
-              <span>当前计划步</span>
-              <strong>
-                {currentStep
-                  ? `${currentStep.wavelength_nm.toFixed(2)} nm · ${currentStep.angle_deg.toFixed(2)}°`
-                  : '--'}
-              </strong>
-            </div>
-            <div>
-              <span>连接状态</span>
-              <strong>
-                {selected.transport === 'serial'
-                  ? '协议闸门'
-                  : selected.adapter_session_id
-                    ? '模拟器已连接'
-                    : '未连接'}
-              </strong>
-            </div>
-            <div>
-              <span>原始结果</span>
-              <CopyableCode
-                value={selected.result_sha256}
-                visibleLength={18}
-                empty="--"
-                className={selected.result_sha256 ? 'good' : ''}
-              />
-            </div>
-          </div>
-          {isExternal && (
-            <div className="hardware-alert external">
-              <ShieldAlert size={17} />
-              <span>真实硬件协议或现场记录缺失，任务已延后；没有发送命令字节。</span>
-            </div>
-          )}
-          {selected.status === 'safety_stopped' && (
-            <div className="hardware-alert danger">
-              <AlertTriangle size={17} />
-              <span>{selected.failure_message || '异常超过边界，任务已进入安全状态。未确认帧已隔离。'}</span>
-            </div>
-          )}
-          {selected.status === 'manual_intervention' && (
-            <div className="hardware-alert manual">
-              <Wrench size={17} />
-              <div>
-                <strong>需要人工接管</strong>
-                <small>检查当前帧后选择接受、重试或停止；损坏帧不能被接受。</small>
-                <div className="intervention-actions">
-                  <input
-                    value={interventionNote}
-                    onChange={(event) => setInterventionNote(event.target.value)}
-                    placeholder="处置说明（可选）"
-                    disabled={busy}
-                  />
-                  <button className="secondary-button" onClick={() => void intervene('accept')} disabled={busy}>
-                    <CheckCircle2 size={14} />
-                    接受
-                  </button>
-                  <button className="secondary-button" onClick={() => void intervene('retry')} disabled={busy}>
-                    <RotateCcw size={14} />
-                    重试
-                  </button>
-                  <button
-                    className="icon-button danger"
-                    title="安全停止"
-                    onClick={() => void intervene('stop')}
-                    disabled={busy}
-                  >
-                    <Square size={14} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {selected.status === 'paused' && (
-            <div className="hardware-alert">
-              <PauseCircle size={17} />
-              <span>任务暂停在“{labels[selected.paused_from ?? 'turning']}”，恢复后从该阶段继续。</span>
-              <button
-                className="secondary-button"
-                onClick={() => void apply('resume')}
-                disabled={busy || !canExecute}
-              >
-                <PlayCircle size={14} />
-                恢复
-              </button>
-            </div>
-          )}
-          <div className="hardware-facts">
-            <span>最后消息</span>
-            <strong title={selected.last_message || '--'}>{selected.last_message || '--'}</strong>
-            <span>追踪事件</span>
-            <strong>{selected.traces.length}</strong>
-            <span>处置决定</span>
-            <strong>{selected.decisions.length}</strong>
-            <span>CCD 原始帧</span>
-            <strong>{selected.frames.length}</strong>
-          </div>
-        </>
-      ) : (
-        <div className="empty-state monitor-empty">
-          <RotateCcw size={24} />
-          <span>创建或选择任务后开始转角</span>
-        </div>
-      )}
-    </section>
-  )
+export function HardwareAcquisitionMonitor({ selected: task, control, busy, canExecute, auto, controlError,
+  interventionNote, setInterventionNote, children }: Props) {
+  const step = task.steps.find(item => item.order_index === task.current_step_index)
+  const manual = task.execution_mode === 'manual'
+  const decision = task.decisions[task.decisions.length - 1]
+  const observed = (Array.isArray(decision?.observed) ? decision.observed : []) as Record<string, unknown>[]
+  const measuredStep = task.steps.find(item => item.id === decision?.step_id)
+  const config = task.plan.find(item => item.order_index === measuredStep?.order_index)
+  const baseline = observed.find(item => item.baseline_monitored === true || (item.baseline_monitored === undefined
+    && typeof item.baseline_intensity === 'number' && (config?.baseline_ccd_index == null || item.ccd_index === config.baseline_ccd_index)))
+  const peak = observed.find(item => item.peak_monitored === true || (item.peak_monitored === undefined
+    && typeof item.peak_position === 'number' && (config?.peak_ccd_index == null || item.ccd_index === config.peak_ccd_index)))
+  const number = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value.toFixed(1) : '—'
+  const detected = [...String(decision?.anomaly_kind ?? '').split(','),
+    ...observed.flatMap(item => Array.isArray(item.detected) ? item.detected as string[] : [])]
+  const health = (kinds: string[], monitored: Record<string, unknown> | undefined) => !monitored ? '待检测'
+    : detected.some(kind => ['frame_fault', 'turn_timeout'].includes(kind)) ? '无法检测'
+    : detected.some(kind => kinds.includes(kind)) ? '异常' : '正常'
+  const latestAttempt = Math.max(0, ...task.frames.filter(frame => frame.step_id === step?.id).map(frame => Number(frame.attempt)))
+  const pending = task.frames.some(frame => frame.step_id === step?.id && frame.attempt === latestAttempt && !frame.confirmed)
+    && !task.frames.some(frame => frame.step_id === step?.id && frame.attempt === latestAttempt && frame.damaged)
+  const active = activeStates.has(task.status)
+  const disabled = busy || !canExecute
+  return <aside className="hardware-monitor" aria-label="自动转角采集控制">
+    <h2>摄谱窗口 <span className={`state-chip ${task.status}`}>{labels[task.status]}</span></h2>
+    <div className="hardware-monitor-content">
+    <fieldset className="hardware-task-summary"><legend>当前采集</legend>
+      <label><span>样号</span><output aria-label="当前转角样号">{task.sample_name || '未命名'}</output></label>
+      <label><span>{manual ? '转角' : '波段 / 转角'}</span><output aria-label="当前波段与转角">{step ? `${manual ? '' : `${step.wavelength_nm?.toFixed(2)} nm · `}${step.angle_deg.toFixed(2)}°` : '—'}</output></label>
+      {manual && step && <label><span>已采集</span><output aria-label="当前采集时长">{(step.captured_seconds ?? 0).toFixed(1)} / {step.duration_seconds} 秒</output></label>}
+    </fieldset>
+    <fieldset className="hardware-command-area"><legend>采集控制</legend>
+    <div className="hardware-command-buttons">
+      <button type="button" title={task.status === 'draft' ? '开始采集' : '继续采集'}
+        disabled={disabled || !(task.status === 'draft' || task.status === 'paused' || (active && !auto))}
+        onClick={() => void control(task.status === 'draft' ? 'start' : task.status === 'paused' ? 'resume' : 'step')}>
+        <SpectroscopyIcon name="capture" /><span>{task.status === 'draft' ? '开始采集' : '继续采集'}</span></button>
+      <button type="button" title="暂停采集" disabled={disabled || !active} onClick={() => void control('pause')}>
+        <SpectroscopyIcon name="pause" /><span>暂停采集</span></button>
+      <button type="button" title="停止采集" disabled={disabled || task.status === 'draft' || terminalStates.has(task.status)} onClick={() => void control('stop')}>
+        <SpectroscopyIcon name="stop" /><span>停止采集</span></button>
+    </div>
+    </fieldset>
+    <fieldset className="hardware-health" aria-label="摄谱状态检测"><legend>摄谱状态
+      {measuredStep && <small className="hardware-measured-band"> · 最近 {manual ? `${measuredStep.angle_deg.toFixed(2)}°` : `${measuredStep.wavelength_nm?.toFixed(2)} nm`}</small>}</legend>
+      {manual && !task.method_id ? <p>未配置方法监测线</p> : <>
+      <dl><div><dt>基线强度</dt><dd data-health="baseline-intensity">{health(['baseline_low', 'baseline_high'], baseline)} · {number(baseline?.baseline_intensity)}</dd></div>
+        <div><dt>基线位置</dt><dd data-health="baseline-position">{health(['baseline_shift'], baseline)} · {number(baseline?.baseline_position)}</dd></div>
+        <div><dt>峰位</dt><dd data-health="peak-position">{health(['peak_shift'], peak)} · {number(peak?.peak_position)}</dd></div></dl>
+      {decision && <p className={String(decision.anomaly_kind) !== 'none' ? 'hardware-detection-warning' : ''} role="status">
+        {anomalyText(decision.anomaly_kind)} · {decisionLabels[String(decision.decision)] ?? String(decision.decision)}</p>}
+      </>}
+    </fieldset>
+    {task.status === 'manual_intervention' && <div className="hardware-alert manual" role="alert">
+      <strong>请检查异常谱图</strong><input aria-label="异常处置说明" maxLength={300} placeholder="处置说明（可选）"
+        disabled={disabled} value={interventionNote} onChange={e => setInterventionNote(e.target.value)} />
+      <div className="intervention-actions"><button className="secondary-button" disabled={disabled || !pending} onClick={() => void control('accept')}>确认采用</button>
+        <button className="secondary-button" disabled={disabled} onClick={() => void control('retry')}><SpectroscopyIcon name="capture" />重新采集</button></div>
+    </div>}
+    {task.status === 'deferred_external' && <p className="hardware-alert external" role="alert">转角协议尚未接入，未发送设备命令。</p>}
+    {(task.status === 'safety_stopped' || task.status === 'failed') && <p className="hardware-alert danger" role="alert">
+      {task.status === 'safety_stopped' ? '异常重采未通过，已安全停止。未确认数据不会进入结果。' : task.failure_message || '采集失败，请检查设备。'}</p>}
+    {task.status === 'paused' && <p role="status">采集已暂停，点击“继续采集”恢复。</p>}
+    {controlError && <p className="hardware-alert danger" role="alert">{controlError}</p>}
+    {children}
+    </div>
+  </aside>
 }

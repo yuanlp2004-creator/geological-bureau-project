@@ -2,6 +2,7 @@
 
 from .service import PostProcessingService
 from .errors import PostProcessingError
+from .prepared import prepared_collections, prepared_working_layout
 from .serialization import _json, _sha
 from .repository import _unpack_uint16, _pack_float32
 from .exporting import _xml_escape

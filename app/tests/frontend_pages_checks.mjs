@@ -70,8 +70,6 @@ export async function checkPages(page, checks) {
     gated = []
   for (const name of [
     'migration',
-    'spectrum-migration',
-    'result-migration',
     'spectra',
     'samples',
     'settings',
@@ -97,68 +95,21 @@ export async function checkPages(page, checks) {
       await page.locator('.page-content').first().waitFor()
     } else gated.push(name)
   }
-  for (const expected of ['migration', 'spectrum-migration', 'result-migration', 'settings', 'about'])
+  for (const expected of ['migration', 'about'])
     assert.ok(visited.includes(expected), expected)
   checks.push(
     `R5: page navigation mounted ${visited.join(', ')}; prerequisite gates retained for ${gated.join(', ') || 'none'}`
   )
 
-  await navigate(entries.find((e) => e.page === 'settings'))
-  await page.getByText('高级维护设置', { exact: true }).click()
-  const retention = page.getByLabel('日志保留天数', { exact: true })
-  await retention.waitFor()
-  let settingsWrites = 0
-  const countSettingsWrite = (request) => {
-    if (request.method() === 'PATCH' && request.url().endsWith('/api/v1/settings')) settingsWrites += 1
-  }
-  page.on('request', countSettingsWrite)
-  try {
-    for (const invalid of ['', '0', '366']) {
-      await retention.fill(invalid)
-      await page.getByTestId('settings-save').click()
-      assert.equal(await retention.evaluate((input) => input.checkValidity()), false)
-      assert.equal(settingsWrites, 0)
-    }
-    await retention.fill('31')
-    await retention.blur()
-    await page.waitForFunction(() => [...document.querySelectorAll('.settings-page [data-numeric-input]')].every(input => input.checkValidity()))
-    const savedSettings = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().endsWith('/api/v1/settings'))
-    await page.getByTestId('settings-save').click()
-    assert.equal((await savedSettings).status(), 200)
-    const rejectSettings = async (route) => {
-      if (route.request().method() !== 'PATCH') return route.continue()
-      await route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ detail: 'settings-test-rejected' }) })
-    }
-    await page.route('**/api/v1/settings', rejectSettings)
-    try {
-      await retention.fill('32')
-      await page.getByTestId('settings-save').click()
-      await page.getByText('settings-test-rejected', { exact: true }).waitFor()
-      assert.equal(await retention.inputValue(), '32')
-    } finally {
-      await page.unroute('**/api/v1/settings', rejectSettings)
-    }
-  } finally {
-    page.off('request', countSettingsWrite)
-  }
-  checks.push('M3: settings owns invalid-input checks, valid save succeeds, failed save retains draft')
-
-  for (const [theme, width, height] of [
-    ['dark', 1280, 800],
-    ['light', 1920, 1080]
-  ]) {
-    await page.evaluate(async (theme) => {
-      const { api } = await import('/src/api/index.ts')
-      await api.saveSettings(sessionStorage.getItem('geospectrum.token'), { display: { theme } })
-    }, theme)
+  const { checkSettingsCleanup } = await import('./settings_cleanup_workflow.mjs')
+  await checkSettingsCleanup(page, { checks, layouts: [] })
+  for (const [width, height] of [[1280, 800], [1920, 1080]]) {
     await page.setViewportSize({ width, height })
-    await page.reload()
-    await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, theme)
     await navigate(lifecycle)
     const layout = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth }))
-    assert.ok(layout.scroll <= layout.width + 1, JSON.stringify({ theme, ...layout }))
+    assert.ok(layout.scroll <= layout.width + 1, JSON.stringify(layout))
   }
-  checks.push('R5: real saved dark/light themes and 1280/1920 method layouts without window overflow')
+  checks.push('R5: fixed default appearance and 1280/1920 method layouts without window overflow')
 
   await page.evaluate(async () => {
     const { api } = await import('/src/api/index.ts')

@@ -1,6 +1,7 @@
 import { Eye } from 'lucide-react'
 import type { Report } from '../../api'
 import type { ReportSummary } from '../../api/reports'
+import { PreviewFrame } from '../../components/PreviewFrame'
 
 type Props = {
   reports: ReportSummary[]
@@ -119,7 +120,7 @@ export function ReportPreview({
                     关闭
                   </button>
                 </header>
-                <iframe title={previewState.title} srcDoc={previewState.html} />
+                <PreviewFrame title={previewState.title} srcDoc={previewState.html} />
               </>
             ) : (
               <div className="report-preview-loading">正在生成报告预览...</div>

@@ -2,12 +2,13 @@ import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 
 /** The page owns the draft; closing this dialog keeps its fields mounted. */
-export function SpectroscopyTaskDialog({ open, title, busy, error, actions, onCancel, children }: {
+export function SpectroscopyTaskDialog({ open, title, busy, error, actions, dismissLabel, onCancel, children }: {
   open: boolean
   title: string
   busy: boolean
   error?: string | null
   actions?: ReactNode
+  dismissLabel?: string
   onCancel: () => void
   children: ReactNode
 }) {
@@ -31,7 +32,7 @@ export function SpectroscopyTaskDialog({ open, title, busy, error, actions, onCa
   return <dialog ref={dialog} className="spectroscopy-task-dialog refined-page remaining-page"
     aria-labelledby={titleId} onCancel={event => { event.preventDefault(); if (!busy) onCancel() }}>
     <header><h2 id={titleId}>{title}</h2>
-      <button type="button" className="icon-button" aria-label="取消新建任务" disabled={busy}
+      <button type="button" className="icon-button" aria-label={`${dismissLabel ?? '取消'}${title}`} disabled={busy}
         onMouseDown={event => event.preventDefault()} onClick={onCancel}><X size={17} /></button>
     </header>
     <div className="spectroscopy-task-fields">
@@ -39,6 +40,6 @@ export function SpectroscopyTaskDialog({ open, title, busy, error, actions, onCa
       {children}
     </div>
     <footer><button type="button" className="secondary-button" disabled={busy}
-      onMouseDown={event => event.preventDefault()} onClick={onCancel}>取消</button>{actions}</footer>
+      onMouseDown={event => event.preventDefault()} onClick={onCancel}>{dismissLabel ?? '取消'}</button>{actions}</footer>
   </dialog>
 }

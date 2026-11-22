@@ -19,6 +19,7 @@ class SpectrumPrintRequest(BaseModel):
     line: int = Field(default=0, ge=0, le=4095)
     mode: Literal["mean", "peak", "back", "value", "frame"] = "mean"
     reference_shift: float = 0.0
+    intensity_mode: Literal["stored", "legacy_2_0_2"] = "stored"
     selected_record_ids: list[str] = Field(default_factory=list, max_length=8)
     priority_record_id: str | None = Field(default=None, min_length=1, max_length=64)
     frame_phase: Literal["burn", "dark"] = "burn"

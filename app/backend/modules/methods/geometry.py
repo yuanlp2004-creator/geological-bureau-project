@@ -26,6 +26,15 @@ class MethodLineLocator:
     def layout_id(self) -> int:
         return int(self._layout['id'])
 
+    def prepared_layout(self) -> dict:
+        """Detached layout for EDT preparation; geometry comparisons exclude dispersion."""
+        return {key: self._layout[key] for key in ('frame_count', 'ccds_per_frame', 'points_per_ccd', 'point_width')} | {
+            'ccd_indices': json.loads(self._layout['ccd_indices_json']),
+            'gap_points': json.loads(self._layout['gap_points_json']),
+            'ws_cof': json.loads(self._dispersion['coefficients_json']),
+            'allow_gap_error_um': float(self._layout['allow_drift_um']),
+        }
+
     def accepts_legacy_layout(self, source: dict) -> bool:
         gaps = json.loads(self._layout['gap_points_json'])
         coefficients = json.loads(self._dispersion['coefficients_json'])
@@ -41,6 +50,9 @@ class MethodLineLocator:
         """沿用方法的波长换算和 CCD 边界规则，越界返回 None。"""
         position = self._geometry._reference_position(wavelength_nm, self._layout, self._dispersion)
         return LinePosition(*position) if position is not None else None
+
+    def calibrated(self, wavelength_nm: float) -> bool:
+        return self._dispersion['wavelength_min'] <= wavelength_nm <= self._dispersion['wavelength_max']
 
     def wavelength_at(self, ccd_index: int, point: float) -> float:
         geometry = next(item for item in self._geometry._layout_geometry(self._layout) if item['ccd_index'] == ccd_index)

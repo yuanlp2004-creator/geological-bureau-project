@@ -20,13 +20,19 @@ def preview_positions(service, run_id: int, sample_position: int) -> dict:
         locator = service.methods.bind_geometry(db, payload['conditions'])
         prior, offsets, positions = {}, {}, []
         for index, line in enumerate(lines):
+            location = AcquisitionService.line_location(db, sample['acquisition_sample_id'], line['id'])
+            if location:
+                plan = service.methods.sample_plan(db, run['method_version_id'])
+                turn = next(turn for turn in plan['plan'] if turn['turn_index'] == location['turn_index'])
+                locator = service.methods.bind_geometry(db, {**payload['conditions'], 'dispersion_calibration_id': turn['dispersion_calibration_id']})
             theory = locator.locate(line['wavelength_nm'])
             stored = locator.locate(float(line.get('actual_wavelength_nm') or line['wavelength_nm']))
             if theory is None or stored is None:
                 raise AnalysisError('analysis_line_outside_ccd', '校正谱线超出 CCD 范围')
             interval = exposure_interval(line, payload['conditions'])
             try:
-                values = AcquisitionService.interval_band(db, sample['acquisition_sample_id'], stored.ccd_index, interval)['points']
+                values = AcquisitionService.interval_band(db, sample['acquisition_sample_id'], stored.ccd_index, interval,
+                    turn_index=location['turn_index'] if location else None)['points']
             except AcquisitionError as exc:
                 raise AnalysisError(exc.code, exc.message) from exc
             # Location is independent of concentration/internal-standard division.
@@ -41,7 +47,8 @@ def preview_positions(service, run_id: int, sample_position: int) -> dict:
                               'stored_wavelength_nm': float(line.get('actual_wavelength_nm') or line['wavelength_nm']),
                               'measured_wavelength_nm': wave, 'theoretical_point': theory.point,
                               'stored_point': stored.point, 'measured_point': candidate['peak_position'],
-                              'ccd_index': stored.ccd_index, 'found': candidate['intermediates']['search']['found']})
+                              'ccd_index': stored.ccd_index, 'found': candidate['intermediates']['search']['found'],
+                              **({'turn_index': location['turn_index'], 'angle_deg': location['angle_deg']} if location else {})})
         source_key = hashlib.sha256(json.dumps({'run_id': run_id, 'sample_position': sample_position,
             'positions': positions}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         return {'run_id': run_id, 'sample_position': sample_position, 'method_version_id': run['method_version_id'],
@@ -59,7 +66,8 @@ def time_series(service, run_id: int, sample_position: int, acquisition, include
     snapshot = acquisition.spectrum_snapshot(sample['acquisition_sample_id'], include_frames=True)
     if snapshot['sample']['storage_mode'] != 'full_interval':
         raise AnalysisError('analysis_time_series_frames_required', '平均值样品不含全时帧，不能生成谱线时间表')
-    if {band['ccd_index']: band['mean_sha256'] for band in snapshot['bands']} != {band['ccd_index']: band['mean_sha256'] for band in fixed['bands']}:
+    key = lambda band: (band.get('turn_index', 0), band['ccd_index'])
+    if {key(band): band['mean_sha256'] for band in snapshot['bands']} != {key(band): band['mean_sha256'] for band in fixed['bands']}:
         raise AnalysisError('analysis_band_integrity_failed', '谱带与分析输入不一致')
     burn_period = float(snapshot['sample']['burn_cycle_seconds'])
     dark_period = float(snapshot['sample']['dark_cycle_seconds'])
@@ -68,7 +76,8 @@ def time_series(service, run_id: int, sample_position: int, acquisition, include
         result = results.get(str(line['id']))
         if not result:
             raise AnalysisError('analysis_time_series_peak_missing', '谱线尚无固定实测峰位')
-        frames = [frame for frame in snapshot['frames'] if frame['ccd_index'] == result['ccd_index'] and not frame['damaged']]
+        turn_index = json.loads(result['intermediates_json']).get('turn_index')
+        frames = [frame for frame in snapshot['frames'] if frame['ccd_index'] == result['ccd_index'] and frame.get('turn_index') == turn_index and not frame['damaged']]
         for frame in frames:
             points = frame.get('points') or []
             blob = struct.pack(f'<{len(points)}H', *points)

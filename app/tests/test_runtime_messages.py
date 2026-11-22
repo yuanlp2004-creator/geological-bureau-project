@@ -34,6 +34,9 @@ def test_device_logs_are_real_events_not_http_requests(device_client):
     communications = [e for e in events if (e['details'] or {}).get('channel') == 'communication']
     assert len(communications) == 4
     assert any(e['severity'] == 'debug' for e in communications)
+    frames = [e for e in communications if e['details']['event_type'] == 'ccd_transfer']
+    assert len(frames) == 2
+    assert all(e['message'].startswith('【模拟】') and '转存完成 Freq:' in e['message'] for e in frames)
     assert all('ccds' not in e['details'] and 'points' not in e['details'] for e in communications)
     count = len(events)
     assert client.get('/api/v1/devices/diagnostics', headers=headers).status_code == 200

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 
@@ -25,7 +26,18 @@ def test_tauri_minimal_capability_and_lifecycle_contract() -> None:
     assert "blocking_save_file()" in rust
     assert "write_export_file(&path, &bytes)?" in rust
     assert "std::fs::write(path, bytes)" in rust
-    assert "generate_handler![runtime_config, save_export_file, select_legacy_directory]" in rust
+    handlers = re.search(r"generate_handler!\[([^]]+)\]", rust)
+    assert handlers is not None
+    assert {name.strip() for name in handlers.group(1).split(',')} == {
+        'runtime_config', 'save_export_file', 'select_backup_directory',
+        'select_legacy_directory', 'select_legacy_files', 'select_sample_file',
+        'open_bluetooth_settings',
+    }
+    assert "api.prevent_close()" in rust
+    assert 'fn open_bluetooth_settings() -> Result<(), String>' in rust
+    assert '"ms-settings:bluetooth\\0".encode_utf16()' in rust
+    assert "prepare_device_exit(&config)" in rust
+    assert "confirmed.load(Ordering::SeqCst)" in rust
     assert '"pdf" => "application/pdf"' in rust
     assert '"txt" | "log" | "sam" => "text/plain"' in rust
     assert 'std::env::var("GEOSPECTRUM_DEV_API_BASE")' in rust

@@ -41,6 +41,7 @@ class ImportedAcquisition:
     sampling_period_seconds: float = 1
     burn_cycle_seconds: float = 1
     dark_cycle_seconds: float = 1
+    source_layout: dict[str, Any] | None = None
 
 
 def _import_json(value: Any) -> str:
@@ -85,6 +86,8 @@ class AcquisitionImportTransaction:
                 raise ValueError('imported frame shape does not match metadata')
         metadata = {'source_record_id': record.source_record_id, 'source_sha256': record.source_sha256,
                     'measure_time': record.measure_time, 'source_interval_start': record.interval_start}
+        if record.source_layout is not None:
+            metadata['source_layout'] = record.source_layout
         task_id = db.execute(
             'INSERT INTO acquisition_tasks(task_kind,name,status,device_profile_id,ccd_layout_id,method_version_id,'
             'method_id,method_version,sample_name,sample_kind,naming_mode,storage_mode,repeat_count,current_repeat_index,'

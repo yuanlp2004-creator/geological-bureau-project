@@ -2606,23 +2606,6 @@ button {
   flex: 0 0 auto;
   color: #7890a7;
 }
-.navigation-method-shortcut {
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  margin-left: 30px;
-  color: #a9c8e6;
-  border-left: 2px solid rgba(119, 151, 184, 0.22);
-  background: transparent;
-  font-size: 10px;
-  font-weight: 600;
-}
-.navigation-method-shortcut:hover {
-  color: #fff;
-  background: rgba(75, 126, 180, 0.18);
-}
 .sidebar-method-state {
   min-width: 0;
   margin: 0 4px;
@@ -2690,10 +2673,6 @@ button {
 :root[data-theme='dark'] .navigation-entry.disabled,
 :root[data-theme='dark'] .navigation-entry.disabled:hover {
   color: #71869c;
-  background: transparent;
-}
-:root[data-theme='dark'] .navigation-method-shortcut {
-  color: #a9c8e6;
   background: transparent;
 }
 @media (min-width: 2400px) {

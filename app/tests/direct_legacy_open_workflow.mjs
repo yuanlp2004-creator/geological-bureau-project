@@ -119,7 +119,8 @@ export async function checkDirectOpen(page, fixture, result, output) {
   assert.equal(await page.locator('.intensity-table-scroll').innerText(),snapshot)
   mark('强度页直接打开PDT并预览，错误格式拒绝且保留当前表')
 
-  await navigate(page,'tools','旧结果迁移','[data-testid="result-migration-page"]')
+  await navigate(page,'tools','旧数据迁移','[data-testid="migration-workspace"]')
+  await page.getByRole('tab',{name:'分析结果',exact:true}).click()
   await open('batch-results',[paths.pdt,paths.dat],'批量迁移结果文件')
   await page.locator('[data-purpose="batch-results"] [role="status"]').filter({hasText:'2 个文件'}).waitFor()
   mark('迁移页面支持PDT和DAT多文件顺序批量迁移')

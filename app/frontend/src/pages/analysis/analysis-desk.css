@@ -1,0 +1,132 @@
+/* FmViewSingle: original tools, cyan record banner, blue spectrum board. */
+:root .app-shell .analysis-legacy-page.analysis-workbench.remaining-page { display:block; height:auto; min-height:0; overflow:visible; max-width:none; padding-bottom:8px; }
+:root .app-shell .page-scroll-region .analysis-legacy-page .analysis-hero { margin-bottom:var(--page-heading-content-gap,16px) !important; }
+:root .app-shell .analysis-legacy-page .analysis-header-actions { flex-wrap:wrap; gap:6px; }
+:root .app-shell .analysis-legacy-page .analysis-header-actions select { width:180px; max-width:22vw; min-height:28px; height:28px; font-size:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
+:root .app-shell .analysis-legacy-page > .legacy-view-desk { border-radius:0; background:#f0f0f0; }
+:root .app-shell .analysis-desk-body { grid-template-columns:23% minmax(0,1fr); flex:1; min-height:0; }
+:root .app-shell .analysis-desk-body.left-hidden { grid-template-columns:minmax(0,1fr); }
+:root .app-shell .analysis-desk-top { background:var(--surface-soft); }
+:root .app-shell .analysis-desk-top label > select { width:223px; }
+:root .app-shell .analysis-desk-top label > input { width:76px; }
+:root .app-shell .analysis-legacy-page .analysis-desk-top :is(input,select) { height:24px; min-height:24px; padding:2px 5px; border-radius:0; }
+:root .app-shell .analysis-desk-body .analysis-sample-rail { display:flex; flex-direction:column; gap:0; min-height:0; padding:0; }
+:root .app-shell .analysis-sample-rail .legacy-view-table-wrap { flex:1 1 0; min-height:0; max-height:none; overflow:auto; }
+:root .app-shell .analysis-sample-rail .legacy-view-table { width:100%; table-layout:fixed; }
+:root .app-shell .analysis-sample-rail .legacy-view-table :is(th,td) { height:25px; padding:1px 3px; line-height:23px; text-align:center; font-size:12px; }
+:root .app-shell .analysis-sample-rail .legacy-view-table td button { display:block; width:100%; min-width:0; height:23px; min-height:23px; padding:0; border:0; border-radius:0; background:transparent; color:inherit; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+:root .app-shell .analysis-sample-rail .legacy-view-footer { text-align:center; margin-top:auto; flex-shrink:0; }
+:root .app-shell .analysis-desk-spectrum { display:flex; flex-direction:column; padding:0; min-width:0; min-height:0; background:#f0f0f0; }
+:root .app-shell .analysis-desk-spectrum .legacy-spectrum-visual { margin:16px 5.625%; padding:8px 10px 4px; background:#a8c9eb; }
+:root .app-shell .analysis-desk-spectrum .legacy-spectrum-banner { background:#00ffff; color:#ff0000; }
+:root .app-shell .analysis-desk-spectrum .legacy-peak-plot .plot-background { fill:#fff; }
+:root .app-shell .analysis-desk-spectrum .plot-axis-title { display:none; }
+:root .app-shell .analysis-desk-spectrum .spectrum-plot > .plot-tick-label[text-anchor='middle'] { visibility:hidden; }
+:root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled { opacity:1; }
+:root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled img { filter:grayscale(1); opacity:.55; }
+:root .app-shell .analysis-sample-rail .legacy-view-table tr[aria-selected='true'] { background:#fff; color:#111; }
+:root .app-shell .analysis-sample-rail .row-selection-arrow { color:#111; }
+:root .app-shell .analysis-desk-spectrum .legacy-grayscale { height:106px; flex-basis:106px; }
+:root .app-shell .analysis-desk-error { padding:5px 8px; color:#b42318; background:#fff4f2; font-size:12px; }
+:root .app-shell .analysis-desk-error button { margin-left:12px; }
+:root .app-shell .analysis-legacy-page > .viewer-operation-dialog:has(.analysis-manager) { width:min(1320px,calc(100vw - 48px)); height:min(820px,calc(100dvh - 48px)); max-height:calc(100dvh - 48px); padding:16px; }
+:root .app-shell .analysis-manager { height:calc(100% - 48px); min-height:300px; }
+:root .app-shell .analysis-manager .analysis-layout { height:100%; min-height:0; }
+:root .app-shell .analysis-manager[data-mode='setup'] .analysis-detail { display:none; }
+:root .app-shell .analysis-manager[data-mode='setup'] .analysis-setup { display:block; overflow:auto; }
+:root .app-shell .analysis-manager[data-mode='setup'] .analysis-setup .form-disclosure { margin-bottom:10px; }
+:root .app-shell .analysis-manager[data-mode='setup'] .analysis-setup .disclosure-body { position:static; max-height:none; box-shadow:none; }
+:root .app-shell .analysis-manager[data-mode='review'] .analysis-setup { display:none; }
+:root .app-shell > .main-area:has(> .page-scroll-region > .analysis-review-open) {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+:root .app-shell .page-scroll-region:has(> .analysis-review-open) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+:root .app-shell .analysis-legacy-page.analysis-workbench.remaining-page.analysis-review-open {
+  display: flex;
+  height: 100%;
+  gap: 0;
+}
+:root .app-shell .analysis-review-open > .legacy-view-desk { display: none; }
+.analysis-inline-review {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.analysis-inline-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--analysis-rule);
+  background: var(--surface);
+}
+.analysis-inline-review-header h2 { margin: 0; font-size: 16px; }
+:root .app-shell .analysis-inline-review > .analysis-manager { flex: 1; height: auto; min-height: 0; }
+:root .app-shell .viewer-operation-dialog:has(.analysis-numbering) {
+  width: min(1160px, calc(100vw - 36px));
+  padding: 0;
+}
+:root .app-shell .viewer-operation-dialog:has(.analysis-numbering) > header {
+  margin: 0;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+.analysis-numbering-toolbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 4px; }
+.analysis-numbering-toolbar label { display: flex; align-items: center; gap: 4px; }
+.analysis-numbering-toolbar input { width: 10ch; }
+.analysis-numbering-toolbar input[aria-label="样号输入"] { width: 15ch; }
+:root .app-shell .analysis-numbering-toolbar :is(input, button) {
+  padding: 2px 5px;
+  min-height: 25px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.analysis-numbering-toolbar button:disabled { opacity: .48; }
+.analysis-numbering-clipboard-hint { display: block; padding: 4px 8px; color: var(--muted); }
+.analysis-numbering-grid { height: min(65dvh, 680px); overflow: auto; }
+.analysis-numbering-grid table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+:root .app-shell .analysis-numbering-grid :is(th, td) {
+  height: 25px;
+  padding: 0;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.analysis-numbering-grid thead { position: sticky; top: 0; z-index: 1; }
+.analysis-numbering-grid th { background: var(--surface-soft); font-weight: 500; }
+.analysis-numbering-grid td.selected { background: var(--legacy-view-selection, #a4c8e9); }
+.analysis-numbering-grid td button {
+  display: block;
+  width: 100%;
+  height: 24px;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: inherit;
+  color: var(--ink);
+  border: 0;
+  background: transparent;
+}
+.analysis-numbering-grid button[data-sample-active="true"] { box-shadow: inset 0 0 0 1px var(--ui-accent); }
+.analysis-numbering-status { display: block; padding: 4px 8px; border-top: 1px solid var(--line); }
+@media(max-width:1150px) {
+ :root .app-shell .analysis-desk-body { grid-template-columns:210px minmax(0,1fr); }
+ :root .app-shell .analysis-desk-body.left-hidden { grid-template-columns:minmax(0,1fr); }
+ :root .app-shell .analysis-desk-top label > select { width:180px; }
+ :root .app-shell .analysis-desk-spectrum .legacy-spectrum-visual { margin:10px 4%; }
+}
+@media(max-height:800px) {
+ :root .app-shell .analysis-desk-spectrum .legacy-grayscale { flex-basis:64px; height:64px; min-height:44px; }
+ :root .app-shell .analysis-desk-spectrum .legacy-spectrum-visual { margin-block:6px; }
+}

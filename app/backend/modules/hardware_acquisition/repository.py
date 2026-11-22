@@ -4,11 +4,11 @@ import sqlite3
 from typing import Any
 from ...db import Database, utc_now
 from .codec import _pack_points, _unpack_points
-from .rules import _metrics, _normalize_plan, _thresholds
+from .rules import _metrics, _normalize_plan, _override_angles, _thresholds, _manual_plan
 from .values import HardwareError, HardwareTaskState, _ANOMALIES, _POLICIES, _STRATEGIES, _finite, _json, _sha
 from ..methods import MethodService
 from ..spectral_lines import canonical_lines
-from .exposures import exposure_config, exposure_results
+from .exposures import exposure_config, exposure_results, manual_frames
 
 
 class HardwareRepository:
@@ -93,9 +93,16 @@ class HardwareRepository:
         ).fetchall():
             config = exposure_config(task, row)
             result["steps"].append(dict(row) | {"key_band": bool(row["key_band"]),
+                'duration_seconds': config.get('duration_seconds'),
                 'storage_mode': config['storage_mode'], 'start_frame': config['start_frame'], 'end_frame': config['end_frame'],
                 'captured_frames': db.execute('SELECT COALESCE(MAX(frame_index),0) FROM hardware_exposure_frames '
                                               'WHERE step_id=? AND attempt=?', (row['id'], row['last_attempt'] + 1)).fetchone()[0]})
+            if task['execution_mode'] == 'manual':
+                step = result['steps'][-1]
+                event = result.get('last_event') or {}
+                step['captured_seconds'] = (config['duration_seconds'] if row['status'] == 'confirmed' else
+                    min(config['duration_seconds'], float(event.get('capture_seconds', 0)))
+                    if row['order_index'] == task['current_step_index'] and row['status'] == 'collecting' else 0)
         result["traces"] = []
         for row in db.execute(
             "SELECT * FROM hardware_traces WHERE task_id=? ORDER BY sequence_no DESC LIMIT 60", (task_id,)
@@ -131,7 +138,7 @@ class HardwareRepository:
             item["damaged"] = bool(item["damaged"])
             item["confirmed"] = bool(item["confirmed"])
             frames.append(item)
-        result["frames"] = frames
+        result["frames"] = manual_frames(db, task_id, include_points) + [row for row in frames if row['damaged']] if task['execution_mode'] == 'manual' else frames
         result['exposures'] = exposure_results(db, task_id, include_points)
         from ..acquisition_import import AcquisitionRecordImporter
         result['analysis_sample'] = AcquisitionRecordImporter().bind(db).confirmed_source(f'hardware-task:{task_id}')
@@ -170,7 +177,11 @@ class HardwareRepository:
                 dict(row) | {"ccd_indices": self._layout_indices(row)}
                 for row in db.execute("SELECT * FROM ccd_layouts ORDER BY id").fetchall()
             ]
-            methods = [{'method_id': item.method.id, 'version': item.version, 'name': item.method.name}
+            methods = [{'method_id': item.method.id, 'version': item.version, 'name': item.method.name,
+                        'ccd_layout_id': item.payload.get('conditions', {}).get('ccd_layout_id', 'default'),
+                        'sampling_period_seconds': item.payload.get('conditions', {}).get('sampling_period_seconds', 1),
+                        'turns': (item.payload.get('conditions') or {}).get('angle_exposures', []),
+                        'turn_angles': [exposure['angle_deg'] for exposure in (item.payload.get('conditions') or {}).get('angle_exposures', [])]}
                        for item in MethodService(self.database).bind_snapshots(db).published()]
         return {
             "states": [state.value for state in HardwareTaskState],
@@ -183,12 +194,20 @@ class HardwareRepository:
         }
 
     def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        mode = payload.get('execution_mode', 'automatic')
+        if mode not in {'automatic', 'manual'}:
+            raise HardwareError('hardware_execution_mode_invalid', '采集模式无效')
+        manual = mode == 'manual'
+        if manual and any(payload.get(key) for key in ('turns', 'turn_angles')):
+            raise HardwareError('hardware_manual_config_invalid', '手动模式请从方法转角中选择，并填写采集时长')
+        if not manual and payload.get('manual_turns'):
+            raise HardwareError('hardware_manual_config_invalid', '自动模式不能包含手动计划')
         strategy = str(payload.get("strategy", "short_to_long"))
         policy = str(payload.get("anomaly_policy", "retry_then_stop"))
         if policy not in _POLICIES:
             raise HardwareError("anomaly_policy_invalid", "anomaly policy is not supported", details={"policy": policy})
         # 先规范化计划顺序、关键点和异常阈值，计划配置与任务一起固化。
-        plan = _normalize_plan(list(payload.get("turns") or []), strategy)
+        plan = _manual_plan(payload.get('manual_turns') or []) if manual else _normalize_plan(list(payload.get("turns") or []), strategy)
         thresholds = _thresholds(payload)
         retry_limit = int(payload.get("retry_limit", 1))
         if not 0 <= retry_limit <= 5:
@@ -198,6 +217,25 @@ class HardwareRepository:
             profile = db.execute("SELECT * FROM device_profiles WHERE id=? AND enabled=1", (profile_id,)).fetchone()
             if profile is None:
                 raise HardwareError("device_profile_not_found", "device profile was not found", status_code=404)
+            method_id = payload.get('method_id')
+            method_version = payload.get('method_version')
+            if method_id is not None:
+                query = "SELECT version FROM method_versions WHERE method_id=? AND state='published'"
+                args = [int(method_id)]
+                if method_version is not None:
+                    query += ' AND version=?'
+                    args.append(int(method_version))
+                method_row = db.execute(query + ' ORDER BY version DESC LIMIT 1', args).fetchone()
+                if method_row is None:
+                    raise HardwareError('method_revision_not_found', 'published method revision was not found', status_code=404)
+                method_version = int(method_row['version'])
+                methods = MethodService(self.database)
+                snapshot = methods.bind_snapshots(db).for_print(int(method_id), method_version)
+                conditions = snapshot.payload['conditions']
+                payload = dict(payload)
+                for key in ('ccd_layout_id', 'pre_excitation_seconds', 'sampling_period_seconds', 'selected_ccds'):
+                    if key in conditions:
+                        payload['ccd_indices' if key == 'selected_ccds' else key] = conditions[key]
             layout_key = payload.get("ccd_layout_id", "default")
             layout = db.execute(
                 "SELECT * FROM ccd_layouts WHERE id=? OR name=?",
@@ -216,24 +254,7 @@ class HardwareRepository:
                     "ccd_layout_profile_mismatch", "device profile and CCD layout point counts differ", status_code=409
                 )
             # 锁定可选方法发布版本及设备布局，后续帧沿用此任务的上下文。
-            method_id = payload.get("method_id")
-            method_version = payload.get("method_version")
             if method_id is not None:
-                query = "SELECT version FROM method_versions WHERE method_id=? AND state='published'"
-                args: list[Any] = [int(method_id)]
-                if method_version is not None:
-                    query += " AND version=?"
-                    args.append(int(method_version))
-                query += " ORDER BY version DESC LIMIT 1"
-                method_row = db.execute(query, args).fetchone()
-                if method_row is None:
-                    raise HardwareError(
-                        "method_revision_not_found", "published method revision was not found", status_code=404
-                    )
-                method_version = int(method_row["version"])
-                methods = MethodService(self.database)
-                snapshot = methods.bind_snapshots(db).for_print(int(method_id), method_version)
-                conditions = snapshot.payload['conditions']
                 locator = methods.bind_geometry(db, conditions)
                 if locator.layout_id != layout['id']:
                     raise HardwareError('hardware_method_layout_mismatch', '转角任务与方法 CCD 布局不一致')
@@ -241,8 +262,10 @@ class HardwareRepository:
                     selected = [int(ccd) for ccd in conditions['selected_ccds']]
                     if not selected or len(selected) != len(set(selected)) or any(ccd not in allowed for ccd in selected):
                         raise HardwareError('hardware_method_ccds_invalid', '方法 CCD 选择不属于当前布局')
-                exposures = conditions['angle_exposures']
-                if not plan:
+                exposures = conditions.get('angle_exposures') or []
+                if not exposures:
+                    raise HardwareError('hardware_method_angles_missing', '所选方法未配置转角，请先完善方法')
+                if manual or not plan:
                     lines = canonical_lines(snapshot.payload.get('lines'), conditions)
                     turns = []
                     for index, exposure in enumerate(exposures):
@@ -264,10 +287,22 @@ class HardwareRepository:
                                       'baseline_ccd_index': baseline.ccd_index if baseline else None,
                                       'peak_ccd_index': positioning.ccd_index if positioning else None,
                                       'ccd_indices': slot_ccds})
-                    plan = _normalize_plan(turns, strategy)
-                    for item in plan:
+                    method_plan = _normalize_plan(turns, strategy)
+                    for item in method_plan:
                         item['ccd_indices'] = turns[item['source_index']]['ccd_indices']
-                if {item['angle_deg'] for item in plan} != {item['angle_deg'] for item in exposures}:
+                    if manual:
+                        bound = []
+                        for row in plan:
+                            match = next((item for item in method_plan if abs(item['angle_deg'] - row['angle_deg']) < 1e-6), None)
+                            if match is None:
+                                raise HardwareError('hardware_manual_angle_mismatch', '手动角度必须对应所选方法中的转角',
+                                                    details={'angle_deg': row['angle_deg'], 'allowed': [item['angle_deg'] for item in exposures]})
+                            bound.append({**match, 'method_turn_index': match['source_index'],
+                                          **{key: row[key] for key in ('source_index', 'order_index', 'duration_seconds')}})
+                        plan = bound
+                    else:
+                        plan = method_plan
+                if not manual and {item['angle_deg'] for item in plan} != {item['angle_deg'] for item in exposures}:
                     raise HardwareError('hardware_method_angles_mismatch', '绑定方法必须覆盖其全部转角')
                 for item in plan:
                     exposure = next(entry for entry in exposures if entry['angle_deg'] == item['angle_deg'])
@@ -275,8 +310,11 @@ class HardwareRepository:
                     item['ccd_indices'] = [ccd for ccd in selected if ccd // int(layout['ccds_per_frame']) == slot]
                     item.update({key: exposure[key] for key in ('storage_mode', 'start_frame', 'end_frame')})
                     item['method_content_sha256'] = snapshot.content_sha256
+                if manual:
+                    selected = sorted({ccd for item in plan for ccd in item['ccd_indices']})
             if not plan:
                 raise HardwareError('hardware_turns_required', '请选择已发布方法或填写转角计划')
+            plan = _override_angles(plan, payload.get('turn_angles'))
             for item in plan:
                 if any(item[key] is not None and item[key] not in item.get('ccd_indices', selected)
                        for key in ('baseline_ccd_index', 'peak_ccd_index')):
@@ -285,6 +323,14 @@ class HardwareRepository:
                     raise HardwareError('hardware_window_outside_ccd', '基线或定位峰的理论位置超出 CCD 点数')
             pre_seconds = _finite(payload.get("pre_excitation_seconds", 1), "pre_excitation_seconds", 0, 600)
             period = _finite(payload.get("sampling_period_seconds", 1), "sampling_period_seconds", 0.001, 60)
+            if manual:
+                import math
+                if method_id is not None and any(math.ceil(item['duration_seconds'] / period - 1e-9) < item['end_frame'] for item in plan):
+                    raise HardwareError('hardware_manual_duration_too_short', '采集时长不足以覆盖方法计算区间，请增加时长',
+                                        details={'sampling_period_seconds': period,
+                                                 'turns': [{'angle_deg': item['angle_deg'], 'end_frame': item['end_frame']} for item in plan]})
+                if sum(math.ceil(item['duration_seconds'] / period) for item in plan) > 100000:
+                    raise HardwareError('hardware_manual_frames_exceeded', '请增大采样周期或缩短总时长，单任务最多 100000 帧')
             simulator = {
                 "sample": str(payload.get("simulator_sample", "280-288.acq")),
                 "seed": int(payload.get("seed", 0)),
@@ -304,8 +350,8 @@ class HardwareRepository:
                     "INSERT INTO hardware_tasks(name, status, device_profile_id, ccd_layout_id, transport,"
                     " strategy, anomaly_policy, sample_name, method_id, method_version, retry_limit,"
                     " pre_excitation_seconds, sampling_period_seconds, ccd_indices_json, plan_json,"
-                    " thresholds_json, simulator_json, total_steps, created_by, created_at, updated_at) "
-                    "VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    " thresholds_json, simulator_json, total_steps, created_by, created_at, updated_at, execution_mode) "
+                    "VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 ),
                 (
                     str(payload.get("name", "S14 真实设备与自动转角")).strip(),
@@ -328,6 +374,7 @@ class HardwareRepository:
                     actor_user_id,
                     now,
                     now,
+                    mode,
                 ),
             )
             task_id = int(cursor.lastrowid)
@@ -507,7 +554,7 @@ class HardwareRepository:
         return observed_rows, first_sha
 
     def frames(self, task_id: int, *, step_id: int | None = None, include_points: bool = False) -> list[dict[str, Any]]:
-        self._context(task_id)
+        task = self._context(task_id)[0]
         with self.database.read() as db:
             query = "SELECT * FROM hardware_frames WHERE task_id=?"
             args: list[Any] = [task_id]
@@ -524,6 +571,9 @@ class HardwareRepository:
                 item["damaged"] = bool(item["damaged"])
                 item["confirmed"] = bool(item["confirmed"])
                 result.append(item)
+            if task['execution_mode'] == 'manual':
+                live = manual_frames(db, task_id, include_points)
+                return [item for item in live if step_id is None or item['step_id'] == step_id] + [item for item in result if item['damaged']]
             return result
 
     def traces(self, task_id: int) -> list[dict[str, Any]]:

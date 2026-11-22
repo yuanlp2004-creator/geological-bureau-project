@@ -85,8 +85,6 @@ class DispersionRepository:
             raise DispersionError(
                 "device_profile_not_found", "未找到启用的设备档案", details={"profile_id": profile_id}, status_code=404
             )
-        if row["transport"] != "simulator":
-            raise DispersionError("dispersion_transport_unavailable", "S12 当前仅支持确定性模拟器", status_code=409)
         return row
 
     @staticmethod
@@ -149,6 +147,9 @@ class DispersionRepository:
                 return self._task_dict(task_id, connection)
         context = self._context(task_id, db)
         task = self._decode(context.task)
+        if capture_turn := task['condition'].get('capture_turn'):
+            task['capture_turn'] = capture_turn
+            task['capture_turns'] = self.capture_turn_members(db, capture_turn)
         task["layout"] = {
             "id": context.layout["id"],
             "name": context.layout["name"],
@@ -189,15 +190,54 @@ class DispersionRepository:
                 (task_id,),
             ).fetchall()
         ]
+        task['legacy_lines'] = []
+        for line in task['lines']:
+            position = line['located_position'] if line['located_position'] is not None else line['saved_position']
+            task['legacy_lines'].append({'line_id': line['id'], 'ccd_index': line['ccd_index'], 'point_index': position,
+                'measured_step': self._geometry(context.layout, line['ccd_index'])[0] + position if position is not None else None})
+        task['legacy_lines'].sort(key=lambda line: (line['ccd_index'], line['point_index'] or 0, line['line_id']))
         return task
 
-    def list_tasks(self, limit: int = 50) -> list[dict[str, Any]]:
+    @staticmethod
+    def capture_turn_members(db, capture_turn, *, include_preheat=False):
+        return [dict(row) for row in db.execute('''SELECT id, status,
+            json_extract(condition_json, '$.capture_turn.angle_deg') AS angle_deg,
+            json_extract(condition_json, '$.capture_turn.turn_index') AS turn_index
+            FROM dispersion_tasks WHERE json_extract(condition_json, '$.capture_turn.group')=?
+            AND (? OR coalesce(json_extract(condition_json, '$.preheat'), 0)=0) ORDER BY turn_index''',
+            (capture_turn['group'], include_preheat))]
+
+    def list_tasks(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
         with self.database.read() as db:
             ids = [
                 int(row[0])
-                for row in db.execute("SELECT id FROM dispersion_tasks ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+                for row in db.execute("SELECT id FROM dispersion_tasks WHERE discarded_at IS NULL "
+                                      "ORDER BY id DESC LIMIT ? OFFSET ?", (limit, offset)).fetchall()
             ]
             return [self._task_dict(task_id, db) for task_id in ids]
+
+    def spectrum_records(self, task_id: int | None = None) -> list[dict[str, Any]]:
+        with self.database.read() as db:
+            rows = db.execute("""SELECT t.id, t.name, t.completed_at, t.ccd_indices_json, t.condition_json,
+                t.frame_count, t.dark_frame_count, t.pre_excitation_seconds, t.sampling_period_seconds,
+                l.points_per_ccd, (SELECT group_concat(points_sha256, '') FROM (
+                    SELECT points_sha256 FROM dispersion_task_frames WHERE task_id=t.id
+                    ORDER BY phase, frame_index, ccd_index)) AS frame_hashes
+                FROM dispersion_tasks t JOIN ccd_layouts l ON l.id=t.ccd_layout_id
+                WHERE t.status='completed' AND t.discarded_at IS NULL
+                  AND json_extract(t.condition_json, '$.source_record_id') IS NULL
+                  AND (coalesce(json_extract(t.condition_json, '$.preheat'), 0)=0
+                       OR json_extract(t.condition_json, '$.capture_turn.group') IS NULL)
+                  AND (? IS NULL OR t.id=?)""", (task_id, task_id))
+            result = []
+            for row in rows:
+                if row["frame_hashes"]:
+                    record = dict(row)
+                    record["ccd_indices"] = json.loads(record.pop("ccd_indices_json"))
+                    record["condition"] = json.loads(record.pop("condition_json") or "{}")
+                    record["source_sha256"] = hashlib.sha256(record.pop("frame_hashes").encode("ascii")).hexdigest()
+                    result.append(record)
+            return result
 
     def options(self) -> dict[str, Any]:
         with self.database.read() as db:
@@ -415,8 +455,10 @@ class DispersionRepository:
 
     def _calibration_view(self, db, row) -> dict[str, Any]:
         result = self._calibration_decode(row)
-        result['inputs_current'] = row['state'] == 'published' or self.calibration_inputs_current(db, row)
+        result['inputs_current'] = self.calibration_inputs_current(db, row)
         result['publishable'] = result['publishable'] and result['inputs_current']
+        from .fitting import legacy_results
+        result['legacy_results'] = legacy_results(result['coefficients'], result['residuals'])
         metadata = db.execute(
             "SELECT * FROM dispersion_calibration_metadata WHERE calibration_version_id=?", (row["id"],)
         ).fetchone()

@@ -68,9 +68,8 @@ def initialize_defaults(connection: sqlite3.Connection, now: str) -> None:
         (now,),
     )
     connection.execute(
-        "INSERT INTO device_profiles(name, transport, port, baud_rate, mirror, frame_count, ccds_per_frame, points_per_ccd, ccd_indices_json, point_width_um, protection_time_ms, screen_width_mm, screen_resolution_px, enabled, created_at, updated_at) "
-        "VALUES ('S11 模拟器', 'simulator', 3, 460800, 0, 3, 2, 2048, ?, 14.0, 200.0, 40.9199981689453, 1920, 1, ?, ?) "
-        "ON CONFLICT(name) DO UPDATE SET transport=excluded.transport, port=excluded.port, baud_rate=excluded.baud_rate, mirror=excluded.mirror, frame_count=excluded.frame_count, ccds_per_frame=excluded.ccds_per_frame, points_per_ccd=excluded.points_per_ccd, ccd_indices_json=excluded.ccd_indices_json, point_width_um=excluded.point_width_um, protection_time_ms=excluded.protection_time_ms, screen_width_mm=excluded.screen_width_mm, screen_resolution_px=excluded.screen_resolution_px, enabled=1, updated_at=excluded.updated_at",
+        "INSERT OR IGNORE INTO device_profiles(name, transport, port, baud_rate, mirror, frame_count, ccds_per_frame, points_per_ccd, ccd_indices_json, point_width_um, protection_time_ms, screen_width_mm, screen_resolution_px, enabled, created_at, updated_at) "
+        "VALUES ('S11 模拟器', 'simulator', 3, 460800, 0, 3, 2, 2048, ?, 14.0, 200.0, 40.9199981689453, 1920, 1, ?, ?)",
         (json.dumps([0, 1, 2, 4, 5], separators=(",", ":")), now, now),
     )
     connection.executemany(

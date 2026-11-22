@@ -130,7 +130,7 @@ export async function checkDataOutput(page, fixture, result, output) {
     if(process.env.QA_CDP)await page.evaluate(({width,height})=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height})
     else await page.setViewportSize({width,height})
     const geometry=await host.evaluate(el=>{
-      const page=el.querySelector('[data-testid="postprocessing-page"]'),style=getComputedStyle(page),hero=el.querySelector(':scope > .hero-row'),first=page.querySelector('.postprocessing-legacy-tools'),heading=page.querySelector('.postprocessing-recalculation-surface .surface-heading')
+      const page=el.querySelector('[data-testid="postprocessing-page"]'),style=getComputedStyle(page),hero=document.querySelector('[data-testid="page-heading"]'),first=page.querySelector('.postprocessing-recalculation-surface'),heading=page.querySelector('.postprocessing-recalculation-surface .surface-heading')
       const controls=[...heading.querySelectorAll('h2,button')].map(n=>({top:n.getBoundingClientRect().top,bottom:n.getBoundingClientRect().bottom}))
       return {gap:first.getBoundingClientRect().top-hero.getBoundingClientRect().bottom,padding:style.padding,doc:document.documentElement.scrollWidth,w:innerWidth,controls}
     })
@@ -151,7 +151,6 @@ export async function checkDataOutput(page, fixture, result, output) {
   assert.equal(await intensity.getByLabel('分析批次',{exact:true}).inputValue(),String(fixture.run_id))
   mark(6,'重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持')
 
-  if(await toggle.getAttribute('aria-expanded')==='true'){await host.getByRole('tab',{name:'分析报告',exact:true}).click();await toggle.click()}
   result.layouts=[]
   for(const [width,height,theme] of [[1440,1000,'light'],[1060,680,'light'],[1060,1000,'dark']]){
     await call(page,'/api/v1/settings',{display:{theme,density:'comfortable'}},'PATCH')

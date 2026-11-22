@@ -1,4 +1,5 @@
 from __future__ import annotations
+from contextlib import nullcontext
 import hashlib
 import json
 import sqlite3
@@ -48,6 +49,7 @@ class AcquisitionRepository:
 
     @staticmethod
     def _sample_dict(row: sqlite3.Row | dict[str, Any], db: sqlite3.Connection) -> dict[str, Any]:
+        from .turns import decoded_bands
         result = dict(row)
         result["finalized"] = bool(result["finalized"])
         disposal = db.execute("SELECT * FROM acquisition_sample_disposals WHERE sample_id=?", (row["id"],)).fetchone()
@@ -65,9 +67,8 @@ class AcquisitionRepository:
                 "burn_sha256": band["burn_sha256"],
                 "dark_sha256": band["dark_sha256"],
             }
-            for band in db.execute(
-                "SELECT * FROM acquisition_sample_bands WHERE sample_id=? ORDER BY ccd_index", (row["id"],)
-            ).fetchall()
+            | {key: band[key] for key in ('turn_index', 'angle_deg') if key in band}
+            for band in decoded_bands(db, row['id'])
         ]
         return result
 
@@ -92,6 +93,16 @@ class AcquisitionRepository:
                 else ([] if field == "ccd_indices_json" else (None if field == "last_event_json" else {}))
             )
         result["status"] = str(result["status"])
+        if capture_turn := result['excitation_condition'].get('capture_turn'):
+            result['capture_turn'] = capture_turn
+            result['capture_turns'] = self.capture_turn_members(db, capture_turn)
+        from .turns import context
+        config, runtime = context(db, task_id)
+        if config:
+            result['turns'] = {**config, **runtime}
+            if config['multiple'] and result.get('last_event'):
+                indices = config['plan'][runtime['turn_index']]['ccd_indices']
+                result['last_event']['ccds'] = [ccd for ccd in result['last_event'].get('ccds', []) if ccd['ccd_index'] in indices]
         # 进度只按各重复的燃烧、暗帧计数计算，倒计时和预激发不计入有效帧总数。
         result["progress"] = round(
             min(
@@ -113,6 +124,12 @@ class AcquisitionRepository:
             "point_width_um": layout["point_width"],
             "ccd_indices": self._layout_indices(layout),
         }
+        if config and config['multiple']:
+            count = len(config['plan'])
+            partial = 0 if task['status'] in {'between_repeats', 'completed'} else runtime['completed_turns'] + (
+                task['burn_frames_captured'] + task['dark_frames_captured']) / max(1, task['burn_frame_count'] + task['dark_frame_count'])
+            result['progress'] = round(min(100, 100 * (task['completed_repeats'] * count + partial)
+                / max(1, task['repeat_count'] * count)), 2)
         result["profile"] = {
             "id": profile["id"],
             "name": profile["name"],
@@ -150,16 +167,25 @@ class AcquisitionRepository:
             result["last_event"] = event
         return result
 
-    def list_tasks(self, limit: int = 50, *, task_kind: str | None = None) -> list[dict[str, Any]]:
+    def list_tasks(self, limit: int = 50, *, task_kind: str | None = None,
+                   include_discarded: bool = True) -> list[dict[str, Any]]:
         if task_kind is not None and task_kind not in _TASK_KINDS:
             raise AcquisitionError("acquisition_task_kind_invalid", "采集类型必须是 evaporation 或 sample")
-        clause = " WHERE task_kind=?" if task_kind is not None else ""
+        filters = ["task_kind=?"] if task_kind is not None else []
+        if not include_discarded:
+            filters.append("""t.discarded_at IS NULL AND (
+                NOT EXISTS(SELECT 1 FROM acquisition_samples s
+                    JOIN acquisition_sample_disposals d ON d.sample_id=s.id WHERE s.task_id=t.id)
+                OR EXISTS(SELECT 1 FROM acquisition_samples s WHERE s.task_id=t.id
+                    AND NOT EXISTS(SELECT 1 FROM acquisition_sample_disposals d WHERE d.sample_id=s.id))
+            )""")
+        clause = " WHERE " + " AND ".join(filters) if filters else ""
         args = (task_kind,) if task_kind is not None else ()
         with self.database.read() as db:
             ids = [
                 row[0]
                 for row in db.execute(
-                    f"SELECT id FROM acquisition_tasks{clause} ORDER BY updated_at DESC, id DESC LIMIT ?",
+                    f"SELECT id FROM acquisition_tasks t{clause} ORDER BY updated_at DESC, id DESC LIMIT ?",
                     (*args, max(1, min(int(limit), 200))),
                 ).fetchall()
             ]
@@ -211,7 +237,19 @@ class AcquisitionRepository:
             "queues": self.sample_queues.list(),
         }
 
-    def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+    @staticmethod
+    def capture_turn_members(db, capture_turn, *, include_preheat=False):
+        if not capture_turn.get('group'):
+            return []
+        return [dict(row) for row in db.execute('''SELECT id, status,
+            json_extract(excitation_condition_json, '$.capture_turn.angle_deg') AS angle_deg,
+            json_extract(excitation_condition_json, '$.capture_turn.turn_index') AS turn_index
+            FROM acquisition_tasks WHERE json_extract(excitation_condition_json, '$.capture_turn.group')=?
+            AND (? OR sample_kind != 'preheat') ORDER BY turn_index''', (capture_turn['group'], include_preheat))]
+
+    def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None, *,
+                    source_task: dict[str, Any] | None = None, connection: sqlite3.Connection | None = None,
+                    capture_turn: dict[str, Any] | None = None) -> dict[str, Any]:
         task_kind = str(payload.get("task_kind", "sample")).lower()
         if task_kind not in _TASK_KINDS:
             raise AcquisitionError("acquisition_task_kind_invalid", "采集类型必须是 evaporation 或 sample")
@@ -258,17 +296,47 @@ class AcquisitionRepository:
                 raise AcquisitionError("sample_kind_invalid", "样品类型无效")
             if sample_kind == "preheat":
                 naming_mode = "temporary"
+            elif sample_name.upper().startswith('S'):
+                sample_kind = 'standard'
         task_name = (
             str(payload.get("name", "S13 样品采集" if task_kind == "sample" else "S13 蒸发采集")).strip() or "S13 采集"
         )
-        # 进入写事务后核对设备和 CCD 布局；当前样品采集链只接受模拟设备档案。
-        with self.database.write() as db:
+        # 进入写事务后核对设备和 CCD 布局；通信由设备适配器负责。
+        with (self.database.write() if connection is None else nullcontext(connection)) as db:
+            # 样品沿用方法激发条件；蒸发只沿用方法布局（旧 DoAcqCdtCmt/DoAcqEdtWdt）。
+            method_id = payload.get('method_id')
+            method_version = payload.get('method_version')
+            method_version_id = None
+            conditions = {}
+            if method_id is not None:
+                query = "SELECT id, version FROM method_versions WHERE method_id=? AND state='published'"
+                args = [int(method_id)]
+                if method_version is not None:
+                    query += ' AND version=?'
+                    args.append(int(method_version))
+                method = db.execute(query + ' ORDER BY version DESC LIMIT 1', args).fetchone()
+                if method is None:
+                    raise AcquisitionError('method_revision_not_found', '未找到已发布方法修订', status_code=404)
+                method_version_id, method_version = int(method['id']), int(method['version'])
+                snapshot = MethodService(self.database).bind_snapshots(db).by_id(method_version_id, published_only=True)
+                conditions = snapshot.payload.get('conditions', {})
+                if source_task is None:
+                    payload = dict(payload)
+                    for key in ('ccd_layout_id', 'selected_ccds'):
+                        if key in conditions and not (capture_turn and key == 'selected_ccds'):
+                            payload['ccd_indices' if key == 'selected_ccds' else key] = conditions[key]
+                    if task_kind == 'sample':
+                        for key, target in (('pre_excitation_seconds', 'pre_excitation_seconds'),
+                                            ('sampling_period_seconds', 'sampling_period_seconds'),
+                                            ('frame_count', 'burn_frame_count'), ('dark_frame_count', 'dark_frame_count')):
+                            if key in conditions:
+                                payload[target] = conditions[key]
+                        if 'sampling_period_seconds' in conditions:
+                            payload['burn_cycle_seconds'] = payload['dark_cycle_seconds'] = conditions['sampling_period_seconds']
             profile_id = int(payload.get("device_profile_id", 1))
             profile = db.execute("SELECT * FROM device_profiles WHERE id=? AND enabled=1", (profile_id,)).fetchone()
             if profile is None:
                 raise AcquisitionError("device_profile_not_found", "设备档案不存在", status_code=404)
-            if profile["transport"] != "simulator":
-                raise AcquisitionError("device_transport_unavailable", "真实串口采集留待 S14", status_code=409)
             layout_key = payload.get("ccd_layout_id", "default")
             layout = db.execute(
                 "SELECT * FROM ccd_layouts WHERE id=? OR name=?",
@@ -282,49 +350,24 @@ class AcquisitionRepository:
                 raise AcquisitionError(
                     "ccd_indices_invalid", "CCD 选择必须是当前布局的唯一子集", details={"allowed": allowed}
                 )
+            if profile["transport"] == "serial" and not set(selected).issubset(json.loads(profile["ccd_indices_json"])):
+                raise AcquisitionError("ccd_profile_selection_invalid", "真实采集不能选择设备档案中未安装的CCD")
             if int(profile["points_per_ccd"]) != int(layout["points_per_ccd"]):
                 raise AcquisitionError("ccd_layout_profile_mismatch", "设备档案与 CCD 布局点数不一致", status_code=409)
             # 保存具体已发布方法版本 ID，之后分析沿用这一版本，不跟随方法的最新修订变化。
-            method_id = payload.get("method_id")
-            method_version = payload.get("method_version")
-            method_version_id = None
-            if method_id is not None:
-                query = "SELECT v.id, v.version FROM method_versions v WHERE v.method_id=? AND v.state='published'"
-                args: list[Any] = [int(method_id)]
-                if method_version is not None:
-                    query += " AND v.version=?"
-                    args.append(int(method_version))
-                query += " ORDER BY v.version DESC LIMIT 1"
-                method = db.execute(query, args).fetchone()
-                if method is None:
-                    raise AcquisitionError("method_revision_not_found", "未找到已发布方法修订", status_code=404)
-                method_version_id, method_version = int(method["id"]), int(method["version"])
-            conditions = {}
             if method_version_id is not None:
-                snapshot = MethodService(self.database).bind_snapshots(db).by_id(method_version_id, published_only=True)
-                conditions = snapshot.payload.get('conditions', {})
-                if not queue_item_id and payload.get('repeat_count') is None:
+                if task_kind == 'sample' and sample_kind != 'preheat' and not queue_item_id and payload.get('repeat_count') is None:
                     key = 'control_repeats' if payload.get('management_sample') or sample_name.upper().startswith('D') else 'standard_repeats' if sample_kind == 'standard' else 'sample_repeats'
                     repeat_count = int(conditions.get(key, 1))
-                if payload.get('use_method_conditions'):
-                    if any(key not in conditions for key in ('pre_excitation_seconds', 'sampling_period_seconds', 'frame_count', 'dark_frame_count')):
-                        raise AcquisitionError('acquisition_method_conditions_missing', '已发布方法缺少可继承的激发条件')
-                    if not payload.get('ccd_indices') and conditions.get('selected_ccds'):
-                        selected = [int(value) for value in conditions['selected_ccds']]
-                        if any(value not in self._layout_indices(layout) for value in selected):
-                            raise AcquisitionError('acquisition_method_layout_mismatch', '方法选中的 CCD 不属于任务布局')
-                    payload = {**payload, 'pre_excitation_seconds': conditions['pre_excitation_seconds'],
-                        'sampling_period_seconds': conditions['sampling_period_seconds'],
-                        'burn_frame_count': conditions['frame_count'], 'dark_frame_count': conditions['dark_frame_count'],
-                        'burn_cycle_seconds': conditions['sampling_period_seconds'],
-                        'dark_cycle_seconds': conditions['sampling_period_seconds']}
                 from ..spectral_lines import exposure_interval
                 if any(exposure_interval(line, conditions) for line in snapshot.payload.get('lines', [])):
                     storage_mode = 'full_interval'
             burn_count = int(payload.get("burn_frame_count", payload.get("frame_count", 3)))
             dark_count = int(payload.get("dark_frame_count", 1))
             exposure_by_ccd = {}
-            if payload.get('use_method_intervals'):
+            turn_config = None
+            method_intervals = task_kind == 'sample' and source_task is None and bool(conditions.get('angle_exposures'))
+            if method_intervals:
                 if task_kind != 'sample' or method_version_id is None:
                     raise AcquisitionError('acquisition_method_required', '按方法区间摄谱必须绑定已发布方法')
                 methods = MethodService(self.database)
@@ -333,13 +376,15 @@ class AcquisitionRepository:
                 if methods.bind_geometry(db, conditions).layout_id != layout['id']:
                     raise AcquisitionError('acquisition_method_layout_mismatch', '方法区间与任务 CCD 布局不一致')
                 burn_count, dark_count = conditions['frame_count'], conditions['dark_frame_count']
-                for ccd in selected:
-                    slot = ccd // int(layout['ccds_per_frame'])
-                    if slot >= len(conditions['angle_exposures']):
-                        raise AcquisitionError('acquisition_method_interval_missing', '选中的 CCD 没有方法转角区间')
-                    exposure_by_ccd[str(ccd)] = conditions['angle_exposures'][slot]
+                from ..methods import MethodDomainError
+                try:
+                    turn_config = methods.sample_plan(db, method_version_id)
+                except MethodDomainError as exc:
+                    raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
+                if not turn_config['multiple']:
+                    exposure_by_ccd = {str(ccd): turn_config['plan'][0] for ccd in selected}
                 storage_mode = 'full_interval' if any(item['storage_mode'] == 'full_interval'
-                                                      for item in exposure_by_ccd.values()) else 'averaged'
+                                                      for item in turn_config['plan']) else 'averaged'
             if not 1 <= burn_count <= 255 or not 0 <= dark_count <= 20:
                 raise AcquisitionError("acquisition_condition_invalid", "燃烧/暗帧数量超出范围")
             if method_version_id is not None:
@@ -355,8 +400,15 @@ class AcquisitionRepository:
                         if burn_count < int(conditions.get('frame_count', burn_count)):
                             raise AcquisitionError('acquisition_exposure_frames_missing', '区间曝光需采集方法规定的完整燃烧帧')
                         storage_mode = 'full_interval'
-                    elif not payload.get('use_method_intervals'):
+                        exposure_by_ccd = {key: {**item, 'storage_mode': 'full_interval'} for key, item in exposure_by_ccd.items()}
+                    elif not method_intervals:
                         storage_mode = 'averaged'
+            if source_task is not None:
+                # 预热复制已存任务快照；旧任务可能采用当时允许的独立条件，不重新解释。
+                exposure_by_ccd = {}
+                turn_config = None
+            if turn_config and turn_config['multiple'] and profile['transport'] == 'serial':
+                raise AcquisitionError('hardware_protocol_unavailable', '真实自动转角协议尚未确认，不能执行多转角样品摄谱', status_code=409)
             if not 1 <= repeat_count <= 10:
                 raise AcquisitionError('repeat_invalid', '方法默认重复次数必须在 1 到 10 之间')
             # 时间参数需有限且在范围内；采样周期额外要求以 0.01 秒递增。
@@ -374,6 +426,9 @@ class AcquisitionRepository:
             )
             now = utc_now()
             excitation = dict(payload.get("excitation_conditions") or {})
+            excitation.pop('capture_turn', None)
+            if capture_turn:
+                excitation['capture_turn'] = capture_turn
             evaporation = dict(payload.get("evaporation_conditions") or {})
             simulator = {
                 "sample": str(payload.get("simulator_sample", "280-288.acq")),
@@ -426,6 +481,9 @@ class AcquisitionRepository:
                 ),
             )
             task_id = int(cursor.lastrowid)
+            if turn_config:
+                db.execute('INSERT INTO acquisition_turn_tasks VALUES (?,?,?)',
+                    (task_id, _json(turn_config), _json({'turn_index': 0, 'completed_turns': 0, 'positioned': False})))
             if payload.get('management_sample'):
                 if task_kind != 'sample' or sample_kind not in {'test', 'normal'}:
                     raise AcquisitionError('management_sample_kind_invalid', '管理样必须为试样或普通样品')
@@ -452,7 +510,7 @@ class AcquisitionRepository:
                     "storage_mode": storage_mode,
                 },
             )
-        return self._task_dict(task_id)
+        return self._task_dict(task_id, connection)
 
     @staticmethod
     def _create_sample(db: sqlite3.Connection, task: sqlite3.Row) -> int:
@@ -517,6 +575,9 @@ class AcquisitionRepository:
         damage_code: str | None = None,
         damage_message: str | None = None,
     ) -> None:
+        from .turns import store_frame
+        if store_frame(db, task, sample, phase, frame_index, event, virtual_time_ms, damaged):
+            return
         selected = [int(value) for value in json.loads(task["ccd_indices_json"] or "[]")]
         by_index = {int(ccd["ccd_index"]): ccd for ccd in (event.ccds or [])}
         details = event.details or {}
@@ -588,6 +649,12 @@ class AcquisitionRepository:
     def _finalize_sample(
         self, db: sqlite3.Connection, task: sqlite3.Row, sample: sqlite3.Row, actor_user_id: int | None
     ) -> tuple[bool, str]:
+        from .turns import finalize
+        turn_hash = finalize(db, task, sample)
+        if turn_hash is not None:
+            db.execute("UPDATE acquisition_samples SET status='completed',finalized=1,result_sha256=?,completed_at=?,updated_at=? WHERE id=?",
+                (turn_hash, utc_now(), utc_now(), sample['id']))
+            return True, turn_hash
         selected = [int(value) for value in json.loads(task["ccd_indices_json"] or "[]")]
         burn_expected = int(task["burn_frame_count"])
         dark_expected = int(task["dark_frame_count"])
@@ -691,8 +758,9 @@ class AcquisitionRepository:
         phase: str | None = None,
         ccd_index: int | None = None,
         include_points: bool = False,
+        turn_index: int | None = None,
     ) -> list[dict[str, Any]]:
-        self._context(task_id)
+        task, _, _ = self._context(task_id)
         where = ["task_id=?"]
         args: list[Any] = [task_id]
         if repeat_index is not None:
@@ -707,6 +775,17 @@ class AcquisitionRepository:
             where.append("ccd_index=?")
             args.append(int(ccd_index))
         with self.database.read() as db:
+            from .turns import frames
+            turn_frames = frames(db, task_id, repeat_index, phase, ccd_index, include_points, turn_index=turn_index)
+            if turn_frames is not None:
+                return turn_frames
+            from .turns import context
+            config, _ = context(db, task_id)
+            capture_turn = json.loads(task['excitation_condition_json'] or '{}').get('capture_turn')
+            if config and not config['multiple']:
+                capture_turn = {'turn_index': 0, 'angle_deg': config['plan'][0]['angle_deg']}
+            if turn_index is not None and (not capture_turn or capture_turn['turn_index'] != turn_index):
+                return []
             rows = db.execute(
                 f"SELECT * FROM acquisition_frames WHERE {' AND '.join(where)} ORDER BY repeat_index, phase, frame_index, ccd_index",
                 args,
@@ -714,6 +793,8 @@ class AcquisitionRepository:
             result = []
             for row in rows:
                 item = dict(row)
+                if capture_turn:
+                    item.update(turn_index=capture_turn['turn_index'], angle_deg=capture_turn['angle_deg'])
                 if include_points and row["points_blob"] is not None:
                     item["points"] = _unpack_uint16(row["points_blob"], int(row["points_count"]))
                 item.pop("points_blob", None)
@@ -940,26 +1021,8 @@ class AcquisitionRepository:
 
     def band(self, sample_id: int, ccd_index: int | None = None, include_points: bool = False) -> list[dict[str, Any]]:
         with self.database.read() as db:
-            where = ["sample_id=?"]
-            args: list[Any] = [sample_id]
-            if ccd_index is not None:
-                where.append("ccd_index=?")
-                args.append(int(ccd_index))
-            rows = db.execute(
-                f"SELECT * FROM acquisition_sample_bands WHERE {' AND '.join(where)} ORDER BY ccd_index", args
-            ).fetchall()
-            result = []
-            for row in rows:
-                item = dict(row)
-                for field, count, unpack in (("mean_blob", int(row["points_count"]), _unpack_float32),):
-                    blob = row[field]
-                    if include_points and blob is not None:
-                        item["mean_points"] = unpack(blob, count)
-                item.pop("mean_blob", None)
-                item.pop("burn_frames_blob", None)
-                item.pop("dark_frames_blob", None)
-                result.append(item)
-            return result
+            from .turns import decoded_bands
+            return [row for row in decoded_bands(db, sample_id, include_points) if ccd_index is None or row['ccd_index'] == ccd_index]
 
     def spectrum_records(self) -> list[dict[str, Any]]:
         """Public read-side metadata for completed, immutable acquisition samples."""
@@ -968,8 +1031,12 @@ class AcquisitionRepository:
                 dict(row)
                 for row in db.execute(
                     (
-                        "SELECT s.id, s.sample_name, s.result_sha256, s.completed_at, s.storage_mode,"
-                        " t.burn_frame_count, t.dark_frame_count, t.ccd_indices_json, t.simulator_json, l.points_per_ccd "
+                        "SELECT s.id, s.task_id, s.repeat_index, s.sample_name, s.result_sha256, s.completed_at, s.storage_mode,"
+                        " t.name AS task_name, t.task_kind, t.method_id, t.method_version,"
+                        " t.burn_frame_count, t.dark_frame_count, t.ccd_indices_json, t.simulator_json, l.points_per_ccd,"
+                        " CASE WHEN t.task_kind='evaporation' AND t.sample_kind!='preheat'"
+                        " AND json_extract(t.excitation_condition_json, '$.capture_turn.multiple')"
+                        " THEN json_extract(t.excitation_condition_json, '$.capture_turn') END AS capture_turn_json "
                         "FROM acquisition_samples s JOIN acquisition_tasks t ON t.id=s.task_id "
                         "JOIN ccd_layouts l ON l.id=t.ccd_layout_id "
                         "WHERE s.finalized=1 AND s.status='completed' "
@@ -982,7 +1049,7 @@ class AcquisitionRepository:
         with self.database.read() as db:
             row = db.execute(
                 (
-                    "SELECT s.*, t.ccd_indices_json, t.burn_frame_count, t.dark_frame_count, t.simulator_json, t.burn_cycle_seconds, t.dark_cycle_seconds, t.method_version_id, t.pre_excitation_seconds, t.device_profile_id "
+                    "SELECT s.*, t.name AS task_name, t.task_kind, t.method_id, t.method_version, t.ccd_indices_json, t.burn_frame_count, t.dark_frame_count, t.simulator_json, t.burn_cycle_seconds, t.dark_cycle_seconds, t.method_version_id, t.pre_excitation_seconds, t.device_profile_id "
                     "FROM acquisition_samples s JOIN acquisition_tasks t ON t.id=s.task_id "
                     "WHERE s.id=? AND s.finalized=1 AND s.status='completed' "
                     "AND NOT EXISTS(SELECT 1 FROM acquisition_sample_disposals d WHERE d.sample_id=s.id)"
@@ -992,12 +1059,15 @@ class AcquisitionRepository:
             if row is None:
                 raise AcquisitionError("acquisition_sample_not_found", "已完成采集样品不存在", status_code=404)
             sample = dict(row)
+            from .turns import context
+            config, _ = context(db, sample['task_id'])
         return {
             "sample": sample,
             "bands": self.band(sample_id, include_points=True),
             "frames": self.frames(sample["task_id"], repeat_index=sample["repeat_index"], include_points=True)
             if include_frames
             else [],
+            'turns': config,
         }
 
     def measurement_snapshot(self, task_id: int) -> dict[str, Any]:
@@ -1010,6 +1080,12 @@ class AcquisitionRepository:
                 if db.execute("SELECT 1 FROM acquisition_sample_disposals WHERE sample_id=?", (sample["id"],)).fetchone():
                     continue
                 bands = []
+                from .turns import measurement_bands
+                turn_bands = measurement_bands(db, task, sample)
+                if turn_bands is not None:
+                    result['samples'].append({'id': sample['id'], 'name': sample['sample_name'],
+                        'repeat_index': sample['repeat_index'], 'complete': bool(sample['finalized']), 'bands': turn_bands})
+                    continue
                 # 已固化样品直接读取正式平均谱带；采集中样品按当前有效帧临时计算。
                 if sample["finalized"]:
                     for band in db.execute("SELECT * FROM acquisition_sample_bands WHERE sample_id=?", (sample["id"],)):

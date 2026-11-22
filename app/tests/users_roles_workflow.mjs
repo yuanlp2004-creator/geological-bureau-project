@@ -14,10 +14,10 @@ export async function checkUsersRoles(page, fixture, result, output) {
   const auditor = rolesBefore.find(role => role.name === 'read_only_auditor')
   await go()
   await page.getByRole('button', { name: '刷新', exact: true }).waitFor()
-  await page.waitForFunction(() => document.querySelectorAll('.auth-role-card').length === 4)
+  await page.waitForFunction(count => document.querySelectorAll('.auth-role-card').length === count, rolesBefore.length)
   assert.equal(await page.locator('.auth-page .disclosure-toggle').count(), 0)
   assert.equal(await page.getByRole('button', { name: '查阅角色与权限' }).count(), 0)
-  result.checks.push('Default view shows four role summaries and ordinary section actions')
+  result.checks.push('Default view shows every stored role summary and ordinary section actions')
 
   for (const [theme, density, width] of [
     ['light', 'comfortable', 1440], ['dark', 'compact', 1060],
@@ -136,7 +136,7 @@ export async function checkUsersRoles(page, fixture, result, output) {
   await page.reload()
   await page.getByTestId('workspace').waitFor()
   await go()
-  await page.waitForFunction(() => document.querySelectorAll('.auth-role-card').length === 5)
+  await page.waitForFunction(count => document.querySelectorAll('.auth-role-card').length === count, rolesAfter.length)
   assert.equal(await page.getByRole('button', { name: '创建用户', exact: true }).count(), 0)
   assert.equal(await page.getByRole('button', { name: '自定义角色', exact: true }).count(), 0)
   assert.equal(await page.locator('.role-create-form, .user-create-form').count(), 0)

@@ -82,30 +82,32 @@ try {
     assert.ok(geometry.scroll <= geometry.width + 1, `${key}: window overflow ${JSON.stringify(geometry)}`)
   }
 
+  const source = process.env.QA_SOURCE_DIR
+  assert.ok(source)
   page.on('dialog', async (dialog) => {
     assert.ok(/^确认把本次/.test(dialog.message()))
     await dialog.accept()
   })
-  const source = process.env.QA_SOURCE_DIR
-  assert.ok(source)
-  for (const [key, endpoint, file] of [
-    ['migration', 'legacy-migration', 'runtime-DIRECT.MTD'],
-    ['spectrum-migration', 'spectrum-migration', 'sample.cdt'],
-    ['result-migration', 'result-migration', 'result.dat']
+  await navigate('migration')
+  for (const [label, endpoint, file] of [
+    ['方法与配置', 'legacy-migration', 'runtime-DIRECT.MTD'],
+    ['谱图数据', 'spectrum-migration', 'sample.cdt'],
+    ['分析结果', 'result-migration', 'result.dat']
   ]) {
-    await navigate(key)
-    if (key !== 'result-migration') await page.locator('.reader-state.ready').waitFor()
+    await page.getByRole('tab', { name: label, exact: true }).click()
+    const panel = page.getByRole('tabpanel', { name: label, exact: true })
+    if (endpoint !== 'result-migration') await panel.getByText('Jet 读取器就绪', { exact: true }).waitFor()
     const input =
-      key === 'migration'
+      endpoint === 'legacy-migration'
         ? page.getByLabel('方法库 · DIRECT.MTD', { exact: true })
-        : page.locator('.migration-source-surface input').first()
-    if (key === 'migration') {
+        : panel.locator('.migration-source-surface input').first()
+    if (endpoint === 'legacy-migration') {
       await page.getByLabel('设备配置 · DIRECT.CFG', { exact: true }).fill(`${source}/runtime-DIRECT.CFG`)
       await page.getByLabel('软件选项 · DIRECT.OPT', { exact: true }).fill(`${source}/runtime-DIRECT.OPT`)
     }
     await input.fill(`${source}/missing.${file.split('.').pop()}`)
     const submit = page.getByRole('button', {
-      name: key === 'result-migration' ? '暂存解析' : '只读暂存并校验',
+      name: endpoint === 'result-migration' ? '暂存解析' : '只读暂存并校验',
       exact: true
     })
     const [failed] = await Promise.all([
@@ -114,7 +116,7 @@ try {
     ])
     assert.ok(!failed.ok())
     assert.ok((await input.inputValue()).includes('missing.'))
-    await capture(`${key}-missing-source`)
+    await capture(`${endpoint}-missing-source`)
     await input.fill(`${source}/${file}`)
     const [staged] = await Promise.all([
       page.waitForResponse((r) => r.url().endsWith(`/${endpoint}/stage`) && r.request().method() === 'POST'),
@@ -122,17 +124,17 @@ try {
     ])
     assert.ok(staged.ok(), await staged.text())
     if ((await staged.json()).already_committed) {
-      await capture(`${key}-already-committed`)
+      await capture(`${endpoint}-already-committed`)
       continue
     }
     await page.getByRole('button', { name: '原子提交', exact: true }).waitFor()
-    await capture(`${key}-staged`)
+    await capture(`${endpoint}-staged`)
     const [committed] = await Promise.all([
       page.waitForResponse((r) => r.url().endsWith(`/${endpoint}/commit`) && r.request().method() === 'POST'),
       page.getByRole('button', { name: '原子提交', exact: true }).click()
     ])
     assert.ok(committed.ok(), await committed.text())
-    await capture(`${key}-committed`)
+    await capture(`${endpoint}-committed`)
   }
   console.log('PASS: all three migration pages reject missing source, retain fields, stage and commit copies')
   await navigate('settings')

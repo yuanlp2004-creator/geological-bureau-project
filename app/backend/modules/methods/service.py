@@ -105,12 +105,46 @@ class MethodService:
             draft.payload = canonical
             return editor.save(draft, actor, 'method.legacy_semantics.upgrade', None, {'source_sha256': source_hash})
 
+    def sample_plan(self, connection: sqlite3.Connection, version_id: int) -> dict[str, Any]:
+        from .sample_plan import sample_plan
+        snapshot = self.bind_snapshots(connection).by_id(version_id, published_only=True)
+        if snapshot is None:
+            raise MethodDomainError('method_revision_not_found', '未找到已发布方法修订')
+        return sample_plan(self, connection, snapshot)
+
+    def preliminary_turns(self, connection: sqlite3.Connection, version_id: int) -> dict[str, Any]:
+        """Color calibration can be collected before angle-to-line calibration exists."""
+        from .sample_plan import configured_angles
+
+        snapshot = self.bind_snapshots(connection).by_id(version_id, published_only=True)
+        if snapshot is None:
+            raise MethodDomainError('method_revision_not_found', '未找到已发布方法修订')
+        conditions = snapshot.payload['conditions']
+        geometry = self.bind_geometry(connection, conditions)
+        selected = conditions['selected_ccds']
+        angles = list(configured_angles(conditions))
+        for angle in angles:
+            indices = angle.get('ccd_indices')
+            if indices is not None and (not isinstance(indices, list) or not indices
+                    or any(type(index) is not int for index in indices) or len(indices) != len(set(indices))
+                    or not set(indices) <= set(selected)):
+                raise MethodDomainError('sample_turn_ccds_invalid', '转角关联的CCD不属于方法已选CCD',
+                                        details={'angle_deg': angle['angle_deg']})
+            reference = angle.get('dispersion_calibration_id')
+            if reference is not None:
+                locator = self.bind_geometry(connection, {**conditions, 'dispersion_calibration_id': reference})
+                angle['reference_coefficients'] = locator.prepared_layout()['ws_cof']
+        return {'layout_id': geometry.layout_id, 'layout': geometry.prepared_layout(),
+                'selected_ccds': selected, 'angles': angles, 'method_content_sha256': snapshot.content_sha256}
+
     def bind_geometry(self, connection: sqlite3.Connection, conditions: dict[str, Any]) -> MethodLineLocator:
         """使用调用方事务读取方法几何快照，不另开连接或提交。"""
         layout = self.repository._layout(connection, conditions.get("ccd_layout_id", "default"))
         dispersion = self.repository._dispersion(connection, conditions.get("dispersion_calibration_id", "default"))
         if layout is None or dispersion is None:
             raise MethodDomainError("method_geometry_missing", "方法引用的 CCD 布局或色散校准不存在")
+        if dispersion['ccd_layout_id'] != layout['id']:
+            raise MethodDomainError('method_geometry_mismatch', '色散标定与CCD布局不匹配')
         return MethodLineLocator(layout, dispersion, self.geometry)
 
     def _canonical_payload(self, payload: dict[str, Any]) -> dict[str, Any]:

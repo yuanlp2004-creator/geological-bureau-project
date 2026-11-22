@@ -253,10 +253,11 @@ def spectral_line_options(
 
 @router.get("/api/v1/methods/{method_id}/lines", tags=["spectral-lines"])
 def list_spectral_lines(
-    method_id: int, _: Session = Depends(require_permission("methods.read")), *, runtime: Runtime = Depends(get_runtime)
+    method_id: int, _: Session = Depends(require_permission("methods.read")), *,
+    version: int | None = Query(default=None, ge=1), runtime: Runtime = Depends(get_runtime)
 ) -> dict:
     try:
-        return runtime.spectral_lines_service().list(method_id)
+        return runtime.spectral_lines_service().list(method_id, version=version)
     except MethodDomainError as exc:
         raise method_error(exc) from exc
 
@@ -275,6 +276,7 @@ def detect_spectral_line(
             payload.wavelength_nm,
             payload.actual_wavelength_nm,
             payload.scan_width_points,
+            payload.line_id,
         )
     except MethodDomainError as exc:
         raise method_error(exc) from exc

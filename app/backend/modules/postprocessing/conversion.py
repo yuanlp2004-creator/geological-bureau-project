@@ -6,7 +6,7 @@ import json
 import sqlite3
 import uuid
 from typing import Any, Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from ..methods import MethodService
 from ...db import Database, utc_now
@@ -73,7 +73,12 @@ class ConversionService:
             )
         return layout, chosen
 
-    def convert_edt(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+    def convert_edt(self, payload: dict[str, Any], actor_user_id: int | None = None, *,
+                    transaction: ConversionTransaction | None = None,
+                    fingerprint_context: dict | None = None,
+                    source_layout: dict | None = None,
+                    report_extra: dict | None = None,
+                    prefer_band_name: bool = False) -> dict[str, Any]:
         record_ids = list(dict.fromkeys(str(value) for value in payload.get("record_ids") or []))
         if not record_ids:
             raise PostProcessingError("postprocessing_selection_empty", "至少选择一个 EDT 记录")
@@ -92,8 +97,10 @@ class ConversionService:
             "method_version_id": payload.get("method_version_id"),
             "storage_mode": storage_mode,
         }
+        if fingerprint_context is not None:
+            input_data['prepared_import'] = fingerprint_context
         fingerprint = _sha(input_data)
-        with self.work.write() as transaction:
+        with (nullcontext(transaction) if transaction is not None else self.work.write()) as transaction:
             db = transaction.connection
             existing = db.execute(
                 "SELECT * FROM postprocessing_conversion_runs WHERE input_sha256=?", (fingerprint,)
@@ -148,7 +155,8 @@ class ConversionService:
                         method_version_id=method_version_id,
                         method_id=method_row.method.id if method_row else None,
                         method_version=method_row.version if method_row else None,
-                        sample_name=row["sample_name"] or row["band_name"] or f"EDT-{row['id']}",
+                        sample_name=(row['band_name'] or row['long_name'] or row['sample_name'] if prefer_band_name
+                                     else row['sample_name'] or row['band_name']) or f"EDT-{row['id']}",
                         original_sample_name=row["sample_name"] or "",
                         source_record_id=self.repository._id("raw", row["id"]),
                         source_sha256=row["source_sha256"],
@@ -160,6 +168,7 @@ class ConversionService:
                         sampling_period_seconds=float(ignition.get('burn_cyc') or 1),
                         burn_cycle_seconds=float(ignition.get('burn_cyc') or 1),
                         dark_cycle_seconds=float(ignition.get('dark_cyc') or 1),
+                        source_layout=source_layout,
                         bands=[
                             ImportedBand(
                                 target_ccd,
@@ -186,6 +195,8 @@ class ConversionService:
                 "target_ccd_layout_id": layout_id,
                 "storage_mode": storage_mode,
             }
+            if report_extra is not None:
+                report.update(report_extra)
             db.execute(
                 (
                     "INSERT INTO postprocessing_conversion_runs(id,input_sha256,status,source_record_"

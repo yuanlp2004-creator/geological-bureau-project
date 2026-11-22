@@ -3,7 +3,7 @@ import type { Capability } from '../../api'
 import './permissions.css'
 
 const groups: Record<string, string> = {
-  settings: '软件设置', 'runtime-events': '运行信息', users: '用户管理', roles: '角色管理', audit: '审计记录',
+  settings: '分析与屏幕参数', 'runtime-events': '运行信息', users: '用户管理', roles: '角色管理', audit: '审计记录',
   methods: '方法与谱线', migration: '旧方法迁移', 'spectrum-migration': '旧谱图迁移',
   'result-migration': '旧结果迁移', spectra: '谱图查看', samples: '样号与样品队列', results: '分析结果',
   devices: '设备调试', dispersion: '色散摄谱与曲线', acquisition: '蒸发与样品摄谱',

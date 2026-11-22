@@ -25,7 +25,8 @@ export function AnalysisQuality({
 }: PanelProps) {
   const [groupByLine, setGroupByLine] = useState<Record<string, number>>({})
   const context = `${selected.id}-${qcGroups[0]?.line_id ?? ''}`
-  const currentGroup = qcGroups.find((group) => group.acquisition_task_id === groupByLine[context])
+  const groupKey = (group: AnalysisQcGroup) => group.sample_group_position ?? group.acquisition_task_id
+  const currentGroup = qcGroups.find((group) => groupKey(group) === groupByLine[context])
     ?? qcGroups.find((group) => group.warnings.length && !group.warning_accepted)
     ?? qcGroups[0]
   return (
@@ -65,9 +66,9 @@ export function AnalysisQuality({
       )}
       {qcGroups.length > 0 && <label className="field qc-sample-picker">
         <span>检查样品 · {qcGroups.filter((group) => group.warnings.length && !group.warning_accepted).length} 项待复核</span>
-        <select aria-label="重复性检查样品" value={currentGroup?.acquisition_task_id ?? ''} disabled={busy}
+        <select aria-label="重复性检查样品" value={currentGroup ? groupKey(currentGroup) : ''} disabled={busy}
           onChange={(event) => setGroupByLine((current) => ({ ...current, [context]: Number(event.target.value) }))}>
-          {qcGroups.map((group) => <option key={group.acquisition_task_id} value={group.acquisition_task_id}>
+          {qcGroups.map((group) => <option key={groupKey(group)} value={groupKey(group)}>
             {group.warnings.length && !group.warning_accepted ? '⚠ ' : ''}{group.sample_name} · {group.warning_accepted ? '已接受' : group.warnings.length ? '待复核' : '正常'}
           </option>)}
         </select>
@@ -75,7 +76,7 @@ export function AnalysisQuality({
       <div className="analysis-qc-groups">
         {(currentGroup ? [currentGroup] : []).map((group) => (
           <article
-            key={`${group.acquisition_task_id}-${group.line_id}`}
+            key={`${groupKey(group)}-${group.line_id}`}
             className={`surface qc-group ${group.warnings.length ? 'warning' : 'ready'}`}
           >
             <header>

@@ -113,7 +113,11 @@ export function MethodsPage({
   const selected = methods.find((item) => item.id === selectedId) ?? null
   const selectedVersion = selected?.version ?? null
   const issues = selectedVersion?.validation_errors ?? []
-  const unsaved = selectedVersion?.state === 'draft' || Boolean(selected && selectedVersion && (
+  const conditionProblem = selectedVersion && (
+    !selectedVersion.conditions || !Array.isArray(selectedVersion.conditions.selected_ccds) ||
+    !Array.isArray(selectedVersion.conditions.angle_exposures)
+  ) ? '该方法缺少完整的 CCD 选择或转角配置，请选择其他完整方法，或重新导入原方法。' : null
+  const unsaved = selectedVersion?.state === 'draft' || Boolean(selected && selectedVersion && !conditionProblem && (
     draftName !== selected.name || draftDescription !== selected.description || draftWorkType !== selected.work_type ||
     JSON.stringify(conditions) !== JSON.stringify({ ...selectedVersion.conditions,
       exposure_mode: methodExposureMode(selectedVersion.conditions, selectedVersion.lines) })
@@ -157,10 +161,15 @@ export function MethodsPage({
     setDraftName(selected.name)
     setDraftDescription(selected.description)
     setDraftWorkType(selected.work_type)
+    if (conditionProblem) {
+      setConditions(null)
+      setDraftMethodId(selected.id)
+      return
+    }
     setConditions({ ...structuredClone(selected.version.conditions),
       exposure_mode: methodExposureMode(selected.version.conditions, selected.version.lines) })
     setDraftMethodId(selected.id)
-  }, [selected])
+  }, [selected, conditionProblem])
 
   const setCondition = <K extends keyof MethodConditions>(key: K, value: MethodConditions[K]) => {
     setConditions((previous) => (previous ? { ...previous, [key]: value,
@@ -360,7 +369,7 @@ export function MethodsPage({
                 <button
                   className="primary-button"
                   onClick={saveMethod}
-                  disabled={busy || selected.status === 'deleted'}
+                  disabled={busy || selected.status === 'deleted' || Boolean(conditionProblem) || !conditions}
                 >
                   <Save size={15} />
                   保存
@@ -369,7 +378,7 @@ export function MethodsPage({
                   <button
                     className="primary-button"
                     onClick={() => void runAction(() => api.openMethod(token, selected.id, true), '当前方法已打开')}
-                    disabled={busy || unsaved}
+                    disabled={busy || unsaved || Boolean(conditionProblem)}
                     title={unsaved ? '请先保存修改，再打开方法' : undefined}
                   >
                     <PlayCircle size={15} />
@@ -456,7 +465,11 @@ export function MethodsPage({
       <div className="method-workbench">
         <main className="method-editor">
           {!selected || !conditions ? (
-            <section className="surface method-empty">
+            conditionProblem ? <section className="surface method-issues" role="alert">
+              <div><AlertTriangle size={17} /><strong>方法参数不完整</strong></div>
+              <p>{conditionProblem}</p>
+              <button className="secondary-button" disabled={busy} onClick={() => void load()}>重新读取方法</button>
+            </section> : <section className="surface method-empty">
               <SlidersHorizontal size={30} />
               <h2>选择或新建方法</h2>
               <p>方法条件、版本状态和运行操作会显示在这里。</p>
@@ -495,11 +508,6 @@ export function MethodsPage({
               </div>
               {editorSection === 'conditions' && (
                 <>
-                  {selectedVersion?.legacy_imported && <section className="surface method-legacy-upgrade">
-                    <p>从原 MTD 补全旧方法的曝光段与标准强度。补全后请核对并保存，原有版本保留。</p>
-                    <button className="secondary-button" disabled={!canWrite || busy}
-                      onClick={() => void runAction(() => api.upgradeLegacyMethod(token, selected.id), '旧方法功能数据已补全，请核对并保存')}>补全旧方法功能数据</button>
-                  </section>}
                   {(issues.length > 0 || saveError) && (
                     <section className="surface method-issues">
                       <div>

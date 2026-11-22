@@ -49,9 +49,10 @@ export type PositionMarker = {
   position: number
   x: number
   labelY: number
+  select?: () => void
 }
 
-export function positionMarkers(lines: DispersionLine[], ccdIndex: number, pointsPerCcd: number): PositionMarker[] {
+export function positionMarkers(lines: DispersionLine[], ccdIndex: number, pointsPerCcd: number, select?: (id: number) => void): PositionMarker[] {
   if (pointsPerCcd <= 1) return []
   const markers: PositionMarker[] = []
   const markerDefinitions: Array<{
@@ -73,7 +74,8 @@ export function positionMarkers(lines: DispersionLine[], ccdIndex: number, point
         markers.push({
           key: `${line.id}-${definition.kind}`,
           kind: definition.kind,
-          label: `${line.element} ${line.wavelength_nm.toFixed(4)} nm · ${definition.label} ${position.toFixed(2)}`,
+          label: `${line.element} ${line.wavelength_nm > 0 ? `${line.wavelength_nm.toFixed(4)} nm` : '待填波长'} · ${definition.label} ${position.toFixed(2)}`,
+          select: select ? () => select(line.id) : undefined,
           position,
           x: (bounded / (pointsPerCcd - 1)) * 1000,
           labelY: definition.labelY

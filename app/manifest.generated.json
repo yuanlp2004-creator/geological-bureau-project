@@ -41,21 +41,6 @@
           "view": null,
           "status": "normal",
           "required_context": "none"
-        },
-        {
-          "key": "system.settings",
-          "group": "system",
-          "section_label": "系统配置与维护",
-          "label": "软件设置",
-          "description": "目录、显示、打印、时间与日志选项",
-          "page": "settings",
-          "order": 10,
-          "required_any": [
-            "settings.read"
-          ],
-          "view": null,
-          "status": "normal",
-          "required_context": "none"
         }
       ],
       "diagnostic_path": "/health",
@@ -323,15 +308,17 @@
       ],
       "navigation_entries": [
         {
-          "key": "tools.legacy-methods",
+          "key": "tools.legacy-migration",
           "group": "tools",
           "section_label": "旧版兼容迁移",
-          "label": "旧方法与配置迁移",
-          "description": "DIRECT.MTD、CFG 与 OPT 只读迁移",
+          "label": "旧数据迁移",
+          "description": "只读迁移旧方法与配置、谱图和分析结果",
           "page": "migration",
           "order": 30,
           "required_any": [
-            "migration.read"
+            "migration.read",
+            "spectrum-migration.read",
+            "result-migration.read"
           ],
           "view": null,
           "status": "normal",
@@ -359,6 +346,7 @@
       ],
       "audit_actions": [
         "sample_queue.create",
+        "sample_queue.select",
         "sample_queue.update",
         "sample_queue.rename",
         "sample_queue.sam_import",
@@ -395,7 +383,8 @@
       "diagnostic_tables": [
         "sample_queues",
         "sample_queue_items",
-        "sample_queue_options"
+        "sample_queue_options",
+        "sample_queue_runtime_state"
       ],
       "diagnostic_response": "list",
       "diagnostic_note": ""
@@ -428,23 +417,7 @@
         "atomic-single-file-import",
         "hash-idempotency"
       ],
-      "navigation_entries": [
-        {
-          "key": "tools.legacy-spectra",
-          "group": "tools",
-          "section_label": "旧版兼容迁移",
-          "label": "旧谱数据迁移",
-          "description": "CDT、CMT、EDT 与 WDT 只读迁移",
-          "page": "spectrum-migration",
-          "order": 40,
-          "required_any": [
-            "spectrum-migration.read"
-          ],
-          "view": null,
-          "status": "normal",
-          "required_context": "none"
-        }
-      ],
+      "navigation_entries": [],
       "diagnostic_path": "/api/v1/spectrum-migration/runs?limit=1",
       "diagnostic_tables": [
         "spectrum_migration_runs",
@@ -482,23 +455,7 @@
         "atomic-single-file-import",
         "hash-idempotency"
       ],
-      "navigation_entries": [
-        {
-          "key": "tools.legacy-results",
-          "group": "tools",
-          "section_label": "旧版兼容迁移",
-          "label": "旧结果迁移",
-          "description": "DAT 与 PDT 结果矩阵只读迁移",
-          "page": "result-migration",
-          "order": 50,
-          "required_any": [
-            "result-migration.read"
-          ],
-          "view": null,
-          "status": "normal",
-          "required_context": "none"
-        }
-      ],
+      "navigation_entries": [],
       "diagnostic_path": "/api/v1/result-migration/runs?limit=1",
       "diagnostic_tables": [
         "result_migration_runs",
@@ -528,7 +485,8 @@
         "auth",
         "spectrum-migration",
         "result-migration",
-        "acquisition"
+        "acquisition",
+        "methods"
       ],
       "capabilities": [
         "published-spectrum-query",
@@ -537,6 +495,7 @@
         "reversible-view-state",
         "print-visible-range",
         "point-integration-details",
+        "view-only-peak-calibration",
         "ccd-grayscale-physical-print"
       ],
       "navigation_entries": [
@@ -577,9 +536,13 @@
       ],
       "audit_actions": [
         "device_profile.create",
+        "device.profile.select",
+        "device.bluetooth.hide",
         "device_profile.update",
         "device.connect",
         "device.connect.failed",
+        "device.connection_test",
+        "device.connection_test.failed",
         "device.disconnect",
         "device.debug.start",
         "device.debug.failed",
@@ -594,24 +557,43 @@
       "capabilities": [
         "device-adapter-contract",
         "acq-simulator",
+        "legacy-ccd-serial",
         "device-profiles",
         "connection-diagnostics",
+        "windows-bluetooth-spp",
+        "windows-bluetooth-device-mapping",
+        "persistent-bluetooth-list-exclusions",
+        "serial-port-discovery",
         "realtime-debug",
         "ccd-curve-interaction"
       ],
       "navigation_entries": [
         {
+          "key": "tools.device-connection",
+          "group": "tools",
+          "section_label": "设备与光学校准",
+          "label": "设备连接",
+          "description": "Windows 蓝牙配对、COM口选择与连接状态",
+          "page": "acquisition",
+          "order": 9,
+          "required_any": [
+            "devices.read"
+          ],
+          "view": "connection",
+          "status": "normal",
+          "required_context": "none"
+        },
+        {
           "key": "tools.devices",
           "group": "tools",
           "section_label": "设备与光学校准",
           "label": "设备调试",
-          "description": "软件参数、设备参数、调试对中与汞灯调试",
+          "description": "软件参数、设备参数与调试对中",
           "page": "acquisition",
           "order": 10,
           "required_any": [
             "devices.read",
-            "settings.read",
-            "mercury-calibration.read"
+            "settings.read"
           ],
           "view": null,
           "status": "normal",
@@ -620,7 +602,9 @@
       ],
       "diagnostic_path": "/api/v1/devices/profiles",
       "diagnostic_tables": [
-        "device_profiles"
+        "device_profiles",
+        "device_runtime_state",
+        "device_bluetooth_hidden"
       ],
       "diagnostic_response": "list",
       "diagnostic_note": "只检测设备管理软件；设备连接和通信需另行验证。"
@@ -639,6 +623,7 @@
       ],
       "audit_actions": [
         "dispersion.task.create",
+        "dispersion.task.discard",
         "dispersion.task.start",
         "dispersion.task.pause",
         "dispersion.task.resume",
@@ -646,6 +631,8 @@
         "dispersion.task.stop",
         "dispersion.task.failed",
         "dispersion.frame.capture",
+        "dispersion.observation.print",
+        "dispersion.observation.copy",
         "dispersion.line.create",
         "dispersion.line.update",
         "dispersion.gap.update",
@@ -733,6 +720,7 @@
       ],
       "audit_actions": [
         "acquisition.task.create",
+        "acquisition.task.discard",
         "acquisition.task.start",
         "acquisition.task.pause",
         "acquisition.task.resume",
@@ -743,7 +731,8 @@
         "acquisition.repeat.start",
         "acquisition.interval.mark",
         "acquisition.sample.rename",
-        "acquisition.sample.discard"
+        "acquisition.sample.discard",
+        "acquisition.turn.position"
       ],
       "dependencies": [
         "core",
@@ -761,7 +750,8 @@
         "repeat-and-preheat",
         "post-acquisition-rename",
         "realtime-measurements",
-        "sample-discard"
+        "sample-discard",
+        "method-owned-sample-turns"
       ],
       "navigation_entries": [
         {
@@ -868,23 +858,7 @@
         "serial-protocol-gate",
         "confirmed-turn-analysis-sample"
       ],
-      "navigation_entries": [
-        {
-          "key": "analysis-tests.hardware",
-          "group": "analysis-tests",
-          "section_label": "摄谱与校准",
-          "label": "自动转角采集",
-          "description": "关键波段优先、异常闭环与安全停止",
-          "page": "hardware-acquisition",
-          "order": 35,
-          "required_any": [
-            "hardware-acquisition.read"
-          ],
-          "view": null,
-          "status": "deferred_external",
-          "required_context": "current_method"
-        }
-      ],
+      "navigation_entries": [],
       "diagnostic_path": "/api/v1/hardware-acquisitions/tasks?limit=1",
       "diagnostic_tables": [
         "hardware_tasks",
@@ -1065,7 +1039,10 @@
         "postprocessing.recalculate",
         "postprocessing.recalculate.retained",
         "postprocessing.export",
-        "postprocessing.intensity.output"
+        "postprocessing.intensity.output",
+        "postprocessing.full_time.export",
+        "postprocessing.prepared.import",
+        "postprocessing.prepared.dispersion"
       ],
       "dependencies": [
         "core",
@@ -1079,6 +1056,7 @@
       "capabilities": [
         "full-interval-view",
         "interval-detail-export",
+        "full-time-batch-excel",
         "edt-selection-conversion",
         "edt-average-and-full-storage",
         "strict-pdt-signature-and-time-confirmation",
@@ -1102,6 +1080,21 @@
           "view": "recalculate",
           "status": "normal",
           "required_context": "page_scoped"
+        },
+        {
+          "key": "tools.prepared-import",
+          "group": "tools",
+          "section_label": "工具",
+          "label": "导入预备摄谱文件",
+          "description": "选择蒸发记录和区间，生成均值或全时样品",
+          "page": "prepared-import",
+          "order": 50,
+          "required_any": [
+            "postprocessing.read"
+          ],
+          "view": null,
+          "status": "normal",
+          "required_context": "current_method"
         }
       ],
       "diagnostic_path": "/api/v1/postprocessing/recalculations?limit=1",
@@ -1152,12 +1145,13 @@
           "group": "data",
           "section_label": "数据处理",
           "label": "打印与导出",
-          "description": "分析报告和强度数据的打印与导出",
+          "description": "分析报告、强度数据和全时数据的导出",
           "page": "reports",
           "order": 30,
           "required_any": [
             "reports.read",
-            "analysis.read"
+            "analysis.read",
+            "postprocessing.read"
           ],
           "view": null,
           "status": "normal",

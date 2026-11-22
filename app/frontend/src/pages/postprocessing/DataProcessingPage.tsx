@@ -3,9 +3,10 @@ import { ReportsPage } from '../reports/ReportsPage'
 import type { ReportSource } from '../reports/ReportBuilder'
 import { PostProcessingPage } from './PostProcessingPage'
 import { AnalysisIntensityOutput } from './AnalysisIntensityOutput'
+import { FullTimeExportPanel } from './FullTimeExportPanel'
 import './data-processing.css'
 
-type OutputTab = 'reports' | 'intensity'
+type OutputTab = 'reports' | 'intensity' | 'full-time'
 type Props = {
   token: string
   page: 'postprocessing' | 'reports'
@@ -23,13 +24,14 @@ export function DataProcessingPage({ token, page, initialView, permissions, repo
   const canReadAnalysis = permissions.includes('analysis.read')
   const tabs: Array<{ id: OutputTab; label: string; allowed: boolean }> = [
     { id: 'reports', label: '分析报告', allowed: canReadReports },
-    { id: 'intensity', label: '强度数据', allowed: canReadAnalysis }
+    { id: 'intensity', label: '强度数据', allowed: canReadAnalysis },
+    { id: 'full-time', label: '全时数据', allowed: canReadProcessing }
   ]
   const [actionsTarget, setActionsTarget] = useState<HTMLDivElement | null>(null)
   const [tab, setTab] = useState<OutputTab>('reports')
   const outputTab = tabs.find((item) => item.id === tab && item.allowed)?.id ?? tabs.find((item) => item.allowed)?.id
   useEffect(() => {
-    if (initialView === 'reports' || initialView === 'intensity') setTab(initialView)
+    if (initialView === 'reports' || initialView === 'intensity' || initialView === 'full-time') setTab(initialView)
   }, [initialView])
   const recalculate = page === 'postprocessing'
 
@@ -57,6 +59,10 @@ export function DataProcessingPage({ token, page, initialView, permissions, repo
             canExport={permissions.includes('postprocessing.export')} onToast={onToast} />
         </div>}
     </div>
+    {!recalculate && outputTab === 'full-time' &&
+      <div id="output-panel-full-time" role="tabpanel" aria-labelledby="output-tab-full-time">
+        <FullTimeExportPanel token={token} canExport={permissions.includes('postprocessing.export')} onToast={onToast} />
+      </div>}
   </div>
 }
 

@@ -3,15 +3,20 @@ import { PageFileActions } from '../../components/PageFileActions'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { calculationProfileLabel } from '../../components/calculationProfile'
 import { useEffect, useMemo, useState } from 'react'
-import { Activity, Database, Download, RefreshCw, Search } from 'lucide-react'
+import { Database, Download, RefreshCw, Search } from 'lucide-react'
 import {
   api,
-  type PostProcessingRecord,
   type PostProcessingRecalculationOptions,
   type PostProcessingRun
 } from '../../api'
-import { PostProcessingIntervalPanel, type IntervalConversion } from './PostProcessingIntervalPanel'
 import { shortHash, formatMeasureTime } from './formatting'
+import type { AnalysisCurveSnapshot } from '../../api'
+import type { RecalculationCurveDetail, RecalculationCurveDraft } from '../../api/postprocessing'
+import { StandardCurveWorkspace, standardCurveLineLabel, type StandardCurveAdjustment } from '../analysis/StandardCurveWorkspace'
+import { ViewerDialog } from '../spectra/ViewerDialog'
+
+type CurveWorkspace = Pick<AnalysisCurveSnapshot, 'points' | 'fit_mode' | 'coordinate_type'>
+type WorkingCurve = { workspace: CurveWorkspace; snapshot?: AnalysisCurveSnapshot; fittedRequest?: RecalculationCurveDraft }
 
 type Props = {
   actionsTarget?: HTMLElement | null
@@ -44,8 +49,6 @@ export function PostProcessingPage({
   canExport,
   onToast
 }: Props) {
-  const [records, setRecords] = useState<PostProcessingRecord[]>([])
-  const [selected, setSelected] = useState<string[]>([])
   const [methodVersionId, setMethodVersionId] = useState<number | undefined>()
   const [options, setOptions] = useState<PostProcessingRecalculationOptions>({
     methods: [],
@@ -63,6 +66,12 @@ export function PostProcessingPage({
   const [filename, setFilename] = useState('s18-export')
   const [runs, setRuns] = useState<PostProcessingRun[]>([])
   const [busy, setBusy] = useState(false)
+  const [setupOpen, setSetupOpen] = useState(false)
+  const [viewedId, setViewedId] = useState<number>()
+  const [curveDetails, setCurveDetails] = useState<RecalculationCurveDetail>()
+  const [curveError, setCurveError] = useState('')
+  const [drafts, setDrafts] = useState<Record<number, WorkingCurve>>({})
+  const [lastBatch, setLastBatch] = useState<PostProcessingRun>()
 
 
   const filteredSources = useMemo(() => {
@@ -81,18 +90,22 @@ export function PostProcessingPage({
       ),
     [options.curve_snapshots, methodVersionId, profile]
   )
+  const viewedCurve = availableCurves.find((curve) => curve.id === viewedId)
+    ?? availableCurves.find((curve) => selectedCurves.includes(curve.id)) ?? availableCurves[0]
+  const curveId = viewedCurve?.id
+  const details = curveDetails?.snapshot.id === curveId ? curveDetails : undefined
+  const draft = curveId == null ? undefined : drafts[curveId]
+  const workspace = draft?.workspace ?? details?.snapshot
+  const draftPending = selectedCurves.some((id) => drafts[id] && !drafts[id].fittedRequest)
   const exportSelectionCount = exportBatch ? 1 : selectedSources.length
 
   const load = async () => {
     try {
-      const [nextRecords, nextRuns, nextRecalculations, nextOptions] = await Promise.all([
-        api.postprocessingEdtRecords(token),
-        api.postprocessingConversions(token),
+      const [nextRecalculations, nextOptions] = await Promise.all([
         api.postprocessingRecalculations(token),
         api.postprocessingRecalculationOptions(token)
       ])
-      setRecords(nextRecords.records)
-      setRuns([...nextRuns.runs, ...nextRecalculations.runs])
+      setRuns(nextRecalculations.runs)
       setOptions(nextOptions)
       setMethodVersionId((current) => current ?? nextOptions.methods[0]?.method_version_id)
     } catch (error) {
@@ -104,17 +117,35 @@ export function PostProcessingPage({
     void load()
   }, [token])
 
+  useEffect(() => {
+    setCurveError('')
+    setCurveDetails(undefined)
+    if (!active || curveId == null) return
+    let cancelled = false
+    void api.postprocessingRecalculationCurve(token, curveId).then((next) => {
+      if (!cancelled) setCurveDetails(next)
+    }).catch((error) => {
+      if (!cancelled) setCurveError(error instanceof Error ? error.message : '无法读取曲线快照')
+    })
+    return () => { cancelled = true }
+  }, [active, curveId, token])
+
+  useEffect(() => { setLastBatch(undefined) }, [methodVersionId, profile, selectedSources, selectedCurves, allowOlderMethod, drafts])
+
   const toggleSource = (id: string) =>
     setSelectedSources((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
-  const toggleCurve = (id: number) =>
-    setSelectedCurves((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
+  const toggleCurve = (id: number) => {
+    const lineId = availableCurves.find((curve) => curve.id === id)?.line_id
+    setViewedId(id)
+    setSelectedCurves((current) => {
+      const otherLines = current.filter((value) => availableCurves.find((curve) => curve.id === value)?.line_id !== lineId)
+      return current.includes(id) ? otherLines : [...otherLines, id]
+    })
+  }
 
   const selectVisibleSources = () => {
     const visibleIds = filteredSources.map((source) => source.id)
-    const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedSources.includes(id))
-    setSelectedSources((current) =>
-      allVisibleSelected ? current.filter((id) => !visibleIds.includes(id)) : [...new Set([...current, ...visibleIds])]
-    )
+    setSelectedSources((current) => [...new Set([...current, ...visibleIds])])
   }
   const invertVisibleSources = () => {
     const currentSet = new Set(selectedSources)
@@ -123,35 +154,67 @@ export function PostProcessingPage({
     )
     setSelectedSources([...currentSet])
   }
-  const selectAllCurves = () => setSelectedCurves(availableCurves.map((curve) => curve.id))
-  const invertCurves = () =>
-    setSelectedCurves(availableCurves.filter((curve) => !selectedCurves.includes(curve.id)).map((curve) => curve.id))
+  const curvesByLine = new Map(availableCurves.slice().reverse().map((curve) => [curve.line_id, curve]))
+  const selectAllCurves = () => setSelectedCurves([...curvesByLine.values()].map((curve) => curve.id))
+  const invertCurves = () => {
+    const selectedLines = new Set(availableCurves.filter((curve) => selectedCurves.includes(curve.id)).map((curve) => curve.line_id))
+    setSelectedCurves([...curvesByLine.values()].filter((curve) => !selectedLines.has(curve.line_id)).map((curve) => curve.id))
+  }
 
-  const convert = async (input: IntervalConversion) => {
+  const fitDraft = async (id: number, value: CurveWorkspace) => {
+    if (busy || !canExecute) return
+    const request: RecalculationCurveDraft = {
+      fit_mode: value.fit_mode, coordinate_type: value.coordinate_type,
+      points: value.points.map(({ point_index, active, adjusted_intensity }) => ({ point_index, active, adjusted_intensity })),
+    }
     setBusy(true)
     try {
-      await api.convertPostprocessingEdt(token, { ...input, method_version_id: methodVersionId })
-      onToast('EDT 已按所选存储模式转换为新版样品')
-      await load()
+      const { snapshot } = await api.fitPostprocessingRecalculationCurve(token, id, request)
+      setDrafts((current) => ({ ...current, [id]: { workspace: snapshot, snapshot, fittedRequest: request } }))
+      onToast('重算草稿已拟合')
     } catch (error) {
-      onToast(error instanceof Error ? error.message : 'EDT 转换失败')
+      onToast(error instanceof Error ? error.message : '拟合失败')
     } finally {
       setBusy(false)
     }
   }
 
+  const adjustDraft = (action: StandardCurveAdjustment, _message: string, refit?: boolean) => {
+    if (curveId == null || !workspace || busy || !canExecute) return
+    let value = { ...workspace }
+    if (action.action === 'set_fit') value.fit_mode = action.fit_mode
+    else if (action.action === 'set_coordinate') value.coordinate_type = action.coordinate_type
+    else {
+      value = { ...value, points: workspace.points.map((point) => {
+        if (action.action === 'restore_all') return { ...point, adjusted_intensity: point.original_intensity }
+        if (point.point_index !== action.point_index) return point
+        if (action.action === 'set_active') return { ...point, active: action.active }
+        return { ...point, adjusted_intensity: action.action === 'restore' ? point.original_intensity : action.adjusted_intensity }
+      }) }
+    }
+    setDrafts((current) => ({ ...current, [curveId]: { workspace: value, snapshot: draft?.snapshot } }))
+    if (profile === 'legacy_2_0_2' && refit) void fitDraft(curveId, value)
+  }
+
   const recalculate = async () => {
-    if (!canExecute || !selectedSources.length || !methodVersionId || !selectedCurves.length)
+    if (busy || !canExecute || !selectedSources.length || !methodVersionId || !selectedCurves.length)
       return onToast('请选择源记录、确切方法版本和曲线快照')
+    if (draftPending) return onToast('请先重新拟合所选曲线的草稿')
     setBusy(true)
     try {
+      const curveDrafts = selectedCurves.flatMap((id) => {
+        const fitted = drafts[id]?.fittedRequest
+        return fitted ? [[id, fitted] as const] : []
+      })
       const batch = await api.recalculatePostprocessing(token, {
         ...(allowOlderMethod ? { allow_older_method: true } : {}),
         source_record_ids: selectedSources,
         method_version_id: methodVersionId,
         calculation_profile: profile,
-        curve_snapshot_ids: selectedCurves
+        curve_snapshot_ids: selectedCurves,
+        ...(curveDrafts.length ? { curve_drafts: Object.fromEntries(curveDrafts) } : {})
       })
+      setLastBatch(batch)
       if (batch.status === 'completed') {
         setExportBatch(`recalc:${batch.id}`)
       }
@@ -190,12 +253,20 @@ export function PostProcessingPage({
   const [recalculateActionsTarget, setRecalculateActionsTarget] = useState<HTMLDivElement | null>(null)
   const refreshActions = <PageFileActions target={view === 'recalculate' ? recalculateActionsTarget : actionsTarget} hidden={!active}>
     <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="recalculate" label="打开强度文件" disabled={busy} onOpened={async result => {
-      await load(); setSelectedSources(result.record_ids.map(id => `result:${id}`)); setSourceQuery(''); setProfile('legacy_2_0_2')
+      await load(); setSelectedSources(result.record_ids.map(id => `result:${id}`)); setSourceQuery('')
+      if (profile !== 'legacy_2_0_2') { setProfile('legacy_2_0_2'); setSelectedCurves([]) }
     }}/>
 
-    <span className="postprocessing-count-pill"><Database size={14}/>{records.length} 条源记录</span>
+    <span className="postprocessing-count-pill"><Database size={14}/>{options.sources.length} 条源记录</span>
     <button className="secondary-button" disabled={busy} onClick={() => void load()}><RefreshCw size={15}/>刷新数据</button>
   </PageFileActions>
+  const executeButton = <button type="button" className="primary-button postprocessing-recalculate-button"
+    disabled={!canExecute || !selectedSources.length || !selectedCurves.length || busy || draftPending}
+    onClick={() => void recalculate()}>执行精确重算</button>
+  const samplePreview = (lastBatch?.result?.sources ?? []).flatMap((source) => (source.lines ?? [])
+    .filter((line) => line.curve_snapshot_id === curveId)
+    .map((line) => ({ sample_name: line.sample_name, calculated_value: line.calculated_value, intensity: line.quantitative_signal })))
+  const nextCurve = viewedCurve && [...curvesByLine.values()][[...curvesByLine.keys()].indexOf(viewedCurve.line_id) + 1]
   return (
     <div
       className="page-content postprocessing-page refined-page remaining-page"
@@ -209,36 +280,46 @@ export function PostProcessingPage({
 
       {(embedded || view === 'recalculate') && refreshActions}
       <div className="postprocessing-workbench">
-        <details className="surface postprocessing-legacy-tools" style={view === 'recalculate' ? undefined : { display: 'none' }}>
-          <summary>旧记录区间查看与 EDT 转换</summary>
-
-        <div className="surface-heading"><h2>EDT 转换</h2><PageFileActions><OpenLegacyFile onBusyChange={setBusy} token={token} purpose="edt-conversion" label="打开蒸发摄谱文件" disabled={busy} onOpened={async result => {
-          await load(); setSelected(result.record_ids.map(id => `raw:${id}`))
-        }}/></PageFileActions></div>
-        <PostProcessingIntervalPanel
-          hidden={view !== 'recalculate'}
-          showTools
-          token={token}
-          records={records}
-          selected={selected}
-          setSelected={setSelected}
-          canWrite={canWrite}
-          busy={busy}
-          onToast={onToast}
-          onConvert={convert}
-        />
-        </details>
-
         <section style={view === 'recalculate' || view === 'intensity' ? undefined : { display: 'none' }} className="surface postprocessing-surface postprocessing-recalculation-surface">
             <div className="surface-heading">
               <SectionHeading title={<>{view === 'recalculate' ? '确切版本重算' : '结果来源'}</>} />
+              {view === 'recalculate' && <button type="button" className="secondary-button" disabled={busy}
+                onClick={() => setSetupOpen(true)}>重算设置 · {selectedSources.length} 源 / {selectedCurves.length} 曲线</button>}
               <div ref={setRecalculateActionsTarget} className="page-file-actions-slot" />
             </div>
 
+            {view === 'recalculate' && <div className="recalculation-curve-surface">
+              {details && workspace && viewedCurve ? <StandardCurveWorkspace key={viewedCurve.id} line={details} workspace={workspace}
+                profile={profile} shownSnapshot={draft?.snapshot ?? details.snapshot} currentFit={!draft || Boolean(draft.fittedRequest)}
+                canEdit={canExecute && !busy} adjust={adjustDraft} fit={() => void fitDraft(viewedCurve.id, workspace)}
+                samplePreview={samplePreview}
+                status={lastBatch?.status === 'completed' ? '重算已完成，请查看数据预览'
+                  : lastBatch?.status === 'blocked' ? '重算已阻断，请查看批次诊断' : draft ? '本次重算草稿已拟合' : `曲线快照 #${viewedCurve.id}`}
+                toolbar={<>
+                  <button type="button" disabled={busy || !nextCurve} onClick={() => nextCurve && setViewedId(nextCurve.id)}>下一条谱线</button>
+                  <select aria-label="重算谱线和曲线版本" disabled={busy} value={viewedCurve.id} onChange={(event) => setViewedId(Number(event.target.value))}>
+                    {availableCurves.map((curve) => <option key={curve.id} value={curve.id}>
+                      {curve.element && curve.wavelength_nm != null ? standardCurveLineLabel({element: curve.element, wavelength_nm: curve.wavelength_nm}) : curve.line_id} · #{curve.id}
+                    </option>)}
+                  </select>
+                  <label><input type="checkbox" checked={selectedCurves.includes(viewedCurve.id)} disabled={busy}
+                    onChange={() => toggleCurve(viewedCurve.id)} />用于重算</label>
+                </>}
+                footer={<>
+                  {draft && <button type="button" disabled={busy} onClick={() => setDrafts((current) => {
+                    const next = { ...current }; delete next[viewedCurve.id]; return next
+                  })}>恢复曲线快照</button>}
+                  {executeButton}
+                </>}
+              /> : <div className="postprocessing-empty">{curveError || (viewedCurve ? '正在读取标准曲线…' : '请选择有可用曲线的目标方法和计算模式')}</div>}
+            </div>}
+
+            {setupOpen && <ViewerDialog title="重算设置" onClose={() => setSetupOpen(false)}>
             <div className="postprocessing-version-grid" style={view === 'recalculate' ? undefined : { display: 'none' }}>
               <label className="field">
                 <span>方法版本</span>
                 <select
+                  aria-label="方法版本"
                   value={methodVersionId ?? ''}
                   onChange={(event) => {
                     setMethodVersionId(event.target.value ? Number(event.target.value) : undefined)
@@ -256,6 +337,7 @@ export function PostProcessingPage({
               <label className="field">
                 <span>计算模式</span>
                 <select
+                  aria-label="计算模式"
                   value={profile}
                   onChange={(event) => {
                     setProfile(event.target.value as typeof profile)
@@ -364,16 +446,10 @@ export function PostProcessingPage({
 
             <label className="checkbox-row"><input type="checkbox" checked={allowOlderMethod} onChange={(event) => setAllowOlderMethod(event.target.checked)}/>
               已核对方法修改，允许重算较旧 PDT（记录此确认）</label>
-            <button
-              className="primary-button postprocessing-recalculate-button"
-              disabled={!canExecute || !selectedSources.length || !selectedCurves.length || busy}
-              onClick={() => void recalculate()}
-            >
-              <RefreshCw size={15} />
-              执行精确重算
-            </button>
+            <button type="button" className="primary-button" onClick={() => setSetupOpen(false)}>确定</button>
 
             </div>
+            </ViewerDialog>}
             <div className="postprocessing-run-section">
               <div className="postprocessing-list-heading">
                 <div>
@@ -390,6 +466,8 @@ export function PostProcessingPage({
                       <small title={run.input_sha256}>{shortHash(run.input_sha256)}</small>
                     </span>
                     <em className={`run-status ${run.status}`}>{runStatusLabel[run.status] || run.status}</em>
+                    {Array.isArray(run.result?.blocked) && run.result.blocked.length > 0 &&
+                      <small>{run.result.blocked.map((item) => item.message ?? item.code).join('、')}</small>}
                   </div>
                 ))}
               </div>

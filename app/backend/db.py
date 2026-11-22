@@ -38,6 +38,12 @@ class Database:
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._write_lock, closing(self.connect()) as connection, connection:
+            has_history = connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone()
+            recorded = {row[0] for row in connection.execute('SELECT version FROM schema_migrations')} if has_history else set()
+            rebuild = any(version not in recorded and getattr(migration, 'requires_foreign_keys_off', False)
+                          for version, _, migration in MIGRATIONS)
+            if rebuild:
+                connection.execute('PRAGMA foreign_keys = OFF')
             connection.execute("BEGIN IMMEDIATE")
             create_baseline(connection)
             applied_versions = {
@@ -79,6 +85,8 @@ class Database:
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
                 [("schema_version", str(SCHEMA_VERSION), now), ("app_name", "GeoSpectrum", now)],
             )
+            if rebuild and connection.execute('PRAGMA foreign_key_check').fetchone():
+                raise sqlite3.IntegrityError('migration left invalid foreign key references')
 
     @contextmanager
     def read(self) -> Iterator[sqlite3.Connection]:

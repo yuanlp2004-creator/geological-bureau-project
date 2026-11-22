@@ -197,8 +197,8 @@ def test_s10_full_six_ccd_first_view_is_not_sampled(tmp_path: Path) -> None:
 
 def test_s10_api_requires_view_permission(tmp_path: Path) -> None:
     with TestClient(create_app(AppConfig(data_dir=tmp_path))) as client:
-        response = client.get("/api/v1/spectra/records")
-    assert response.status_code == 401
+        assert client.get("/api/v1/spectra/records").status_code == 401
+        assert client.get("/api/v1/spectra/raw:1/concentrations").status_code == 401
 
 
 def test_s10_api_audits_view_export_and_print_visible_range(tmp_path: Path) -> None:
@@ -217,6 +217,9 @@ def test_s10_api_audits_view_export_and_print_visible_range(tmp_path: Path) -> N
             "access_token"
         ]
         headers = {"Authorization": f"Bearer {token}"}
+        preview = client.get("/api/v1/spectra/raw:1/concentrations", headers=headers)
+        assert preview.status_code == 422
+        assert preview.json()["detail"]["code"] == "spectrum_concentration_method_required"
         view = client.get("/api/v1/spectra/raw:1?ccd=0&exposure_start=1&exposure_end=2", headers=headers)
         assert view.status_code == 200
         points = view.json()["ccd"]["points"]

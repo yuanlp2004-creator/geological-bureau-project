@@ -29,14 +29,16 @@ export function MethodAngles({ conditions, canWrite, hasIssue, options, onChange
       <div className="method-angle-grid">
         {angles.map((angle, index) => (
           <div className="method-angle-entry" role="group" aria-label={`第${index + 1}项转角配置`} key={index}>
-            <span className="method-angle-number" title={`角度位 ${index + 1}`}>{index + 1}</span>
+            <span className="method-angle-number" title={`转角配置 ${index + 1}`}>{index + 1}</span>
             <label className="field"><span>转角 (°)</span>
               <NumericInput
                 aria-label={`第${index + 1}项转角`}
                 min="0" max="360" step="0.1" value={angle.angle_deg}
                 disabled={!canWrite}
                 onValueChange={(value) => onChange(angles.map((item, position) =>
-                  position === index ? { ...item, angle_deg: value } : item))}
+                  position === index ? { ...item, angle_deg: value, ...(item.angle_deg !== value ? {
+                    ccd_indices: undefined, dispersion_calibration_id: undefined, line_ids: undefined
+                  } : {}) } : item))}
               />
             </label>
             <label className="field"><span>存储方式</span>

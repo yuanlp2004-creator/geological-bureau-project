@@ -141,6 +141,7 @@ class SpectralLineReorder(BaseModel):
 
 
 class SpectralLineDetectRequest(BaseModel):
+    line_id: str | None = Field(default=None, min_length=1, max_length=100)
     wavelength_nm: float
     actual_wavelength_nm: float | None = None
     scan_width_points: int = 9

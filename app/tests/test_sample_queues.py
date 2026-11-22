@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import sys
 from pathlib import Path
 
@@ -10,7 +11,14 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
 from backend.db import Database
-from backend.modules.sample_queues import SampleQueueError, SampleQueueService, _parse_lines
+from backend.modules.sample_queues import SampleQueueError, SampleQueueService, read_sample_numbers
+
+
+@pytest.mark.parametrize(('name', 'encoding'), [
+    ('001', 'ascii'), ('样1', 'gb18030'), ('样1', 'utf-8'), ('Ǧ1', 'utf-8-sig'),
+])
+def test_sam_automatic_encoding(name: str, encoding: str) -> None:
+    assert read_sample_numbers(f'{name}\t2\r\n'.encode(encoding)) == [{'name': name, 'repeats': 2}]
 
 
 def test_sam_roundtrip_expands_800_records_to_960_bands(tmp_path: Path) -> None:
@@ -98,6 +106,27 @@ def test_sample_queue_api_contract(tmp_path: Path, monkeypatch) -> None:
         )
         assert imported.status_code == 201
         assert imported.json()["expanded_bands"] == 2
+        ambiguous = b'001\t1\r\n' + '铅1\t2\r\n'.encode('gb18030')
+        original_queues = client.get('/api/v1/sample-queues', headers=headers).json()
+        encoded = {'content_base64': base64.b64encode(ambiguous).decode('ascii')}
+        payload = {**encoded, 'filename': 'ambiguous.sam'}
+        pending = client.post('/api/v1/sample-queues/import', headers=headers, json=payload)
+        assert pending.status_code == 409
+        assert pending.json()['detail']['code'] == 'sam_encoding_ambiguous'
+        assert pending.json()['detail']['details']['differences'] == [{'line': 2, 'gb18030': '铅1', 'utf8': 'Ǧ1'}]
+        assert client.get('/api/v1/sample-queues', headers=headers).json() == original_queues
+        read_url = '/api/v1/analyses/sample-numbers/read'
+        preview = client.post(read_url, headers=headers, json=encoded)
+        assert preview.status_code == 409
+        assert preview.json()['detail'] == pending.json()['detail']
+        legacy = client.post(read_url, headers=headers, json={**encoded, 'encoding': 'gb18030'})
+        assert legacy.json()['entries'] == [{'name': '001', 'repeats': 1}, {'name': '铅1', 'repeats': 2}]
+        confirmed = client.post('/api/v1/sample-queues/import', headers=headers, json={**payload, 'encoding': 'utf-8-sig'})
+        assert confirmed.status_code == 201
+        assert confirmed.json()['items'][1]['pre_name'] == 'Ǧ1'
+        reopened = client.post('/api/v1/sample-queues/import', headers=headers, json=payload)
+        assert reopened.status_code == 201
+        assert reopened.json()['id'] == confirmed.json()['id']
         exported = client.get(f"/api/v1/sample-queues/{queue_id}/export", headers=headers)
         assert exported.status_code == 200
         assert exported.headers["x-source-sha256"]

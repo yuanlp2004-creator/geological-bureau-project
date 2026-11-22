@@ -19,6 +19,40 @@ from backend.migrations import MIGRATIONS, SCHEMA_VERSION
 from backend.upgrade import prepare_database_upgrade
 
 
+def test_v25_nullable_wavelength_preserves_turn_evidence_and_rollback(tmp_path, monkeypatch):
+    path=tmp_path/'populated-v24.sqlite3'; database=Database(path)
+    with monkeypatch.context() as patch:
+        patch.setattr(database_module,'MIGRATIONS',tuple(step for step in MIGRATIONS if step[0]<=24))
+        patch.setattr(database_module,'SCHEMA_VERSION',24)
+        database.initialize()
+    # Use the released v24 schema and SQL to seed a frozen plan plus a dependent frame.
+    with database.write() as db:
+        db.execute("INSERT INTO hardware_tasks(id,name,device_profile_id,ccd_layout_id,transport,strategy,anomaly_policy,ccd_indices_json,plan_json,total_steps,created_at,updated_at) VALUES(1,'old',1,1,'simulator','short_to_long','manual','[0]','[]',1,'then','then')")
+        db.execute("INSERT INTO hardware_plan_steps(id,task_id,order_index,source_index,angle_deg,wavelength_nm,expected_peak_position,created_at,updated_at) VALUES(1,1,0,0,10,250,1024,'then','then')")
+        db.execute("INSERT INTO hardware_exposure_frames(task_id,step_id,attempt,frame_index,ccd_index,points_blob,points_count,points_sha256,captured_at) VALUES(1,1,0,1,0,X'01000200',2,'preserve-hash','then')")
+        db.execute("UPDATE sqlite_sequence SET seq=99 WHERE name='hardware_plan_steps'")
+        before={table:[tuple(row) for row in db.execute(f'SELECT * FROM {table}')] for table in ['hardware_plan_steps','hardware_exposure_frames']}
+    with database.read() as db: dump=list(db.iterdump())
+    original=next(step for step in MIGRATIONS if step[0] == 25)
+    def fail(db):
+        original[2](db)
+        raise sqlite3.OperationalError('injected rebuild failure')
+    fail.requires_foreign_keys_off=True
+    with monkeypatch.context() as patch:
+        patch.setattr(database_module,'MIGRATIONS',tuple(step if step[0] != 25 else (25,'hardware_acquisition',fail) for step in MIGRATIONS))
+        with pytest.raises(sqlite3.OperationalError,match='injected rebuild failure'): database.initialize()
+    with database.read() as db: assert list(db.iterdump())==dump
+    database.initialize();database.initialize()
+    with database.write() as db:
+        assert not db.execute('PRAGMA foreign_key_check').fetchall()
+        assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
+        for table,rows in before.items(): assert [tuple(row) for row in db.execute(f'SELECT * FROM {table}')]==rows
+        assert db.execute('SELECT execution_mode FROM hardware_tasks').fetchone()[0]=='automatic'
+        assert db.execute("SELECT seq FROM sqlite_sequence WHERE name='hardware_plan_steps'").fetchone()[0]==99
+        with pytest.raises(sqlite3.IntegrityError,match='immutable'):
+            db.execute('UPDATE hardware_plan_steps SET wavelength_nm=NULL WHERE id=1')
+
+
 def _legacy_v10_database(path: Path, points_json: str) -> None:
     with sqlite3.connect(path) as db:
         db.executescript(

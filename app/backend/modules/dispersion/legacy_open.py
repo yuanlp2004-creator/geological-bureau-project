@@ -11,7 +11,7 @@ def open_record(service, identifier, actor):
         source = SpectrumMigrationService.source_record(db, identifier)
         if source['format'] != 'wdt':
             raise DispersionError('dispersion_wdt_required', '色散曲线只接受 WDT 文件')
-        for row in db.execute('SELECT id,condition_json FROM dispersion_tasks ORDER BY id'):
+        for row in db.execute('SELECT id,condition_json FROM dispersion_tasks WHERE discarded_at IS NULL ORDER BY id'):
             condition = json.loads(row['condition_json'])
             if condition.get('source_record_id') == identifier and condition.get('source_sha256') == source['source_sha256']:
                 return service.repository._task_dict(row['id'], db)

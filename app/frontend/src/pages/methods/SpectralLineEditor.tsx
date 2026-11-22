@@ -184,7 +184,7 @@ export function SpectralLineEditor({
               value={draft.wavelength_nm}
               min={160}
               max={800}
-              step={0.0001}
+              step="any"
               disabled={!canWrite || isBaseline}
               onChange={(value) =>
                 setDraft((previous) => ({
@@ -200,7 +200,7 @@ export function SpectralLineEditor({
               value={draft.actual_wavelength_nm ?? draft.wavelength_nm}
               min={160}
               max={800}
-              step={0.0001}
+              step="any"
               disabled={!canWrite || isBaseline}
               onChange={(value) => updateDraft('actual_wavelength_nm', value)}
             />

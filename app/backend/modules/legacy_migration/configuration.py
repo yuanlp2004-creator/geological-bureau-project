@@ -83,6 +83,7 @@ def _typed_opt(sections: dict[str, dict[str, str]]) -> dict[str, Any]:
             "point_width_um": _ini_value(sections, "CCD", "PointWidth", 14.0, float),
             "ccd_indices": indices,
             "allow_gap_error": _ini_value(sections, "CCD", "AllowGapError", 150.0, float),
+            "nominal_gap_um": _ini_value(sections, "CCD", "CcdGap", 9809.0, float),
             "allow_ccd_drift_um": _ini_value(sections, "CCD", "AllowCcdDrift", 300.0, float),
         },
         "page_setup": {

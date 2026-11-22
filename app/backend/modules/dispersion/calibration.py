@@ -15,6 +15,35 @@ class CalibrationService:
         self.database = database
         self.repository = DispersionRepository(database)
 
+    def add_point(self, task_id: int, ccd_index: int, point_index: int, actor_user_id=None) -> dict[str, Any]:
+        """FmViewSingle.ActAddLine: mark a CCD point before assigning its known wavelength."""
+        with self.database.write() as db:
+            context = self.repository._context(task_id, db)
+            if context.task['status'] not in {'draft', 'completed', 'stopped', 'failed'}:
+                raise DispersionError('dispersion_task_busy', '摄谱尚未结束，不能增加谱线', status_code=409)
+            if json.loads(context.task['condition_json'] or '{}').get('preheat'):
+                raise DispersionError('preheat_not_calibration_source', '预热谱图仅供观察，不能增加正式谱线', status_code=409)
+            if ccd_index not in json.loads(context.task['ccd_indices_json']):
+                raise DispersionError('ccd_indices_invalid', '该 CCD 不在当前色散任务中')
+            _, count = self.repository._geometry(context.layout, ccd_index)
+            if not isinstance(point_index, int) or not 0 <= point_index < count:
+                raise DispersionError('line_position_out_of_range', '谱线点位超出 CCD 范围')
+            if db.execute('SELECT 1 FROM dispersion_task_lines WHERE task_id=? AND ccd_index=? '
+                          'AND ABS(COALESCE(located_position,expected_position)-?)<0.5',
+                          (task_id, ccd_index, point_index)).fetchone():
+                raise DispersionError('dispersion_line_duplicate', '该点位已有谱线', status_code=409)
+            now = utc_now()
+            next_label = db.execute('SELECT COALESCE(MAX(id),0)+1 FROM dispersion_task_lines').fetchone()[0]
+            # Zero explicitly means unassigned, as TWdtLine.Create; never infer a calibration wavelength.
+            cursor = db.execute('INSERT INTO dispersion_task_lines '
+                '(task_id,element,wavelength_nm,ccd_index,expected_position,located_position,locate_anchor_position,position_state,position_source,created_at,updated_at) '
+                "VALUES (?,?,0,?,?,?,?,'located','manual_point',?,?)",
+                (task_id, f'谱线{next_label}', ccd_index, point_index, point_index, point_index, now, now))
+            line_id = cursor.lastrowid
+            self.repository._audit(db, actor_user_id, 'dispersion.line.create', line_id,
+                                  {'task_id': task_id, 'ccd_index': ccd_index, 'point_index': point_index, 'wavelength_assigned': False})
+            return self.repository._line_decode(db.execute('SELECT * FROM dispersion_task_lines WHERE id=?', (line_id,)).fetchone())
+
     def _insert_line(
         self, db: sqlite3.Connection, task_id: int, layout: sqlite3.Row, payload: dict[str, Any], now: str | None = None
     ) -> int:
@@ -64,8 +93,8 @@ class CalibrationService:
                 (
                     "INSERT INTO dispersion_task_lines(task_id, element, wavelength_nm, ccd_index, "
                     "expected_position, located_position, saved_position, position_state, "
-                    "position_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                    "?)"
+                    "position_source, created_at, updated_at, locate_anchor_position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                    "?, ?)"
                 ),
                 (
                     task_id,
@@ -79,6 +108,7 @@ class CalibrationService:
                     "manual" if actual is not None else None,
                     now,
                     now,
+                    actual if actual is not None else expected,
                 ),
             )
         except sqlite3.IntegrityError as exc:
@@ -117,7 +147,7 @@ class CalibrationService:
             self.repository._audit(db, actor_user_id, "dispersion.line.delete", line_id, {"task_id": task_id})
             return {"id": line_id, "deleted": True}
 
-    def locate_line(self, task_id: int, line_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def locate_line(self, task_id: int, line_id: int, actor_user_id: int | None = None, *, legacy_window: bool = False) -> dict[str, Any]:
         context = self.repository._context(task_id)
         with self.database.write() as db:
             line = db.execute(
@@ -125,7 +155,9 @@ class CalibrationService:
             ).fetchone()
             if line is None:
                 raise DispersionError("dispersion_line_not_found", "任务谱线不存在", status_code=404)
-            expected = line["expected_position"]
+            expected = line["locate_anchor_position"]
+            if expected is None:
+                expected = line["located_position"] if line["located_position"] is not None else line["expected_position"]
             if expected is None:
                 raise DispersionError("line_wavelength_out_of_range", "谱线没有落入当前 CCD 的有效范围")
             frames = db.execute(
@@ -157,31 +189,47 @@ class CalibrationService:
             points = [max(0.1,value) for value in points]
             start = max(0, int(round(expected)) - 24)
             end = min(len(points), int(round(expected)) + 25)
+            if legacy_window:
+                # TWdtLine.Create(..., 10), TAnaThread.SetRange: ten samples.
+                start = max(0, min(int(round(expected)) - 5, len(points) - 10))
+                end = min(len(points), start + 10)
             if start >= end:
                 raise DispersionError("line_position_out_of_range", "定位窗口超出 CCD 范围")
-            peak = max(range(start, end), key=lambda index: points[index])
-            adjustment = float(line["adjustment_points"] or 0)
-            located = max(0.0, min(len(points) - 1.0, float(peak) + adjustment))
+            maximum = max(points[start:end])
+            tops = [index for index in range(start, end) if math.isclose(points[index], maximum, rel_tol=1e-12, abs_tol=1e-9)]
+            # Flat signals, rising edges and separate equally high peaks cannot identify a peak.
+            # A single interior plateau is valid; use its midpoint deterministically.
+            if tops[0] == start or tops[-1] == end - 1 or tops[-1] - tops[0] + 1 != len(tops):
+                raise DispersionError(
+                    'dispersion_peak_not_found', '定位失败：搜索范围内没有唯一有效峰，位置未改变',
+                    details={'line_id': line_id, 'anchor_position': expected, 'window_start': start, 'window_end': end - 1},
+                    status_code=409,
+                )
+            peak = (tops[0] + tops[-1]) // 2
+            located = float(peak)
+            if (line['located_position'] == located and line['position_source'] == 'frame'
+                    and line['position_frame_id'] == frame['id'] and not line['adjustment_points']):
+                return self.repository._line_decode(line)
             db.execute(
                 (
                     "UPDATE dispersion_task_lines SET located_position=?, position_state='located', "
-                    "position_source='frame', position_frame_id=?, updated_at=? WHERE id=?"
+                    "position_source='frame', adjustment_points=0, position_frame_id=?, locate_anchor_position=?, updated_at=? WHERE id=?"
                 ),
-                (located, frame["id"], utc_now(), line_id),
+                (located, frame["id"], expected, utc_now(), line_id),
             )
             self.repository._audit(
                 db,
                 actor_user_id,
                 "dispersion.line.locate",
                 line_id,
-                {"task_id": task_id, "frame_ids": [frame['id'] for frame in frames], "position": located,
+                {"task_id": task_id, "frame_ids": [frame['id'] for frame in frames], "position": located, 'anchor_position': expected,
                  "source": "normalized_mean_minus_dark", "burn_period": burn_period, "dark_period": dark_period},
             )
             return self.repository._line_decode(
                 db.execute("SELECT * FROM dispersion_task_lines WHERE id=?", (line_id,)).fetchone()
             )
 
-    def locate_all(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def locate_all(self, task_id: int, actor_user_id: int | None = None, *, legacy_window: bool = False) -> dict[str, Any]:
         self.repository._context(task_id)
         with self.database.read() as db:
             line_ids = [
@@ -194,19 +242,20 @@ class CalibrationService:
         errors: list[dict[str, Any]] = []
         for line_id in line_ids:
             try:
-                located.append(self.locate_line(task_id, line_id, actor_user_id))
+                located.append(self.locate_line(task_id, line_id, actor_user_id, legacy_window=legacy_window))
             except DispersionError as exc:
                 errors.append({"line_id": line_id, **exc.detail()})
         return {"task_id": task_id, "located": located, "errors": errors, "all_succeeded": not errors}
 
-    def update_line_wavelength(self, task_id: int, line_id: int, wavelength: float, actor=None) -> dict[str, Any]:
+    def update_line_wavelength(self, task_id: int, line_id: int, wavelength: float, actor=None, *, legacy_input: bool = False) -> dict[str, Any]:
         with self.database.write() as db:
             context = self.repository._context(task_id, db)
             line = db.execute('SELECT * FROM dispersion_task_lines WHERE task_id=? AND id=?', (task_id,line_id)).fetchone()
             if line is None:
                 raise DispersionError('dispersion_line_not_found', '任务谱线不存在', status_code=404)
             wavelength = _finite(wavelength, 'wavelength_nm')
-            if not context.layout['wavelength_min'] <= wavelength <= context.layout['wavelength_max']:
+            minimum, maximum = (160,800) if legacy_input else (context.layout['wavelength_min'],context.layout['wavelength_max'])
+            if not minimum <= wavelength <= maximum:
                 raise DispersionError('line_wavelength_out_of_range', '谱线波长超出当前布局范围')
             if db.execute('SELECT 1 FROM dispersion_task_lines WHERE task_id=? AND ccd_index=? AND id!=? AND ABS(wavelength_nm-?)<=0.01',
                           (task_id,line['ccd_index'],line_id,wavelength)).fetchone():
@@ -217,7 +266,7 @@ class CalibrationService:
             self.repository._audit(db,actor,'dispersion.line.update',line_id,{'task_id':task_id,'previous_wavelength':line['wavelength_nm'],'wavelength_nm':wavelength})
             return self.repository._line_decode(db.execute('SELECT * FROM dispersion_task_lines WHERE id=?',(line_id,)).fetchone())
 
-    def update_gap(self, task_id: int, gap_index: int, gap_um: float, actor=None) -> dict[str, Any]:
+    def update_gap(self, task_id: int, gap_index: int, gap_um: float, actor=None, *, legacy_limits: bool = False) -> dict[str, Any]:
         """Create a new geometry for this task; referenced layouts/calibrations remain immutable."""
         with self.database.write() as db:
             context = self.repository._context(task_id, db)
@@ -225,6 +274,12 @@ class CalibrationService:
                 raise DispersionError('dispersion_task_busy', '采集中不能修改 CCD 间隔', status_code=409)
             gaps = json.loads(context.layout['gap_points_json'])
             gap_um = _finite(gap_um, 'gap_um')
+            if legacy_limits:
+                from ...services import AppService
+                analysis = AppService(self.database).get_settings()['analysis']
+                nominal, error = analysis['dispersion_nominal_gap_um'], analysis['dispersion_allow_gap_error_um']
+                if not max(0, nominal-error) <= gap_um <= min(10000, nominal+error):
+                    raise DispersionError('dispersion_gap_invalid', 'CCD间隔超出标称间隔与允许误差范围')
             if not 0 <= gap_index < len(gaps) or not 0 <= gap_um <= 10000:
                 raise DispersionError('dispersion_gap_invalid','CCD 间隔或序号超出范围')
             if float(context.layout['point_width']) <= 0:
@@ -242,7 +297,8 @@ class CalibrationService:
                        (cursor.lastrowid,_json(condition),utc_now(),task_id))
             updated = self.repository._context(task_id,db)
             for line in db.execute('SELECT * FROM dispersion_task_lines WHERE task_id=?',(task_id,)).fetchall():
-                expected = self.repository._expected_position(db,updated.layout,line['wavelength_nm'],line['ccd_index'])
+                expected = (self.repository._expected_position(db,updated.layout,line['wavelength_nm'],line['ccd_index'])
+                            if line['wavelength_nm'] > 0 else line['expected_position'])
                 db.execute('UPDATE dispersion_task_lines SET expected_position=?,updated_at=? WHERE id=?',(expected,utc_now(),line['id']))
             self.repository._audit(db,actor,'dispersion.gap.update',task_id,{'gap_index':gap_index,'previous_points':previous,'gap_um':gap_um,'layout_id':cursor.lastrowid})
             return self.repository._task_dict(task_id,db)
@@ -268,10 +324,10 @@ class CalibrationService:
             db.execute(
                 (
                     "UPDATE dispersion_task_lines SET located_position=?, position_state='located', "
-                    "position_source='manual_adjustment', adjustment_points=?, updated_at=? WHERE "
+                    "position_source='manual_adjustment', adjustment_points=?, locate_anchor_position=?, updated_at=? WHERE "
                     "id=?"
                 ),
-                (position, adjustment, utc_now(), line_id),
+                (position, adjustment, position, utc_now(), line_id),
             )
             self.repository._audit(
                 db,
@@ -301,9 +357,9 @@ class CalibrationService:
             db.execute(
                 (
                     "UPDATE dispersion_task_lines SET located_position=?,position_state='located',pos"
-                    "ition_source='manual_adjustment',updated_at=? WHERE id=?"
+                    "ition_source='manual_adjustment',locate_anchor_position=?,updated_at=? WHERE id=?"
                 ),
-                (position, utc_now(), line_id),
+                (position, position, utc_now(), line_id),
             )
             self.repository._audit(
                 db,
@@ -323,6 +379,21 @@ class CalibrationService:
 
     def save_line_position(self, task_id: int, line_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         return self._save_or_restore_position(task_id, line_id, restore=False, actor_user_id=actor_user_id)
+
+    def all_positions(self, task_id: int, restore: bool, actor_user_id: int | None = None) -> dict[str, Any]:
+        with self.database.write() as db:
+            context = self.repository._context(task_id, db)
+            if context.task['status'] not in {'draft','completed','stopped','failed'}:
+                raise DispersionError('dispersion_task_busy', '采集中不能修改保存位置', status_code=409)
+            column = 'saved_position' if restore else 'located_position'
+            rows = db.execute(f'SELECT * FROM dispersion_task_lines WHERE task_id=? AND {column} IS NOT NULL', (task_id,)).fetchall()
+            for row in rows:
+                if restore:
+                    db.execute("UPDATE dispersion_task_lines SET located_position=?,locate_anchor_position=?,position_source='manual_adjustment',position_state='saved',updated_at=? WHERE id=?", (row[column],row[column],utc_now(),row['id']))
+                else:
+                    db.execute("UPDATE dispersion_task_lines SET saved_position=?,position_state='saved',updated_at=? WHERE id=?", (row[column],utc_now(),row['id']))
+            self.repository._audit(db,actor_user_id,'dispersion.line.position.restore' if restore else 'dispersion.line.position.save',task_id,{'scope':'all','line_ids':[row['id'] for row in rows]})
+            return self.repository._task_dict(task_id,db)
 
     def restore_line_position(self, task_id: int, line_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         return self._save_or_restore_position(task_id, line_id, restore=True, actor_user_id=actor_user_id)
@@ -348,8 +419,8 @@ class CalibrationService:
                 action = "dispersion.line.position.save"
             if restore:
                 db.execute(
-                    "UPDATE dispersion_task_lines SET located_position=?, position_state='saved', updated_at=? WHERE id=?",
-                    (position, utc_now(), line_id),
+                    "UPDATE dispersion_task_lines SET located_position=?, locate_anchor_position=?, position_source='manual_adjustment', position_state='saved', updated_at=? WHERE id=?",
+                    (position, position, utc_now(), line_id),
                 )
             else:
                 db.execute(
@@ -373,6 +444,10 @@ class CalibrationService:
                 "SELECT * FROM dispersion_task_lines WHERE task_id=? ORDER BY wavelength_nm, id", (task_id,)
             ).fetchall()
             values: list[tuple[sqlite3.Row, float, float]] = []
+            if any(float(row['wavelength_nm']) <= 0 for row in rows):
+                raise DispersionError('calibration_wavelength_missing', '请先填写所有谱线的已知波长，再拟合色散曲线')
+            if payload.get('use_legacy_limit') and len(rows) < 4:
+                raise DispersionError('calibration_points_insufficient', '旧版色散拟合至少需要四条谱线')
             seen_wavelengths: list[float] = []
             for row in rows:
                 # The old RealStep is the current measured position; saved values are restore points.
@@ -408,6 +483,11 @@ class CalibrationService:
                 )
                 errors.append(residual)
         rms = math.sqrt(sum(error * error for error in errors) / len(errors)) if errors else math.inf
+        if payload.get('use_legacy_limit'):
+            from .fitting import legacy_results
+            results = legacy_results(coefficients, residuals)
+            if results is None or results['wave_per_step'] is None:
+                raise DispersionError('calibration_positions_duplicate', '谱线测量步数重复，不能计算每步波长')
         maximum = max((abs(error) for error in errors), default=math.inf)
         residual_limit = float(payload.get("residual_limit_points") or context.task["residual_limit_points"])
         if payload.get('use_legacy_limit'):
@@ -464,7 +544,7 @@ class CalibrationService:
                 db.execute("SELECT * FROM dispersion_calibration_versions WHERE id=?", (calibration_id,)).fetchone()
             )
 
-    def publish_calibration(self, calibration_version_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def publish_calibration(self, calibration_version_id: int, actor_user_id: int | None = None, *, name: str | None = None) -> dict[str, Any]:
         with self.database.write() as db:
             row = db.execute(
                 "SELECT * FROM dispersion_calibration_versions WHERE id=?", (calibration_version_id,)
@@ -485,7 +565,13 @@ class CalibrationService:
                     "校准残差超过发布阈值",
                     details={"residual_max": row["residual_max"], "limit": row["residual_limit_points"]},
                 )
-            base_name = str(row["name"])
+            base_name = str(name if name is not None else row['name']).strip()
+            if not base_name or len(base_name) > 120:
+                raise DispersionError('calibration_name_invalid', '曲线名称不能为空且不能超过120字')
+            if base_name != row['name']:
+                version = db.execute('SELECT COALESCE(MAX(version),0)+1 FROM dispersion_calibration_versions WHERE name=?', (base_name,)).fetchone()[0]
+                db.execute('UPDATE dispersion_calibration_versions SET name=?,version=? WHERE id=?', (base_name,version,calibration_version_id))
+                row = db.execute('SELECT * FROM dispersion_calibration_versions WHERE id=?', (calibration_version_id,)).fetchone()
             name = base_name
             if db.execute("SELECT 1 FROM dispersion_calibrations WHERE name=?", (name,)).fetchone():
                 name = f"{base_name} · v{row['version']}"

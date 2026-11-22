@@ -59,6 +59,8 @@ def main() -> int:
             str(APP_ROOT),
             "--collect-all",
             "uvicorn",
+            "--hidden-import",
+            "serial.serialwin32",
             *add_data_arguments,
             str(APP_ROOT / "backend" / "sidecar_entry.py"),
         ]

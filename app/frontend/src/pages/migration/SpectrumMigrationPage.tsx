@@ -2,7 +2,6 @@ import { SectionHeading } from '../../components/SectionHeading'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { LegacySourcePicker } from '../../components/LegacySourcePicker'
 import { confirmAction } from '../../platform/dialogs'
-import { FormDisclosure } from '../../layout/TaskLayout'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import {
   AlertTriangle,
@@ -12,8 +11,7 @@ import {
   Database,
   FolderOpen,
   Info,
-  RefreshCw,
-  SquareTerminal
+  RefreshCw
 } from 'lucide-react'
 import { api, type AuthUser, type SpectrumMigrationDiagnostic, type SpectrumMigrationRun } from '../../api'
 import { CopyableCode } from '../../components/InformationDisplay'
@@ -122,7 +120,7 @@ export function SpectrumMigrationPage({
           <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="batch-spectra" label="批量迁移谱文件" multiple disabled={busy} onOpened={async result => {
         await load(); setActiveRun(await api.spectrumMigrationRun(token, result.run_id))
       }}/>
-          <span className={`migration-reader-pill ${diagnostic?.available ? 'ready' : 'unavailable'}`}>
+          <span className={`migration-reader-pill ${diagnostic?.available ? 'ready' : 'unavailable'}`} title={diagnostic?.message}>
             <span className={`status-dot ${diagnostic?.available ? 'online' : 'offline'}`} />
             {diagnostic?.available ? 'Jet 读取器就绪' : '读取器不可用'}
           </span>
@@ -161,37 +159,6 @@ export function SpectrumMigrationPage({
             </button>
           </div>
         </form>
-        <section className="surface migration-reader-surface">
-          <div className="surface-heading">
-            <div>
-              <h2>旧版 Access 读取通道</h2>
-            </div>
-            <SquareTerminal size={17} />
-          </div>
-          <div className={`reader-state ${diagnostic?.available ? 'ready' : 'unavailable'}`}>
-            {diagnostic?.available ? <CheckCircle2 size={21} /> : <AlertTriangle size={21} />}
-            <div>
-              <strong>{diagnostic?.message ?? '正在检测读取器…'}</strong>
-              <span>{diagnostic?.reader ?? '未选择读取后端'}</span>
-            </div>
-          </div>
-          <FormDisclosure title="读取通道技术详情">
-            <dl className="reader-facts">
-              <div>
-                <dt>Provider</dt>
-                <dd>{diagnostic?.provider ?? 'Microsoft.Jet.OLEDB.4.0'}</dd>
-              </div>
-              <div>
-                <dt>解析器版本</dt>
-                <dd>{diagnostic?.parser_version ?? 's08-spectrum-1'}</dd>
-              </div>
-              <div>
-                <dt>模式</dt>
-                <dd>只读 / 临时副本</dd>
-              </div>
-            </dl>
-          </FormDisclosure>
-        </section>
       </div>
       {activeRun && (
         <section className="surface migration-report-surface" data-testid="spectrum-migration-report">

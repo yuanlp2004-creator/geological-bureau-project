@@ -107,16 +107,6 @@ CORE_MANIFEST = ModuleManifest(
             10,
             ("runtime-events.read",),
         ),
-        nav(
-            "system.settings",
-            "system",
-            "系统配置与维护",
-            "软件设置",
-            "目录、显示、打印、时间与日志选项",
-            "settings",
-            10,
-            ("settings.read",),
-        ),
     ),
 )
 
@@ -274,14 +264,14 @@ LEGACY_MIGRATION_MANIFEST = ModuleManifest(
     ),
     navigation_entries=(
         nav(
-            "tools.legacy-methods",
+            "tools.legacy-migration",
             "tools",
             "旧版兼容迁移",
-            "旧方法与配置迁移",
-            "DIRECT.MTD、CFG 与 OPT 只读迁移",
+            "旧数据迁移",
+            "只读迁移旧方法与配置、谱图和分析结果",
             "migration",
             30,
-            ("migration.read",),
+            ("migration.read", "spectrum-migration.read", "result-migration.read"),
         ),
     ),
 )
@@ -289,7 +279,7 @@ LEGACY_MIGRATION_MANIFEST = ModuleManifest(
 SAMPLE_QUEUE_MANIFEST = ModuleManifest(
     key="sample-queues",
     diagnostic_path='/api/v1/sample-queues',
-    diagnostic_tables=('sample_queues', 'sample_queue_items', 'sample_queue_options'),
+    diagnostic_tables=('sample_queues', 'sample_queue_items', 'sample_queue_options', 'sample_queue_runtime_state'),
     version="0.1.0",
     title="样品队列",
     api_prefix="/api/v1",
@@ -297,6 +287,7 @@ SAMPLE_QUEUE_MANIFEST = ModuleManifest(
     permissions=("samples.read", "samples.write"),
     audit_actions=(
         "sample_queue.create",
+        "sample_queue.select",
         "sample_queue.update",
         "sample_queue.rename",
         "sample_queue.sam_import",
@@ -340,18 +331,6 @@ SPECTRUM_MIGRATION_MANIFEST = ModuleManifest(
         "atomic-single-file-import",
         "hash-idempotency",
     ),
-    navigation_entries=(
-        nav(
-            "tools.legacy-spectra",
-            "tools",
-            "旧版兼容迁移",
-            "旧谱数据迁移",
-            "CDT、CMT、EDT 与 WDT 只读迁移",
-            "spectrum-migration",
-            40,
-            ("spectrum-migration.read",),
-        ),
-    ),
 )
 
 RESULT_MIGRATION_MANIFEST = ModuleManifest(
@@ -376,18 +355,6 @@ RESULT_MIGRATION_MANIFEST = ModuleManifest(
         "atomic-single-file-import",
         "hash-idempotency",
     ),
-    navigation_entries=(
-        nav(
-            "tools.legacy-results",
-            "tools",
-            "旧版兼容迁移",
-            "旧结果迁移",
-            "DAT 与 PDT 结果矩阵只读迁移",
-            "result-migration",
-            50,
-            ("result-migration.read",),
-        ),
-    ),
 )
 
 SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
@@ -400,7 +367,7 @@ SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
     route="/spectra",
     permissions=("spectra.read", "spectra.export"),
     audit_actions=("spectrum.view", "spectrum.export", "spectrum.print"),
-    dependencies=("core", "auth", "spectrum-migration", "result-migration", "acquisition"),
+    dependencies=("core", "auth", "spectrum-migration", "result-migration", "acquisition", "methods"),
     capabilities=(
         "published-spectrum-query",
         "ccd-coordinate-conversion",
@@ -408,6 +375,7 @@ SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
         "reversible-view-state",
         "print-visible-range",
         "point-integration-details",
+        "view-only-peak-calibration",
         "ccd-grayscale-physical-print",
     ),
     navigation_entries=(
@@ -428,7 +396,7 @@ SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
 DEVICE_MANIFEST = ModuleManifest(
     key="devices",
     diagnostic_path='/api/v1/devices/profiles',
-    diagnostic_tables=('device_profiles',),
+    diagnostic_tables=('device_profiles', 'device_runtime_state', 'device_bluetooth_hidden'),
     diagnostic_note='只检测设备管理软件；设备连接和通信需另行验证。',
     version="0.1.0",
     title="设备与实时调试",
@@ -437,9 +405,13 @@ DEVICE_MANIFEST = ModuleManifest(
     permissions=("devices.read", "devices.write", "devices.execute"),
     audit_actions=(
         "device_profile.create",
+        "device.profile.select",
+        "device.bluetooth.hide",
         "device_profile.update",
         "device.connect",
         "device.connect.failed",
+        "device.connection_test",
+        "device.connection_test.failed",
         "device.disconnect",
         "device.debug.start",
         "device.debug.failed",
@@ -451,21 +423,31 @@ DEVICE_MANIFEST = ModuleManifest(
     capabilities=(
         "device-adapter-contract",
         "acq-simulator",
+        "legacy-ccd-serial",
         "device-profiles",
         "connection-diagnostics",
+        "windows-bluetooth-spp",
+        "windows-bluetooth-device-mapping",
+        "persistent-bluetooth-list-exclusions",
+        "serial-port-discovery",
         "realtime-debug",
         "ccd-curve-interaction",
     ),
     navigation_entries=(
         nav(
+            "tools.device-connection", "tools", "设备与光学校准", "设备连接",
+            "Windows 蓝牙配对、COM口选择与连接状态", "acquisition", 9,
+            ("devices.read",), view="connection",
+        ),
+        nav(
             "tools.devices",
             "tools",
             "设备与光学校准",
             "设备调试",
-            "软件参数、设备参数、调试对中与汞灯调试",
+            "软件参数、设备参数与调试对中",
             "acquisition",
             10,
-            ("devices.read", "settings.read", "mercury-calibration.read"),
+            ("devices.read", "settings.read"),
         ),
     ),
 )
@@ -481,6 +463,7 @@ DISPERSION_MANIFEST = ModuleManifest(
     permissions=("dispersion.read", "dispersion.write", "dispersion.execute"),
     audit_actions=(
         "dispersion.task.create",
+        "dispersion.task.discard",
         "dispersion.task.start",
         "dispersion.task.pause",
         "dispersion.task.resume",
@@ -488,6 +471,8 @@ DISPERSION_MANIFEST = ModuleManifest(
         "dispersion.task.stop",
         "dispersion.task.failed",
         "dispersion.frame.capture",
+        "dispersion.observation.print",
+        "dispersion.observation.copy",
         "dispersion.line.create",
         'dispersion.line.update',
         'dispersion.gap.update',
@@ -544,6 +529,7 @@ ACQUISITION_MANIFEST = ModuleManifest(
     permissions=("acquisition.read", "acquisition.write", "acquisition.execute"),
     audit_actions=(
         "acquisition.task.create",
+        "acquisition.task.discard",
         "acquisition.task.start",
         "acquisition.task.pause",
         "acquisition.task.resume",
@@ -555,6 +541,7 @@ ACQUISITION_MANIFEST = ModuleManifest(
         "acquisition.interval.mark",
         "acquisition.sample.rename",
         "acquisition.sample.discard",
+        "acquisition.turn.position",
     ),
     dependencies=("core", "auth", "methods", "sample-queues", "devices"),
     capabilities=(
@@ -567,6 +554,7 @@ ACQUISITION_MANIFEST = ModuleManifest(
         "post-acquisition-rename",
         "realtime-measurements",
         "sample-discard",
+        "method-owned-sample-turns",
     ),
     navigation_entries=(
         nav(
@@ -640,20 +628,7 @@ HARDWARE_ACQUISITION_MANIFEST = ModuleManifest(
         "serial-protocol-gate",
         "confirmed-turn-analysis-sample",
     ),
-    navigation_entries=(
-        nav(
-            "analysis-tests.hardware",
-            "analysis-tests",
-            "摄谱与校准",
-            "自动转角采集",
-            "关键波段优先、异常闭环与安全停止",
-            "hardware-acquisition",
-            35,
-            ("hardware-acquisition.read",),
-            status="deferred_external",
-            required_context="current_method",
-        ),
-    ),
+    navigation_entries=(),
 )
 
 MERCURY_CALIBRATION_MANIFEST = ModuleManifest(
@@ -795,11 +770,15 @@ POSTPROCESSING_MANIFEST = ModuleManifest(
         "postprocessing.recalculate.retained",
         "postprocessing.export",
         'postprocessing.intensity.output',
+        'postprocessing.full_time.export',
+        'postprocessing.prepared.import',
+        'postprocessing.prepared.dispersion',
     ),
     dependencies=("core", "auth", "spectrum-migration", "result-migration", "methods", "analysis", "acquisition"),
     capabilities=(
         "full-interval-view",
         "interval-detail-export",
+        "full-time-batch-excel",
         "edt-selection-conversion",
         'edt-average-and-full-storage',
         'strict-pdt-signature-and-time-confirmation',
@@ -820,6 +799,11 @@ POSTPROCESSING_MANIFEST = ModuleManifest(
             ("postprocessing.read",),
             view="recalculate",
             required_context="page_scoped",
+        ),
+        nav(
+            'tools.prepared-import', 'tools', '工具', '导入预备摄谱文件',
+            '选择蒸发记录和区间，生成均值或全时样品', 'prepared-import', 50,
+            ('postprocessing.read',), required_context='current_method',
         ),
     ),
 )
@@ -851,10 +835,10 @@ REPORTS_MANIFEST = ModuleManifest(
             "data",
             "数据处理",
             "打印与导出",
-            "分析报告和强度数据的打印与导出",
+            "分析报告、强度数据和全时数据的导出",
             "reports",
             30,
-            ("reports.read", "analysis.read"),
+            ("reports.read", "analysis.read", "postprocessing.read"),
             required_context="page_scoped",
         ),
     ),
@@ -951,6 +935,7 @@ def validate_manifests(manifests: tuple[ModuleManifest, ...] | list[ModuleManife
     allowed_contexts = {"none", "current_method", "current_method_exp_seg", "page_scoped"}
     allowed_statuses = {"normal", "deferred_external", "test_only"}
     allowed_views = {
+        "acquisition": {"connection", "software", "device", "alignment"},
         "dispersion": {"curve"},
         "methods": {"lifecycle", "conditions", "lines", "print-settings", "print-preview"},
         "analysis": {"raw", "quality", "curve", "standards", "samples"},

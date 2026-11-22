@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DatabaseBackup, RefreshCw } from 'lucide-react'
 import { api, type MaintenanceStatus } from '../../api'
-import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { formatTime } from '../../components/dateFormat'
-import { SystemDiagnostics } from './SystemDiagnostics'
 
 export function MaintenancePage({ token, canWrite, onToast }: {
   token: string
@@ -12,10 +10,8 @@ export function MaintenancePage({ token, canWrite, onToast }: {
 }) {
   const [status, setStatus] = useState<MaintenanceStatus | null>(null)
   const [directory, setDirectory] = useState('backups')
-  const [retentionDays, setRetentionDays] = useState(30)
   const [busy, setBusy] = useState(false)
   const [refreshing, setRefreshing] = useState(true)
-  const [showDiagnostics, setShowDiagnostics] = useState(false)
   const running = useRef(false)
   const load = async () => {
     setRefreshing(true)
@@ -92,16 +88,10 @@ export function MaintenancePage({ token, canWrite, onToast }: {
         <div className="maintenance-task">
           <div className="maintenance-task-content">
             <h3>清理记录文件</h3>
-            <p>只清理过期历史日志，保留当前日志和审计记录。</p>
-            <label className="field maintenance-log-settings">
-              <span>保留天数</span>
-              <NumericInput min={1} max={3650} value={retentionDays} disabled={!canWrite || busy} onValueChange={setRetentionDays} />
-            </label>
+            <p>清理30天前的历史日志，保留当前日志和审计记录。</p>
           </div>
-          <button className="secondary-button" disabled={!canWrite || busy || refreshing} onClick={() => {
-            if (!reportInvalidNumericInput(document.querySelector('.maintenance-log-settings'))) return onToast('请先修正保留天数')
-            void run(() => api.maintenanceAction(token, 'logs/cleanup', { retention_days: retentionDays }), '过期历史日志已清理')
-          }}>清理记录文件</button>
+          <button className="secondary-button" disabled={!canWrite || busy || refreshing}
+            onClick={() => void run(() => api.maintenanceAction(token, 'logs/cleanup', { retention_days: 30 }), '过期历史日志已清理')}>清理记录文件</button>
         </div>
       </section>
       <section className="surface maintenance-table">
@@ -121,12 +111,6 @@ export function MaintenancePage({ token, canWrite, onToast }: {
           </div>
         )}
       </section>
-      {canWrite && (
-        <details className="surface maintenance-diagnostics" onToggle={event => setShowDiagnostics(event.currentTarget.open)}>
-          <summary>系统诊断</summary>
-          {showDiagnostics && <SystemDiagnostics token={token} />}
-        </details>
-      )}
     </div>
   )
 }

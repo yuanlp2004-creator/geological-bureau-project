@@ -193,7 +193,7 @@ def test_old_pdt_wide_table_exact_peak_background_and_integrity_rejection(tmp_pa
 @pytest.mark.parametrize('name',['样1','铅1'])
 def test_sam_original_bytes_and_ambiguous_gb_encoding_are_preserved(tmp_path,name):
     db=fresh(tmp_path);service=SampleQueueService(db);raw=(name+'\t1\r\n').encode('gb18030')
-    result=service.import_bytes(raw,None,'legacy','legacy.sam')
+    result=service.import_bytes(raw,None,'legacy','legacy.sam',encoding='gb18030')
     assert result['items'][0]['pre_name']==name and result['source_sha256']==hashlib.sha256(raw).hexdigest()
     assert _parse_lines((name+'\t1\r\n').encode('utf-8'),'utf-8-sig')[0]['name']==name
     before=service.get(result['id'])

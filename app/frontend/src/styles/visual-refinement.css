@@ -899,12 +899,6 @@
 :root .app-shell .spectrum-viewer-page .plot-background {
   fill: var(--surface);
 }
-:root .app-shell .spectrum-viewer-page .plot-grid {
-  stroke: var(--ui-border);
-}
-:root .app-shell .spectrum-viewer-page .plot-axis {
-  stroke: var(--ui-control-border);
-}
 :root .app-shell .spectrum-viewer-page .plot-label {
   fill: var(--ui-muted);
   font-size: 12px;

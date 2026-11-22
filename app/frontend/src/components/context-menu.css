@@ -1,0 +1,48 @@
+.workbench-context-menu {
+  position: fixed;
+  z-index: 10000;
+  display: grid;
+  min-width: 166px;
+  max-width: calc(100vw - 8px);
+  max-height: calc(100vh - 8px);
+  overflow: auto;
+  padding: 4px;
+  color: var(--ink, #152738);
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #ccd5df);
+  border-radius: 6px;
+  box-shadow: 0 5px 18px #0003;
+}
+
+.workbench-menu-group + .workbench-menu-group {
+  border-top: 1px solid var(--line, #ccd5df);
+  padding-top: 3px;
+  margin-top: 3px;
+}
+
+.workbench-context-menu:focus { outline: none; }
+
+.workbench-context-menu button {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-height: 27px;
+  padding: 3px 8px 3px 4px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.workbench-context-menu button:hover:enabled,
+.workbench-context-menu button:focus-visible {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.workbench-context-menu button:disabled { opacity: .45; }

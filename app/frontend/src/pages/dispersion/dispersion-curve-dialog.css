@@ -1,0 +1,148 @@
+:root .app-shell dialog.dispersion-curve-dialog {
+  box-sizing: border-box;
+  width: min(900px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 16px 56px #0004;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.5;
+}
+:root .app-shell dialog.dispersion-curve-dialog[open] { display: flex; flex-direction: column; }
+:root .app-shell dialog.dispersion-curve-dialog > header {
+  position: static;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 7px 12px;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+:root .app-shell dialog.dispersion-curve-dialog > header h2 { font-size: 15px; line-height: 1.5; }
+:root .app-shell dialog.dispersion-curve-dialog > header button {
+  width: 28px; height: 28px; min-width: 28px; min-height: 28px;
+  padding: 0; border: 0; background: transparent; color: var(--muted); font-size: 20px;
+}
+:root .app-shell dialog.dispersion-curve-dialog > header button:hover { background: var(--ui-soft); color: var(--ink); }
+:root .app-shell .dispersion-legacy-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--ui-soft);
+}
+:root .app-shell :is(.dispersion-legacy-settings, .dispersion-legacy-actions) {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+}
+:root .app-shell .dispersion-legacy-settings { gap: 14px; }
+:root .app-shell .dispersion-legacy-actions { margin-left: auto; }
+:root .app-shell .dispersion-legacy-toolbar :is(label, .dispersion-gap-field) {
+  display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; white-space: nowrap;
+}
+:root .app-shell .dispersion-legacy-toolbar :is(button, input, select) {
+  box-sizing: border-box;
+  min-height: 30px; height: 30px; min-width: 0;
+  margin: 0; padding: 3px 8px;
+  border: 1px solid var(--ui-control-border, var(--line)); border-radius: 4px;
+  color: var(--ink); background: var(--surface); font-size: 12px; line-height: 1.5;
+}
+:root .app-shell .dispersion-legacy-toolbar select[aria-label='CCD区间'] { width: 112px; }
+:root .app-shell .dispersion-legacy-toolbar select[aria-label='标尺（μm）'] { width: 48px; }
+:root .app-shell .dispersion-unit { color: var(--muted); font-size: 11px; }
+:root .app-shell .dispersion-legacy-toolbar button { white-space: nowrap; }
+:root .app-shell .dispersion-legacy-toolbar button:hover:not(:disabled) { border-color: var(--blue); }
+:root .app-shell .dispersion-legacy-toolbar :is(button, input, select):disabled { opacity: .45; }
+:root .app-shell .dispersion-legacy-toolbar .dispersion-save-button:not(:disabled) {
+  color: #fff; background: var(--blue); border-color: var(--blue);
+}
+:root .app-shell .dispersion-gap-spin { display: flex; }
+:root .app-shell .dispersion-gap-spin input { width: 64px; text-align: right; border-radius: 4px 0 0 4px; font-variant-numeric: tabular-nums; }
+:root .app-shell .dispersion-gap-spin > div { display: flex; flex-direction: column; }
+:root .app-shell .dispersion-gap-spin > div button {
+  height: 15px; min-height: 15px; width: 20px; padding: 0;
+  border-radius: 0 4px 0 0; border-left: 0; line-height: 12px;
+}
+:root .app-shell .dispersion-gap-spin > div button + button { border-radius: 0 0 4px 0; border-top: 0; }
+:root .app-shell .dispersion-legacy-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 268px;
+  align-items: start;
+  gap: 16px;
+  min-width: 0; min-height: 0;
+  padding: 12px;
+  overflow: auto;
+}
+:root .app-shell .dispersion-legacy-body h3 {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 26px; margin: 0 0 6px;
+  font-size: 12px; font-weight: 600;
+}
+:root .app-shell .dispersion-legacy-body h3 span { color: var(--muted); font-size: 11px; font-weight: 400; }
+:root .app-shell .dispersion-legacy-lines { min-width: 0; }
+:root .app-shell .dispersion-legacy-table {
+  max-height: 300px;
+  overflow: auto;
+  border: 1px solid var(--line); border-radius: 5px;
+}
+:root .app-shell .dispersion-legacy-table table {
+  width: 100%; min-width: 450px;
+  table-layout: fixed; border-collapse: collapse;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+:root .app-shell dialog.dispersion-curve-dialog .dispersion-legacy-table :is(th, td) {
+  height: 32px; padding: 3px 7px;
+  border: 0; border-bottom: 1px solid var(--line);
+  text-align: right; white-space: nowrap; font-size: 12px; line-height: 1.5;
+}
+:root .app-shell .dispersion-legacy-table th { position: sticky; top: 0; z-index: 1; font-weight: 500; background: var(--ui-soft); }
+:root .app-shell .dispersion-legacy-table th:first-child { width: 38px; }
+:root .app-shell .dispersion-legacy-table :is(th, td):first-child { text-align: center; color: var(--muted); }
+:root .app-shell .dispersion-legacy-table :is(th, td):nth-child(2) { width: 104px; }
+:root .app-shell .dispersion-legacy-table :is(th, td):nth-child(3) { text-align: center; }
+:root .app-shell .dispersion-legacy-table tbody tr:last-child td { border-bottom: 0; }
+:root .app-shell .dispersion-legacy-table tbody tr:hover { background: var(--ui-soft); }
+:root .app-shell dialog.dispersion-curve-dialog .dispersion-legacy-table td input {
+  box-sizing: border-box; width: 100%; min-width: 0;
+  height: 26px; min-height: 26px; max-height: 26px; margin: 0; padding: 2px 5px;
+  border: 1px solid var(--line); border-radius: 3px;
+  background: var(--surface); color: var(--ink);
+  text-align: right; font: inherit; font-variant-numeric: tabular-nums;
+}
+:root .app-shell .dispersion-legacy-table td input:focus { outline: 1px solid var(--blue); border-color: var(--blue); }
+:root .app-shell .dispersion-legacy-results dl {
+  display: grid;
+  align-content: start;
+  gap: 0;
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--line); border-radius: 5px;
+  background: var(--ui-soft);
+  font-size: 12px;
+}
+:root .app-shell .dispersion-legacy-results dl > div {
+  display: grid; grid-template-columns: 62px minmax(0, 1fr); align-items: baseline; gap: 8px;
+  min-height: 30px; padding: 5px 0;
+}
+:root .app-shell .dispersion-legacy-results dl > div:nth-child(4) { margin-top: 4px; padding-top: 9px; border-top: 1px solid var(--line); }
+:root .app-shell .dispersion-legacy-results :is(dt, dd) { margin: 0; overflow-wrap: anywhere; line-height: 20px; }
+:root .app-shell .dispersion-legacy-results dt { color: var(--muted); }
+:root .app-shell .dispersion-legacy-results dd { text-align: right; font-variant-numeric: tabular-nums; }
+:root .app-shell :is(.dispersion-legacy-note, .dispersion-legacy-error) {
+  flex: 0 0 auto; margin: 0; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 12px;
+}
+:root .app-shell .dispersion-legacy-error { color: var(--danger); }
+@media (max-width: 700px) {
+  :root .app-shell .dispersion-legacy-body { grid-template-columns: minmax(0, 1fr); }
+  :root .app-shell .dispersion-legacy-settings { gap: 8px; }
+  :root .app-shell .dispersion-legacy-results dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+  :root .app-shell .dispersion-legacy-results dl > div:nth-child(4) { margin: 0; padding-top: 5px; border: 0; }
+}

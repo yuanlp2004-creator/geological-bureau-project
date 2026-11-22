@@ -26,8 +26,11 @@ async def lifespan(application: FastAPI):
     runtime.database.initialize()
     runtime.auth_service.synchronize_builtin_permissions()
     runtime.service.append_event(RuntimeEventCreate(category="system", severity="success", message="本地服务已启动"))
-    yield
-    runtime.service.append_event(RuntimeEventCreate(category="system", severity="info", message="本地服务已停止"))
+    try:
+        yield
+    finally:
+        runtime.shutdown()
+        runtime.service.append_event(RuntimeEventCreate(category="system", severity="info", message="本地服务已停止"))
 
 
 def create_app(config: AppConfig | None = None, *, runtime: Runtime | None = None) -> FastAPI:

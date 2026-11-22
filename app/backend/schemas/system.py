@@ -184,6 +184,7 @@ class SettingsTimePatch(_SettingsModel):
 
 
 class SettingsAnalysis(_SettingsModel):
+    dispersion_nominal_gap_um: float = Field(default=9809, ge=0, le=10000)
     dispersion_allow_gap_error_um: float = Field(default=150, gt=0, le=10000)
     dark_round_time_seconds: int = Field(default=8, ge=6, le=20)
     log_analysis: bool = True
@@ -200,6 +201,7 @@ class SettingsIntensityOutput(_SettingsModel):
 
 
 class SettingsAnalysisPatch(_SettingsModel):
+    dispersion_nominal_gap_um: float | None = Field(default=None, ge=0, le=10000)
     dispersion_allow_gap_error_um: float | None = Field(default=None, gt=0, le=10000)
     dark_round_time_seconds: int | None = Field(default=None,ge=6,le=20)
     log_analysis: bool | None = None
@@ -216,8 +218,8 @@ class PreliminaryConditions(_SettingsModel):
 
 
 class SettingsPreliminary(_SettingsModel):
-    evaporation: PreliminaryConditions = Field(default_factory=PreliminaryConditions)
-    dispersion: PreliminaryConditions = Field(default_factory=lambda: PreliminaryConditions(pre_excitation_seconds=3))
+    evaporation: PreliminaryConditions = Field(default_factory=lambda: PreliminaryConditions(frame_count=20, dark_frame_count=8))
+    dispersion: PreliminaryConditions = Field(default_factory=lambda: PreliminaryConditions(pre_excitation_seconds=1, frame_count=20, dark_frame_count=8))
 
 
 class SettingsPreliminaryPatch(_SettingsModel):

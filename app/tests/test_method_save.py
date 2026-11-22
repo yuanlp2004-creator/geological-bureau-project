@@ -14,7 +14,11 @@ def dump(runtime):
 
 def test_save_updates_current_but_preserves_history_and_task_reference(method_client):
     client, runtime, headers = method_client
-    method = _publish(client, headers, _create(client, headers)["id"])
+    created = client.post("/api/v1/methods", headers=headers, json={
+        "name": "测试方法", "conditions": {"selected_ccds": [0]},
+    })
+    assert created.status_code == 201, created.text
+    method = _publish(client, headers, created.json()["id"])
     mid = method["id"]
     assert client.post(f"/api/v1/methods/{mid}/open", headers=headers).status_code == 200
     versions = client.get(f"/api/v1/methods/{mid}/versions", headers=headers).json()

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 from typing import Any
-from .algorithms import _float32, fit_curve, evaluate_curve
+from .algorithms import _float32, evaluate_curve
 from .errors import AnalysisError
 
 
@@ -136,11 +136,48 @@ def fit_legacy_curve(x_values: list[float], y_values: list[float], mode: str, co
             'source_point_count': original_count, 'smoothed': smoothed, 'linear_fallback': fallback}
 
 
-def evaluate_legacy_curve(fit: dict[str, Any], intensity: float) -> float:
+def _transform_intensity(fit: dict[str, Any], intensity: float) -> float:
     logarithmic = fit['legacy_coordinate'] == 'logarithmic'
     if logarithmic and intensity <= 0:
         raise AnalysisError('analysis_curve_log_nonpositive', '对数坐标不能计算非正强度')
-    x = _float32(math.log(intensity) if logarithmic else intensity)
+    return _float32(math.log(intensity) if logarithmic else intensity)
+
+
+def evaluate_legacy_standard(fit: dict[str, Any], intensity: float) -> float:
+    """FmAnaCurve.DisplayMemo uses the fit directly for the standard list."""
+    raw_fit = {key: value for key, value in fit.items() if key != 'calculation_profile'}
+    value = _raw_evaluate(raw_fit, _transform_intensity(fit, intensity))
+    return _display_value(value, fit['legacy_coordinate'] == 'logarithmic')
+
+
+def _display_value(value: float, logarithmic: bool) -> float:
+    try:
+        result = _float32(math.exp(value)) if logarithmic else value
+    except OverflowError as exc:
+        raise AnalysisError('analysis_curve_result_invalid', '旧版拟合结果超出可显示范围') from exc
+    if not math.isfinite(result):
+        raise AnalysisError('analysis_curve_result_invalid', '旧版拟合结果不是有限数字')
+    return result
+
+
+def legacy_curve_chart(fit: dict[str, Any], intensities: list[float]) -> list[dict[str, float]]:
+    """Sample DisplayImage at even increments of the plotted intensity axis."""
+    logarithmic = fit['legacy_coordinate'] == 'logarithmic'
+    edges = [_transform_intensity(fit, value) for value in (intensities[0], intensities[-1])
+             if not logarithmic or value > 0]
+    low, high = min(*fit['x'], *edges), max(*fit['x'], *edges)
+    raw_fit = {key: value for key, value in fit.items() if key != 'calculation_profile'}
+    chart = []
+    for index in range(121):
+        x = _float32(low + (high - low) * index / 120)
+        y = _raw_evaluate(raw_fit, x)
+        chart.append({'intensity': _display_value(x, logarithmic), 'value': _display_value(y, logarithmic)})
+    return chart
+
+
+def evaluate_legacy_curve(fit: dict[str, Any], intensity: float) -> float:
+    logarithmic = fit['legacy_coordinate'] == 'logarithmic'
+    x = _transform_intensity(fit, intensity)
     raw_fit = {key: value for key, value in fit.items() if key != 'calculation_profile'}
     xs, ys = fit['x'], fit['y']
     if x > xs[-1]:

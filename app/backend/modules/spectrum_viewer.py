@@ -50,12 +50,22 @@ def _finite(value: float | None) -> float | None:
     return float(value) if value is not None and math.isfinite(float(value)) else None
 
 
+def _sample_band_frames(snapshot: dict, band: dict, phase: str) -> list[dict]:
+    # 独立转角各自拥有一个任务，只有共用采集任务的多转角谱带需要按转角再筛选帧。
+    turn_index = band.get("turn_index")
+    return [row for row in snapshot["frames"]
+            if row["ccd_index"] == band["ccd_index"] and row["phase"] == phase
+            and (turn_index is None or row.get("turn_index") == turn_index)]
+
+
 def _wave(step: float, coefficients: list[float]) -> float | None:
     if len(coefficients) < 3:
         return None
     a, b, c = (float(item) for item in coefficients[:3])
-    if not all(math.isfinite(item) for item in (a, b, c)) or a == 0 or b == 0 or c == 0:
+    if not all(math.isfinite(item) for item in (a, b, c)):
         return None
+    if a == 0:
+        return _finite((step - c) / b) if b else None
     discriminant = b * b - 4.0 * a * (c - step)
     if discriminant < 0:
         return None
@@ -78,18 +88,20 @@ class SpectrumViewerService:
         return f"{kind}:{identifier}"
 
     def list(
-        self, *, kind: str = "all", limit: int = 100, angle_deg: float | None = None, offset: int = 0, query: str = ""
+        self, *, kind: str = "all", limit: int = 100, angle_deg: float | None = None, offset: int = 0, query: str = "", scope: str = "all", group: str = "", _all: bool = False
     ) -> list[dict[str, Any]]:
         if kind not in {"all", "raw", "result", "sample"}:
             raise SpectrumViewerError("spectrum_kind_invalid", "kind must be all, raw, or result", status_code=422)
+        if scope not in {'all', 'evaporation'}:
+            raise SpectrumViewerError('spectrum_scope_invalid', '查看范围无效', status_code=422)
         limit = max(1, min(int(limit), 200))
         records: list[dict[str, Any]] = []
         with self.database.read() as db:
             if kind in {"all", "raw"}:
                 rows = db.execute(
-                    "SELECT id, source_sha256, record_index, format, sample_no, sample_name, band_name, "
+                    "SELECT id, source_sha256, record_index, band_id, format, sample_no, sample_name, band_name, "
                     "long_name, measure_time, frame_count, ccd_count, points_per_ccd, mean_blob IS NOT NULL AS has_mean, "
-                    "burn_adcs_blob IS NOT NULL AS has_burn, dark_adcs_blob IS NOT NULL AS has_dark, details_json "
+                    "burn_adcs_blob IS NOT NULL AS has_burn, dark_adcs_blob IS NOT NULL AS has_dark, details_json, ignition_json "
                     "FROM spectrum_bands ORDER BY id DESC",
                 ).fetchall()
                 for row in rows:
@@ -103,6 +115,7 @@ class SpectrumViewerService:
                             "kind": "raw",
                             "source_sha256": row["source_sha256"],
                             "record_index": int(row["record_index"]),
+                            "band_id": row["band_id"],
                             "format": row["format"],
                             "sample_no": row["sample_no"],
                             "sample_name": row["sample_name"],
@@ -110,6 +123,7 @@ class SpectrumViewerService:
                             "measure_time": row["measure_time"],
                             "angle_deg": record_angle,
                             "frame_count": int(row["frame_count"]),
+                            "burn_count": int(_json(row['ignition_json'], {}).get('burn_count') or 0),
                             "ccd_count": int(row["ccd_count"]),
                             "points_per_ccd": int(row["points_per_ccd"]),
                             "available": {
@@ -146,22 +160,35 @@ class SpectrumViewerService:
                     )
         if kind in {"all", "sample"}:
             from .acquisition import AcquisitionService
+            from .postprocessing import prepared_collections
+
+            collections = {record['id']: target for target in prepared_collections(self.database) for record in target['records']}
 
             for sample in AcquisitionService(self.database).spectrum_records():
+                turn = _json(sample.get('capture_turn_json'), {})
+                file_metadata = {}
+                if sample['id'] in collections:
+                    collection = collections[sample['id']]
+                    file_metadata = {'file_group_key': 'prepared:' + collection['id'], 'file_group_name': collection['name']}
+                elif turn:
+                    file_metadata = {'file_group_key': 'evaporation:' + turn['group'], 'turn_index': turn['turn_index']}
                 records.append(
                     {
                         "id": f"sample:{sample['id']}",
                         "kind": "sample",
                         "format": "acquisition",
+                        **file_metadata,
+                        **{key: sample[key] for key in ('task_id', 'task_name', 'task_kind', 'repeat_index', 'storage_mode', 'method_id', 'method_version')},
                         "source_sha256": sample["result_sha256"],
                         "record_index": sample["id"],
                         "sample_name": sample["sample_name"],
-                        "band_name": None,
-                        "measure_time": sample["completed_at"],
-                        "angle_deg": None,
+                        "band_name": f"{sample['sample_name'] or sample['task_name']} · {turn['angle_deg']:g}°" if turn else None,
+                        "measure_time": _json(sample.get('simulator_json'), {}).get('measure_time') or sample["completed_at"],
+                        "angle_deg": turn.get('angle_deg'),
                         "frame_count": json.loads(sample["simulator_json"] or "{}").get(
                             "source_frame_count", sample["burn_frame_count"]
                         ),
+                        "burn_count": json.loads(sample['simulator_json'] or '{}').get('source_frame_count', sample['burn_frame_count']),
                         "ccd_count": len(json.loads(sample["ccd_indices_json"])),
                         "points_per_ccd": sample["points_per_ccd"],
                         "available": {
@@ -171,6 +198,23 @@ class SpectrumViewerService:
                         },
                     }
                 )
+        if scope == "all" and kind in {"all", "raw"}:
+            from .dispersion import DispersionService
+
+            for task in DispersionService(self.database).spectrum_records():
+                turn = task["condition"].get("capture_turn") or {}
+                turn_group = turn.get("group") if turn.get("multiple") else None
+                angle = turn.get("angle_deg")
+                records.append({
+                    "id": f"dispersion:{task['id']}", "kind": "raw", "format": "dispersion",
+                    "file_group_key": f"dispersion:{turn_group or task['id']}", "task_name": task["name"],
+                    "record_index": task["id"], "source_sha256": task["source_sha256"],
+                    "sample_name": task["name"], "band_name": f"{task['name']} · {angle:g}°" if turn_group else task["name"],
+                    "measure_time": task["completed_at"], "angle_deg": angle, "turn_index": turn.get("turn_index"),
+                    "burn_count": task["frame_count"], "frame_count": task["frame_count"],
+                    "ccd_count": len(task["ccd_indices"]), "points_per_ccd": task["points_per_ccd"],
+                    "available": {"mean": True, "burn": True, "dark": task["dark_frame_count"] > 0},
+                })
         if angle_deg is not None:
             records = [
                 record
@@ -189,7 +233,84 @@ class SpectrumViewerService:
                 ).casefold()
             ]
         records.sort(key=lambda item: (-int(item["id"].split(":")[1]), item["kind"]))
+        if scope == 'evaporation':
+            records = [item for item in records if item['format'] == 'edt' or item.get('task_kind') == 'evaporation']
+        if group:
+            records = [item for item in records if self.file_group(item) == group
+                       or (item.get("task_id") and f"task:{item['task_id']}" == group)]
+        if _all:
+            return records
         return records[max(0, offset) : max(0, offset) + limit]
+
+    @staticmethod
+    def file_group(record: dict) -> str:
+        return record.get('file_group_key') or (f"task:{record['task_id']}" if record.get('task_id') else f"{record['kind']}:{record['source_sha256']}")
+
+    def files(self, *, scope: str = 'all', kind: str = 'all', query: str = '', angle_deg: float | None = None) -> list[dict]:
+        """List logical files independently of record pagination; no CCD points or raw BLOBs are loaded."""
+        groups: dict[str, dict] = {}
+        for record in self.list(scope=scope, kind=kind, query=query, angle_deg=angle_deg, _all=True):
+            key = self.file_group(record)
+            if key not in groups:
+                groups[key] = {field:record.get(field) for field in ('id','kind','format','source_sha256','task_id','task_name','task_kind')}
+                if record.get('file_group_name'):
+                    groups[key]['task_name'] = record['file_group_name']
+                groups[key].update(key=key, record_count=0)
+            groups[key]['record_count'] += 1
+        from .spectrum_migration import SpectrumMigrationService
+        with self.database.read() as connection:
+            names = SpectrumMigrationService.file_names(connection)
+        return [item | {'source_filename': names.get(item['source_sha256'])} for item in groups.values()]
+
+    def _dispersion(self, identifier: int, *, ccd: int, detail: str, phase: str, frame: int,
+                    exposure_start: int | None, exposure_end: int | None) -> dict[str, Any]:
+        from .dispersion import DispersionError, DispersionService
+
+        try:
+            snapshot = DispersionService(self.database).spectrum_snapshot(identifier, ccd)
+        except DispersionError as exc:
+            raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
+        record, layout = snapshot["record"], snapshot["layout"]
+        physical_ccd = layout["ccd_indices"][ccd]
+        left_step = physical_ccd * layout["points_per_ccd"] + sum(layout["gap_points"][:physical_ccd])
+
+        def points(values):
+            return [{"point_index": index, "step": left_step + index, "value": value,
+                     "wavelength_nm": _wave(left_step + index, layout["ws_cof"])}
+                    for index, value in enumerate(values)]
+
+        burn_count = record["frame_count"]
+        start = exposure_start if exposure_start is not None else 1
+        end = exposure_end if exposure_end is not None else burn_count
+        if (exposure_start is None) != (exposure_end is None) or not 1 <= start <= end <= burn_count:
+            raise SpectrumViewerError("spectrum_exposure_invalid", "曝光区间超出保存帧范围", status_code=422)
+        burns = [row for row in snapshot["frames"] if row["phase"] == "burn" and start - 1 <= row["frame_index"] < end]
+        if [row["frame_index"] for row in burns] != list(range(start - 1, end)):
+            raise SpectrumViewerError("spectrum_frames_unavailable", "色散谱带缺少所选区间的原始帧", status_code=409)
+        if any(len(row["points"]) != layout["points_per_ccd"] for row in snapshot["frames"]):
+            raise SpectrumViewerError("spectrum_frame_shape_invalid", "色散原始帧与 CCD 布局不一致", status_code=409)
+        values = [sum(values) / len(burns) for values in zip(*(row["points"] for row in burns))]
+        ccd_data = {"position": ccd, "index": physical_ccd, "points": points(values)}
+        frame_detail = None
+        if detail == "frame":
+            if phase not in {"burn", "dark"}:
+                raise SpectrumViewerError("spectrum_phase_invalid", "阶段必须是 burn 或 dark", status_code=422)
+            frames = [row for row in snapshot["frames"] if row["phase"] == phase]
+            if not 0 <= frame < len(frames) or frames[frame]["frame_index"] != frame:
+                raise SpectrumViewerError("spectrum_frame_invalid", "所选色散原始帧不存在", status_code=422)
+            frame_detail = {"phase": phase, "index": frame, "frame_count": len(frames),
+                            "ccd": {**ccd_data, "points": points(frames[frame]["points"])}}
+        turn = record["condition"].get("capture_turn") or {}
+        return {
+            "id": f"dispersion:{identifier}", "kind": "raw", "format": "dispersion",
+            "source_sha256": record["source_sha256"], "record_index": identifier, "sample_name": record["name"],
+            "band_name": record["name"], "measure_time": record["completed_at"], "angle_deg": turn.get("angle_deg"),
+            "layout": layout, "ccd": ccd_data, "frame_detail": frame_detail,
+            "exposure_segment": {"start": start, "end": end, "count": len(burns)},
+            "ignition": {"pre_burn": record["pre_excitation_seconds"], "burn_cyc": record["sampling_period_seconds"],
+                         "dark_cyc": record["sampling_period_seconds"], "burn_count": burn_count,
+                         "dark_count": record["dark_frame_count"]},
+        }
 
     def _sample(
         self,
@@ -211,19 +332,37 @@ class SpectrumViewerService:
         except AcquisitionError as exc:
             raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
         sample, bands = snapshot["sample"], snapshot["bands"]
+        observation_lines = []
+        if snapshot.get('turns'):
+            observation_lines = [{**line, 'turn_index': turn['turn_index'], 'angle_deg': turn['angle_deg'],
+                'exposure_start_frame': line['exposure_interval'][0] if line['exposure_interval'] else None,
+                'exposure_end_frame': line['exposure_interval'][1] if line['exposure_interval'] else None}
+                for turn in snapshot['turns']['plan'] for line in turn['lines']]
+        elif sample.get('method_version_id'):
+            from .methods import MethodService
+            methods = MethodService(self.database)
+            with self.database.read() as connection:
+                version = methods.bind_snapshots(connection).by_id(sample['method_version_id'], published_only=True)
+                if version:
+                    locator = methods.bind_geometry(connection, version.payload['conditions'])
+                    for item in version.print_version()['lines']:
+                        wave = item.get('actual_wavelength_nm') or item['wavelength_nm']
+                        position = locator.locate(wave)
+                        observation_lines.append({key:item.get(key) for key in ('id','element','wavelength_nm','exposure_start_frame','exposure_end_frame')} |
+                            {'ccd_index':position.ccd_index if position else None, 'point_index':int(round(position.point)) if position else None})
         if not 0 <= ccd < len(bands):
             raise SpectrumViewerError("spectrum_ccd_invalid", "CCD 超出实际采集布局", status_code=422)
         band = bands[ccd]
+        source_layout = _json(sample.get('simulator_json'), {}).get('source_layout')
+        physical_index = int(band['ccd_index'])
+        left_step = (physical_index * len(band['mean_points']) + sum(source_layout.get('gap_points', [])[:physical_index])) if source_layout else 0
         points = lambda values: [
-            {"point_index": index, "step": index, "wavelength_nm": None, "value": value}
+            {"point_index": index, "step": left_step + index,
+             "wavelength_nm": band['wavelengths_nm'][index] if band.get('wavelengths_nm') else _wave(left_step + index, source_layout.get('ws_cof', [])) if source_layout else None, "value": value}
             for index, value in enumerate(values)
         ]
         values = band["mean_points"]
-        frames = [
-            row
-            for row in snapshot["frames"]
-            if row["ccd_index"] == band["ccd_index"] and row["phase"] == phase and row.get("points")
-        ]
+        frames = [row for row in _sample_band_frames(snapshot, band, phase) if row.get("points")]
         frame_detail = None
         exposure = None
         if detail == "frame" or exposure_start is not None or exposure_end is not None:
@@ -256,11 +395,16 @@ class SpectrumViewerService:
             "format": "acquisition",
             "source_sha256": sample["result_sha256"],
             "record_index": identifier,
+            "observation_lines": [line for line in observation_lines if line.get('turn_index') == band.get('turn_index')],
             "sample_name": sample["sample_name"],
-            "measure_time": sample["completed_at"],
-            "angle_deg": None,
-            "coordinate_system": f"ccd_pixel:{band['ccd_index']}",
+            **{key: sample[key] for key in ('task_id', 'task_name', 'task_kind', 'repeat_index', 'storage_mode', 'method_id', 'method_version')},
+            "measure_time": _json(sample.get('simulator_json'), {}).get('measure_time') or sample["completed_at"],
+            "angle_deg": band.get('angle_deg'),
+            "turn_index": band.get('turn_index'),
+            "coordinate_system": f"ccd_pixel:{band['ccd_index']}" + (f":angle:{band['angle_deg']}" if 'angle_deg' in band else ''),
             "layout": {"ccd_count": len(bands), "ccd_indices": [item['ccd_index'] for item in bands],
+                       'band_labels': [f"{item['angle_deg']:g}° · CCD {item['ccd_index'] + 1}" if 'angle_deg' in item else f"CCD {item['ccd_index'] + 1}" for item in bands],
+                       'band_turn_indices': [item.get('turn_index') for item in bands],
                        "points_per_ccd": len(values), "point_width_um": snapshot['point_width_um']},
             "ignition": {
                 "pre_burn": sample["pre_excitation_seconds"],
@@ -287,7 +431,10 @@ class SpectrumViewerService:
         frame: int = 0,
         exposure_start: int | None = None,
         exposure_end: int | None = None,
+        intensity_mode: str = "stored",
     ) -> dict[str, Any]:
+        if intensity_mode not in {'stored','legacy_2_0_2'}:
+            raise SpectrumViewerError('spectrum_intensity_mode_invalid','强度显示口径无效',status_code=422)
         try:
             kind, identifier_text = record_id.split(":", 1)
             identifier = int(identifier_text)
@@ -295,12 +442,15 @@ class SpectrumViewerService:
             raise SpectrumViewerError(
                 "spectrum_record_invalid", "record id must be raw:<id> or result:<id>", status_code=422
             ) from None
-        if kind not in {"raw", "result", "sample"} or identifier <= 0:
+        if kind not in {"raw", "result", "sample", "dispersion"} or identifier <= 0:
             raise SpectrumViewerError(
                 "spectrum_record_invalid", "record id must be raw:<id> or result:<id>", status_code=422
             )
         if detail not in {"summary", "frame"}:
             raise SpectrumViewerError("spectrum_detail_invalid", "detail must be summary or frame", status_code=422)
+        if kind == "dispersion":
+            return self._dispersion(identifier, ccd=ccd, detail=detail, phase=phase, frame=frame,
+                                    exposure_start=exposure_start, exposure_end=exposure_end)
         if kind == "sample":
             return self._sample(
                 identifier,
@@ -316,6 +466,7 @@ class SpectrumViewerService:
                 row = db.execute("SELECT * FROM spectrum_bands WHERE id=?", (identifier,)).fetchone()
                 if row is None:
                     raise SpectrumViewerError("spectrum_record_not_found", "Spectrum record was not found")
+                from .postprocessing import prepared_working_layout
                 return self._raw(
                     row,
                     ccd=ccd,
@@ -324,6 +475,8 @@ class SpectrumViewerService:
                     frame=frame,
                     exposure_start=exposure_start,
                     exposure_end=exposure_end,
+                    intensity_mode=intensity_mode,
+                    working_layout=prepared_working_layout(self.database, row['source_sha256']),
                 )
             row = db.execute("SELECT * FROM result_matrices WHERE id=?", (identifier,)).fetchone()
             if row is None:
@@ -340,8 +493,10 @@ class SpectrumViewerService:
         frame: int,
         exposure_start: int | None,
         exposure_end: int | None,
+        intensity_mode: str = "stored",
+        working_layout: dict | None = None,
     ) -> dict[str, Any]:
-        layout = _json(row["layout_json"], {})
+        layout = working_layout or _json(row["layout_json"], {})
         ignition = _json(row["ignition_json"], {})
         indices = [int(item) for item in layout.get("ccd_indices", [])]
         points_per_ccd = int(row["points_per_ccd"])
@@ -411,13 +566,21 @@ class SpectrumViewerService:
             divisor = exposure_end - exposure_start + 1
             selected = [value / divisor for value in totals]
             exposure_segment = {"start": exposure_start, "end": exposure_end, "count": divisor}
+        if intensity_mode == 'legacy_2_0_2' and detail != 'frame' and row['burn_adcs_blob']:
+            from .spectrum_observation import legacy_observation_points, LegacyObservationError
+            try:
+                selected, exposure_segment = legacy_observation_points(row, ccd, exposure_start, exposure_end)
+            except LegacyObservationError as exc:
+                raise SpectrumViewerError('spectrum_legacy_view_invalid', str(exc), status_code=422) from exc
         details = _json(row["details_json"], {})
         result: dict[str, Any] = {
             "id": f"raw:{int(row['id'])}",
             "kind": "raw",
+            "intensity_mode": intensity_mode,
             "format": row["format"],
             "source_sha256": row["source_sha256"],
             "record_index": int(row["record_index"]),
+            "band_id": row["band_id"],
             "sample_name": row["sample_name"],
             "sample_no": row["sample_no"],
             "band_name": row["band_name"] or row["long_name"],
@@ -462,9 +625,174 @@ class SpectrumViewerService:
             }
         return result
 
-    def point_details(self, record_id: str, *, ccd: int, point: int) -> dict[str, Any]:
-        """All raw burn/dark integrations at one zero-based point, without normalization."""
+    def calibrate(self, record_id: str, ccd: int, scope: str, interval: tuple[int, int] | None) -> dict:
+        from .acquisition import AcquisitionError, AcquisitionService
+        from .methods import MethodDomainError, MethodService
+        from .spectral_lines import reference_baseline
+        from .spectrum_calibration import acquired_locations, legacy_location, locate_peaks
+        from .spectrum_observation import acquired_exposure_frames, LegacyObservationError
+
+        active = self.get(record_id, ccd=ccd)
+        if active['kind'] == 'result':
+            raise SpectrumViewerError('spectrum_raw_required', '校线需要 CCD 谱图', status_code=422)
+        methods = MethodService(self.database)
+        if active['kind'] == 'raw':
+            version = methods.current().get('referenced_version')
+            layout = active['layout']
+            if version is None and scope == 'reference' and layout.get('reference_wavelength_nm'):
+                wave = layout['reference_wavelength_nm']
+                version = {'lines': [reference_baseline({
+                    'reference_wavelength_nm': wave, 'actual_reference_wavelength_nm': wave
+                }) | {'reference_baseline': True}]}
+            if version is None:
+                raise SpectrumViewerError('spectrum_calibration_method_required', '请先打开已发布的光谱方法', status_code=422)
+            lines = version['lines']
+
+            def locate(line):
+                return legacy_location(layout, line.get('actual_wavelength_nm') or line['wavelength_nm'])
+
+            def values_for(slot, exposure):
+                start, end = exposure or (None, None)
+                data = self.get(record_id, ccd=slot, exposure_start=start, exposure_end=end,
+                                intensity_mode='legacy_2_0_2')
+                return [point['value'] for point in data['ccd']['points']]
+
+            def wavelength_at(slot, point):
+                index = (layout['ccd_indices'] or list(range(layout['ccd_count'])))[slot]
+                step = index * layout['points_per_ccd'] + sum(layout.get('gap_points', [])[:index]) + point
+                return _wave(step, layout.get('ws_cof', []))
+        else:
+            acquisition = AcquisitionService(self.database)
+            identifier = active['record_index']
+            try:
+                snapshot = acquisition.spectrum_snapshot(identifier, include_frames=interval is not None)
+                with self.database.read() as connection:
+                    version_id = snapshot['sample'].get('method_version_id')
+                    version = methods.bind_snapshots(connection).by_id(version_id, published_only=True) if version_id else None
+                    if version is None:
+                        raise SpectrumViewerError('spectrum_calibration_method_required', '该采集记录没有已发布的方法版本', status_code=422)
+                    lines = version.print_version()['lines']
+                    positions = {}
+                    if not snapshot.get('turns'):
+                        locator = methods.bind_geometry(connection, version.payload['conditions'])
+                        positions = {line['id']: locator.locate(line.get('actual_wavelength_nm') or line['wavelength_nm'])
+                                     for line in lines}
+                    locations = acquired_locations(snapshot, positions)
+                bands = snapshot['bands']
+                slots = {slot for slot, band in enumerate(bands) if band.get('turn_index') == active.get('turn_index')}
+                lines = [line for line in lines if line['id'] in locations and locations[line['id']][0] in slots]
+            except (AcquisitionError, MethodDomainError) as exc:
+                raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
+
+            def locate(line):
+                return locations.get(line['id'])
+
+            def values_for(slot, exposure):
+                if not exposure:
+                    return bands[slot]['mean_points']
+                try:
+                    return acquired_exposure_frames(snapshot, slot).mean(*exposure)
+                except LegacyObservationError as exc:
+                    raise SpectrumViewerError('spectrum_calibration_frames_invalid', str(exc), status_code=422) from exc
+
+            def wavelength_at(slot, point):
+                wavelengths = bands[slot].get('wavelengths_nm')
+                return wavelengths[point] if wavelengths else None
+
+        lines = [line for line in lines if line.get('enabled') and (scope == 'all' or line.get('reference_baseline'))]
+        if not lines:
+            raise SpectrumViewerError('spectrum_calibration_lines_missing', '当前谱图没有可校正的参考线或方法谱线', status_code=422)
+        positions = []
+        for line, target, peak in locate_peaks(lines, locate, values_for, lambda _: interval):
+            slot, point = target if target else (None, None)
+            wavelength = wavelength_at(slot, peak) if peak is not None else None
+            positions.append({'id': line['id'], 'element': line['element'], 'reference': bool(line.get('reference_baseline')),
+                              'ccd': slot, 'point': peak, 'wavelength_nm': wavelength,
+                              'offset_points': peak - point if peak is not None else None,
+                              'reference_shift': line['wavelength_nm'] - wavelength
+                              if wavelength is not None and line.get('reference_baseline') else None})
+        return {'positions': positions}
+
+    def concentrations(self, record_id: str) -> dict[str, Any]:
+        from functools import cache
+
+        from .acquisition import AcquisitionError, AcquisitionService
+        from .analysis import AnalysisError, AnalysisService
+        from .methods import MethodService
+        from .postprocessing import prepared_working_layout
+        from .spectrum_calibration import legacy_location
+        from .spectrum_observation import LegacyObservationError, legacy_exposure_frames
+
+        kind, _, number = record_id.partition(":")
+        try:
+            identifier = int(number)
+        except ValueError:
+            identifier = 0
+        if kind not in {"raw", "sample"} or identifier <= 0:
+            raise SpectrumViewerError("spectrum_concentration_record_invalid", "请选择一条样品谱图记录", status_code=422)
+
+        methods = MethodService(self.database)
+        analysis = AnalysisService(self.database, methods=methods)
+        try:
+            if kind == "sample":
+                sample = AcquisitionService(self.database).spectrum_snapshot(identifier)["sample"]
+                if sample["task_kind"] != "sample":
+                    raise SpectrumViewerError("spectrum_concentration_record_invalid", "请选择一条样品谱图记录", status_code=422)
+                return analysis.concentration_preview(sample["method_version_id"], sample_id=identifier)
+
+            with self.database.read() as db:
+                row = db.execute("SELECT * FROM spectrum_bands WHERE id=?", (identifier,)).fetchone()
+            if row is None:
+                raise SpectrumViewerError("spectrum_record_not_found", "谱图记录不存在")
+            if row["format"] not in {"cdt", "cmt"}:
+                raise SpectrumViewerError("spectrum_concentration_record_invalid", "请选择一条样品谱图记录", status_code=422)
+
+            layout = _json(row["layout_json"], {}) | (prepared_working_layout(self.database, row["source_sha256"]) or {})
+            point_count = row["points_per_ccd"]
+
+            def locate(line):
+                target = legacy_location(layout, line.get("actual_wavelength_nm") or line["wavelength_nm"])
+                return (None, *target) if target is not None else None
+
+            @cache
+            def frames(ccd):
+                return legacy_exposure_frames(row, ccd)
+
+            def values_for(_turn, ccd, interval):
+                if row["burn_adcs_blob"]:
+                    try:
+                        exposure = frames(ccd)
+                        return exposure.mean(*(interval or (1, len(exposure.burns))))
+                    except LegacyObservationError as exc:
+                        raise AnalysisError("spectrum_concentration_frames_invalid", str(exc)) from exc
+                if interval is not None:
+                    raise AnalysisError("spectrum_concentration_frames_missing", "谱图只有平均强度，无法按方法的曝光区间计算")
+                mean = row["mean_blob"] or b""
+                if not mean:
+                    return []
+                if len(mean) != row["ccd_count"] * point_count * 4 or (
+                    row["mean_sha256"] and hashlib.sha256(mean).hexdigest() != row["mean_sha256"]
+                ):
+                    raise AnalysisError("spectrum_concentration_mean_invalid", "谱图平均强度校验失败")
+                return list(struct.unpack_from(f"<{point_count}f", mean, ccd * point_count * 4))
+
+            current = methods.current().get("referenced_version") or {}
+            return analysis.concentration_preview(current.get("id"), source=(locate, values_for))
+        except (AcquisitionError, AnalysisError) as exc:
+            raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
+
+    def point_details(self, record_id: str, *, ccd: int, point: int | None) -> dict[str, Any]:
+        """Verified integrations for one point, or the whole CCD for interactive observation."""
+        from base64 import b64encode
+
         record = self.get(record_id, ccd=ccd)
+        if record["format"] == "dispersion":
+            from .dispersion import DispersionError, DispersionService
+
+            try:
+                return DispersionService(self.database).point_details(record["record_index"], record["ccd"]["index"], point)
+            except DispersionError as exc:
+                raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
         if record["kind"] == "result":
             raise SpectrumViewerError("spectrum_raw_required", "结果矩阵不包含 CCD 原始积分值", status_code=422)
         point_values = record['ccd']['points']
@@ -472,28 +800,36 @@ class SpectrumViewerService:
             phase = 'burn' if int((record.get('ignition') or {}).get('burn_count') or 0) else 'dark'
             point_values = self.get(record_id, ccd=ccd, detail='frame', phase=phase, frame=0)['frame_detail']['ccd']['points']
         count = len(point_values)
-        if not 0 <= point < count:
+        if point is not None and not 0 <= point < count:
             raise SpectrumViewerError("spectrum_point_invalid", "点位超出当前 CCD", status_code=422)
         ignition = record.get("ignition") or {}
         rows = []
+        frame_data = bytearray()
+        phase_counts = {}
         if record["kind"] == "sample":
             from .acquisition import AcquisitionService, AcquisitionError
             try:
                 snapshot = AcquisitionService(self.database).spectrum_snapshot(int(record_id.split(":")[1]), include_frames=True)
             except AcquisitionError as exc:
                 raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
-            physical_ccd = record["ccd"]["index"]
+            selected_band = snapshot["bands"][ccd]
             for phase in ("burn", "dark"):
-                frames = sorted((item for item in snapshot["frames"] if item["ccd_index"] == physical_ccd and item["phase"] == phase),
-                                key=lambda item: item["frame_index"])
+                frames = sorted(_sample_band_frames(snapshot, selected_band, phase), key=lambda item: item["frame_index"])
                 expected = int(snapshot["sample"][f"{phase}_frame_count"])
                 if [item["frame_index"] for item in frames] != list(range(expected)):
                     raise SpectrumViewerError("spectrum_frames_unavailable", "仅保存均值或分时帧不完整，不能生成原始明细", status_code=409)
                 for frame in frames:
                     values = frame.get("points") or []
-                    if frame.get("damaged") or len(values) != count or hashlib.sha256(struct.pack(f"<{len(values)}H", *values)).hexdigest() != frame["points_sha256"]:
+                    if frame.get("damaged") or len(values) != count:
                         raise SpectrumViewerError("spectrum_frame_integrity_failed", "原始帧损坏或 SHA-256 校验失败", status_code=409)
-                    rows.append({"phase": phase, "integration": frame["frame_index"] + 1, "value": values[point]})
+                    packed = struct.pack(f"<{count}H", *values)
+                    if hashlib.sha256(packed).hexdigest() != frame["points_sha256"]:
+                        raise SpectrumViewerError("spectrum_frame_integrity_failed", "原始帧损坏或 SHA-256 校验失败", status_code=409)
+                    if point is None:
+                        frame_data.extend(packed)
+                    else:
+                        rows.append({"phase": phase, "integration": frame["frame_index"] + 1, "value": values[point]})
+                phase_counts[phase] = expected
         else:
             # Decode the selected column directly; avoid constructing a whole CCD for every frame.
             with self.database.read() as db:
@@ -508,18 +844,25 @@ class SpectrumViewerService:
                     if expected_hash and hashlib.sha256(blob).hexdigest() != expected_hash:
                         raise SpectrumViewerError('spectrum_frame_integrity_failed', '旧谱图原始帧 SHA-256 校验失败', status_code=409)
                     for index in range(total):
-                        value = struct.unpack_from("<H", blob, (index * stride + ccd * count + point) * 2)[0]
-                        rows.append({"phase": phase, "integration": index + 1, "value": value})
-        if not rows:
+                        start = (index * stride + ccd * count) * 2
+                        if point is None:
+                            frame_data.extend(blob[start:start + count * 2])
+                        else:
+                            value = struct.unpack_from("<H", blob, start + point * 2)[0]
+                            rows.append({"phase": phase, "integration": index + 1, "value": value})
+                    phase_counts[phase] = total
+        if not (rows or frame_data):
             raise SpectrumViewerError("spectrum_frames_unavailable", "该记录只有均值，没有原始积分明细", status_code=409)
         result = {"record_id": record_id, "sample_name": record.get("sample_name") or record.get("band_name") or record_id,
-                  "ccd_index": record["ccd"]["index"], "point_index": point,
-                  "wavelength_nm": point_values[point].get("wavelength_nm"),
+                  "ccd_index": record["ccd"]["index"],
                   "source_sha256": record["source_sha256"],
                   "pre_excitation_seconds": ignition.get("pre_burn"),
                   "burn_cycle_seconds": ignition.get("burn_cyc"), "dark_cycle_seconds": ignition.get("dark_cyc"),
-                  "burn_count": sum(row["phase"] == "burn" for row in rows),
-                  "dark_count": sum(row["phase"] == "dark" for row in rows), "rows": rows}
+                  "burn_count": phase_counts["burn"], "dark_count": phase_counts["dark"]}
+        if point is None:
+            return {**result, "point_count": count, "frames_base64": b64encode(frame_data).decode("ascii"),
+                    "wavelengths_nm": [value.get("wavelength_nm") for value in point_values]}
+        result.update(point_index=point, wavelength_nm=point_values[point].get("wavelength_nm"), rows=rows)
         result["sha256"] = hashlib.sha256(json.dumps(result, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
         return result
 
@@ -537,6 +880,7 @@ class SpectrumViewerService:
         x_min: float | None = None,
         x_max: float | None = None,
         reference_shift: float = 0.0,
+        intensity_mode: str = "stored",
     ) -> tuple[bytes, str, int]:
         if (x_min is None) != (x_max is None) or (x_min is not None and x_max is not None and x_min > x_max):
             raise SpectrumViewerError(
@@ -551,6 +895,7 @@ class SpectrumViewerService:
             frame=frame,
             exposure_start=exposure_start,
             exposure_end=exposure_end,
+            intensity_mode=intensity_mode,
         )
         if record["kind"] in {"raw", "sample"}:
             source_points = (record.get("frame_detail") or {}).get("ccd", {}).get("points") or record["ccd"]["points"]
@@ -607,6 +952,7 @@ class SpectrumViewerService:
         print_layers: list[str] | None = None,
         print_scale: str = 'fit_long',
         paper: str = 'A4',
+        intensity_mode: str = 'stored',
     ) -> tuple[bytes, dict[str, Any]]:
         if visible_x_min > visible_x_max or visible_y_min > visible_y_max:
             raise SpectrumViewerError(
@@ -636,6 +982,7 @@ class SpectrumViewerService:
                     frame=frame_index,
                     exposure_start=item_exposure_start,
                     exposure_end=item_exposure_end,
+                    intensity_mode=intensity_mode,
                 )
             except SpectrumViewerError as exc:
                 if exc.code != "spectrum_ccd_invalid":
@@ -647,6 +994,7 @@ class SpectrumViewerService:
                     detail="summary",
                     exposure_start=item_exposure_start,
                     exposure_end=item_exposure_end,
+                    intensity_mode=intensity_mode,
                 )
                 clipped_ccd = max(0, min(ccd, int(first.get("layout", {}).get("ccd_count") or 1) - 1))
                 record = self.get(
@@ -658,6 +1006,7 @@ class SpectrumViewerService:
                     frame=frame_index,
                     exposure_start=item_exposure_start,
                     exposure_end=item_exposure_end,
+                    intensity_mode=intensity_mode,
                 )
 
             coordinates = record.get(

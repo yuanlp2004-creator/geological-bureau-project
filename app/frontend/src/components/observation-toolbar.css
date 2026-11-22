@@ -1,0 +1,36 @@
+:root .app-shell {
+  --spectrum-tool-gap: clamp(2px, calc(1vw - 12.4px), 6px);
+  --spectrum-tool-group-gap: calc(2 * var(--spectrum-tool-gap) + 4px);
+}
+:root .app-shell .legacy-observation-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-start; row-gap:4px; column-gap:calc(var(--spectrum-tool-group-gap) / 2); padding:6px 0; border-block:1px solid var(--line); min-width:0; }
+:root .app-shell .observation-tool-group { display:flex; align-items:center; column-gap:var(--spectrum-tool-gap); flex:0 0 auto; padding-inline-end:calc(var(--spectrum-tool-group-gap) / 2 - 1px); border-right:1px solid var(--line); }
+:root .app-shell .legacy-observation-toolbar .inspector-icon-button { width:28px; min-width:28px; height:28px; min-height:28px; padding:3px; border-radius:4px; }
+:root .app-shell .legacy-observation-toolbar .spectroscopy-action-icon { width:16px; height:16px; }
+:root .app-shell .legacy-observation-toolbar button[aria-pressed='true'] { background:var(--surface-soft); border-color:var(--blue); color:var(--blue); }
+:root .app-shell .legacy-observation-toolbar select { max-width:140px; min-width:60px; min-height:28px; height:28px; padding:2px 4px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--ink); font-size:12px; }
+:root .app-shell .observation-status { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; min-height:32px; padding:5px 0; font-size:12px; color:var(--muted); }
+:root .app-shell .observation-details { margin-top:12px; border-top:1px solid var(--line); padding-top:8px; }
+:root .app-shell .observation-details > summary { cursor:pointer; color:var(--muted); font-size:12px; }
+:root .app-shell .observation-plot { min-width:0; height:clamp(300px, 48vh, 580px); }
+:root .app-shell .observation-plot > svg.spectrum-plot { height:100%; width:100%; }
+:root .app-shell .observation-plot .plot-background { fill:var(--surface); }
+:root .app-shell .observation-plot .plot-grid { stroke:var(--line); }
+:root .app-shell .observation-plot .plot-label { fill:var(--muted); }
+:root .app-shell .curve-operation-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:6px 0 10px; border-bottom:1px solid var(--line); }
+:root .app-shell .curve-operation-bar .spectroscopy-line-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:0; background:transparent; }
+:root .app-shell .curve-operation-bar label { display:inline-flex; align-items:center; gap:4px; font-size:12px; margin:0; }
+:root .app-shell .curve-operation-bar :is(input, select) { width:100px; min-width:0; min-height:28px; height:28px; padding:3px 5px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--ink); }
+:root .app-shell .curve-operation-bar .spectroscopy-line-bar select { width:160px; }
+:root .app-shell .curve-operation-bar .inspector-icon-button { width:28px; min-width:28px; min-height:28px; height:28px; padding:3px; }
+:root .app-shell .curve-operation-bar .spectroscopy-action-icon { width:16px; height:16px; }
+:root .app-shell .curve-operation-bar .inspector-workflow-tools { flex:0 0 auto; width:auto; margin:0; padding:0; border:0; gap:3px; flex-wrap:nowrap; }
+:root .app-shell .dispersion-page[data-view='curve'] .dispersion-main { min-width:0; }
+:root .app-shell .dispersion-page[data-view='curve'] .dispersion-curve-monitor { padding:12px; }
+:root .app-shell .dispersion-page[data-view='curve'] .inspector-icon-tools { justify-content:flex-start; }
+:root .app-shell .dispersion-page[data-view='curve'] .inspector-icon-tools .inspector-icon-button { width:28px; min-width:28px; min-height:28px; height:28px; padding:3px; }
+:root .app-shell .dispersion-page[data-view='curve'] .inspector-icon-tools .spectroscopy-action-icon { width:16px; height:16px; }
+:root .app-shell .spectrum-viewer-page .spectrum-controls { padding-top:0; }
+@media (max-width:1100px) {
+  :root .app-shell .spectrum-viewer-layout { grid-template-columns:190px minmax(0,1fr); gap:10px; }
+  :root .app-shell :is(.spectrum-records,.spectrum-workbench) { padding:12px; }
+}

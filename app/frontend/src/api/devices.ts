@@ -63,10 +63,19 @@ export type DeviceDiagnostics = {
     state: string
     session_id: string | null
     connected: boolean
+    port?: string
+    instrument_responded?: boolean
+    profile_id?: number | null
+    last_error?: { code: string; message: string } | null
     contract: Record<string, number>
   }
   profiles: DeviceProfile[]
+  active_captures?: Array<{ task_id: number; owner: string; port: string; state: string }>
 }
+
+export type DevicePort = { device: string; port: number; description: string; is_bluetooth: boolean
+  bluetooth_address?: string | null; direction?: 'outgoing' | 'incoming' | null }
+export type BluetoothDevice = { address: string; name: string; connected: boolean; paired: boolean; ports: DevicePort[] }
 
 export type DeviceDebugResult = {
   session_id: string | null
@@ -77,6 +86,19 @@ export type DeviceDebugResult = {
 }
 
 export const devicesApi = {
+  deleteBluetoothDevice: (token: string, address: string) => request<{ deleted: boolean }>(`/api/v1/devices/bluetooth/${encodeURIComponent(address)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
+  bluetoothDevices: (token: string) => request<{ devices: BluetoothDevice[] }>('/api/v1/devices/bluetooth', { headers: { Authorization: `Bearer ${token}` } }),
+  selectDevicePort: (token: string, transport: 'serial' | 'simulator', port?: number, bluetoothAddress?: string) =>
+    request<DeviceProfile>('/api/v1/devices/port', {
+      method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ transport, port, bluetooth_address: bluetoothAddress }) }),
+  devicePorts: (token: string) => request<DevicePort[]>('/api/v1/devices/ports', { headers: { Authorization: `Bearer ${token}` } }),
+  currentDeviceProfile: (token: string) => request<DeviceProfile | null>('/api/v1/devices/current', { headers: { Authorization: `Bearer ${token}` } }),
+  selectDeviceProfile: (token: string, profileId: number) => request<DeviceProfile>('/api/v1/devices/current', {
+    method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }),
+  testDeviceConnection: (token: string, profileId: number, purpose = 'devices') =>
+    request<{ passed: boolean; instrument_responded: boolean; connected: boolean }>(
+      `/api/v1/devices/profiles/${profileId}/connection-test?purpose=${encodeURIComponent(purpose)}`,
+      { method: 'POST', timeoutMs: 25000, headers: { Authorization: `Bearer ${token}` } }),
   deviceProfiles: (token: string) =>
     request<DeviceProfile[]>('/api/v1/devices/profiles', { headers: { Authorization: `Bearer ${token}` } }),
   deviceDiagnostics: (token: string) =>
@@ -103,7 +125,7 @@ export const devicesApi = {
   connectDevice: (token: string, profileId: number) =>
     request<{ profile: DeviceProfile; diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>(
       '/api/v1/devices/connect',
-      { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }
+      { method: 'POST', timeoutMs: 25000, headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId }) }
     ),
   disconnectDevice: (token: string) =>
     request<{ diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/disconnect', {

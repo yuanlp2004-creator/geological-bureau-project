@@ -2,7 +2,6 @@ import { SectionHeading } from '../../components/SectionHeading'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { LegacySourcePicker } from '../../components/LegacySourcePicker'
 import { confirmAction } from '../../platform/dialogs'
-import { FormDisclosure } from '../../layout/TaskLayout'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import {
   AlertTriangle,
@@ -12,8 +11,7 @@ import {
   Database,
   FolderOpen,
   Info,
-  RefreshCw,
-  SquareTerminal
+  RefreshCw
 } from 'lucide-react'
 import { api, type AuthUser, type LegacyMigrationDiagnostic, type LegacyMigrationRun } from '../../api'
 import { CopyableCode } from '../../components/InformationDisplay'
@@ -131,7 +129,7 @@ export function LegacyMigrationPage({
           <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="batch-methods" label="批量迁移方法库" multiple disabled={busy} onOpened={async result => {
         setActiveRun(await api.legacyMigrationRun(token, result.run_id)); await load()
       }}/>
-          <span className={`migration-reader-pill ${diagnostic?.available ? 'ready' : 'unavailable'}`}>
+          <span className={`migration-reader-pill ${diagnostic?.available ? 'ready' : 'unavailable'}`} title={diagnostic?.message}>
             <span className={`status-dot ${diagnostic?.available ? 'online' : 'offline'}`} />
             {diagnostic?.available ? 'Jet 读取器就绪' : '读取器不可用'}
           </span>
@@ -198,41 +196,6 @@ export function LegacyMigrationPage({
             </button>
           </div>
         </form>
-        <section className="surface migration-reader-surface">
-          <div className="surface-heading">
-            <div>
-              <h2>32 位读取通道</h2>
-            </div>
-            <SquareTerminal size={17} />
-          </div>
-          <div className={`reader-state ${diagnostic?.available ? 'ready' : 'unavailable'}`}>
-            {diagnostic?.available ? <CheckCircle2 size={21} /> : <AlertTriangle size={21} />}
-            <div>
-              <strong>{diagnostic?.message ?? '正在检测读取器…'}</strong>
-              <span>{diagnostic?.reader ?? '未选择读取后端'}</span>
-            </div>
-          </div>
-          <FormDisclosure title="读取通道技术详情">
-            <dl className="reader-facts">
-              <div>
-                <dt>Provider</dt>
-                <dd>{diagnostic?.provider ?? 'Microsoft.Jet.OLEDB.4.0'}</dd>
-              </div>
-              <div>
-                <dt>进程位数</dt>
-                <dd>{diagnostic?.process_bits ? `${diagnostic.process_bits}-bit` : '—'}</dd>
-              </div>
-              <div>
-                <dt>缺失时影响</dt>
-                <dd>仅禁用旧版迁移</dd>
-              </div>
-              <div>
-                <dt>读取模式</dt>
-                <dd>临时副本 · Read</dd>
-              </div>
-            </dl>
-          </FormDisclosure>
-        </section>
       </div>
 
       {activeRun && (

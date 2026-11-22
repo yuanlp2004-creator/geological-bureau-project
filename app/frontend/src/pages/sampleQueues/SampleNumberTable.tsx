@@ -1,23 +1,28 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import type { SampleQueueItem } from '../../api/sampleQueues'
+import { samplePasteCells, useSampleGrid, type SampleCell } from '../../components/useSampleGrid'
 
 const ROWS = 20
 const ROW_HEADING_WIDTH = 28
 const CHARACTER_WIDTH = 7.2
+const MAX_ITEMS = 1000
 
-export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditingChange, busy }: {
+export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste, onEditingChange, busy, initialSelectedId, onSelectionChange }: {
   items: SampleQueueItem[]
   nameLength: 10 | 12 | 20
   onDelete: (id: number) => Promise<void>
   onEdit: (id: number, name: string) => Promise<void>
+  onPaste: (changes: Array<{ position: number; name: string }>) => Promise<void>
   onEditingChange: (editing: boolean) => void
   busy: boolean
+  initialSelectedId?: number
+  onSelectionChange?: (id:number|null)=>void
 }) {
-  const [pageAnchor, setPageAnchor] = useState(0)
+  const [pageAnchor, setPageAnchor] = useState(Math.max(0,items.findIndex(item=>item.id===initialSelectedId)))
   const [columns, setColumns] = useState(1)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selection, setSelection] = useState({ id: initialSelectedId ?? null, position: 0 })
   const [deleting, setDeleting] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [draftName, setDraftName] = useState('')
@@ -41,15 +46,42 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
   const anchor = editingId === null ? pageAnchor : Math.max(0, items.findIndex(item => item.id === editingId))
   const currentPage = Math.min(Math.floor(anchor / pageSize), pages - 1)
   const start = currentPage * pageSize
-  const visible = items.slice(start, start + pageSize)
-  const selected = visible.find(item => item.id === selectedId) ?? visible[0]
+  const positionFor = ({ row, column }: SampleCell) => start + column * ROWS + row
+  const selectedPosition = selection.id === null ? selection.position : items.findIndex(item => item.id === selection.id)
+  const selectedOffset = selectedPosition >= start && selectedPosition < start + pageSize ? selectedPosition - start : 0
+  const selected = items[start + selectedOffset]
+  const locked = busy || deleting || editingId !== null
+  const grid = useSampleGrid({
+    active: { row: selectedOffset % ROWS, column: Math.floor(selectedOffset / ROWS) },
+    disabled: locked,
+    canSelect: cell => cell.row >= 0 && cell.row < ROWS && cell.column >= 0 && cell.column < columns && positionFor(cell) < MAX_ITEMS,
+    onActivate: cell => {
+      const position = positionFor(cell)
+      setSelection({ id: items[position]?.id ?? null, position })
+      setEditError('')
+    },
+    read: cell => items[positionFor(cell)]?.pre_name ?? '',
+    onPaste: async (matrix, origin) => {
+      const position = positionFor(origin)
+      const changes = matrix.every(row => row.length === 1)
+        ? matrix.map(([name], offset) => ({ position: position + offset, name }))
+        : samplePasteCells(matrix, origin, ROWS, columns).map(cell => ({ position: positionFor(cell), name: cell.name }))
+      if (changes.some(cell => cell.position >= MAX_ITEMS)) throw new Error('队列最多可录入 1000 条样号。')
+      setEditError('')
+      scrollRef.current?.focus({ preventScroll: true })
+      await onPaste(changes)
+    },
+    onError: setEditError,
+  })
+  useEffect(()=>onSelectionChange?.(selected?.id??null),[selected?.id,onSelectionChange])
   useEffect(() => {
     if (editingId !== null) { inputRef.current?.focus(); inputRef.current?.select() }
   }, [editingId, start, columns])
 
   const beginEdit = (item: SampleQueueItem) => {
     if (busy || deleting || editingId !== null || item.spectrum_hash) return
-    setSelectedId(item.id)
+    setSelection({ id: item.id, position: item.position })
+    grid.clearRange()
     setDraftName(item.pre_name)
     setEditError('')
     setEditingId(item.id)
@@ -75,13 +107,14 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
 
   const turnPage = (next: number) => {
     setPageAnchor(next * pageSize)
-    setSelectedId(null)
+    setSelection({ id: null, position: next * pageSize })
+    grid.clearRange()
+    setEditError('')
   }
 
   return <div className="sample-number-sheet" data-name-length={nameLength} data-rows={ROWS}
     data-columns={columns} data-page-size={pageSize}>
     <div className="sample-number-toolbar">
-      <small>每列 {ROWS} 个样号，先向下再向右排列；双击或按 F2 修改，回车保存，Esc 取消</small>
       <nav aria-label="样号分页">
         <span>第 {currentPage + 1} / {pages} 页 · 共 {items.length} 项</span>
         <button className="icon-button compact" aria-label="上一页样号" disabled={currentPage === 0 || deleting || busy || editingId !== null}
@@ -90,7 +123,7 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
           onClick={() => turnPage(currentPage + 1)}><ChevronRight size={15} /></button>
       </nav>
     </div>
-    <div ref={scrollRef} className="sample-number-scroll" tabIndex={0} role="region" aria-label="样号表格">
+    <div ref={scrollRef} className="sample-number-scroll" tabIndex={0} role="region" aria-label="样号表格" {...grid.events}>
       <table className="sample-number-table" aria-label="样号按列排列表格"
         style={{ minWidth: ROW_HEADING_WIDTH + cellWidth }}>
         <colgroup><col className="sample-number-row-heading" />{Array.from({ length: columns }, (_, col) => <col key={col} />)}</colgroup>
@@ -99,8 +132,10 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
         <tbody>{Array.from({ length: ROWS }, (_, row) => <tr key={row}>
           <th scope="row">{row + 1}</th>
           {Array.from({ length: columns }, (_, col) => {
-            const item = visible[col * ROWS + row]
-            return <td key={col}>{item ? editingId === item.id ? <input ref={inputRef}
+            const cell = { row, column: col }
+            const position = positionFor(cell)
+            const item = items[position]
+            return <td key={col}>{item && editingId === item.id ? <input ref={inputRef}
               className="sample-number-edit" aria-label={`修改样号 ${item.position + 1}`} value={draftName}
               aria-invalid={!!editError} aria-describedby={editError ? 'sample-name-edit-error' : undefined}
               disabled={saving} onChange={event => setDraftName(event.target.value)}
@@ -108,16 +143,16 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
                 if (event.nativeEvent.isComposing) return
                 if (event.key === 'Enter') { event.preventDefault(); void saveEdit() }
                 if (event.key === 'Escape' && !savingRef.current) { event.preventDefault(); finishEdit() }
-              }} /> : <button className="sample-number-cell"
-              data-sample-id={item.id} data-sample-position={item.position + 1}
-              aria-label={`样品 ${item.position + 1}：${item.pre_name || '空样'}`}
-              title={`第 ${item.position + 1} 项：${item.pre_name || '空样'}`}
-              disabled={busy || deleting || editingId !== null}
-              aria-pressed={selected?.id === item.id} onClick={() => setSelectedId(item.id)}
-              onDoubleClick={() => beginEdit(item)} onKeyDown={event => {
-                if (event.key === 'F2') { event.preventDefault(); beginEdit(item) }
+              }} /> : position < MAX_ITEMS ? <button type="button" className="sample-number-cell" {...grid.cellProps(cell)}
+              data-sample-id={item?.id} data-sample-position={item ? position + 1 : undefined}
+              aria-label={item ? `样品 ${position + 1}：${item.pre_name || '空样'}` : `样号位置 ${position + 1}（空位置）`}
+              title={item ? `第 ${position + 1} 项：${item.pre_name || '空样'}` : undefined}
+              disabled={locked}
+              aria-pressed={grid.isSelected(cell)}
+              onDoubleClick={() => { if (item) beginEdit(item) }} onKeyDown={event => {
+                if (item && event.key === 'F2') { event.preventDefault(); beginEdit(item) }
               }}>
-              <strong>{item.pre_name || '空样'}</strong>
+              {item && <strong>{item.pre_name || '空样'}</strong>}
             </button> : <span className="sample-number-empty" aria-label="空位置" />}</td>
           })}
         </tr>)}</tbody>
@@ -145,7 +180,7 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onEditi
             try { await onDelete(selected.id) } finally { setDeleting(false) }
           }}><Trash2 size={14} /></button>
         </div>
-      </> : <p>暂无样品，请在上方录入样号。</p>}
+      </> : <p>可在上方录入样号，或选中表格中的位置后粘贴。</p>}
     </section>
     {editError && <p className="sample-number-edit-error" id="sample-name-edit-error" role="alert">{editError}</p>}
     {selected?.spectrum_hash && <small>已关联采集的样品请通过采集后命名修改名称。</small>}

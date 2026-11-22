@@ -63,7 +63,7 @@ class CurvePrintingService:
             rows = "".join(
                 (
                     f"<tr><td>{int(item['point_index']) + 1}</td><td>{html.escape(str(item['name']))}</td><td>"
-                    f"{float(item['original_intensity']):.8g}</td><td>{float(item['adjusted_intensity']):.8g}"
+                    f"{'—' if item['original_intensity'] is None else format(item['original_intensity'], '.8g')}</td><td>{float(item['adjusted_intensity']):.8g}"
                     f"</td><td>{float(item['standard_value']):.8g}</td><td>{float(item['calculated_value']):.8g}"
                     f"</td><td>{float(item['residual']):.5g}</td><td>"
                     f"{'—' if item.get('relative_error_percent') is None else format(float(item['relative_error_percent']), '.5g')}</td></tr>"
@@ -151,7 +151,7 @@ class CurvePrintingService:
                 values = (
                     str(int(item["point_index"]) + 1),
                     str(item["name"]),
-                    f"{item['original_intensity']:.8g}",
+                    '—' if item['original_intensity'] is None else f"{item['original_intensity']:.8g}",
                     f"{item['adjusted_intensity']:.8g}",
                     f"{item['standard_value']:.8g}",
                     f"{item['calculated_value']:.8g}",

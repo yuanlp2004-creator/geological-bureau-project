@@ -18,7 +18,38 @@ export async function readSampleCells(page) {
     }}).sort((a, b) => a.position - b.position))
 }
 
+export async function checkSampleClipboard(page, result) {
+  await navigate(page, 'analysis-tests', '样号与样品队列', '.sample-queue-page')
+  const host = page.locator('.sample-queue-page')
+  const grid = host.getByRole('region', { name: '样号表格' })
+  const cell = (row, column) => grid.locator(`[data-sample-cell="${row}:${column}"]`)
+  const clipboard = (type, text = '') => page.evaluate(({ type, text }) => {
+    const data = new DataTransfer()
+    data.setData('text/plain', text)
+    document.activeElement.dispatchEvent(new ClipboardEvent(type, { bubbles: true, cancelable: true, clipboardData: data }))
+    return data.getData('text/plain')
+  }, { type, text })
+
+  await host.getByLabel(/^选择样品队列/).selectOption('')
+  await host.getByLabel(/^样号长度/).selectOption('12')
+  await cell(0, 0).click()
+  const create = page.waitForResponse(r => r.url().endsWith('/api/v1/sample-queues') && r.request().method() === 'POST')
+  await clipboard('paste', '0001\t0021\r\n0002\t\r\n')
+  const created = await create
+  assert.equal(created.status(), 201)
+  const queue = await created.json()
+  assert.deepEqual([0, 1, 20, 21].map(index => queue.items[index].pre_name), ['0001', '0002', '0021', ''])
+
+  await grid.locator('[data-sample-position="22"]').waitFor()
+  await cell(0, 0).click()
+  await cell(1, 1).click({ modifiers: ['Shift'] })
+  assert.equal(await grid.locator('[aria-pressed="true"]').count(), 4)
+  assert.equal(await clipboard('copy'), '0001\t0021\r\n0002\t')
+  result.checks.push('矩形粘贴可创建队列，保留空格和前导零，Shift 扩选后复制保持原行列')
+}
+
 export async function checkSampleColumnTable(page, result, output) {
+  await checkSampleClipboard(page, result)
   const checked = message => { result.checks.push(message); console.log(`PASS: ${message}`) }
   const capture = async name => {
     await page.evaluate(() => { scrollTo(0, 0); return new Promise(requestAnimationFrame) })
@@ -68,8 +99,6 @@ export async function checkSampleColumnTable(page, result, output) {
     await host.getByRole('button', { name: '刷新', exact: true }).click()
     await host.getByLabel(/^选择样品队列/).selectOption(String(queue.id))
     await table.locator('[data-sample-position="3"]').waitFor()
-    const methodRepeat = host.getByRole('checkbox', { name: '按当前方法默认次数' })
-    if (await methodRepeat.isVisible()) await methodRepeat.uncheck()
     await host.getByLabel('重复次数', { exact: true }).fill('1')
     let cells = await readSampleCells(page)
     if (length === 12) {

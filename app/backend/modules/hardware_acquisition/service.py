@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import threading
+import time
 import uuid
 from contextlib import contextmanager
 from typing import Any
@@ -11,15 +12,19 @@ from .repository import HardwareRepository
 from .rules import _simulated_anomalies
 from .values import HardwareError, HardwareTaskState, _DECISION_STATES, _json, _sha
 from .exposures import capture_exposure, exposure_config, exposure_results
+from .runner import ManualTurnRunner
 
 
 class HardwareAcquisitionService:
-    def __init__(self, database: Database):
+    def __init__(self, database: Database, *, run_manual: bool = True):
         self.database = database
         self._adapters: dict[int, SimulatorTurnAdapter | SerialTurnAdapter] = {}
         self._task_locks: dict[int, threading.Lock] = {}
         self._task_locks_guard = threading.Lock()
         self.repository = HardwareRepository(database)
+        self._clock = time.monotonic
+        self._capture_clocks: dict[int, dict[str, float]] = {}
+        self._manual_runner = ManualTurnRunner(self) if run_manual else None
 
     @contextmanager
     def _control_scope(self, task_id: int):
@@ -226,6 +231,7 @@ class HardwareAcquisitionService:
         )
 
     def _close_adapter(self, task_id: int) -> None:
+        self._capture_clocks.pop(task_id, None)
         adapter = self._adapters.pop(task_id, None)
         if adapter is not None:
             adapter.close(correlation_id=f"hardware-close-{task_id}-{uuid.uuid4().hex[:8]}")
@@ -313,12 +319,16 @@ class HardwareAcquisitionService:
                     if isinstance(adapter, SimulatorTurnAdapter)
                     else {}
                 )
+                config = exposure_config(current, step_row)
+                if current['execution_mode'] == 'manual':
+                    self._capture_clocks[task_id] = {'start': self._clock(), 'paused': 0,
+                        'next': min(float(current['sampling_period_seconds']), config['duration_seconds'])}
                 db.execute(
                     "UPDATE hardware_plan_steps SET status='collecting', updated_at=? WHERE id=?",
                     (utc_now(), step_row["id"]),
                 )
                 db.execute(
-                    "UPDATE hardware_tasks SET status='collecting', last_message=?, updated_at=? WHERE id=?",
+                    "UPDATE hardware_tasks SET status='collecting', last_event_json=NULL, last_message=?, updated_at=? WHERE id=?",
                     ("turn complete; collecting CCD frame", utc_now(), task_id),
                 )
                 self.repository._trace(
@@ -389,11 +399,24 @@ class HardwareAcquisitionService:
             attempt = int(current_step['last_attempt']) + 1
             forced = _simulated_anomalies(current, current_step, attempt)
             observation = exposure_config(current, current_step)
+        capture_seconds = None
+        if current['execution_mode'] == 'manual':
+            clock = self._capture_clocks.get(task_id)
+            if clock is None:
+                raise HardwareError('hardware_capture_session_missing', '计时采集会话已中断，请停止后重新建立任务', status_code=409)
+            capture_seconds = self._clock() - clock['start'] - clock['paused']
+            if capture_seconds + 1e-9 < clock['next']:
+                return self.repository._task_dict(task_id)
         try:
             event = adapter.capture(correlation_id=f"hardware-frame-{task_id}-{uuid.uuid4().hex[:8]}",
                                     observation=observation, anomalies=forced)
         except HardwareError as exc:
             event = {"event_type": "fault", "ccds": [], "details": {"code": exc.code}, "message": exc.message}
+        if capture_seconds is not None:
+            event['capture_seconds'] = capture_seconds
+            # Keep scheduled sampling slots when processing is late; completion
+            # also requires the full frame count, never just an elapsed deadline.
+            clock['next'] = min(observation['duration_seconds'], clock['next'] + float(current['sampling_period_seconds']))
         completed_now = False
         should_close = False
         with self.database.write() as db:
@@ -608,7 +631,7 @@ class HardwareAcquisitionService:
                     "accept",
                     observed,
                     actor_user_id,
-                    "baseline and peak checks passed",
+                    "timed acquisition and frame checks passed" if current['execution_mode'] == 'manual' else "baseline and peak checks passed",
                 )
                 completed_now = self._complete_step(db, current, step_row, actor_user_id)
                 should_close = completed_now
@@ -640,6 +663,8 @@ class HardwareAcquisitionService:
             )
             self.repository._message(db, task_id, "warning", "task.pause", "hardware task paused", {"from": task["status"]})
             self.repository._audit(db, actor_user_id, "hardware.task.pause", task_id, {"from": task["status"]})
+        if task_id in self._capture_clocks:
+            self._capture_clocks[task_id]['pause_at'] = self._clock()
         return self.repository._task_dict(task_id)
 
     def _resume(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
@@ -652,6 +677,10 @@ class HardwareAcquisitionService:
                 status_code=409,
             )
         target = task["paused_from"] or HardwareTaskState.TURNING.value
+        if task_id in self._capture_clocks:
+            clock = self._capture_clocks[task_id]
+            if 'pause_at' in clock:
+                clock['paused'] += self._clock() - clock.pop('pause_at')
         with self.database.write() as db:
             db.execute(
                 "UPDATE hardware_tasks SET status=?, paused_from=NULL, last_message=?, updated_at=? WHERE id=?",
@@ -689,7 +718,7 @@ class HardwareAcquisitionService:
             if action == "accept":
                 interval_count = db.execute('SELECT COUNT(*) FROM hardware_exposure_results WHERE step_id=? AND attempt=?',
                                             (step['id'], latest_attempt)).fetchone()[0]
-                if not interval_count and exposure_config(current, step)['end_frame'] > 1:
+                if not interval_count and (current['execution_mode'] == 'manual' or exposure_config(current, step)['end_frame'] > 1):
                     raise HardwareError('hardware_manual_accept_invalid', '曝光区间未完成，请重采或停止', status_code=409)
                 if not rows or any(row["damaged"] for row in rows):
                     raise HardwareError(
@@ -806,7 +835,14 @@ class HardwareAcquisitionService:
 
     def start(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         with self._control_scope(task_id):
-            return self._start(task_id, actor_user_id)
+            task = self._start(task_id, actor_user_id)
+        if task['execution_mode'] == 'manual' and task['status'] == 'pre_excitation' and self._manual_runner:
+            self._manual_runner.start(task_id, actor_user_id)
+        return task
+
+    def shutdown(self) -> None:
+        if self._manual_runner:
+            self._manual_runner.shutdown()
 
     def step(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         with self._control_scope(task_id):

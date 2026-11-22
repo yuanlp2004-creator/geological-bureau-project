@@ -18,9 +18,9 @@ export async function checkOpenFileLayout(page, fixture, result, output) {
     ['analysis-tests','蒸发曲线','[data-testid="evaporation-curves-page"]','evaporation'],
     ['data','重新计算','[data-testid="postprocessing-page"]','recalculate'],
     ['data','打印与导出','[data-testid="data-processing-page"]','reports'],
-    ['tools','旧方法与配置迁移','[data-testid="legacy-migration-page"]','batch-methods'],
-    ['tools','旧谱数据迁移','[data-testid="spectrum-migration-page"]','batch-spectra'],
-    ['tools','旧结果迁移','[data-testid="result-migration-page"]','batch-results'],
+    ['tools','旧数据迁移','[data-testid="migration-workspace"]','batch-methods','方法与配置'],
+    ['tools','旧数据迁移','[data-testid="migration-workspace"]','batch-spectra','谱图数据'],
+    ['tools','旧数据迁移','[data-testid="migration-workspace"]','batch-results','分析结果'],
     ['analysis-tests','样号与样品队列','.sample-queue-page','samples']
   ]
   const originalTheme=(await call(page,'/api/v1/settings')).display.theme
@@ -31,11 +31,12 @@ export async function checkOpenFileLayout(page, fixture, result, output) {
     await page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,theme)
     if (process.env.QA_CDP) await page.evaluate(({width,height})=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height})
     else await page.setViewportSize({width,height})
-    for (const [group,label,selector,purpose] of entries) {
+    for (const [group,label,selector,purpose,tab] of entries) {
       await page.waitForLoadState('networkidle')
       await navigate(page,group,label,selector)
       await page.waitForLoadState('networkidle')
       if (purpose === 'reports') await page.getByRole('tab',{name:'分析报告',exact:true}).click()
+      if (tab) await page.getByRole('tab',{name:tab,exact:true}).click()
       const button=purpose==='samples' ? page.getByRole('button',{name:'打开样品号',exact:true})
         : page.locator(`.open-legacy-file[data-purpose="${purpose}"] > button`).filter({visible:true})
       await button.waitFor()

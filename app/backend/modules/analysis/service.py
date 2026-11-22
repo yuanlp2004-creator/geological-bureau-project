@@ -36,19 +36,26 @@ class AnalysisService:
         from .daily_operations import preview_positions
         return preview_positions(self, run_id, sample_position)
 
-    def save_calibration(self, run_id: int, sample_position: int, actor_user_id: int, *, mode: str = 'measured', scope: str = 'all') -> dict:
+    def save_calibration(self, run_id: int, sample_position: int, actor_user_id: int, *, mode: str = 'measured',
+                         scope: str = 'all', measured_line_ids: list[str] | None = None) -> dict:
         preview = self.calibration_preview(run_id, sample_position)
         if mode not in {'measured', 'theoretical', 'stored'} or scope not in {'reference', 'all'}:
             raise AnalysisError('analysis_calibration_mode_invalid', '校正模式无效')
         if scope == 'reference':
             preview['positions'] = [row for row in preview['positions'] if row['line_type'] == 'baseline']
-        if mode == 'measured' and not all(row['found'] for row in preview['positions']):
-            raise AnalysisError('analysis_calibration_peak_missing', '存在未找到有效峰的谱线，不能保存校正')
+        measured = set(measured_line_ids) if measured_line_ids is not None else None
+        if measured is not None and (mode != 'measured' or not measured or not measured <= {str(row['line_id']) for row in preview['positions']}):
+            raise AnalysisError('analysis_calibration_lines_invalid', '待保存的实测谱线与当前方法不符')
         for row in preview['positions']:
-            if mode != 'measured':
-                row['measured_wavelength_nm'] = row[f'{mode}_wavelength_nm']
-                row['found'] = True
-        preview['source_key'] = _sha({'source_key': preview['source_key'], 'mode': mode, 'scope': scope})
+            line_mode = 'stored' if measured is not None and str(row['line_id']) not in measured else mode
+            if line_mode == 'measured' and not row['found']:
+                raise AnalysisError('analysis_calibration_peak_missing', '存在未找到有效峰的谱线，不能保存校正')
+            row['measured_wavelength_nm'] = row[f'{line_mode}_wavelength_nm']
+            row['found'] = True
+        source = {'source_key': preview['source_key'], 'mode': mode, 'scope': scope}
+        if measured is not None:
+            source['measured_line_ids'] = sorted(measured)
+        preview['source_key'] = _sha(source)
         preview['mode'], preview['scope'] = mode, scope
         return self.methods.save_calibrated_positions(preview, actor_user_id)
 
@@ -213,6 +220,10 @@ class AnalysisService:
                 "version": item.version,
                 "name": item.method.name,
                 "calculation_profile": calculation_profile(item.payload.get("conditions", {})),
+                "repeat_defaults": {
+                    key: int(item.payload.get("conditions", {}).get(key) or 1)
+                    for key in ("sample_repeats", "standard_repeats", "control_repeats")
+                },
             }
             for item in snapshots
         ]
@@ -260,7 +271,7 @@ class AnalysisService:
                         "INSERT INTO analysis_run_samples(run_id, position, acquisition_sample_id, "
                         "sample_name, input_sha256) VALUES (?, ?, ?, ?, ?)"
                     ),
-                    (run_id, position, row["id"], row["sample_name"], input_hash),
+                    (run_id, position, row["id"], snapshot_samples[position]['name'], input_hash),
                 )
             self.repository._message(
                 db,
@@ -398,6 +409,8 @@ class AnalysisService:
             run, _, _ = self.repository._context(db, run_id)
             if run["status"] != "draft":
                 raise AnalysisError("analysis_state_invalid", "只有草稿分析运行可以开始")
+            if any(not sample['name'].strip() for sample in json.loads(run['input_snapshot_json'])['samples']):
+                raise AnalysisError('analysis_sample_names_required', '请先录入样品编号，再开始测量', status_code=422)
             db.execute(
                 "UPDATE analysis_runs SET status='running', started_at=?, updated_at=? WHERE id=?",
                 (utc_now(), utc_now(), run_id),
@@ -636,6 +649,12 @@ class AnalysisService:
     ) -> dict[str, dict[str, Any]]:
         return self.curves.curve_evaluators(snapshot_ids, method_version_id, calculation_profile)
 
+    def recalculation_curves(self, limit: int) -> list[dict[str, Any]]:
+        return self.curves.recalculation_curves(limit)
+
+    def recalculation_curve(self, snapshot_id: int, draft: dict[str, Any] | None = None) -> dict[str, Any]:
+        return self.curves.recalculation_curve(snapshot_id, draft)
+
     def publish_standard_curve(
         self, run_id: int, line_id: str, curve_snapshot_id: int, reason: str, actor_user_id: int | None = None
     ) -> dict[str, Any]:
@@ -663,7 +682,21 @@ class AnalysisService:
             db.execute("BEGIN")
             return measurement_results(db, self.methods, snapshot)
 
-    def spectrum(self, run_id: int, sample_position: int, acquisition: Any, line_id: str | None = None) -> dict[str, Any]:
+    def concentration_preview(self, version_id: int | None, *, sample_id: int | None = None, source=None) -> dict:
+        from .concentration_preview import acquired_source, calculate_preview
+
+        with self.database.read() as db:
+            db.execute("BEGIN")
+            version = self.methods.bind_snapshots(db).by_id(version_id, published_only=True) if version_id else None
+            if version is None:
+                message = ("该谱图未绑定已发布的光谱方法" if sample_id is not None
+                           else "请先打开与该谱图对应的已发布光谱方法")
+                raise AnalysisError("spectrum_concentration_method_required", message, status_code=422)
+            locate, values_for = acquired_source(db, self.methods, version, sample_id) if sample_id is not None else source
+            return calculate_preview(db, version, locate, values_for)
+
+    def spectrum(self, run_id: int, sample_position: int, acquisition: Any, line_id: str | None = None, *,
+                 observation_interval: tuple[int, int] | None = None, band_position: int | None = None) -> dict[str, Any]:
         import hashlib
         import struct
         from ..spectral_lines import exposure_interval
@@ -687,23 +720,49 @@ class AnalysisService:
             if sample is None:
                 raise AnalysisError('analysis_sample_not_found', '运行中不存在该样品', status_code=404)
             fixed = json.loads(run['input_snapshot_json'])['samples'][sample_position]
-        snapshot = acquisition.spectrum_snapshot(sample['acquisition_sample_id'])
-        expected = {item['ccd_index']: item['mean_sha256'] for item in fixed['bands']}
-        if {band['ccd_index'] for band in snapshot['bands']} != set(expected):
+        try:
+            snapshot = acquisition.spectrum_snapshot(sample['acquisition_sample_id'])
+        except AcquisitionError as exc:
+            raise AnalysisError(exc.code, exc.message, status_code=exc.status_code) from exc
+        multiple = bool((snapshot.get('turns') or {}).get('multiple'))
+        band_key = lambda band: (band.get('turn_index', 0), band['ccd_index']) if multiple else band['ccd_index']
+        expected = {band_key(item): item['mean_sha256'] for item in fixed['bands']}
+        if {band_key(band) for band in snapshot['bands']} != set(expected):
             raise AnalysisError('analysis_band_integrity_failed', '谱图 CCD 集合与分析输入不符')
         for band in snapshot['bands']:
             blob = struct.pack(f"<{len(band['mean_points'])}f", *band['mean_points'])
-            if hashlib.sha256(blob).hexdigest() != expected.get(band['ccd_index']):
+            if hashlib.sha256(blob).hexdigest() != expected.get(band_key(band)):
                 raise AnalysisError('analysis_band_integrity_failed', '谱图与分析输入快照哈希不符')
-        interval = exposure_interval(selected_line, payload.get('conditions', {})) if selected_line else None
+            if 'wavelengths_nm' not in band:
+                band['wavelengths_nm'] = [locator.wavelength_at(band['ccd_index'], point)
+                                          for point in range(len(band['mean_points']))]
+        if snapshot.get('turns'):
+            locations = [{'id': line['id'], 'element': line['element'], 'wavelength_nm': line['wavelength_nm'],
+                'ccd_index': line['ccd_index'], 'point': line['point_index'], 'exposure_interval': line['exposure_interval'],
+                'turn_index': turn['turn_index'], 'angle_deg': turn['angle_deg']}
+                for turn in snapshot['turns']['plan'] for line in turn['lines']]
+        interval = observation_interval or (exposure_interval(selected_line, payload.get('conditions', {})) if selected_line else None)
+        for band in snapshot['bands']:
+            band['observation_frame_count'] = (snapshot['sample']['burn_frame_count']
+                                                if band['storage_mode'] == 'full_interval' else 0)
         if interval is not None:
             try:
-                views = acquisition.spectrum_interval(sample['acquisition_sample_id'], interval)
+                if observation_interval is not None:
+                    if band_position is None or not 0 <= band_position < len(snapshot['bands']):
+                        raise AnalysisError('analysis_ccd_invalid', '请选择要调整曝光区间的 CCD', status_code=422)
+                    count = snapshot['bands'][band_position]['observation_frame_count']
+                    if not 1 <= interval[0] <= interval[1] <= count:
+                        raise AnalysisError('analysis_observation_interval_invalid', '曝光区间超出当前 CCD 保存的全时帧', status_code=422)
+                    views = acquisition.spectrum_interval(sample['acquisition_sample_id'], interval, band_position=band_position)
+                else:
+                    views = acquisition.spectrum_interval(sample['acquisition_sample_id'], interval)
             except AcquisitionError as exc:
                 raise AnalysisError(exc.code, exc.message, status_code=exc.status_code) from exc
             for band in snapshot['bands']:
+                if band_key(band) not in views:
+                    continue
                 band['source_mean_sha256'] = band['mean_sha256']
-                band['mean_points'] = views[band['ccd_index']]['points']
+                band['mean_points'] = views[band_key(band)]['points']
                 band['mean_sha256'] = hashlib.sha256(struct.pack(f"<{len(band['mean_points'])}f", *band['mean_points'])).hexdigest()
         return {'run_id': run_id, 'sample_position': sample_position, 'sample_name': sample['sample_name'],
                 'acquisition_sample_id': sample['acquisition_sample_id'], 'selected_line_id': line_id,

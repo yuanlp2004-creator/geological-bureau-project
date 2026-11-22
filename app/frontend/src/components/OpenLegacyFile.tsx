@@ -8,7 +8,7 @@ export type LegacyOpened = {
   method_ids: number[]; record_ids: number[]; task_ids?: number[]
   records?: Array<{id: number; sample_name: string; sample_no: number; layout_json: string; ignition_json: string}>
 }
-export type OpenPurpose = 'methods' | 'spectra' | 'analysis' | 'dispersion' | 'evaporation' | 'recalculate' | 'reports' | 'intensity' | 'edt-conversion' | 'batch-methods' | 'batch-spectra' | 'batch-results'
+export type OpenPurpose = 'methods' | 'spectra' | 'analysis' | 'dispersion' | 'evaporation' | 'recalculate' | 'reports' | 'intensity' | 'edt-conversion' | 'full-time' | 'batch-methods' | 'batch-spectra' | 'batch-results'
 
 export function OpenLegacyFile({ token, purpose, label = '打开文件', disabled = false, multiple = false, onOpened, onBusyChange }: {
   token: string; purpose: OpenPurpose; label?: string; disabled?: boolean; multiple?: boolean

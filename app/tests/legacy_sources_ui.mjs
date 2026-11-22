@@ -1,91 +1,110 @@
-// Run only against a fresh, isolated backend with QA_ISOLATED=1.
+// Run only against a fresh, isolated browser backend with fixture copies.
 import assert from 'node:assert/strict'
-import { pathToFileURL } from 'node:url'
 import { mkdir, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { call, navigate } from './contract_browser_support.mjs'
+
 assert.equal(process.env.QA_ISOLATED, '1')
+assert.ok(process.env.QA_SOURCE_DIR)
+const source = process.env.QA_SOURCE_DIR
+const output = process.env.QA_OUTPUT
 const { chromium } = await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE).href)
 const browser = await chromium.launch({ channel: 'msedge', headless: true })
-const output = process.env.QA_OUTPUT
 await mkdir(output, { recursive: true })
+
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 920 } })
+  const page = await browser.newPage({ viewport: { width: 1060, height: 760 } })
   const errors = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  page.on('dialog', (dialog) => dialog.accept())
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('dialog', dialog => dialog.accept())
   await page.goto(process.env.QA_URL)
-  const bootstrap = await page.request.post(`${process.env.QA_URL}/api/v1/auth/bootstrap`, {
-    data: { username: 'discovery_qa', password: 'Discovery-QA-2026!' }
-  })
-  assert.ok(bootstrap.ok())
+  const account = { username: 'migration_qa', password: 'Migration-QA-2026!' }
+  await page.getByLabel('用户名', { exact: true }).waitFor()
+  await call(page, '/api/v1/auth/bootstrap', account)
   await page.reload()
-  await page.getByLabel('用户名', { exact: true }).fill('discovery_qa')
-  await page.getByLabel('密码', { exact: true }).fill('Discovery-QA-2026!')
+  await page.getByLabel('用户名', { exact: true }).fill(account.username)
+  await page.getByLabel('密码', { exact: true }).fill(account.password)
   await page.getByRole('button', { name: '登录', exact: true }).click()
-  await page.locator('.workspace-page').waitFor()
-  const results = []
-  for (const [label, endpoint, inputLabel, testid] of [
-    ['旧方法与配置迁移', 'legacy-migration', '方法库 · DIRECT.MTD', 'legacy-migration-page'],
-    ['旧谱数据迁移', 'spectrum-migration', '谱文件路径', 'spectrum-migration-page'],
-    ['旧结果迁移', 'result-migration', '文件路径', 'result-migration-page']
-  ]) {
-    await page.locator('[data-navigation-group="tools"]').click()
-    await page
-      .getByRole('menuitem')
-      .filter({ has: page.locator('strong').filter({ hasText: new RegExp(`^${label}$`) }) })
-      .click()
-    await page.mouse.move(900, 75)
-    await page.keyboard.press('Escape')
-    const panel = page.getByTestId(testid)
-    await panel.locator('.legacy-source-list button').first().waitFor()
-    let choice
-    if (endpoint === 'legacy-migration') {
-      choice = panel.locator('.legacy-source-list button').filter({ hasText: 'Spec2.02' }).first()
-    } else {
-      const buttons = panel.locator('.legacy-source-list button')
-      const index = await buttons.evaluateAll(
-        (items, spectrum) => items.findIndex((item) => (spectrum ? /\.cdt/i : /\.dat/i).test(item.textContent)),
-        endpoint === 'spectrum-migration'
-      )
-      assert.ok(index >= 0)
-      choice = buttons.nth(index)
-    }
-    await choice.click()
-    const selected = await panel.getByLabel(inputLabel, { exact: true }).inputValue()
-    assert.ok(selected.length > 5)
-    if (endpoint === 'legacy-migration') {
-      assert.ok((await panel.getByLabel('设备配置 · DIRECT.CFG').inputValue()).includes('Spec2.02'))
-      assert.ok((await panel.getByLabel('软件选项 · DIRECT.OPT').inputValue()).includes('Spec2.02'))
-    }
-    await page.screenshot({ path: `${output}/${endpoint}.png` })
-    const [staged] = await Promise.all([
-      page.waitForResponse((r) => r.url().endsWith(`/${endpoint}/stage`) && r.request().method() === 'POST'),
-      panel
-        .getByRole('button', { name: endpoint === 'result-migration' ? '暂存解析' : '只读暂存并校验', exact: true })
-        .click()
-    ])
+  await navigate(page, 'tools', '旧数据迁移', '[data-testid="migration-workspace"]')
+
+  const workspace = page.getByTestId('migration-workspace')
+  const tabs = workspace.getByRole('tab')
+  assert.deepEqual(await tabs.allTextContents(), ['方法与配置', '谱图数据', '分析结果'])
+  const methodTab = workspace.getByRole('tab', { name: '方法与配置', exact: true })
+  const paths = [
+    ['方法库 · DIRECT.MTD', 'DIRECT.MTD'],
+    ['设备配置 · DIRECT.CFG', 'DIRECT.CFG'],
+    ['软件选项 · DIRECT.OPT', 'DIRECT.OPT']
+  ]
+  const methodPanel = page.getByTestId('legacy-migration-page')
+  await methodPanel.getByText('Jet 读取器就绪', { exact: true }).waitFor()
+  assert.equal(await methodPanel.getByText('32 位读取通道', { exact: true }).count(), 0)
+  for (const [label, file] of paths)
+    await methodPanel.getByLabel(label, { exact: true }).fill(path.join(source, file))
+  await methodTab.press('ArrowRight')
+  await workspace.getByRole('tab', { name: '谱图数据', exact: true }).press('Home')
+  for (const [label, file] of paths)
+    assert.equal(await methodPanel.getByLabel(label, { exact: true }).inputValue(), path.join(source, file))
+  await methodPanel.locator('.migration-paths').scrollIntoViewIfNeeded()
+  await methodPanel.locator('.migration-source-surface').screenshot({ path: path.join(output, 'manual-paths.png'), scale: 'css' })
+
+  const stage = (endpoint, submit) => Promise.all([
+    page.waitForResponse(response => response.url().endsWith(`/${endpoint}/stage`) && response.request().method() === 'POST'),
+    submit.click()
+  ]).then(([response]) => response)
+  const opt = methodPanel.getByLabel('软件选项 · DIRECT.OPT', { exact: true })
+  const missing = path.join(source, 'missing.OPT')
+  await opt.fill(missing)
+  assert.equal((await stage('legacy-migration', methodPanel.getByRole('button', { name: '只读暂存并校验' }))).status(), 422)
+  assert.equal(await opt.inputValue(), missing)
+  assert.equal((await call(page, '/api/v1/methods')).length, 0)
+  await opt.fill(path.join(source, 'DIRECT.OPT'))
+
+  const cases = [
+    { label: '方法与配置', testId: 'legacy-migration-page', endpoint: 'legacy-migration', submitLabel: '只读暂存并校验' },
+    { label: '谱图数据', testId: 'spectrum-migration-page', endpoint: 'spectrum-migration', submitLabel: '只读暂存并校验', input: '谱文件路径', file: 'sample.cdt' },
+    { label: '分析结果', testId: 'result-migration-page', endpoint: 'result-migration', submitLabel: '暂存解析', input: '文件路径', file: 'result.dat' }
+  ]
+  for (const item of cases) {
+    await workspace.getByRole('tab', { name: item.label, exact: true }).click()
+    const panel = page.getByTestId(item.testId)
+    await panel.getByRole('button', { name: '选择旧版目录', exact: true }).waitFor()
+    assert.equal(await panel.getByText('指定其他目录', { exact: true }).count(), 0)
+    assert.equal(await panel.getByText('读取通道技术详情', { exact: true }).count(), 0)
+    if (item.input) await panel.getByLabel(item.input, { exact: true }).fill(path.join(source, item.file))
+    const staged = await stage(item.endpoint, panel.getByRole('button', { name: item.submitLabel, exact: true }))
     assert.ok(staged.ok(), await staged.text())
+    assert.equal((await staged.json()).status, 'staged')
     const [committed] = await Promise.all([
-      page.waitForResponse((r) => r.url().endsWith(`/${endpoint}/commit`) && r.request().method() === 'POST'),
+      page.waitForResponse(response => response.url().endsWith(`/${item.endpoint}/commit`)),
       panel.getByRole('button', { name: '原子提交', exact: true }).click()
     ])
     assert.ok(committed.ok(), await committed.text())
     assert.equal((await committed.json()).status, 'committed')
-    await panel.getByText('指定其他目录', { exact: true }).click()
-    await panel.getByRole('textbox', { name: '旧版目录', exact: true }).fill('C:/missing-discovery-qa-directory')
-    await panel.getByRole('button', { name: '检测目录', exact: true }).click()
-    await panel.getByRole('alert').waitFor()
-    assert.equal(await panel.getByLabel(inputLabel, { exact: true }).inputValue(), selected)
-    await panel.getByRole('button', { name: '自动检测', exact: true }).click()
-    await panel.locator('.legacy-source-list button').first().waitFor()
-    for (const width of [1060, 1920]) {
-      await page.setViewportSize({ width, height: 920 })
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
-    }
-    results.push({ endpoint, selected, stage: 'passed', commit: 'passed', invalidDirectory: 'passed' })
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+  }
+
+  const admin = await page.evaluate(() => sessionStorage.getItem('geospectrum.token'))
+  for (const [permission, label] of [
+    ['migration.read', '方法与配置'], ['spectrum-migration.read', '谱图数据'], ['result-migration.read', '分析结果']
+  ]) {
+    const role = await call(page, '/api/v1/roles', { name: permission, permission_keys: [permission] })
+    const user = { username: `only-${role.id}`, password: account.password }
+    await call(page, '/api/v1/users', { ...user, role_ids: [role.id] })
+    const login = await call(page, '/api/v1/auth/login', user)
+    await page.evaluate(token => sessionStorage.setItem('geospectrum.token', token), login.access_token)
+    await page.reload()
+    await navigate(page, 'tools', '旧数据迁移', '[data-testid="migration-workspace"]')
+    assert.deepEqual(await workspace.getByRole('tab').allTextContents(), [label])
+    assert.ok(await workspace.getByRole('button', { name: /^(只读暂存并校验|暂存解析)$/ }).isDisabled())
+    await page.evaluate(token => sessionStorage.setItem('geospectrum.token', token), admin)
+    await page.reload()
+    await page.getByTestId('workspace').waitFor()
   }
   assert.deepEqual(errors, [])
-  await writeFile(`${output}/results.json`, JSON.stringify(results, null, 2))
-  console.log(JSON.stringify(results))
+  await writeFile(path.join(output, 'results.json'), JSON.stringify({ reports: cases.map(({ endpoint }) => endpoint), errors }))
+  console.log('PASS: three tabs, manually entered paths, invalid OPT, staged and committed all formats, role limits')
 } finally {
   await browser.close()
 }

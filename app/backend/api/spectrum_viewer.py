@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import json
+from typing import Literal
 from typing import Any
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -36,14 +37,26 @@ def list_spectrum_records(
     angle_deg: float | None = Query(default=None),
     offset: int = Query(default=0, ge=0),
     query: str = Query(default="", max_length=200),
+    scope: str = Query(default="all"),
+    group: str = Query(default="", max_length=128),
     _: Session = Depends(require_permission("spectra.read")),
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict]:
     try:
         return runtime.spectrum_viewer_service().list(
-            kind=kind, limit=limit, angle_deg=angle_deg, offset=offset, query=query
+            kind=kind, limit=limit, angle_deg=angle_deg, offset=offset, query=query, scope=scope, group=group
         )
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+
+
+@router.get('/api/v1/spectra/files', tags=['spectra'])
+def list_spectrum_files(scope: str = Query(default='all'), kind: str = Query(default='all'), query: str = Query(default='', max_length=200),
+                        angle_deg: float | None = Query(default=None), _: Session = Depends(require_permission('spectra.read')),
+                        *, runtime: Runtime = Depends(get_runtime)) -> list[dict]:
+    try:
+        return runtime.spectrum_viewer_service().files(scope=scope, kind=kind, query=query, angle_deg=angle_deg)
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
 
@@ -58,6 +71,7 @@ def get_spectrum_record(
     frame: int = Query(default=0, ge=0, le=255),
     exposure_start: int | None = Query(default=None, ge=1, le=255),
     exposure_end: int | None = Query(default=None, ge=1, le=255),
+    intensity_mode: str = Query(default="stored"),
     session: Session = Depends(require_permission("spectra.read")),
     *,
     runtime: Runtime = Depends(get_runtime),
@@ -72,6 +86,7 @@ def get_spectrum_record(
             frame=frame,
             exposure_start=exposure_start,
             exposure_end=exposure_end,
+            intensity_mode=intensity_mode,
         )
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
@@ -93,6 +108,7 @@ def get_spectrum_record(
                         "frame": frame,
                         "exposure_start": exposure_start,
                         "exposure_end": exposure_end,
+                        "intensity_mode": intensity_mode,
                     },
                     ensure_ascii=False,
                 ),
@@ -102,12 +118,45 @@ def get_spectrum_record(
     return result
 
 
+@router.get('/api/v1/spectra/{record_id}/calibration', tags=['spectra'])
+def spectrum_calibration(
+    record_id: str,
+    scope: Literal['reference', 'all'],
+    ccd: int = Query(default=0, ge=0, le=255),
+    exposure_start: int | None = Query(default=None, ge=1, le=255),
+    exposure_end: int | None = Query(default=None, ge=1, le=255),
+    _: Session = Depends(require_permission('spectra.read')),
+    *,
+    runtime: Runtime = Depends(get_runtime),
+) -> dict:
+    if (exposure_start is None) != (exposure_end is None) or (
+        exposure_start is not None and exposure_end is not None and exposure_start > exposure_end
+    ):
+        raise HTTPException(422, detail={'code': 'spectrum_exposure_invalid', 'message': '曝光区间无效'})
+    interval = (exposure_start, exposure_end) if exposure_start is not None and exposure_end is not None else None
+    try:
+        return runtime.spectrum_viewer_service().calibrate(record_id, ccd, scope, interval)
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+
+
+@router.get("/api/v1/spectra/{record_id}/concentrations", tags=["spectra"])
+def spectrum_concentrations(
+    record_id: str, _: Session = Depends(require_permission("spectra.read")),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> dict:
+    try:
+        return runtime.spectrum_viewer_service().concentrations(record_id)
+    except SpectrumViewerError as exc:
+        raise spectrum_viewer_error(exc) from exc
+
+
 @router.get("/api/v1/spectra/{record_id}/point-details", tags=["spectra"])
 def spectrum_point_details(record_id: str, ccd: int = Query(default=0, ge=0, le=255),
-    point: int = Query(ge=0, le=100000), session: Session = Depends(require_permission("spectra.read")),
+    point: int = Query(ge=0, le=100000), all_points: bool = False, session: Session = Depends(require_permission("spectra.read")),
     *, runtime: Runtime = Depends(get_runtime)) -> dict:
     try:
-        return runtime.spectrum_viewer_service().point_details(record_id, ccd=ccd, point=point)
+        return runtime.spectrum_viewer_service().point_details(record_id, ccd=ccd, point=None if all_points else point)
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc
 
@@ -157,6 +206,7 @@ def export_spectrum_record(
     frame: int = Query(default=0, ge=0, le=255),
     exposure_start: int | None = Query(default=None, ge=1, le=255),
     exposure_end: int | None = Query(default=None, ge=1, le=255),
+    intensity_mode: str = Query(default="stored"),
     x_min: float | None = Query(default=None),
     x_max: float | None = Query(default=None),
     reference_shift: float = Query(default=0.0),
@@ -174,6 +224,7 @@ def export_spectrum_record(
             frame=frame,
             exposure_start=exposure_start,
             exposure_end=exposure_end,
+            intensity_mode=intensity_mode,
             x_min=x_min,
             x_max=x_max,
             reference_shift=reference_shift,
@@ -196,6 +247,7 @@ def export_spectrum_record(
                         "visible_x_min": x_min,
                         "visible_x_max": x_max,
                         "reference_shift": reference_shift,
+                        "intensity_mode": intensity_mode,
                         "point_count": point_count,
                         "sha256": digest,
                     },
@@ -284,6 +336,7 @@ def print_spectrum_pdf(
             print_layers=payload.print_layers,
             print_scale=payload.print_scale,
             paper=payload.paper,
+            intensity_mode=payload.intensity_mode,
         )
     except SpectrumViewerError as exc:
         raise spectrum_viewer_error(exc) from exc

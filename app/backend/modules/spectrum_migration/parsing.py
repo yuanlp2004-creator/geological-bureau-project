@@ -121,6 +121,10 @@ class SpectrumParser:
             "ccd_indices": ccd_indices,
             "gap_points": gap_points,
             "ws_cof": ws_cof,
+            "legacy_method_id": int(cls._number(cls._field(row, "MtdId"), integer=True))
+                if cls._field(row, "MtdId") is not None else None,
+            "reference_wavelength_nm": cls._number(cls._field(row, "RefWave"))
+                if cls._field(row, "RefWave") is not None else None,
             "endianness": "little",
             "blob_evidence": {"CcdGapPoints": gap_evidence, "CcdIndexs": index_evidence, "WsCof": coefficient_evidence},
         }

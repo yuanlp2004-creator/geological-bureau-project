@@ -57,13 +57,25 @@ class SpectrumMigrationService:
         return dict(row)
 
     @staticmethod
-    def source_records(connection, formats: tuple[str, ...]) -> list[dict[str, Any]]:
+    def file_names(connection) -> dict[str, str]:
+        """Immutable display names from committed import provenance; never open the source files."""
+        names = {}
+        for row in connection.execute("SELECT source_json FROM spectrum_migration_runs WHERE status='committed'"):
+            source = json.loads(row['source_json'])
+            if source.get('sha256') and source.get('path'):
+                names[source['sha256']] = source['path'].replace('\\', '/').rsplit('/', 1)[-1]
+        return names
+
+    @staticmethod
+    def source_records(connection, formats: tuple[str, ...], *, include_ignition: bool = False) -> list[dict[str, Any]]:
         marks = ",".join("?" for _ in formats)
+        names = SpectrumMigrationService.file_names(connection)
+        ignition = ",ignition_json" if include_ignition else ""
         return [
-            dict(row)
+            dict(row) | {'source_filename': names.get(row['source_sha256'])}
             for row in connection.execute(
                 (
-                    f"SELECT id,format,sample_name,band_name,source_sha256,record_index,sample_no FROM "
+                    f"SELECT id,format,sample_name,band_name,band_id,source_sha256,record_index,sample_no,measure_time{ignition} FROM "
                     f"spectrum_bands WHERE format IN ({marks}) ORDER BY id"
                 ),
                 formats,

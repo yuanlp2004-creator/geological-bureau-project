@@ -216,24 +216,6 @@ export function Sidebar({
                         )
                       })}
                     </div>
-                    {group.entries.some((entry) =>
-                      navigationAvailability(entry, currentMethod).reason?.includes('当前方法')
-                    ) && (
-                      <button
-                        type="button"
-                        className="navigation-method-shortcut"
-                        onClick={() => {
-                          const methodEntry = entries.find((entry) => entry.key === 'methods.lifecycle')
-                          if (methodEntry) {
-                            closeMenu()
-                            onNavigate(methodEntry)
-                          }
-                        }}
-                      >
-                        <FunctionIcon name="conditions" size={20} />
-                        选择当前方法
-                      </button>
-                    )}
                   </div>
                 )}
               </div>

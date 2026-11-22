@@ -6,11 +6,16 @@ from typing import Any
 from typing import Literal
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from ..db import utc_now
 from ..schemas.postprocessing import (
+    FullTimeExportRequest,
     PostProcessingConversionRequest,
     PostProcessingRecalculateRequest,
     PostProcessingExportRequest,
+    PreparedImportRequest,
+    PreparedDispersionRequest,
+    RecalculationCurveDraft,
 )
 from ..auth import Session
 from ..modules.postprocessing import PostProcessingError
@@ -57,6 +62,51 @@ def postprocessing_error(exc: PostProcessingError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
+@router.get('/api/v1/postprocessing/full-time', tags=['postprocessing'])
+def full_time_options(_: Session = Depends(require_permission('postprocessing.read')),
+                      *, runtime: Runtime = Depends(get_runtime)) -> dict:
+    return runtime.postprocessing_service().full_time.options()
+
+
+@router.post('/api/v1/postprocessing/full-time/export', tags=['postprocessing'])
+def export_full_time(payload: FullTimeExportRequest, session: Session = Depends(require_permission('postprocessing.export')),
+                     *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    try:
+        content = runtime.postprocessing_service().full_time.export(payload.model_dump(), session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+    return Response(content, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    headers={'Content-Disposition': 'attachment; filename="full-time.xlsx"'})
+
+
+@router.get('/api/v1/postprocessing/prepared-import', tags=['postprocessing'])
+def prepared_import_options(source_sha256: str | None = Query(default=None, max_length=128),
+                            _: Session = Depends(require_permission('postprocessing.read')),
+                            runtime: Runtime = Depends(get_runtime)) -> dict:
+    return runtime.postprocessing_service().prepared.options(source_sha256)
+
+
+@router.post('/api/v1/postprocessing/prepared-import', tags=['postprocessing'])
+def import_prepared_records(payload: PreparedImportRequest,
+                            session: Session = Depends(require_permission('postprocessing.write')),
+                            runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.postprocessing_service().prepared.import_records(payload.model_dump(), session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
+@router.post('/api/v1/postprocessing/prepared-dispersion', tags=['postprocessing'])
+def save_prepared_dispersion(payload: PreparedDispersionRequest,
+                            session: Session = Depends(require_permission('postprocessing.write')),
+                            runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.postprocessing_service().prepared.save_dispersion(
+            payload.source_sha256, payload.expected_method_version_id, session.user_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
 @router.get("/api/v1/postprocessing/edt-records", tags=["postprocessing"])
 def list_postprocessing_edt_records(
     limit: int = Query(default=200, ge=1, le=500),
@@ -75,6 +125,31 @@ def get_postprocessing_recalculation_options(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     return runtime.postprocessing_service().recalculation_options(limit)
+
+
+@router.get("/api/v1/postprocessing/recalculation-curves/{snapshot_id}", tags=["postprocessing"])
+def get_recalculation_curve(
+    snapshot_id: int,
+    _: Session = Depends(require_permission("postprocessing.read")),
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
+    try:
+        return runtime.postprocessing_service().recalculation_curve(snapshot_id)
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
+
+
+@router.post("/api/v1/postprocessing/recalculation-curves/{snapshot_id}/fit", tags=["postprocessing"])
+def fit_recalculation_curve(
+    snapshot_id: int,
+    payload: RecalculationCurveDraft,
+    _: Session = Depends(require_permission("postprocessing.execute")),
+    runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
+    try:
+        return runtime.postprocessing_service().recalculation_curve(snapshot_id, payload.model_dump())
+    except PostProcessingError as exc:
+        raise postprocessing_error(exc) from exc
 
 
 @router.get("/api/v1/postprocessing/raw/{record_id}/interval", tags=["postprocessing"])

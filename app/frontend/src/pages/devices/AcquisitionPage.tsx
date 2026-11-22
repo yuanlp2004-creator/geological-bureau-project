@@ -1,124 +1,81 @@
-import { SectionHeading } from '../../components/SectionHeading'
 import { AdvancedSettings } from '../../components/AdvancedSettings'
-import { FormDisclosure } from '../../layout/TaskLayout'
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
-import {
-  Activity,
-  Cable,
-  CheckCircle2,
-  Clock3,
-  Crosshair,
-  Gauge,
-  PauseCircle,
-  PlayCircle,
-  Radio,
-  RefreshCw,
-  RotateCcw,
-  SlidersHorizontal,
-  Square,
-  XCircle,
-  ZoomIn,
-  ZoomOut
-} from 'lucide-react'
-import { api, type DeviceCcd, type DeviceDiagnostics, type DeviceEvent, type DeviceProfile } from '../../api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Cable, PlayCircle, RefreshCw, Square, XCircle } from 'lucide-react'
+import { api, type DeviceDiagnostics, type DeviceEvent } from '../../api'
 import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
-import { SimpleChartAxes } from '../../components/SimpleChartAxes'
 import { PageFileActions } from '../../components/PageFileActions'
+import { AlignmentMonitor } from './AlignmentMonitor'
+import { ensureCaptureConnection } from '../acquisition/captureConnection'
 
 type AcquisitionPageProps = {
-  token: string
-  canWrite: boolean
-  canExecute: boolean
-  onToast: (message: string) => void
-  embedded?: boolean
-  revision?: number
-  actionsTarget?: HTMLElement | null
-  active?: boolean
+  token: string; canWrite: boolean; canExecute: boolean; onToast: (message: string) => void
+  embedded?: boolean; revision?: number; actionsTarget?: HTMLElement | null; active?: boolean
+  preferredProfileId?: number
 }
-
 const SAMPLE_OPTIONS = ['280-288.acq', '291-299.acq', '303-310.acq']
-const EMPTY_POINTS: number[] = []
 
-type CurveGeometry = { path: string; min: number; span: number }
-
-function curveY(value: number, min: number, span: number, yZoom: number): number {
-  return Math.max(4, Math.min(252, 248 - ((value - min) / span) * 218 * yZoom))
-}
-
-function curveGeometry(points: number[], xZoom: number, yZoom: number): CurveGeometry {
-  if (!points.length) return { path: '', min: 0, span: 1 }
-  const stride = Math.max(1, Math.ceil(points.length / 720))
-  const visible = points
-    .map((value, pointIndex) => ({ value, pointIndex }))
-    .filter(({ pointIndex }) => pointIndex % stride === 0 || pointIndex === points.length - 1)
-  const min = Math.min(...visible.map(({ value }) => value), 0)
-  const sampledMax = Math.max(...visible.map(({ value }) => value), 1)
-  const span = Math.max(sampledMax - min, 1)
-  const width = 1000 * xZoom
-  const path = visible
-    .map(({ value, pointIndex }, index) => {
-      const x = (pointIndex / Math.max(points.length - 1, 1)) * width
-      return `${index ? 'L' : 'M'}${x.toFixed(2)},${curveY(value, min, span, yZoom).toFixed(2)}`
-    })
-    .join(' ')
-  return { path, min, span }
-}
-
-function peakOf(ccd: DeviceCcd | undefined): string {
-  return ccd ? `${ccd.peak.toLocaleString('zh-CN')} @ ${ccd.peak_position + 1}` : '--'
-}
-
-export function AcquisitionPage({ token, canWrite, canExecute, onToast, embedded = false, revision = 0, actionsTarget, active = true }: AcquisitionPageProps) {
+export function AcquisitionPage({ token, canExecute, onToast, revision = 0, actionsTarget, active = true, preferredProfileId }: AcquisitionPageProps) {
   const [diagnostics, setDiagnostics] = useState<DeviceDiagnostics | null>(null)
   const [selectedProfile, setSelectedProfile] = useState<number | null>(null)
   const [event, setEvent] = useState<DeviceEvent | null>(null)
-  const [ccdIndex, setCcdIndex] = useState(0)
+  const [lastFrame, setLastFrame] = useState<DeviceEvent | null>(null)
+  const lastCcds = lastFrame?.ccds ?? []
   const [sample, setSample] = useState(SAMPLE_OPTIONS[0])
   const [seed, setSeed] = useState(11)
   const [running, setRunning] = useState(false)
-  const [crosshair, setCrosshair] = useState(true)
-  const [crosshairPoint, setCrosshairPoint] = useState<number | null>(null)
-  const [xZoom, setXZoom] = useState(1)
-  const [xOffset, setXOffset] = useState(0)
-  const [yZoom, setYZoom] = useState(1)
   const [loading, setLoading] = useState(false)
   const [controlling, setControlling] = useState(false)
+  const runningRef = useRef(false)
   const commandInFlight = useRef(false)
   const stepInFlight = useRef(false)
-
+  const debugParameters = useRef<HTMLDivElement>(null)
+  useEffect(() => { setLastFrame(null); setEvent(null) }, [selectedProfile])
+  const remember = useCallback((next: DeviceEvent) => {
+    setEvent(next)
+    if (next.ccds.some(ccd => ccd.points?.length)) setLastFrame(next)
+  }, [])
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const next = await api.deviceDiagnostics(token)
+      const [next, currentProfile] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token)])
       setDiagnostics(next)
-      setSelectedProfile((current) => current ?? next.profiles[0]?.id ?? null)
+      const live = next.adapter.connected && next.adapter.state === 'debugging'
+      setRunning(live); runningRef.current = live
+      setEvent(current => current ? { ...current, state: next.adapter.state } : null)
+      setSelectedProfile(next.adapter.connected ? next.adapter.profile_id ?? null : currentProfile?.id ?? null)
     } catch (error) {
       onToast(error instanceof Error ? error.message : '无法读取设备诊断')
     } finally {
       setLoading(false)
     }
-  }, [onToast, token])
+  }, [onToast, token, preferredProfileId])
 
   useEffect(() => {
-    void load()
-  }, [load, revision])
+    if (active) void load()
+  }, [load, revision, active])
   useEffect(() => {
     if (!running) return
     const timer = window.setInterval(() => {
-      if (stepInFlight.current) return
+      if (stepInFlight.current || !runningRef.current) return
       stepInFlight.current = true
       void api
         .stepDeviceDebug(token)
         .then((result) => {
-          setEvent(result.event)
+          if (!runningRef.current) return
+          remember(result.event)
           setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
           if (result.event.event_type === 'fault') {
+            runningRef.current = false
             setRunning(false)
-            onToast('模拟 CCD 故障，调试已停止并保留诊断信息')
+            onToast('CCD 故障，调试已停止并保留诊断信息')
           }
         })
-        .catch((error) => {
+        .catch(async (error) => {
+          if (!runningRef.current) return
+          runningRef.current = false
           setRunning(false)
+          await load()
+          runningRef.current = false
           onToast(error instanceof Error ? error.message : '实时调试连接失败')
         })
         .finally(() => {
@@ -129,44 +86,24 @@ export function AcquisitionPage({ token, canWrite, canExecute, onToast, embedded
       window.clearInterval(timer)
       stepInFlight.current = false
     }
-  }, [onToast, running, token])
+  }, [onToast, remember, running, token, load])
 
-  const profile = diagnostics?.profiles.find((item) => item.id === selectedProfile) ?? diagnostics?.profiles[0]
-  const selectedCcd = event?.ccds.find((item) => item.ccd_index === ccdIndex) ?? event?.ccds[0]
-  const selectedCcds = event?.ccds ?? []
-  const selectedPoints = selectedCcd?.points ?? EMPTY_POINTS
-  const conversion = profile?.screen_conversion
-  const curve = useMemo(() => curveGeometry(selectedPoints, xZoom, yZoom), [selectedPoints, xZoom, yZoom])
-  const maxXOffset = Math.max(0, 1000 * xZoom - 1000)
-  const visiblePointStart = selectedPoints.length
-    ? (xOffset / Math.max(1000 * xZoom, 1)) * (selectedPoints.length - 1) + 1
-    : 1
-  const visiblePointEnd = selectedPoints.length
-    ? Math.min(1, (xOffset + 1000) / Math.max(1000 * xZoom, 1)) * (selectedPoints.length - 1) + 1
-    : 1
-  const visibleIntensityMin = curve.min
-  const visibleIntensityMax = curve.min + curve.span / Math.max(yZoom, 0.0001)
-  const crosshairDatum =
-    crosshairPoint == null || !selectedCcd || selectedPoints[crosshairPoint] == null
-      ? null
-      : {
-          ccd: selectedCcd.ccd_index,
-          point: crosshairPoint,
-          value: selectedPoints[crosshairPoint],
-          x: (crosshairPoint / Math.max(selectedPoints.length - 1, 1)) * 1000 * xZoom,
-          y: curveY(selectedPoints[crosshairPoint], curve.min, curve.span, yZoom)
-        }
-
+  const profile = diagnostics?.profiles.find((item) => item.id === selectedProfile)
   const connect = async () => {
-    if (!canExecute || !profile) return onToast('当前账户没有设备执行权限')
+    if (!canExecute) return onToast('当前账户没有设备执行权限')
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
     try {
+      const profile = await api.currentDeviceProfile(token)
+      setSelectedProfile(profile?.id ?? null)
+      if (!profile) throw new Error('请先在设备参数中选择通讯口，或勾选模拟设备用于测试')
+      await ensureCaptureConnection(token, profile.id, profile.transport, 'devices')
       const result = await api.connectDevice(token, profile.id)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
-      setEvent(result.event)
-      onToast('模拟设备已连接')
+      remember(result.event)
+      onToast(profile.transport === 'serial' ? '串口已打开，开始调试后确认仪器响应' : '模拟设备已连接')
     } catch (error) {
+      await load()
       onToast(error instanceof Error ? error.message : '设备连接失败')
     } finally {
       commandInFlight.current = false; setControlling(false)
@@ -174,16 +111,18 @@ export function AcquisitionPage({ token, canWrite, canExecute, onToast, embedded
   }
   const start = async () => {
     if (!canExecute) return onToast('当前账户没有设备执行权限')
-    if (!reportInvalidNumericInput(document.querySelector('.debug-toolbar'))) return onToast('请先修正调试参数')
+    if (!reportInvalidNumericInput(debugParameters.current)) return onToast('请先修正调试参数')
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
     try {
       const result = await api.startDeviceDebug(token, { sample, seed })
-      setEvent(result.event)
+      remember(result.event)
+      runningRef.current = true
       setRunning(true)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
       onToast('实时调试已开始，数据不会写入样品记录')
     } catch (error) {
+      await load()
       onToast(error instanceof Error ? error.message : '无法启动实时调试')
     } finally {
       commandInFlight.current = false; setControlling(false)
@@ -192,13 +131,15 @@ export function AcquisitionPage({ token, canWrite, canExecute, onToast, embedded
   const stop = async () => {
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
-    setRunning(false)
+    runningRef.current = false
     try {
       const result = await api.stopDeviceDebug(token)
-      setEvent(result.event)
+      setRunning(false)
+      remember(result.event)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
       onToast('调试已停止，未生成样品/谱图记录')
     } catch (error) {
+      await load(); runningRef.current = false
       onToast(error instanceof Error ? error.message : '停止调试失败')
     } finally {
       commandInFlight.current = false; setControlling(false)
@@ -207,395 +148,63 @@ export function AcquisitionPage({ token, canWrite, canExecute, onToast, embedded
   const disconnect = async () => {
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
-    setRunning(false)
+    runningRef.current = false
     try {
       const result = await api.disconnectDevice(token)
-      setEvent(result.event)
+      setRunning(false)
+      remember(result.event)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
       onToast('设备已断开')
     } catch (error) {
+      await load()
       onToast(error instanceof Error ? error.message : '设备断开失败')
     } finally {
       commandInFlight.current = false; setControlling(false)
     }
   }
-  const onChartMove = (mouseEvent: MouseEvent<SVGSVGElement>) => {
-    if (!crosshair || !selectedPoints.length) return
-    const bounds = mouseEvent.currentTarget.getBoundingClientRect()
-    const ratio = Math.max(0, Math.min(1, (mouseEvent.clientX - bounds.left) / bounds.width))
-    const pointRatio = (xOffset + ratio * 1000) / Math.max(1000 * xZoom, 1)
-    setCrosshairPoint(Math.round(Math.max(0, Math.min(1, pointRatio)) * (selectedPoints.length - 1)))
+  const finish = async () => {
+    if (!canExecute || commandInFlight.current) return
+    commandInFlight.current = true; setControlling(true); runningRef.current = false
+    try {
+      if (running) { await api.stopDeviceDebug(token); setRunning(false) }
+      const result = await api.disconnectDevice(token)
+      remember(result.event)
+      setDiagnostics(current => current ? { ...current, adapter: result.diagnostics } : current)
+      onToast('调试已结束，设备已断开')
+    } catch (error) { await load(); onToast(error instanceof Error ? error.message : '结束调试失败，请重试停止或断开') }
+    finally { commandInFlight.current = false; setControlling(false) }
   }
-
-  return (
-    <div className="page-content acquisition-page refined-page remaining-page" data-testid="acquisition-page">
-      <PageFileActions target={actionsTarget} hidden={!active}>
-        
-        <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} className={loading ? 'spin' : ''} />
-          刷新诊断
-        </button>
-      </PageFileActions>
-      <div className="acquisition-layout">
-        <section className="surface acquisition-sidebar">
-          <div className="surface-heading device-context-heading">
-            <SectionHeading title="调试对中" />
-            {profile && (
-              <span className="device-source">{profile.transport === 'simulator' ? '模拟设备' : '真实串口设备'}</span>
-            )}
-          </div>
-          <div className="device-connection-grid">
-            <label className="field device-profile-picker">
-              <span>待连接设备档案</span>
-              <select
-                value={selectedProfile ?? ''}
-                onChange={(e) => setSelectedProfile(Number(e.target.value))}
-                disabled={!diagnostics?.profiles.length}
-              >
-                {diagnostics?.profiles.map((item) => (
-                  <option value={item.id} key={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="field">
-              <span>连接操作</span>
-              <div className="device-actions">
-                <button
-                  className="primary-button"
-                  onClick={() => void connect()}
-                  disabled={!canExecute || diagnostics?.adapter.connected}
-                >
-                  <Cable size={15} />
-                  连接诊断
-                </button>
-                <button
-                  className="secondary-button"
-                  onClick={() => void disconnect()}
-                  disabled={!canExecute || !diagnostics?.adapter.connected}
-                >
-                  <XCircle size={15} />
-                  断开
-                </button>
-              </div>
-            </div>
-            <div className="field device-status">
-              <span>适配器状态</span>
-              <div className="diagnostic-state" role="status">
-                <span className={`status-dot ${diagnostics?.adapter.connected ? 'online' : 'offline'}`} />
-                <strong>{diagnostics?.adapter.state ?? 'unknown'}</strong>
-                <Radio size={15} />
-              </div>
-            </div>
-          </div>
-          {profile && (
-            <div className="device-profile-details">
-              <FormDisclosure title="档案参数与屏幕换算">
-                <div className="device-facts">
-                  <div>
-                    <span>传输</span>
-                    <strong>{profile.transport === 'simulator' ? 'ACQ 模拟器' : '串口设备'}</strong>
-                  </div>
-                  <div>
-                    <span>串口 / 波特率</span>
-                    <strong>
-                      COM {profile.port} / {profile.baud_rate.toLocaleString()}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>CCD 布局</span>
-                    <strong>
-                      {profile.frame_count} 组 × {profile.ccds_per_frame} / {profile.points_per_ccd} 点
-                    </strong>
-                  </div>
-                  <div>
-                    <span>保护时间</span>
-                    <strong>{profile.protection_time_ms} ms</strong>
-                  </div>
-                  <div>
-                    <span>屏幕换算</span>
-                    <strong>{conversion ? `${conversion.pixels_per_mm.toFixed(2)} px/mm` : '--'}</strong>
-                  </div>
-                </div>
-              </FormDisclosure>
-            </div>
-          )}
-        </section>
-        <main className="surface acquisition-workbench">
-          <div className="surface-heading">
-            <div>
-              <h2>实时曲线</h2>
-            </div>
-            <div className="debug-state">
-              <span className={`state-chip ${event?.state ?? 'idle'}`}>{event?.state ?? 'idle'}</span>
-              {event?.event_type === 'fault' ? (
-                <AlertIcon />
-              ) : event ? (
-                <CheckCircle2 size={16} />
-              ) : (
-                <Clock3 size={16} />
-              )}
-            </div>
-          </div>
-          <div className="debug-toolbar">
-            <label className="field compact-field">
-              <span>CCD</span>
-              <select
-                value={ccdIndex}
-                onChange={(e) => {
-                  setCcdIndex(Number(e.target.value))
-                  setCrosshairPoint(null)
-                }}
-              >
-                {(profile?.ccd_indices ?? selectedCcds.map((item) => item.ccd_index)).map((item) => (
-                  <option value={item} key={item}>
-                    CCD {item + 1}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="debug-command">
-              <button
-                className="primary-button"
-                onClick={() => void start()}
-                disabled={!canExecute || running || !diagnostics?.adapter.connected}
-              >
-                <PlayCircle size={15} />
-                开始
-              </button>
-              <button className="secondary-button" onClick={() => void stop()} disabled={!running}>
-                <Square size={14} />
-                停止
-              </button>
-            </div>
-            {profile?.transport === 'simulator' && (
-              <AdvancedSettings title="模拟调试">
-                <div className="advanced-field-grid">
-                  <label className="field compact-field">
-                    <span>模拟样本</span>
-                    <select value={sample} onChange={(e) => setSample(e.target.value)} disabled={running}>
-                      {SAMPLE_OPTIONS.map((item) => (
-                        <option key={item}>{item}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field compact-field">
-                    <span>随机种子</span>
-                    <NumericInput min={0} max={2_147_483_647} value={seed} onValueChange={setSeed} disabled={running} />
-                  </label>
-                </div>
-              </AdvancedSettings>
-            )}
-          </div>
-          <div className="curve-tools">
-            <button
-              className={`icon-button compact ${crosshair ? 'selected' : ''}`}
-              title="十字线"
-              aria-pressed={crosshair}
-              onClick={() => {
-                setCrosshair((value) => !value)
-                setCrosshairPoint(null)
-              }}
-            >
-              <Crosshair size={15} />
-            </button>
-            <button
-              className="icon-button compact"
-              title="横向放大"
-              onClick={() => {
-                setXZoom((value) => Math.min(4, value + 0.5))
-                setXOffset(0)
-              }}
-            >
-              <ZoomIn size={15} />
-            </button>
-            <button
-              className="icon-button compact"
-              title="横向缩小"
-              onClick={() => {
-                setXZoom((value) => Math.max(0.5, value - 0.5))
-                setXOffset(0)
-              }}
-            >
-              <ZoomOut size={15} />
-            </button>
-            <button
-              className="icon-button compact"
-              title="还原视图"
-              onClick={() => {
-                setXZoom(1)
-                setXOffset(0)
-                setYZoom(1)
-                setCrosshairPoint(null)
-              }}
-            >
-              <RotateCcw size={15} />
-            </button>
-            <div className="zoom-presets" role="group" aria-label="横向缩放预设">
-              <button
-                onClick={() => {
-                  setXZoom(1)
-                  setXOffset(0)
-                }}
-              >
-                适配
-              </button>
-              <button
-                onClick={() => {
-                  setXZoom(1)
-                  setXOffset(0)
-                }}
-              >
-                100%
-              </button>
-              <button
-                onClick={() => {
-                  setXZoom(4)
-                  setXOffset(0)
-                }}
-              >
-                400%
-              </button>
-            </div>
-            <label className="range-control">
-              <span>X {Math.round(xZoom * 100)}%</span>
-              <input
-                type="range"
-                min=".5"
-                max="4"
-                step=".5"
-                value={xZoom}
-                onChange={(e) => {
-                  setXZoom(Number(e.target.value))
-                  setXOffset(0)
-                }}
-              />
-            </label>
-            <label className="range-control">
-              <span>Y {Math.round(yZoom * 100)}%</span>
-              <input
-                type="range"
-                min=".5"
-                max="4"
-                step=".5"
-                value={yZoom}
-                onChange={(e) => setYZoom(Number(e.target.value))}
-              />
-            </label>
-            {maxXOffset > 0 && (
-              <label className="range-control">
-                <span>滚动</span>
-                <input
-                  type="range"
-                  min="0"
-                  max={maxXOffset}
-                  step="10"
-                  value={xOffset}
-                  onChange={(e) => setXOffset(Number(e.target.value))}
-                />
-              </label>
-            )}
-          </div>
-          <div className="curve-frame simple-chart-plot-host" role="img" aria-label="CCD 实时曲线">
-            <div className="simple-chart-plot">
-              <svg
-                onMouseMove={onChartMove}
-                onMouseLeave={() => setCrosshairPoint(null)}
-                viewBox={`${xOffset} 0 1000 260`}
-                preserveAspectRatio="none"
-              >
-                <g className="curve-grid">
-                  <line x1="0" y1="20" x2="1000" y2="20" />
-                  <line x1="0" y1="130" x2="1000" y2="130" />
-                  <line x1="0" y1="248" x2="1000" y2="248" />
-                </g>
-                <path className="curve-path" d={curve.path} />
-                {crosshair && crosshairDatum && (
-                  <g data-testid="acquisition-crosshair">
-                    <line
-                      data-testid="acquisition-crosshair-x"
-                      className="curve-crosshair"
-                      x1={crosshairDatum.x}
-                      x2={crosshairDatum.x}
-                      y1="0"
-                      y2="260"
-                    />
-                    <line
-                      data-testid="acquisition-crosshair-y"
-                      className="curve-crosshair"
-                      x1={xOffset}
-                      x2={xOffset + 1000}
-                      y1={crosshairDatum.y}
-                      y2={crosshairDatum.y}
-                    />
-                    <circle className="curve-cursor" cx={crosshairDatum.x} cy={crosshairDatum.y} r="4" />
-                  </g>
-                )}
-              </svg>
-            </div>
-            {event && (
-              <SimpleChartAxes
-                xMin={visiblePointStart}
-                xMax={visiblePointEnd}
-                yMin={visibleIntensityMin}
-                yMax={visibleIntensityMax}
-                xLabel="CCD 点位"
-                yLabel="强度 (ADC)"
-              />
-            )}
-            {crosshair && crosshairDatum && (
-              <div className="curve-hover-readout" role="status" data-testid="acquisition-hover-readout">
-                <span>CCD {crosshairDatum.ccd + 1}</span>
-                <strong>点 {crosshairDatum.point + 1}</strong>
-                <span>强度 {crosshairDatum.value.toLocaleString('zh-CN')}</span>
-              </div>
-            )}
-            {!event && (
-              <div className="curve-empty">
-                <Activity size={22} />
-                <span>连接模拟设备后开始实时调试</span>
-              </div>
-            )}
-          </div>
-          <div className="curve-meta">
-            <div>
-              <span>帧序</span>
-              <strong title={event?.frame_index == null ? '暂无帧' : `第 ${event.frame_index + 1} 帧`}>
-                {event?.frame_index == null ? '--' : event.frame_index + 1}
-              </strong>
-            </div>
-            <div>
-              <span>峰值 / 位置</span>
-              <strong title={peakOf(selectedCcd)}>{peakOf(selectedCcd)}</strong>
-            </div>
-            <div>
-              <span>帧哈希</span>
-              <code title={String(event?.details.sha256 ?? '暂无哈希')}>
-                {event?.details.sha256?.slice(0, 16) ?? '--'}
-              </code>
-            </div>
-            <div>
-              <span>记录写入</span>
-              <strong className="safe-result" title="0 样品 · 0 谱图">
-                0 样品 · 0 谱图
-              </strong>
-            </div>
-          </div>
-          {event?.event_type === 'fault' && (
-            <div className="debug-error">
-              <PauseCircle size={16} />
-              <span>
-                {event.message} · {String(event.details.code ?? 'unknown')}
-              </span>
-            </div>
-          )}
-        </main>
-      </div>
-    </div>
-  )
-}
-
-function AlertIcon() {
-  return <PauseCircle size={16} className="warning-icon" />
+  const indices = profile?.ccd_indices ?? lastCcds.map(item => item.ccd_index)
+  return <div className="page-content acquisition-page refined-page remaining-page" data-testid="acquisition-page">
+    <PageFileActions target={actionsTarget} hidden={!active}>
+      <button className="secondary-button" onClick={() => void load()} disabled={loading}><RefreshCw size={15} className={loading ? 'spin' : ''}/>刷新诊断</button>
+    </PageFileActions>
+    <AlignmentMonitor key={`${profile?.id}:${indices.join(',')}`} indices={indices} ccds={lastCcds} profile={profile} active={active}
+      canFinish={canExecute && !controlling && Boolean(running || diagnostics?.adapter.connected)} finish={finish}
+      connection={<>
+        <button className="secondary-button" onClick={() => void connect()} disabled={!canExecute || !profile || controlling || Boolean(diagnostics?.adapter.connected)}><Cable size={15}/>连接诊断</button>
+        <button className="secondary-button" onClick={() => void start()} disabled={!canExecute || controlling || running || !diagnostics?.adapter.connected || diagnostics.adapter.state !== 'connected'}><PlayCircle size={15}/>开始</button>
+        <button className="secondary-button" onClick={() => void stop()} disabled={!canExecute || controlling || !running}><Square size={15}/>停止</button>
+        <button className="secondary-button" onClick={() => void disconnect()} disabled={!canExecute || controlling || !diagnostics?.adapter.connected}><XCircle size={15}/>断开</button>
+        <details className="alignment-settings"><summary>调试设置</summary><div ref={debugParameters} className="alignment-settings-content">
+          <p>{profile?.transport === 'simulator' ? '模拟设备 · 仅用于软件验证' : '真实串口设备'}</p>
+          {profile?.transport === 'simulator' && <AdvancedSettings title="模拟调试"><div className="device-debug-fields">
+            <label className="field"><span>模拟样本</span><select value={sample} onChange={e => setSample(e.target.value)} disabled={running || controlling}>
+              {SAMPLE_OPTIONS.map(item => <option key={item}>{item}</option>)}
+            </select></label>
+            <label className="field"><span>随机种子</span><NumericInput min={0} max={2_147_483_647} value={seed} onValueChange={setSeed} disabled={running || controlling}/></label>
+          </div></AdvancedSettings>}
+          {profile && <dl><div><dt>串口 / 波特率</dt><dd>COM {profile.port} / {profile.baud_rate.toLocaleString()}</dd></div>
+            <div><dt>CCD 布局</dt><dd>{profile.frame_count} 组 × {profile.ccds_per_frame} / {profile.points_per_ccd} 点</dd></div>
+            <div><dt>屏幕换算</dt><dd>{profile.screen_conversion.pixels_per_mm.toFixed(2)} px/mm</dd></div></dl>}
+        </div></details>
+      </>}
+      footer={<>
+        <span>状态：{diagnostics?.adapter.state ?? event?.state ?? '未连接'}</span>
+        {event?.event_type === 'fault' && <span role="alert" className="alignment-error">{event.message} · {String(event.details.code ?? 'unknown')}</span>}
+        <span>帧序：{lastFrame?.frame_index == null ? '--' : lastFrame.frame_index + 1}</span>
+        <span title={lastFrame?.details.sha256}>帧哈希：{lastFrame?.details.sha256?.slice(0, 16) ?? '--'}</span>
+        <span>0 样品 · 0 谱图</span>
+      </>}/>
+  </div>
 }

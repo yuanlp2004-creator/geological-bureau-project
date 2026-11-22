@@ -45,7 +45,6 @@ def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
         "/reports",
         "/maintenance",
         "/help",
-        "/settings",
         "/about",
         "/users",
         "/audit",

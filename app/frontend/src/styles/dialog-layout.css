@@ -1,0 +1,126 @@
+/* Button-opened windows use their own layout, independent of dock/sidebar widths. */
+:root .app-shell dialog:is(.legacy-task-details, .spectrum-observer-dialog, .viewer-operation-dialog,
+  .spectroscopy-task-dialog, .device-debug-evidence, .method-open-dialog, .help-image-dialog) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  color: var(--ink);
+  background: var(--surface);
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: 13px;
+  line-height: 1.6;
+}
+:root .app-shell dialog:not([open]) { display: none; }
+:root .app-shell dialog:is(.legacy-task-details, .spectrum-observer-dialog) {
+  width: min(780px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 14px 48px #0005;
+}
+:root .app-shell dialog::backdrop { background: rgb(6 23 39 / 40%); }
+:root .app-shell dialog > :is(header, .help-image-heading) {
+  position: sticky;
+  top: -20px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  background: var(--surface);
+}
+:root .app-shell dialog > header h2 { margin: 0; min-width: 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+:root .app-shell dialog > :is(header, .help-image-heading) > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 3px 8px;
+}
+:root .app-shell dialog :is(.field, .compact-field, .viewer-dialog-fields > label) { min-width: 0; max-width: 100%; }
+:root .app-shell dialog :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+:root .app-shell dialog :is(p, dd, output, .auth-error, .field-help) { overflow-wrap: anywhere; }
+:root .app-shell dialog :is(.viewer-dialog-actions, .analysis-actions, .line-actions, footer) { flex-wrap: wrap; }
+:root .app-shell dialog :is(.table-scroll, .dispersion-line-table, .viewer-frame-table) { min-width: 0; max-width: 100%; overflow: auto; }
+
+:root .app-shell dialog.legacy-task-details .spectroscopy-setup { padding: 0; max-height: none; overflow: visible; }
+:root .app-shell dialog.legacy-task-details .spectroscopy-task-summary { display: grid; gap: 10px; margin: 0; }
+:root .app-shell dialog.legacy-task-details .spectroscopy-task-summary > div {
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+}
+:root .app-shell dialog.legacy-task-details .spectroscopy-task-summary :is(dt, dd) { margin: 0; font-size: 13px; line-height: 1.6; }
+:root .app-shell dialog.legacy-task-details dt { color: var(--muted); }
+:root .app-shell dialog.legacy-task-details .task-details-source { margin: 16px 0 12px; color: var(--muted); }
+:root .app-shell dialog.legacy-task-details .task-details-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+:root .app-shell dialog.legacy-task-details .task-details-progress > div {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--ui-soft);
+}
+:root .app-shell dialog.legacy-task-details .task-details-progress :is(dt, dd) { margin: 0; }
+:root .app-shell dialog.legacy-task-details .task-details-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 16px; }
+:root .app-shell dialog.legacy-task-details .task-details-footer > span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+:root .app-shell dialog.legacy-task-details .task-details-footer .copyable-code { max-width: 100%; }
+
+/* These readouts also open from the curve, spectrum and mercury workbenches. */
+:root .app-shell dialog.spectrum-observer-dialog .inspector-readout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 0;
+  font-size: 13px;
+  white-space: normal;
+}
+:root .app-shell dialog.spectrum-observer-dialog .inspector-readout > :is(label, output, small) { display: block; min-width: 0; white-space: normal; }
+:root .app-shell dialog.spectrum-observer-dialog .inspector-readout label input { width: 140px; height: 32px; min-height: 32px; margin-left: 8px; }
+:root .app-shell dialog.spectrum-observer-dialog .inspector-readout > small { color: var(--muted); font-size: 12px; }
+
+:root .app-shell dialog.spectroscopy-task-dialog { overflow: hidden; padding: 0; }
+:root .app-shell dialog.spectroscopy-task-dialog > header { position: static; margin: 0; }
+:root .app-shell dialog.spectroscopy-task-dialog > footer { margin: 0; }
+:root .app-shell dialog.spectroscopy-task-dialog > .spectroscopy-task-fields { min-height: 0; overflow: auto; }
+:root .app-shell dialog.device-debug-evidence .mercury-evidence { min-width: 0; overflow: auto; }
+:root .app-shell dialog.help-image-dialog { overflow: auto; }
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) { padding: 16px; }
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) > div {
+  width: min(1100px, calc(100vw - 32px));
+  height: calc(100dvh - 32px);
+  min-width: 0;
+  min-height: 0;
+  max-height: 900px;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--surface);
+}
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) header { gap: 12px; min-width: 0; color: var(--ink); }
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) header strong { min-width: 0; overflow-wrap: anywhere; }
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) header button { flex: 0 0 auto; }
+:root .app-shell :is(.analysis-preview-modal, .report-preview-modal) iframe { min-height: 0; min-width: 0; }
+@media (max-width: 700px) {
+  :root .app-shell dialog.legacy-task-details .spectroscopy-task-summary > div { grid-template-columns: 124px minmax(0, 1fr); gap: 8px; }
+  :root .app-shell dialog.legacy-task-details .task-details-progress { grid-template-columns: minmax(0, 1fr); }
+  :root .app-shell dialog .viewer-dialog-fields { grid-template-columns: minmax(0, 1fr); }
+}

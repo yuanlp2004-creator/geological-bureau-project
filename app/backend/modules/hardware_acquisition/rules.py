@@ -4,6 +4,23 @@ from typing import Any
 from .values import HardwareError, _STRATEGIES, _finite
 
 
+def _manual_plan(turns: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not isinstance(turns, list) or not 1 <= len(turns) <= 300:
+        raise HardwareError('hardware_manual_turns_required', '请填写 1–300 个手动转角')
+    plan = []
+    for index, raw in enumerate(turns):
+        plan.append({'source_index': index, 'order_index': index,
+                     'angle_deg': _finite(raw.get('angle_deg'), 'angle_deg', -360, 360),
+                     'duration_seconds': _finite(raw.get('duration_seconds'), 'duration_seconds', .1, 3600),
+                     'wavelength_nm': None, 'priority': 0, 'key_band': False,
+                     'expected_peak_position': 1024, 'expected_baseline_position': 256,
+                     'search_radius_points': 64, 'baseline_ccd_index': None, 'peak_ccd_index': None,
+                     'storage_mode': 'averaged', 'start_frame': 1, 'end_frame': 1})
+    if sum(item['duration_seconds'] for item in plan) > 86400:
+        raise HardwareError('hardware_manual_duration_invalid', '手动计划总采集时长不能超过 24 小时')
+    return plan
+
+
 def _normalize_plan(turns: list[dict[str, Any]], strategy: str) -> list[dict[str, Any]]:
     if strategy not in _STRATEGIES:
         raise HardwareError(
@@ -84,6 +101,18 @@ def _normalize_plan(turns: list[dict[str, Any]], strategy: str) -> list[dict[str
     return normalized
 
 
+def _override_angles(plan: list[dict[str, Any]], angles: list[float] | None) -> list[dict[str, Any]]:
+    """Override positions by source slot after method/CCD binding, without changing that binding."""
+    if angles is None:
+        return plan
+    if not isinstance(angles, list) or len(angles) != len(plan):
+        raise HardwareError('hardware_turn_angles_count', '旋转角度数量必须与转角计划一致')
+    values = [_finite(value, 'turn_angles', -360, 360) for value in angles]
+    if any(abs(value - other) <= .001 for index, value in enumerate(values) for other in values[:index]):
+        raise HardwareError('turn_duplicate_angle', '旋转角度不能重复', status_code=409)
+    return [{**item, 'original_angle_deg': item['angle_deg'], 'angle_deg': values[item['source_index']]} for item in plan]
+
+
 def _thresholds(payload: dict[str, Any]) -> dict[str, float]:
     defaults = {
         "baseline_min": 10.0,
@@ -118,8 +147,11 @@ def _metrics(task: dict[str, Any], step: dict[str, Any], ccd: dict[str, Any] | N
         return position, float(points[position])
     baseline_position, baseline_intensity = peak(baseline_expected)
     peak_position, raw_peak = peak(expected)
-    baseline_monitored = config.get('baseline_ccd_index') in (None, (ccd or {}).get('ccd_index'))
-    peak_monitored = config.get('peak_ccd_index') in (None, (ccd or {}).get('ccd_index'))
+    # Bound manual turns use the same method windows; legacy unbound tasks have no calibrated monitors.
+    automatic = task.get('execution_mode') != 'manual'
+    bound = bool(config.get('method_content_sha256'))
+    baseline_monitored = (automatic or (bound and config.get('baseline_ccd_index') is not None)) and config.get('baseline_ccd_index') in (None, (ccd or {}).get('ccd_index'))
+    peak_monitored = (automatic or (bound and config.get('peak_ccd_index') is not None)) and config.get('peak_ccd_index') in (None, (ccd or {}).get('ccd_index'))
     damaged = ccd is None or not points or bool(set(anomalies).intersection({"frame_fault", "turn_timeout"}))
     observed = {
         "baseline_intensity": baseline_intensity,

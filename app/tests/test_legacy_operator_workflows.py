@@ -1,4 +1,5 @@
 """Operator workflows restored together; immutable acquisition/curve inputs remain intact."""
+from base64 import b64decode
 import hashlib
 import json
 import struct
@@ -73,10 +74,15 @@ def test_legacy_point_details_and_truncated_raw_rejected(tmp_path):
     with database.write() as db:
         db.execute("UPDATE spectrum_bands SET mean_blob=NULL WHERE id=1")
     assert [row['value'] for row in viewer.point_details('raw:1', ccd=1, point=2)['rows']] == [110, 126, 210]
+    frames = viewer.point_details('raw:1', ccd=1, point=None)
+    raw = b64decode(frames['frames_base64'])
+    assert [struct.unpack_from('<H', raw, 2 * (i * frames['point_count'] + 2))[0] for i in range(3)] == [110, 126, 210]
     with database.write() as db:
         db.execute("UPDATE spectrum_bands SET dark_adcs_blob=x'00' WHERE id=1")
     with pytest.raises(SpectrumViewerError, match='完整'):
         viewer.point_details('raw:1', ccd=1, point=2)
+    with pytest.raises(SpectrumViewerError, match='完整'):
+        viewer.point_details('raw:1', ccd=1, point=None)
 
 
 def test_preliminary_defaults_are_independent_persistent_and_patch_preserving(tmp_path):
@@ -166,11 +172,22 @@ def test_observation_and_defaults_api_permissions_and_failure_zero_mutation(tmp_
         for base in [f'/api/v1/spectra/sample:{sample_id}', f"/api/v1/analyses/runs/{run['id']}/spectra/0"]:
             details = client.get(f'{base}/point-details?ccd=0&point=902', headers=headers)
             assert details.status_code == 200 and len(details.json()['rows']) == 4
+            frames_url = f'{base}/point-details?ccd=0&point=0&all_points=true'
+            assert client.get(frames_url).status_code == 401
+            frames_response = client.get(frames_url, headers=headers)
+            assert frames_response.is_success, frames_response.text
+            frames = frames_response.json()
+            raw = b64decode(frames['frames_base64'])
+            assert len(raw) == frames['point_count'] * 4 * 2
+            assert [struct.unpack_from('<H', raw, 2 * (i * frames['point_count'] + 902))[0] for i in range(4)] == [900, 600, 9000, 20]
             copied = client.post(f'{base}/point-details/copy?ccd=0&point=902&orientation=vertical', headers=headers)
             assert copied.status_code == 200 and '燃烧\t3\t9000' in copied.json()['text']
             pdf = client.post(f'{base}/point-details/print?ccd=0&point=902', headers=headers)
             assert pdf.status_code == 200 and pdf.content.startswith(b'%PDF')
             assert client.get(f'{base}/point-details?ccd=0&point=-1', headers=headers).status_code == 422
+        invalid_band = client.get(f"/api/v1/analyses/runs/{run['id']}/spectra/0/point-details",
+                                  params={'ccd': 0, 'point': 0, 'all_points': True, 'band_position': 999}, headers=headers)
+        assert invalid_band.status_code == 409
         role = client.post('/api/v1/roles', json={'name': 'operator-observer', 'permission_keys': ['spectra.read', 'analysis.read']}, headers=headers).json()
         assert client.post('/api/v1/users', json={'username': 'operator-observer', 'password': 'Observer-QA-2026!', 'role_ids': [role['id']]}, headers=headers).status_code == 201
         reader = client.post('/api/v1/auth/login', json={'username': 'operator-observer', 'password': 'Observer-QA-2026!'}).json()['access_token']

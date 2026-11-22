@@ -74,10 +74,20 @@ def test_generated_manifest_matches_registered_modules() -> None:
     modules_by_key = {module["key"]: module for module in payload["modules"]}
     assert modules_by_key["spectrum-migration"]["title"] == "旧谱数据迁移"
     entries = [entry for module in payload["modules"] for entry in module["navigation_entries"]]
-    assert len(entries) == 25
+    assert len(entries) == 23
+    migration_entries = [entry for entry in entries if entry["section_label"] == "旧版兼容迁移"]
+    assert [(entry["label"], entry["page"]) for entry in migration_entries] == [("旧数据迁移", "migration")]
+    assert set(migration_entries[0]["required_any"]) == {
+        "migration.read", "spectrum-migration.read", "result-migration.read"
+    }
+    assert not any(entry['page'] == 'hardware-acquisition' for entry in entries)
+    connection_entry = next(entry for entry in entries if entry['key'] == 'tools.device-connection')
+    assert connection_entry['view'] == 'connection' and connection_entry['required_any'] == ['devices.read']
+    prepared_entry = next(entry for entry in entries if entry['key'] == 'tools.prepared-import')
+    assert prepared_entry['page'] == 'prepared-import' and prepared_entry['required_context'] == 'current_method'
     device_entry = next(entry for entry in entries if entry["key"] == "tools.devices")
     assert device_entry["label"] == "设备调试"
-    assert set(device_entry["required_any"]) == {"devices.read", "settings.read", "mercury-calibration.read"}
+    assert set(device_entry["required_any"]) == {"devices.read", "settings.read"}
     assert not any(entry["key"] == "tools.mercury" for entry in entries)
     assert next(entry for entry in entries if entry["key"] == "analysis-tests.dispersion-curves")["view"] == "curve"
     assert next(entry for entry in entries if entry["key"] == "analysis-tests.evaporation-curves")["page"] == "evaporation-curves"
@@ -159,17 +169,15 @@ def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
     assert "event.key === 'Escape'" in component
     for filename in (
         "MethodGeometry.tsx",
-        "SampleAcquisitionForm.tsx",
-        "DispersionSetup.tsx",
+        "PreliminaryCaptureFields.tsx",
         "AnalysisIntervention.tsx",
         "HardwareAcquisitionForm.tsx",
         "MercuryCalibrationForm.tsx",
-        "PostProcessingIntervalPanel.tsx",
     ):
         assert "NumericInput" in sources[filename]
 
 
-def test_frontend_bugfix_accessibility_localization_and_queue_contracts() -> None:
+def test_frontend_auth_error_contracts() -> None:
     source_root = APP_ROOT / "frontend" / "src"
     app_source = (source_root / "App.tsx").read_text(encoding="utf-8")
     api_source = (source_root / "api" / "client.ts").read_text(encoding="utf-8")
@@ -177,23 +185,53 @@ def test_frontend_bugfix_accessibility_localization_and_queue_contracts() -> Non
     acquisition = (source_root / "pages" / "acquisition" / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
     acquisition += (source_root / "pages" / "acquisition" / "AcquisitionWorkspace.tsx").read_text(encoding="utf-8")
     acquisition += (source_root / "pages" / "acquisition" / "SampleAcquisitionForm.tsx").read_text(encoding="utf-8")
-    acquisition += (source_root / "pages" / "acquisition" / "AcquisitionConditionFields.tsx").read_text(encoding="utf-8")
-    settings = (source_root / "pages" / "settings" / "SettingsPage.tsx").read_text(encoding="utf-8")
+    acquisition += (source_root / "pages" / "acquisition" / "PreliminaryCaptureFields.tsx").read_text(encoding="utf-8")
     assert re.search(r"\.hidden-picker\s*\{\s*display:\s*none;\s*\}", styles)
-    assert 'className="hidden-picker"' in settings
     assert "auth_invalid_credentials" in app_source and "用户名或密码错误" in app_source
     assert "class ApiError" in api_source
-    assert "const displayedRepeatCount = queueItem ? queueItem.repeats || 1 : repeatCount" in acquisition
-    assert "重复次数{queueItem ? '（来自队列）' : ''}" in acquisition
-    assert "repeat_count: isSample ? displayedRepeatCount : 1" in acquisition
-    assert re.search(r"step=\{0\.01\}\s+value=\{samplingPeriod\}", acquisition)
 
 
-def test_runtime_log_rotation_redacts_sensitive_details(tmp_path: Path) -> None:
+def test_retired_preferences_use_defaults_without_resetting_business_settings(tmp_path: Path) -> None:
+    database = Database(tmp_path / 'app.sqlite3')
+    database.initialize()
+    service = AppService(database)
+    persisted = {
+        'display.theme': 'dark', 'display.density': 'compact', 'display.show_status_bar': False,
+        'logging.level': 'warning', 'logging.retention_days': 1, 'logging.max_bytes': 1024,
+        'time.timezone': 'UTC', 'analysis.wait_time_ms': 350,
+        'analysis.dark_round_time_seconds': 12, 'display.screen_width_mm': 500.0,
+        'directories.backups': 'chosen-backups', 'printing.copies': 2,
+    }
+    with database.write() as connection:
+        connection.executemany('INSERT INTO app_settings(key,value_json,updated_at) VALUES(?,?,?)',
+                               [(key, json.dumps(value), '2026-11-05') for key, value in persisted.items()])
+    effective = service.get_settings()
+    assert effective['display'] == {'theme': 'light', 'density': 'comfortable', 'show_status_bar': True,
+                                    'screen_width_mm': 500.0, 'screen_resolution_px': 1920}
+    assert effective['logging'] == {'level': 'info', 'retention_days': 30, 'max_bytes': 5242880}
+    assert effective['time']['timezone'] == 'Asia/Shanghai'
+    saved = service.update_settings(SettingsPatch.model_validate({
+        'display': {'theme': 'dark', 'screen_width_mm': 510.0},
+        'logging': {'level': 'debug'}, 'time': {'timezone': 'UTC'},
+        'analysis': {'wait_time_ms': 450},
+    }))
+    assert saved['display']['theme'] == 'light' and saved['display']['screen_width_mm'] == 510.0
+    assert saved['logging'] == effective['logging'] and saved['time'] == effective['time']
+    assert saved['analysis']['wait_time_ms'] == 450
+    assert saved['analysis']['dark_round_time_seconds'] == 12
+    assert saved['directories']['backups'] == 'chosen-backups' and saved['printing']['copies'] == 2
+    with database.read() as connection:
+        rows = {row['key']: json.loads(row['value_json']) for row in connection.execute('SELECT * FROM app_settings')}
+    assert rows == {**persisted, 'display.screen_width_mm': 510.0, 'analysis.wait_time_ms': 450}
+    assert AppService(database).get_settings() == saved
+
+
+def test_runtime_log_rotation_redacts_sensitive_details(tmp_path: Path, monkeypatch) -> None:
+    from backend.services import DEFAULT_SETTINGS
+    monkeypatch.setitem(DEFAULT_SETTINGS, 'logging', {'level': 'info', 'max_bytes': 1024, 'retention_days': 1})
     database = Database(tmp_path / "app.sqlite3")
     database.initialize()
     service = AppService(database, tmp_path / "logs" / "runtime.jsonl")
-    service.update_settings(SettingsPatch(logging={"max_bytes": 1024, "retention_days": 1}))
     service.append_event(
         RuntimeEventCreate(
             category="action",
@@ -211,12 +249,13 @@ def test_runtime_log_rotation_redacts_sensitive_details(tmp_path: Path) -> None:
     assert "also-secret" not in rotated.read_text(encoding="utf-8")
 
 
-def test_runtime_log_level_filters_file_output(tmp_path: Path) -> None:
+def test_runtime_log_level_filters_file_output(tmp_path: Path, monkeypatch) -> None:
+    from backend.services import DEFAULT_SETTINGS
+    monkeypatch.setitem(DEFAULT_SETTINGS, 'logging', {'level': 'warning', 'max_bytes': 5242880, 'retention_days': 30})
     database = Database(tmp_path / "app.sqlite3")
     database.initialize()
     log_path = tmp_path / "logs" / "runtime.jsonl"
     service = AppService(database, log_path)
-    service.update_settings(SettingsPatch(logging={"level": "warning"}))
 
     service.append_event(RuntimeEventCreate(category="system", severity="info", message="filtered info"))
     service.append_event(RuntimeEventCreate(category="system", severity="warning", message="kept warning"))
@@ -294,11 +333,12 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
     assert service.list_events()[0]["details"] is None
 
 
-def test_log_rotation_replaces_previous_archive_and_expires_old_files(tmp_path: Path) -> None:
+def test_log_rotation_replaces_previous_archive_and_expires_old_files(tmp_path: Path, monkeypatch) -> None:
+    from backend.services import DEFAULT_SETTINGS
+    monkeypatch.setitem(DEFAULT_SETTINGS, 'logging', {'level': 'info', 'max_bytes': 1024, 'retention_days': 1})
     database = Database(tmp_path / "app.sqlite3")
     database.initialize()
     service = AppService(database, tmp_path / "logs" / "runtime.jsonl")
-    service.update_settings(SettingsPatch(logging={"max_bytes": 1024, "retention_days": 1}))
     service.log_path.parent.mkdir(parents=True, exist_ok=True)
     service.log_path.write_text("old" * 400, encoding="utf-8")
     service.log_path.with_suffix(".jsonl.1").write_text("previous", encoding="utf-8")

@@ -144,18 +144,6 @@
   min-width: 0;
   max-width: 100%;
 }
-.method-legacy-upgrade {
-  display: grid;
-  gap: 12px;
-  padding: var(--ui-space);
-}
-.method-legacy-upgrade p {
-  margin: 0;
-  line-height: 1.6;
-}
-.method-legacy-upgrade .secondary-button {
-  justify-self: start;
-}
 .method-empty {
   min-height: 360px;
   display: grid;

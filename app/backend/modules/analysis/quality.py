@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from typing import Any
@@ -28,6 +29,8 @@ class QualityService:
 
     def _qc_groups(self, db: sqlite3.Connection, run_id: int, payload: dict[str, Any]) -> list[dict[str, Any]]:
         conditions = payload.get("conditions", {})
+        frozen = json.loads(db.execute("SELECT input_snapshot_json FROM analysis_runs WHERE id=?", (run_id,)).fetchone()[0])
+        numbered = frozen["samples"] if frozen.get("sample_numbering") else None
         latest: dict[int, sqlite3.Row] = {}
         accepted: set[tuple[int, str]] = set()
         # 按决定发生顺序回放；单次重复以最后决定为准，组级接受另行保存。
@@ -36,7 +39,8 @@ class QualityService:
         ).fetchall():
             if decision["line_result_id"] is None:
                 if decision["action"] == "accept":
-                    accepted.add((int(decision["acquisition_task_id"]), str(decision["line_id"])))
+                    group = decision["sample_group_position"] if numbered is not None else decision["acquisition_task_id"]
+                    accepted.add((group, str(decision["line_id"])))
             else:
                 latest[int(decision["line_result_id"])] = decision
         rows = db.execute(
@@ -48,13 +52,15 @@ class QualityService:
             "WHERE lr.run_id=? AND lr.line_type='analysis' ORDER BY s.task_id, lr.line_position, s.repeat_index",
             (run_id,),
         ).fetchall()
-        # 一组对应同一采集任务的同一分析线，不把不同样品或元素的重复混算。
+        if numbered is not None:
+            rows.sort(key=lambda row: (row["sample_position"], row["line_result_id"]))
         grouped: dict[tuple[int, str], list[sqlite3.Row]] = {}
         for row in rows:
-            grouped.setdefault((int(row["acquisition_task_id"]), str(row["line_id"])), []).append(row)
+            group = numbered[row["sample_position"]]["sample_group_position"] if numbered is not None else row["acquisition_task_id"]
+            grouped.setdefault((group, str(row["line_id"])), []).append(row)
         groups: list[dict[str, Any]] = []
         management_tasks = AcquisitionService.management_task_ids(db)
-        for (task_id, line_id), members in grouped.items():
+        for (group_id, line_id), members in grouped.items():
             member_payload: list[dict[str, Any]] = []
             included_values: list[float] = []
             for row in members:
@@ -67,7 +73,7 @@ class QualityService:
                     {
                         "line_result_id": int(row["line_result_id"]),
                         "sample_position": int(row["sample_position"]),
-                        "repeat_index": int(row["repeat_index"]),
+                        "repeat_index": numbered[row["sample_position"]]["numbered_repeat_index"] if numbered is not None else int(row["repeat_index"]),
                         "value": value,
                         "included": included,
                         "source_sha256": row["source_sha256"],
@@ -110,12 +116,15 @@ class QualityService:
                 )
             first = members[0]
             sample_name = str(first["sample_name"])
+            task_id = first["acquisition_task_id"]
+            sample_kind = numbered[first["sample_position"]]["numbered_kind"] if numbered is not None else first["sample_kind"]
             groups.append(
                 {
                     "acquisition_task_id": task_id,
                     "sample_name": sample_name,
-                    "sample_kind": first["sample_kind"],
-                    'management_sample': task_id in management_tasks,
+                    "sample_kind": sample_kind,
+                    **({"sample_group_position": group_id} if numbered is not None else {}),
+                    'management_sample': sample_name.upper().startswith('D') if numbered is not None else task_id in management_tasks,
                     "standard_index": self._standard_index(sample_name),
                     "line_id": line_id,
                     "element": first["element"],
@@ -124,7 +133,7 @@ class QualityService:
                     "members": member_payload,
                     "statistics": stats,
                     "warnings": warnings,
-                    "warning_accepted": (task_id, line_id) in accepted,
+                    "warning_accepted": (group_id, line_id) in accepted,
                 }
             )
         return groups
@@ -175,6 +184,7 @@ class QualityService:
     def decide_quality(self, run_id: int, request: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
         action = str(request.get("action"))
         task_id, line_id = int(request["acquisition_task_id"]), str(request["line_id"])
+        group_position = request.get("sample_group_position")
         line_result_id = request.get("line_result_id")
         reason = str(request.get("reason") or "").strip()
         with self.database.write() as db:
@@ -183,7 +193,8 @@ class QualityService:
                 raise AnalysisError("analysis_qc_run_incomplete", "只有已完成的定量分析可以进行重复质控")
             groups = self._qc_groups(db, run_id, payload)
             group = next(
-                (item for item in groups if item["acquisition_task_id"] == task_id and item["line_id"] == line_id), None
+                (item for item in groups if item["acquisition_task_id"] == task_id and item["line_id"] == line_id
+                 and item.get("sample_group_position") == group_position), None
             )
             if group is None:
                 raise AnalysisError("analysis_qc_group_not_found", "重复质控组不存在", status_code=404)
@@ -208,7 +219,7 @@ class QualityService:
                 (
                     "INSERT INTO analysis_qc_decisions(run_id, acquisition_task_id, line_id, "
                     "line_result_id, action, before_included, after_included, reason, actor_user_id, "
-                    "created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    "created_at, sample_group_position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 ),
                 (
                     run_id,
@@ -221,6 +232,7 @@ class QualityService:
                     reason,
                     self.repository._actor(db, actor_user_id),
                     utc_now(),
+                    group_position,
                 ),
             )
             snapshot_id = self._write_qc_snapshot(db, run_id, payload, actor_user_id)

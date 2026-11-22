@@ -45,17 +45,11 @@ def normalize_name(value: str, name_length: int = 10) -> tuple[str, bool]:
     return value, False
 
 
-def _sam_text(raw: bytes, encoding: str | None = None) -> tuple[str, str]:
-    # Legacy SAM has no BOM. Its Windows code page wins over ambiguous valid UTF-8 bytes.
-    encoding = encoding or ('utf-8-sig' if raw.startswith(b'\xef\xbb\xbf') else 'gb18030')
+def _parse_lines(raw: bytes, encoding: str) -> list[dict[str, Any]]:
     try:
-        return raw.decode(encoding), encoding
+        text = raw.decode(encoding)
     except (UnicodeDecodeError, LookupError) as exc:
-        raise SampleQueueError('sam_encoding_invalid','SAM 文件编码无法识别，请选择实际文件编码') from exc
-
-
-def _parse_lines(raw: bytes, encoding: str | None = None) -> list[dict[str, Any]]:
-    text, _ = _sam_text(raw, encoding)
+        raise SampleQueueError('sam_encoding_invalid', '无法读取 SAM 文件编码，请用 GB18030 或 UTF-8 保存后重试') from exc
     records: list[dict[str, Any]] = []
     errors: list[dict[str, Any]] = []
     for line_no, line in enumerate(text.splitlines(), 1):
@@ -91,6 +85,57 @@ def _parse_lines(raw: bytes, encoding: str | None = None) -> list[dict[str, Any]
     return records
 
 
+def _resolve_sam(raw: bytes, encoding: str | None) -> tuple[list[dict[str, Any]], str]:
+    if encoding is not None:
+        return _parse_lines(raw, encoding), encoding
+    if raw.startswith(b'\xef\xbb\xbf'):
+        return _parse_lines(raw, 'utf-8-sig'), 'utf-8-sig'
+    if raw.isascii():
+        return _parse_lines(raw, 'gb18030'), 'gb18030'
+
+    candidates = {}
+    errors = []
+    for codec in ('gb18030', 'utf-8-sig'):
+        try:
+            candidates[codec] = _parse_lines(raw, codec)
+        except SampleQueueError as exc:
+            errors.append(exc)
+    if not candidates:
+        # Report row validation when either encoding could decode the file.
+        raise next((error for error in errors if error.code != 'sam_encoding_invalid'), errors[0])
+    if len(candidates) == 1:
+        codec, records = next(iter(candidates.items()))
+        return records, codec
+
+    legacy, utf8 = candidates['gb18030'], candidates['utf-8-sig']
+    if [row['name'] for row in legacy] == [row['name'] for row in utf8]:
+        return legacy, 'gb18030'
+    legacy_names = {row['line']: row['name'] for row in legacy}
+    utf8_names = {row['line']: row['name'] for row in utf8}
+    differences = [
+        {'line': line, 'gb18030': legacy_names.get(line), 'utf8': utf8_names.get(line)}
+        for line in sorted(legacy_names.keys() | utf8_names.keys())
+        if legacy_names.get(line) != utf8_names.get(line)
+    ]
+    raise SampleQueueError(
+        'sam_encoding_ambiguous', '两种编码读出的样号不同，请核对后选择',
+        details={'differences': differences}, status_code=409,
+    )
+
+
+def read_sample_numbers(raw: bytes, encoding: str | None = None) -> list[dict[str, Any]]:
+    records, _ = _resolve_sam(raw, encoding)
+    return [{"name": item["name"], "repeats": item["repeats"]} for item in records]
+
+
+def write_sample_numbers(records: list[dict[str, Any]]) -> bytes:
+    for item in records:
+        normalize_name(item["name"])
+        if not 0 <= item["repeats"] <= 10:
+            raise SampleQueueError("repeat_invalid", "SAM 重复次数须在 0 到 10 之间")
+    return "".join(f"{item['name']:<8}\t{item['repeats']}\r\n" for item in records).encode("gb18030")
+
+
 def _queue_mutation(operation):
     @wraps(operation)
     def guarded(*args, **kwargs):
@@ -107,6 +152,22 @@ def _queue_mutation(operation):
 
 
 class SampleQueueService:
+    def current_queue(self) -> dict[str, Any] | None:
+        with self.database.read() as db:
+            row = db.execute('SELECT queue_id FROM sample_queue_runtime_state WHERE id=1').fetchone()
+        return self.get(row['queue_id']) if row and row['queue_id'] is not None else None
+
+    def select_queue(self, queue_id: int | None, actor_user_id: int) -> dict[str, Any] | None:
+        queue = self.get(queue_id) if queue_id is not None else None
+        with self.database.write() as db:
+            db.execute('INSERT INTO sample_queue_runtime_state VALUES (1,?,?) ON CONFLICT(id) '
+                       'DO UPDATE SET queue_id=excluded.queue_id, updated_at=excluded.updated_at',
+                       (queue_id, utc_now()))
+            db.execute("INSERT INTO audit_events(actor_user_id,action,target_type,target_id,details_json,created_at) "
+                       "VALUES (?, 'sample_queue.select', 'sample_queue', ?, '{}', ?)",
+                       (actor_user_id, queue_id, utc_now()))
+        return queue
+
     def __init__(self, database: Database):
         self.database = database
 
@@ -366,7 +427,15 @@ class SampleQueueService:
         encoding: str | None = None,
     ) -> dict[str, Any]:
         fingerprint = hashlib.sha256(raw).hexdigest()
-        records = _parse_lines(raw, encoding)
+        try:
+            records, encoding = _resolve_sam(raw, encoding)
+        except SampleQueueError as exc:
+            if exc.code == 'sam_encoding_ambiguous':
+                with self.database.read() as db:
+                    existing = db.execute('SELECT id FROM sample_queues WHERE source_sha256=?', (fingerprint,)).fetchone()
+                if existing:
+                    return self.get(int(existing[0]))
+            raise
         items = [
             {"source_name": record["source_name"], "pre_name": record["name"], "repeats": record["repeats"]}
             for record in records
@@ -402,7 +471,6 @@ class SampleQueueService:
                     self._replace_items(db, queue_id, normalized_items, now)
                     action = "sample_queue.create"
                 self._audit(db, actor, action, queue_id, {"record_count": len(records)})
-                _, encoding = _sam_text(raw, encoding)
                 self._audit(
                     db,
                     actor,
@@ -414,7 +482,7 @@ class SampleQueueService:
                         "bytes": len(raw),
                         "modified_at_ms": source_mtime_ms,
                         "encoding": encoding,
-                        "parser_version": "sam-v1",
+                        "parser_version": "sam-v2",
                         "records": len(records),
                         "expanded_bands": sum(item["expanded_bands"] for item in normalized_items),
                         "normalized_standards": sum(item["normalized_standard"] for item in records),
@@ -425,10 +493,8 @@ class SampleQueueService:
     def export_sam(self, queue_id: int) -> tuple[bytes, str]:
         queue = self.get(queue_id)
         # 旧 SAM 名称槽只有 10 字节，超长新版样号不得写成不兼容文件。
-        for item in queue["items"]:
-            normalize_name(item["pre_name"])
-        output = "".join(f"{item['pre_name']:<8}\t{item['repeats']}\r\n" for item in queue["items"])
-        return output.encode("gb18030"), hashlib.sha256(output.encode("gb18030")).hexdigest()
+        output = write_sample_numbers([{"name": item["pre_name"], "repeats": item["repeats"]} for item in queue["items"]])
+        return output, hashlib.sha256(output).hexdigest()
 
     @staticmethod
     def _validate_items(items: list[dict[str, Any]], name_length: int = 10) -> list[dict[str, Any]]:

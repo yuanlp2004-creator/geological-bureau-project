@@ -44,7 +44,7 @@ export function formatIntegerTick(value: number): string {
   return Math.round(value).toLocaleString('zh-CN')
 }
 
-function fractionalTicks(low: number, high: number): number[] {
+export function fractionalTicks(low: number, high: number): number[] {
   const span = high - low
   if (!Number.isFinite(span) || span <= 0) return [low]
   const magnitude = 10 ** Math.floor(Math.log10(span / 5))
@@ -56,7 +56,7 @@ function fractionalTicks(low: number, high: number): number[] {
   return ticks
 }
 
-function formatFractionalTick(value: number): string {
+export function formatFractionalTick(value: number): string {
   if (value !== 0 && Math.abs(value) < 1e-6) return value.toExponential(2)
   return value.toLocaleString('zh-CN', { maximumFractionDigits: 10 })
 }

@@ -3,6 +3,7 @@ import json
 import math
 import sqlite3
 import threading
+from contextlib import contextmanager
 from functools import wraps
 from dataclasses import dataclass
 from enum import Enum
@@ -61,16 +62,21 @@ class _TaskContext:
     profile: sqlite3.Row
 
 
+@contextmanager
+def _task_scope(service, task_id):
+    with service._locks_guard:
+        lock = service._locks.setdefault(task_id, threading.Lock())
+    if not lock.acquire(blocking=False):
+        raise DispersionError("dispersion_task_busy", "当前色散任务正在执行另一项操作，请稍后重试", status_code=409)
+    try:
+        yield
+    finally:
+        lock.release()
+
+
 def _task_command(operation):
     @wraps(operation)
     def command(self, task_id, *args, **kwargs):
-        with self._locks_guard:
-            lock = self._locks.setdefault(task_id, threading.Lock())
-        if not lock.acquire(blocking=False):
-            raise DispersionError("dispersion_task_busy", "当前色散任务正在执行另一项操作，请稍后重试", status_code=409)
-        try:
+        with _task_scope(self, task_id):
             return operation(self, task_id, *args, **kwargs)
-        finally:
-            lock.release()
-
     return command

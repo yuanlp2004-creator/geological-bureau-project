@@ -11,6 +11,7 @@ export type Props = {
   canCurve: boolean
   canPrint: boolean
   canSaveMethod?: boolean
+  information?: { expanded: boolean; setExpanded: (value: boolean) => void }
   onCurrentRunChange?: (run: AnalysisRun) => void
   onToast: (message: string) => void
 }

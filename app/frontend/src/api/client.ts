@@ -5,7 +5,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
-    readonly code?: string
+    readonly code?: string,
+    readonly details?: unknown
   ) {
     super(message)
     this.name = 'ApiError'
@@ -62,7 +63,7 @@ export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?
   if (!response.ok) {
     const body = await response.text()
     try {
-      const parsed = JSON.parse(body) as { detail?: string | { code?: string; message?: string } | unknown[] }
+      const parsed = JSON.parse(body) as { detail?: string | { code?: string; message?: string; details?: unknown } | unknown[] }
       const detail = parsed.detail
       const structured = !Array.isArray(detail) && typeof detail === 'object' && detail ? detail : undefined
       const message = typeof detail === 'string' ? detail : structured?.message
@@ -70,7 +71,8 @@ export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?
       throw new ApiError(
         message || (response.status === 422 ? '输入数据无效' : body || `${response.status} ${response.statusText}`),
         response.status,
-        code
+        code,
+        structured?.details
       )
     } catch (error) {
       if (error instanceof SyntaxError)

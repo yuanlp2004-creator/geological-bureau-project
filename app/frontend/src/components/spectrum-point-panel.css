@@ -1,0 +1,65 @@
+.spectrum-point-layout { display: flex; flex: 1; min-block-size: 0; min-inline-size: 0; }
+.spectrum-point-plot { display: flex; flex: 1; flex-direction: column; min-block-size: 0; min-inline-size: 0; }
+.spectrum-point-dock { flex: 0 0 clamp(164px, 16vw, 184px); min-block-size: 0; padding-inline-start: 4px; }
+:root .app-shell .spectrum-point-rail,
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-rail.spectrum-point-rail { position: relative; }
+.spectrum-point-rail > .spectrum-point-panel {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+.spectroscopy-operator > .spectrum-point-panel { inset-block-start: 32px; max-block-size: calc(100% - 32px); }
+.spectrum-point-panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-block-size: 100%;
+  overflow: hidden;
+  background: var(--surface, #fff);
+  color: var(--ink, #152738);
+  border: 1px solid var(--line, #ccd5df);
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.spectrum-point-panel[hidden] { display: none; }
+.spectrum-point-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  padding-inline-start: 5px;
+  background: var(--surface-soft, #eef3f9);
+  border-bottom: 1px solid var(--line, #ccd5df);
+}
+.spectrum-point-panel > header strong { font-weight: 600; }
+.app-shell .spectrum-point-panel > header button {
+  width: 27px;
+  min-width: 0;
+  height: 23px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+}
+.app-shell .spectrum-point-panel > header button:hover { background: var(--surface-hover, #e1eaf4); }
+.spectrum-point-compact {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 4px 5px 5px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.spectrum-point-compact dl, .spectrum-point-compact dd, .spectrum-point-compact p { margin: 0; }
+.spectrum-point-compact dl > div { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); }
+.spectrum-point-compact .point-preheat, .spectrum-point-compact .point-phase { margin-top: 4px; }
+.spectrum-point-compact .point-phase p { display: flex; flex-wrap: wrap; column-gap: .5em; }
+.spectrum-point-compact .point-phase dl > div {
+  grid-template-columns: 7em minmax(0, 1fr);
+  column-gap: .35em;
+}
+@media (max-width: 1150px) {
+  .legacy-view-rail > .spectrum-point-panel { font-size: 11px; }
+}

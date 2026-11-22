@@ -22,7 +22,9 @@ function eventContext(event: RuntimeEvent) {
   if (typeof details.task_id === 'number') parts.push(`任务 ${details.task_id}`)
   if (typeof details.code === 'string' && details.code) parts.push(details.code)
   if (typeof details.state === 'string' && details.state) parts.push(`状态 ${details.state}`)
-  if (typeof details.frame_index === 'number') parts.push(`帧 ${details.frame_index}`)
+  if (typeof details.port === 'number') parts.push(`COM${details.port}`)
+  if (typeof details.repeat_index === 'number') parts.push(`第 ${details.repeat_index + 1} 轮重复`)
+  if (typeof details.frame_index === 'number' && details.event_type !== 'ccd_transfer') parts.push(`帧 ${details.frame_index}`)
   return parts.join(' · ')
 }
 
@@ -39,17 +41,19 @@ function preferences(key: string) {
   } catch { return { collapsed: true, height: 184, level: 'default' as Level } }
 }
 
-export function MessagePanel({ events, userId, onHeightChange }: {
+export function MessagePanel({ events, userId, onHeightChange, expanded, onExpandedChange }: {
   events: RuntimeEvent[]
   userId: number
   onHeightChange: (height: number) => void
+  expanded: boolean | undefined
+  onExpandedChange: (value: boolean) => void
 }) {
   const storageKey = `geospectrum:information-panel:${userId}`
   const [initial] = useState(() => preferences(storageKey))
   const [channel, setChannel] = useState<Channel>('general')
   const [level, setLevel] = useState<Level>(initial.level)
   const [filter, setFilter] = useState('')
-  const [collapsed, setCollapsed] = useState(initial.collapsed)
+  const collapsed = expanded === undefined ? initial.collapsed : !expanded
   const [height, setHeight] = useState(initial.height)
   const [snapshot, setSnapshot] = useState<RuntimeEvent[] | null>(null)
   const [cleared, setCleared] = useState<Record<Channel, number>>({ general: 0, communication: 0 })
@@ -72,6 +76,9 @@ export function MessagePanel({ events, userId, onHeightChange }: {
   }), [matching])
   const rows = useMemo(() => matching.filter(event => channelOf(event) === channel).sort((a, b) => a.id - b.id), [matching, channel])
 
+  useLayoutEffect(() => {
+    if (expanded === undefined) onExpandedChange(!initial.collapsed)
+  }, [expanded, initial.collapsed, onExpandedChange])
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify({ layoutVersion: 2, collapsed, height, level })) } catch { /* Storage may be unavailable. */ }
   }, [storageKey, collapsed, height, level])
@@ -133,7 +140,7 @@ export function MessagePanel({ events, userId, onHeightChange }: {
             onClick={() => { follow.current = true; setSnapshot(paused ? null : [...events]) }}>{paused ? '继续' : '暂停'}</button>
           <button type="button" title="只清除当前分类的显示" onClick={clearScreen}>清屏</button>
           <button type="button" className="runtime-message-collapse" aria-label={collapsed ? '展开信息记录' : '收起信息记录'}
-            aria-expanded={!collapsed} onClick={() => setCollapsed(value => !value)}>
+            aria-expanded={!collapsed} onClick={() => onExpandedChange(collapsed)}>
             {collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
           </button>
         </div>

@@ -10,8 +10,8 @@ import struct
 class SimulatorTurnAdapter:
     """Turn adapter backed only by the S11 deterministic simulator."""
 
-    def __init__(self) -> None:
-        self.acquisition = AcqSimulatorAdapter()
+    def __init__(self, acquisition=None) -> None:
+        self.acquisition = acquisition if acquisition is not None else AcqSimulatorAdapter()
         self.session_id: str | None = None
         self.profile: dict[str, Any] | None = None
 
@@ -97,3 +97,10 @@ class SerialTurnAdapter:
         return [
             {"event_type": "serial_close_skipped", "correlation_id": correlation_id, "reason": "protocol_unavailable"}
         ]
+
+
+def confirm_simulated_turn(adapter: AcqSimulatorAdapter, angle_deg: float, correlation_id: str) -> dict[str, Any]:
+    response = SimulatorTurnAdapter(adapter).turn(angle_deg=angle_deg, correlation_id=correlation_id)
+    if response.get('event_type') != 'turn_complete' or response.get('angle_deg') != angle_deg:
+        raise DeviceError('sample_turn_unconfirmed', '转角到位未确认，已停止采集', status_code=409)
+    return response

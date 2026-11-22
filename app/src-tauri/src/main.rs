@@ -7,6 +7,9 @@
 use std::net::TcpListener;
 use std::path::Path;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::io::{Read, Write};
+use std::time::Duration;
 use tauri::{Manager, RunEvent};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::{process::CommandChild, ShellExt};
@@ -16,6 +19,8 @@ use open_location::OpenLocation;
 
 struct SidecarState(Mutex<Option<CommandChild>>);
 struct OpenLocationState(Mutex<OpenLocation>);
+#[derive(Default)]
+struct ExitState { pending: AtomicBool, confirmed: AtomicBool }
 
 #[derive(Clone, serde::Serialize)]
 struct RuntimeConfig {
@@ -26,6 +31,28 @@ struct RuntimeConfig {
 #[tauri::command]
 fn runtime_config(config: tauri::State<'_, RuntimeConfig>) -> RuntimeConfig {
     config.inner().clone()
+}
+
+// Only this fixed Settings page can be launched; the WebView supplies no URI,
+// executable or command-line arguments.
+#[tauri::command]
+fn open_bluetooth_settings() -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        #[link(name = "shell32")]
+        extern "system" {
+            fn ShellExecuteW(window: *mut std::ffi::c_void, operation: *const u16,
+                file: *const u16, parameters: *const u16, directory: *const u16, show: i32) -> isize;
+        }
+        let operation: Vec<u16> = "open\0".encode_utf16().collect();
+        let uri: Vec<u16> = "ms-settings:bluetooth\0".encode_utf16().collect();
+        let result = unsafe { ShellExecuteW(std::ptr::null_mut(), operation.as_ptr(), uri.as_ptr(),
+                                           std::ptr::null(), std::ptr::null(), 1) };
+        if result <= 32 { return Err("无法打开 Windows 蓝牙设置，请从开始菜单打开设置 → 蓝牙和设备".into()); }
+        Ok(())
+    }
+    #[cfg(not(target_os = "windows"))]
+    { Err("此功能需要 Windows 蓝牙设置".into()) }
 }
 
 const MAX_EXPORT_BYTES: usize = 64 * 1024 * 1024;
@@ -59,8 +86,9 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
         "csv" => "text/csv",
         "json" => "application/json",
         "xls" => "application/vnd.ms-excel",
+        "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "txt" | "log" | "sam" => "text/plain",
-        _ => return Err("只允许保存 PDF、CSV、TXT、LOG、SAM、JSON 或 XLS 文件".to_string()),
+        _ => return Err("只允许保存 PDF、CSV、TXT、LOG、SAM、JSON、XLS 或 XLSX 文件".to_string()),
     };
     if content_type != expected_type {
         return Err("文件扩展名与内容类型不匹配".to_string());
@@ -71,7 +99,7 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
     if extension == "pdf" && !bytes.starts_with(b"%PDF-") {
         return Err("PDF 文件头无效".to_string());
     }
-    if extension != "pdf" && bytes.contains(&0) {
+    if !matches!(extension.as_str(), "pdf" | "xlsx") && bytes.contains(&0) {
         return Err("文本导出包含不允许的 NUL 字节".to_string());
     }
     if extension == "json" && serde_json::from_slice::<serde_json::Value>(bytes).is_err() {
@@ -79,6 +107,14 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
     }
     if extension == "xls" && (!bytes.starts_with(b"<?xml") || !bytes.windows(8).any(|part| part == b"Workbook")) {
         return Err("XLS 文件必须是有效的 SpreadsheetML 输出".to_string());
+    }
+    if extension == "xlsx"
+        && (!bytes.starts_with(b"PK\x03\x04")
+            || !bytes.windows(19).any(|part| part == b"[Content_Types].xml")
+            || !bytes.windows(15).any(|part| part == b"xl/workbook.xml")
+            || !bytes.windows(4).any(|part| part == b"PK\x05\x06"))
+    {
+        return Err("XLSX 文件缺少工作簿结构".to_string());
     }
     Ok(extension)
 }
@@ -106,6 +142,14 @@ async fn save_export_file(
         .map_err(|error| format!("无法解析保存路径：{error}"))?;
     write_export_file(&path, &bytes)?;
     Ok(Some(path.to_string_lossy().into_owned()))
+}
+
+#[tauri::command]
+async fn select_backup_directory(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    let selected = app.dialog().file().set_title("选择备份目录").blocking_pick_folder();
+    selected.map(|value| value.into_path()
+        .map(|path| path.to_string_lossy().into_owned())
+        .map_err(|error| format!("无法读取备份目录路径：{error}"))).transpose()
 }
 
 #[tauri::command]
@@ -203,6 +247,57 @@ fn development_api_base() -> Result<Option<String>, String> {
     Ok(None)
 }
 
+fn stop_response(response: &str) -> Result<(), String> {
+    let (headers, body) = response.split_once("\r\n\r\n").ok_or("设备停止响应不完整")?;
+    let status = headers.lines().next().unwrap_or("");
+    if !status.starts_with("HTTP/1.1 200 ") && !status.starts_with("HTTP/1.0 200 ") {
+        return Err("本地服务未确认设备停止".into());
+    }
+    let result: serde_json::Value = serde_json::from_str(body).map_err(|_| "设备停止响应无效")?;
+    if result.get("safe_to_exit").and_then(|value| value.as_bool()) == Some(true) {
+        Ok(())
+    } else {
+        Err(format!("设备停止未确认：{}", result.get("errors").unwrap_or(&serde_json::Value::Null)))
+    }
+}
+
+fn prepare_device_exit(config: &RuntimeConfig) -> Result<(), String> {
+    // An external development backend is not owned or terminated by this app.
+    if config.process_key.is_empty() { return Ok(()); }
+    let address = config.api_base.strip_prefix("http://").ok_or("本地服务地址无效")?
+        .parse::<std::net::SocketAddr>().map_err(|_| "本地服务地址无效")?;
+    if !address.ip().is_loopback() { return Err("本地服务地址必须为回环地址".into()); }
+    let mut stream = std::net::TcpStream::connect_timeout(&address, Duration::from_secs(2))
+        .map_err(|_| "本地服务不可用，请检查仪器是否已经停止")?;
+    stream.set_read_timeout(Some(Duration::from_secs(180))).map_err(|error| error.to_string())?;
+    stream.set_write_timeout(Some(Duration::from_secs(2))).map_err(|error| error.to_string())?;
+    write!(stream, "POST /api/v1/devices/prepare-exit HTTP/1.1\r\nHost: {}\r\nX-GeoSpectrum-Process-Key: {}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", address, config.process_key)
+        .map_err(|error| error.to_string())?;
+    let mut response = String::new();
+    stream.take(65536).read_to_string(&mut response).map_err(|_| "等待设备停止响应超时")?;
+    stop_response(&response)
+}
+
+fn request_safe_exit(app: &tauri::AppHandle) {
+    let state = app.state::<ExitState>();
+    if state.pending.swap(true, Ordering::SeqCst) { return; }
+    let handle = app.clone();
+    let config = app.state::<RuntimeConfig>().inner().clone();
+    std::thread::spawn(move || {
+        match prepare_device_exit(&config) {
+            Ok(()) => {
+                handle.state::<ExitState>().confirmed.store(true, Ordering::SeqCst);
+                handle.exit(0);
+            }
+            Err(error) => {
+                handle.dialog().message(format!("{error}\n窗口已保留，请检查仪器状态后重试。"))
+                    .title("无法确认设备已停止").blocking_show();
+                handle.state::<ExitState>().pending.store(false, Ordering::SeqCst);
+            }
+        }
+    });
+}
+
 fn stop_sidecar(app: &tauri::AppHandle) {
     if let Some(state) = app.try_state::<SidecarState>() {
         if let Some(child) = state.0.lock().unwrap().take() {
@@ -253,8 +348,9 @@ fn main() {
     };
     tauri::Builder::default()
         .manage(SidecarState(Mutex::new(None)))
+        .manage(ExitState::default())
         .manage(runtime)
-        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_legacy_directory, select_legacy_files, select_sample_file])
+        .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_backup_directory, select_legacy_directory, select_legacy_files, select_sample_file, open_bluetooth_settings])
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
@@ -308,17 +404,27 @@ fn main() {
                 if label == "main"
                     && matches!(event, tauri::WindowEvent::CloseRequested { .. }) =>
             {
-                stop_sidecar(app);
-                app.exit(0);
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    request_safe_exit(app);
+                }
             }
-            RunEvent::ExitRequested { .. } | RunEvent::Exit => stop_sidecar(app),
+            RunEvent::ExitRequested { api, .. } => {
+                if app.state::<ExitState>().confirmed.load(Ordering::SeqCst) {
+                    stop_sidecar(app);
+                } else {
+                    api.prevent_exit();
+                    request_safe_exit(app);
+                }
+            }
+            RunEvent::Exit => stop_sidecar(app),
             _ => {}
         });
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_development_api_base, validate_export, write_export_file, read_sample_file, MAX_EXPORT_BYTES};
+    use super::{parse_development_api_base, validate_export, write_export_file, read_sample_file, stop_response, MAX_EXPORT_BYTES};
     use uuid::Uuid;
 
     #[test]
@@ -331,6 +437,15 @@ mod tests {
         assert!(parse_development_api_base("http://192.168.1.10:8787").is_err());
         assert!(parse_development_api_base("https://127.0.0.1:8787").is_err());
         assert!(parse_development_api_base("http://127.0.0.1:0").is_err());
+    }
+
+    #[test]
+    fn native_exit_requires_an_explicit_successful_device_stop_response() {
+        assert!(stop_response("HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n{\"safe_to_exit\":true,\"errors\":[]}").is_ok());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{\"safe_to_exit\":false,\"errors\":[\"stop_unconfirmed\"]}").is_err());
+        assert!(stop_response("HTTP/1.1 403 Forbidden\r\n\r\n{\"safe_to_exit\":true}").is_err());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{}").is_err());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\npartial").is_err());
     }
 
     #[test]
@@ -347,6 +462,10 @@ mod tests {
         assert!(validate_export("intensity.json", "application/json", b"broken").is_err());
         assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"<?xml version=\"1.0\"?><Workbook/>").is_ok());
         assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"binary executable").is_err());
+        let xlsx_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        let workbook = b"PK\x03\x04\0[Content_Types].xml\0xl/workbook.xml\0PK\x05\x06";
+        assert!(validate_export("full-time.xlsx", xlsx_type, workbook).is_ok());
+        assert!(validate_export("full-time.xlsx", xlsx_type, b"PK\x03\x04other.zip").is_err());
     }
 
     #[test]

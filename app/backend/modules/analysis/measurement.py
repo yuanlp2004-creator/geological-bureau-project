@@ -6,6 +6,7 @@ from typing import Any
 
 from .algorithms import evaluate_curve
 from .candidate import calculate_candidate
+from .curves import published_line_curves
 from .errors import AnalysisError
 from .inputs import calculation_profile
 from .rules import _operational_lines
@@ -32,19 +33,10 @@ def measurement_results(db, methods, snapshot: dict[str, Any]) -> dict[str, Any]
     except MethodDomainError as exc:
         result["message"] = exc.message
         return result
-    curves = {}
     # 浓度只使用同方法版本、同算法档案且匹配最新质控的已发布曲线。
-    for curve in db.execute(
-        "SELECT c.line_id, s.id, s.fit_json, s.coordinate_type FROM analysis_active_curves c "
-        "JOIN analysis_curve_snapshots s ON s.id=c.curve_snapshot_id JOIN analysis_runs r ON r.id=c.run_id "
-        "WHERE r.method_version_id=? AND r.calculation_profile=? AND s.publishable=1 "
-        "AND s.qc_snapshot_id=(SELECT id FROM analysis_qc_snapshots WHERE run_id=r.id ORDER BY sequence DESC LIMIT 1) "
-        "ORDER BY c.updated_at DESC, s.id DESC", (version.version_id, profile),
-    ):
-        # 查询按更新时间倒序排列，同一谱线只取最新的有效曲线。
-        curves.setdefault(curve["line_id"], dict(curve))
+    curves = published_line_curves(db, version.version_id, profile)
     for position, sample in enumerate(snapshot["samples"]):
-        bands = {band["ccd_index"]: band for band in sample["bands"]}
+        bands = {(band.get('turn_index', 0), band['ccd_index']): band for band in sample['bands']}
         # 每个重复独立维护基准偏移和内标结果；不能沿用另一个样品的修正值。
         offsets, prior = {}, {}
         for line_position, line in enumerate(lines):
@@ -54,25 +46,30 @@ def measurement_results(db, methods, snapshot: dict[str, Any]) -> dict[str, Any]
                    "unit": line.get("unit") or payload.get("conditions", {}).get("analysis_unit", ""),
                    "decimal_places": line.get("decimal_places", 2)}
             try:
-                detected = geometry.locate(float(line.get("actual_wavelength_nm") or line["wavelength_nm"]))
-                if detected is None:
+                location = AcquisitionService.line_location(db, sample['id'], line['id'])
+                detected = geometry.locate(float(line.get("actual_wavelength_nm") or line["wavelength_nm"])) if not location else None
+                if detected is None and location is None:
                     raise AnalysisError("analysis_line_outside_ccd", "谱线超出检测范围")
-                ccd, expected, _ = detected
-                band = bands.get(ccd)
+                ccd, expected = (location['ccd_index'], location['point_index']) if location else detected[:2]
+                band = bands.get((location['turn_index'] if location else 0, ccd))
                 if band is None:
                     raise AnalysisError("analysis_band_missing", "等待该 CCD 的有效燃烧帧")
                 # 复用正式分析的寻峰、扣背景和内标公式；这里的当前帧结果不写入正式分析表。
                 interval = exposure_interval(line, payload.get('conditions', {}))
-                points = AcquisitionService.interval_band(db, sample['id'], ccd, interval)['points'] if interval else band['points']
+                points = AcquisitionService.interval_band(db, sample['id'], ccd, interval,
+                    turn_index=location['turn_index'] if location else None)['points'] if interval else band['points']
                 line_prior = prior.copy()
                 internal = next((item for item in lines if str(item['id']) == str(line.get('internal_standard_line_id'))), None)
                 if interval and internal:
-                    located = geometry.locate(float(internal.get('actual_wavelength_nm') or internal['wavelength_nm']))
-                    if located is None:
+                    internal_location = AcquisitionService.line_location(db, sample['id'], internal['id'])
+                    located = geometry.locate(float(internal.get('actual_wavelength_nm') or internal['wavelength_nm'])) if not internal_location else None
+                    if located is None and internal_location is None:
                         raise AnalysisError('analysis_internal_standard_missing', '内标线超出 CCD 范围')
-                    values = AcquisitionService.interval_band(db, sample['id'], located.ccd_index, interval)['points']
+                    internal_ccd, internal_point = (internal_location['ccd_index'], internal_location['point_index']) if internal_location else located[:2]
+                    values = AcquisitionService.interval_band(db, sample['id'], internal_ccd, interval,
+                        turn_index=internal_location['turn_index'] if internal_location else None)['points']
                     line_prior[str(internal['id'])] = calculate_candidate(internal, lines, position, lines.index(internal),
-                        located.ccd_index, located.point, values, offsets, prior, profile, None)
+                        internal_ccd, internal_point, values, offsets, prior, profile, None)
                 candidate = calculate_candidate(line, lines, position, line_position, ccd, expected,
                                                 points, offsets, line_prior, profile, None)
                 # 先保存所有操作谱线的候选，后面的分析线才能引用已算内标及定位偏移。

@@ -6,6 +6,6 @@ from pydantic import BaseModel, Field
 class LegacyOpenRequest(BaseModel):
     path: str = Field(min_length=1, max_length=2048)
     purpose: Literal['methods', 'spectra', 'analysis', 'dispersion', 'evaporation',
-                     'recalculate', 'reports', 'intensity', 'edt-conversion',
+                     'recalculate', 'reports', 'intensity', 'edt-conversion', 'full-time',
                      'batch-methods', 'batch-spectra', 'batch-results']
 

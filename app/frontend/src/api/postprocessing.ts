@@ -1,5 +1,6 @@
 /** postprocessing requests and models; moved without changing payloads or responses. */
 import { request } from './client'
+import type { AnalysisCurvePoint, AnalysisCurveSnapshot } from './analysis'
 
 export type PostProcessingRecord = {
   id: string
@@ -15,6 +16,27 @@ export type PostProcessingRecord = {
   points_per_ccd: number
   ccd_indices: number[]
   ignition: Record<string, number>
+}
+
+export type PreparedTarget = {
+  id: string; name: string; storage_mode: 'averaged' | 'full_interval'; method_version_id: number | null
+  legacy_method_id: number | null; revision: number; updated_at: string
+  records: Array<{ id: number; task_id: number; name: string; measure_time: string | null
+    source_record_id: string; start_frame: number; end_frame: number }>
+}
+
+export type PreparedImportOptions = {
+  method: { id: number | null; title: string | null; version_id: number | null }
+  sources: Array<{ sha256: string; name: string; path: string | null; record_count: number }>
+  targets: PreparedTarget[]; records: PostProcessingRecord[]
+  saved_dispersion: { method_version_id: number; updated_at: string } | null
+}
+
+export type PreparedImportInput = {
+  request_id: string; source_sha256: string; record_ids: string[]; target_name: string
+  storage_mode: 'averaged' | 'full_interval'; start_frame: number; end_frame: number
+  use_method_id: boolean; same_name_strategy: 'error' | 'replace' | 'append'
+  expected_target_revision?: number; expected_method_version_id: number
 }
 
 export type PostProcessingRecalculationOptions = {
@@ -33,14 +55,29 @@ export type PostProcessingRecalculationOptions = {
   curve_snapshots: Array<{
     id: number
     line_id: string
-    fit_mode: string
-    coordinate_type: string
+    fit_mode: AnalysisCurveSnapshot['fit_mode']
+    coordinate_type: AnalysisCurveSnapshot['coordinate_type']
     result_sha256: string
     method_version_id: number
     calculation_profile: 'legacy_2_0_2' | 'modern_v1'
     method_name: string
     method_version: number
+    element?: string
+    wavelength_nm?: number
   }>
+}
+
+export type RecalculationCurveDraft = Pick<AnalysisCurveSnapshot, 'fit_mode' | 'coordinate_type'> & {
+  points: Array<Pick<AnalysisCurvePoint, 'point_index' | 'active' | 'adjusted_intensity'>>
+}
+
+export type RecalculationCurveDetail = {
+  line_id: string
+  element: string
+  wavelength_nm: number
+  unit: string
+  decimal_places?: number
+  snapshot: AnalysisCurveSnapshot
 }
 
 export type PostProcessingInterval = {
@@ -65,7 +102,9 @@ export type PostProcessingRun = {
   source_hashes?: string[]
   sample_ids?: number[]
   task_ids?: number[]
-  result?: Record<string, unknown>
+  result?: Record<string, unknown> & { sources?: Array<{ lines?: Array<{
+    line_id: string; sample_name: string; quantitative_signal: number; calculated_value: number; curve_snapshot_id: number
+  }> }> }
   report: Record<string, unknown>
   result_sha256?: string
 }
@@ -81,6 +120,14 @@ export type PostProcessingExport = {
 }
 
 export const postprocessingApi = {
+  preparedImportOptions: (token: string, source?: string) => request<PreparedImportOptions>(
+    '/api/v1/postprocessing/prepared-import' + (source ? `?source_sha256=${encodeURIComponent(source)}` : ''),
+    { headers: { Authorization: `Bearer ${token}` } }),
+  importPreparedRecords: (token: string, payload: PreparedImportInput) => request<{ run_id: string; reused: boolean; target: PreparedTarget }>(
+    '/api/v1/postprocessing/prepared-import', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  savePreparedDispersion: (token: string, source_sha256: string, expected_method_version_id: number) => request<{ message: string }>(
+    '/api/v1/postprocessing/prepared-dispersion', { method: 'POST', headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ source_sha256, expected_method_version_id }) }),
   postprocessingEdtRecords: (token: string) =>
     request<{ records: PostProcessingRecord[] }>('/api/v1/postprocessing/edt-records', {
       headers: { Authorization: `Bearer ${token}` }
@@ -88,6 +135,14 @@ export const postprocessingApi = {
   postprocessingRecalculationOptions: (token: string) =>
     request<PostProcessingRecalculationOptions>('/api/v1/postprocessing/recalculation-options', {
       headers: { Authorization: `Bearer ${token}` }
+    }),
+  postprocessingRecalculationCurve: (token: string, snapshotId: number) =>
+    request<RecalculationCurveDetail>(`/api/v1/postprocessing/recalculation-curves/${snapshotId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  fitPostprocessingRecalculationCurve: (token: string, snapshotId: number, draft: RecalculationCurveDraft) =>
+    request<RecalculationCurveDetail>(`/api/v1/postprocessing/recalculation-curves/${snapshotId}/fit`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(draft)
     }),
   postprocessingInterval: (
     token: string,
@@ -137,6 +192,7 @@ export const postprocessingApi = {
       method_version_id: number
       calculation_profile: 'legacy_2_0_2' | 'modern_v1'
       curve_snapshot_ids: number[]
+      curve_drafts?: Record<number, RecalculationCurveDraft>
       expected_measure_time?: string
       allow_older_method?: boolean
     }

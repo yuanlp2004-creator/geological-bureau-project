@@ -10,13 +10,17 @@ import { api, type MercuryOptions, type MercurySession } from '../../api'
 import { CopyableCode } from '../../components/InformationDisplay'
 import { PageFileActions } from '../../components/PageFileActions'
 import { SpectrumInspector } from '../../components/SpectrumInspector'
-import { FormDisclosure, TaskLayout } from '../../layout/TaskLayout'
+import { DeviceDebugWorkbench } from '../devices/DeviceDebugWorkbench'
+import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
+import { RowSelectionArrow } from '../../components/RowSelectionArrow'
 import { MercuryCalibrationForm } from './MercuryCalibrationForm'
 import { MercuryCalibrationMonitor } from './MercuryCalibrationMonitor'
 import { MercuryCalibrationResults } from './MercuryCalibrationResults'
 import { Props, activeStates, labels, terminalStates } from './mercuryView'
 
 export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, embedded = false, actionsTarget, active = true }: Props) {
+  const [createOpen, setCreateOpen] = useState(false)
+  const evidence = useRef<HTMLDialogElement>(null)
   const [options, setOptions] = useState<MercuryOptions | null>(null)
   const [sessions, setSessions] = useState<MercurySession[]>([])
   const [selected, setSelected] = useState<MercurySession | null>(null)
@@ -41,7 +45,7 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
         ? current.map((item) => (item.id === next.id ? next : item))
         : [next, ...current]
     )
-    setCcdIndex((current) => current ?? next.layout.ccd_indices[0] ?? null)
+    setCcdIndex(current => current !== null && next.layout.ccd_indices.includes(current) ? current : next.layout.ccd_indices[0] ?? null)
   }, [])
 
   const load = useCallback(async () => {
@@ -97,6 +101,7 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
         simulator_fault: fault
       })
       update(next)
+      setCreateOpen(false)
       onToast('汞灯校准会话已建立，选线与校准前版本已锁定')
     } catch (error) {
       setCreateError(error instanceof Error ? error.message : '创建汞灯校准会话失败')
@@ -155,61 +160,16 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
     return () => window.clearInterval(timer)
   }, [advance, auto, selected])
 
-  const selectedProfile = options?.profiles.find((profile) => profile.id === profileId)
+  const selectedProfile = options?.profiles.find(profile => profile.id === profileId)
   const curves = selected?.last_event?.ccds ?? []
-  const curve = curves.find((item) => item.ccd_index === ccdIndex) ?? curves[0]
+  const curve = curves.find(item => item.ccd_index === ccdIndex) ?? curves[0]
   const plotCcd = curve?.ccd_index ?? ccdIndex ?? selected?.layout.ccd_indices[0] ?? 0
-  return (
-    <div className="page-content mercury-page refined-page remaining-page" data-testid="mercury-calibration-page">
-      <PageFileActions target={actionsTarget} hidden={!active}>
-        
-        <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} className={loading ? 'spin' : ''} />
-          刷新
-        </button>
-      </PageFileActions>
-      <TaskLayout
-        className="mercury-layout"
-        hasItems={Boolean(sessions.length)}
-        current={selected ? `${selected.name} · ${labels[selected.status] ?? selected.status}` : '尚未选择'}
-      >
-        <aside className="surface mercury-session-list">
-          <div className="surface-heading">
-            <div>
-              <h2>
-                校准会话 <span className="count-badge">{sessions.length}</span>
-              </h2>
-            </div>
-            <Lightbulb size={17} />
-          </div>
-          <div className="mercury-session-rows">
-            {sessions.map((session) => {
-              const metadata = `${session.transport === 'simulator' ? '合成汞谱' : '真实串口'} · ${labels[session.status]}`
-              return (
-                <button
-                  key={session.id}
-                  className={selected?.id === session.id ? 'active' : ''}
-                  onClick={() => void choose(session)}
-                >
-                  <span className={`task-state-dot ${session.status}`} />
-                  <span>
-                    <strong title={session.name}>{session.name}</strong>
-                    <small title={metadata}>{metadata}</small>
-                  </span>
-                  <ChevronRight size={14} />
-                </button>
-              )
-            })}
-          </div>
-          {!sessions.length && <div className="empty-state compact-empty">暂无汞灯校准会话</div>}
-        </aside>
-        <main className="mercury-main">
-          <FormDisclosure
-            title="建立校准会话"
-            error={createError}
-            hasItems={Boolean(sessions.length)}
-            objectKey={selected?.id}
-          >
+  return <div className="page-content mercury-page refined-page remaining-page" data-testid="mercury-calibration-page">
+    <PageFileActions target={actionsTarget} hidden={!active}>
+      <button className="secondary-button" onClick={() => void load()} disabled={loading}><RefreshCw size={15} className={loading ? 'spin' : ''}/>刷新</button>
+      <button className="primary-button" disabled={!canWrite || busy} onClick={() => setCreateOpen(true)}>建立校准会话</button>
+    </PageFileActions>
+    <SpectroscopyTaskDialog open={createOpen && active} title="建立汞灯校准会话" busy={busy} error={createError} onCancel={() => setCreateOpen(false)}>
             <MercuryCalibrationForm
               create={create}
               name={name}
@@ -231,8 +191,24 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
               setLineIds={setLineIds}
               selectedProfile={selectedProfile}
             />
-          </FormDisclosure>
-          <MercuryCalibrationMonitor
+    </SpectroscopyTaskDialog>
+    <DeviceDebugWorkbench title="汞灯调试" active={active} hasPoints={Boolean(curve?.points?.length)} listTitle="校准会话"
+      toolbar={<>
+        <label>校准会话 <select aria-label="当前校准会话" value={selected?.id ?? ''} disabled={busy || auto || Boolean(selected && activeStates.has(selected.status)) || !sessions.length}
+          onChange={event => { const session = sessions.find(item => item.id === Number(event.target.value)); if (session) void choose(session) }}>
+          {sessions.map(session => <option key={session.id} value={session.id}>{session.name}</option>)}
+        </select></label>
+        <label>CCD <select aria-label="汞谱 CCD" value={plotCcd} onChange={event => setCcdIndex(Number(event.target.value))} disabled={!selected}>
+          {selected?.layout.ccd_indices.map(index => <option key={index} value={index}>CCD {index + 1}</option>)}
+        </select></label>
+        <button type="button" disabled={!selected} onClick={() => evidence.current?.showModal()}>校准结果与轨迹</button>
+      </>}
+      records={<div className="capture-record-table mercury-session-list"><table><thead><tr><th aria-label="当前会话"/><th>会话名称</th></tr></thead>
+        <tbody>{sessions.map(session => <tr key={session.id} aria-selected={selected?.id === session.id}>
+          <td>{selected?.id === session.id && <RowSelectionArrow/>}</td><td><button type="button" disabled={busy || auto || Boolean(selected && activeStates.has(selected.status))}
+            aria-pressed={selected?.id === session.id} title={session.name} onClick={() => void choose(session)}><strong>{session.name}</strong><small>{labels[session.status]}</small></button></td>
+        </tr>)}</tbody></table>{!sessions.length && <div className="empty-state compact-empty">暂无汞灯校准会话</div>}</div>}
+      controls={<>          <MercuryCalibrationMonitor
             selected={selected}
             run={run}
             busy={busy}
@@ -241,24 +217,14 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
             auto={auto}
             canWrite={canWrite}
           />
-          {selected && (
-            <section className="surface mercury-spectrum">
-              <div className="surface-heading">
-                <div>
-                  <h2>实时汞谱</h2>
-                </div>
-                <label className="inline-select">
-                  CCD{' '}
-                  <select value={plotCcd} onChange={(event) => setCcdIndex(Number(event.target.value))}>
-                    {selected.layout.ccd_indices.map((index) => (
-                      <option key={index} value={index}>
-                        {index + 1}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <SpectrumInspector key={`${token}:${selected.id}:${plotCcd}`}
+</>}
+      footer={<>
+        <span>{selected ? labels[selected.status] : '尚未选择会话'} · {selected?.last_message || '等待操作'}</span>
+        <span>稳定进度：{selected ? `${selected.stabilized_frames}/${selected.stabilization_frames}` : '--'}</span>
+        <span>原始帧：{selected?.frames.length ?? 0}</span>
+        <span>安全态：{selected ? selected.safe_off ? '已关闭' : '谱源活动' : '--'}</span>
+      </>}>
+      {selected ? <>              <SpectrumInspector fitPlot iconToolbar classic ccdNavigation={{ current: plotCcd, indices: selected.layout.ccd_indices, choose: setCcdIndex }} key={`${token}:${selected.id}:${plotCcd}`}
                 points={curve?.points ?? []} label={`CCD ${plotCcd + 1} 汞谱`}
                 emptyText="推进到稳定帧后显示光谱"
                 markers={selected.lines.filter((line) => line.expected_ccd_index === plotCcd).flatMap((line) => [
@@ -267,8 +233,10 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
                   ...(line.observed_position === null ? [] : [{ key: `${line.id}-located`, kind: 'located' as const,
                     position: line.observed_position + 1, label: `${line.label} · 实测 ${(line.observed_position + 1).toFixed(2)}` }])
                 ])} />
-            </section>
-          )}
+</> : <SpectrumInspector fitPlot iconToolbar classic points={[]} label="实时汞谱" emptyText="建立或选择会话后开始汞灯调试"/>}
+    </DeviceDebugWorkbench>
+    <dialog ref={evidence} className="device-debug-evidence" aria-label="汞灯校准结果与轨迹">
+      <header><h2>校准结果与轨迹</h2><button type="button" onClick={() => evidence.current?.close()}>关闭</button></header>
           {selected && (
             <MercuryCalibrationResults
               selected={selected}
@@ -319,8 +287,6 @@ export function MercuryCalibrationPage({ token, canWrite, canExecute, onToast, e
               </section>
             </section>
           )}
-        </main>
-      </TaskLayout>
-    </div>
-  )
+    </dialog>
+  </div>
 }

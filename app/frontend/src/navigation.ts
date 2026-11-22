@@ -6,23 +6,20 @@ export type Page =
   | 'workspace'
   | 'methods'
   | 'migration'
-  | 'spectrum-migration'
-  | 'result-migration'
   | 'spectra'
   | 'postprocessing'
+  | 'prepared-import'
   | 'samples'
   | 'acquisition'
   | 'dispersion'
   | 'sample-acquisition'
   | 'evaporation-acquisition'
   | 'evaporation-curves'
-  | 'hardware-acquisition'
   | 'mercury-calibration'
   | 'analysis'
   | 'reports'
   | 'maintenance'
   | 'help'
-  | 'settings'
   | 'about'
   | 'users'
   | 'audit'
@@ -65,8 +62,8 @@ export const navigationGroups: NavigationGroup[] = [
   { id: 'analysis-tests', label: '分析测试', order: 40, description: '准备、摄谱、查看、分析与质控' },
   { id: 'data', label: '数据处理', order: 50, description: '重新计算、打印与导出' },
   { id: 'tools', label: '工具', order: 60, description: '设备校准与旧版迁移' },
-  { id: 'system', label: '系统管理', order: 70, description: '设置、维护、身份与审计' },
-  { id: 'help', label: '帮助', order: 80, description: '离线帮助与诊断信息' }
+  { id: 'system', label: '系统管理', order: 70, description: '维护、身份与审计' },
+  { id: 'help', label: '帮助', order: 80, description: '离线帮助与软件信息' }
 ]
 
 const validGroups = new Set(navigationGroups.map((group) => group.id))
@@ -145,7 +142,8 @@ export function entryForPage(
   preferredView?: string | null
 ): NavigationEntry | undefined {
   return (
-    entries.find((entry) => entry.page === page && (preferredView == null || entry.view === preferredView)) ??
+    entries.find((entry) => entry.page === page && entry.view === (preferredView ?? null)) ??
+    entries.find((entry) => entry.page === page && entry.view == null) ??
     entries.find((entry) => entry.page === page)
   )
 }

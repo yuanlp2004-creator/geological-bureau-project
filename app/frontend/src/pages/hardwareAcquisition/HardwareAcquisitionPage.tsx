@@ -1,388 +1,227 @@
-import { Activity, ChevronRight, RefreshCw, RotateCcw, ShieldAlert, SquareTerminal } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
-import { api, type HardwareOptions, type HardwareTask } from '../../api'
-import { CopyableCode } from '../../components/InformationDisplay'
-import { FormDisclosure, TaskLayout } from '../../layout/TaskLayout'
-import { HardwareAcquisitionForm } from './HardwareAcquisitionForm'
+import { ensureCaptureConnection } from '../acquisition/captureConnection'
+import { RefreshCw } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { api, type DeviceProfile, type HardwareOptions, type HardwareTask } from '../../api'
+import { AdvancedSettings } from '../../components/AdvancedSettings'
+import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
+import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
+import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
+import { HardwareAcquisitionForm, type ManualTurnDraft } from './HardwareAcquisitionForm'
 import { HardwareAcquisitionMonitor } from './HardwareAcquisitionMonitor'
 import { HardwareAcquisitionPlan } from './HardwareAcquisitionPlan'
 import { HardwareSpectrum } from './HardwareSpectrum'
 import { HardwareAnalysisSamplePanel } from './HardwareAnalysisSamplePanel'
-import { Props, activeStates, defaultTurns, labels, terminalStates } from './hardwareView'
-export function HardwareAcquisitionPage({ token, canWrite, canExecute, canSaveSample = false, onToast }: Props) {
+import { Props, activeStates, labels, terminalStates } from './hardwareView'
+
+export function HardwareAcquisitionPage({ token, canWrite, canExecute, canSaveSample = false,
+  actionsTarget, currentMethodId, onLockChange, onToast }: Props) {
   const [options, setOptions] = useState<HardwareOptions | null>(null)
-
   const [tasks, setTasks] = useState<HardwareTask[]>([])
-
   const [selected, setSelected] = useState<HardwareTask | null>(null)
-
+  const [screen, setScreen] = useState<'tasks' | 'capture'>('tasks')
+  const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
-
+  const [controlError, setControlError] = useState('')
   const [loading, setLoading] = useState(false)
-
   const [busy, setBusy] = useState(false)
-
-  const busyRef = useRef(false)
-
+  const request = useRef(false)
+  const mounted = useRef(true)
   const [auto, setAuto] = useState(false)
-
   const [name, setName] = useState('自动转角任务')
-
-  const [profileId, setProfileId] = useState<number | null>(null)
-
-  const [layoutId, setLayoutId] = useState<string>('default')
-
+  const [sampleName, setSampleName] = useState('')
+  const [currentProfile, setCurrentProfile] = useState<DeviceProfile | null>(null)
+  const [layoutId, setLayoutId] = useState('default')
   const [strategy, setStrategy] = useState<'short_to_long' | 'key_first'>('short_to_long')
-
   const [policy, setPolicy] = useState<'retry_then_stop' | 'manual'>('retry_then_stop')
-
   const [retryLimit, setRetryLimit] = useState(1)
-
   const [sample, setSample] = useState('280-288.acq')
-
   const [seed, setSeed] = useState(14)
-
-  const [turns, setTurns] = useState(defaultTurns)
-
   const [methodSelection, setMethodSelection] = useState('')
+  const [mode, setMode] = useState<'automatic' | 'manual'>('automatic')
+  const [manualTurns, setManualTurns] = useState<ManualTurnDraft[]>([{ id: 1, angle_deg: null, duration_seconds: 10 }])
   const [anomalies, setAnomalies] = useState('[]')
-
   const [interventionNote, setInterventionNote] = useState('')
-
+  const [viewStep, setViewStep] = useState<number | null>(null)
+  const desk = useRef<HTMLDivElement>(null)
+  const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null)
+  useLayoutEffect(() => {
+    const element = desk.current
+    if (!element) return
+    const page = element.closest<HTMLElement>('.hardware-page')
+    const viewport = element.closest('.page-scroll-region')
+    let frame = 0
+    const resize = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const bottom = viewport?.getBoundingClientRect().bottom ?? window.innerHeight
+        const spacing = page ? Number.parseFloat(getComputedStyle(page).paddingBottom) : 8
+        element.style.height = `${Math.max(360, Math.floor(bottom - element.getBoundingClientRect().top - spacing))}px`
+      })
+    }
+    const observer = new ResizeObserver(resize)
+    const messages = document.querySelector('[data-testid="runtime-messages"]')
+    if (messages) observer.observe(messages)
+    if (viewport) observer.observe(viewport)
+    window.addEventListener('resize', resize); resize()
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize', resize) }
+  }, [screen, selected?.id])
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
+  const remember = useCallback((next: HardwareTask) => {
+    if (!mounted.current) return
+    setSelected(next)
+    setTasks(current => [next, ...current.filter(item => item.id !== next.id)])
+  }, [])
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [nextOptions, nextTasks] = await Promise.all([
-        api.hardwareAcquisitionOptions(token),
-        api.hardwareAcquisitionTasks(token)
+      const [nextOptions, nextTasks, profile] = await Promise.all([
+        api.hardwareAcquisitionOptions(token), api.hardwareAcquisitionTasks(token), api.currentDeviceProfile(token)
       ])
+      if (!mounted.current) return
+      setOptions(nextOptions); setTasks(nextTasks)
+      setCurrentProfile(profile)
+      setLayoutId(current => current !== 'default' ? current : String(nextOptions.layouts[0]?.id ?? 'default'))
+      setMethodSelection(current => {
+        const method = nextOptions.methods.find(item => item.method_id === currentMethodId) ?? nextOptions.methods[0]
+        return current || (method ? `${method.method_id}-${method.version}` : '')
+      })
+      setSelected(current => current ? nextTasks.find(item => item.id === current.id) ?? current : null)
+    } catch (error) { setCurrentProfile(null); onToast(error instanceof Error ? error.message : '无法读取自动转角配置') }
+    finally { if (mounted.current) setLoading(false) }
+  }, [currentMethodId, onToast, token])
+  useEffect(() => { void load() }, [load])
 
-      setOptions(nextOptions)
-      setTasks(nextTasks)
-      setProfileId((current) => current ?? nextOptions.profiles[0]?.id ?? null)
-      setLayoutId((current) =>
-        current !== 'default' ? current : String(nextOptions.layouts[0]?.id ?? 'default')
-      )
-      setSelected((current) =>
-        current ? (nextTasks.find((item) => item.id === current.id) ?? current) : (nextTasks[0] ?? null)
-      )
-    } catch (error) {
-      onToast(error instanceof Error ? error.message : '无法读取自动转角配置')
-    } finally {
-      setLoading(false)
-    }
-  }, [onToast, token])
-
-  useEffect(() => {
-    void load()
-  }, [load])
-  const refreshSelected = useCallback(async () => {
-    if (!selected) return
+  // Automatic steps and manual commands share one request lock.
+  const control = useCallback(async (action: 'start' | 'step' | 'pause' | 'resume' | 'stop' | 'accept' | 'retry') => {
+    if (!selected || request.current || !canExecute) return
+    request.current = true; setBusy(true); setControlError('')
     try {
-      const next = await api.hardwareAcquisitionTask(token, selected.id)
-
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
+      const methods = { start: api.startHardwareAcquisitionTask, step: api.stepHardwareAcquisitionTask,
+        pause: api.pauseHardwareAcquisitionTask, resume: api.resumeHardwareAcquisitionTask, stop: api.stopHardwareAcquisitionTask }
+      const next = action === 'accept' || action === 'retry'
+        ? await api.interveneHardwareAcquisitionTask(token, selected.id, action, interventionNote.trim())
+        : action === 'step' && selected.execution_mode === 'manual'
+          ? await api.hardwareAcquisitionTask(token, selected.id) : await methods[action](token, selected.id)
+      remember(next)
+      if (!mounted.current) return
+      setAuto(activeStates.has(next.status) && action !== 'pause' && action !== 'stop')
+      if (action === 'accept' || action === 'retry') setInterventionNote('')
     } catch (error) {
-      onToast(error instanceof Error ? error.message : '无法刷新硬件任务')
-    }
-  }, [onToast, selected, token])
-
-  const advance = useCallback(async () => {
-    if (!selected || busyRef.current || !activeStates.has(selected.status)) return
-    busyRef.current = true
-    try {
-      const next = await api.stepHardwareAcquisitionTask(token, selected.id)
-
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      if (terminalStates.has(next.status) || next.status === 'manual_intervention') setAuto(false)
-    } catch (error) {
+      if (!mounted.current) return
       setAuto(false)
-      onToast(error instanceof Error ? error.message : '自动转角推进失败')
-    } finally {
-      busyRef.current = false
-    }
-  }, [onToast, selected, token])
-
+      const message = error instanceof Error ? error.message : '采集操作失败，请重试或停止采集'
+      setControlError(message); onToast(message)
+      // A response can be lost after the command commits. Read its actual state before retrying.
+      try { remember(await api.hardwareAcquisitionTask(token, selected.id)) } catch { /* Keep the retry and stop actions available. */ }
+    } finally { request.current = false; if (mounted.current) setBusy(false) }
+  }, [canExecute, interventionNote, onToast, remember, selected, token])
   useEffect(() => {
-    if (!auto || !selected || !activeStates.has(selected.status)) return
-    const timer = window.setInterval(() => {
-      void advance()
-    }, 450)
-
-    return () => window.clearInterval(timer)
-  }, [advance, auto, selected])
-  const apply = async (action: 'start' | 'step' | 'pause' | 'resume' | 'stop') => {
-    if (!selected) return
-    if (action !== 'step' && !canExecute) {
-      onToast('当前账户没有硬件执行权限')
-      return
-    }
-    setBusy(true)
-    try {
-      const methods = {
-        start: api.startHardwareAcquisitionTask,
-        step: api.stepHardwareAcquisitionTask,
-        pause: api.pauseHardwareAcquisitionTask,
-        resume: api.resumeHardwareAcquisitionTask,
-        stop: api.stopHardwareAcquisitionTask
-      }
-
-      const next = await methods[action](token, selected.id)
-
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      if (terminalStates.has(next.status) || next.status === 'manual_intervention' || action === 'stop')
-        setAuto(false)
-    } catch (error) {
-      onToast(error instanceof Error ? error.message : '硬件任务控制失败')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const intervene = async (action: 'accept' | 'retry' | 'stop') => {
-    if (!selected || !canExecute) return onToast('当前账户没有硬件执行权限')
-    setBusy(true)
-    try {
-      const next = await api.interveneHardwareAcquisitionTask(
-        token,
-        selected.id,
-        action,
-        interventionNote.trim()
-      )
-
-      setSelected(next)
-      setTasks((current) => current.map((item) => (item.id === next.id ? next : item)))
-      setInterventionNote('')
-      onToast(
-        action === 'accept' ? '人工确认已记录' : action === 'retry' ? '人工重试已排程' : '任务已安全停止'
-      )
-    } catch (error) {
-      onToast(error instanceof Error ? error.message : '人工接管操作失败')
-    } finally {
-      setBusy(false)
-    }
-  }
-
+    if (!auto || !selected || !canExecute || !activeStates.has(selected.status) || busy) return
+    const timer = window.setTimeout(() => { void control('step') }, selected.execution_mode === 'manual' ? 100 : 450)
+    return () => window.clearTimeout(timer)
+  }, [auto, busy, canExecute, control, selected])
+  const running = tasks.find(task => !terminalStates.has(task.status) && task.status !== 'draft')
+  const locked = busy || Boolean(selected && selected.status !== 'draft' && !terminalStates.has(selected.status))
+  useLayoutEffect(() => {
+    onLockChange?.(screen === 'capture' && locked ? '请先停止当前自动转角采集，再切换页面。' : null)
+    return () => onLockChange?.(null)
+  }, [locked, onLockChange, screen])
   const create = async (event: FormEvent) => {
     event.preventDefault()
-    if (!canWrite) return onToast('当前账户没有硬件任务写入权限')
-    let turnPayload: unknown
-    let anomalyPayload: unknown
-    try {
-      turnPayload = JSON.parse(turns)
-      anomalyPayload = JSON.parse(anomalies)
-      if (!Array.isArray(turnPayload) || !turnPayload.length || !Array.isArray(anomalyPayload))
-        throw new Error('转角计划和异常脚本必须是数组')
-    } catch (error) {
-      setCreateError(error instanceof Error ? error.message : '转角 JSON 无法解析')
-      onToast(error instanceof Error ? error.message : '转角 JSON 无法解析')
-      return
-    }
+    if (!canWrite || request.current) return
     setCreateError(null)
-    setBusy(true)
+    const manual = mode === 'manual'
     try {
+      if (!methodSelection) throw new Error('请选择已发布方法')
+      if (manual) {
+        const method = options?.methods.find(item => `${item.method_id}-${item.version}` === methodSelection)
+        if (!method?.turn_angles?.length) throw new Error('所选方法未配置转角，请先完善方法')
+        if (manualTurns.some(row => row.angle_deg === null || !method.turn_angles?.includes(row.angle_deg)))
+          throw new Error('请为每行选择所选方法中的对应转角')
+      }
+    } catch (error) { setCreateError(error instanceof Error ? error.message : '调试参数无法解析'); return }
+    request.current = true; setBusy(true)
+    try {
+      const profile = await api.currentDeviceProfile(token)
+      setCurrentProfile(profile)
+      if (!profile) throw new Error('请先在设备参数中选择通讯口，或勾选模拟设备用于测试')
+      const anomalyPayload: unknown = profile.transport === 'simulator' ? JSON.parse(anomalies) : []
+      if (!Array.isArray(anomalyPayload)) throw new Error('模拟异常脚本必须是数组')
+      const [methodId, version] = methodSelection.split('-').map(Number)
+      await ensureCaptureConnection(token, profile.id, profile.transport, 'hardware-acquisition')
       const next = await api.createHardwareAcquisitionTask(token, {
-        name,
-        device_profile_id: profileId,
-        ccd_layout_id: layoutId,
-        strategy,
-        anomaly_policy: policy,
-        retry_limit: retryLimit,
-        sample_name: sample,
-        simulator_sample: sample,
-        seed,
-        turns: methodSelection ? [] : turnPayload,
-        method_id: methodSelection ? Number(methodSelection.split('-')[0]) : null,
-        method_version: methodSelection ? Number(methodSelection.split('-')[1]) : null,
+        name: name.trim(), sample_name: sampleName.trim(), device_profile_id: profile.id, ccd_layout_id: layoutId,
+        execution_mode: mode, manual_turns: manual ? manualTurns.map(({ angle_deg, duration_seconds }) => ({ angle_deg, duration_seconds })) : [],
+        strategy: manual ? 'short_to_long' : strategy, anomaly_policy: policy, retry_limit: retryLimit, simulator_sample: sample, seed,
+        method_id: methodId, method_version: version,
         simulator_anomalies: anomalyPayload
       })
-
-      setTasks((current) => [next, ...current])
-      setSelected(next)
-      onToast('自动转角任务已创建，计划顺序已锁定')
-    } catch (error) {
-      setCreateError(error instanceof Error ? error.message : '创建自动转角任务失败')
-      onToast(error instanceof Error ? error.message : '创建自动转角任务失败')
-    } finally {
-      setBusy(false)
-    }
+      remember(next); setAuto(false); setViewStep(null); setControlError(''); setCreating(false); setScreen('capture')
+      onToast('任务已建立，点击“开始采集”执行全部转角')
+    } catch (error) { setCreateError(error instanceof Error ? error.message : '创建自动转角任务失败') }
+    finally { request.current = false; if (mounted.current) setBusy(false) }
   }
-
-  const currentStep = selected?.steps.find((step) => step.order_index === selected.current_step_index)
-
-  const selectedProfile = options?.profiles.find((profile) => profile.id === profileId)
-
-  const latestDecision = selected?.decisions[selected.decisions.length - 1]
-
-  const latestTrace = selected?.traces[selected.traces.length - 1]
-
-  const isExternal = selected?.status === 'deferred_external'
-
-  return (
-    <div
-      className="page-content hardware-page refined-page remaining-page"
-      data-testid="hardware-acquisition-page"
-    >
-      
-      <TaskLayout
-        className="hardware-layout"
-        hasItems={Boolean(tasks.length)}
-        current={selected ? `${selected.name} · ${labels[selected.status] ?? selected.status}` : '尚未选择'}
-       actions={<div className="file-actions"> <button className="secondary-button" onClick={() => void load()} disabled={loading}>
-          <RefreshCw size={15} className={loading ? 'spin' : ''} />
-          刷新
-        </button> </div>}>
-        <aside className="surface hardware-task-list">
-          <div className="surface-heading">
-            <div>
-              <h2>
-                转角任务 <span className="count-badge">{tasks.length}</span>
-              </h2>
-            </div>
-            <RotateCcw size={17} />
+  const choose = async (id: number) => {
+    if (request.current || (running && running.id !== id)) return
+    request.current = true; setBusy(true)
+    try {
+      const task = await api.hardwareAcquisitionTask(token, id)
+      if (['draft','ready'].includes(task.status))
+        await ensureCaptureConnection(token, task.device_profile_id, task.transport, 'hardware-acquisition')
+      remember(task)
+      setAuto(false); setViewStep(null); setControlError(''); setInterventionNote(''); setScreen('capture')
+    } catch (error) { onToast(error instanceof Error ? error.message : '读取转角任务失败') }
+    finally { request.current = false; if (mounted.current) setBusy(false) }
+  }
+  const finish = () => { if (!locked) { setAuto(false); setScreen('tasks'); void load() } }
+  const actions = screen === 'tasks' ? <div className="file-actions">
+    <button className="secondary-button" onClick={() => void load()} disabled={loading || busy}><RefreshCw size={15} />刷新</button>
+    <button className="primary-button" disabled={!canWrite || busy || loading || Boolean(running)} onClick={() => { setCreateError(null); setCreating(true); void load() }}>
+      <SpectroscopyIcon name="sample-input" />新建任务</button>
+  </div> : <button className="secondary-button" onClick={finish} disabled={locked}>
+    <SpectroscopyIcon name="finish" />返回任务列表</button>
+  return <div className="page-content hardware-page refined-page remaining-page" data-testid="hardware-acquisition-page" data-stage={screen}>
+    {actionsTarget ? createPortal(actions, actionsTarget) : <div className="hardware-page-actions">{actions}</div>}
+    {screen === 'tasks' ? <SpectroscopyTaskList title="自动转角" busy={busy || loading} runningId={running?.id}
+      tasks={tasks.map(task => ({ id: task.id, name: task.name, status: labels[task.status] ?? task.status,
+        details: `${task.sample_name || '未命名样品'} · ${task.total_steps} 个转角 · ${task.execution_mode === 'manual' ? '手动顺序' : task.strategy === 'key_first' ? '关键波段优先' : '短波 → 长波'} · ${task.transport === 'simulator' ? '模拟设备' : '串口设备'}`,
+        completed: terminalStates.has(task.status) }))} onChoose={id => { void choose(id) }} />
+      : selected && <>
+        <div ref={desk} className="hardware-capture-desk">
+          <header className="hardware-desk-caption"><span>自动转角</span><strong title={selected.name}>{selected.name}</strong>
+            <span>{selected.method_id ? `${selected.execution_mode === 'manual' ? '手动 · ' : ''}方法 v${selected.method_version}` : selected.execution_mode === 'manual' ? '手动计划' : '独立调试'}</span></header>
+          <div ref={setToolbarTarget} className="hardware-desk-toolbar" aria-label="转角谱图选择" />
+          <div className="hardware-desk-body">
+            <HardwareAcquisitionPlan selected={selected} viewStep={viewStep} onChoose={setViewStep} />
+            <HardwareSpectrum key={selected.id} token={token} selected={selected} viewStep={viewStep}
+              toolbarTarget={toolbarTarget} onFollow={() => setViewStep(null)} />
+            <HardwareAcquisitionMonitor selected={selected} control={control} busy={busy} canExecute={canExecute}
+              auto={auto} controlError={controlError} interventionNote={interventionNote} setInterventionNote={setInterventionNote}>
+              {selected.method_id && selected.status === 'completed' && <AdvancedSettings title="保存分析样品">
+                <HardwareAnalysisSamplePanel key={selected.id} token={token} task={selected} canSave={canSaveSample} onSaved={load} onToast={onToast} />
+              </AdvancedSettings>}
+            </HardwareAcquisitionMonitor>
           </div>
-          {tasks.length ? (
-            <div className="hardware-task-rows">
-              {tasks.map((task) => {
-                const metadata = `${task.transport === 'serial' ? '真实串口' : '确定性模拟器'} · ${labels[task.status] ?? task.status}`
-
-                return (
-                  <button
-                    key={task.id}
-                    className={selected?.id === task.id ? 'active' : ''}
-                    onClick={() => setSelected(task)}
-                  >
-                    <span className={`task-state-dot ${task.status}`} />
-                    <span>
-                      <strong title={task.name}>{task.name}</strong>
-                      <small title={metadata}>{metadata}</small>
-                    </span>
-                    <ChevronRight size={14} />
-                  </button>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="empty-state compact-empty">暂无自动转角任务</div>
-          )}
-        </aside>
-        <main className="hardware-main">
-          <FormDisclosure
-            title="建立转角与采集计划"
-            error={createError}
-            hasItems={Boolean(tasks.length)}
-            objectKey={selected?.id}
-          >
-            <HardwareAcquisitionForm
-              methodSelection={methodSelection}
-              setMethodSelection={setMethodSelection}
-              create={create}
-              name={name}
-              setName={setName}
-              canWrite={canWrite}
-              busy={busy}
-              profileId={profileId}
-              setProfileId={setProfileId}
-              options={options}
-              layoutId={layoutId}
-              setLayoutId={setLayoutId}
-              strategy={strategy}
-              setStrategy={setStrategy}
-              policy={policy}
-              setPolicy={setPolicy}
-              retryLimit={retryLimit}
-              setRetryLimit={setRetryLimit}
-              sample={sample}
-              setSample={setSample}
-              seed={seed}
-              setSeed={setSeed}
-              turns={turns}
-              setTurns={setTurns}
-              anomalies={anomalies}
-              setAnomalies={setAnomalies}
-              selectedProfile={selectedProfile}
-            />
-          </FormDisclosure>
-          <HardwareAcquisitionMonitor
-            selected={selected}
-            apply={apply}
-            busy={busy}
-            canExecute={canExecute}
-            setAuto={setAuto}
-            auto={auto}
-            currentStep={currentStep}
-            isExternal={isExternal}
-            interventionNote={interventionNote}
-            setInterventionNote={setInterventionNote}
-            intervene={intervene}
-          />
-          {selected && <HardwareAcquisitionPlan selected={selected} />}
-          {selected && <HardwareAnalysisSamplePanel key={selected.id} token={token} task={selected}
-            canSave={canSaveSample} onSaved={load} onToast={onToast} />}
-          {selected && <HardwareSpectrum key={`${token}:${selected.id}`} token={token} selected={selected} />}
-          {selected && (
-            <section className="hardware-evidence-grid">
-              <section className="surface">
-                <div className="surface-heading">
-                  <div>
-                    <h2>
-                      全部命令与响应 <span className="count-badge">{selected.traces.length}</span>
-                    </h2>
-                  </div>
-                  <SquareTerminal size={16} />
-                </div>
-                <div className="evidence-list">
-                  {[...selected.traces].reverse().map((trace, index) => (
-                    <div className="evidence-row" key={`${String(trace.sequence_no)}-${index}`}>
-                      <span className={`trace-kind ${String(trace.direction)}`}>{String(trace.kind)}</span>
-                      <strong title={String(trace.name)}>{String(trace.name)}</strong>
-                      <CopyableCode value={String(trace.payload_sha256 || '')} visibleLength={12} empty="—" />
-                      <small title={String(trace.safe_state || '')}>{String(trace.safe_state || '')}</small>
-                    </div>
-                  ))}
-                  {!selected.traces.length && <div className="empty-state compact-empty">暂无追踪记录</div>}
-                </div>
-              </section>
-              <section className="surface">
-                <div className="surface-heading">
-                  <div>
-                    <h2>
-                      全部异常处置 <span className="count-badge">{selected.decisions.length}</span>
-                    </h2>
-                  </div>
-                  <ShieldAlert size={16} />
-                </div>
-                <div className="evidence-list">
-                  {[...selected.decisions].reverse().map((decision, index) => (
-                    <div className="evidence-row" key={`${String(decision.id)}-${index}`}>
-                      <span className={`trace-kind ${String(decision.decision)}`}>
-                        {String(decision.decision)}
-                      </span>
-                      <strong title={String(decision.anomaly_kind || 'none')}>
-                        {String(decision.anomaly_kind || 'none')}
-                      </strong>
-                      <small title={String(decision.reason || '')}>{String(decision.reason || '')}</small>
-                    </div>
-                  ))}
-                  {!selected.decisions.length && (
-                    <div className="empty-state compact-empty">暂无处置决定</div>
-                  )}
-                </div>
-              </section>
-            </section>
-          )}
-          {selected && latestTrace && (
-            <div className="hardware-footer-note">
-              <Activity size={14} />
-              最近事件：{String(latestTrace.name)} ·{' '}
-              {String(latestDecision?.reason || selected.last_message || '')}
-            </div>
-          )}
-        </main>
-      </TaskLayout>
-    </div>
-  )
+          <footer className="hardware-desk-status" aria-label="自动转角状态">
+            <span>{labels[selected.status]} · 已完成 {selected.completed_steps} / {selected.total_steps} 个转角</span>
+            <progress value={selected.progress} max={100} aria-label="转角总进度" />
+            <span>{selected.execution_mode === 'manual' ? '手动顺序' : selected.strategy === 'key_first' ? '关键波段优先' : '短波 → 长波'}</span>
+            <span>{selected.transport === 'simulator' ? '模拟设备' : '串口设备'} · 原始帧 {selected.frames.length}</span>
+          </footer>
+        </div>
+      </>}
+    <SpectroscopyTaskDialog open={creating} title="新建自动转角任务" busy={busy} error={createError}
+      onCancel={() => { if (!busy) setCreating(false) }} actions={<button className="primary-button" type="submit"
+        form="hardware-task-form" disabled={!canWrite || busy || loading}>{busy ? '建立中…' : '建立任务'}</button>}>
+      <HardwareAcquisitionForm create={create} name={name} setName={setName} sampleName={sampleName} setSampleName={setSampleName}
+        mode={mode} setMode={setMode} manualTurns={manualTurns} setManualTurns={setManualTurns}
+        canWrite={canWrite} busy={busy || loading} options={options}
+        layoutId={layoutId} setLayoutId={setLayoutId} strategy={strategy} setStrategy={setStrategy}
+        policy={policy} setPolicy={setPolicy} retryLimit={retryLimit} setRetryLimit={setRetryLimit}
+        sample={sample} setSample={setSample} seed={seed} setSeed={setSeed}
+        anomalies={anomalies} setAnomalies={setAnomalies} selectedProfile={currentProfile ?? undefined}
+        methodSelection={methodSelection} setMethodSelection={setMethodSelection} />
+    </SpectroscopyTaskDialog>
+  </div>
 }

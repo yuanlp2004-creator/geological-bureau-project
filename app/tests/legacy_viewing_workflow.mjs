@@ -1,0 +1,320 @@
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { call, navigate } from './contract_browser_support.mjs'
+import { openViewerFiles, openViewerPlotAction, selectViewerFile } from './legacy_desk_test_support.mjs'
+
+export async function checkSpectrumQueue(page, host, recordCount) {
+  const pointTable=host.getByRole('region',{name:'多样品同点强度'})
+  const rightRows=pointTable.locator('tbody tr'), leftRows=host.locator('.spectrum-record-list tbody tr')
+  const curves=host.locator('svg.spectrum-plot .spectrum-line')
+  assert.equal(await rightRows.count(),recordCount)
+  assert.equal(await leftRows.count(),recordCount)
+  assert.equal(await curves.count(),1)
+  const values=nodes=>nodes.map(row=>[...row.cells].map(cell=>cell.textContent))
+  assert.deepEqual((await rightRows.evaluateAll(values)).map(row=>row.slice(0,3)),
+    (await leftRows.evaluateAll(values)).map(row=>row.slice(1)))
+  const rowHeight=await rightRows.first().evaluate(row=>row.offsetHeight)
+  const headerHeight=await pointTable.locator('thead').evaluate(header=>header.offsetHeight)
+  const visibleRows=await pointTable.evaluate((node,height)=>(node.clientHeight-node.querySelector('thead').offsetHeight)/height,rowHeight)
+  assert.equal(headerHeight,rowHeight)
+  assert.equal(visibleRows,await page.evaluate(()=>innerWidth<=1150?2:3))
+  const alignedRows=async firstIndex=>{
+    const table=await pointTable.boundingBox()
+    const first=await rightRows.nth(firstIndex).boundingBox()
+    const last=await rightRows.nth(firstIndex+visibleRows-1).boundingBox()
+    assert.ok(Math.abs(first.y-table.y-headerHeight)<1,'first row starts below the fixed header')
+    assert.ok(Math.abs(last.y+last.height-table.y-table.height)<1,'last visible row fits in the table')
+  }
+  const waitForRow=async index=>page.waitForFunction(top=>
+    Math.abs(document.querySelector('.legacy-multi-point-table').scrollTop-top)<.5,index*rowHeight)
+  await alignedRows(0)
+  await pointTable.hover()
+  const outerScroll=()=>host.evaluate(node=>node.closest('.page-scroll-region').scrollTop)
+  const previousOuterScroll=await outerScroll()
+  await page.mouse.wheel(0,120)
+  await waitForRow(1)
+  await alignedRows(1)
+  const headerBackgrounds=await pointTable.locator('thead th').evaluateAll(cells=>cells.map(cell=>getComputedStyle(cell).backgroundColor))
+  assert.equal(headerBackgrounds.length,4)
+  for(const color of headerBackgrounds) assert.match(color,/^rgb\(/,'sticky heading must cover the scrolled row')
+  await page.mouse.wheel(0,120)
+  await waitForRow(2)
+  await page.mouse.wheel(0,-120)
+  await waitForRow(1)
+  await pointTable.press('ArrowUp')
+  await waitForRow(0)
+  await page.mouse.wheel(0,-120)
+  await waitForRow(0)
+  assert.equal(await outerScroll(),previousOuterScroll)
+  await pointTable.evaluate((node,height)=>{node.scrollTop=height*4.35},rowHeight)
+  await waitForRow(4)
+  await alignedRows(4)
+  await pointTable.press('End')
+  const last=rightRows.last()
+  await waitForRow(recordCount-visibleRows)
+  await alignedRows(recordCount-visibleRows)
+  assert.ok(Math.abs((await pointTable.locator('thead th').first().boundingBox()).y-(await pointTable.boundingBox()).y)<2)
+  const lastId=await last.locator('td[data-record-id]').getAttribute('data-record-id')
+  await last.click()
+  await curves.and(host.locator(`[data-curve-id="${lastId}"]`)).waitFor()
+  assert.equal(await last.getAttribute('aria-selected'),'true')
+  assert.ok(await pointTable.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop<2))
+  await pointTable.press('Home')
+  await waitForRow(0)
+  await alignedRows(0)
+}
+
+export async function checkLegacyViewing(page,result,output,resizeWindow) {
+  const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..')
+  const check=text=>result.checks.push(text)
+  const sources=[['wdt','20141029_测试.wdt','dispersion'],['cmt','测试15-5_20170509_[1-18].cmt','spectra'],['edt','20141029_测试.edt','evaporation']]
+  const imported={}
+  for(const [format,name,purpose] of sources) {
+    const file=path.join(root,'Spec Source/Bin/DATA',name)
+    const digest=createHash('sha256').update(await readFile(file)).digest('hex')
+    imported[format]=await call(page,'/api/v1/legacy-migration/open-file',{path:file,purpose})
+    assert.equal(imported[format].source_sha256,digest)
+    console.log(`Imported isolated ${format}: ${imported[format].record_ids.length} records`)
+    imported[format].file=file;imported[format].digest=digest
+  }
+  const method=(await call(page,'/api/v1/methods')).find(item=>item.status==='active')
+  await call(page,'/api/v1/methods/current',{method_id:method.id})
+  const entries=(await call(page,'/api/v1/capabilities')).capabilities.flatMap(item=>item.navigation_entries)
+  const go=async name=>{
+    const entry=entries.find(item=>item.page===name&&(name!=='dispersion'||item.view==='curve'))
+    await navigate(page,entry.group,entry.label,name==='dispersion'?'[data-testid="dispersion-page"]':name==='evaporation-curves'?'[data-testid="evaporation-curves-page"]':'[data-testid="spectrum-viewer-page"]')
+    return name==='dispersion'?page.getByTestId('dispersion-page'):name==='evaporation-curves'?page.getByTestId('evaporation-spectrum-page'):page.getByTestId('spectrum-viewer-page')
+  }
+  const settle=async host=>{await host.locator('svg.spectrum-plot .spectrum-line').first().waitFor();await page.waitForTimeout(200)}
+  const hover=async(host,fraction=.4)=>{const box=await host.locator('svg.spectrum-plot .plot-background').first().boundingBox();await page.mouse.move(box.x+box.width*fraction,box.y+box.height*.5);await page.waitForTimeout(80)}
+  const resize=async(width,height)=>{
+    if(resizeWindow)await resizeWindow(width,height)
+    else if(process.env.QA_CDP)await page.evaluate(value=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:value}}),{width,height})
+    else await page.setViewportSize({width,height})
+  }
+  const layout=async(host,name)=>{
+    await host.evaluate(node=>{for(let current=node.parentElement;current;current=current.parentElement)current.scrollTop=0})
+    await page.waitForTimeout(150)
+    const boxes=await host.evaluate(node=>[...node.querySelectorAll('.legacy-view-desk,.legacy-view-rail,.legacy-view-center,svg.spectrum-plot')].map(el=>{const r=el.getBoundingClientRect();return{type:el.className.baseVal??el.className,x:r.left,y:r.top,w:r.width,h:r.height,right:r.right}}))
+    const viewport=await page.evaluate(()=>innerWidth)
+    assert.ok(boxes.every(box=>box.w>0&&box.h>0&&box.x>=0&&box.right<=viewport+1),`${name}: invalid geometry`)
+    const overflow=await host.evaluate(node=>[...node.querySelectorAll('.legacy-view-desk button,.legacy-view-desk select,.legacy-view-desk input')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1)}).map(el=>el.getAttribute('aria-label')||el.textContent))
+    assert.deepEqual(overflow,[],`${name}: controls outside viewport`)
+    const plotBox=await host.locator('svg.spectrum-plot .plot-background').first().boundingBox(),logBox=await page.getByTestId('runtime-messages').boundingBox()
+    assert.ok(plotBox.y+plotBox.height<=logBox.y+1,`${name}: peak plot is behind information panel`)
+    assert.ok(plotBox.height>=100,`${name}: peak is too short to inspect (${plotBox.height}px)`)
+    const ticks=await host.locator('svg.spectrum-plot .plot-tick-label').evaluateAll(nodes=>nodes.filter(node=>node.getAttribute('text-anchor')==='end').map(node=>{const r=node.getBoundingClientRect();return{top:r.top,bottom:r.bottom}}).sort((a,b)=>a.top-b.top))
+    assert.ok(ticks.every((tick,index)=>!index||tick.top>=ticks[index-1].bottom+2),`${name}: vertical tick labels overlap`)
+    await page.screenshot({path:path.join(output,`${name}.png`),fullPage:true});result.layouts.push({name,boxes})
+  }
+  let writes=0
+  const observe=request=>{if(['POST','PATCH','PUT','DELETE'].includes(request.method()))writes++}
+  page.on('request',observe)
+  for(const [theme,width,height] of [['light',1440,1000],['dark',1060,720]]) {
+    await resize(width,height)
+    await call(page,'/api/v1/settings',{display:{theme,density:'compact'}},'PATCH')
+    await page.reload();await page.locator('.sidebar').waitFor()
+    let host=await go('dispersion')
+    await selectViewerFile(host, imported.wdt.source_sha256, true)
+    const band=host.locator('.dispersion-task-list').getByRole('button',{name:'D13-9',exact:true})
+    await band.waitFor();await band.click()
+    await settle(host)
+    assert.equal(await host.getByLabel('谱图同步读数').count(),0)
+    assert.equal(await host.locator('.dispersion-task-list tbody tr').count(),imported.wdt.record_ids.length)
+    assert.ok(await host.getByRole('heading',{name:'色散谱线列表',exact:true}).isVisible())
+    assert.equal(await host.locator('.legacy-grayscale').count(),1)
+    const gray=host.locator('.legacy-grayscale'),plot=host.locator('svg.spectrum-plot')
+    const stripBox=await gray.locator(':scope > rect').boundingBox(),peakBox=await plot.locator('.plot-background').boundingBox()
+    assert.ok(Math.abs(stripBox.x-peakBox.x)<=1&&Math.abs(stripBox.width-peakBox.width)<=1,'灰度与峰形横轴像素对齐')
+    assert.equal((await gray.getAttribute('viewBox')).split(' ')[2],(await plot.getAttribute('viewBox')).split(' ')[2])
+    const raw=await gray.locator('rect[data-point-index="123"]').evaluate(el=>({value:Number(el.dataset.intensity),gray:Number(el.dataset.gray)}))
+    const maximum=await gray.locator('[data-intensity]').evaluateAll(nodes=>Math.max(5000,...nodes.map(node=>Number(node.dataset.intensity))))
+    // Away from .5 the old Delphi and JS rounding agree; the exact tie is covered by the unit golden.
+    assert.equal(raw.gray,Math.max(0,255-Math.round(255*Math.sqrt(Math.max(0,raw.value)/maximum))))
+    result.wdt_maximum=maximum
+    assert.ok(Math.abs(maximum-14894)<1,`D13-9峰高应与旧截图约14894一致，实际${maximum}`)
+    const count=writes,before=await gray.getAttribute('data-x-min')
+    await host.getByRole('button',{name:'横向放大',exact:true}).click();assert.notEqual(await gray.getAttribute('data-x-min'),before)
+    await host.getByRole('button',{name:'适合图像',exact:true}).click();await hover(host)
+    assert.match(await host.getByLabel('谱图同步读数').textContent(),/积分强度/)
+    const frame=await plot.boundingBox();await hover(host,.7);const after=await plot.boundingBox();assert.equal(after.height,frame.height)
+    assert.equal(writes,count)
+    await host.getByLabel('定位谱线',{exact:true}).fill('1,1')
+    await host.getByLabel('定位谱线',{exact:true}).press('Enter')
+    await host.getByLabel('谱图同步读数').filter({hasText:/坐标：1 .*已锁定/}).waitFor()
+    assert.equal(await host.getByRole('button',{name:/^(处理设置|输入点位|曲线管理)$/}).count(),0)
+    assert.equal(writes,count)
+    await layout(host,`wdt-${theme}`)
+    check(`${theme}: 真实WDT谱带表、常驻谱线栏、平方根灰度、峰形共用坐标、悬停尺寸稳定及观察零写入`)
+
+    host=await go('spectra')
+    await selectViewerFile(host,`raw:${imported.cmt.source_sha256}`)
+    await page.waitForFunction(sha=>document.querySelector('[data-testid="spectrum-viewer-page"]')?.dataset.sourceSha===sha,imported.cmt.source_sha256)
+    await settle(host)
+    await host.getByLabel('曝光区间',{exact:true}).fill('1-15');await host.getByLabel('曝光区间',{exact:true}).press('Enter');await settle(host)
+    await host.locator('.legacy-spectrum-banner').filter({hasText:'[1-15]'}).waitFor()
+    assert.equal(await host.locator('.legacy-grayscale').count(),0)
+    const pointTable=host.getByRole('region',{name:'多样品同点强度'})
+    const body=pointTable.locator('tbody')
+    const countCurves=()=>host.locator('svg.spectrum-plot .spectrum-line').count()
+    assert.equal(await host.getByLabel('谱图同步读数').count(),0)
+    assert.equal(await host.locator('.legacy-view-desk input[type="checkbox"]').count(),0)
+    const rows=host.locator('.spectrum-record-list tbody tr'),second=rows.nth(1)
+    await checkSpectrumQueue(page,host,imported.cmt.record_ids.length)
+    check(`${theme}: CMT 同点表只显示完整行，滚轮每次移动一行，选中末条后保留滚动位置`)
+    await second.locator('td').nth(1).click();await settle(host)
+    assert.equal(await countCurves(),1)
+    await second.locator('.row-indicator .row-selection-arrow').waitFor()
+    await rows.first().click({modifiers:['Control']});await settle(host)
+    assert.equal(await countCurves(),2)
+    await host.getByRole('button',{name:'锁定谱带记录',exact:true}).click()
+    await rows.nth(2).click({modifiers:['Control']})
+    assert.equal(await countCurves(),2)
+    await host.getByRole('button',{name:'解锁谱带记录',exact:true}).click()
+    await host.getByLabel('曝光区间',{exact:true}).fill('1-15');await host.getByLabel('曝光区间',{exact:true}).blur();await settle(host)
+    const count2=writes
+    await hover(host,.25)
+    const cells=await body.locator('td[data-record-id]').evaluateAll(nodes=>nodes.filter(node=>node.textContent!=='').map(node=>({id:node.dataset.recordId,value:node.textContent})))
+    assert.equal(cells.length,2)
+    const readout=await host.getByLabel('谱图同步读数').textContent(),index=Number(readout.match(/坐标：(\d+)/)[1])-1
+    for(const cell of cells){const record=await call(page,`/api/v1/spectra/${encodeURIComponent(cell.id)}?ccd=0&exposure_start=1&exposure_end=15&intensity_mode=legacy_2_0_2`);assert.ok(Math.abs(Number(cell.value)-record.ccd.points[index].value)<.000001)}
+    assert.equal(writes,count2)
+    assert.equal(await host.locator('.legacy-viewing-settings,.spectrum-query-panel').count(),0)
+    let dialog=await openViewerFiles(host)
+    await dialog.getByLabel('谱图来源').waitFor();assert.equal(await dialog.getByRole('navigation').count(),0)
+    await dialog.getByRole('button',{name:'关闭选择谱文件'}).click()
+    await host.getByRole('button',{name:'参考校正设置',exact:true}).click()
+    dialog=host.getByRole('dialog',{name:'参考校正',exact:true})
+    await dialog.getByLabel('参考校正偏移').fill('0.01');await dialog.getByRole('button',{name:'还原校正与视图'}).click()
+    assert.equal(await dialog.getByLabel('参考校正偏移').inputValue(),'0')
+    await dialog.getByRole('button',{name:'关闭参考校正'}).click()
+    await host.getByLabel('定位谱线',{exact:true}).fill('1,1')
+    await host.getByLabel('定位谱线',{exact:true}).press('Enter')
+    assert.match(await host.getByLabel('谱图同步读数').textContent(),/坐标：1.*已锁定/)
+    await host.getByRole('button',{name:'适合图像',exact:true}).click();await hover(host,.25)
+    const lockedBox=await host.locator('svg.spectrum-plot .plot-background').first().boundingBox()
+    await page.mouse.click(lockedBox.x+lockedBox.width*.25,lockedBox.y+lockedBox.height*.5,{button:'right'})
+    const spectrumMenu=page.getByRole('menu',{name:'谱图菜单',exact:true})
+    await spectrumMenu.waitFor()
+    assert.equal(await spectrumMenu.getByRole('menuitemcheckbox',{name:'显示分时',exact:true}).count(),0)
+    assert.equal(await host.getByRole('button',{name:'查看分时明细',exact:true}).count(),0)
+    await spectrumMenu.getByRole('menuitem',{name:'查看原始帧',exact:true}).click()
+    dialog=host.getByRole('dialog',{name:'原始帧',exact:true})
+    await dialog.getByRole('button',{name:'显示原始帧',exact:true}).click()
+    await host.locator('.legacy-spectrum-banner').filter({hasText:'燃烧帧：[1]'}).waitFor()
+    await openViewerPlotAction(host,'查看原始帧')
+    await host.getByRole('dialog',{name:'原始帧',exact:true}).getByRole('button',{name:'返回区间均值',exact:true}).click();await settle(host)
+    await host.getByRole('button',{name:'打印谱图',exact:true}).click()
+    dialog=host.getByRole('dialog',{name:'显示与打印',exact:true})
+    await dialog.getByLabel('CCD 打印内容').selectOption('grayscale,curve')
+    assert.equal(await dialog.getByLabel('CCD 打印内容').inputValue(),'grayscale,curve')
+    await dialog.getByRole('button',{name:'关闭显示与打印'}).click()
+    assert.equal(writes,count2)
+    await hover(host,.25)
+    check(`${theme}: 谱图查看在原定位输入框定位，原始帧由谱图右键打开，通用查看隐藏分时`)
+    await layout(host,`cmt-${theme}`)
+    check(`${theme}: 无记录/曝光勾选框，整行单选与Ctrl叠加、锁定保护、曝光直接生效及同点原值联动`)
+    await host.getByRole('button',{name:'切换单样品查看',exact:true}).click()
+    assert.equal(await host.locator('.legacy-grayscale').count(),1)
+    await host.getByRole('button',{name:'下一 CCD',exact:true}).click();await settle(host)
+    assert.equal(await host.getByLabel('选择CCD',{exact:true}).inputValue(),'1')
+    await host.getByRole('button',{name:'上一 CCD',exact:true}).click();await settle(host)
+    check(`${theme}: 单样品/多样品切换与CCD切换均由当前保存谱图驱动`)
+
+    host=await go('evaporation-curves')
+    await selectViewerFile(host,`raw:${imported.edt.source_sha256}`)
+    await settle(host);assert.equal(await host.locator('.legacy-grayscale').count(),1)
+    assert.equal(await host.getByLabel('谱图同步读数').count(),0)
+    await hover(host,.45);assert.match(await host.getByLabel('谱图同步读数').textContent(),/积分强度/)
+    assert.equal(await page.locator('.evaporation-frame-statistics,.evaporation-curves-grid').count(),0)
+    assert.equal(await host.getByTestId('evaporation-frame-statistics').count(),0)
+    assert.equal(await host.getByRole('button',{name:/^(筛选|查看原始帧|查看分时明细|蒸发帧统计)$/}).count(),0)
+    assert.equal(await host.getByRole('checkbox',{name:'跟随鼠标'}).count(),0)
+    await openViewerPlotAction(host,'蒸发帧统计')
+    dialog=host.getByRole('dialog',{name:'蒸发帧统计',exact:true})
+    await dialog.getByTestId('evaporation-time-chart').waitFor()
+    assert.equal(await dialog.getByRole('button',{name:'打开蒸发文件',exact:true}).count(),0)
+    await dialog.getByLabel('蒸发统计量').selectOption('integral_value')
+    await dialog.getByRole('columnheader',{name:'原始帧积分',exact:true}).waitFor()
+    if(theme==='light')await page.screenshot({path:path.join(output,'edt-statistics-dialog.png')})
+    await dialog.getByRole('button',{name:'关闭蒸发帧统计'}).click()
+    assert.equal(await host.getByTestId('evaporation-frame-statistics').count(),0)
+    check(`${theme}: 删除下方第二套蒸发列表与工具；帧统计只在当前记录窗口按需读取`)
+    await layout(host,`edt-${theme}`)
+    check(`${theme}: 真实EDT保留单一谱带/灰度/峰形工作区`)
+  }
+  const printHost=await go('dispersion')
+  await selectViewerFile(printHost,imported.wdt.source_sha256,true)
+  await printHost.locator('.dispersion-task-list').getByRole('button',{name:'D13-9',exact:true}).click();await settle(printHost)
+  const scope=printHost.getByTestId('dispersion-curve-monitor')
+  const printResponse = page.waitForResponse(response => response.url().includes('/print-pdf') && response.request().method() === 'POST')
+  if (process.env.QA_CDP) {
+    await page.evaluate(() => {
+      const bridge = window.chrome.webview, original = bridge.postMessage
+      window.__legacyViewingSaveOriginal = original
+      const capture = function(message) {
+        const command = typeof message === 'string' ? JSON.parse(message) : message
+        if (command.cmd === 'save_export_file') {
+          window.__legacyViewingPdf = command.payload
+          queueMicrotask(() => window.__TAURI_INTERNALS__.runCallback(command.callback, null))
+          return
+        }
+        return original.call(bridge, message)
+      }
+      bridge.postMessage = capture
+      if (bridge.postMessage !== capture) throw new Error('QA PDF interception unavailable')
+    })
+    try {
+      await scope.getByRole('button', { name: '打印谱图', exact: true }).click()
+      const response = await printResponse; assert.equal(response.status(), 200, await response.text())
+      await page.waitForFunction(() => !!window.__legacyViewingPdf)
+      const pdf = await page.evaluate(() => ({ type: window.__legacyViewingPdf.contentType,
+        signature: String.fromCharCode(...window.__legacyViewingPdf.bytes.slice(0, 4)), size: window.__legacyViewingPdf.bytes.length }))
+      assert.equal(pdf.type, 'application/pdf'); assert.equal(pdf.signature, '%PDF'); assert.ok(pdf.size > 1000)
+    } finally {
+      await page.evaluate(() => { window.chrome.webview.postMessage = window.__legacyViewingSaveOriginal; delete window.__legacyViewingPdf; delete window.__legacyViewingSaveOriginal })
+    }
+  } else {
+    const downloaded = page.waitForEvent('download')
+    await scope.getByRole('button', { name: '打印谱图', exact: true }).click()
+    const response = await printResponse; assert.equal(response.status(), 200, await response.text())
+    const download = await downloaded, destination = path.join(output, 'saved-spectrum.pdf')
+    await download.saveAs(destination)
+    const pdf = await readFile(destination); assert.equal(pdf.subarray(0, 4).toString(), '%PDF'); assert.ok(pdf.length > 1000)
+  }
+  check('旧WDT查看按当前可见范围生成真实PDF，桌面取消保存不改变谱带')
+  let host=await go('spectra')
+  await selectViewerFile(host,`raw:${imported.cmt.source_sha256}`);await settle(host)
+  const failure='**/api/v1/spectra/raw%3A*?*'
+  await page.route(failure,route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'测试读谱失败'})}))
+  await host.getByRole('button',{name:'下一 CCD',exact:true}).click()
+  await host.getByRole('button',{name:'重试读取',exact:true}).waitFor()
+  assert.equal(await host.locator('svg.spectrum-plot').count(),0)
+  assert.equal(await host.locator('.legacy-grayscale').count(),0)
+  await page.unroute(failure);await host.getByRole('button',{name:'重试读取',exact:true}).click();await settle(host)
+  check('切CCD遇503立即清空旧灰度和峰形，重试恢复，避免旧数据冒充新CCD')
+  page.removeListener('request',observe)
+  for(const source of Object.values(imported))assert.equal(createHash('sha256').update(await readFile(source.file)).digest('hex'),source.digest)
+  result.source_integrity=Object.fromEntries(Object.entries(imported).map(([format,source])=>[format,{path:source.file,sha256:source.digest,records:source.record_ids.length}]))
+  check('三份旧文件原件SHA-256保持；全部导入和观察操作仅在隔离库内')
+  const observer = `viewer_cleanup_${Date.now().toString(36)}`
+  const role=await call(page,'/api/v1/roles',{name:observer,permission_keys:['acquisition.read','runtime-events.read','settings.read']})
+  await call(page,'/api/v1/users',{username:observer,password:'Observer-QA-2026!',role_ids:[role.id]})
+  const spectraReads=[]
+  const track=request=>{if(request.url().includes('/api/v1/spectra/'))spectraReads.push(request.url())}
+  await page.getByRole('button',{name:'退出登录',exact:true}).click()
+  await page.getByRole('heading',{name:'登录工作台'}).waitFor()
+  page.on('request',track)
+  await page.getByLabel('用户名',{exact:true}).fill(observer);await page.getByLabel('密码',{exact:true}).fill('Observer-QA-2026!')
+  await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByTestId('workspace').waitFor()
+  const entry=entries.find(item=>item.page==='evaporation-curves')
+  await navigate(page,entry.group,entry.label,'[data-testid="evaporation-acquisition-viewer"]')
+  await page.getByLabel('已存蒸发实验').waitFor()
+  await page.getByTestId('evaporation-acquisition-viewer').getByTestId('evaporation-time-chart').waitFor()
+  assert.equal(await page.getByTestId('evaporation-spectrum-page').count(),0);assert.deepEqual(spectraReads,[])
+  page.removeListener('request',track)
+  check('仅采集读取权限保留精简帧查看，不访问谱图接口或复活旧卡片界面')
+}

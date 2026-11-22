@@ -1,5 +1,5 @@
 /** dispersion requests and models; moved without changing payloads or responses. */
-import { request } from './client'
+import { request, requestRaw } from './client'
 import type { DeviceEvent } from './devices'
 
 export type DispersionState =
@@ -31,6 +31,11 @@ export type DispersionLine = {
 }
 
 export type DispersionCalibrationVersion = {
+  legacy_results?: {
+    quadratic_coefficient: number; linear_coefficient: number; intercept: number
+    wave_per_step: number | null; wavelength_range: [number, number]; step_range: [number, number]; maximum_error: number
+    rows: Array<{line_id:number; measured_position:number; predicted_position:number; step_error:number}>
+  } | null
   display_name?: string
   archived?: boolean
   id: number
@@ -62,6 +67,8 @@ export type DispersionCalibrationVersion = {
 }
 
 export type DispersionTask = {
+  capture_turn?: import('./acquisition').CaptureTurn
+  capture_turns?: import('./acquisition').CaptureTurnPage[]
   id: number
   name: string
   status: DispersionState
@@ -85,6 +92,7 @@ export type DispersionTask = {
   failure_code: string | null
   failure_message: string | null
   lines: DispersionLine[]
+  legacy_lines?: Array<{line_id:number; ccd_index:number; point_index:number|null; measured_step:number|null}>
   frame_summary: Array<{ phase: 'burn' | 'dark'; frame_count: number; last_frame_index: number }>
   calibrations: DispersionCalibrationVersion[]
   layout: {
@@ -117,8 +125,9 @@ export type DispersionFrame = {
 }
 
 export type DispersionOptions = {
+  gap_limits_um?: [number, number]
   preliminary_defaults?: import('./system').PreliminaryConditions
-  legacy_sources?: Array<{ id: number; sample_name: string; band_name: string }>
+  legacy_sources?: Array<{ id: number; sample_name: string; band_name: string; band_id?:number;source_sha256?:string;source_filename?:string;record_index?:number;measure_time?:string }>
   ccd_layouts: Array<{
     id: number
     name: string
@@ -144,17 +153,40 @@ export type DispersionOptions = {
 }
 
 export const dispersionApi = {
-  updateDispersionWavelength: (token: string, taskId: number, lineId: number, wavelength: number) =>
-    request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/wavelength?wavelength_nm=${wavelength}`, {
+  deleteDispersionTask: (token: string, taskId: number) =>
+    request<void>(`/api/v1/dispersion/tasks/${taskId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  createDispersionSession: (token: string, payload: import('./acquisition').PreliminaryCaptureCreate) => request<DispersionTask>('/api/v1/dispersion/capture-sessions', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  dispersionCoordinate: (token: string, taskId: number, wavelength: number) =>
+    request<{ccd_index:number;point_index:number}>(`/api/v1/dispersion/tasks/${taskId}/coordinate?wavelength_nm=${wavelength}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+  addDispersionPoint: (token: string, taskId: number, ccd: number, point: number) =>
+    request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/line-points`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ ccd_index: ccd, point_index: point })
+    }),
+  updateDispersionWavelength: (token: string, taskId: number, lineId: number, wavelength: number, legacyInput = false) =>
+    request<DispersionLine>(`/api/v1/dispersion/tasks/${taskId}/lines/${lineId}/wavelength?wavelength_nm=${wavelength}&legacy_input=${legacyInput}`, {
       method: 'PATCH', headers: { Authorization: `Bearer ${token}` }
     }),
-  updateDispersionGap: (token: string, taskId: number, gap: number, gapUm: number) =>
-    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/gaps/${gap}?gap_um=${gapUm}`, {
+  updateDispersionGap: (token: string, taskId: number, gap: number, gapUm: number, legacyLimits = false) =>
+    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/gaps/${gap}?gap_um=${gapUm}&legacy_limits=${legacyLimits}`, {
       method: 'PATCH', headers: { Authorization: `Bearer ${token}` }
     }),
   saveDispersionDefaults: (token: string, payload: import('./system').PreliminaryConditions) =>
     request<import('./system').PreliminaryConditions>('/api/v1/dispersion/defaults', {
       method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
+    }),
+  saveDispersionCurve: (token: string, id: number, name: string) =>
+    request<DispersionCalibrationVersion>(`/api/v1/dispersion/calibrations/${id}/save?${new URLSearchParams({name})}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }
+    }),
+  allDispersionPositions: (token: string, taskId: number, action: 'save' | 'restore') =>
+    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/positions/${action}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }
     }),
   manageDispersionCalibration: (token: string, id: number, action: string, name?: string) =>
     request(
@@ -168,8 +200,8 @@ export const dispersionApi = {
     }),
   dispersionOptions: (token: string) =>
     request<DispersionOptions>('/api/v1/dispersion/options', { headers: { Authorization: `Bearer ${token}` } }),
-  dispersionTasks: (token: string) =>
-    request<DispersionTask[]>('/api/v1/dispersion/tasks', { headers: { Authorization: `Bearer ${token}` } }),
+  dispersionTasks: (token: string, limit=50, offset=0) =>
+    request<DispersionTask[]>(`/api/v1/dispersion/tasks?limit=${limit}&offset=${offset}`, { headers: { Authorization: `Bearer ${token}` } }),
   createDispersionTask: (token: string, payload: Record<string, unknown>) =>
     request<DispersionTask>('/api/v1/dispersion/tasks', {
       method: 'POST',
@@ -212,6 +244,14 @@ export const dispersionApi = {
       `/api/v1/dispersion/tasks/${taskId}/frames${ccdIndex === undefined ? '' : `?ccd_index=${ccdIndex}`}`,
       { headers: { Authorization: `Bearer ${token}` } }
     ),
+  dispersionObservationSpectrum: (token: string, taskId: number, ccd: number, start: number, end: number) =>
+    request<{ points: number[] }>(`/api/v1/dispersion/tasks/${taskId}/observation-spectrum?ccd=${ccd}&exposure_start=${start}&exposure_end=${end}`,
+      { headers: { Authorization: `Bearer ${token}` } }),
+  printDispersionObservation: async (token: string, taskId: number, payload: {
+    ccd: number; exposure_start: number; exposure_end: number; x_min: number; x_max: number; y_min: number; y_max: number
+  }) => (await requestRaw(`/api/v1/dispersion/tasks/${taskId}/observation-spectrum/print-pdf`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
+  })).blob(),
   addDispersionLine: (
     token: string,
     taskId: number,
@@ -232,9 +272,9 @@ export const dispersionApi = {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     }),
-  locateAllDispersionLines: (token: string, taskId: number) =>
+  locateAllDispersionLines: (token: string, taskId: number, legacyWindow = false) =>
     request<{ located: DispersionLine[]; errors: Array<Record<string, unknown>>; all_succeeded: boolean }>(
-      `/api/v1/dispersion/tasks/${taskId}/lines/locate-all`,
+      `/api/v1/dispersion/tasks/${taskId}/lines/locate-all?legacy_window=${legacyWindow}`,
       { method: 'POST', headers: { Authorization: `Bearer ${token}` } }
     ),
   moveDispersionLine: (token: string, taskId: number, lineId: number, direction: 'short' | 'long', steps = 1) =>

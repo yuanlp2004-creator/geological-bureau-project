@@ -43,12 +43,12 @@ def test_two_apps_keep_database_sessions_keys_and_events_separate(tmp_path: Path
         assert b.get("/api/v1/auth/me", headers=kb | authorization).status_code == 401
         assert (
             a.patch(
-                "/api/v1/settings", headers=ka | authorization, json={"display": {"density": "compact"}}
+                "/api/v1/settings", headers=ka | authorization, json={"analysis": {"wait_time_ms": 120}}
             ).status_code
             == 200
         )
-        assert first.service.get_settings()["display"]["density"] == "compact"
-        assert second.service.get_settings()["display"]["density"] == "comfortable"
+        assert first.service.get_settings()["analysis"]["wait_time_ms"] == 120
+        assert second.service.get_settings()["analysis"]["wait_time_ms"] == 100
         # Cached device state belongs to the app, not a module singleton.
         assert first.devices_service() is first.devices_service()
         assert first.devices_service() is not second.devices_service()

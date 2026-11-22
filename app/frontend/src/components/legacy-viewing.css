@@ -1,0 +1,213 @@
+/* The acquisition desk and the three viewers share one outer page gutter. */
+:root .app-shell { --spectroscopy-page-inline:var(--page-heading-inline); --spectroscopy-page-top:var(--page-heading-top); --spectroscopy-page-max:1640px; }
+:root .app-shell .spectroscopy-workbench.page-content { padding-inline:var(--spectroscopy-page-inline); }
+:root .app-shell .page-scroll-region:has(.spectroscopy-workbench,.legacy-viewing-page) { scrollbar-gutter:stable; }
+:root .app-shell .legacy-viewing-page { max-width:none; padding:0; }
+:root .app-shell .legacy-viewing-page.page-content { max-width:var(--spectroscopy-page-max); padding-inline:var(--spectroscopy-page-inline); padding-bottom:8px; }
+:root .app-shell .spectroscopy-workbench.spectroscopy-curve-workbench { max-width:var(--spectroscopy-page-max); padding-top:var(--spectroscopy-page-top); }
+:root .app-shell .legacy-view-desk { display:flex; flex-direction:column; height:max(520px,calc(100dvh - 224px)); min-height:0; min-width:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--surface); }
+:root .app-shell .legacy-view-top { display:flex; align-items:center; flex-wrap:wrap; flex:0 0 auto; gap:4px; padding:4px 6px; border-bottom:1px solid var(--line); }
+:root .app-shell .legacy-view-top :is(label,.spectroscopy-line-bar) { display:flex; align-items:center; flex-wrap:wrap; gap:5px; font-size:12px; }
+:root .app-shell .legacy-view-top .spectroscopy-line-bar { padding:0; background:transparent; }
+:root .app-shell .legacy-view-top :is(input,select) { height:28px; min-height:28px; padding:2px 5px; font-size:12px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--ink); }
+:root .app-shell .legacy-view-top input { width:76px; min-width:0; }
+:root .app-shell .legacy-view-top select { width:180px; max-width:32vw; }
+:root .app-shell .legacy-view-top .inspector-workflow-tools { width:auto; margin:0; padding:0; border:0; flex-wrap:nowrap; }
+:root .app-shell .legacy-view-top .inspector-icon-button { width:26px; min-width:26px; height:26px; min-height:26px; padding:3px; }
+:root .app-shell .legacy-view-top .spectroscopy-action-icon { width:16px; height:16px; }
+:root .app-shell .legacy-view-body { display:grid; grid-template-columns:210px minmax(0,1fr); flex:1; min-height:0; min-width:0; }
+:root .app-shell .legacy-view-body.has-line-rail { grid-template-columns:190px minmax(0,1fr) 180px; }
+:root .app-shell .legacy-view-body.left-hidden { grid-template-columns:minmax(0,1fr); }
+:root .app-shell .legacy-view-body.left-hidden.has-line-rail { grid-template-columns:minmax(0,1fr) 180px; }
+:root .app-shell .legacy-view-body > :is(aside,section,main) { min-width:0; min-height:0; }
+:root .app-shell .legacy-view-desk > .spectrum-viewer-layout { gap:0; align-items:stretch; }
+:root .app-shell .legacy-view-table tr.spectrum-record-row { display:table-row; }
+:root .app-shell .legacy-view-rail { display:flex; flex-direction:column; padding:0; border:0; border-radius:0; background:var(--surface); border-right:1px solid var(--line); overflow:hidden; }
+:root .app-shell .legacy-view-rail.right { border-right:0; border-left:1px solid var(--line); }
+:root .app-shell .legacy-view-rail > header { display:flex; align-items:center; gap:5px; justify-content:space-between; flex:0 0 auto; height:28px; padding:3px 6px; background:var(--surface-soft); border-bottom:1px solid var(--line); }
+:root .app-shell .legacy-view-rail h2 { font-size:12px; font-weight:600; margin:0; }
+:root .app-shell .legacy-view-rail header button { padding:0 3px; min-height:20px; border:0; background:transparent; color:var(--muted); cursor:pointer; }
+:root .app-shell .legacy-view-table-wrap { overflow:auto; flex:1; min-height:0; }
+:root .app-shell .legacy-view-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; }
+:root .app-shell .legacy-view-table :is(th,td) { height:25px; padding:2px 5px; border:1px solid var(--line); text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:400; }
+:root .app-shell .legacy-view-table th { background:var(--surface-soft,var(--surface)); position:sticky; top:0; z-index:1; }
+:root .app-shell .legacy-view-table tr[aria-selected='true'] { background:var(--ui-selected,var(--surface-soft)); color:var(--blue); }
+:root .app-shell .legacy-view-table td button { display:block; width:100%; text-align:inherit; padding:0; min-height:20px; border:0; background:transparent; color:inherit; font-size:12px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+:root .app-shell .legacy-view-table .row-indicator { width:20px; text-align:center; vertical-align:middle; padding:0; }
+:root .app-shell .legacy-view-table input[type='checkbox'] { width:12px; height:12px; }
+:root .app-shell .legacy-view-center { display:flex; flex-direction:column; padding:0; border:0; border-radius:0; overflow:hidden; background:var(--surface-soft); }
+:root .app-shell .legacy-view-center .legacy-observation-toolbar { flex:0 0 auto; padding:4px; row-gap:2px; margin:0; border-top:0; }
+:root .app-shell .legacy-view-center .observation-status { flex:0 0 auto; padding:2px 6px; min-height:24px; gap:6px; font-size:11px; }
+:root .app-shell .legacy-view-center .observation-status button { min-height:22px; height:22px; font-size:11px; }
+:root .app-shell .legacy-spectrum-visual { --legacy-blue:#a8c9eb; display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; margin:6px; padding:8px 10px 4px; background:var(--legacy-blue); border:1px solid var(--line); overflow:hidden; }
+:root .app-shell .legacy-spectrum-banner { flex:0 0 auto; margin:0 5.625% 6px; min-height:22px; line-height:22px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; background:#70e3e8; color:#be2424; font-size:12px; font-weight:600; }
+:root .app-shell .legacy-grayscale { flex:0 0 106px; width:100%; height:106px; touch-action:none; user-select:none; }
+:root .app-shell .legacy-grayscale text { font-size:10px; fill:#213857; }
+:root .app-shell .legacy-peak-plot { position:relative; min-height:0; flex:1; display:flex; }
+:root .app-shell .legacy-plot-readout { position:absolute; inset:0 5.625% auto auto; max-width:88%; padding:2px 5px; border:1px solid var(--line); border-radius:3px; background:var(--surface); color:var(--ink); font-size:12px; pointer-events:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+:root .app-shell .legacy-peak-plot > svg.spectrum-plot { width:100%; height:100%; min-height:140px; border:0; border-radius:0; background:transparent; }
+:root .app-shell .legacy-peak-plot .plot-background { fill:white; }
+:root .app-shell .legacy-peak-plot .plot-label { fill:#24652c; }
+:root .app-shell .legacy-peak-plot .plot-grid { stroke:#8d9299; stroke-dasharray:4 3; }
+:root .app-shell .legacy-peak-plot .plot-axis { stroke:#8d9299; }
+:root .app-shell .legacy-peak-plot .spectrum-line.priority { stroke:#f12222 !important; stroke-width:1; }
+:root .app-shell .legacy-multi-point-table {
+ --point-row-height:25px;
+ --point-visible-rows:3;
+ margin:0 5.625% 6px;
+ height:calc(var(--point-row-height) * (1 + var(--point-visible-rows)));
+ flex:none;
+ overflow:hidden auto;
+ overscroll-behavior-y:contain;
+ scroll-snap-type:y mandatory;
+ scroll-padding-top:var(--point-row-height);
+ background:var(--surface);
+}
+:root .app-shell .legacy-multi-point-table .legacy-view-table { border-collapse:separate; border-spacing:0; }
+:root .app-shell .legacy-multi-point-table tbody tr { scroll-snap-align:start; }
+:root .app-shell .legacy-multi-point-table .legacy-view-table tr[aria-selected='true'] { background:#0679c1; color:white; }
+:root .app-shell .legacy-view-center .spectrum-inspector { display:flex; flex-direction:column; min-height:0; flex:1; margin:0; }
+:root .app-shell .legacy-view-center .inspector-tools { flex:0 0 auto; margin:0; padding:4px; border-bottom:1px solid var(--line); gap:2px; }
+:root .app-shell .legacy-view-center .inspector-icon-tools { column-gap:var(--spectrum-tool-gap); }
+:root .app-shell .legacy-view-center .inspector-readout { flex:0 0 auto; margin:0; padding:3px 6px; gap:4px; font-size:11px; }
+:root .app-shell .legacy-view-center .inspector-readout > small { display:none; }
+:root .app-shell .legacy-view-center .inspector-readout input { min-height:24px; height:24px; width:65px; }
+:root .app-shell .legacy-view-footer { flex:0 0 auto; padding:3px 6px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+:root[data-theme='dark'] .app-shell .legacy-spectrum-visual { --legacy-blue:#253d56; }
+:root[data-theme='dark'] .app-shell .legacy-spectrum-banner { background:#1b6378; color:#ffd28b; }
+:root[data-theme='dark'] .app-shell .legacy-grayscale text { fill:#d3e4f5; }
+:root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-background { fill:#122536; }
+:root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-label { fill:#a9dcb1; }
+:root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-grid { stroke:#49647a; }
+@media(max-width:1150px) {
+  :root .app-shell .legacy-view-body { grid-template-columns:164px minmax(0,1fr); }
+  :root .app-shell .legacy-view-body.has-line-rail { grid-template-columns:145px minmax(0,1fr) 138px; }
+  :root .app-shell .legacy-view-body.left-hidden.has-line-rail { grid-template-columns:minmax(0,1fr) 138px; }
+  :root .app-shell .legacy-view-center .inspector-icon-button { width:24px !important; min-width:24px !important; height:24px !important; min-height:24px !important; flex-basis:24px !important; padding:3px !important; }
+  :root .app-shell .legacy-grayscale { flex-basis:88px; height:88px; }
+  :root .app-shell .legacy-spectrum-visual { margin:4px; padding:5px 4px 0; }
+}
+
+:root .app-shell .viewer-operation-dialog { width:min(820px,calc(100vw - 40px)); max-height:85dvh; overflow:auto; padding:18px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 14px 48px #0005; }
+:root .app-shell .viewer-operation-dialog::backdrop { background:#06172766; }
+:root .app-shell .viewer-operation-dialog > header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+:root .app-shell .viewer-operation-dialog > header h2 { margin:0; font-size:17px; }
+:root .app-shell .viewer-operation-dialog > header button { min-width:28px; min-height:28px; border:0; background:transparent; color:var(--muted); font-size:20px; cursor:pointer; }
+:root .app-shell .viewer-dialog-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:16px; }
+:root .app-shell .viewer-dialog-fields label { display:flex; flex-direction:column; gap:6px; font-size:12px; }
+:root .app-shell .viewer-dialog-fields :is(input,select) { width:100%; min-height:30px; border:1px solid var(--line); border-radius:4px; padding:4px 6px; background:var(--surface); color:var(--ink); }
+:root .app-shell .viewer-dialog-actions { display:flex; gap:8px; flex-wrap:wrap; }
+:root .app-shell .viewer-frame-table { max-height:180px; overflow:auto; margin-top:12px; }
+:root .app-shell .viewer-operation-dialog .observation-plot { height:260px; min-height:240px; }
+
+:root .app-shell .spectroscopy-curve-workbench { padding-top:var(--spectroscopy-page-top); }
+:root .app-shell .legacy-view-center.dispersion-curve-monitor { padding:0; }
+:root .app-shell .legacy-view-center.dispersion-curve-monitor > .legacy-view-center { flex:1; min-height:0; }
+:root .app-shell .legacy-view-center .spectrum-record-row > td { display:table-cell; }
+:root .app-shell .legacy-view-top input[type='checkbox'] { width:13px; height:13px; min-height:13px; }
+
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-rail { position:static; display:flex; flex-direction:column; gap:0; padding:0; min-height:0; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table-wrap { display:block; margin:0; padding:0; min-height:0; max-height:none; flex:1 1 0; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table { height:auto; margin:0; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table :is(td,th) { height:24px; padding:1px 4px; line-height:22px; }
+:root .app-shell .legacy-viewing-page .legacy-multi-point-table .legacy-view-table :is(td,th) {
+ height:var(--point-row-height);
+ line-height:21px;
+ border-width:0 1px 1px 0;
+}
+:root .app-shell .legacy-viewing-page .legacy-multi-point-table .legacy-view-table :is(td,th):first-child { border-left-width:1px; }
+:root .app-shell .legacy-viewing-page .legacy-multi-point-table .legacy-view-table th { border-top-width:1px; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table td button { display:block; height:22px; min-height:22px; max-height:22px; padding:0; margin:0; line-height:22px; border:0; border-radius:0; background:transparent; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table .spectrum-concentration-toggle button {
+  display:grid; place-items:center; color:var(--blue);
+}
+.spectrum-concentration-toggle button[aria-expanded='true'] svg { transform:rotate(180deg); }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .legacy-view-table .spectrum-concentration-cell {
+  padding:0; white-space:normal; line-height:1.4;
+}
+.spectrum-concentration-panel {
+  max-height:230px; overflow:auto; padding:6px 8px; background:var(--surface-soft, var(--surface));
+  overflow-wrap:anywhere;
+}
+.spectrum-concentration-method { color:var(--ui-muted); margin-bottom:4px; }
+.spectrum-concentration-panel ul { margin:0; padding:0; list-style:none; }
+.spectrum-concentration-panel li {
+  display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.05fr); gap:8px; align-items:baseline;
+  border-top:1px solid var(--line); padding:4px 0;
+}
+.spectrum-concentration-panel li > :last-child { text-align:right; font-variant-numeric:tabular-nums; }
+.spectrum-concentration-unavailable { color:var(--ui-muted); }
+.spectrum-record-list .spectrum-concentration-panel small { white-space:normal; overflow:visible; }
+:root .app-shell .legacy-viewing-page .legacy-view-center .inspector-tools { flex-wrap:wrap; }
+:root .app-shell .legacy-viewing-page .legacy-view-center .inspector-tools .inspector-icon-button { flex:0 0 22px; width:22px; min-width:22px; height:24px; min-height:24px; padding:3px; }
+:root .app-shell .legacy-viewing-page .legacy-view-center .inspector-tools .spectroscopy-ccd-choice select { min-width:40px; width:44px; max-width:44px; height:24px; min-height:24px; }
+:root .app-shell .legacy-viewing-page .legacy-view-desk .spectrum-workbench { min-height:0; padding:0; }
+
+:root .app-shell .legacy-viewing-page .legacy-view-desk > .legacy-view-body.spectrum-viewer-layout { display:grid; grid-template-columns:210px minmax(0,1fr); align-items:stretch; gap:0; }
+.analysis-observation-exposure { display:flex; align-items:center; flex-wrap:wrap; gap:4px; }
+.analysis-observation-exposure > button.secondary-button { min-height:24px; padding:2px 6px; font-size:12px; }
+:root .app-shell .legacy-spectrum-visual .legacy-grayscale { flex-shrink:1; min-height:44px; }
+:root .app-shell .legacy-spectrum-visual .legacy-peak-plot { min-height:140px; }
+@media(max-width:1150px) {
+ :root .app-shell .legacy-viewing-page .legacy-view-desk > .legacy-view-body.spectrum-viewer-layout { grid-template-columns:154px minmax(0,1fr); }
+ :root .app-shell .legacy-viewing-page .legacy-multi-point-table { --point-visible-rows:2; }
+}
+
+/* Reserve space for the peak itself when the desktop viewport is short. */
+:root .app-shell .page-scroll-region:has(.legacy-viewing-page) > .app-page-heading { max-width:var(--spectroscopy-page-max); padding:var(--spectroscopy-page-top) var(--spectroscopy-page-inline) 0; }
+:root .app-shell .legacy-view-center.dispersion-curve-monitor > .dispersion-spectrum-view.legacy-view-center { padding:0; gap:0; }
+:root .app-shell .legacy-viewing-page.dispersion-page[data-view='curve'] .legacy-view-center.dispersion-curve-monitor { padding:0; }
+@media(max-height:800px) {
+ :root .app-shell .legacy-viewing-page .legacy-grayscale { height:48px; flex-basis:48px; min-height:44px; }
+ :root .app-shell .legacy-viewing-page .legacy-spectrum-banner { margin-bottom:3px; }
+ :root .app-shell .legacy-viewing-page .plot-y-axis-title { display:none; }
+ :root .app-shell .legacy-viewing-page .legacy-view-top input:not([type='checkbox']) { width:48px; }
+ :root .app-shell .legacy-viewing-page .legacy-view-top select { width:130px; }
+ :root .app-shell .legacy-viewing-page .legacy-view-top .spectroscopy-line-bar select { width:110px; }
+ :root .app-shell .legacy-viewing-page .spectrum-inspector .inspector-readout input { min-height:24px; height:24px; max-height:24px; }
+}
+
+/* FmView: flat 23px tools, separated groups, and the grid-style CCD picker. */
+:root .app-shell .legacy-view-desk .inspector-icon-button {
+ width:23px !important; min-width:23px !important; height:24px !important; min-height:24px !important;
+ flex:0 0 23px !important; padding:3px !important; border:1px solid transparent !important; border-radius:0 !important;
+ background:transparent !important; box-shadow:none !important;
+}
+:root .app-shell .legacy-view-desk .inspector-icon-button:not(:disabled):hover {
+ border-color:var(--line) !important; background:var(--surface-soft) !important; box-shadow:none;
+}
+:root .app-shell .legacy-view-desk .inspector-icon-button:is([aria-label='十字线'],[aria-label='区域放大'],[aria-label='滚动工具'])[aria-pressed='true'] {
+ border-color:#90c3e5 !important; background:#d9effc !important; box-shadow:none;
+}
+:root[data-theme='dark'] .app-shell .legacy-view-desk .inspector-icon-button:is([aria-label='十字线'],[aria-label='区域放大'],[aria-label='滚动工具'])[aria-pressed='true'] { background:#294a65 !important; border-color:#5d92b9 !important; }
+:root .app-shell .legacy-view-desk .inspector-icon-button:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
+:root .app-shell .legacy-view-desk .inspector-icon-button:disabled { border-color:transparent !important; background:transparent !important; box-shadow:none; }
+:root .app-shell .legacy-view-desk .spectroscopy-action-icon { width:16px; height:16px; }
+:root .app-shell .legacy-view-desk .legacy-observation-toolbar {
+ row-gap:0; padding:2px 4px; min-height:29px; border-top:0; border-bottom:1px solid var(--line); background:var(--surface-soft);
+}
+:root .app-shell .legacy-view-desk .legacy-ccd-picker {
+ position:relative; display:inline-flex; align-items:center; gap:4px;
+ width:36px; min-width:36px; height:24px; flex:0 0 36px; padding:3px 4px; border:1px solid transparent;
+}
+:root .app-shell .legacy-view-desk .legacy-ccd-picker:not(:has(select:disabled)):hover { background:var(--surface); border-color:var(--line); }
+:root .app-shell .legacy-view-desk .legacy-ccd-picker:focus-within { outline:2px solid var(--blue); outline-offset:-2px; }
+:root .app-shell .legacy-view-desk .legacy-ccd-arrow { width:0; height:0; border-inline:3px solid transparent; border-top:4px solid var(--ink); }
+:root .app-shell .legacy-view-desk .legacy-ccd-picker select {
+ position:absolute; inset:0; opacity:0; width:100%; height:100%; min-width:0; min-height:0; max-width:none; padding:0; cursor:pointer;
+}
+:root .app-shell .legacy-view-desk .legacy-ccd-picker:has(select:disabled) { opacity:.4; }
+:root .app-shell .legacy-record-toolbar { display:flex; align-items:center; gap:0; padding:0 4px; min-height:26px; border-bottom:1px solid var(--line); background:var(--surface-soft); }
+:root .app-shell .legacy-view-top { gap:0; padding:2px 4px; }
+:root .app-shell .legacy-view-top :is(label,.spectroscopy-line-bar) { gap:3px; }
+:root .app-shell .legacy-view-top :is(input,select) { height:24px; min-height:24px; border-radius:0; }
+:root .app-shell .legacy-view-top label { margin-right:3px; }
+:root .app-shell .legacy-view-top label > input { width:60px; }
+:root .app-shell .legacy-view-top label > select { width:223px; }
+:root .app-shell .legacy-view-top .inspector-workflow-tools { column-gap:var(--spectrum-tool-gap); }
+:root .app-shell .legacy-view-top > .inspector-icon-button + .inspector-icon-button { margin-inline-start:var(--spectrum-tool-gap); }
+:root .app-shell .legacy-view-top > .inspector-icon-button + .spectroscopy-line-bar,
+:root .app-shell .legacy-view-top > .spectroscopy-line-bar + .inspector-workflow-tools { margin-inline-start:var(--spectrum-tool-group-gap); }
+:root .app-shell .legacy-toolbar-separator { height:22px; width:1px; margin-inline:calc((var(--spectrum-tool-group-gap) - 1px) / 2); background:var(--line); flex:0 0 1px; }
+:root .app-shell .legacy-exposure-range { display:inline-flex; align-items:center; height:24px; border:1px solid var(--line); background:var(--surface); }
+:root .app-shell .legacy-view-top input[aria-invalid="true"][data-observation-input] { border-color: var(--danger, #b42318); }

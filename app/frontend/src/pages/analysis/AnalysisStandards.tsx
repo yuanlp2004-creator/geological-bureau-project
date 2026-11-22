@@ -1,5 +1,5 @@
 import { type AnalysisRun } from '../../api'
-import type { AnalysisCurveLine } from '../../api/analysis'
+import type { AnalysisCurveLine, AnalysisQcGroup } from '../../api/analysis'
 import { NumericInput } from '../../components/NumericInput'
 
 // 父页面统一持有草稿、选中项和请求状态。
@@ -33,7 +33,8 @@ export function AnalysisStandards({
     selected.quality.latest_snapshot?.groups.filter(
       (group) => group.line_id === curveLine.line_id && group.management_sample
     ) ?? []
-  const control = controls.find((group) => group.acquisition_task_id === controlTask) ?? controls[0]
+  const groupKey = (group: AnalysisQcGroup) => group.sample_group_position ?? group.acquisition_task_id
+  const control = controls.find((group) => groupKey(group) === controlTask) ?? controls[0]
   const adaptation = curveLine.control_adaptations?.[curveLine.control_adaptations.length - 1]
   const snapshot = curveLine.snapshots[curveLine.snapshots.length - 1]
   const currentFit = snapshot?.adjustment_set_id === curveLine.workspace.adjustment_set_id
@@ -44,13 +45,13 @@ export function AnalysisStandards({
         <label>
           管理样{' '}
           <select
-            value={control?.acquisition_task_id ?? ''}
+            value={control ? groupKey(control) : ''}
             disabled={busy || !controls.length}
             onChange={(event) => setControlTask(Number(event.target.value))}
           >
             {!controls.length && <option value="">暂无管理样</option>}
             {controls.map((group) => (
-              <option key={group.acquisition_task_id} value={group.acquisition_task_id}>
+              <option key={groupKey(group)} value={groupKey(group)}>
                 {group.sample_name} · 强度 {group.statistics.mean?.toFixed(6)}
               </option>
             ))}
@@ -69,6 +70,7 @@ export function AnalysisStandards({
               {
                 action: 'adapt_control',
                 control_task_id: control?.acquisition_task_id,
+                control_sample_group_position: control?.sample_group_position,
                 control_value: controlValue,
                 reason: `按管理样 ${control?.sample_name} 给定含量 ${controlValue} 适配标准强度`
               },

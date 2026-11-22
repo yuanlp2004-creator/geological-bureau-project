@@ -258,7 +258,14 @@ export function ResultMigrationPage({
             {runs.map((run) => (
               <button
                 key={run.id}
-                onClick={() => void api.resultMigrationRun(token, run.id).then(setActiveRun)}
+              disabled={busy}
+              onClick={async () => {
+                if(busy)return
+                setBusy(true)
+                try{setActiveRun(await api.resultMigrationRun(token,run.id))}
+                catch(error){onToast(error instanceof Error?error.message:'无法读取迁移记录')}
+                finally{setBusy(false)}
+              }}
                 className={activeRun?.id === run.id ? 'active' : ''}
               >
                 <span className={`migration-status ${run.status}`}>

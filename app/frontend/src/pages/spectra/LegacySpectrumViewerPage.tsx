@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { clampSpectrumZoom, ZOOM_IN, ZOOM_OUT } from '../../components/spectrumZoom'
 import {
   Activity,
   ChevronRight,
@@ -284,14 +285,14 @@ function LegacySpectrumViewerPage({ token, onToast }: { token: string; onToast: 
                   </button>
                   <button
                     className="icon-button"
-                    onClick={() => setZoom((current) => Math.min(16, current * 2))}
+                    onClick={() => setZoom((current) => clampSpectrumZoom(current / ZOOM_IN))}
                     title="放大"
                   >
                     <ZoomIn size={16} />
                   </button>
                   <button
                     className="icon-button"
-                    onClick={() => setZoom((current) => Math.max(1, current / 2))}
+                    onClick={() => setZoom((current) => clampSpectrumZoom(current / ZOOM_OUT))}
                     title="缩小"
                   >
                     <ZoomOut size={16} />

@@ -5,6 +5,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 from ..analysis.contracts import RecalculationAnalysis
+from ..analysis import AnalysisError
 from ..methods import MethodService
 from ..acquisition_import import AcquisitionRecordImporter
 from ...db import Database,utc_now
@@ -14,6 +15,8 @@ from .conversion import ConversionService
 from .exporting import ExportService
 from .recalculation import RecalculationService
 from .repository import PostProcessingRepository
+from .prepared import PreparedImportService
+from .full_time import FullTimeExport
 
 
 class PostProcessingService:
@@ -33,8 +36,10 @@ class PostProcessingService:
         self.methods = methods
         self.repository = PostProcessingRepository(database, methods=methods)
         self.conversion = ConversionService(database, self.repository, methods=methods, acquisitions=acquisitions)
+        self.prepared = PreparedImportService(self.conversion)
         self.recalculation = RecalculationService(database, self.repository, analysis=analysis, methods=methods)
         self.exporting = ExportService(database, self.repository)
+        self.full_time = FullTimeExport(database, methods)
 
     _id = staticmethod(PostProcessingRepository._id)
 
@@ -59,7 +64,14 @@ class PostProcessingService:
         return self.repository.conversions(limit)
 
     def recalculation_options(self, limit: int = 300) -> dict[str, Any]:
-        return self.repository.recalculation_options(limit)
+        limit = max(1, min(int(limit), 500))
+        return self.repository.recalculation_options(limit, self.recalculation.analysis.recalculation_curves(limit))
+
+    def recalculation_curve(self, snapshot_id: int, draft: dict[str, Any] | None = None) -> dict[str, Any]:
+        try:
+            return self.recalculation.analysis.recalculation_curve(snapshot_id, draft)
+        except AnalysisError as exc:
+            raise PostProcessingError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
 
     _recalc_dict = staticmethod(PostProcessingRepository._recalc_dict)
 

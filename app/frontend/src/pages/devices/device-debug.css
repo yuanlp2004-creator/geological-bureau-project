@@ -12,8 +12,36 @@
 .device-parameter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .device-profile-select { max-width: 420px; margin-bottom: 18px; }
 .device-debug-panel .settings-analysis-options { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
-:root .app-shell .device-debug-page .acquisition-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-:root .app-shell .device-debug-page .mercury-main { gap: 16px; }
 :root .app-shell .device-debug-page .mercury-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 :root .app-shell .device-debug-page .device-profile-select { max-width: none; }
 @media (max-width: 760px) { .device-parameter-grid { grid-template-columns: minmax(0, 1fr); } }
+
+:root .app-shell .device-debug-page .device-debug-panel > .device-parameter-cards { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.legacy-device-parameters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.legacy-parameter-card { min-width: 0; }
+.legacy-parameter-card > .surface-heading { margin-bottom: 20px; }
+.device-parameter-form .legacy-parameter-content { display: grid; gap: 16px; min-width: 0; }
+.device-parameter-form .legacy-parameter-group { border: 1px solid var(--border-color, #e3eaf0); border-radius: 6px; padding: 16px; display: grid; gap: 14px; }
+.legacy-parameter-group legend { padding: 0 6px; font-weight: 600; }
+.device-parameter-form .legacy-parameter-row { display: grid; grid-template-columns: 155px minmax(100px, 180px); align-items: center; gap: 12px; margin: 0; }
+.legacy-parameter-row input, .legacy-parameter-row select { width: 100%; min-width: 0; }
+.legacy-parameter-row input[readonly] { color: var(--text-secondary, #607087); background: var(--surface-alt, rgba(128,144,160,.07)); }
+.legacy-communication-row, .device-profile-row, .legacy-ccd-capacity { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.device-parameter-form .legacy-communication-row > .legacy-parameter-row { grid-template-columns: 66px minmax(100px, 180px); }
+.device-debug-page .device-profile-row .device-profile-select { margin: 0; flex: 1 1 260px; }
+.device-debug-page .device-profile-row { align-items: flex-end; }
+.legacy-communication-options summary { cursor: pointer; color: var(--text-secondary, #607087); }
+.legacy-communication-options .legacy-parameter-row { margin-top: 14px; }
+.device-parameter-form .legacy-ccd-parameters { align-content: start; }
+.device-parameter-form .legacy-parameter-card .legacy-parameter-group { border: 0; padding: 0; }
+.legacy-parameter-card .legacy-parameter-group legend { padding: 0; margin-bottom: 10px; }
+.legacy-ccd-capacity .legacy-parameter-row { grid-template-columns: 155px 70px; }
+.software-parameter-form > .surface-heading { margin-bottom: 24px; }
+.device-parameter-form .software-analysis-parameters { display: grid; max-width: 660px; gap: 32px; padding: 0; }
+.software-band-parameters { display: grid; gap: 14px; }
+@media (max-width: 1250px) {
+  .legacy-device-parameters { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
+@media (max-width: 600px) {
+  .device-parameter-form .legacy-parameter-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}

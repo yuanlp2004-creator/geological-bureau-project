@@ -1,6 +1,13 @@
 import { request } from './client'
 import type { DeviceEvent } from './devices'
 import type { SampleQueue } from './sampleQueues'
+export type SampleAcquisitionContext = {
+  method: { id: number; version: number; name: string }
+  profile: { id: number; name: string; transport: 'serial' | 'simulator' }
+  queue: { id: number; name: string; name_length: 10 | 12 | 20 }
+  item: { id: number; name: string; repeats: number }
+}
+export type PreliminaryCaptureCreate = import('./system').PreliminaryConditions & { name: string; save_conditions: boolean }
 export type AcquisitionState =
   | 'draft'
   | 'countdown'
@@ -35,6 +42,8 @@ export type AcquisitionSample = {
   bands: Array<{
     id: number
     ccd_index: number
+    turn_index?: number
+    angle_deg?: number
     storage_mode: string
     points_count: number
     burn_frame_count: number
@@ -53,7 +62,18 @@ export type AcquisitionMessage = {
   details: Record<string, unknown>
   created_at: string
 }
+export type CaptureTurn = { group?: string; turn_index: number; angle_deg: number; multiple: boolean }
+export type CaptureTurnPage = { id: number; turn_index: number; angle_deg: number; status: string }
+
 export type AcquisitionTask = {
+  capture_turn?: CaptureTurn
+  capture_turns?: CaptureTurnPage[]
+  turns?: {
+    multiple: boolean; turn_index: number; completed_turns: number; positioned: boolean; awaiting_turn?: boolean
+    plan: Array<{ turn_index: number; angle_deg: number; wavelength_nm: number | null; priority: number; key_band: boolean; ccd_indices: number[]
+      start_frame: number; end_frame: number
+      lines: Array<{ id: string; element: string; wavelength_nm: number; actual_wavelength_nm: number; ccd_index: number; point_index: number; exposure_interval: [number, number] | null }> }>
+  }
   id: number
   task_kind: 'evaporation' | 'sample'
   name: string
@@ -171,6 +191,11 @@ export type AcquisitionAnalysis = {
   >
 }
 export const acquisitionApi = {
+  createEvaporationSession: (token: string, payload: PreliminaryCaptureCreate) => request<AcquisitionTask>('/api/v1/acquisitions/evaporation-sessions', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
+  sampleContext: (token: string) => request<SampleAcquisitionContext>('/api/v1/acquisitions/sample-context', { headers: { Authorization: `Bearer ${token}` } }),
+  createSampleSession: (token: string, name: string) => request<AcquisitionTask>('/api/v1/acquisitions/sample-sessions', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ name }) }),
   saveEvaporationDefaults: (token: string, payload: import('./system').PreliminaryConditions) =>
     request<import('./system').PreliminaryConditions>('/api/v1/acquisitions/defaults', {
       method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
@@ -189,8 +214,17 @@ export const acquisitionApi = {
     request<AcquisitionOptions>('/api/v1/acquisitions/options', {
       headers: { Authorization: `Bearer ${token}` }
     }),
-  acquisitionTasks: (token: string, taskKind?: AcquisitionTask['task_kind']) =>
-    request<AcquisitionTask[]>(`/api/v1/acquisitions/tasks${taskKind ? `?task_kind=${taskKind}` : ''}`, {
+  acquisitionTasks: (token: string, taskKind?: AcquisitionTask['task_kind'], includeDiscarded = true) => {
+    const params = new URLSearchParams()
+    if (taskKind) params.set('task_kind', taskKind)
+    if (!includeDiscarded) params.set('include_discarded', 'false')
+    return request<AcquisitionTask[]>(`/api/v1/acquisitions/tasks${params.size ? `?${params}` : ''}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+  },
+  deleteAcquisitionTask: (token: string, taskId: number) =>
+    request<void>(`/api/v1/acquisitions/tasks/${taskId}`, {
+      method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     }),
   createAcquisitionTask: (token: string, payload: Record<string, unknown>) =>
@@ -206,8 +240,8 @@ export const acquisitionApi = {
         headers: { Authorization: `Bearer ${token}` }
       }
     ),
-  startAcquisitionTask: (token: string, taskId: number) =>
-    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start`, {
+  startAcquisitionTask: (token: string, taskId: number, turnIndex?: number, singleTurn = false) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start${turnIndex === undefined ? '' : `?turn_index=${turnIndex}&single_turn=${singleTurn}`}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     }),
@@ -216,8 +250,8 @@ export const acquisitionApi = {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     }),
-  preheatAcquisitionTask: (token: string, taskId: number) =>
-    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/preheat`, {
+  preheatAcquisitionTask: (token: string, taskId: number, turnIndex?: number) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/preheat${turnIndex === undefined ? '' : `?turn_index=${turnIndex}`}`, {
       method: 'POST', headers: { Authorization: `Bearer ${token}` }
     }),
   pauseAcquisitionTask: (token: string, taskId: number) =>
@@ -255,7 +289,7 @@ export const acquisitionApi = {
       { headers: { Authorization: `Bearer ${token}` } }
     ),
   acquisitionBands: (token: string, sampleId: number, includePoints = false) =>
-    request<Array<{ id: number; sample_id: number; ccd_index: number; mean_points?: number[]; mean_sha256: string }>>(
+    request<Array<{ id: number; sample_id: number; ccd_index: number; turn_index?: number; angle_deg?: number; mean_points?: number[]; mean_sha256: string }>>(
       `/api/v1/acquisitions/samples/${sampleId}/bands${includePoints ? '?include_points=true' : ''}`,
       { headers: { Authorization: `Bearer ${token}` } }
     ),
