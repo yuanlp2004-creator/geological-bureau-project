@@ -5,6 +5,30 @@ import { call, navigate } from './contract_browser_support.mjs'
 import { checkFullSpectroscopy } from './full_spectroscopy_workflow.mjs'
 import { leaveLegacyCapture } from './legacy_desk_test_support.mjs'
 
+export async function checkCaptureEmptySurface(desk) {
+  const geometry = await desk.evaluate(element => {
+    const probe = document.createElement('span')
+    probe.style.backgroundColor = 'var(--spec-board)'
+    element.append(probe)
+    const expectedColor = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    const empty = element.querySelector('.inspector-empty')
+    const { width, height } = empty.getBoundingClientRect()
+    const css = getComputedStyle(empty)
+    const edges = ['Top', 'Right', 'Bottom', 'Left']
+    return { width, height, expectedColor, color: css.backgroundColor,
+      margins: edges.map(edge => css['margin' + edge]),
+      borders: edges.map(edge => css['border' + edge + 'Width']),
+      fieldLabelColor: getComputedStyle(element.querySelector('.spectroscopy-sample-input label > span')).backgroundColor }
+  })
+  assert.equal(geometry.color, geometry.expectedColor)
+  assert.deepEqual(geometry.margins, Array(4).fill('0px'))
+  assert.deepEqual(geometry.borders, Array(4).fill('0px'))
+  assert.ok(geometry.width > 200 && geometry.height > 180)
+  assert.equal(geometry.fieldLabelColor, 'rgba(0, 0, 0, 0)')
+  return geometry
+}
+
 export async function checkCaptureOperations(page, result, output) {
   const seed = (await call(page, '/api/v1/methods')).find(method => method.status === 'active')
   await call(page, '/api/v1/methods/current', { method_id: seed.id })
@@ -21,7 +45,7 @@ export async function checkCaptureOperations(page, result, output) {
   await page.reload(); await page.getByTestId('workspace').waitFor()
   await navigate(page, 'analysis-tests', '样品摄谱', '[data-testid="sample-acquisition-page"]')
   const host = page.getByTestId('sample-acquisition-page')
-  await host.locator(`[data-task-id="${task.id}"]`).getByRole('button').click()
+  await host.locator(`[data-task-id="${task.id}"]`).getByRole('button', { name: '进入摄谱', exact: true }).click()
   const desk = host.getByTestId('spectroscopy-console')
   for (const layout of [{ width: 1440, height: 1000, theme: 'light', name: 'wide' }, { width: 1060, height: 680, theme: 'dark', name: 'minimum' }, { width: 1125, height: 760, theme: 'light', name: 'medium' }]) {
     const settings = await call(page, '/api/v1/settings')
@@ -30,15 +54,12 @@ export async function checkCaptureOperations(page, result, output) {
     if (process.env.QA_CDP) await page.evaluate(value => window.__TAURI__.core.invoke('plugin:window|set_size', { value: { Logical: value } }), { width: layout.width, height: layout.height })
     else await page.setViewportSize({ width: layout.width, height: layout.height })
     await navigate(page, 'analysis-tests', '样品摄谱', '[data-testid="sample-acquisition-page"]')
-    await host.locator(`[data-task-id="${task.id}"]`).getByRole('button').click()
+    await host.locator(`[data-task-id="${task.id}"]`).getByRole('button', { name: '进入摄谱', exact: true }).click()
     const geometry = await desk.evaluate(element => {
       const rect = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom } }
       const box = selector => rect(element.querySelector(selector))
       return { desk: rect(element), sidebar: rect(document.querySelector('.sidebar')), topbar: rect(document.querySelector('.topbar')),
         position: getComputedStyle(element).position, theme: document.querySelector('[data-testid="app-shell"]').dataset.theme,
-        themeSurface: getComputedStyle(element).getPropertyValue('--ui-soft').trim(),
-        emptyColor: getComputedStyle(element.querySelector('.inspector-empty')).backgroundColor,
-        fieldLabelColor: getComputedStyle(element.querySelector('.spectroscopy-sample-input label > span')).backgroundColor,
         left: box('.legacy-record-dock'), middle: box('.spectroscopy-view'), right: box('.spectroscopy-operator'), plot: box('.inspector-empty'),
         buttons: [...element.querySelectorAll('.spectroscopy-controls button')].map(rect),
         icons: [...element.querySelectorAll('.spectroscopy-action-icon')].map(icon => icon.getBoundingClientRect().width),
@@ -53,15 +74,10 @@ export async function checkCaptureOperations(page, result, output) {
     assert.ok(geometry.left.x < geometry.middle.x && geometry.middle.x < geometry.right.x)
     assert.ok(geometry.right.right <= layout.width && geometry.plot.width > 200 && geometry.plot.height > 180)
     assert.equal(geometry.pageOverflow, false)
-    assert.equal(geometry.fieldLabelColor, 'rgba(0, 0, 0, 0)')
-    const expectedColor = await desk.evaluate(element => {
-      const probe = document.createElement('span'); probe.style.backgroundColor = 'var(--ui-soft)'; element.append(probe)
-      const value = getComputedStyle(probe).backgroundColor; probe.remove(); return value
-    })
-    assert.equal(geometry.emptyColor, expectedColor)
+    await checkCaptureEmptySurface(desk)
     assert.ok(geometry.icons.every(width => width === 16))
     assert.deepEqual(geometry.toolNames, ['上一谱带', '下一谱带', '上一 CCD', '下一 CCD', '十字线', '区域放大', '滚动工具', '适合图像', '一线一点', '一线四点', '十倍 CCD', '横向放大', '横向缩小', '纵向放大', '纵向缩小', '纵向还原', '打印谱图'])
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < geometry.buttons.length; index++) {
       const button = geometry.buttons[index]
       assert.ok(button.x >= geometry.right.x && button.right <= geometry.right.right)
       if (index) assert.ok(button.y >= geometry.buttons[index - 1].bottom + 2)

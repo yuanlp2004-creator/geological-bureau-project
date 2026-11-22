@@ -3,6 +3,6 @@
   width: 10px;
   height: 12px;
   vertical-align: middle;
-  color: var(--blue);
+  color: var(--spec-row-selected-mark);
   pointer-events: none;
 }

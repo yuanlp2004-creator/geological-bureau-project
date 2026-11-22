@@ -3,6 +3,48 @@ import path from 'node:path'
 import { checkFullSpectroscopy } from './full_spectroscopy_workflow.mjs'
 import { call, navigate } from './contract_browser_support.mjs'
 
+export async function checkExcitationControls(desk, commands) {
+  const geometry = await desk.evaluate(element => {
+    const rectFor = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom } }
+    const rect = selector => rectFor(element.querySelector(selector))
+    const select = element.querySelector('select[aria-label="选择CCD"]')
+    const picker = select.closest('.classic-ccd-picker')
+    const hit = select.getBoundingClientRect()
+    const icon = picker.querySelector('img')?.getBoundingClientRect()
+    const controlArea = element.querySelector('.spectroscopy-command-area')
+    return { left: rect('.legacy-record-dock'), middle: rect('.spectroscopy-view'), right: rect('.spectroscopy-operator'),
+      sample: rect('.spectroscopy-sample-input'), commands: rect('.spectroscopy-command-area'), lineBar: rect('.spectroscopy-line-bar'),
+      messageTop: document.querySelector('.runtime-message-panel')?.getBoundingClientRect().top ?? innerHeight,
+      buttons: [...element.querySelectorAll('.spectroscopy-controls button')].map(button => ({
+        ...rectFor(button), command: button.dataset.command,
+        icon: button.querySelector('svg.capture-command-icon')?.getBoundingClientRect().width
+      })),
+      icons: [...element.querySelectorAll('.spectroscopy-action-icon')].map(image => ({ width: image.getBoundingClientRect().width, height: image.getBoundingClientRect().height })),
+      tool: rect('.inspector-icon-button'), spectrumTool: rect('.inspector-tools .inspector-icon-button'),
+      commandsOverflow: controlArea.scrollHeight > controlArea.clientHeight + 1,
+      toolsOverflow: element.querySelector('.inspector-tools').scrollWidth > element.querySelector('.inspector-tools').clientWidth + 1,
+      ccd: { name: select.getAttribute('aria-label'), option: select.selectedOptions[0]?.textContent,
+        hitWidth: hit.width, hitHeight: hit.height, iconWidth: icon?.width }, viewport: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth + 1 }
+  })
+  assert.ok(geometry.left.x < geometry.middle.x && geometry.middle.x < geometry.right.x)
+  assert.ok(geometry.lineBar.bottom <= geometry.left.y + 1)
+  assert.ok(geometry.sample.bottom < geometry.commands.y + 1)
+  assert.deepEqual(geometry.buttons.map(button => button.command), commands)
+  assert.ok(geometry.buttons.every((button, i, all) =>
+    Math.abs(button.width - all[0].width) < 1 && Math.abs(button.x - all[0].x) < 1
+    && button.y >= geometry.commands.y && button.bottom <= Math.min(geometry.commands.bottom, geometry.messageTop) + 1 && button.icon === 16
+    && (!i || button.y >= all[i - 1].bottom + 2)))
+  assert.ok(geometry.icons.every(icon => icon.width === 16 && icon.height === 16))
+  assert.equal(geometry.tool.width, 24); assert.equal(geometry.tool.height, 24)
+  assert.equal(geometry.spectrumTool.width, geometry.middle.width <= 420 ? 20 : 24)
+  assert.equal(geometry.commandsOverflow, false); assert.equal(geometry.toolsOverflow, false)
+  assert.equal(geometry.ccd.name, '选择CCD')
+  assert.ok(geometry.ccd.option && geometry.ccd.hitWidth >= 36 && geometry.ccd.hitHeight >= 24 && geometry.ccd.iconWidth === 16)
+  assert.equal(geometry.overflow, false)
+  assert.deepEqual(await desk.locator('.capture-record-table th').allTextContents(), ['', '记录号', '样品编号', '样品序号'])
+  return geometry
+}
+
 // Reuse spectrum/permissions/printing coverage, then exercise the permanent sample selector.
 export async function checkLegacyExcitationLayout(page, result, output) {
   const adminToken = await page.evaluate(() => sessionStorage.getItem('geospectrum.token'))
@@ -18,7 +60,7 @@ export async function checkLegacyExcitationLayout(page, result, output) {
     sampling_period_seconds: .25, burn_cycle_seconds: .25, dark_cycle_seconds: .25 })
   await navigate(page, 'analysis-tests', '样品摄谱', '[data-testid="sample-acquisition-page"]')
   const host = page.getByTestId('sample-acquisition-page')
-  await host.locator(`[data-task-id="${first.id}"]`).getByRole('button').click()
+  await host.locator(`[data-task-id="${first.id}"]`).getByRole('button', { name: '进入摄谱', exact: true }).click()
   const sample = host.getByRole('combobox', { name: '样品编号', exact: true })
   const repeats = host.getByRole('textbox', { name: '重复摄谱', exact: true })
   assert.equal(await sample.inputValue(), `task:${first.id}`)
@@ -68,33 +110,7 @@ export async function checkLegacyExcitationLayout(page, result, output) {
     await page.evaluate(theme => { document.documentElement.dataset.theme = theme }, layout.theme)
     if (process.env.QA_CDP) await page.evaluate(value => window.__TAURI__.core.invoke('plugin:window|set_size', { value: { Logical: value } }), { width: layout.width, height: layout.height })
     else await page.setViewportSize({ width: layout.width, height: layout.height })
-    const geometry = await host.getByTestId('spectroscopy-console').evaluate(element => {
-      const rect = selector => { const r = element.querySelector(selector).getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom } }
-      const select = element.querySelector('select[aria-label="选择CCD"]'), style = getComputedStyle(select)
-      const context = document.createElement('canvas').getContext('2d'); context.font = style.font
-      // Native Windows selects reserve their arrow in addition to CSS padding.
-      const ccdWidth = context.measureText(select.selectedOptions[0]?.textContent ?? '').width + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 2 + 17
-      return { left: rect('.spectroscopy-records'), middle: rect('.spectroscopy-view'), right: rect('.spectroscopy-operator'),
-        sample: rect('.spectroscopy-sample-input'), commands: rect('.spectroscopy-command-area'), lineBar: rect('.spectroscopy-line-bar'),
-        buttons: [...element.querySelectorAll('.spectroscopy-controls button')].map(button => ({ y: button.getBoundingClientRect().y, x: button.getBoundingClientRect().x, width: button.getBoundingClientRect().width })),
-        icons: [...element.querySelectorAll('.spectroscopy-action-icon')].map(image => ({ width: image.getBoundingClientRect().width, height: image.getBoundingClientRect().height })),
-        tool: rect('.inspector-icon-button'), spectrumTool: rect('.inspector-tools .inspector-icon-button'),
-        commandsOverflow: element.querySelector('.spectroscopy-command-area').scrollHeight > element.querySelector('.spectroscopy-command-area').clientHeight + 1,
-        toolsOverflow: element.querySelector('.inspector-tools').scrollWidth > element.querySelector('.inspector-tools').clientWidth + 1,
-        ccdWidth, ccdAvailable: select.getBoundingClientRect().width, viewport: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth + 1 }
-    })
-    assert.ok(geometry.left.x < geometry.middle.x && geometry.middle.x < geometry.right.x)
-    assert.ok(geometry.lineBar.bottom <= geometry.left.y + 1)
-    assert.ok(geometry.sample.bottom < geometry.commands.y + 1)
-    assert.equal(geometry.buttons.length, 4)
-    assert.ok(geometry.buttons.every((button, i, all) => button.width === 112 && (!i || button.y > all[i - 1].y + 26) && Math.abs(button.x - all[0].x) < 1))
-    assert.ok(geometry.icons.every(icon => icon.width === 16 && icon.height === 16))
-    assert.equal(geometry.tool.width, 24); assert.equal(geometry.tool.height, 24)
-    assert.equal(geometry.spectrumTool.width, layout.width <= 1200 ? 20 : 24)
-    assert.equal(geometry.commandsOverflow, false); assert.equal(geometry.toolsOverflow, false)
-    assert.ok(geometry.ccdWidth <= geometry.ccdAvailable + 1, 'CCD编号完整显示')
-    assert.equal(geometry.overflow, false)
-    assert.deepEqual(await host.locator('.capture-record-table th').allTextContents(), ['记录号', '样品编号', '样品序号'])
+    const geometry = await checkExcitationControls(host.getByTestId('spectroscopy-console'), ['start', 'preheat', 'stop', 'finish'])
     await page.waitForTimeout(3200)
     await host.getByTestId('spectroscopy-console').screenshot({ path: path.join(output, `legacy-input-${layout.theme}.png`) })
     await page.screenshot({ path: path.join(output, `workspace-${layout.theme}.png`) })

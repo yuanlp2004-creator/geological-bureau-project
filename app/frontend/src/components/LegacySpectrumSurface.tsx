@@ -88,7 +88,7 @@ export function LegacySpectrumSurface(p: Props) {
       }}>
       <defs><clipPath id={clip}><rect x="54" y="0" width={plotWidth} height="72"/></clipPath></defs>
       <rect x="54" y="0" width={plotWidth} height="72" fill="white"/>
-      <g clipPath={`url(#${clip})`}>{grayscale}{p.cursor && <line x1={x(p.cursor.datum.x)} x2={x(p.cursor.datum.x)} y1="0" y2="72" stroke="#e32b2b" />}</g>
+      <g clipPath={`url(#${clip})`}>{grayscale}{p.cursor && <line x1={x(p.cursor.datum.x)} x2={x(p.cursor.datum.x)} y1="0" y2="72" stroke="var(--spec-crosshair, #e32b2b)" />}</g>
       <text x="54" y="88">{formatEdge(left)}</text><text x={width-34} y="88" textAnchor="end">{formatEdge(right)}</text>
     </svg>}
     <div className="legacy-peak-plot">

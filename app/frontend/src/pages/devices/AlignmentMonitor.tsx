@@ -134,7 +134,7 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
       <SpectroscopyToolButton icon="close" label="结束调试" description="停止调试并断开设备" disabled={!canFinish} onClick={() => void finish()} />
     </div>
     <div className="alignment-canvas">
-      <output className="alignment-peak" aria-label="最大峰值">{peak ? `最大峰值强度:${peak.value} 位置:(${peak.ccd + 1}, ${peak.point})` : '未发现有效峰值'}</output>
+      <output className="alignment-peak" data-has-peak={Boolean(peak)} aria-label="最大峰值">{peak ? `最大峰值强度:${peak.value} 位置:(${peak.ccd + 1}, ${peak.point})` : '未发现有效峰值'}</output>
       <output className="alignment-point" aria-label="当前点位读数">{cursor && value !== undefined
         ? <>强度:<strong>{value}</strong>　位置:({views[cursor.slot].ccd! + 1}, {cursor.point + 1})</> : '移动鼠标查看点位强度；单击曲线选择活动视图区'}</output>
       <div className="alignment-plots">{views.map((view, slot) => {

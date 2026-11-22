@@ -1,5 +1,5 @@
-.spectrum-viewer-page {
-  min-height: 100%;
+.spectrum-viewer-page.legacy-viewing-page {
+  min-height: 0;
 }
 .spectrum-viewer-layout {
   display: grid;

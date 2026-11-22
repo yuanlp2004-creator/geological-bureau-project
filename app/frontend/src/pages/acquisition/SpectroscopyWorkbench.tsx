@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { FlaskConical, LockKeyhole } from 'lucide-react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ChartSpline, FlaskConical, LockKeyhole } from 'lucide-react'
 import type { CurrentMethodState } from '../../api'
 import { navigationAvailability, type NavigationEntry } from '../../navigation'
 import { DispersionPage } from '../dispersion/DispersionPage'
@@ -37,16 +37,37 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
     return () => onLockChange(null)
   }, [reason, onLockChange])
   const selected = spectroscopyModes.find((item) => item.page === mode)!
+  const headerRef = useRef<HTMLElement>(null)
+  const lockRef = useRef<HTMLParagraphElement>(null)
+  const HeadingIcon = view === 'curve' ? ChartSpline : FlaskConical
   const capturing = view === 'capture' && Boolean(captureScreens[mode])
+  useLayoutEffect(() => {
+    const header = headerRef.current
+    const workbench = header?.parentElement
+    if (!capturing || !header || !workbench) return
+    const lock = lockRef.current
+    const measure = () => {
+      const height = header.getBoundingClientRect().height + (lock?.getBoundingClientRect().height ?? 0)
+      workbench.style.setProperty('--capture-heading-height', height + 'px')
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(header)
+    if (lock) observer.observe(lock)
+    measure()
+    return () => {
+      observer.disconnect()
+      workbench.style.removeProperty('--capture-heading-height')
+    }
+  }, [capturing, reason])
   const viewSpectra = (group: string, recordId?: string) => {
     if (reason) onToast(reason)
     else onViewSpectra(group, recordId)
   }
   return (
     <div className={`page-content spectroscopy-workbench refined-page remaining-page ${view === 'curve' ? 'spectroscopy-curve-workbench' : ''}`} data-testid="spectroscopy-workbench" data-mode={mode} data-view={view} data-stage={capturing ? 'capture' : 'tasks'}>
-      <section className="spectroscopy-header">
+      <section ref={headerRef} className="spectroscopy-header">
         <div className="spectroscopy-heading">
-          <span className="spectroscopy-icon"><FlaskConical size={21} /></span>
+          <span className="spectroscopy-icon"><HeadingIcon className="page-title-glyph" size={22} strokeWidth={1.75} aria-hidden="true" /></span>
           <div><h1>{view === 'curve' ? '色散曲线' : capturing ? selected.label : '建立摄谱'}</h1></div>
         </div>
         {view === 'capture' && !capturing && <nav className="spectroscopy-modes" aria-label="摄谱方式">
@@ -65,7 +86,7 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
           if (entry) onNavigate(entry)
         }}>返回色散摄谱</button>}</div>
       </section>
-      {reason && <p className="spectroscopy-lock" role="status"><LockKeyhole size={14} />{reason}</p>}
+      {reason && <p ref={lockRef} className="spectroscopy-lock" role="status"><LockKeyhole size={14} />{reason}</p>}
       <SpectroscopySession.Provider value={report}>
         {spectroscopyModes.filter((item) => item.page === mode || visited.includes(item.page)).map((item) => (
           <div key={item.page} className="spectroscopy-mode-panel" hidden={item.page !== mode}>

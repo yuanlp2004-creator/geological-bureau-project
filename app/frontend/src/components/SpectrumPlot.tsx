@@ -96,6 +96,7 @@ export function SpectrumPlot({
   const TOP = stretch ? 18 : 42
   const WIDTH = viewWidth - LEFT - 34
   const HEIGHT = viewHeight - TOP - 50
+  const yTitleCenter = TOP + HEIGHT / 2
   const clipId = useId()
   const [drag, setDrag] = useState<{ startX: number; startY: number; x: number; y: number } | null>(null)
   const [panAnchor, setPanAnchor] = useState<{ x: number; y: number } | null>(null)
@@ -109,13 +110,14 @@ export function SpectrumPlot({
   const plotX = (value: number) => LEFT + ((value - xStart) / (xEnd - xStart || 1)) * WIDTH
   const plotY = (value: number) => TOP + HEIGHT - ((value - yStart) / (yEnd - yStart || 1)) * HEIGHT
   const paths = useMemo(() => [...curves].sort((a, b) => Number(a.priority) - Number(b.priority)).map(curve => {
+    const color = curve.priority ? `var(--plot-priority-color, ${curve.color})` : curve.color
     if (curve.data.length === 1) return <circle key={curve.id} cx={plotX(curve.data[0].x)} cy={plotY(curve.data[0].y)} r="4"
-      className="spectrum-single-point" fill={curve.color} data-curve-id={curve.id} />
+      className="spectrum-single-point" fill={color} data-curve-id={curve.id} />
     if (!curve.data.length) return null
     const path = curve.data.map((item, index) =>
       `${index ? 'L' : 'M'} ${plotX(item.x).toFixed(2)} ${plotY(item.y).toFixed(2)}`).join(' ')
     return <path key={curve.id} d={path} className={`spectrum-line ${curve.priority ? 'priority' : ''}`}
-      style={{ stroke: curve.color }} data-curve-id={curve.id} />
+      style={{ stroke: color }} data-curve-id={curve.id} />
   }), [curves, xStart, xEnd, yStart, yEnd, LEFT, TOP, WIDTH, HEIGHT])
   const dataX = (value: number) => xStart + ((value - LEFT) / WIDTH) * (xEnd - xStart)
   const dataY = (value: number) => yStart + ((TOP + HEIGHT - value) / HEIGHT) * (yEnd - yStart)
@@ -337,10 +339,10 @@ export function SpectrumPlot({
         {xAxisLabel}
       </text>
       <text
-        x="13"
-        y={TOP + HEIGHT / 2}
+        x="6"
+        y="12"
         textAnchor="middle"
-        transform={`rotate(-90 13 ${TOP + HEIGHT / 2})`}
+        transform={`translate(7 ${yTitleCenter - 12}) rotate(-90 6 12)`}
         className="plot-label plot-axis-title plot-y-axis-title"
       >
         {yAxisLabel}

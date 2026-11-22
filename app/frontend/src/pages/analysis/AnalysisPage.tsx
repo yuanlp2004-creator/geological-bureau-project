@@ -700,7 +700,7 @@ export function AnalysisPage({
   return (
     <div className={`page-content analysis-page refined-page remaining-page analysis-workbench analysis-legacy-page${!selected ? ' analysis-preparing' : ''}${!runs.length ? ' analysis-no-batches' : ''}${manager === 'review' ? ' analysis-review-open' : ''}`} data-navigation-view={currentView}>
       <section className="analysis-hero">
-        <div className="analysis-title"><span className="analysis-title-icon"><BarChart3 size={22} /></span><div><h1>样品分析</h1></div></div>
+        <div className="analysis-title"><span className="analysis-title-icon"><BarChart3 className="page-title-glyph" size={22} strokeWidth={1.75} aria-hidden="true" /></span><div><h1>样品分析</h1></div></div>
         <div className="analysis-header-actions file-actions">
           <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="analysis" label="打开样品文件" disabled={busy || active.has(selected?.status ?? '')} onOpened={async result => {
             const ids = result.records?.filter(record => record.sample_no > 0 && Boolean(record.sample_name?.trim())).map(record => record.id) ?? result.record_ids

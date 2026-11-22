@@ -27,7 +27,7 @@
 
 /* Match the capture desk's dock proportions, compact bars and vertical controls. */
 .hardware-capture-desk { --capture-left: clamp(150px, 17.5%, 216px); --capture-right: clamp(198px, 20%, 240px);
-  display: flex; flex-direction: column; min-width: 0; min-height: 360px; height: max(360px, calc(100dvh - 280px)); overflow: hidden;
+  display: flex; flex-direction: column; min-width: 0; min-height: 360px; height: max(360px, calc(var(--workspace-available-height) - 184px)); overflow: hidden;
   border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
 .hardware-desk-caption { display: flex; align-items: center; gap: 10px; flex: 0 0 36px; min-width: 0; padding: 5px 10px; border-bottom: 1px solid var(--line); background: var(--ui-soft); font-size: 12px; }
 .hardware-desk-caption strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-size: 12px; }

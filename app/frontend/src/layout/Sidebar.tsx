@@ -252,14 +252,6 @@ export function Sidebar({
           <Activity size={15} />
         </div>
       )}
-      <div className="sidebar-method-state">
-        <span>当前方法</span>
-        <strong title={currentMethod?.title ?? '尚未选择当前方法'}>
-          {currentMethod?.method_id
-            ? `${currentMethod.title}${currentMethod.status === 'active' ? '' : ' · 已暂停'}`
-            : '尚未选择'}
-        </strong>
-      </div>
       {showStatusBar && (
         <div className="sidebar-footer">
           <span>桌面基础</span>

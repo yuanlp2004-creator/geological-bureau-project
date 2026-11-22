@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
+import { Flame, LogOut, Play, Square, StepForward } from 'lucide-react'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { CaptureLineBar } from './CaptureLineBar'
@@ -21,6 +21,14 @@ type Props = {
   context?: ReactNode; turnPages?: ReactNode; singleTurn?: Command
 }
 
+const commandIcons = {
+  start: Play,
+  'single-turn': StepForward,
+  preheat: Flame,
+  stop: Square,
+  finish: LogOut
+}
+
 /** Keep the legacy operation order inside the modern application shell. */
 export function SpectroscopyConsole(props: Props) {
   const [leftOpen, setLeftOpen] = useState(true)
@@ -38,16 +46,16 @@ export function SpectroscopyConsole(props: Props) {
   const canUseRightDock = rightOpen && !running && props.status !== 'between_repeats'
   const finish = props.finish ?? { run: () => {}, enabled: false }
   const label = props.bandTitle ?? (props.recordTitle === '色散谱带名' ? '色散数据' : props.recordTitle === '蒸发谱带名' ? '蒸发数据' : '样品')
-  const command = (text: string, value: Command, kind: 'start' | 'single-turn' | 'preheat' | 'stop' | 'finish') => {
-    const icon = kind === 'start' || kind === 'single-turn' ? 'capture' : kind
+  const command = (text: string, value: Command, kind: keyof typeof commandIcons) => {
+    const Icon = commandIcons[kind]
     const lockable = kind === 'start' && props.showRepeats !== false
     return <button type="button" ref={lockable ? captureButton : undefined} aria-label={text}
       data-command={kind}
       aria-description={lockable && captureLocked ? '已锁定键盘焦点，按 Esc 解除锁定' : undefined}
       onContextMenu={lockable ? event => menu.open(event, 'capture') : undefined}
       onKeyDown={lockable ? event => { if (event.key === 'Escape') setCaptureLocked(false) } : undefined}
-      title={!value.enabled && value.disabledReason ? value.disabledReason : icon === 'finish' ? '结束当前摄谱，返回任务列表' : text} disabled={!value.enabled} onClick={() => { menu.close(); void value.run() }}>
-      <SpectroscopyIcon name={icon} /><span>{text}</span>
+      title={!value.enabled && value.disabledReason ? value.disabledReason : kind === 'finish' ? '结束当前摄谱，返回任务列表' : text} disabled={!value.enabled} onClick={() => { menu.close(); void value.run() }}>
+      <Icon className="capture-command-icon" size={16} strokeWidth={1.75} aria-hidden="true" /><span>{text}</span>
     </button>
   }
   return <section className={`spectroscopy-console legacy-capture-desk ${props.className} ${!leftOpen ? 'left-closed' : ''} ${!rightOpen ? 'right-closed' : ''}`}

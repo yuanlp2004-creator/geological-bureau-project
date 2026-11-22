@@ -21,8 +21,7 @@
 :root .app-shell .analysis-desk-spectrum .spectrum-plot > .plot-tick-label[text-anchor='middle'] { visibility:hidden; }
 :root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled { opacity:1; }
 :root .app-shell .analysis-legacy-page .legacy-view-desk .inspector-icon-button:disabled img { filter:grayscale(1); opacity:.55; }
-:root .app-shell .analysis-sample-rail .legacy-view-table tr[aria-selected='true'] { background:var(--surface); color:var(--ink); }
-:root .app-shell .analysis-sample-rail .row-selection-arrow { color:var(--ink); }
+:root .app-shell .analysis-sample-rail .row-selection-arrow { color:var(--spec-row-selected-mark); }
 :root .app-shell .analysis-desk-spectrum .legacy-grayscale { height:106px; flex-basis:106px; }
 :root .app-shell .analysis-desk-error { padding:5px 8px; color:#b42318; background:#fff4f2; font-size:12px; }
 :root .app-shell .analysis-desk-error button { margin-left:12px; }

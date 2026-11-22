@@ -3,9 +3,6 @@
 .with-runtime-messages .main-area > :is(.topbar, .quick-access-bar) { flex: 0 0 auto; }
 .with-runtime-messages .page-scroll-region { flex: 1; min-height: 0; overflow: auto; }
 .with-runtime-messages > .toast { bottom: calc(var(--runtime-dock-height, 184px) + 12px); }
-:root .with-runtime-messages .page-scroll-region > .analysis-workbench.remaining-page:not(.analysis-preparing) { height: 100%; }
-:root .with-runtime-messages .analysis-workbench.remaining-page.analysis-preparing { min-height: calc(100dvh - var(--workspace-header-height, 76px) - var(--runtime-dock-height, 184px)); }
-:root .with-runtime-messages .spectroscopy-workbench .spectroscopy-console { height: max(320px, calc(100dvh - 240px - var(--runtime-dock-height, 184px))); }
 .runtime-message-panel { flex: 0 0 auto; min-height: 0; display: flex; flex-direction: column; background: var(--surface); border-top: 1px solid var(--line); color: var(--ink); font-size: 12px; }
 .runtime-message-resizer { flex: 0 0 6px; display: flex; align-items: center; justify-content: center; background: var(--surface-soft, #f5f8fb); cursor: ns-resize; touch-action: none; }
 .runtime-message-resizer::after { content: ''; height: 2px; width: 28px; border-radius: 2px; background: var(--muted); opacity: .45; }
@@ -34,7 +31,8 @@
 .runtime-message-row.warning > span { color: #95600d; }
 .runtime-message-row.error > span { color: #b63e46; }
 .runtime-message-empty { min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: 'Microsoft YaHei UI', sans-serif; }
-.runtime-message-panel.is-collapsed .runtime-message-toolbar { border-bottom: 0; }
+.runtime-message-panel.is-collapsed .runtime-message-toolbar { box-sizing: border-box; height: 33px; min-height: 33px; padding: 3px 10px; border-bottom: 0; }
+.runtime-message-panel.is-collapsed :is(button, input, select) { height: 26px; min-height: 26px; padding-block: 2px; }
 :root[data-theme='dark'] .runtime-message-panel { background: #132235; color: #e2ebf5; border-color: #3d5168; --surface: #132235; --surface-soft: #1d344e; --line: #3d5168; --muted: #afbed0; --blue: #9ac2ff; --amber: #f0cc91; }
 :root[data-theme='dark'] .runtime-message-row.warning > span { color: #f0cc91; }
 :root[data-theme='dark'] .runtime-message-row.error > span { color: #ffb4b0; }
@@ -45,6 +43,7 @@
 }
 @media(max-width: 900px) {
   .runtime-message-toolbar { flex-wrap: wrap; }
+  .runtime-message-panel.is-collapsed .runtime-message-toolbar { height: auto; }
   .runtime-message-tabs { margin-right: auto; }
   .runtime-message-filter { max-width: none; }
 }

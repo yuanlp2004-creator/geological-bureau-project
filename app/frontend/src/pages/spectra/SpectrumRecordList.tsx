@@ -61,9 +61,9 @@ export function SpectrumRecordList(p:Props) {
    <SpectroscopyToolButton icon="multi-view" label={p.multiView?'切换单样品查看':'切换多样品查看'} aria-pressed={p.multiView} disabled={!selected||selected.kind==='result'} onClick={p.toggleMulti}/>
    <SpectroscopyToolButton icon={p.recordLocked?'record-unlock':'record-lock'} label={p.recordLocked?'解锁谱带记录':'锁定谱带记录'} aria-pressed={p.recordLocked} disabled={!selected} onClick={p.toggleLock}/>
   </div>}
-  <div className="legacy-view-table-wrap spectrum-record-list"><table className="legacy-view-table"><colgroup><col style={{width:20}}/>
-   {band?<col/>:<><col style={{width:50}}/><col/><col style={{width:30}}/></>}</colgroup>
-   <thead><tr><th className="row-indicator"/>{band?<th>谱带名称</th>:<><th>记录号</th><th>样品编号</th><th aria-label="元素浓度"/></>}</tr></thead>
+  <div className="legacy-view-table-wrap spectrum-record-list" data-record-kind={band ? 'band' : 'sample'}><table className="legacy-view-table"><colgroup><col className="record-indicator"/>
+   {band?<col className="record-name"/>:<><col className="record-number"/><col className="record-name"/><col className="record-concentration"/></>}</colgroup>
+   <thead><tr><th className="row-indicator"/>{band?<th>谱带名称</th>:<><th>记录号</th><th>样品编号</th><th className="spectrum-concentration-toggle" aria-label="元素浓度"/></>}</tr></thead>
    <tbody>{p.visibleRecords.map(record => {
     const recordNumber = record.band_id ?? record.record_index
     const panelId = `spectrum-concentrations-${record.id}`

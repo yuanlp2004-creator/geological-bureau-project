@@ -30,6 +30,8 @@ export function Header({
   onLogout: () => void
 }) {
   const title = activeEntry?.page === 'extension' ? (extensionTitle ?? '测试模块') : (activeEntry?.label ?? '工作台')
+  const paused = currentMethod?.method_id && currentMethod.status !== 'active'
+  const methodStatus = `当前方法 · ${currentMethod?.work_type || '未选择'}${paused ? ' · 已暂停' : ''}`
   return (
     <>
     <header className="topbar">
@@ -43,9 +45,9 @@ export function Header({
           className="workspace-method"
           onClick={() => onNavigate('methods')}
           disabled={!user.permissions.includes('methods.read')}
-          title={`当前方法 · ${currentMethod?.work_type || '未选择'} · ${currentMethod?.title || '请选择已发布方法'}`}
+          title={`${methodStatus} · ${currentMethod?.title || '请选择已发布方法'}`}
         >
-          <span>当前方法 · {currentMethod?.work_type || '未选择'}</span>
+          <span>{methodStatus}</span>
           <strong>{currentMethod?.title || '请选择已发布方法'}</strong>
         </button>
         <button className="icon-button" title="刷新服务状态" onClick={onRefresh} disabled={loading}>

@@ -1,15 +1,15 @@
 /* The status row and shortcuts share the top of every embedded workspace. */
 :root .app-shell {
-  --workspace-header-height: 96px;
+  --workspace-topbar-height: 46px;
+  --workspace-quick-height: 0px;
+  --workspace-header-height: calc(var(--workspace-topbar-height) + var(--workspace-quick-height));
+  --workspace-available-height: calc(100dvh - var(--workspace-header-height) - var(--runtime-dock-height, 0px));
 }
-:root[data-density='compact'] .app-shell {
-  --workspace-header-height: 92px;
+:root .app-shell:has(> .main-area > .quick-access-bar) {
+  --workspace-quick-height: 36px;
 }
 :root .app-shell .topbar {
-  height: 52px;
-}
-:root[data-density='compact'] .app-shell .topbar {
-  height: 48px;
+  height: var(--workspace-topbar-height);
 }
 .app-shell .topbar .workspace-method {
   min-width: 0;
@@ -24,10 +24,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 44px;
-  padding: 4px 26px;
+  box-sizing: border-box;
+  height: var(--workspace-quick-height);
+  padding: 1px 26px 2px;
   border-bottom: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--workspace-shortcut-bg);
   overflow-x: auto;
 }
 .quick-access-group {
@@ -45,7 +46,7 @@
   justify-content: center;
   gap: 0;
   width: 36px;
-  height: 34px;
+  height: 32px;
   padding: 4px 5px;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -67,7 +68,7 @@
 }
 :root .app-shell .quick-access-button:focus-visible {
   outline: 2px solid var(--blue);
-  outline-offset: 1px;
+  outline-offset: -2px;
 }
 :root .app-shell .quick-access-button:disabled {
   opacity: .45;

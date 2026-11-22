@@ -19,7 +19,7 @@ export function EvaporationCurvePlot({ rows, metric, label, navigation }: {
   const view = range ? limitSpectrumRange(range, full) : full
   const reset = () => { setRange(null); setCursor(null); setLocked(false) }
   const zoom = (axis: SpectrumAxis, factor: number) => setRange(stepSpectrumRange(view, full, axis, factor))
-  return <div data-testid="evaporation-time-chart">
+  return <div className="evaporation-time-chart-view" data-testid="evaporation-time-chart">
     <ObservationToolbar navigation={navigation} disabled={!data.length} tool={tool} setTool={setTool} fit={reset} zoom={zoom}
       resetY={() => setRange({ ...view, yMin: full.yMin, yMax: full.yMax })}>
       <SpectroscopyToolButton icon="lock" label={locked ? '解除锁定' : '锁定点位'} disabled={!cursor} aria-pressed={locked} onClick={() => setLocked(value => !value)} />

@@ -1,8 +1,8 @@
 /* Fixed desktop workspace; each data pane owns its scrolling. */
-:root .app-shell .analysis-workbench.remaining-page { --analysis-rule: var(--ui-border); width: 100%; max-width: none; height: calc(100dvh - var(--workspace-header-height, 76px)); padding: 16px 20px; display: flex; flex-direction: column; gap: var(--page-heading-content-gap); overflow: hidden; }
+:root .app-shell .analysis-workbench.remaining-page { --analysis-rule: var(--ui-border); width: 100%; max-width: none; height: var(--workspace-available-height); padding: 16px 20px; display: flex; flex-direction: column; gap: var(--page-heading-content-gap); overflow: hidden; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-hero { flex: 0 0 auto; min-height: 44px; gap: 12px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-title { display: flex; align-items: center; gap: 11px; }
-:root .app-shell .analysis-workbench.remaining-page .analysis-title-icon { width: 40px; height: 40px; border: 1px solid var(--analysis-rule); border-radius: 9px; background: var(--surface); color: var(--ui-accent); display: grid; place-items: center; }
+:root .app-shell .analysis-workbench.remaining-page .analysis-title-icon { display: grid; place-items: center; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-hero h1 { font-size: 21px; margin: 0; line-height: 1.4; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-hero p { margin: 2px 0 0; color: var(--ui-muted); font-size: 12px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-header-actions { display: flex; gap: 8px; }
@@ -150,7 +150,7 @@
 }
 
 /* Preparation uses the same inline card rhythm as the method and acquisition forms. */
-:root .app-shell .analysis-workbench.remaining-page.analysis-preparing { height: auto; min-height: calc(100dvh - var(--workspace-header-height, 76px)); overflow: visible; }
+:root .app-shell .analysis-workbench.remaining-page.analysis-preparing { height: auto; min-height: var(--workspace-available-height); overflow: visible; }
 :root .app-shell .analysis-workbench.remaining-page.analysis-preparing .analysis-layout { flex: none; align-items: start; grid-template-rows: auto; }
 :root .app-shell .analysis-workbench.remaining-page.analysis-preparing .analysis-main { height: auto; }
 :root .app-shell .analysis-workbench.remaining-page.analysis-no-batches .analysis-layout { grid-template-columns: minmax(0, 1fr); }

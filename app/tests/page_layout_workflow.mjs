@@ -2,6 +2,24 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { call } from './contract_browser_support.mjs'
 
+export async function checkPageHeading(page, label) {
+  const heading=page.getByTestId('page-heading')
+  await heading.getByRole('heading',{name:label,exact:true}).waitFor()
+  const position=await heading.evaluate(node=>{
+    const content=node.nextElementSibling
+    const body=content.matches('.page-content') ? content : content.querySelector('.page-content')
+    const inner=node.querySelector('.app-page-heading-inner')
+    const rect=body.getBoundingClientRect(),top=node.getBoundingClientRect(),left=inner.getBoundingClientRect()
+    const glyph=node.querySelector('.app-page-heading-icon > svg.page-title-glyph')
+    const size=glyph?.getBoundingClientRect()
+    const frame=glyph?.parentElement.getBoundingClientRect()
+    return {inCard:Boolean(node.closest('.surface')),left:left.x,bodyLeft:rect.x+parseFloat(getComputedStyle(body).paddingLeft),bottom:top.bottom,bodyTop:rect.top,
+      icon:size && size.width===22 && size.height===22 && frame.width===36 && frame.height===36 && glyph.getAttribute('aria-hidden')==='true'}
+  })
+  assert.ok(!position.inCard && position.icon && Math.abs(position.left-position.bodyLeft)<2 && position.bottom<=position.bodyTop+1,`${label}: main title belongs above the page body at its left edge ${JSON.stringify(position)}`)
+  return position
+}
+
 export async function checkPageLayout(page, result, output) {
   const caps = await call(page,'/api/v1/capabilities')
   const entries = caps.capabilities.flatMap(item => item.navigation_entries)
@@ -43,14 +61,7 @@ export async function checkPageLayout(page, result, output) {
       const decorative=['dispersion','sample-acquisition','evaporation-acquisition','analysis'].includes(entry.page)
       if(!decorative) assert.equal(await page.locator('.main-area .page-content h1:visible').count(),0,entry.label)
       if(!decorative) {
-        const heading=page.getByTestId('page-heading')
-        await heading.getByRole('heading',{name:entry.label,exact:true}).waitFor()
-        const position=await heading.evaluate(node=>{
-          const body=node.parentElement.querySelector(':scope > .page-content'),inner=node.querySelector('.app-page-heading-inner')
-          const rect=body.getBoundingClientRect(),top=node.getBoundingClientRect(),left=inner.getBoundingClientRect()
-          return {inCard:Boolean(node.closest('.surface')),left:left.x,bodyLeft:rect.x+parseFloat(getComputedStyle(body).paddingLeft),bottom:top.bottom,bodyTop:rect.top,icon:Boolean(node.querySelector('.app-page-heading-icon img'))}
-        })
-        assert.ok(!position.inCard && position.icon && Math.abs(position.left-position.bodyLeft)<2 && position.bottom<=position.bodyTop+1,`${entry.label}: main title belongs above the page body at its left edge ${JSON.stringify(position)}`)
+        await checkPageHeading(page,entry.label)
       }
       if(['sample-acquisition','evaporation-acquisition'].includes(entry.page)) await page.getByRole('heading',{name:'摄谱工作台',exact:true}).waitFor()
       const designedPages=['settings','users','audit','migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing','acquisition']
