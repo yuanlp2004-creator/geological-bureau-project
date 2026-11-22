@@ -1,10 +1,11 @@
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { calculationProfileLabel } from '../../components/calculationProfile'
 import {
   BarChart3,
+  Play,
   ShieldAlert,
   StepForward,
+  X,
 } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { api, savePdfFile, type AnalysisCurveSnapshot, type AnalysisOptions, type AnalysisRun } from '../../api'
@@ -553,7 +554,7 @@ export function AnalysisPage({
                 <div className="analysis-actions">
                   {selected.status === 'draft' && (
                     <button className="primary-button" onClick={() => void act('start')} disabled={busy || !canExecute}>
-                      <SpectroscopyIcon name="measure" />
+                      <Play size={16} aria-hidden="true" />
                       开始
                     </button>
                   )}
@@ -565,7 +566,7 @@ export function AnalysisPage({
                   )}
                   {canExecute && active.has(selected.status) && (
                     <button className="secondary-button danger" onClick={() => void act('cancel')}>
-                      <SpectroscopyIcon name="stop" />
+                      <X size={16} aria-hidden="true" />
                       取消
                     </button>
                   )}

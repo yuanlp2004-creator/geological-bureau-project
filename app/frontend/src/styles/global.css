@@ -644,6 +644,9 @@ button {
   max-height: 330px;
   overflow: auto;
 }
+:where(.app-shell) :where(input[data-numeric-input], input[type='number'], output, time, .data-table td, .simple-axis-tick, .scientific-number) {
+  font-variant-numeric: tabular-nums;
+}
 .message-row {
   min-height: 52px;
   display: flex;

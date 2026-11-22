@@ -22,7 +22,7 @@ export { ApiError } from './client'
 export { eventSocketUrl } from './events'
 export type { PreparedTarget, PreparedImportOptions, PreparedImportInput } from './postprocessing'
 export { saveFile, savePdfFile, selectLegacyDirectory } from '../platform/files'
-export type { EventSeverity, RuntimeEvent, Settings, Capability, About, Diagnostics, ModuleDiagnostic } from './system'
+export type { EventSeverity, RuntimeEvent, Settings, Capability, About, Diagnostics, Health, ModuleDiagnostic } from './system'
 export type { LegacySourceKind, LegacySource, LegacySourceScan } from './legacySources'
 export type {
   MethodPrintSettings,

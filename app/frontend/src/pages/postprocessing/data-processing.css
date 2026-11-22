@@ -29,7 +29,7 @@
 :root .app-shell .data-processing-page > [role='tabpanel'] .reports-page { position: relative; }
 :root .app-shell .data-processing-page .postprocessing-view-tabs { margin-bottom: 8px; }
 :root .app-shell .data-processing-page .reports-grid { gap: 12px; }
-:root .app-shell .data-processing-page .reports-page .empty-state { min-height: 64px; padding: 12px; }
+:root .app-shell .data-processing-page .reports-page .empty-state:not(.report-empty) { min-height: 64px; padding: 12px; }
 :root .app-shell .data-processing-page .report-summary { margin: 12px 0 0; }
 :root .app-shell .data-processing-page .report-export { margin-top: 12px; }
 :root .app-shell .data-processing-page .report-export-form { margin-top: 12px; }

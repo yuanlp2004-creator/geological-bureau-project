@@ -1,10 +1,9 @@
 import { ensureCaptureConnection } from '../acquisition/captureConnection'
-import { RefreshCw } from 'lucide-react'
+import { ArrowLeft, FilePlus, RefreshCw } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { api, type DeviceProfile, type HardwareOptions, type HardwareTask } from '../../api'
 import { AdvancedSettings } from '../../components/AdvancedSettings'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
 import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
 import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
 import { HardwareAcquisitionForm, type ManualTurnDraft } from './HardwareAcquisitionForm'
@@ -178,9 +177,9 @@ export function HardwareAcquisitionPage({ token, canWrite, canExecute, canSaveSa
   const actions = screen === 'tasks' ? <div className="file-actions">
     <button className="secondary-button" onClick={() => void load()} disabled={loading || busy}><RefreshCw size={15} />刷新</button>
     <button className="primary-button" disabled={!canWrite || busy || loading || Boolean(running)} onClick={() => { setCreateError(null); setCreating(true); void load() }}>
-      <SpectroscopyIcon name="sample-input" />新建任务</button>
+      <FilePlus size={16} aria-hidden="true" />新建任务</button>
   </div> : <button className="secondary-button" onClick={finish} disabled={locked}>
-    <SpectroscopyIcon name="finish" />返回任务列表</button>
+    <ArrowLeft size={16} aria-hidden="true" />返回任务列表</button>
   return <div className="page-content hardware-page refined-page remaining-page" data-testid="hardware-acquisition-page" data-stage={screen}>
     {actionsTarget ? createPortal(actions, actionsTarget) : <div className="hardware-page-actions">{actions}</div>}
     {screen === 'tasks' ? <SpectroscopyTaskList title="自动转角" busy={busy || loading} runningId={running?.id}

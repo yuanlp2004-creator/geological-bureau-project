@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Flame, LogOut, Play, Square, StepForward } from 'lucide-react'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { SampleInputToolButton } from './SampleInputToolButton'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { CaptureLineBar } from './CaptureLineBar'
 import { LegacyDeskDock } from './legacyDesk'
@@ -90,9 +91,9 @@ export function SpectroscopyConsole(props: Props) {
       <aside className="spectroscopy-operator spectrum-point-rail" ref={setDetailDock} hidden={!rightOpen} aria-label="摄谱输入与控制">
         <header className="legacy-dock-caption"><h2>摄谱窗口</h2><button type="button" className="legacy-dock-close" aria-label="隐藏摄谱窗口" onClick={() => setRightOpen(false)}>×</button></header>
         <div className="spectroscopy-input-toolbar" aria-label="样号输入工具">{props.inputToolbar ?? <>
-          <SpectroscopyToolButton icon="input-samples" label="录入样品编号" description="当前摄谱类型无需预录样号" disabled />
-          <SpectroscopyToolButton icon="insert-sample" label="插入样品" description="当前摄谱类型无需预录样号" disabled />
-          <SpectroscopyToolButton icon="clear-samples" label="清除待测样号" description="当前摄谱类型无需预录样号" disabled />
+          <SampleInputToolButton icon="input-samples" label="录入样品编号" description="当前摄谱类型无需预录样号" disabled />
+          <SampleInputToolButton icon="insert-sample" label="插入样品" description="当前摄谱类型无需预录样号" disabled />
+          <SampleInputToolButton icon="clear-samples" label="清除待测样号" description="当前摄谱类型无需预录样号" disabled />
         </>}</div>
         <fieldset className="spectroscopy-sample-input" data-repeats={props.showRepeats !== false}><legend>样号输入</legend>
           {props.sampleInput ?? <>

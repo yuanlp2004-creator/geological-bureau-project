@@ -3,6 +3,37 @@ import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
 
+export async function checkTaskActionGeometry(host, taskId, canDelete) {
+  const row = host.locator(`[data-task-id="${taskId}"]`)
+  const open = row.locator('.task-open')
+  const remove = row.locator('.task-delete')
+  await open.waitFor()
+  const read = () => row.evaluate(node => {
+    const actions = node.querySelector('.spectroscopy-task-actions')
+    const rect = el => el.getBoundingClientRect()
+    const center = el => rect(el).left + rect(el).width / 2
+    const deleteButton = actions.querySelector('.task-delete')
+    const anchor = rect(actions)
+    const columns = getComputedStyle(actions).gridTemplateColumns.split(' ').map(parseFloat)
+    return {
+      heading: center(node.closest('table').querySelector('th .spectroscopy-task-actions > span')),
+      open: center(actions.querySelector('.task-open')),
+      delete: deleteButton ? center(deleteButton) : null,
+      secondTrack: deleteButton ? anchor.right - columns[1] / 2 : null,
+    }
+  })
+  const geometry = await read()
+  assert.ok(Math.abs(geometry.heading - geometry.open) <= 1, JSON.stringify(geometry))
+  assert.equal(await remove.count(), Number(canDelete))
+  if (canDelete) {
+    assert.ok(Math.abs(geometry.delete - geometry.secondTrack) <= 1, JSON.stringify(geometry))
+    await open.press('Tab')
+    assert.equal(await remove.evaluate(el => el === document.activeElement), true)
+    assert.deepEqual(await read(), geometry)
+  }
+  return geometry
+}
+
 export async function checkCaptureTaskPages(page, result, output) {
   const bench = page.getByTestId('spectroscopy-workbench')
   const tabs = bench.getByRole('navigation', { name: '摄谱方式' })
@@ -210,6 +241,7 @@ export async function checkCaptureTaskPages(page, result, output) {
       host = await go(mode)
       assert.equal(await host.locator('.spectroscopy-console').isVisible(), false)
       assert.equal(await host.locator('.acquisition-record-review, .acquisition-rename, .acquisition-measurements, .acquisition-messages').count(), 0)
+      await checkTaskActionGeometry(host, task.id, true)
       if (mode === 'dispersion') await page.screenshot({ path: path.join(output, `tasks-${layout.theme}.png`) })
       dialog = await open(host)
       assert.equal(await dialog.locator('input').count(), mode === 'sample-acquisition' ? 1 : 6)
@@ -252,6 +284,7 @@ export async function checkCaptureTaskPages(page, result, output) {
   await navigate(page, 'analysis-tests', '色散摄谱', '[data-testid="dispersion-page"]')
   assert.equal(await bench.getByRole('button', { name: '新建任务', exact: true }).isDisabled(), true)
   host = hostFor('dispersion')
+  await checkTaskActionGeometry(host, readOnlyTask.id, false)
   await host.locator(`[data-task-id="${readOnlyTask.id}"]`).getByRole('button', { name: '进入摄谱', exact: true }).click()
   for (const name of ['试样摄谱', '预热摄谱', '停止摄谱'])
     assert.equal(await host.getByRole('button', { name, exact: true }).isDisabled(), true)

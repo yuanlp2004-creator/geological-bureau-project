@@ -11,8 +11,8 @@ import { EvaporationAcquisitionForm } from './EvaporationAcquisitionForm'
 import { SampleAcquisitionMonitor } from './SampleAcquisitionMonitor'
 import { useSpectroscopySession, type SpectroscopyMode } from './spectroscopySession'
 import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
-import { SpectroscopyTaskList } from './SpectroscopyTaskList'
-import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { captureTaskPresentation, SpectroscopyTaskList } from './SpectroscopyTaskList'
+import { SampleInputToolButton } from './SampleInputToolButton'
 import { SampleQueuePage } from '../sampleQueues/SampleQueuePage'
 export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadSpectra = false, canReadMethods = false, canWriteSamples = false, onOpenSamples, onViewSpectra, currentMethodKey }: Props & {
   taskKind: AcquisitionTask['task_kind']
@@ -485,8 +485,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       </SpectroscopyTaskDialog>
       {screen === 'tasks' && <SpectroscopyTaskList title={title} busy={busy || loading} runningId={runningTask?.id}
         tasks={groupedCaptureTasks(tasks.filter(item => !item.capture_turn?.group || item.sample_kind !== 'preheat')).map(item => ({ id: item.id, name: item.name,
-          status: item.capture_turns?.length ? `${item.capture_turns.filter(turn => turn.status === 'completed').length}/${item.capture_turns.length} 转角完成` : stateLabel[item.status],
-          details: item.capture_turns?.map(turn => `${turn.angle_deg}°`).join(' / ') || `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`,
+          ...captureTaskPresentation(item, stateLabel, `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`),
           completed: item.capture_turns?.length ? item.capture_turns.every(turn => turn.status === 'completed') : item.status === 'completed' }))}
         onView={onViewSpectra ? id => {
           const turn = tasks.find(task => task.id === id)?.capture_turn
@@ -527,11 +526,11 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             </>}
             canFinish={!busy && !loading && !runningTask}
             inputToolbar={<>
-              <SpectroscopyToolButton icon="input-samples" label="录入样品编号" description="打开预录样号窗口"
+              <SampleInputToolButton icon="input-samples" label="录入样品编号" description="打开预录样号窗口"
                 disabled={!isSample || !onOpenSamples || !canWriteSamples || busy || Boolean(runningTask)} onClick={() => {setInsertTarget(undefined);setSampleEditorOpen(true)}} />
-              <SpectroscopyToolButton icon="insert-sample" label="插入样品" description="打开样号表，在当前样品之前插入样号"
+              <SampleInputToolButton icon="insert-sample" label="插入样品" description="打开样号表，在当前样品之前插入样号"
                 disabled={!isSample || !canWriteSamples || !inputQueue || !inputTask?.queue_item_id || busy || Boolean(runningTask)} onClick={() => {if(inputQueue&&inputTask?.queue_item_id){setInsertTarget({queueId:inputQueue.id,itemId:inputTask.queue_item_id});setSampleEditorOpen(true)}}} />
-              <SpectroscopyToolButton icon="clear-samples" label="清除待测样号" description="清除本次待测样号列表和选择，保留已保存队列、任务和谱带"
+              <SampleInputToolButton icon="clear-samples" label="清除待测样号" description="清除本次待测样号列表和选择，保留已保存队列、任务和谱带"
                 disabled={!isSample || busy || Boolean(runningTask)} onClick={() => {setInputCleared(true);setClearedQueueId(inputQueue?.id??null)}} />
             </>}
             selected={selected}

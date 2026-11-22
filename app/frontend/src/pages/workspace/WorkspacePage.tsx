@@ -1,47 +1,55 @@
 import { useMemo, useState } from 'react'
 import {
   Activity,
-  Archive,
-  Check,
+  BarChart3,
   CheckCircle2,
   ChevronRight,
-  Clipboard,
+  ClipboardList,
   Clock3,
   Database,
-  Gauge,
-  Info,
-  MessageSquareText,
-  ShieldCheck,
+  FlaskConical,
+  Printer,
   SlidersHorizontal,
-  SquareTerminal,
 } from 'lucide-react'
-import { api, saveFile, type Capability, type CurrentMethodState, type RuntimeEvent } from '../../api'
-import { type NavigationEntry, type Page } from '../../navigation'
+import { api, saveFile, type CurrentMethodState, type Health, type RuntimeEvent } from '../../api'
+import { navigationAvailability, type NavigationEntry } from '../../navigation'
 import { formatTime } from '../../components/dateFormat'
 import { categoryLabel } from '../../components/eventLabels'
 import { WorkspaceMessages } from '../../components/WorkspaceMessages'
-import { FunctionIcon, type FunctionIconName } from '../../components/FunctionIcon'
+
+const quickActions = [
+  { key: 'methods.lifecycle', icon: SlidersHorizontal, label: '方法管理', detail: '版本、条件与当前方法' },
+  { key: 'analysis-tests.samples', icon: ClipboardList, label: '预录样号', detail: '录入样号与重复次数', permission: 'samples.write' },
+  { key: 'analysis-tests.acquisition', icon: FlaskConical, label: '样品摄谱', detail: '建立任务与采集谱带' },
+  { key: 'analysis-tests.raw', icon: BarChart3, label: '样品分析', detail: '测量与结果计算' },
+  { key: 'analysis-tests.spectra', icon: Activity, label: '谱图查看', detail: '查看已保存的谱带' },
+  { key: 'data.reports', icon: Printer, label: '分析报告', detail: '建立、预览与导出', permission: 'reports.read' },
+]
 
 export function Workspace({
   token,
   health,
+  canReadEvents,
   canClearEvents,
   events,
   currentMethod,
-  capabilities,
+  moduleCount,
   entries,
+  permissions,
   onNavigate,
   onEventsChange,
   onToast
 }: {
   token: string
-  health: 'online' | 'offline'
+  health: Health | null
+  canReadEvents: boolean
   canClearEvents: boolean
   events: RuntimeEvent[]
   currentMethod: CurrentMethodState | null
-  capabilities: Capability[]
+  moduleCount: number
   entries: NavigationEntry[]
-  onNavigate: (page: Page) => void
+  permissions: string[]
+  onNavigate: (entry: NavigationEntry) => void
   onEventsChange: (events: RuntimeEvent[]) => void
   onToast: (message: string) => void
 }) {
@@ -53,9 +61,12 @@ export function Workspace({
   )
   const selectAll = selected.length === filteredEvents.length && filteredEvents.length > 0
   const hasCurrentMethod = currentMethod?.method_id != null
-  const hasPage = (page: Page) => entries.some((entry) => entry.page === page)
-  const hasQuickAccess = hasPage('methods') || hasPage('about')
   const isDesktop = '__TAURI__' in window
+  const visibleActions = quickActions.flatMap((action) => {
+    const entry = entries.find((item) => item.key === action.key)
+    if (!entry || (action.permission && !permissions.includes(action.permission))) return []
+    return [{ ...action, entry }]
+  })
 
   const clearEvents = async () => {
     if (!canClearEvents) {
@@ -100,6 +111,34 @@ export function Workspace({
   return (
     <div className="page-content workspace-page refined-page" data-testid="workspace">
       <section className="workspace-grid">
+        <div className="secondary-column">
+          <section className="workspace-diagnostics" aria-label="运行概况">
+            <Database size={16} aria-hidden="true" />
+            <span>{health?.database === 'ok' ? '本地数据库已连接' : '本地数据库未连接'}</span>
+            {health && <span className="scientific-number">SQLite schema v{health.schema_version}</span>}
+            <span className="scientific-number">{moduleCount} 个模块</span>
+          </section>
+          <section className="protocol-surface" aria-label="服务通道">
+            <h2>服务通道</h2>
+            <span className={`service-status ${health ? 'online' : 'offline'}`}>本地 API {health ? '在线' : '离线'}</span>
+            <span>{isDesktop ? '桌面程序' : '浏览器预览'}</span>
+            {canReadEvents && <span className="scientific-number">1.5 秒刷新</span>}
+          </section>
+          {visibleActions.length > 0 && <section className="surface quick-surface">
+            <div className="surface-heading"><h2>常用入口</h2></div>
+            <div className="workspace-quick-grid">
+              {visibleActions.map(({ key, icon: Icon, label, detail, entry }) => {
+                const { disabled, reason } = navigationAvailability(entry, currentMethod)
+                return <button key={key} type="button" className="quick-action" disabled={disabled} title={reason ?? undefined}
+                  onClick={() => onNavigate(key === 'data.reports' ? { ...entry, view: 'reports' } : entry)}>
+                  <span className="quick-icon"><Icon size={18} aria-hidden="true" /></span>
+                  <span><strong>{label}</strong><small>{detail}</small></span>
+                  <ChevronRight size={15} aria-hidden="true" />
+                </button>
+              })}
+            </div>
+          </section>}
+        </div>
         <div className="primary-column">
           <section className="surface status-surface">
             <div className="surface-heading">
@@ -111,36 +150,6 @@ export function Workspace({
                 {hasCurrentMethod ? <CheckCircle2 size={14} /> : <Clock3 size={14} />}
                 {hasCurrentMethod ? `版本 ${currentMethod?.version}` : '等待选择'}
               </span>
-            </div>
-            <div className="readiness-grid">
-              <ReadinessItem
-                icon={Database}
-                title="数据存储"
-                detail={health === 'online' ? '本地数据库已连接' : '等待本地服务连接'}
-                done={health === 'online'}
-              />
-              <ReadinessItem
-                icon={SquareTerminal}
-                title="API 服务"
-                detail={health === 'online' ? 'FastAPI /api/v1 · 在线' : 'FastAPI /api/v1 · 离线'}
-                done={health === 'online'}
-              />
-              <ReadinessItem
-                icon={Archive}
-                title="模块清单"
-                detail={`${capabilities.length} 个模块已注册`}
-                done={capabilities.length > 0}
-              />
-              <ReadinessItem
-                icon={SlidersHorizontal}
-                title="运行方法"
-                detail={hasCurrentMethod ? `${currentMethod?.work_type} · 已发布` : '打开已发布方法后就绪'}
-                done={hasCurrentMethod}
-              />
-            </div>
-            <div className="surface-note">
-              <Info size={16} />
-              <span>当前运行使用已发布版本。修改条件时保存草稿，验证并发布后再切换。</span>
             </div>
           </section>
           <WorkspaceMessages
@@ -157,169 +166,7 @@ export function Workspace({
             onSave={saveEvents}
           />
         </div>
-        <aside className="secondary-column">
-          {hasQuickAccess && (
-            <section className="surface quick-surface">
-              <div className="surface-heading">
-                <div>
-                  <h2>常用入口</h2>
-                </div>
-                <Clipboard size={16} />
-              </div>
-              {hasPage('methods') && (
-                <QuickAction
-                  icon="conditions"
-                  label="方法管理"
-                  detail="版本、条件与当前方法"
-                  onClick={() => onNavigate('methods')}
-                />
-              )}
-              {hasPage('about') && (
-                <QuickAction
-                  icon="about"
-                  label="关于软件"
-                  detail="软件名称、版本和版权"
-                  onClick={() => onNavigate('about')}
-                />
-              )}
-            </section>
-          )}
-          <section className="stat-grid workspace-diagnostics" aria-label="运行概况">
-            <StatCard
-              icon={Database}
-              label="数据存储"
-              value={health === 'online' ? '已连接' : '未连接'}
-              note="本地数据库"
-              tone={health === 'online' ? 'blue' : 'amber'}
-            />
-            <StatCard
-              icon={ShieldCheck}
-              label="注册模块"
-              value={String(capabilities.length)}
-              note={capabilities.length ? '应用功能已载入' : '等待功能载入'}
-              tone={capabilities.length ? 'green' : 'amber'}
-            />
-            <StatCard
-              icon={MessageSquareText}
-              label="运行消息"
-              value={String(events.length)}
-              note="最近 500 条以内"
-              tone="amber"
-            />
-            <StatCard
-              icon={Gauge}
-              label="本地服务"
-              value={health === 'online' ? '在线' : '离线'}
-              note="随机端口握手"
-              tone="violet"
-            />
-          </section>
-          <section className="surface protocol-surface">
-            <div className="surface-heading">
-              <div>
-                <h2>服务通道</h2>
-              </div>
-              <Activity size={16} />
-            </div>
-            <div className="protocol-row">
-              <span>REST API</span>
-              <code>127.0.0.1</code>
-              <span className={health === 'online' ? 'protocol-ok' : 'protocol-error'}>
-                {health === 'online' ? '在线' : '离线'}
-              </span>
-            </div>
-            <div className="protocol-row">
-              <span>运行消息</span>
-              <code>1.5 秒刷新</code>
-              <span className={health === 'online' ? 'protocol-ok' : 'protocol-error'}>
-                {health === 'online' ? '在线' : '离线'}
-              </span>
-            </div>
-            <div className="protocol-row">
-              <span>运行环境</span>
-              <code>{isDesktop ? 'Tauri 2' : '浏览器'}</code>
-              <span className="protocol-ok">{isDesktop ? '桌面程序' : '浏览器预览'}</span>
-            </div>
-          </section>
-        </aside>
       </section>
     </div>
-  )
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  note,
-  tone
-}: {
-  icon: typeof Database
-  label: string
-  value: string
-  note: string
-  tone: string
-}) {
-  return (
-    <div className={`stat-card ${tone}`}>
-      <div className="stat-icon">
-        <Icon size={17} />
-      </div>
-      <div>
-        <span>{label}</span>
-        <strong>{value}</strong>
-        <small>{note}</small>
-      </div>
-    </div>
-  )
-}
-
-function ReadinessItem({
-  icon: Icon,
-  title,
-  detail,
-  done = false
-}: {
-  icon: typeof Database
-  title: string
-  detail: string
-  done?: boolean
-}) {
-  return (
-    <div className="readiness-item">
-      <div className={`readiness-icon ${done ? 'done' : 'pending'}`}>
-        <Icon size={16} />
-      </div>
-      <div>
-        <strong>{title}</strong>
-        <span>{detail}</span>
-      </div>
-      {done ? <Check size={15} className="check" /> : <Clock3 size={15} className="pending-icon" />}
-    </div>
-  )
-}
-
-function QuickAction({
-  icon,
-  label,
-  detail,
-  onClick
-}: {
-  icon: FunctionIconName
-  label: string
-  detail: string
-  onClick: () => void
-}) {
-  return (
-    <button className="quick-action" onClick={onClick}>
-      <span className="quick-icon">
-        <FunctionIcon name={icon} />
-      </span>
-      <span>
-        <strong>{label}</strong>
-        <small>{detail}</small>
-      </span>
-      <ChevronRight size={15} />
-    </button>
   )
 }

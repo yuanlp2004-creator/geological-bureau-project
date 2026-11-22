@@ -56,10 +56,20 @@
 .spectrum-point-compact dl > div { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); }
 .spectrum-point-compact .point-preheat, .spectrum-point-compact .point-phase { margin-top: 4px; }
 .spectrum-point-compact .point-phase p { display: flex; flex-wrap: wrap; column-gap: .5em; }
-.spectrum-point-compact .point-phase dl > div {
-  grid-template-columns: 7em minmax(0, 1fr);
-  column-gap: .35em;
+.spectrum-point-compact .point-phase > dl {
+  display: grid;
+  grid-template-columns: max-content minmax(5ch, 1fr);
+  column-gap: 4px;
 }
+.spectrum-point-compact .point-phase > dl > div {
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+.spectrum-point-compact .point-phase :is(dt, dd) {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.spectrum-point-compact .point-phase dd { text-align: end; font-variant-numeric: tabular-nums; }
 @media (max-width: 1150px) {
   .legacy-view-rail > .spectrum-point-panel { font-size: 11px; }
 }

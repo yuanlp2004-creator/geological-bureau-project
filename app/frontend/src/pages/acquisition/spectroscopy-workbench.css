@@ -192,6 +192,49 @@
 :root .app-shell .spectroscopy-task-table :is(th, td) { text-align: left; vertical-align: middle; }
 :root .app-shell .spectroscopy-task-table td { overflow-wrap: anywhere; }
 :root .app-shell .spectroscopy-task-table :is(th, td):is(:nth-child(2), :last-child) { text-align: center; white-space: nowrap; }
+:root .app-shell .spectroscopy-task-list .task-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: var(--ui-muted);
+  background: var(--ui-soft);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+:root .app-shell .spectroscopy-task-list .task-status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+:root .app-shell .spectroscopy-task-list .task-status-badge.running { color: var(--ui-accent); background: var(--ui-selected); }
+:root .app-shell .spectroscopy-task-list .task-status-badge.warning { color: var(--ui-warning); background: var(--ui-warning-bg); }
+:root .app-shell .spectroscopy-task-list .task-status-badge.danger { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .spectroscopy-task-list .task-status-badge.success { color: var(--ui-success); background: var(--ui-success-bg); }
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-open {
+  color: var(--ui-accent);
+  background: var(--ui-selected);
+  border-color: color-mix(in srgb, var(--ui-accent) 32%, var(--ui-border));
+}
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-view { background: var(--surface); }
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-open:enabled:is(:hover, :focus-visible) {
+  background: var(--ui-selected);
+  border-color: var(--ui-accent);
+}
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-delete { color: var(--muted); }
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-delete:enabled:is(:hover, :focus-visible) {
+  color: var(--ui-danger);
+  background: var(--ui-danger-bg);
+}
+:root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-delete:focus-visible {
+  outline: 2px solid var(--ui-danger);
+  outline-offset: 2px;
+}
 :root .app-shell .spectroscopy-task-summary { display: grid; gap: 12px; margin: 0 0 16px; }
 :root .app-shell .spectroscopy-task-summary > div { display: grid; gap: 4px; }
 :root .app-shell .spectroscopy-task-summary dt { color: var(--muted); font-size: 12px; }

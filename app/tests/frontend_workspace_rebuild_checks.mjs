@@ -17,11 +17,11 @@ export async function checkWorkspaceLayout(page,call,output) {
  await page.getByTestId('workspace').waitFor()
  const workspace=page.getByTestId('workspace')
  assert.equal(await workspace.getByText('等待选择',{exact:true}).count(),0)
- await workspace.getByRole('button',{name:'样品队列',exact:true}).click()
+ await workspace.locator('.quick-surface').getByRole('button',{name:/^预录样号/}).click()
  await page.locator('.sample-queue-page').waitFor()
  await page.locator('[data-navigation-group="workspace"]').click()
  await workspace.waitFor()
- await workspace.getByRole('button',{name:/方法管理 版本、条件与当前方法/}).click()
+ await workspace.locator('.quick-surface').getByRole('button',{name:/方法管理 版本、条件与当前方法/}).click()
  await page.getByTestId('methods-page').waitFor()
  await page.locator('[data-navigation-group="workspace"]').click()
  await workspace.waitFor()
@@ -40,9 +40,9 @@ export async function checkWorkspaceLayout(page,call,output) {
  checks.push('1060/1440/1920 viewports using the default light/comfortable appearance have no window overflow')
  const desktop=await page.evaluate(()=> '__TAURI__' in window)
  assert.ok((await workspace.locator('.protocol-surface').innerText()).includes(desktop?'桌面程序':'浏览器预览'))
- await workspace.getByText('10 秒刷新',{exact:true}).waitFor()
+ await workspace.getByText('1.5 秒刷新',{exact:true}).waitFor()
  assert.equal(await page.getByText('构建中',{exact:true}).count(),0)
- checks.push('original diagnostics remain visible with factual runtime environment and ten-second message refresh')
+ checks.push('diagnostics show the factual runtime environment and 1.5-second message refresh')
 
  return checks
 }

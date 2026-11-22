@@ -81,8 +81,8 @@
 :root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-grid { stroke:#49647a; }
 @media(max-width:1150px) {
   :root .app-shell .legacy-view-body { grid-template-columns:164px minmax(0,1fr); }
-  :root .app-shell .legacy-view-body.has-line-rail { grid-template-columns:145px minmax(0,1fr) 138px; }
-  :root .app-shell .legacy-view-body.left-hidden.has-line-rail { grid-template-columns:minmax(0,1fr) 138px; }
+  :root .app-shell .legacy-view-body.has-line-rail { grid-template-columns:145px minmax(0,1fr) 156px; }
+  :root .app-shell .legacy-view-body.left-hidden.has-line-rail { grid-template-columns:minmax(0,1fr) 156px; }
   :root .app-shell .legacy-view-center .inspector-icon-button { width:24px !important; min-width:24px !important; height:24px !important; min-height:24px !important; flex-basis:24px !important; padding:3px !important; }
   :root .app-shell .legacy-grayscale { flex-basis:88px; height:88px; }
   :root .app-shell .legacy-spectrum-visual { margin:4px; padding:5px 4px 0; }

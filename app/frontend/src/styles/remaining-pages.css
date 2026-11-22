@@ -473,6 +473,24 @@
   color: var(--ui-muted);
   font-size: 12px;
 }
+:root .app-shell .reports-page .report-empty {
+  flex-direction: row;
+  min-block-size: 56px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  gap: 8px;
+  border: 1px dashed var(--ui-border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ui-muted);
+}
+:root .app-shell .reports-page .report-empty > svg { flex: none; }
+:root .app-shell .reports-page .report-empty strong {
+  display: block;
+  color: var(--ui-text);
+  font-size: 13px;
+}
+:root .app-shell .reports-page .report-empty small { font-size: 12px; }
 :root .app-shell .remaining-page .report-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -485,12 +503,12 @@
 :root .app-shell .reports-page .report-format-fields,
 :root .app-shell .reports-page .report-filter-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 8px 12px;
   align-items: end;
 }
 :root .app-shell .reports-page .report-filter-fields {
-  grid-template-columns: minmax(210px, 1.2fr) repeat(2, minmax(0, 1fr)) auto;
+  grid-template-columns: minmax(180px, 1.1fr) repeat(2, minmax(0, 1fr)) max-content;
 }
 :root .app-shell .reports-page .report-form .field {
   min-width: 0;
@@ -534,6 +552,20 @@
     grid-column: 1 / -1;
   }
 }
+:root .app-shell .reports-page .report-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+:root .app-shell .reports-page .report-export > .surface-heading { flex: 0 0 100%; }
+:root .app-shell .reports-page .report-export > .report-export-form {
+  flex: 1 1 min(100%, 22rem);
+  max-inline-size: min(100%, 36rem);
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+:root .app-shell .reports-page .report-export > .report-format-actions { margin: 0; }
 :root .app-shell .remaining-page .report-version-selector {
   max-width: 760px;
 }
@@ -587,6 +619,27 @@
   width: min(480px, calc(100vw - 48px));
   padding: 32px;
 }
+.auth-shell.auth-entry { background: linear-gradient(145deg, #edf3f9, #f5f7fa); }
+.auth-entry > .auth-form-panel {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgb(24 44 68 / 8%);
+}
+:root[data-theme='dark'] .auth-entry { background: linear-gradient(145deg, #101c29, #172638); }
+:root[data-theme='dark'] .auth-entry > .auth-form-panel { box-shadow: 0 8px 24px rgb(0 0 0 / 24%); }
+:root[data-theme='dark'] .auth-entry :is(p, .section-kicker, .field > span) { color: var(--muted); }
+:root[data-theme='dark'] .auth-entry input {
+  border-color: #71869f;
+  background: #122235;
+  color: var(--ink);
+}
+:root[data-theme='dark'] .auth-entry .auth-error {
+  border-color: #ffb4b0;
+  background: #47282d;
+  color: #ffb4b0;
+}
+:root[data-theme='dark'] .auth-entry :is(input, button):focus-visible { outline-color: #9ac2ff; }
 .auth-panel :is(p, .field > span, input, button),
 .error-panel p,
 .toast {

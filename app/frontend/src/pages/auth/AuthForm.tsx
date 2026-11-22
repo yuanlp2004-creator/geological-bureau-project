@@ -31,7 +31,7 @@ export function AuthForm({
     setSubmitting(false)
   }
   return (
-    <main className="auth-shell">
+    <main className="auth-shell auth-entry">
       <section className="auth-panel auth-form-panel">
         <div className="auth-brand">
           <AppIcon className="brand-mark" />
@@ -40,7 +40,7 @@ export function AuthForm({
             <span>本地光谱分析工作台</span>
           </div>
         </div>
-        <span className="section-kicker">{isBootstrap ? 'FIRST RUN' : 'LOCAL SIGN IN'}</span>
+        <span className="section-kicker">{isBootstrap ? '首次初始化' : '本机账户登录'}</span>
         <h1>{isBootstrap ? '初始化本地管理员' : '登录工作台'}</h1>
         <p>{isBootstrap ? '创建首个系统管理员账户，密码只以 Argon2id 哈希保存。' : '使用本机账户进入分析工作台。'}</p>
         <form onSubmit={submit} className="auth-form">

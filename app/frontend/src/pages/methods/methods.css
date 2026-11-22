@@ -630,7 +630,7 @@
 }
 .detectability-card {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 9px;
   margin-top: 13px;

@@ -23,7 +23,7 @@ import { DispersionSetup } from './DispersionSetup'
 import { Props, runningStates, statusLabels } from './dispersionView'
 import { useSpectroscopySession, type SpectroscopyMode } from '../acquisition/spectroscopySession'
 import { SpectroscopyTaskDialog } from '../acquisition/SpectroscopyTaskDialog'
-import { SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
+import { captureTaskPresentation, SpectroscopyTaskList } from '../acquisition/SpectroscopyTaskList'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { LegacyViewingDesk } from '../../components/LegacyViewingDesk'
 import { CaptureLineBar } from '../acquisition/CaptureLineBar'
@@ -470,8 +470,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     </SpectroscopyTaskDialog>
     {screen === 'tasks' && <SpectroscopyTaskList title="色散摄谱" busy={busy} runningId={runningTask?.id}
       tasks={groupedCaptureTasks(tasks.filter(task => !task.capture_turn?.group || !task.condition.preheat)).map(task => ({ id: task.id, name: task.name,
-        status: task.capture_turns?.length ? `${task.capture_turns.filter(turn => turn.status === 'completed').length}/${task.capture_turns.length} 转角完成` : statusLabels[task.status],
-        details: task.capture_turns?.map(turn => `${turn.angle_deg}°`).join(' / ') || `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`,
+        ...captureTaskPresentation(task, statusLabels, `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`),
         completed: task.capture_turns?.length ? task.capture_turns.every(turn => turn.status === 'completed') : task.status === 'completed' }))}
       onView={onViewSpectra ? id => {
         const task = tasks.find(item => item.id === id)

@@ -231,7 +231,7 @@ export function SpectralLineEditor({
                   : (detectability?.message ?? '正在计算 CCD 落点…')}
               </span>
             </div>
-            <code>{detectability?.reason_code ?? 'checking'}</code>
+            <code hidden>{detectability?.reason_code ?? 'checking'}</code>
           </div>
           <div className="spectral-toggle-grid">
             <label>

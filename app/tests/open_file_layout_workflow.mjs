@@ -41,12 +41,14 @@ export async function checkOpenFileLayout(page, fixture, result, output) {
         : page.locator(`.open-legacy-file[data-purpose="${purpose}"] > button`).filter({visible:true})
       await button.waitFor()
       await page.waitForFunction(purpose=>{const b=purpose==='samples'?[...document.querySelectorAll('.sample-queue-page button')].find(n=>n.textContent.includes('打开样品号')):document.querySelector(`.open-legacy-file[data-purpose="${purpose}"] > button`);return b && !b.disabled},purpose)
-      const geometry=await button.evaluate(el=>{
+      const geometry=await button.evaluate((el, purpose)=>{
         const b=el.getBoundingClientRect(),actions=el.closest('.file-actions'),a=actions?.getBoundingClientRect()
-        const header=el.closest('.page-intro,.hero-row,.analysis-hero,.spectroscopy-header,.method-context-bar')
+        const header=el.closest(purpose.startsWith('batch-') ? '.migration-source-surface > .surface-heading'
+          : purpose === 'reports' ? '.output-workspace-toolbar'
+          : '.page-intro,.hero-row,.analysis-hero,.spectroscopy-header,.method-context-bar')
         const h=header?.getBoundingClientRect()
         return {w:innerWidth,doc:document.documentElement.scrollWidth,left:b.left,right:b.right,top:b.top,bottom:b.bottom,actions:!!actions,header:!!header,headerTop:h?.top,headerBottom:h?.bottom,headerRight:h?.right,actionsRight:a?.right,text:el.textContent}
-      })
+      }, purpose)
       assert.equal(geometry.actions,true,JSON.stringify({purpose,...geometry}))
       assert.equal(geometry.header,true,JSON.stringify({purpose,...geometry}))
       assert.ok(geometry.top>=geometry.headerTop-1 && geometry.bottom<=geometry.headerBottom+1,JSON.stringify({purpose,...geometry}))

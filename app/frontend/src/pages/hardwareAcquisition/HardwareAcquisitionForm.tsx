@@ -2,8 +2,7 @@ import type { FormEvent, Dispatch, SetStateAction } from 'react'
 import type { HardwareOptions } from '../../api'
 import { AdvancedSettings } from '../../components/AdvancedSettings'
 import { NumericInput } from '../../components/NumericInput'
-import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
-import { ArrowUp, ArrowDown } from 'lucide-react'
+import { ArrowUp, ArrowDown, Plus, Trash2 } from 'lucide-react'
 
 export type ManualTurnDraft = { id: number; angle_deg: number | null; duration_seconds: number }
 
@@ -71,11 +70,11 @@ export function HardwareAcquisitionForm(props: Props) {
               <button type="button" title={`上移转角 ${index + 1}`} disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp size={15} /></button>
               <button type="button" title={`下移转角 ${index + 1}`} disabled={index === props.manualTurns.length - 1} onClick={() => move(index, 1)}><ArrowDown size={15} /></button>
               <button type="button" title={`删除转角 ${index + 1}`} disabled={props.manualTurns.length === 1}
-                onClick={() => props.setManualTurns(current => current.filter(item => item.id !== row.id))}><SpectroscopyIcon name="delete-line" /></button>
+                onClick={() => props.setManualTurns(current => current.filter(item => item.id !== row.id))}><Trash2 size={16} aria-hidden="true" /></button>
             </div></td></tr>})}</tbody></table></div>
         <div className="hardware-manual-footer"><button type="button" className="secondary-button" disabled={props.manualTurns.length >= 300}
           onClick={() => props.setManualTurns(current => [...current, { id: Math.max(0, ...current.map(row => row.id)) + 1, angle_deg: methodTurns[0]?.angle_deg ?? null, duration_seconds: Math.max(10, (methodTurns[0]?.end_frame ?? 1) * methodPeriod) }])}>
-          <SpectroscopyIcon name="add-line" />新增转角</button>
+          <Plus size={16} aria-hidden="true" />新增转角</button>
           <span>共 {props.manualTurns.length} 个转角 · 总采集 {Number(props.manualTurns.reduce((sum, row) => sum + row.duration_seconds, 0).toFixed(2))} 秒</span></div>
       </section>}
       <AdvancedSettings title="采集与异常设置">

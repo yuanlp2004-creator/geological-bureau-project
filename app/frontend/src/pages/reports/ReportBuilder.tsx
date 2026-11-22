@@ -1,6 +1,6 @@
 import { SectionHeading } from '../../components/SectionHeading'
 import { useEffect, useState } from 'react'
-import { FileBarChart } from 'lucide-react'
+import { FileBarChart, FileInput } from 'lucide-react'
 import { type ReportTemplate } from '../../api'
 
 export type ReportDraft = {
@@ -56,7 +56,10 @@ export function ReportBuilder({ source, templates, canWrite, busy, onCreate, onT
         <strong title={source.name}>{source.name}</strong>
         <span>{source.kind === 'dat' ? 'DAT 结果' : '分析批次'} · {source.sampleCount} 个样品</span>
         {source.kind === 'analysis' && source.status !== 'completed' && <span>当前批次尚未完成分析</span>}
-      </div> : <div className="empty-state">请打开 DAT 报告文件，或在“样品分析”中打开要输出的批次。</div>}
+      </div> : <div className="empty-state report-empty">
+        <FileInput size={20} aria-hidden="true" />
+        <div><strong>尚未选择报告数据</strong><small>请打开 DAT 报告文件，或在“样品分析”中打开要输出的批次。</small></div>
+      </div>}
         <div className="report-form">
           <div className="report-format-fields">
             <label className="field">

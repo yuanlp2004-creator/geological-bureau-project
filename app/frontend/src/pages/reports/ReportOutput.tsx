@@ -1,4 +1,4 @@
-import { Eye } from 'lucide-react'
+import { Eye, Files } from 'lucide-react'
 import type { Report } from '../../api'
 import type { ReportSummary } from '../../api/reports'
 import { PreviewFrame } from '../../components/PreviewFrame'
@@ -32,7 +32,10 @@ export function ReportOutput({ reports, active, selectedId, loading, error, retr
         )}
       </div>
       {reports.length === 0 ? (
-        <div className="empty-state">建立报告后将在此显示版本</div>
+        <div className="empty-state report-empty">
+          <Files size={20} aria-hidden="true" />
+          <div><strong>暂无报告版本</strong><small>建立报告后将在此显示版本</small></div>
+        </div>
       ) : (
         <label className="field report-version-selector">
           <span>选择报告版本</span>

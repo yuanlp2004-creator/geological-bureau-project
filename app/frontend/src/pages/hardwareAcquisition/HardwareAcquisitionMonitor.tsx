@@ -1,6 +1,7 @@
 import type { HardwareTask } from '../../api'
 import type { ReactNode } from 'react'
 import { SpectroscopyIcon } from '../../components/SpectroscopyIcon'
+import { RotateCcw } from 'lucide-react'
 import { activeStates, anomalyText, decisionLabels, labels, terminalStates } from './hardwareView'
 
 type Action = 'start' | 'step' | 'pause' | 'resume' | 'stop' | 'accept' | 'retry'
@@ -64,7 +65,7 @@ export function HardwareAcquisitionMonitor({ selected: task, control, busy, canE
       <strong>请检查异常谱图</strong><input aria-label="异常处置说明" maxLength={300} placeholder="处置说明（可选）"
         disabled={disabled} value={interventionNote} onChange={e => setInterventionNote(e.target.value)} />
       <div className="intervention-actions"><button className="secondary-button" disabled={disabled || !pending} onClick={() => void control('accept')}>确认采用</button>
-        <button className="secondary-button" disabled={disabled} onClick={() => void control('retry')}><SpectroscopyIcon name="capture" />重新采集</button></div>
+        <button className="secondary-button" disabled={disabled} onClick={() => void control('retry')}><RotateCcw size={16} aria-hidden="true" />重新采集</button></div>
     </div>}
     {task.status === 'deferred_external' && <p className="hardware-alert external" role="alert">转角协议尚未接入，未发送设备命令。</p>}
     {(task.status === 'safety_stopped' || task.status === 'failed') && <p className="hardware-alert danger" role="alert">

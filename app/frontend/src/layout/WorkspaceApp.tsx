@@ -6,6 +6,7 @@ import {
   type AuthUser,
   type Capability,
   type CurrentMethodState,
+  type Health,
   type RuntimeEvent,
   type Settings
 } from '../api'
@@ -53,7 +54,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   const [pageActionsTarget, setPageActionsTarget] = useState<HTMLDivElement | null>(null)
   const [about, setAbout] = useState<About | null>(null)
   const [capabilities, setCapabilities] = useState<Capability[]>([])
-  const [health, setHealth] = useState<'online' | 'offline'>('offline')
+  const [healthSnapshot, setHealthSnapshot] = useState<Health | null>(null)
+  const health = healthSnapshot ? 'online' : 'offline'
   const [currentMethod, setCurrentMethod] = useState<CurrentMethodState | null>(null)
   const [reportSource, setReportSource] = useState<ReportSource | null>(null)
   const [methodShortcut, setMethodShortcut] = useState<MethodShortcutRequest | null>(null)
@@ -89,14 +91,14 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
           api.capabilities(),
           currentPromise
         ])
-      setHealth(nextHealth.status === 'ok' ? 'online' : 'offline')
+      setHealthSnapshot(nextHealth.status === 'ok' ? nextHealth : null)
       setEvents(nextEvents)
       setSettings(nextSettings)
       setAbout(nextAbout)
       setCapabilities(nextCapabilities.capabilities)
       setCurrentMethod(nextCurrentMethod)
     } catch {
-      setHealth('offline')
+      setHealthSnapshot(null)
     } finally {
       setLoading(false)
     }
@@ -172,7 +174,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       data-theme={settings?.display.theme ?? 'light'}
       data-density={settings?.display.density ?? 'comfortable'}
     >
-      {health === 'offline' && !loading && !about ? (
+      {health === 'offline' && !loading && !about && !capabilities.length ? (
         <ErrorPage onRetry={loadData} />
       ) : (
         <>
@@ -199,18 +201,20 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               currentMethod={currentMethod}
               onLogout={onLogout}
             />
-            <div className="page-scroll-region">
+            <div className={`page-scroll-region${page === 'workspace' ? ' workspace-scroll-region' : ''}`}>
             {activeEntry && !isSpectroscopyMode(page) && page !== 'analysis' && page !== 'extension' && <PageHeading entry={activeEntry} actionsRef={setPageActionsTarget} />}
             {page === 'workspace' && (
               <Workspace
                 token={token}
-                health={health}
+                health={healthSnapshot}
+                canReadEvents={canReadEvents}
                 canClearEvents={user.permissions.includes('runtime-events.write')}
                 events={events}
                 currentMethod={currentMethod}
-                capabilities={capabilities}
+                moduleCount={capabilities.length}
                 entries={entries}
-                onNavigate={handlePage}
+                permissions={user.permissions}
+                onNavigate={handleQuickNavigation}
                 onEventsChange={setEvents}
                 onToast={showToast}
               />
