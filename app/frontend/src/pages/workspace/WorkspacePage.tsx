@@ -8,7 +8,10 @@ import {
   Clock3,
   Database,
   FlaskConical,
+  Info,
+  Layers3,
   Printer,
+  Server,
   SlidersHorizontal,
 } from 'lucide-react'
 import { api, saveFile, type CurrentMethodState, type Health, type RuntimeEvent } from '../../api'
@@ -61,7 +64,27 @@ export function Workspace({
   )
   const selectAll = selected.length === filteredEvents.length && filteredEvents.length > 0
   const hasCurrentMethod = currentMethod?.method_id != null
+  const databaseReady = health?.database === 'ok'
+  const apiOnline = health !== null
   const isDesktop = '__TAURI__' in window
+  const readiness = [
+    {
+      label: '数据存储', icon: Database, tone: 'green', ready: databaseReady,
+      detail: health ? `SQLite schema v${health.schema_version}` : '等待数据库连接',
+    },
+    {
+      label: 'API 服务', icon: Server, tone: 'blue', ready: apiOnline,
+      detail: `FastAPI /api/v1 · ${apiOnline ? '在线' : '离线'}`,
+    },
+    {
+      label: '模块清单', icon: Layers3, tone: 'violet', ready: moduleCount > 0,
+      detail: `${moduleCount} 个模块已注册`,
+    },
+    {
+      label: '运行方法', icon: SlidersHorizontal, tone: 'amber', ready: hasCurrentMethod,
+      detail: hasCurrentMethod ? `${currentMethod.work_type} · 已发布` : '等待选择已发布方法',
+    },
+  ]
   const visibleActions = quickActions.flatMap((action) => {
     const entry = entries.find((item) => item.key === action.key)
     if (!entry || (action.permission && !permissions.includes(action.permission))) return []
@@ -111,34 +134,6 @@ export function Workspace({
   return (
     <div className="page-content workspace-page refined-page" data-testid="workspace">
       <section className="workspace-grid">
-        <div className="secondary-column">
-          <section className="workspace-diagnostics" aria-label="运行概况">
-            <Database size={16} aria-hidden="true" />
-            <span>{health?.database === 'ok' ? '本地数据库已连接' : '本地数据库未连接'}</span>
-            {health && <span className="scientific-number">SQLite schema v{health.schema_version}</span>}
-            <span className="scientific-number">{moduleCount} 个模块</span>
-          </section>
-          <section className="protocol-surface" aria-label="服务通道">
-            <h2>服务通道</h2>
-            <span className={`service-status ${health ? 'online' : 'offline'}`}>本地 API {health ? '在线' : '离线'}</span>
-            <span>{isDesktop ? '桌面程序' : '浏览器预览'}</span>
-            {canReadEvents && <span className="scientific-number">1.5 秒刷新</span>}
-          </section>
-          {visibleActions.length > 0 && <section className="surface quick-surface">
-            <div className="surface-heading"><h2>常用入口</h2></div>
-            <div className="workspace-quick-grid">
-              {visibleActions.map(({ key, icon: Icon, label, detail, entry }) => {
-                const { disabled, reason } = navigationAvailability(entry, currentMethod)
-                return <button key={key} type="button" className="quick-action" disabled={disabled} title={reason ?? undefined}
-                  onClick={() => onNavigate(key === 'data.reports' ? { ...entry, view: 'reports' } : entry)}>
-                  <span className="quick-icon"><Icon size={18} aria-hidden="true" /></span>
-                  <span><strong>{label}</strong><small>{detail}</small></span>
-                  <ChevronRight size={15} aria-hidden="true" />
-                </button>
-              })}
-            </div>
-          </section>}
-        </div>
         <div className="primary-column">
           <section className="surface status-surface">
             <div className="surface-heading">
@@ -147,9 +142,25 @@ export function Workspace({
                 <h2>{currentMethod?.title || '尚未选择运行方法'}</h2>
               </div>
               <span className={`ready-badge ${hasCurrentMethod ? '' : 'pending'}`}>
-                {hasCurrentMethod ? <CheckCircle2 size={14} /> : <Clock3 size={14} />}
+                {hasCurrentMethod ? <CheckCircle2 size={14} aria-hidden="true" /> : <Clock3 size={14} aria-hidden="true" />}
                 {hasCurrentMethod ? `版本 ${currentMethod?.version}` : '等待选择'}
               </span>
+            </div>
+            <div className="readiness-grid">
+              {readiness.map(({ label, icon: Icon, tone, detail, ready }) => {
+                const StatusIcon = ready ? CheckCircle2 : Clock3
+                return (
+                  <div className="readiness-item" key={label}>
+                    <div className="readiness-icon" data-tone={tone}><Icon size={16} aria-hidden="true" /></div>
+                    <div><strong>{label}</strong><span>{detail}</span></div>
+                    <StatusIcon className={ready ? 'check' : 'pending-icon'} size={15} aria-hidden="true" />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="surface-note">
+              <Info size={15} aria-hidden="true" />
+              <span>{hasCurrentMethod ? '样品摄谱与分析沿用当前运行方法。' : '请在方法管理中选择已发布的方法，再进入样品摄谱或分析。'}</span>
             </div>
           </section>
           <WorkspaceMessages
@@ -165,6 +176,47 @@ export function Workspace({
             onCopy={copyEvents}
             onSave={saveEvents}
           />
+        </div>
+        <div className="secondary-column">
+          {visibleActions.length > 0 && <section className="surface quick-surface">
+            <div className="surface-heading"><h2>常用入口</h2></div>
+            <div className="workspace-quick-grid">
+              {visibleActions.map(({ key, icon: Icon, label, detail, entry }) => {
+                const { disabled, reason } = navigationAvailability(entry, currentMethod)
+                return <button key={key} type="button" className="quick-action" disabled={disabled} title={reason ?? undefined}
+                  onClick={() => onNavigate(key === 'data.reports' ? { ...entry, view: 'reports' } : entry)}>
+                  <span className="quick-icon"><Icon size={17} aria-hidden="true" /></span>
+                  <span><strong>{label}</strong><small>{detail}</small></span>
+                  <ChevronRight size={15} aria-hidden="true" />
+                </button>
+              })}
+            </div>
+          </section>}
+          <section className="workspace-diagnostics" aria-label="运行概况">
+            <div className="surface workspace-metric">
+              <span>运行消息</span>
+              <strong className="scientific-number">{canReadEvents ? events.length : '—'}</strong>
+            </div>
+            <div className="surface workspace-metric">
+              <span>本地服务</span>
+              <strong className={apiOnline ? 'check' : 'service-offline'}>{apiOnline ? '在线' : '离线'}</strong>
+            </div>
+          </section>
+          <section className="surface protocol-surface" aria-label="服务通道">
+            <div className="surface-heading"><h2>服务通道</h2></div>
+            <div className="protocol-row">
+              <strong>REST API</strong><code>127.0.0.1</code>
+              <span className={apiOnline ? 'protocol-ok' : 'protocol-error'}>{apiOnline ? '在线' : '离线'}</span>
+            </div>
+            {canReadEvents && <div className="protocol-row">
+              <strong>运行消息</strong><span className="scientific-number">1.5 秒刷新</span>
+              <span className={apiOnline ? 'protocol-ok' : 'protocol-pending'}>{apiOnline ? '自动刷新' : '等待连接'}</span>
+            </div>}
+            <div className="protocol-row">
+              <strong>运行环境</strong><span>{isDesktop ? 'Tauri 2' : '浏览器'}</span>
+              <span className="protocol-environment">{isDesktop ? '桌面程序' : '浏览器预览'}</span>
+            </div>
+          </section>
         </div>
       </section>
     </div>

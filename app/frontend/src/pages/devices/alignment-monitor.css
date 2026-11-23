@@ -29,9 +29,11 @@
 .alignment-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 6px; min-height: 0; min-width: 0; }
 .alignment-axis-labels { display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 20px; color: var(--spec-label); font: 11px/16px Tahoma, sans-serif; }
 :root .app-shell .alignment-axis-labels .alignment-select-view { min-height: 24px; height: 24px; padding: 2px 0; border: 0; border-radius: 0; color: inherit; background: transparent; text-align: left; font: inherit; }
-:root .app-shell .alignment-row.active .alignment-select-view { padding-left: 5px; color: var(--spec-reference); font-weight: 700; box-shadow: inset 2px 0 var(--spec-reference); }
+.alignment-row.active .alignment-axis-labels { color: var(--spec-reference); }
+:root .app-shell .alignment-row.active .alignment-select-view { padding-left: 6px; font-weight: 700; box-shadow: inset 3px 0 var(--spec-reference); }
 .alignment-plot-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .alignment-plot { display: block; flex: 1; width: 100%; height: 0; min-height: 128px; overflow: hidden; touch-action: none; cursor: crosshair; }
+.alignment-row.active .alignment-plot:not(:focus-visible) { outline: 1.5px solid var(--spec-reference); outline-offset: -1.5px; }
 .alignment-plot:focus-visible { outline: 2px solid var(--spec-crosshair); outline-offset: 1px; }
 .alignment-plot-background { fill: var(--spec-plot); }
 .alignment-grid { stroke: var(--spec-grid); stroke-width: .75; stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }

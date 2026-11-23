@@ -56,13 +56,10 @@
 .migration-history-surface {
   padding: 22px;
 }
-.migration-workspace .migration-source-surface {
+.migration-workspace :is(.migration-source-surface, .migration-history-surface) {
   inline-size: 100%;
-  max-inline-size: 1440px;
+  max-inline-size: 1080px;
   min-inline-size: 0;
-}
-.migration-workspace .migration-source-surface > :is(.migration-paths, .legacy-source-picker, label.field, .migration-path-form) {
-  max-inline-size: 820px;
 }
 .migration-workspace .migration-source-surface > label.field { display: block; }
 .migration-note {

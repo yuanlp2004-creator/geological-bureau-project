@@ -263,51 +263,13 @@
 /* Workspace readiness, shortcuts and recent messages. */
 :root .app-shell .workspace-scroll-region { scrollbar-gutter: stable; }
 :root .app-shell .workspace-scroll-region > .workspace-page { padding-inline: var(--page-heading-inline); }
-:root .app-shell .workspace-page .workspace-grid {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-}
-:root .app-shell .workspace-page :is(.primary-column, .secondary-column) { min-width: 0; }
-:root .app-shell .workspace-page .primary-column {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-}
-:root .app-shell .workspace-page .secondary-column {
-  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
-  gap: 0;
-}
-:root .app-shell .workspace-page :is(.workspace-diagnostics, .protocol-surface) {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  align-content: center;
-  min-width: 0;
-  min-height: 40px;
-  gap: 4px 12px;
-  padding: 7px 12px;
-  margin: 0;
-  border: 1px solid var(--ui-border);
-  background: var(--ui-soft);
-  color: var(--ui-muted);
-  font-size: 12px;
-}
-:root .app-shell .workspace-page .workspace-diagnostics { border-radius: 7px 0 0 7px; }
-:root .app-shell .workspace-page .protocol-surface {
-  border-inline-start: 0;
-  border-radius: 0 7px 7px 0;
-}
-:root .app-shell .workspace-page .protocol-surface h2 {
-  margin: 0;
-  color: var(--ui-text);
-  font-size: 12px;
-  font-weight: 600;
-}
-:root .app-shell .workspace-page .service-status.online { color: var(--ui-success); }
-:root .app-shell .workspace-page .service-status.offline { color: var(--ui-danger); }
-:root .app-shell .workspace-page :is(.status-surface, .message-surface, .quick-surface) {
+:root .app-shell .workspace-page :is(.message-surface, .quick-surface, .protocol-surface) {
   padding: 12px var(--ui-space);
 }
-:root .app-shell .workspace-page .status-surface { border-inline-start: 3px solid var(--ui-accent); }
+:root .app-shell .workspace-page .status-surface {
+  padding: 16px var(--ui-space);
+  border-top: 3px solid var(--action-blue);
+}
 :root .app-shell .workspace-page .status-surface .surface-heading {
   align-items: center;
   gap: 8px;
@@ -324,20 +286,86 @@
   overflow-wrap: anywhere;
 }
 :root .app-shell .workspace-page .ready-badge { white-space: nowrap; }
-:root .app-shell .workspace-page .quick-surface {
-  grid-column: 1 / -1;
-  margin-top: 12px;
+:root .app-shell .workspace-page .readiness-item {
+  border-color: var(--ui-border);
+  background: var(--ui-soft);
 }
-:root .app-shell .workspace-page .quick-surface .surface-heading { margin-bottom: 10px; }
-:root .app-shell .workspace-page .workspace-quick-grid {
+:root .app-shell .workspace-page .readiness-icon[data-tone='green'] {
+  color: var(--ui-success);
+  background: var(--ui-success-bg);
+}
+:root .app-shell .workspace-page .readiness-icon[data-tone='amber'] {
+  color: var(--ui-warning);
+  background: var(--ui-warning-bg);
+}
+:root .app-shell .workspace-page .readiness-icon[data-tone='violet'] {
+  color: #65529c;
+  background: #f0edfa;
+}
+:root[data-theme='dark'] .app-shell .workspace-page .readiness-icon[data-tone='violet'] {
+  color: #d3c6fb;
+  background: #342b52;
+}
+:root .app-shell .workspace-page :is(.readiness-icon[data-tone='blue'], .quick-icon, .protocol-environment) {
+  color: var(--ui-accent);
+  background: var(--ui-selected);
+}
+:root .app-shell .workspace-page .readiness-item strong { color: var(--ui-text); font-size: 13px; }
+:root .app-shell .workspace-page :is(.readiness-item span, .surface-note) {
+  color: var(--ui-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+:root .app-shell .workspace-page .surface-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-color: var(--ui-border);
+}
+:root .app-shell .workspace-page .surface-note svg { color: var(--ui-accent); }
+:root .app-shell .workspace-page .readiness-item > svg { flex-shrink: 0; }
+:root .app-shell .workspace-page .pending-icon { color: var(--ui-muted); }
+:root .app-shell .workspace-page .check { color: var(--ui-success); }
+:root .app-shell .workspace-page .service-offline { color: var(--ui-danger); }
+:root .app-shell .workspace-page .workspace-diagnostics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
+:root .app-shell .workspace-page .workspace-metric {
+  display: grid;
+  gap: 4px;
+  padding: 9px 12px;
+}
+:root .app-shell .workspace-page .workspace-metric > span { color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .workspace-page .workspace-metric > strong { font-size: 16px; }
+:root .app-shell .workspace-page :is(.quick-surface, .protocol-surface) .surface-heading { margin-bottom: 8px; }
+:root .app-shell .workspace-page :is(.quick-surface, .protocol-surface) h2 { margin: 0; font-size: 16px; }
+:root .app-shell .workspace-page .protocol-row {
+  min-height: 34px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  border-color: var(--ui-border);
+  color: var(--ui-muted);
+  font-size: 12px;
+}
+:root .app-shell .workspace-page .protocol-row strong { color: var(--ui-text); font-weight: 600; }
+:root .app-shell .workspace-page .protocol-row code { color: inherit; font-size: inherit; }
+:root .app-shell .workspace-page .protocol-environment {
+  border-radius: 999px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+:root .app-shell .workspace-page .workspace-quick-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
 :root .app-shell .workspace-page .quick-action {
-  min-height: 56px;
-  gap: 9px;
-  padding: 7px 10px;
+  min-height: 46px;
+  gap: 10px;
+  padding: 4px 8px;
+  line-height: 1.3;
   border: 1px solid var(--ui-border);
   border-radius: 6px;
   background: var(--surface);
@@ -347,9 +375,8 @@
   border-color: var(--ui-control-border);
 }
 :root .app-shell .workspace-page .quick-icon {
-  flex: 0 0 29px;
-  color: var(--ui-accent);
-  background: var(--ui-soft);
+  height: 30px;
+  flex: 0 0 30px;
 }
 :root .app-shell .workspace-page .quick-action strong {
   color: var(--ui-text);
@@ -410,16 +437,6 @@
 :root .app-shell .workspace-page .severity-label.info { color: var(--ui-accent); background: var(--ui-selected); }
 :root .app-shell .workspace-page .severity-label.warning { color: var(--ui-warning); background: var(--ui-warning-bg); }
 :root .app-shell .workspace-page .severity-label.error { color: var(--ui-danger); background: var(--ui-danger-bg); }
-
-@media (max-width: 900px) {
-  :root .app-shell .workspace-page .secondary-column { grid-template-columns: minmax(0, 1fr); }
-  :root .app-shell .workspace-page .workspace-diagnostics { border-radius: 7px 7px 0 0; }
-  :root .app-shell .workspace-page .protocol-surface {
-    border-inline-start: 1px solid var(--ui-border);
-    border-top: 0;
-    border-radius: 0 0 7px 7px;
-  }
-}
 
 /* Method workspace: one local list, with method selection in the top toolbar. */
 :root .app-shell .methods-page .method-workbench {
