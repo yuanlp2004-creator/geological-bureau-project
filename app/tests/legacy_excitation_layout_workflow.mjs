@@ -14,6 +14,7 @@ export async function checkExcitationControls(desk, commands) {
     const controlArea = element.querySelector('.spectroscopy-command-area')
     return { left: rect('.legacy-record-dock'), middle: rect('.spectroscopy-view'), right: rect('.spectroscopy-operator'),
       sample: rect('.spectroscopy-sample-input'), commands: rect('.spectroscopy-command-area'), lineBar: rect('.spectroscopy-line-bar'),
+      compact: matchMedia('(max-height: 760px)').matches,
       messageTop: document.querySelector('.runtime-message-panel')?.getBoundingClientRect().top ?? innerHeight,
       buttons: [...element.querySelectorAll('.spectroscopy-controls button')].map(button => ({
         ...rectFor(button), command: button.dataset.command,
@@ -30,6 +31,13 @@ export async function checkExcitationControls(desk, commands) {
   assert.ok(geometry.lineBar.bottom <= geometry.left.y + 1)
   assert.ok(geometry.sample.bottom < geometry.commands.y + 1)
   assert.deepEqual(geometry.buttons.map(button => button.command), commands)
+  if (!geometry.compact) {
+    for (const column of [geometry.left, geometry.middle, geometry.right]) {
+      assert.ok(Math.abs(column.bottom - geometry.commands.bottom) <= 1)
+    }
+    const steps = geometry.buttons.slice(1).map((button, index) => button.y - geometry.buttons[index].y)
+    assert.ok(Math.max(...steps) - Math.min(...steps) <= 1, 'Excitation commands should be evenly spaced')
+  }
   assert.ok(geometry.buttons.every((button, i, all) =>
     Math.abs(button.width - all[0].width) < 1 && Math.abs(button.x - all[0].x) < 1
     && button.y >= geometry.commands.y && button.bottom <= Math.min(geometry.commands.bottom, geometry.messageTop) + 1 && button.icon === 16

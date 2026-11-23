@@ -1,4 +1,4 @@
-import { Copy, Download, MessageSquareText, Trash2 } from 'lucide-react'
+import { Copy, Download, ListFilter, MessageSquareText, Trash2 } from 'lucide-react'
 import { type RuntimeEvent } from '../api'
 import { severityLabel, categoryLabel } from './eventLabels'
 import { formatTime } from './dateFormat'
@@ -56,6 +56,9 @@ import { formatTime } from './dateFormat'
           <span>全选</span>
         </label>
         <span>{selected.length ? `已选 ${selected.length} 条` : '选择消息后可复制'}</span>
+        <div className="toolbar-rule" />
+        <ListFilter size={14} />
+        <span>{filter === 'all' ? '全部类别' : severityLabel[filter]}</span>
       </div>
       <div className="message-list">
         {filteredEvents.length === 0 && (
@@ -82,6 +85,7 @@ import { formatTime } from './dateFormat'
                       )
                   }
                 />
+                <span className={`severity-mark ${event.severity}`} />
                 <span className="message-main">
                   <strong title={event.message}>{event.message}</strong>
                   <small title={metadata}>{metadata}</small>

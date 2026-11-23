@@ -110,7 +110,7 @@ export function SpectroscopyConsole(props: Props) {
         <fieldset className="spectroscopy-command-area"><legend>激发控制</legend>
           {props.context && <div className="capture-context" role="group" aria-label="摄谱记录与状态">{props.context}</div>}
           {running && <output className="legacy-running-state" role="status">{props.statusLabel} {props.progress[0]?.value}</output>}
-          <div className="spectroscopy-controls" aria-label="摄谱控制">
+          <div className="spectroscopy-controls" data-single-turn={Boolean(props.singleTurn)} aria-label="摄谱控制">
             {command('试样摄谱', props.start, 'start')}{props.singleTurn && command('仅摄本转角', props.singleTurn, 'single-turn')}
             {command('预热摄谱', props.preheat, 'preheat')}
             {command('停止摄谱', props.stop, 'stop')}{command('结束', finish, 'finish')}

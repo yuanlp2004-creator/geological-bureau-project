@@ -54,6 +54,7 @@
 :root .app-shell .legacy-capture-desk .spectroscopy-input-toolbar .inspector-icon-button { color: var(--ui-muted); }
 :root .app-shell .legacy-capture-desk .spectroscopy-input-toolbar .inspector-icon-button:enabled:is(:hover, :focus-visible) { color: var(--ui-accent); }
 :root .app-shell .legacy-capture-desk .spectroscopy-input-toolbar .inspector-icon-button > svg { width: 16px; height: 16px; flex: none; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-input-toolbar { flex: 0 0 25px; padding-block: 0; }
 :root .app-shell .legacy-capture-desk .legacy-dock-body { display: grid; grid-template-columns: var(--capture-left) minmax(0, 1fr) var(--capture-right); flex: 1; min-height: 0; min-width: 0; }
 :root .app-shell .legacy-capture-desk .legacy-record-dock { min-width: 0; min-height: 0; border-right: 1px solid var(--line); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-records { display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; border: 0; background: var(--surface); }
@@ -127,7 +128,7 @@
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-sample-input label > span { color: var(--muted); background: transparent; font-size: 12px; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-sample-input :is(input, select) { width: 100%; min-width: 0; height: 28px; min-height: 28px; margin: 0; padding: 2px 5px; border: 1px solid var(--ui-control-border); border-radius: 6px; background-color: var(--surface); color: var(--ink); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-sample-input input[readonly] { background: var(--ui-soft); color: var(--ink); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-command-area { position: relative; display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; padding: 4px 8px 8px; margin: 0 8px 8px; overflow: auto; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-command-area { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 4px 8px 8px; margin: 0 8px; overflow: auto; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -178,13 +179,24 @@
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button[data-command='stop']:enabled:hover {
   box-shadow: inset 0 0 0 1px currentColor;
 }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button[data-command='finish'] { margin-top: 4px; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
 }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button:disabled { opacity: .5; }
 :root .app-shell .legacy-capture-desk .legacy-running-state { display: block; margin: 0 0 4px; color: var(--muted); text-align: center; font-size: 12px; }
+@media (height > 760px) {
+  :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls {
+    flex: 1;
+    min-height: 160px;
+    grid-template-rows: repeat(4, minmax(36px, 1fr));
+    align-items: center;
+  }
+  :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls[data-single-turn='true'] {
+    grid-template-rows: repeat(5, minmax(32px, 1fr));
+    gap: 4px;
+  }
+}
 @media (max-height: 760px) {
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] > .spectroscopy-lock {
     font-size: 11px; line-height: 14px;

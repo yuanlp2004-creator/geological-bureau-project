@@ -6,8 +6,12 @@ export async function checkWorkspacePrerequisites(page) {
  await workspace.getByRole('heading',{name:'尚未选择运行方法',exact:true}).waitFor()
  await workspace.getByText('等待选择',{exact:true}).waitFor()
  await workspace.getByRole('heading',{name:'常用入口',exact:true}).waitFor()
- assert.equal(await workspace.locator('.workspace-flow-entry').count(),0)
- assert.equal(await workspace.locator('.workspace-technical-details').count(),0)
+ assert.equal(await workspace.locator('.readiness-grid .readiness-item').count(),4)
+ assert.deepEqual(await workspace.locator('.quick-surface .quick-action strong').allTextContents(),['方法管理','关于软件'])
+ for (const tone of ['blue','green','amber','violet']) {
+  assert.equal(await workspace.locator(`.stat-grid .stat-card.${tone}`).count(),1)
+ }
+ await workspace.getByTestId('workspace-messages').waitFor()
  await workspace.getByRole('heading',{name:'服务通道',exact:true}).waitFor()
 }
 
@@ -17,7 +21,7 @@ export async function checkWorkspaceLayout(page,call,output) {
  await page.getByTestId('workspace').waitFor()
  const workspace=page.getByTestId('workspace')
  assert.equal(await workspace.getByText('等待选择',{exact:true}).count(),0)
- await workspace.locator('.quick-surface').getByRole('button',{name:/^预录样号/}).click()
+ await page.getByRole('navigation',{name:'常用快捷方式'}).getByRole('button',{name:'预录样号',exact:true}).click()
  await page.locator('.sample-queue-page').waitFor()
  await page.locator('[data-navigation-group="workspace"]').click()
  await workspace.waitFor()
@@ -25,7 +29,11 @@ export async function checkWorkspaceLayout(page,call,output) {
  await page.getByTestId('methods-page').waitFor()
  await page.locator('[data-navigation-group="workspace"]').click()
  await workspace.waitFor()
- checks.push('restored method, messages and side-column layout; original sample-queue and method entries navigate correctly')
+ await workspace.locator('.quick-surface').getByRole('button',{name:/关于软件 软件名称、版本和版权/}).click()
+ await page.getByTestId('page-heading').getByRole('heading',{name:'关于软件',exact:true}).waitFor()
+ await page.locator('[data-navigation-group="workspace"]').click()
+ await workspace.waitFor()
+ checks.push('original method, messages, four diagnostics and two workspace shortcuts; sample queue remains available in the top bar')
  for(const [theme,density] of [['light','comfortable']]){
   await call(page,'/api/v1/settings',{display:{theme,density}},'PATCH')
   await page.getByRole('button',{name:'刷新服务状态',exact:true}).click()

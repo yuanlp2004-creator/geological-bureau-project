@@ -10,7 +10,7 @@ export async function checkRuntimeMessages(page, result, output) {
   const filter = panel.getByLabel('过滤信息记录')
   const level = panel.getByLabel('信息记录日志级别')
   const workspaceReady = async () => {
-    await page.getByTestId('workspace').getByText(/SQLite schema v\d+/, {exact:true}).waitFor()
+    await page.getByTestId('workspace').getByText('本地数据库已连接', {exact:true}).waitFor()
     await page.getByTestId('workspace').locator('.quick-surface').waitFor()
   }
   const log = (message, severity='info', channel='general') => call(page, '/api/v1/logs', {
@@ -123,7 +123,7 @@ export async function checkRuntimeMessages(page, result, output) {
   check('Real analysis messages change between default/brief/detailed; detailed shows actual task/source/code and category counts follow filtering')
 
   await filter.fill(''); await level.selectOption('default'); await tab('常规信息').click()
-  await navigate(page,'system','软件设置','.settings-page')
+  await navigate(page,'system','用户与权限','.auth-page')
   assert.equal(await panel.count(),1)
   const height=await panel.evaluate(el=>el.getBoundingClientRect().height)
   const handle=panel.getByRole('separator',{name:'调整信息记录高度'})
@@ -140,10 +140,19 @@ export async function checkRuntimeMessages(page, result, output) {
   const entries=caps.capabilities.flatMap(item=>item.navigation_entries)
   const methods=await call(page,'/api/v1/methods')
   await call(page,'/api/v1/methods/current',{method_id:methods.find(item=>item.status==='active').id})
+  const settings=await call(page,'/api/v1/settings')
+  const settingsRoute='**/api/v1/settings'
+  const applyAppearance=async (theme,density) => {
+    await page.unroute(settingsRoute)
+    // The service fixes retired appearance preferences to defaults. Override only
+    // the settings read so layout coverage still exercises both themes.
+    await page.route(settingsRoute, route => route.request().method() === 'GET'
+      ? route.fulfill({json:{...settings,display:{...settings.display,theme,density}}})
+      : route.continue())
+  }
   result.layouts=[]
   for(const [theme,density,width,height] of [['light','comfortable',1440,1000],['dark','compact',1060,680]]) {
-    const settings=await call(page,'/api/v1/settings')
-    await call(page,'/api/v1/settings',{display:{...settings.display,theme,density}},'PATCH')
+    await applyAppearance(theme,density)
     await page.reload();await page.getByTestId('workspace').waitFor()
     await workspaceReady()
     await page.locator(`.app-shell[data-theme="${theme}"][data-density="${density}"]`).waitFor()
@@ -153,7 +162,12 @@ export async function checkRuntimeMessages(page, result, output) {
     await page.waitForFunction(width=>Math.abs(innerWidth-width)<2,width)
     for(const entry of entries) {
       await page.locator('[data-navigation-group="workspace"]').click();await page.getByTestId('workspace').waitFor()
-      if(entry.group!=='workspace')await navigate(page,entry.group,entry.label,'.page-scroll-region > .page-content')
+      if (entry.group !== 'workspace') {
+        const content = entry.page === 'evaporation-curves'
+          ? '[data-testid="evaporation-curves-page"]'
+          : '.page-scroll-region > .page-content'
+        await navigate(page, entry.group, entry.label, content)
+      }
       await page.waitForFunction(label=>document.querySelector('.breadcrumbs strong')?.textContent===label,entry.label)
       await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
       const layout=await page.evaluate(()=>{
@@ -191,5 +205,6 @@ export async function checkRuntimeMessages(page, result, output) {
     await page.screenshot({path:path.join(output,`workspace-restored-${theme}.png`),fullPage:true})
     await panel.getByRole('button',{name:'展开信息记录'}).click()
   }
-  check('All 25 entries keep the footer visible in large/light and minimum/dark layouts without horizontal overflow')
+  await page.unroute(settingsRoute)
+  check(`All ${entries.length} entries keep the footer visible in large/light and minimum/dark layouts without horizontal overflow`)
 }

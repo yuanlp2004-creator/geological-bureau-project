@@ -472,22 +472,14 @@ button {
 }
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-@media (min-width: 1120px) {
-  .workspace-grid {
-    grid-template-columns: minmax(0, 1fr) clamp(310px, 31%, 380px);
-  }
+  grid-template-columns: minmax(0, 1.7fr) minmax(290px, 0.9fr);
+  gap: 17px;
 }
 .primary-column,
 .secondary-column {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  min-width: 0;
   align-content: start;
-  gap: 16px;
+  gap: 17px;
 }
 .surface {
   border: 1px solid var(--line);
@@ -1448,6 +1440,15 @@ button {
     padding-left: 26px;
     padding-right: 26px;
   }
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .secondary-column {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .protocol-surface {
+    min-height: 0;
+  }
 }
 @media (max-width: 1280px) {
   .auth-grid {
@@ -1537,6 +1538,7 @@ button {
   font-size: 25px;
 }
 :root[data-density='compact'] .stat-grid,
+:root[data-density='compact'] .workspace-grid,
 :root[data-density='compact'] .settings-layout,
 :root[data-density='compact'] .auth-grid {
   gap: 11px;
@@ -2703,6 +2705,9 @@ button {
   .topbar {
     padding-left: 48px;
     padding-right: 48px;
+  }
+  .workspace-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(360px, 0.72fr);
   }
 }
 .report-builder,

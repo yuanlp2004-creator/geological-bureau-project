@@ -4,8 +4,6 @@ import type { MethodPrintSettings } from './methods'
 
 export type EventSeverity = 'debug' | 'info' | 'success' | 'warning' | 'error'
 
-export type Health = { status: string; version: string; uptime_seconds: number; schema_version: number; database: string }
-
 export type RuntimeEvent = {
   id: number
   category: string
@@ -102,7 +100,7 @@ export type ModuleDiagnostic = {
 }
 
 export const systemApi = {
-  health: () => request<Health>('/health'),
+  health: () => request<{ status: string; version: string; uptime_seconds: number }>('/health'),
   about: (token: string) => request<About>('/about', { headers: { Authorization: `Bearer ${token}` } }),
   capabilities: () => request<{ capabilities: Capability[] }>('/api/v1/capabilities'),
   diagnostics: (token: string) =>

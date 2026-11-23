@@ -260,183 +260,187 @@
   font-size: 12px;
 }
 
-/* Workspace readiness, shortcuts and recent messages. */
-:root .app-shell .workspace-scroll-region { scrollbar-gutter: stable; }
-:root .app-shell .workspace-scroll-region > .workspace-page { padding-inline: var(--page-heading-inline); }
-:root .app-shell .workspace-page :is(.message-surface, .quick-surface, .protocol-surface) {
-  padding: 12px var(--ui-space);
+/* Home: the current method and messages lead, diagnostics sit in the side column. */
+:root .app-shell .workspace-page .workspace-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
+  gap: 20px;
+}
+:root .app-shell .workspace-page :is(.primary-column, .secondary-column) {
+  min-width: 0;
+  gap: 20px;
+}
+:root .app-shell .workspace-page :is(.status-surface, .message-surface, .quick-surface, .protocol-surface) {
+  padding: var(--ui-space);
 }
 :root .app-shell .workspace-page .status-surface {
-  padding: 16px var(--ui-space);
-  border-top: 3px solid var(--action-blue);
-}
-:root .app-shell .workspace-page .status-surface .surface-heading {
-  align-items: center;
-  gap: 8px;
+  border-top: 3px solid var(--ui-accent);
 }
 :root .app-shell .workspace-page .current-method-label {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 6px;
   color: var(--ui-muted);
   font-size: 12px;
 }
 :root .app-shell .workspace-page .status-surface h2 {
-  margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   overflow-wrap: anywhere;
 }
-:root .app-shell .workspace-page .ready-badge { white-space: nowrap; }
-:root .app-shell .workspace-page .readiness-item {
-  border-color: var(--ui-border);
-  background: var(--ui-soft);
-}
-:root .app-shell .workspace-page .readiness-icon[data-tone='green'] {
-  color: var(--ui-success);
-  background: var(--ui-success-bg);
-}
-:root .app-shell .workspace-page .readiness-icon[data-tone='amber'] {
-  color: var(--ui-warning);
-  background: var(--ui-warning-bg);
-}
-:root .app-shell .workspace-page .readiness-icon[data-tone='violet'] {
-  color: #65529c;
-  background: #f0edfa;
-}
-:root[data-theme='dark'] .app-shell .workspace-page .readiness-icon[data-tone='violet'] {
-  color: #d3c6fb;
-  background: #342b52;
-}
-:root .app-shell .workspace-page :is(.readiness-icon[data-tone='blue'], .quick-icon, .protocol-environment) {
-  color: var(--ui-accent);
-  background: var(--ui-selected);
-}
-:root .app-shell .workspace-page .readiness-item strong { color: var(--ui-text); font-size: 13px; }
-:root .app-shell .workspace-page :is(.readiness-item span, .surface-note) {
-  color: var(--ui-muted);
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-:root .app-shell .workspace-page .surface-note {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-color: var(--ui-border);
-}
-:root .app-shell .workspace-page .surface-note svg { color: var(--ui-accent); }
-:root .app-shell .workspace-page .readiness-item > svg { flex-shrink: 0; }
-:root .app-shell .workspace-page .pending-icon { color: var(--ui-muted); }
-:root .app-shell .workspace-page .check { color: var(--ui-success); }
-:root .app-shell .workspace-page .service-offline { color: var(--ui-danger); }
-:root .app-shell .workspace-page .workspace-diagnostics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-:root .app-shell .workspace-page .workspace-metric {
-  display: grid;
-  gap: 4px;
-  padding: 9px 12px;
-}
-:root .app-shell .workspace-page .workspace-metric > span { color: var(--ui-muted); font-size: 12px; }
-:root .app-shell .workspace-page .workspace-metric > strong { font-size: 16px; }
-:root .app-shell .workspace-page :is(.quick-surface, .protocol-surface) .surface-heading { margin-bottom: 8px; }
-:root .app-shell .workspace-page :is(.quick-surface, .protocol-surface) h2 { margin: 0; font-size: 16px; }
-:root .app-shell .workspace-page .protocol-row {
-  min-height: 34px;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-  border-color: var(--ui-border);
-  color: var(--ui-muted);
-  font-size: 12px;
-}
-:root .app-shell .workspace-page .protocol-row strong { color: var(--ui-text); font-weight: 600; }
-:root .app-shell .workspace-page .protocol-row code { color: inherit; font-size: inherit; }
-:root .app-shell .workspace-page .protocol-environment {
-  border-radius: 999px;
-  padding: 4px 7px;
-  font-size: 10px;
-  font-weight: 600;
+:root .app-shell .workspace-page .ready-badge {
   white-space: nowrap;
 }
-:root .app-shell .workspace-page .workspace-quick-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
+:root .app-shell .workspace-page .readiness-grid {
+  margin-top: 20px;
+  gap: 12px;
+}
+:root .app-shell .workspace-page .readiness-item {
+  min-height: 70px;
+  border: 0;
+  background: var(--ui-soft);
+  padding: 12px;
+}
+:root .app-shell .workspace-page .readiness-item strong {
+  font-size: 13px;
+  color: var(--ui-text);
+}
+:root .app-shell .workspace-page .readiness-item span {
+  font-size: 12px;
+  color: var(--ui-muted);
+}
+:root .app-shell .workspace-page .surface-note {
+  margin-top: 16px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+:root .app-shell .workspace-page .workspace-diagnostics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+:root .app-shell .workspace-page .stat-card {
+  min-width: 0;
+  min-height: 100px;
+  gap: 8px;
+  padding: 14px 12px;
+  border-color: var(--ui-border);
+  box-shadow: none;
+}
+:root .app-shell .workspace-page .stat-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+:root .app-shell .workspace-page .stat-card strong {
+  font-size: 20px;
+  color: var(--ui-text);
+}
+:root .app-shell .workspace-page .stat-card :is(span, small) {
+  font-size: 12px;
+  color: var(--ui-muted);
 }
 :root .app-shell .workspace-page .quick-action {
-  min-height: 46px;
-  gap: 10px;
-  padding: 4px 8px;
-  line-height: 1.3;
-  border: 1px solid var(--ui-border);
-  border-radius: 6px;
-  background: var(--surface);
-}
-:root .app-shell .workspace-page .quick-action:enabled:is(:hover, :focus-visible) {
-  background: var(--ui-selected);
-  border-color: var(--ui-control-border);
-}
-:root .app-shell .workspace-page .quick-icon {
-  height: 30px;
-  flex: 0 0 30px;
+  min-height: 74px;
+  gap: 12px;
 }
 :root .app-shell .workspace-page .quick-action strong {
   color: var(--ui-text);
   font-size: 14px;
 }
 :root .app-shell .workspace-page .quick-action small {
-  margin-top: 2px;
   color: var(--ui-muted);
   font-size: 12px;
 }
-:root .app-shell .workspace-page .message-heading { flex-wrap: wrap; }
-:root .app-shell .workspace-page .message-tools { gap: 6px; }
-:root .app-shell .workspace-page .message-tools select { font-size: 12px; }
-:root .app-shell .workspace-page .message-toolbar {
-  color: var(--ui-muted);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--ui-border);
-  border-radius: 0;
+:root .app-shell .workspace-page .protocol-row {
+  min-height: 44px;
   font-size: 12px;
-  padding: 5px 0;
+  color: var(--ui-muted);
+}
+:root .app-shell .workspace-page .protocol-row code {
+  color: var(--ui-muted);
+  font-size: 12px;
+}
+:root .app-shell .workspace-page .message-heading {
   flex-wrap: wrap;
 }
-:root .app-shell .workspace-page .checkbox-row { color: var(--ui-muted); }
-:root .app-shell .workspace-page .message-list { max-height: 320px; }
-:root .app-shell .workspace-page .message-list .empty-state { min-height: 68px; }
-:root .app-shell .workspace-page .message-row {
-  min-height: 44px;
-  gap: 8px;
+:root .app-shell .workspace-page .message-tools {
+  gap: 6px;
 }
-:root[data-density='compact'] .app-shell .workspace-page .message-list { max-height: 240px; }
-:root[data-density='compact'] .app-shell .workspace-page .message-row { min-height: 38px; }
+:root .app-shell .workspace-page .message-tools select {
+  font-size: 12px;
+}
+:root .app-shell .workspace-page .message-toolbar {
+  color: var(--ui-muted);
+  background: var(--ui-soft);
+  font-size: 12px;
+  padding: 10px 12px;
+  flex-wrap: wrap;
+}
+:root .app-shell .workspace-page .checkbox-row {
+  color: var(--ui-muted);
+}
+:root .app-shell .workspace-page .message-list {
+  max-height: 430px;
+}
+/* 双栏时让运行消息填满左列余高，底边与右侧信息列保持一致。 */
+@media (min-width: 1121px) {
+  :root .app-shell .workspace-page .primary-column {
+    grid-template-rows: auto minmax(260px, 1fr);
+    align-content: stretch;
+  }
+  :root .app-shell .workspace-page .message-surface {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  :root .app-shell .workspace-page .message-surface > :is(.message-heading, .message-toolbar) {
+    flex-shrink: 0;
+  }
+  :root .app-shell .workspace-page .message-list {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    contain: size;
+  }
+  :root .app-shell .workspace-page .secondary-column {
+    display: flex;
+    flex-direction: column;
+  }
+  :root .app-shell .workspace-page .protocol-surface {
+    margin-top: auto;
+  }
+}
+:root .app-shell .workspace-page .message-row {
+  min-height: 64px;
+  gap: 12px;
+}
 :root .app-shell .workspace-page .message-main strong {
   font-size: 13px;
   color: var(--ui-text);
 }
 :root .app-shell .workspace-page .message-main small {
-  margin-top: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ui-muted);
+}
+:root .app-shell .workspace-page :is(.severity-label, .message-row time) {
+  font-size: 12px;
 }
 :root .app-shell .workspace-page .message-row time {
-  flex: 0 0 8ch;
+  width: 66px;
   color: var(--ui-muted);
-  font: 12px Consolas, monospace;
   font-variant-numeric: tabular-nums;
 }
-:root .app-shell .workspace-page .severity-label {
-  width: auto;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-size: 12px;
-  white-space: nowrap;
-  color: var(--ui-muted);
-  background: var(--ui-soft);
+:root .app-shell .workspace-page .severity-label.success {
+  color: var(--ui-success);
 }
-:root .app-shell .workspace-page .severity-label.success { color: var(--ui-success); background: var(--ui-success-bg); }
-:root .app-shell .workspace-page .severity-label.info { color: var(--ui-accent); background: var(--ui-selected); }
-:root .app-shell .workspace-page .severity-label.warning { color: var(--ui-warning); background: var(--ui-warning-bg); }
-:root .app-shell .workspace-page .severity-label.error { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .workspace-page .severity-label.info {
+  color: var(--ui-accent);
+}
+:root .app-shell .workspace-page .severity-label.warning {
+  color: var(--ui-warning);
+}
+:root .app-shell .workspace-page .severity-label.error {
+  color: var(--ui-danger);
+}
 
 /* Method workspace: one local list, with method selection in the top toolbar. */
 :root .app-shell .methods-page .method-workbench {
@@ -962,6 +966,13 @@
     flex-wrap: wrap;
     gap: 12px;
   }
+  :root .app-shell .workspace-page .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) 290px;
+    gap: 16px;
+  }
+  :root .app-shell .workspace-page .readiness-grid {
+    grid-template-columns: 1fr;
+  }
   :root .app-shell .spectrum-viewer-page .spectrum-viewer-layout {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -979,10 +990,27 @@
     margin-top: 12px;
   }
 }
+@media (max-width: 1120px) {
+  :root .app-shell .workspace-page .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  :root .app-shell .workspace-page .readiness-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  :root .app-shell .workspace-page .secondary-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :root .app-shell .workspace-page .workspace-diagnostics {
+    align-content: start;
+  }
+}
 @media (min-width: 2400px) {
   :root .app-shell .refined-page {
     max-width: 2300px;
     padding: 28px 36px 48px;
+  }
+  :root .app-shell .workspace-page .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) 400px;
   }
   :root .app-shell .spectrum-viewer-page .spectrum-viewer-layout {
     grid-template-columns: 300px minmax(0, 1fr);
