@@ -123,22 +123,27 @@
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .inspector-empty { align-items: center; justify-content: center; text-align: center; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .inspector-empty::first-line { background: transparent; }
 :root .app-shell .legacy-capture-desk .legacy-empty-banner { display: block; padding: 8px; font-size: 12px; background: transparent; color: var(--ink); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-plot-frame .spectrum-plot { width: 100%; height: 100%; min-height: 0; border: 0; border-radius: 0; background: transparent; }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum { container-type: inline-size; --plot-priority-color: var(--spec-primary-curve); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-background { fill: var(--spec-plot); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-grid { stroke: var(--spec-grid); stroke-dasharray: 4 3; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-plot-frame .spectrum-plot-stage { width: 100%; height: 100%; min-height: 0; border: 0; border-radius: 0; background: transparent; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum { container-type: inline-size; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .spectrum-plot-stage {
+  --plot-background-color: var(--spec-plot);
+  --plot-grid-color: var(--spec-grid);
+  --plot-grid-dash: 4 3;
+  --plot-priority-color: var(--spec-primary-curve);
+  --plot-priority-line-width: var(--spec-curve-width);
+  --plot-priority-brightness: 1;
+}
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-axis { stroke: var(--spec-axis); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-label { fill: var(--spec-label); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-crosshair { stroke: var(--spec-crosshair); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-selection { fill: var(--spec-selection-fill); stroke: var(--spec-crosshair); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .spectrum-line.priority { stroke-width: var(--spec-curve-width); filter: none; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-y-axis-title { transform: none; text-anchor: start; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-position-marker.expected { stroke: var(--spec-reference); fill: var(--spec-reference); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-position-marker.located { stroke: var(--spec-located); fill: var(--spec-located); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .plot-position-marker.located line { stroke-dasharray: none; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .capture-plot-frame { flex-direction: column; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .capture-plot-readout { flex: 0 0 24px; min-height: 24px; padding: 4px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 11px; line-height: 16px; font-variant-numeric: tabular-nums; background: var(--spec-banner); color: var(--spec-label); }
-:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .capture-plot-frame .spectrum-plot { flex: 1; height: 0; }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .capture-plot-frame .spectrum-plot-stage { flex: 1; height: 0; }
 :root .app-shell .legacy-capture-desk .spectroscopy-spectrum > [role='alert'] { margin: 6px 10px; color: var(--ui-danger); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-operator { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 0; margin: 0; border: 0; border-left: 1px solid var(--line); background: var(--surface); overflow: hidden; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk fieldset { min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; }

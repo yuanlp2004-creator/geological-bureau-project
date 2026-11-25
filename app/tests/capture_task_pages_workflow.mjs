@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk, spectrumCanvasSnapshot } from './legacy_desk_test_support.mjs'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
@@ -32,6 +33,21 @@ export async function checkTaskActionGeometry(host, taskId, canDelete) {
     assert.deepEqual(await read(), geometry)
   }
   return geometry
+}
+
+export async function checkCaptureCanvasInteraction(inspector) {
+  const plot = inspector.locator('svg.spectrum-plot')
+  await waitForSpectrumInk(plot)
+  await inspector.getByRole('button', { name: '适合图像', exact: true }).click()
+  const painted = await waitForSpectrumInk(plot)
+  const before = await spectrumCanvasSnapshot(plot)
+  await plot.locator('.plot-background').hover()
+  await plot.locator('.plot-cursor').waitFor()
+  assert.deepEqual(await spectrumCanvasSnapshot(plot), before)
+  await inspector.getByRole('button', { name: '横向放大', exact: true }).click()
+  await waitForSpectrumInk(plot, { after: painted.seq, xSpanBelow: before.xEnd - before.xStart })
+  assert.notEqual((await spectrumCanvasSnapshot(plot)).image, before.image)
+  await inspector.getByRole('button', { name: '适合图像', exact: true }).click()
 }
 
 export async function checkCaptureTaskPages(page, result, output) {
@@ -198,17 +214,8 @@ export async function checkCaptureTaskPages(page, result, output) {
   assert.deepEqual((await call(page, '/api/v1/settings')).preliminary, savedDefaults)
   assert.equal((await call(page, `/api/v1/dispersion/tasks/${dispersion.id}`)).status, 'draft')
   await finish(host, dispersion, 'dispersion')
-  const inspector = host.locator('.spectrum-inspector')
-  const plot = inspector.locator('svg.spectrum-plot'); await plot.locator('.spectrum-line').waitFor()
-  await inspector.getByRole('button', { name: '适合图像', exact: true }).click(); await page.waitForTimeout(120)
-  const before = await plot.evaluate(e => ({ box: [e.clientWidth, e.clientHeight], viewBox: e.getAttribute('viewBox'), path: e.querySelector('.spectrum-line').getAttribute('d') }))
-  await plot.hover({ position: { x: 150, y: 100 } }); await page.waitForTimeout(100)
-  const after = await plot.evaluate(e => ({ box: [e.clientWidth, e.clientHeight], viewBox: e.getAttribute('viewBox'), path: e.querySelector('.spectrum-line').getAttribute('d') }))
-  assert.deepEqual(after, before)
-  await inspector.getByRole('button', { name: '横向放大', exact: true }).click()
-  assert.notEqual(await plot.locator('.spectrum-line').getAttribute('d'), before.path)
-  await inspector.getByRole('button', { name: '适合图像', exact: true }).click()
-  result.checks.push('色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效')
+  await checkCaptureCanvasInteraction(host.locator('.spectrum-inspector'))
+  result.checks.push('色散新建与当前采集分离，手动采集正常；悬停图框及曲线像素保持，横向缩放有效')
 
   const tasks = [
     ['sample-acquisition', next],
@@ -292,7 +299,7 @@ export async function checkCaptureTaskPages(page, result, output) {
   assert.equal(await host.getByRole('dialog').isVisible(), false)
   await back()
   await host.locator(`[data-task-id="${dispersion.id}"]`).getByRole('button', { name: '查看谱图', exact: true }).click()
-  await page.getByTestId('spectrum-viewer-page').locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+  await waitForSpectrumInk(page.getByTestId('spectrum-viewer-page'))
   await page.evaluate(token => sessionStorage.setItem('geospectrum.token', token), admin)
   result.checks.push('只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用')
 }

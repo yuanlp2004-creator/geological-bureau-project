@@ -12,9 +12,11 @@
 :root .app-shell .observation-details { margin-top:12px; border-top:1px solid var(--line); padding-top:8px; }
 :root .app-shell .observation-details > summary { cursor:pointer; color:var(--muted); font-size:12px; }
 :root .app-shell .observation-plot { min-width:0; height:clamp(300px, 48vh, 580px); }
-:root .app-shell .observation-plot > svg.spectrum-plot { height:100%; width:100%; }
-:root .app-shell .observation-plot .plot-background { fill:var(--surface); }
-:root .app-shell .observation-plot .plot-grid { stroke:var(--line); }
+:root .app-shell .observation-plot > .spectrum-plot-stage {
+  height:100%; width:100%;
+  --plot-background-color:var(--surface);
+  --plot-grid-color:var(--line);
+}
 :root .app-shell .observation-plot .plot-label { fill:var(--muted); }
 :root .app-shell .curve-operation-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:6px 0 10px; border-bottom:1px solid var(--line); }
 :root .app-shell .curve-operation-bar .spectroscopy-line-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:0; background:transparent; }

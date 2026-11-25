@@ -274,11 +274,32 @@
   border-radius: 6px;
   background: #fbfcfe;
 }
-.spectrum-plot {
+:is(.spectrum-plot, .spectrum-plot-stage) {
   display: block;
   width: 100%;
   height: 390px;
+}
+.spectrum-plot {
   cursor: crosshair;
+}
+.spectrum-plot-stage {
+  position: relative;
+  min-width: 0;
+}
+:root[data-theme='dark'] .spectrum-plot-stage {
+  --plot-background-color: var(--surface, #172638);
+  --plot-curve-brightness: 1.65;
+}
+.spectrum-plot-stage > :is(.spectrum-canvas, svg.spectrum-plot) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: block;
+}
+.spectrum-plot-stage > .spectrum-canvas {
+  pointer-events: none;
 }
 .spectrum-plot:focus {
   outline: none;
@@ -439,7 +460,7 @@
     grid-template-columns: 1fr 1fr;
   }
   .spectrum-plot-wrap,
-  .spectrum-plot {
+  :is(.spectrum-plot-stage, .spectrum-plot:where(:not(.spectrum-plot-stage > *))) {
     min-height: 300px;
     height: 300px;
   }
@@ -469,7 +490,7 @@
   .spectrum-plot-wrap {
     border: 0;
   }
-  .spectrum-plot {
+  :is(.spectrum-plot-stage, .spectrum-plot:where(:not(.spectrum-plot-stage > *))) {
     height: 480px;
   }
   .spectrum-facts {

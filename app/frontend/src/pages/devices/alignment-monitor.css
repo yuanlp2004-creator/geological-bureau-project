@@ -33,12 +33,11 @@
 :root .app-shell .alignment-row.active .alignment-select-view { padding-left: 6px; font-weight: 700; box-shadow: inset 3px 0 var(--spec-reference); }
 .alignment-plot-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .alignment-plot-surface { position: relative; flex: 1; min-height: 128px; }
+.alignment-canvas-layer { position: absolute; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; }
 .alignment-plot { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: hidden; touch-action: none; cursor: crosshair; }
 .alignment-row.active .alignment-plot:not(:focus-visible) { outline: 1.5px solid var(--spec-reference); outline-offset: -1.5px; }
 .alignment-plot:focus-visible { outline: 2px solid var(--spec-crosshair); outline-offset: 1px; }
-.alignment-plot-background { fill: var(--spec-plot); }
-.alignment-grid { stroke: var(--spec-grid); stroke-width: .75; stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }
-.alignment-curve { fill: none; stroke: var(--spec-primary-curve); stroke-width: var(--spec-curve-width); vector-effect: non-scaling-stroke; }
+.alignment-plot-background { fill: transparent; }
 .alignment-crosshair { stroke: var(--spec-crosshair); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .alignment-selection { fill: var(--spec-selection-fill); stroke: var(--spec-crosshair); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .alignment-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; color: var(--spec-label); font-size: 12px; line-height: 1.4; }

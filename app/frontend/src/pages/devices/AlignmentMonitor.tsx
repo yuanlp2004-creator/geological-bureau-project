@@ -2,6 +2,7 @@ import { useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, t
 import type { DeviceEvent, DeviceProfile } from '../../api'
 import { LegacyCcdPicker } from '../../components/LegacyCcdPicker'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { observeCanvasEnvironment, plotX, plotY, renderSpectrumCanvas } from '../../components/canvasSpectrumRenderer'
 import { clampSpectrumZoom, MAX_SPECTRUM_ZOOM, ZOOM_IN, ZOOM_OUT } from '../../components/spectrumZoom'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { zoomMenuItems } from '../../components/spectrumMenu'
@@ -9,6 +10,10 @@ import { alignmentStats, alignmentXRange, alignmentYRange, initialAlignmentViews
 import './alignment-monitor.css'
 
 const EMPTY: number[] = []
+const SURFACE = { left: 0, top: 0, width: 513, height: 128, viewWidth: 513, viewHeight: 128 }
+const CURVE_RECT = { ...SURFACE, top: 1, width: 512, height: 126 }
+const X_GRID = Array.from({ length: 9 }, (_, index) => index * 64)
+const Y_GRID = [0, 63.5, 127]
 type Props = {
   indices: number[]; frame: DeviceEvent | null; profile: DeviceProfile | undefined; active: boolean
   connection: ReactNode; footer: ReactNode; canFinish: boolean; finish: () => Promise<void>
@@ -24,10 +29,10 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
   const current = views[selected]
   const menu = useContextMenu<number>()
   const [subtractBackground, setSubtractBackground] = useState(true)
-  const [plotWidth, setPlotWidth] = useState(513)
+  const [canvasEnvironment, setCanvasEnvironment] = useState(() => ({ plotWidth: 513, ratio: window.devicePixelRatio || 1 }))
+  const { plotWidth, ratio } = canvasEnvironment
   const [cursor, setCursor] = useState<{ slot: number; point: number } | null>(null)
   const [drag, setDrag] = useState<{ slot: number; x0: number; y0: number; x: number; y: number } | null>(null)
-  const ratio = window.devicePixelRatio || 1
   const physicalPointPx = profile && profile.screen_width_mm > 0 && profile.screen_resolution_px > 0 && profile.point_width_um > 0
     ? profile.point_width_um / 1000 * profile.screen_resolution_px / profile.screen_width_mm : 0
   useLayoutEffect(() => {
@@ -41,8 +46,6 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
         const bottom = viewport?.getBoundingClientRect().bottom ?? window.innerHeight
         // Use its layout position; scrolling must not make the desk grow taller.
         element.style.height = `${Math.max(650, Math.floor(bottom - element.getBoundingClientRect().top - (viewport?.scrollTop ?? 0) - 8))}px`
-        const width = element.querySelector('.alignment-plot')?.getBoundingClientRect().width
-        if (width) setPlotWidth(width)
       })
     }
     const observer = new ResizeObserver(resize)
@@ -51,11 +54,48 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
     window.addEventListener('resize', resize); resize()
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize', resize) }
   }, [active])
+  useLayoutEffect(() => {
+    const element = root.current
+    if (!element) return
+    const plots = element.querySelectorAll<SVGSVGElement>('.alignment-plot')
+    const refresh = () => setCanvasEnvironment({
+      plotWidth: plots[0].getBoundingClientRect().width || SURFACE.width,
+      ratio: window.devicePixelRatio || 1
+    })
+    const resize = new ResizeObserver(refresh)
+    plots.forEach(plot => resize.observe(plot))
+    const stopObserving = observeCanvasEnvironment(refresh, element)
+    refresh()
+    return () => { resize.disconnect(); stopObserving() }
+  }, [])
   const series = useMemo(() => views.map(view => {
     const points = frame?.ccds.find(ccd => ccd.ccd_index === view.ccd)?.points ?? EMPTY
     return { points, stats: alignmentStats(points), x: alignmentXRange(view, points.length, plotWidth, ratio, physicalPointPx, MAX_SPECTRUM_ZOOM),
       y: alignmentYRange(points, subtractBackground, view.zoomY) }
   }), [views, frame, plotWidth, ratio, physicalPointPx, subtractBackground])
+  useLayoutEffect(() => {
+    // Draw and clear in the same commit as the frame and its DOM state.
+    root.current?.querySelectorAll<HTMLCanvasElement>('.alignment-canvas-layer').forEach(canvas => {
+      const svg = canvas.nextElementSibling
+      const ctx = canvas.getContext('2d')
+      if (!svg || !ctx) return
+      const { points, x, y } = series[Number(canvas.dataset.slot)]
+      const { width, height } = svg.getBoundingClientRect()
+      const styles = getComputedStyle(svg)
+      const readVar = (token: string) => styles.getPropertyValue(token).trim()
+      renderSpectrumCanvas(ctx, {
+        rect: SURFACE, curveViewport: { rect: CURVE_RECT, clampTop: true },
+        cssWidth: width, cssHeight: height, dpr: canvasEnvironment.ratio, preserveAspectRatio: 'none',
+        xStart: x.min, xEnd: x.max, yStart: y.min, yEnd: y.max,
+        xTicks: X_GRID, yTicks: Y_GRID, gridInViewBox: true, gridLineDash: [2, 3], gridLineWidth: 0.75,
+        backgroundColor: 'var(--spec-plot)', gridColor: 'var(--spec-grid)', readVar,
+        curves: points.length ? [{ data: points.map((value, index) => ({ x: index + 1, y: value })),
+          color: 'var(--spec-primary-curve)', priority: false }] : [],
+        lineWidth: Number.parseFloat(readVar('--spec-curve-width')) || 1.25, lineOpacity: 1
+      })
+      canvas.dataset.renderSeq = String(Number(canvas.dataset.renderSeq) + 1)
+    })
+  }, [series, canvasEnvironment])
   const peak = series.reduce<{ value: number; ccd: number; point: number } | null>((best, item, slot) =>
     item.stats && item.stats.max > 1000 && (!best || item.stats.max > best.value)
       ? { value: item.stats.max, ccd: views[slot].ccd!, point: item.stats.peakIndex + 1 } : best, null)
@@ -144,9 +184,8 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
         ? <>强度:<strong>{value}</strong>　位置:({views[cursor.slot].ccd! + 1}, {cursor.point + 1})</> : '移动鼠标查看点位强度；单击曲线选择活动视图区'}</output>
       <div className="alignment-plots">{views.map((view, slot) => {
         const { points, x, y } = series[slot]
-        const toX = (point: number) => (point - x.min) / x.span * 512
-        const toY = (value: number) => 127 - (value - y.min) / (y.max - y.min) * 126
-        const path = points.map((value, index) => `${index ? 'L' : 'M'}${toX(index + 1).toFixed(2)},${Math.max(1, toY(value)).toFixed(2)}`).join(' ')
+        const toX = (point: number) => plotX(point, x.min, x.max, CURVE_RECT)
+        const toY = (value: number) => Math.max(CURVE_RECT.top, plotY(value, y.min, y.max, CURVE_RECT))
         const picked = cursor?.slot === slot && value !== undefined ? cursor.point : null
         return <div key={slot} className={`alignment-row ${selected === slot ? 'active' : ''}`} data-testid={`alignment-view-${slot}`} data-ccd={view.ccd ?? ''}
           data-y-min={y.min} data-y-max={y.max} data-x-min={x.min} data-x-max={x.max} data-zoom-y={view.zoomY}>
@@ -154,7 +193,10 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
             <button className="alignment-select-view" aria-label={`选择视图区 ${slot + 1}`} aria-pressed={selected === slot} onClick={() => setSelected(slot)}>{view.ccd === null ? '未安装' : `CCD${view.ccd + 1}`}</button>
             <span>{points.length ? y.min : '--'}</span></div>
           <div className="alignment-plot-column">
-            <div className="alignment-plot-surface"><svg className="alignment-plot" role="img" aria-label={`视图区 ${slot + 1} CCD ${view.ccd === null ? '未安装' : view.ccd + 1} 实时曲线`} viewBox="0 0 513 128" preserveAspectRatio="none" tabIndex={0}
+            <div className="alignment-plot-surface">
+            <canvas className="alignment-canvas-layer" aria-hidden="true" data-slot={slot} data-point-count={String(points.length)} data-ccd={view.ccd === null ? '' : String(view.ccd)}
+              data-x-min={x.min} data-x-max={x.max} data-y-min={y.min} data-y-max={y.max} data-render-seq="0" />
+            <svg className="alignment-plot" role="img" aria-label={`视图区 ${slot + 1} CCD ${view.ccd === null ? '未安装' : view.ccd + 1} 实时曲线`} viewBox="0 0 513 128" preserveAspectRatio="none" tabIndex={0}
                onFocus={() => setSelected(slot)} onContextMenu={event => { setSelected(slot); menu.open(event, slot) }} onPointerDown={event => {
                  if (event.button !== 0) return
                 setSelected(slot); event.currentTarget.focus()
@@ -175,10 +217,8 @@ export function AlignmentMonitor({ indices, frame, profile, active, connection, 
               }}>
               <defs><clipPath id={`${clip}-${slot}`}><rect width="513" height="128"/></clipPath></defs>
               <rect className="alignment-plot-background" width="513" height="128"/>
-              {Array.from({ length: 9 }, (_, index) => <line key={`x${index}`} className="alignment-grid" x1={index * 64} x2={index * 64} y1="0" y2="128"/>)}
-              {[0, 63.5, 127].map(y => <line key={y} className="alignment-grid" x1="0" x2="513" y1={y} y2={y}/>)}
-              <g clipPath={`url(#${clip}-${slot})`}><path className="alignment-curve" d={path}/>
-                {picked !== null && <g className="alignment-crosshair"><line x1={toX(picked + 1)} x2={toX(picked + 1)} y1="0" y2="128"/><line x1="0" x2="513" y1={Math.max(1, toY(points[picked]))} y2={Math.max(1, toY(points[picked]))}/></g>}
+              <g clipPath={`url(#${clip}-${slot})`}>
+                {picked !== null && <g className="alignment-crosshair"><line x1={toX(picked + 1)} x2={toX(picked + 1)} y1="0" y2="128"/><line x1="0" x2="513" y1={toY(points[picked])} y2={toY(points[picked])}/></g>}
                 {drag?.slot === slot && <rect className="alignment-selection" x={Math.min(drag.x, drag.x0) * 513} y={Math.min(drag.y, drag.y0) * 128} width={Math.abs(drag.x - drag.x0) * 513} height={Math.abs(drag.y - drag.y0) * 128}/>}</g>
             </svg>
             {!points.length && <span className="alignment-empty">{view.ccd === null ? '未安装 CCD' : '等待调试数据'}</span>}

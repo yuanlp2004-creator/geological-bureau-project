@@ -942,14 +942,16 @@
   background: var(--surface);
   border-color: var(--ui-border);
 }
-/* Pointer conversion uses 960x380; avoid letterboxing from a fixed CSS height. */
-:root .app-shell .spectrum-viewer-page .spectrum-plot {
+/* Size the plot viewport; a fitted legacy plot takes its height from the workbench. */
+:root .app-shell .spectrum-viewer-page .spectrum-plot:where(:not(.spectrum-plot-stage > *)),
+:root .app-shell .spectrum-viewer-page .spectrum-plot-stage:where(:not(.legacy-peak-plot > *)) {
   width: 100%;
   height: auto;
   min-height: 0;
   aspect-ratio: 960 / 380;
+  --plot-background-color: var(--surface);
 }
-:root .app-shell .spectrum-viewer-page .plot-background {
+:root .app-shell .spectrum-viewer-page .spectrum-plot:where(:not(.spectrum-plot-stage > *)) > .plot-background {
   fill: var(--surface);
 }
 :root .app-shell .spectrum-viewer-page .plot-label {

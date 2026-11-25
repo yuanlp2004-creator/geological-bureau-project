@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { NumericInput } from './NumericInput'
-import { SpectrumPlot, type SpectrumPlotCursor, type SpectrumPlotMarker } from './SpectrumPlot'
+import { SpectrumPlot, observeSpectrumPlotFrame, type SpectrumPlotCursor, type SpectrumPlotMarker } from './SpectrumPlot'
 import { SpectroscopyIcon, type SpectroscopyIconName } from './SpectroscopyIcon'
 import { SpectroscopyToolButton } from './SpectroscopyToolButton'
 import { LegacySpectrumSurface } from './LegacySpectrumSurface'
@@ -65,27 +65,23 @@ export function SpectrumInspector({ points, wavelengths, label, pointOrigin = 1,
   useEffect(()=>()=>onPick?.(null),[onPick])
   const root = useRef<HTMLDivElement>(null)
   const observerDialog = useRef<HTMLDialogElement>(null)
-  const [plotWidth, setPlotWidth] = useState(960)
+  const [plotPixels, setPlotPixels] = useState(872)
   const [scale, setScale] = useState<1 | 4 | 10 | null>(null)
-  useEffect(() => {
+  const hasPoints = points.length > 0
+  const legacyPlot = Boolean(legacyTitle)
+  useLayoutEffect(() => {
     if (!iconToolbar || !root.current) return
-    const observer = new ResizeObserver(() => {
-      const svg = root.current?.querySelector('svg.spectrum-plot')
-      if (svg) setPlotWidth(svg.clientWidth)
-    })
-    observer.observe(root.current)
-    return () => observer.disconnect()
-  }, [iconToolbar, points.length > 0])
+    return observeSpectrumPlotFrame(root.current, (frame, dpr) => setPlotPixels(frame.width * dpr))
+  }, [iconToolbar, hasPoints, legacyPlot, classic, captureView])
   const validPhysical = [physicalScale?.pointWidthUm, physicalScale?.screenResolutionPx, physicalScale?.screenWidthMm]
     .every(value => Number.isFinite(value) && Number(value) > 0)
   const physicalSpacing = validPhysical ? Number(physicalScale?.pointWidthUm) / 1000 * 10
     * Number(physicalScale?.screenResolutionPx) / Number(physicalScale?.screenWidthMm) : 0
-  const spacing = (scale === 10 ? physicalSpacing : scale ?? 1) / (window.devicePixelRatio || 1)
+  const spacing = scale === 10 ? physicalSpacing : scale ?? 1
   const manualView = range ?? (initialRange ? { ...full, xMin: initialRange.xMin, xMax: initialRange.xMax } : full)
   const view = limitSpectrumRange(scale && spacing > 0
-    ? { ...manualView, xMax: manualView.xMin + Math.max(1, plotWidth - 88) / spacing }
+    ? { ...manualView, xMax: manualView.xMin + plotPixels / spacing }
     : manualView, full)
-  const hasPoints = points.length > 0
   const savedRange = context?.fixed.lastRange
   useLayoutEffect(() => {
     if (savedRange && hasPoints && context?.scope !== undefined && view.xMax > view.xMin) {
@@ -131,7 +127,7 @@ export function SpectrumInspector({ points, wavelengths, label, pointOrigin = 1,
     const index = value - pointOrigin
     if (!Number.isInteger(index) || index < 0 || index >= points.length) return
     const datum = curves[0].data[index]
-    setCursor({ curveId: 'current', curveLabel: label, x: 0, y: 0, datum })
+    setCursor({ curveId: 'current', curveLabel: label, x: 0, y: 0, datum, datumIndex: index })
     setLocked(true)
     setTool('crosshair')
     onPick?.(index)
@@ -149,9 +145,10 @@ export function SpectrumInspector({ points, wavelengths, label, pointOrigin = 1,
     const start = Math.max(full.xMin,Math.min(full.xMax-span,index+pointOrigin-span/2))
     setRange({ ...view, xMin: start, xMax: start + span })
   }, [focusPoint, focusRevision, hasPoints])
-  const plot = <SpectrumPlot fitContainer={fitPlot} stretch={Boolean(legacyTitle)} curves={curves} xStart={view.xMin} xEnd={view.xMax} yStart={view.yMin} yEnd={view.yMax}
+  const updateCursor = (next: SpectrumPlotCursor | null) => { setCursor(next); if (next) setPoint(next.datum.x) }
+  const plot = <SpectrumPlot fitContainer={fitPlot} stretch={legacyPlot} curves={curves} xStart={view.xMin} xEnd={view.xMax} yStart={view.yMin} yEnd={view.yMax}
     tool={tool} cursor={liveCursor} locked={locked}
-    onCursor={(next) => { setCursor(next); if (next) setPoint(next.datum.x) }} onToggleLock={toggleLock}
+    onCursor={updateCursor} onToggleLock={toggleLock}
     onPointerPresence={target ? follow.plotPresence : undefined}
     onPan={(x, y) => { if (panOnStripOnly) return; setRange({ xMin: view.xMin - x * (view.xMax - view.xMin), xMax: view.xMax - x * (view.xMax - view.xMin),
       yMin: view.yMin + y * (view.yMax - view.yMin), yMax: view.yMax + y * (view.yMax - view.yMin) }) }}
@@ -166,7 +163,7 @@ export function SpectrumInspector({ points, wavelengths, label, pointOrigin = 1,
     <small>视野 {view.xMin.toFixed(1)}–{view.xMax.toFixed(1)} · 强度 {view.yMin.toFixed(1)}–{view.yMax.toFixed(1)}</small>
   </div>
   const surface = legacyTitle ? <LegacySpectrumSurface title={legacyTitle} curves={curves} xMin={view.xMin} xMax={view.xMax} yMin={view.yMin} yMax={view.yMax}
-    cursor={liveCursor} locked={locked} tool={tool} fitPlot={fitPlot} onCursor={setCursor} onToggleLock={toggleLock}
+    cursor={liveCursor} locked={locked} tool={tool} onCursor={updateCursor} onToggleLock={toggleLock}
     onPointerPresence={target ? follow.plotPresence : undefined}
     onPan={x => setRange({ ...view, xMin:view.xMin-x*(view.xMax-view.xMin), xMax:view.xMax-x*(view.xMax-view.xMin) })}
     onBox={boxSelect} onSpectrumContext={openSpectrumMenu}>{plot}</LegacySpectrumSurface> : plot

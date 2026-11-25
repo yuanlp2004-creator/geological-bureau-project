@@ -46,10 +46,16 @@
 :root .app-shell .legacy-grayscale text { font-size:10px; fill:#213857; }
 :root .app-shell .legacy-peak-plot { position:relative; min-height:0; flex:1; display:flex; }
 :root .app-shell .legacy-plot-readout { position:absolute; inset:0 5.625% auto auto; max-width:88%; padding:2px 5px; border:1px solid var(--line); border-radius:3px; background:var(--surface); color:var(--ink); font-size:12px; pointer-events:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-:root .app-shell .legacy-peak-plot > svg.spectrum-plot { width:100%; height:100%; min-height:140px; border:0; border-radius:0; background:transparent; }
-:root .app-shell .legacy-peak-plot .plot-background { fill:white; }
+:root .app-shell .legacy-peak-plot > .spectrum-plot-stage { width:100%; height:100%; min-height:140px; border:0; border-radius:0; background:transparent; }
+:root .app-shell .legacy-peak-plot > .spectrum-plot-stage {
+  --plot-background-color: var(--spec-plot, var(--surface, #fbfcfe));
+  --plot-grid-color: var(--spec-grid, var(--line, #e6ebf2));
+  --plot-grid-dash: 4 3;
+  --plot-priority-color: var(--spec-primary-curve);
+  --plot-priority-line-width: var(--spec-curve-width);
+  --plot-priority-brightness: 1;
+}
 :root .app-shell .legacy-peak-plot .plot-label { fill:#24652c; }
-:root .app-shell .legacy-peak-plot .plot-grid { stroke:#8d9299; stroke-dasharray:4 3; }
 :root .app-shell .legacy-peak-plot .plot-axis { stroke:#8d9299; }
 :root .app-shell .legacy-multi-point-table {
  --point-row-height:25px;
@@ -76,9 +82,7 @@
 :root[data-theme='dark'] .app-shell .legacy-spectrum-visual { --legacy-blue:#253d56; }
 :root[data-theme='dark'] .app-shell .legacy-spectrum-banner { background:#1b6378; color:#ffd28b; }
 :root[data-theme='dark'] .app-shell .legacy-grayscale text { fill:#d3e4f5; }
-:root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-background { fill:#122536; }
 :root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-label { fill:#a9dcb1; }
-:root[data-theme='dark'] .app-shell .legacy-peak-plot .plot-grid { stroke:#49647a; }
 @media(max-width:1150px) {
   :root .app-shell .legacy-view-body { grid-template-columns:164px minmax(0,1fr); }
   :root .app-shell .legacy-view-body.has-line-rail { grid-template-columns:145px minmax(0,1fr) 156px; }
@@ -239,17 +243,20 @@
   color: var(--spec-label);
   font-variant-numeric: tabular-nums;
 }
-:root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) { --plot-priority-color:var(--spec-primary-curve); }
 :root .app-shell .evaporation-time-chart-view .observation-plot { background:var(--spec-board); border:1px solid var(--spec-board-border); border-radius:6px; }
-:root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-background { fill:var(--spec-plot); }
+:root .app-shell .evaporation-time-chart-view .observation-plot > .spectrum-plot-stage {
+  --plot-background-color: var(--spec-plot);
+  --plot-grid-color: var(--spec-grid);
+  --plot-priority-color: var(--spec-primary-curve);
+  --plot-priority-line-width: var(--spec-curve-width);
+  --plot-priority-brightness: 1;
+}
 :root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-label,
 :root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-grayscale text { fill:var(--spec-label); font-variant-numeric:tabular-nums; }
 :root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-axis { stroke:var(--spec-axis); }
 :root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-y-axis-title { transform:none; text-anchor:start; }
-:root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-grid { stroke:var(--spec-grid); }
 :root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-crosshair { stroke:var(--spec-crosshair); }
 :root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .plot-selection { fill:var(--spec-selection-fill); stroke:var(--spec-crosshair); }
-:root .app-shell :is(:is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .legacy-peak-plot,.evaporation-time-chart-view .observation-plot) .spectrum-line.priority { stroke-width:var(--spec-curve-width); filter:none; }
 :root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .plot-position-marker.expected { stroke:var(--spec-reference); fill:var(--spec-reference); }
 :root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .plot-position-marker.expected line { stroke-dasharray:4 3; }
 :root .app-shell :is(.analysis-legacy-page,.spectrum-viewer-page.legacy-viewing-page,.dispersion-page[data-view='curve']) .plot-position-marker.located { stroke:var(--spec-located); fill:var(--spec-located); }

@@ -1,7 +1,38 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk, assertSpectrumCleared } from './legacy_desk_test_support.mjs'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
+
+export async function checkEvaporationCanvasStates(scope, framesUrl, reloadFrames, frame) {
+  const page = scope.page()
+  await waitForSpectrumInk(scope, { id: 'evaporation' })
+  const alert = scope.getByRole('alert').filter({ hasText: '测试读取失败' })
+  await page.route(framesUrl, route => route.fulfill({
+    status: 503, contentType: 'application/json', body: JSON.stringify({ detail: '测试读取失败' }),
+  }))
+  try {
+    await reloadFrames()
+    await scope.getByRole('button', { name: '重试读取', exact: true }).waitFor()
+    await assertSpectrumCleared(scope, alert)
+    assert.equal(await scope.getByRole('button', { name: '横向放大', exact: true }).and(scope.locator(':enabled')).count(), 0)
+  } finally {
+    await page.unroute(framesUrl)
+  }
+  await scope.getByRole('button', { name: '重试读取', exact: true }).click()
+  await waitForSpectrumInk(scope, { id: 'evaporation' })
+  await page.route(framesUrl, async route => {
+    const response = await route.fetch()
+    const frames = await response.json()
+    await route.fulfill({ response, json: Array.isArray(frames) ? [frame] : { ...frames, frames: [frame] } })
+  })
+  try {
+    await reloadFrames()
+    await waitForSpectrumInk(scope, { lines: 0, points: 1, id: 'evaporation' })
+  } finally {
+    await page.unroute(framesUrl)
+  }
+}
 
 export async function checkViewerOperations(page, result, output) {
   const check = text => result.checks.push(text)
@@ -58,15 +89,15 @@ export async function checkViewerOperations(page, result, output) {
     let host = await go('evaporation-curves', '[data-testid="evaporation-curves-page"]')
     await host.locator('.acquisition-task-rows').getByRole('button', { name: /查看排版-evaporation/ }).click()
     const chart = host.getByTestId('evaporation-time-chart'), svg = chart.locator('svg.spectrum-plot')
-    await svg.locator('.spectrum-line').waitFor()
+    await waitForSpectrumInk(svg)
     assert.ok((await svg.locator('.plot-tick-label').allTextContents()).some(value => value.includes('.')), '亚秒时间刻度保留小数')
     await chart.getByRole('button', { name: '上一蒸发实验', exact: true }).click()
     assert.ok(await chart.getByRole('button', { name: '横向放大', exact: true }).isDisabled())
     await chart.getByRole('button', { name: '下一蒸发实验', exact: true }).click()
-    await svg.locator('.spectrum-line').waitFor()
+    await waitForSpectrumInk(svg)
     await chart.getByRole('button', { name: '下一 CCD', exact: true }).click()
-    await svg.locator('.spectrum-line').waitFor(); assert.equal(await host.getByLabel('蒸发曲线CCD').inputValue(), '1')
-    await chart.getByRole('button', { name: '上一 CCD', exact: true }).click(); await svg.locator('.spectrum-line').waitFor()
+    await waitForSpectrumInk(svg); assert.equal(await host.getByLabel('蒸发曲线CCD').inputValue(), '1')
+    await chart.getByRole('button', { name: '上一 CCD', exact: true }).click(); await waitForSpectrumInk(svg)
     const before = writes, full = await chart.getByLabel('蒸发曲线视野').textContent()
     await chart.getByRole('button', { name: '横向放大', exact: true }).click()
     assert.notEqual(await chart.getByLabel('蒸发曲线视野').textContent(), full)
@@ -89,20 +120,20 @@ export async function checkViewerOperations(page, result, output) {
     assert.ok(reading.includes(Number(evaporationFrames[1].peak_value).toFixed(3)), '读数对应实际第二帧峰值')
     assert.equal(writes, before)
     await host.getByRole('button', { name: '帧积分', exact: true }).click()
-    await svg.locator('.spectrum-line').waitFor()
+    await waitForSpectrumInk(svg)
     assert.equal(await host.getByRole('button', { name: '帧积分', exact: true }).getAttribute('aria-pressed'), 'true')
     await layout(host, `evaporation-${theme}`)
     check(`${theme}: 蒸发缩放、独立纵向还原、框选、拖动、点位锁定与指标切换，观察零写入`)
 
     host = await go('dispersion', '[data-testid="dispersion-page"]')
     await host.locator('.dispersion-task-list').getByRole('button', { name: /查看排版-色散/ }).click()
-    await host.locator('svg.spectrum-plot .spectrum-line').waitFor()
+    await waitForSpectrumInk(host)
     await host.getByRole('button', { name: '增加谱线', exact: true }).click()
     assert.ok(await host.getByTestId('dispersion-add-line-form').isVisible())
     await host.locator('.curve-line-editor > summary').click()
     const bar = host.getByRole('toolbar', { name: '色散谱线操作栏' })
     await bar.getByLabel('选择谱线', { exact: true }).selectOption(String(dispersion.lines[3].id))
-    await host.locator('svg.spectrum-plot .spectrum-line').waitFor()
+    await waitForSpectrumInk(host)
     assert.equal(await bar.getByLabel('选择谱线', { exact: true }).inputValue(), String(dispersion.lines[3].id))
     assert.equal(await host.getByLabel('选择CCD', { exact: true }).inputValue(), '1')
     await bar.getByLabel('选择谱线', { exact: true }).selectOption(String(dispersion.lines[0].id))
@@ -121,11 +152,11 @@ export async function checkViewerOperations(page, result, output) {
     check(`${theme}: 色散顶部增删/选线对应字段、零起点人工定位与观察工具`)
 
     host = await go('spectra', '[data-testid="spectrum-viewer-page"]')
-    await host.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+    await waitForSpectrumInk(host)
     const toolbar = host.getByRole('toolbar', { name: '图像查看工具' })
     const order = await toolbar.locator('button').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')))
     assert.deepEqual(order.slice(0, 7), ['上一条记录', '下一条记录', '上一 CCD', '下一 CCD', '十字线', '区域放大', '滚动工具'])
-    assert.equal(order.at(-1), '打印谱图')
+    assert.equal(order[order.length - 1], '打印谱图')
     const count2 = writes
     await toolbar.getByRole('button', { name: '横向放大', exact: true }).click()
     await toolbar.getByRole('button', { name: '纵向放大', exact: true }).click()
@@ -136,7 +167,7 @@ export async function checkViewerOperations(page, result, output) {
     check(`${theme}: 谱图查看旧版按钮顺序、真实缩放与独立纵向还原`)
   }
   const printHost = await go('spectra', '[data-testid="spectrum-viewer-page"]')
-  await printHost.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+  await waitForSpectrumInk(printHost)
   const scope = printHost.getByRole('toolbar', { name: '图像查看工具' })
   const printResponse = page.waitForResponse(response => response.url().includes('/print-pdf') && response.request().method() === 'POST')
   if (process.env.QA_CDP) {
@@ -176,21 +207,9 @@ export async function checkViewerOperations(page, result, output) {
   check('谱图查看工具栏按当前可见范围生成真实PDF，桌面取消保存不改变谱带')
   const host = await go('evaporation-curves', '[data-testid="evaporation-curves-page"]')
   await host.locator('.acquisition-task-rows').getByRole('button', { name: /查看排版-evaporation/ }).click()
-  await host.locator('svg.spectrum-plot .spectrum-line').waitFor()
-  await page.route('**/api/v1/acquisitions/tasks/*/frames?*', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: '测试读取失败' }) }))
-  await host.getByRole('button', { name: '刷新', exact: true }).click()
-  await host.getByRole('button', { name: '重试读取', exact: true }).waitFor()
-  assert.equal(await host.locator('svg.spectrum-plot .spectrum-line').count(), 0)
-  assert.ok(await host.getByRole('button', { name: '横向放大', exact: true }).isDisabled())
-  await page.unroute('**/api/v1/acquisitions/tasks/*/frames?*')
-  await host.getByRole('button', { name: '重试读取', exact: true }).click()
-  await host.locator('svg.spectrum-plot .spectrum-line').waitFor()
+  await checkEvaporationCanvasStates(host, '**/api/v1/acquisitions/tasks/*/frames?*',
+    () => host.getByRole('button', { name: '刷新', exact: true }).click(), evaporationFrames[0])
   check('蒸发帧读取503清空旧曲线，观察按钮禁用，重试恢复真实数据')
-  await page.route('**/api/v1/acquisitions/tasks/*/frames?*', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([evaporationFrames[0]]) }))
-  await host.getByRole('button', { name: '刷新', exact: true }).click()
-  await host.locator('svg.spectrum-plot circle.spectrum-single-point').waitFor()
-  assert.equal(await host.locator('svg.spectrum-plot .spectrum-line').count(), 0)
-  await page.unroute('**/api/v1/acquisitions/tasks/*/frames?*')
   check('单帧蒸发数据显示可读点标记，不绘制虚构连线')
 
 }

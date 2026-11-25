@@ -1,6 +1,7 @@
 // Isolated fixture only: seed_bf02_browser.py followed by the S10 seed_database fixture.
 // QA_ISOLATED=1 is required; QA_CDP optionally exercises the packaged WebView2.
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk, spectrumCanvas } from './legacy_desk_test_support.mjs'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { mkdir, writeFile } from 'node:fs/promises'
 assert.equal(process.env.QA_ISOLATED, '1', 'Explicit isolated test environment required')
@@ -68,7 +69,7 @@ try {
       await page.mouse.move(900, 90)
       await page.keyboard.press('Escape')
       await page.locator('.navigation-panel').waitFor({ state: 'hidden' })
-      await page.locator('.spectrum-line').first().waitFor()
+      await waitForSpectrumInk(page)
     }
   }
   const capture = async (name) => {
@@ -154,26 +155,26 @@ try {
   page.off('request', count)
   await navigate('spectrum')
   await page.locator('.spectrum-record-row').filter({ hasText: 'Raw sample' }).locator('button').click()
-  await page.locator('.spectrum-line[data-curve-id="raw:1"]').waitFor()
+  await waitForSpectrumInk(page, { id: 'raw:1' })
   const plot = page.getByTestId('spectrum-plot')
   await plot.scrollIntoViewIfNeeded()
   await checkLayout('raw-spectrum-minimum')
-  const point = await plot.evaluate((svg) => {
-    const values = [
-      ...svg
-        .querySelector('.spectrum-line')
-        .getAttribute('d')
-        .matchAll(/[ML] ([\d.-]+) ([\d.-]+)/g)
-    ]
-    const x = Number(values[3][1]),
-      y = Number(values[3][2])
-    const screen = new DOMPoint(x, y).matrixTransform(svg.getScreenCTM())
-    return { x, y, screenX: screen.x, screenY: screen.y }
-  })
+  const record = await call('/spectra/raw:1?ccd=0', undefined, 'GET')
+  const datum = record.ccd.points[3]
+  const point = await spectrumCanvas(plot).evaluate((canvas, datum) => {
+    const frame = canvas.nextElementSibling.querySelector('.plot-background').getBoundingClientRect()
+    const { xStart, xEnd, yStart, yEnd } = canvas.dataset
+    return {
+      screenX: frame.left + frame.width * (datum.wavelength_nm - Number(xStart)) / (Number(xEnd) - Number(xStart)),
+      screenY: frame.bottom - frame.height * (datum.value - Number(yStart)) / (Number(yEnd) - Number(yStart)),
+    }
+  }, datum)
   await page.mouse.move(point.screenX, point.screenY)
   await page.locator('.plot-cursor').waitFor()
   const cursorX = Number(await page.locator('.plot-cursor').getAttribute('cx'))
-  assert.ok(Math.abs(cursorX - point.x) < 0.1, `Cursor-to-data mapping: ${cursorX} vs ${point.x}`)
+  const cursor = await plot.locator('.plot-cursor').boundingBox()
+  assert.ok(Math.abs(cursor.x + cursor.width / 2 - point.screenX) < 0.5, 'Cursor X must match the raw datum')
+  assert.ok(Math.abs(cursor.y + cursor.height / 2 - point.screenY) < 0.5, 'Cursor Y must match the raw datum')
   await page.mouse.click(point.screenX, point.screenY)
   await page.locator('.spectrum-cursor-readout .lucide-lock-keyhole').waitFor()
   await page.mouse.move(point.screenX + 60, point.screenY)

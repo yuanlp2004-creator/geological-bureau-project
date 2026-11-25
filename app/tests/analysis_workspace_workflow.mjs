@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
 
@@ -218,7 +219,7 @@ export async function checkAnalysisWorkspace(page, fixture, result, output) {
   check('真实存储谱图的慢进启动、峰位接受及完成后自动进入同一工作区复核')
   await host.getByRole('button', { name: '谱图与测量', exact: true }).click()
   const spectrum = host.locator('.analysis-spectrum')
-  await spectrum.locator('[data-testid="spectrum-plot"] .spectrum-line').first().waitFor()
+  await waitForSpectrumInk(spectrum)
   await spectrum.getByText('校线', { exact: true }).click()
   const calibration = page.waitForResponse(item => item.url().endsWith('/calibration') && item.request().method() === 'GET')
   await spectrum.getByRole('button', { name: '日常校线预览', exact: true }).click()

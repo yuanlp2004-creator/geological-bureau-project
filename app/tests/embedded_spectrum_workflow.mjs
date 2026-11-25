@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
@@ -54,7 +55,7 @@ export async function checkEmbeddedSpectra(page, output, checks) {
     return Number(text.match(/强度 ([\d,.-]+)/)[1].replaceAll(',', ''))
   }
   const exercise = async (scope, expected, origin) => {
-    await scope.locator('svg.spectrum-plot .spectrum-line').waitFor()
+    await waitForSpectrumInk(scope)
     const before = writes
     const input = scope.getByLabel('读取点位', { exact: true })
     await input.fill(String(123 + origin)); await input.blur()
@@ -103,7 +104,10 @@ export async function checkEmbeddedSpectra(page, output, checks) {
         if (name === 'dispersion') { origin = 0; points = dispersion.last_event.ccds[0].points }
         if (name === 'sample-acquisition') points = (await call(page, `/api/v1/acquisitions/tasks/${sample.id}?include_points=true`)).last_event.ccds[0].points
         if (name === 'mercury-calibration') points = mercury.last_event.ccds[0].points
-        if (name === 'hardware-acquisition') points = (await call(page, `/api/v1/hardware-acquisitions/tasks/${hardware.id}/frames?include_points=true`)).at(-1).points
+        if (name === 'hardware-acquisition') {
+          const frames = await call(page, `/api/v1/hardware-acquisitions/tasks/${hardware.id}/frames?include_points=true`)
+          points = frames[frames.length - 1].points
+        }
         await exercise(scope, points, origin)
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name} overflow`)
         await scope.screenshot({ path: path.join(output, `${name}-${theme}-${width}.png`) })

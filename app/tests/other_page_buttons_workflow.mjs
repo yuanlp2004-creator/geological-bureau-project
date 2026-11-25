@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 import path from 'node:path'
 import {call as rawCall,navigate} from './contract_browser_support.mjs'
 import {checkMethodSave} from './method_save_workflow.mjs'
@@ -92,7 +93,7 @@ export async function checkOtherPageButtons(page,fixture,result,output){
   await input.fill('102');await input.press('Enter')
   await page.waitForFunction(()=>[...document.querySelectorAll('[data-sample-id]')].some(node=>node.textContent.includes('102')))
   queue=await call(page,`/api/v1/sample-queues/${fixture.queue_id}`)
-  assert.equal(queue.items.at(-1).pre_name,'102')
+  assert.equal(queue.items[queue.items.length - 1].pre_name,'102')
   const failSam=route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'SAM导出故障验证'})})
   await page.route('**/api/v1/sample-queues/*/export*',failSam)
   await host.getByRole('button',{name:'导出 SAM',exact:true}).click()
@@ -158,7 +159,7 @@ export async function checkOtherPageButtons(page,fixture,result,output){
   await host.locator('.analysis-run-list button').filter({hasText:measuredRun.name}).click()
   await host.getByRole('button',{name:'谱图与测量',exact:true}).click()
   const spectrum=host.getByRole('region',{name:'分析完整谱图'})
-  await spectrum.locator('svg.spectrum-plot .spectrum-line').waitFor()
+  await waitForSpectrumInk(spectrum)
   const range=()=>spectrum.locator('svg.spectrum-plot').getAttribute('aria-label')
   const yTicks=()=>spectrum.locator('.plot-tick-label[text-anchor="end"]').allTextContents()
   await spectrum.getByRole('button',{name:'纵向放大',exact:true}).click();const zoomed=await yTicks()

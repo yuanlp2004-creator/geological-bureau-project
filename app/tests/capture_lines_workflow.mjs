@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
-import { leaveLegacyCapture } from './legacy_desk_test_support.mjs'
+import { leaveLegacyCapture, waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 
 export async function checkCaptureLines(page, result, output) {
   const check = text => result.checks.push(text)
@@ -62,7 +62,7 @@ export async function checkCaptureLines(page, result, output) {
     const host = page.getByTestId(kind === 'dispersion' ? 'dispersion-page' : `${kind}-acquisition-page`)
     await navigate(page, 'analysis-tests', label, `[data-testid="${kind === 'dispersion' ? 'dispersion' : `${kind}-acquisition`}-page"]`)
     await host.locator(`tr[data-task-id="${id}"]`).getByRole('button').click()
-    await host.locator('path.spectrum-line[d]').waitFor()
+    await waitForSpectrumInk(host)
     return host
   }
   const selected = async (host, id, ccd, point, origin) => {
@@ -147,7 +147,7 @@ export async function checkCaptureLines(page, result, output) {
   await page.waitForFunction(() => document.querySelector('select[aria-label="选择谱线"]')?.title.includes('模拟谱线读取失败'))
   assert.equal(await empty.isDisabled(), true)
   assert.equal(await failed.locator('.plot-position-marker, .inspector-markers').count(), 0)
-  assert.ok(await failed.locator('path.spectrum-line[d]').count())
+  await waitForSpectrumInk(failed)
   await page.unroute(`**${linesUrl}`)
   check('谱线读取失败时清空并禁用选择，已保存谱图仍可观察')
   await leaveLegacyCapture(page)

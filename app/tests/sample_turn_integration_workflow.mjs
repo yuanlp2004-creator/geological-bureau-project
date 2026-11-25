@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
-import { leaveLegacyCapture } from './legacy_desk_test_support.mjs'
+import { leaveLegacyCapture, waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 
 export async function checkSampleTurnIntegration(page, result, output) {
   const check = message => result.checks.push(message)
@@ -54,7 +54,7 @@ export async function checkSampleTurnIntegration(page, result, output) {
   assert.deepEqual(task.samples[0].bands, [])
   await page.waitForFunction(() => document.querySelector('[data-testid="sample-acquisition-page"] .capture-turn-pages [aria-pressed=true]')?.textContent.startsWith('4°'))
   await firstAngle.click()
-  await console.locator('.spectrum-line').waitFor()
+  await waitForSpectrumInk(console)
   assert.equal(await startOne.isDisabled(), true)
   await secondAngle.click()
   await startOne.click()
@@ -77,7 +77,7 @@ export async function checkSampleTurnIntegration(page, result, output) {
   const queue = await call(page, `/api/v1/sample-queues/${task.queue_id}`)
   assert.equal(queue.items.find(item => item.id === task.queue_item_id).spectrum_hash, task.result_sha256)
   if (await secondAngle.getAttribute('aria-pressed') !== 'true') await secondAngle.click()
-  await console.locator('.spectrum-line').waitFor()
+  await waitForSpectrumInk(console)
   const beforeBands = await call(page, `/api/v1/acquisitions/samples/${task.samples[0].id}/bands?include_points=true`)
   assert.deepEqual(beforeBands.map(band => band.angle_deg), [17, 4])
   for (const [width, height] of [[1440, 1000], [1060, 760]]) {
@@ -119,7 +119,7 @@ export async function checkSampleTurnIntegration(page, result, output) {
   await leaveLegacyCapture(page)
   await host.locator(`tr[data-task-id="${created.id}"]`).getByRole('button', { name: '查看谱图', exact: true }).click()
   const viewer = page.getByTestId('spectrum-viewer-page')
-  await viewer.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+  await waitForSpectrumInk(viewer)
   assert.equal(await viewer.getAttribute('data-file-group'), `task:${created.id}`)
   assert.deepEqual((await call(page, `/api/v1/acquisitions/samples/${task.samples[0].id}/bands?include_points=true`)), beforeBands)
   result.sampleTaskId = task.id

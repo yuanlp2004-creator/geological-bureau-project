@@ -12,6 +12,35 @@ const deferred = () => {
   return { promise, resolve }
 }
 
+export function readAlignmentCanvases(canvases) {
+  const swatch = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+  const rgb = color => {
+    swatch.fillStyle = color
+    swatch.fillRect(0, 0, 1, 1)
+    return Array.from(swatch.getImageData(0, 0, 1, 1).data.slice(0, 3))
+  }
+  return canvases.map(canvas => {
+    const { width, height, dataset } = canvas
+    const styles = getComputedStyle(canvas.nextElementSibling)
+    const background = rgb(styles.getPropertyValue('--spec-plot').trim())
+    const grid = rgb(styles.getPropertyValue('--spec-grid').trim())
+    const lower = background.map((channel, i) => Math.min(channel, grid[i]) - 1)
+    const upper = background.map((channel, i) => Math.max(channel, grid[i]) + 1)
+    const { data } = canvas.getContext('2d').getImageData(0, 0, width, height)
+    let signature = 2166136261, backgroundPixels = 0, gridPixels = 0, otherPixels = 0
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3]
+      signature = Math.imul(signature ^ (r | g << 8 | b << 16 | a << 24), 16777619)
+      // Antialiased grid pixels are blends of the two backdrop colors.
+      if (a === 255 && r === background[0] && g === background[1] && b === background[2]) backgroundPixels++
+      else if (a === 255 && r >= lower[0] && r <= upper[0] && g >= lower[1] && g <= upper[1] && b >= lower[2] && b <= upper[2]) gridPixels++
+      else otherPixels++
+    }
+    return { width, height, pointCount: dataset.pointCount, renderSeq: Number(dataset.renderSeq),
+      signature, backgroundPixels, gridPixels, otherPixels }
+  })
+}
+
 export async function checkAlignmentTurns(page, checks, output) {
   if ((await call(page, turnPath)).angles.join(',') !== '4,17') await prepareContinuousCaptureMethod(page)
   const profile = await call(page, '/api/v1/devices/current')
@@ -30,10 +59,29 @@ export async function checkAlignmentTurns(page, checks, output) {
   const connect = desk.getByRole('button', { name: '连接诊断', exact: true })
   const start = desk.getByRole('button', { name: '开始', exact: true })
   const current = text => toolbar.getByText(text, { exact: true }).waitFor()
-  const curves = desk.locator('path.alignment-curve[d^="M"]')
+  const canvases = desk.locator('canvas.alignment-canvas-layer')
+  const readCanvases = () => canvases.evaluateAll(readAlignmentCanvases)
+  const assertEmpty = async () => {
+    const plots = await readCanvases()
+    assert.equal(plots.length, 3)
+    for (const plot of plots) {
+      assert.equal(plot.pointCount, '0')
+      assert.ok(plot.renderSeq > 0 && plot.backgroundPixels > 0 && plot.gridPixels > 0, JSON.stringify(plot))
+      assert.equal(plot.otherPixels, 0, JSON.stringify(plot))
+    }
+    return plots.map(({ width, height, signature }) => ({ width, height, signature }))
+  }
+  const assertLive = async emptyPlots => {
+    await desk.locator('canvas.alignment-canvas-layer:not([data-point-count="0"])').first().waitFor({ state: 'attached' })
+    const plots = await readCanvases()
+    assert.equal(plots.length, 3)
+    assert.ok(plots.some((plot, slot) => Number(plot.pointCount) > 0 && plot.otherPixels > 0 &&
+      plot.signature !== emptyPlots[slot].signature), JSON.stringify(plots))
+  }
   assert.equal(await desk.locator('input[type="file"]').count(), 0)
   assert.equal(await desk.getByText(/汞灯定位|参考 CSV|观测 CSV|确认定位|导出定位/).count(), 0)
   assert.equal(await target.isDisabled(), true)
+  await desk.locator('.alignment-empty', { hasText: '等待调试数据' }).first().waitFor()
 
   const dimensions = []
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 1060, height: 680 }]) {
@@ -41,16 +89,18 @@ export async function checkAlignmentTurns(page, checks, output) {
     const labels = desk.locator('.alignment-empty')
     await labels.first().waitFor()
     const sizes = await labels.evaluateAll(nodes => nodes.map(label => {
-      const chart = label.previousElementSibling.getBoundingClientRect()
+      const svg = label.previousElementSibling
+      const chart = svg.getBoundingClientRect()
       const text = label.getBoundingClientRect()
       return { chartWidth: chart.width, textWidth: text.width, textHeight: text.height,
-        fontSize: getComputedStyle(label).fontSize, tag: label.tagName,
+        fontSize: getComputedStyle(label).fontSize, tag: label.tagName, svg: svg.matches('svg.alignment-plot'),
         dx: text.x + text.width / 2 - chart.x - chart.width / 2,
         dy: text.y + text.height / 2 - chart.y - chart.height / 2 }
     }))
     assert.equal(sizes.length, 3)
     for (const size of sizes) {
       assert.equal(size.tag, 'SPAN')
+      assert.equal(size.svg, true)
       assert.equal(size.fontSize, '12px')
       assert.ok(Math.abs(size.dx) < 1 && Math.abs(size.dy) < 1, JSON.stringify(size))
     }
@@ -60,6 +110,8 @@ export async function checkAlignmentTurns(page, checks, output) {
   assert.equal(dimensions[0].textWidth, dimensions[1].textWidth)
   assert.equal(dimensions[0].textHeight, dimensions[1].textHeight)
   await desk.locator('.alignment-plots').screenshot({ path: path.join(output, 'alignment-empty-three-ccds.png') })
+  const emptyPlots = await assertEmpty()
+  assert.equal(await desk.locator('svg :is(.alignment-curve, .alignment-grid)').count(), 0)
   checks.push('调试对中仍显示三路 CCD，空态文字在两种窗口宽度下保持字号和居中')
 
   await connect.click()
@@ -68,7 +120,7 @@ export async function checkAlignmentTurns(page, checks, output) {
   await change.click()
   await current('当前转角 4°')
   await start.click()
-  await curves.first().waitFor()
+  await assertLive(emptyPlots)
 
   const oldFrame = deferred(), releaseOld = deferred()
   const move = deferred(), releaseMove = deferred()
@@ -93,11 +145,12 @@ export async function checkAlignmentTurns(page, checks, output) {
   assert.equal(await target.isDisabled(), true)
   assert.equal(await stop.isEnabled(), true)
   assert.equal(await disconnect.isEnabled(), true)
-  assert.equal(await curves.count(), 0)
+  const clearedPlots = await assertEmpty()
   const lateStep = page.waitForResponse(response => new URL(response.url()).pathname === stepPath)
   releaseOld.resolve()
-  await lateStep
-  assert.equal(await curves.count(), 0)
+  assert.equal(await (await lateStep).finished(), null)
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  assert.deepEqual(await assertEmpty(), clearedPlots)
   const arrival = await move.promise
   assert.equal(arrival.status(), 200, await arrival.text())
   assert.equal((await arrival.json()).current_angle_deg, 17)
@@ -105,7 +158,7 @@ export async function checkAlignmentTurns(page, checks, output) {
   releaseMove.resolve()
   await current('当前转角 17°')
   assert.equal((await (await freshStep).json()).event.details.angle_deg, 17)
-  await curves.first().waitFor()
+  await assertLive(emptyPlots)
   await page.unroute(`**${turnPath}`, holdTurn)
   await stop.click()
   await desk.getByText('状态：connected', { exact: true }).waitFor()

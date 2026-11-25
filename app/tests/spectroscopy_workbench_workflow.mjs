@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
 
@@ -162,7 +163,7 @@ export async function checkSpectroscopyWorkbench(page, fixture, result, output) 
   await control(dispersion, dispersionTask, '继续', 'resume', 'dispersion')
   await dispersion.getByTestId('spectroscopy-console').locator('.state-chip').filter({ hasText: '已完成' }).waitFor()
   await settled()
-  await dispersion.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+  await waitForSpectrumInk(dispersion)
   const saved = await call(page, `/api/v1/dispersion/tasks/${dispersionTask.id}`)
   assert.equal(saved.burn_frames_captured, 3); assert.equal(saved.dark_frames_captured, 1)
   assert.equal(await dispersion.getByRole('heading', { name: '色散曲线版本管理', exact: true }).count(), 0)

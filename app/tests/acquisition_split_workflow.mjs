@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { call, navigate } from './contract_browser_support.mjs'
@@ -69,7 +70,7 @@ export async function checkAcquisitionSplit(page, checks, output) {
       await page.waitForTimeout(100)
     }
     assert.equal(current.status, 'completed'); assert.ok(current.result_sha256)
-    await host.locator('svg.spectrum-plot .spectrum-line').first().waitFor()
+    await waitForSpectrumInk(host)
     return current
   }
 

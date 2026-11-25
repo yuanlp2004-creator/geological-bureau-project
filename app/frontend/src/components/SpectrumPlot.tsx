@@ -1,8 +1,10 @@
-import { useEffect, useId, useMemo, useRef, useState, type PointerEvent, type WheelEvent, type KeyboardEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type WheelEvent, type KeyboardEvent, type MouseEvent } from 'react'
 import { ZOOM_IN, ZOOM_OUT, type SpectrumViewRange } from './spectrumZoom'
 import type { SpectrumPoint } from '../api'
 import { formatIntegerTick, integerAxisTicks, fractionalTicks, formatFractionalTick } from './SimpleChartAxes'
 import { RenderProfiler } from './RenderProfiler'
+import { clientToViewBoxPoint, dataX as toDataX, dataY as toDataY, findNearestDatumIndex,
+  observeCanvasEnvironment, plotX as toPlotX, plotY as toPlotY, renderSpectrumCanvas } from './canvasSpectrumRenderer'
 
 export type SpectrumPlotDatum = { point: SpectrumPoint; x: number; y: number }
 export type SpectrumPlotCurve = {
@@ -18,6 +20,7 @@ export type SpectrumPlotCursor = {
   x: number
   y: number
   datum: SpectrumPlotDatum
+  datumIndex?: number
 }
 export type SpectrumContextHandler = (event: MouseEvent<SVGSVGElement>, point: SpectrumPlotCursor | null, markerKey?: string) => void
 
@@ -55,6 +58,46 @@ type Props = {
   onSpectrumContext?: SpectrumContextHandler
 }
 
+function cursorDatumIndex(curve: SpectrumPlotCurve, cursor: SpectrumPlotCursor) {
+  const { data } = curve
+  const pointIndex = cursor.datum.point.point_index
+  const cached = curve.id === cursor.curveId ? cursor.datumIndex : undefined
+  if (cached !== undefined && data[cached]?.point.point_index === pointIndex) return cached
+  if (data[pointIndex]?.point.point_index === pointIndex) return pointIndex
+
+  // Filtering can move a CCD point away from its array offset. Point IDs stay in source order.
+  let first = 0
+  let end = data.length
+  while (first < end) {
+    const mid = first + Math.floor((end - first) / 2)
+    if (data[mid].point.point_index < pointIndex) first = mid + 1
+    else end = mid
+  }
+  return data[first]?.point.point_index === pointIndex ? first : 0
+}
+
+export function observeSpectrumPlotFrame(host: Element, onChange: (frame: DOMRect, dpr: number, svg: SVGSVGElement) => void, alignedElement?: Element) {
+  const frame = host.querySelector<SVGRectElement>('.spectrum-plot-stage > svg > .plot-background')
+  const svg = frame?.ownerSVGElement
+  if (!frame || !svg) return
+  const update = () => {
+    const rect = frame.getBoundingClientRect()
+    if (rect.width > 0) onChange(rect, window.devicePixelRatio || 1, svg)
+  }
+  const resize = new ResizeObserver(update)
+  resize.observe(svg)
+  if (alignedElement) resize.observe(alignedElement)
+  const geometry = new MutationObserver(update)
+  geometry.observe(frame, { attributes: true, attributeFilter: ['x', 'y', 'width', 'height'] })
+  geometry.observe(svg, { attributes: true, attributeFilter: ['viewBox', 'preserveAspectRatio'] })
+  const stopObserving = observeCanvasEnvironment(update, svg)
+  update()
+  return () => {
+    resize.disconnect()
+    geometry.disconnect()
+    stopObserving()
+  }
+}
 
 export function SpectrumPlot({
   curves,
@@ -80,15 +123,20 @@ export function SpectrumPlot({
   leftPadding = 54,
   stretch = false
 }: Props) {
+  const stageRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState({ width: 960, height: 380 })
-  useEffect(() => {
-    if (!fitContainer || !svgRef.current) return
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect
-      if (width > 0 && height > 0) setSize({ width, height })
-    })
-    observer.observe(svgRef.current)
+  useLayoutEffect(() => {
+    const svg = svgRef.current
+    if (!fitContainer || !svg) return
+    const resize = ({ width, height }: Pick<DOMRectReadOnly, 'width' | 'height'>) => {
+      if (width > 0 && height > 0) setSize(previous =>
+        previous.width === width && previous.height === height ? previous : { width, height })
+    }
+    resize(svg.getBoundingClientRect())
+    const observer = new ResizeObserver(([entry]) => resize(entry.contentRect))
+    observer.observe(svg)
     return () => observer.disconnect()
   }, [fitContainer])
   const viewWidth = fitContainer ? Math.max(200, size.width) : 960
@@ -97,50 +145,127 @@ export function SpectrumPlot({
   const TOP = stretch ? 18 : 42
   const WIDTH = viewWidth - LEFT - 34
   const HEIGHT = viewHeight - TOP - 50
+  const rect = useMemo(() => ({ left: LEFT, top: TOP, width: WIDTH, height: HEIGHT, viewWidth, viewHeight }),
+    [LEFT, TOP, WIDTH, HEIGHT, viewWidth, viewHeight])
   const yTitleCenter = TOP + HEIGHT / 2
   const clipId = useId()
   const [drag, setDrag] = useState<{ startX: number; startY: number; x: number; y: number } | null>(null)
   const [panAnchor, setPanAnchor] = useState<{ x: number; y: number } | null>(null)
   const raf = useRef<number | null>(null)
   useEffect(() => () => { if (raf.current !== null) cancelAnimationFrame(raf.current) }, [])
-  const xTicks = fractionalX ? fractionalTicks(xStart, xEnd) : integerAxisTicks(xStart, xEnd)
+  const xTicks = useMemo(() => fractionalX ? fractionalTicks(xStart, xEnd) : integerAxisTicks(xStart, xEnd),
+    [fractionalX, xStart, xEnd])
   const fractionalY = yEnd - yStart < 4
-  const yTicks = fractionalY ? fractionalTicks(yStart, yEnd)
-    : integerAxisTicks(yStart, yEnd, stretch ? Math.max(2, Math.min(5, Math.floor(HEIGHT / 40))) : 5)
+  const yTickCount = stretch ? Math.max(2, Math.min(5, Math.floor(HEIGHT / 40))) : 5
+  const yTicks = useMemo(() => fractionalY ? fractionalTicks(yStart, yEnd) : integerAxisTicks(yStart, yEnd, yTickCount),
+    [fractionalY, yStart, yEnd, yTickCount])
 
-  const plotX = (value: number) => LEFT + ((value - xStart) / (xEnd - xStart || 1)) * WIDTH
-  const plotY = (value: number) => TOP + HEIGHT - ((value - yStart) / (yEnd - yStart || 1)) * HEIGHT
-  const paths = useMemo(() => [...curves].sort((a, b) => Number(a.priority) - Number(b.priority)).map(curve => {
-    const color = curve.priority ? `var(--plot-priority-color, ${curve.color})` : curve.color
-    if (curve.data.length === 1) return <circle key={curve.id} cx={plotX(curve.data[0].x)} cy={plotY(curve.data[0].y)} r="4"
-      className="spectrum-single-point" fill={color} data-curve-id={curve.id} />
-    if (!curve.data.length) return null
-    const path = curve.data.map((item, index) =>
-      `${index ? 'L' : 'M'} ${plotX(item.x).toFixed(2)} ${plotY(item.y).toFixed(2)}`).join(' ')
-    return <path key={curve.id} d={path} className={`spectrum-line ${curve.priority ? 'priority' : ''}`}
-      style={{ stroke: color }} data-curve-id={curve.id} />
-  }), [curves, xStart, xEnd, yStart, yEnd, LEFT, TOP, WIDTH, HEIGHT])
-  const dataX = (value: number) => xStart + ((value - LEFT) / WIDTH) * (xEnd - xStart)
-  const dataY = (value: number) => yStart + ((TOP + HEIGHT - value) / HEIGHT) * (yEnd - yStart)
+  const canvasFrame = useRef<number | null>(null)
+  const drawCanvas = useRef<(() => void) | null>(null)
+  const scheduleCanvasDraw = useCallback(() => {
+    if (canvasFrame.current !== null) return
+    canvasFrame.current = requestAnimationFrame(() => {
+      canvasFrame.current = null
+      drawCanvas.current?.()
+    })
+  }, [])
+
+  useLayoutEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    const observer = new ResizeObserver(scheduleCanvasDraw)
+    observer.observe(stage)
+    const stopObserving = observeCanvasEnvironment(scheduleCanvasDraw, stage)
+    return () => {
+      stopObserving()
+      observer.disconnect()
+      if (canvasFrame.current !== null) cancelAnimationFrame(canvasFrame.current)
+      canvasFrame.current = null
+      drawCanvas.current = null
+    }
+  }, [scheduleCanvasDraw])
+
+  const renderSeq = useRef(0)
+  const drawnViewBox = useRef('')
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current
+    const stage = stageRef.current
+    const ctx = canvas?.getContext('2d')
+    if (!canvas || !stage || !ctx) return
+    const viewBox = `${viewWidth} ${viewHeight} ${stretch}`
+    drawCanvas.current = () => {
+      const { width: cssWidth, height: cssHeight } = canvas.getBoundingClientRect()
+      if (cssWidth <= 0 || cssHeight <= 0) return
+      const styles = getComputedStyle(stage)
+      const readVar = (token: string) => styles.getPropertyValue(token).trim()
+      const dash = readVar('--plot-grid-dash')
+      const dashLengths = dash.split(/[\s,]+/).map(length => Number.parseFloat(length))
+      const gridLineDash = dashLengths.every(length => Number.isFinite(length) && length >= 0) ? dashLengths : []
+      const curveBrightness = Number(readVar('--plot-curve-brightness') || 1)
+      renderSpectrumCanvas(ctx, {
+        rect,
+        cssWidth, cssHeight, dpr: window.devicePixelRatio || 1, preserveAspectRatio: stretch ? 'none' : 'meet',
+        curves, xStart, xEnd, yStart, yEnd, xTicks, yTicks, readVar, gridLineDash,
+        backgroundColor: 'var(--plot-background-color, #fbfcfe)',
+        gridColor: 'var(--plot-grid-color, var(--line, #e6ebf2))',
+        priorityColor: readVar('--plot-priority-color'),
+        priorityLineWidth: Number.parseFloat(readVar('--plot-priority-line-width')) || undefined,
+        curveBrightness, priorityBrightness: Number(readVar('--plot-priority-brightness') || curveBrightness)
+      })
+      let lineCount = 0
+      let singlePointCount = 0
+      const curveIds: string[] = []
+      for (const curve of curves) {
+        if (!curve.data.length) continue
+        curveIds.push(curve.id)
+        if (curve.data.length === 1) singlePointCount++
+        else lineCount++
+      }
+      Object.assign(canvas.dataset, {
+        lineCount: String(lineCount), singlePointCount: String(singlePointCount), curveIds: curveIds.join(' '),
+        xStart: String(xStart), xEnd: String(xEnd), yStart: String(yStart), yEnd: String(yEnd),
+        renderSeq: String(++renderSeq.current)
+      })
+      drawnViewBox.current = viewBox
+    }
+    // Draw before paint on mount and when the SVG coordinate system changes.
+    if (!canvas.dataset.renderSeq || drawnViewBox.current !== viewBox) {
+      if (canvasFrame.current !== null) cancelAnimationFrame(canvasFrame.current)
+      canvasFrame.current = null
+      drawCanvas.current()
+    } else {
+      scheduleCanvasDraw()
+    }
+  }, [scheduleCanvasDraw, rect, viewWidth, viewHeight,
+    curves, xStart, xEnd, yStart, yEnd, xTicks, yTicks, stretch])
+
+  const plotX = (value: number) => toPlotX(value, xStart, xEnd, rect)
+  const plotY = (value: number) => toPlotY(value, yStart, yEnd, rect)
+  const dataX = (value: number) => toDataX(value, xStart, xEnd, rect)
+  const dataY = (value: number) => toDataY(value, yStart, yEnd, rect)
   const toSvg = (event: Pick<MouseEvent<SVGSVGElement>, 'currentTarget' | 'clientX' | 'clientY'>) => {
     const matrix = event.currentTarget.getScreenCTM()
-    return matrix ? new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse()) : { x: 0, y: 0 }
+    return clientToViewBoxPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(),
+      viewWidth, viewHeight, stretch ? 'none' : 'meet', matrix?.inverse())
   }
 
-  const cursorAt = (screenX: number): SpectrumPlotCursor | null => {
-    const target = dataX(Math.max(LEFT, Math.min(LEFT + WIDTH, screenX)))
-    const priority = curves.find((curve) => curve.priority) ?? curves[0]
-    if (!priority?.data.length) return null
-    const nearest = priority.data.reduce((best, item) =>
-      Math.abs(item.x - target) < Math.abs(best.x - target) ? item : best
-    )
+  const priority = curves.find(curve => curve.priority) ?? curves[0]
+  const cursorFor = (curve: SpectrumPlotCurve, datumIndex: number): SpectrumPlotCursor => {
+    const datum = curve.data[datumIndex]
     return {
-      curveId: priority.id,
-      curveLabel: priority.label,
-      x: plotX(nearest.x),
-      y: plotY(nearest.y),
-      datum: nearest
+      curveId: curve.id,
+      curveLabel: curve.label,
+      x: plotX(datum.x),
+      y: plotY(datum.y),
+      datum,
+      datumIndex
     }
+  }
+  const cursorAt = (screenX: number): SpectrumPlotCursor | null => {
+    if (!priority) return null
+    const target = dataX(Math.max(LEFT, Math.min(LEFT + WIDTH, screenX)))
+    const nearest = findNearestDatumIndex(priority.data, target)
+    return nearest ? cursorFor(priority, nearest.datumIndex) : null
   }
   const updateCursor = (screenX: number) => {
     if (!locked && tool === 'crosshair') onCursor(cursorAt(screenX))
@@ -208,12 +333,13 @@ export function SpectrumPlot({
       onZoomY(event.key === 'ArrowUp' ? ZOOM_IN : ZOOM_OUT)
       return
     }
-    const curve = curves.find((item) => item.id === cursor?.curveId) ?? curves.find((item) => item.priority) ?? curves[0]
+    const curve = curves.find(item => item.id === cursor?.curveId) ?? priority
     if (!curve?.data.length) return
-    const index = cursor ? curve.data.findIndex((datum) => datum.point.point_index === cursor.datum.point.point_index) : 0
-    const next = Math.max(0, Math.min(curve.data.length - 1, Math.max(0, index) + (event.key === 'ArrowRight' ? 1 : -1)))
-    const datum = curve.data[next]
-    onCursor({ curveId: curve.id, curveLabel: curve.label, x: plotX(datum.x), y: plotY(datum.y), datum })
+    const index = cursor ? cursorDatumIndex(curve, cursor) : 0
+    const next = Math.max(0, Math.min(curve.data.length - 1, index + (event.key === 'ArrowRight' ? 1 : -1)))
+    const picked = cursorFor(curve, next)
+    const { datum } = picked
+    onCursor(picked)
     if (datum.x < xStart || datum.x > xEnd) {
       const half = (xEnd - xStart) / 2
       onBoxSelect({ xMin: datum.x - half, xMax: datum.x + half, yMin: yStart, yMax: yEnd })
@@ -260,31 +386,10 @@ export function SpectrumPlot({
           <rect x={LEFT} y={TOP} width={WIDTH} height={HEIGHT} />
         </clipPath>
       </defs>
-      <rect x={LEFT} y={TOP} width={WIDTH} height={HEIGHT} className="plot-background" />
-      {xTicks.map((value) => (
-        <line
-          key={`grid-x-${value}`}
-          x1={plotX(value)}
-          y1={TOP}
-          x2={plotX(value)}
-          y2={TOP + HEIGHT}
-          className="plot-grid"
-        />
-      ))}
-      {yTicks.map((value) => (
-        <line
-          key={`grid-y-${value}`}
-          x1={LEFT}
-          y1={plotY(value)}
-          x2={LEFT + WIDTH}
-          y2={plotY(value)}
-          className="plot-grid"
-        />
-      ))}
+      <rect x={LEFT} y={TOP} width={WIDTH} height={HEIGHT} className="plot-background" style={{ fill: 'transparent' }} />
       <line x1={LEFT} y1={TOP + HEIGHT} x2={LEFT + WIDTH} y2={TOP + HEIGHT} className="plot-axis" />
       <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + HEIGHT} className="plot-axis" />
       <g clipPath={`url(#${clipId})`}>
-        {paths}
         {markers.filter((marker) => Number.isFinite(marker.position)).map((marker) => (
           <g key={marker.key} className={`plot-position-marker ${marker.kind}`}
             data-marker-kind={marker.kind} data-marker-position={marker.position}
@@ -350,5 +455,10 @@ export function SpectrumPlot({
       </text>
     </svg>
   )
-  return <RenderProfiler id="SpectrumPlot">{content}</RenderProfiler>
+  return <RenderProfiler id="SpectrumPlot">
+    <div className="spectrum-plot-stage" data-renderer="canvas" ref={stageRef}>
+      <canvas className="spectrum-canvas" aria-hidden="true" ref={canvasRef} />
+      {content}
+    </div>
+  </RenderProfiler>
 }

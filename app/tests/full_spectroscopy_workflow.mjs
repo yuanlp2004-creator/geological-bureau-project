@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
-import { leaveLegacyCapture, openSpectrumReadout, closeSpectrumReadout } from './legacy_desk_test_support.mjs'
+import { leaveLegacyCapture, openSpectrumReadout, closeSpectrumReadout, waitForSpectrumInk, spectrumCanvasSnapshot } from './legacy_desk_test_support.mjs'
 
 // One isolated workflow covers the legacy operating surface, read-only browsing and mode boundaries.
 export async function checkFullSpectroscopy(page, result, output) {
@@ -34,7 +34,7 @@ export async function checkFullSpectroscopy(page, result, output) {
     if (await back.isVisible()) await back.click()
     const host = page.getByTestId(`${item.mode}-page`)
     await host.locator(`[data-task-id="${item.task.id}"]`).getByRole('button').click()
-    await host.locator('svg.spectrum-plot .spectrum-line').waitFor()
+    await waitForSpectrumInk(host)
     return host
   }
   const readRange = async scope => {
@@ -107,11 +107,12 @@ export async function checkFullSpectroscopy(page, result, output) {
       page.on('request', count)
       const reset = scope.getByRole('button', { name: '适合图像', exact: true })
       await reset.click()
-      const original = await readRange(scope), box = await svg.boundingBox(), originalPath = await svg.locator('.spectrum-line').getAttribute('d')
+      await waitForSpectrumInk(svg)
+      const original = await readRange(scope), box = await svg.boundingBox(), originalPaint = await spectrumCanvasSnapshot(svg)
       for (const fraction of [.15, .7]) {
         await page.mouse.move(box.x + box.width * fraction, box.y + box.height * .45); await page.waitForTimeout(80)
         assert.deepEqual(await readRange(scope), original)
-        assert.equal(await svg.locator('.spectrum-line').getAttribute('d'), originalPath)
+        assert.deepEqual(await spectrumCanvasSnapshot(svg), originalPaint)
         assert.deepEqual(await svg.boundingBox(), box)
       }
       await scope.getByRole('button', { name: '一线一点', exact: true }).click()
@@ -121,7 +122,7 @@ export async function checkFullSpectroscopy(page, result, output) {
       assert.ok(Math.abs((one[1] - one[0]) / (four[1] - four[0]) - 4) < .025)
       await scope.getByRole('button', { name: '十倍 CCD', exact: true }).click()
       const physical = await readRange(scope)
-      const pixels = await svg.evaluate(element => ({ width: element.clientWidth - 88, dpr: devicePixelRatio }))
+      const pixels = await svg.locator('.plot-background').evaluate(element => ({ width: element.getBoundingClientRect().width, dpr: devicePixelRatio }))
       const spacing = item.task.layout.point_width_um / 1000 * 10 * item.task.profile.screen_resolution_px / item.task.profile.screen_width_mm / pixels.dpr
       assert.ok(Math.abs((physical[1] - physical[0]) - pixels.width / spacing) < .2)
       await reset.click()
@@ -154,7 +155,7 @@ export async function checkFullSpectroscopy(page, result, output) {
   const item = tasks[0], host = await go(item), scope = host.locator('.spectrum-inspector')
   const rows = host.locator('.capture-record-table tbody tr')
   assert.equal(await rows.count(), 2)
-  await rows.first().getByRole('button').click(); await scope.locator('svg .spectrum-line').waitFor()
+  await rows.first().getByRole('button').click(); await waitForSpectrumInk(scope)
   const saved = await call(page, `/api/v1/acquisitions/samples/${item.task.samples[0].id}/bands?include_points=true`)
   assert.ok(Math.abs(await pointValue(scope, 124) - saved[0].mean_points[123]) < .000001)
   const printResponse = page.waitForResponse(response => response.url().includes('/print-pdf') && response.request().method() === 'POST')
@@ -207,7 +208,7 @@ export async function checkFullSpectroscopy(page, result, output) {
     assert.equal(await scope.locator('svg').count(), 0)
     await page.unroute(route)
     await host.getByRole('button', { name: '返回当前谱图', exact: true }).click()
-    await rows.first().getByRole('button').click(); await scope.locator('svg .spectrum-line').waitFor()
+    await rows.first().getByRole('button').click(); await waitForSpectrumInk(scope)
     check('读取已保存谱带失败时明确提示并清空曲线，切回后可重试，无实时数据冒充')
   }
   const dispersion = tasks[2], dh = await go(dispersion), ds = dh.locator('.spectrum-inspector')

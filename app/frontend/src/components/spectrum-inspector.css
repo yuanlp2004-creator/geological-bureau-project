@@ -39,13 +39,13 @@
   min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
 .inspector-readout > small { grid-column: 1 / -1; color: var(--muted); }
-.spectrum-inspector .spectrum-plot {
+.spectrum-inspector .spectrum-plot-stage {
   width: 100%; height: clamp(280px, 32vw, 380px); border: 1px solid var(--line);
   border-radius: 6px; background: var(--surface, var(--panel)); touch-action: none;
+  --plot-background-color: var(--surface, var(--panel));
+  --plot-grid-color: var(--line);
 }
-.spectrum-inspector .plot-background { fill: var(--surface, var(--panel)); }
 .spectrum-inspector .plot-label { fill: var(--muted); }
-.spectrum-inspector .plot-grid { stroke: var(--line); }
 .spectrum-inspector .plot-axis { stroke: var(--muted); }
 .plot-position-marker line { stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .plot-position-marker.expected { stroke: #b0701f; fill: #b0701f; }

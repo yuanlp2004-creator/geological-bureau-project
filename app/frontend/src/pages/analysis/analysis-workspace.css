@@ -131,7 +131,7 @@
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum label { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum :is(select, button) { min-height: 28px; height: 28px; font-size: 11px; padding: 3px 7px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum p { font-size: 11px; margin: 8px 0; }
-:root .app-shell .analysis-workbench.remaining-page .analysis-spectrum .spectrum-plot { width: 100%; height: clamp(220px, calc(100dvh - 440px), 400px); display: block; }
+:root .app-shell .analysis-workbench.remaining-page .analysis-spectrum .spectrum-plot-stage { width: 100%; height: clamp(220px, calc(100dvh - 440px), 400px); display: block; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum > .field { display: inline-flex; width: auto; margin-top: 8px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum > .field input { max-width: 90px; }
 :root .app-shell .analysis-workbench.remaining-page .analysis-spectrum > output { font-size: 11px; margin-left: 10px; }

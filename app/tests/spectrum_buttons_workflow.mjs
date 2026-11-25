@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
 import { call, navigate } from './contract_browser_support.mjs'
-import { selectViewerFile } from './legacy_desk_test_support.mjs'
+import { selectViewerFile, waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 
 export async function checkSpectrumButtons(page, fixture, result, output) {
   const check = text => result.checks.push(text)
@@ -17,7 +17,7 @@ export async function checkSpectrumButtons(page, fixture, result, output) {
   const host=page.getByTestId('dispersion-page'), monitor=host.getByTestId('dispersion-curve-monitor')
   const button=name=>host.getByRole('button',{name,exact:true})
   const plot=monitor.locator('svg.spectrum-plot')
-  await plot.locator('.spectrum-line').waitFor()
+  await waitForSpectrumInk(plot)
   assert.ok(await button('增加谱线').isDisabled());assert.ok(await button('删除谱线').isDisabled())
   assert.ok(await button('拟合曲线').isDisabled())
   const coordinate=host.getByLabel('定位谱线',{exact:true})
@@ -86,7 +86,7 @@ export async function checkSpectrumButtons(page, fixture, result, output) {
   await page.waitForFunction(()=>!document.querySelector('button[aria-label="增加谱线"]').disabled)
   await coordinate.fill('0,1');await coordinate.press('Enter')
   assert.equal(await monitor.getByLabel('选择CCD',{exact:true}).inputValue(),'1')
-  await button('上一 CCD').click();await plot.locator('.spectrum-line').waitFor()
+  await button('上一 CCD').click();await waitForSpectrumInk(plot)
   check('CCD,点位定位联动CCD；非法坐标保持当前CCD；上下CCD及选择器可用')
   // Read the same range from the hidden readout dialog without opening it.
   const readRange=()=>monitor.locator('.inspector-readout small').textContent()
@@ -126,7 +126,7 @@ export async function checkSpectrumButtons(page, fixture, result, output) {
     await call(page,'/api/v1/settings',{display:{theme,density:'compact'}},'PATCH')
     await page.reload();await page.getByTestId('workspace').waitFor()
     await navigate(page,entry.group,entry.label,'[data-testid="dispersion-page"]')
-    await plot.locator('.spectrum-line').waitFor()
+    await waitForSpectrumInk(plot)
     assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),theme)
     const bad=await host.evaluate(node=>[...node.querySelectorAll('.legacy-view-desk button,.legacy-view-desk input,.legacy-view-desk select')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&(r.left<0||r.right>innerWidth+1)}).map(el=>el.getAttribute('aria-label')))
     assert.deepEqual(bad,[])
@@ -136,7 +136,7 @@ export async function checkSpectrumButtons(page, fixture, result, output) {
   const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..')
   const imported=await call(page,'/api/v1/legacy-migration/open-file',{path:path.join(root,'Spec Source/Bin/DATA/20141029_测试.wdt'),purpose:'dispersion'})
   await page.getByRole('button',{name:'刷新',exact:true}).click();await selectViewerFile(host,imported.source_sha256,true)
-  await plot.locator('.spectrum-line').waitFor();assert.ok(await button('打印谱图').isEnabled())
+  await waitForSpectrumInk(plot);assert.ok(await button('打印谱图').isEnabled())
   const printResponse=page.waitForResponse(r=>r.url().includes('/print-pdf')&&r.request().method()==='POST')
   const fileEvent=process.env.QA_CDP?null:page.waitForEvent('download')
   if(process.env.QA_CDP)await page.evaluate(()=>{

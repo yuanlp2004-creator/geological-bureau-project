@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { api, saveFile, type SpectrumRecord, type SpectrumRecordSummary } from '../../api'
 import { NumericInput as EmptyableNumberInput } from '../../components/NumericInput'
 import { ExposureIntervalInput } from '../../components/ExposureIntervalInput'
-import { SpectrumPlot, type SpectrumPlotCursor, type SpectrumPlotCurve, type SpectrumContextHandler } from '../../components/SpectrumPlot'
+import { SpectrumPlot, observeSpectrumPlotFrame, type SpectrumPlotCursor, type SpectrumPlotCurve, type SpectrumContextHandler } from '../../components/SpectrumPlot'
 import { ContextMenu, useContextMenu, type MenuGroup } from '../../components/ContextMenu'
 import { spectralLineMenuGroups, spectrumMenuGroups } from '../../components/spectrumMenu'
 import { SpectrumRecordList } from './SpectrumRecordList'
@@ -97,7 +97,7 @@ function SpectrumViewer({ token, onToast, onClose, actionsTarget, viewing = 'spe
   const [pixelMode,setPixelMode] = useState<1|4|10|null>(null)
   const [pointCoordinates, setPointCoordinates] = useState(false)
   const plotRef=useRef<HTMLDivElement>(null)
-  const [plotWidth,setPlotWidth]=useState(872)
+  const [plotPixels,setPlotPixels]=useState(872)
   const [screenProfiles,setScreenProfiles]=useState<Array<{id:number;name:string;screen_width_mm:number;screen_resolution_px:number}>>([])
   const [screenProfileId,setScreenProfileId]=useState(0)
   useEffect(() => { let live=true;void api.spectrumDisplayProfiles(token).then(next => {if(live){setScreenProfiles(next);setScreenProfileId(next[0]?.id ?? 0)}}).catch(() => {});return () => {live=false} },[token])
@@ -404,11 +404,10 @@ function SpectrumViewer({ token, onToast, onClose, actionsTarget, viewing = 'spe
     [displayIds, details, selectedId, frameVisible, referenceShift, mode, records, priorityId,pointCoordinates]
   )
 
-  useEffect(() => {
-    const host=plotRef.current;if(!host)return
-    const resize=() => {const svg=host.querySelector('svg');if(svg)setPlotWidth((svg.getScreenCTM()?.a ?? 1)*(Number(svg.getAttribute('viewBox')?.split(' ')[2]??960)-88))}
-    const observer=new ResizeObserver(resize);observer.observe(host);resize();return () => observer.disconnect()
-  },[active?.id])
+  useLayoutEffect(() => {
+    if (!plotRef.current) return
+    return observeSpectrumPlotFrame(plotRef.current, (frame, dpr) => setPlotPixels(frame.width * dpr))
+  }, [active?.id])
   const fullRange = useMemo(() => {
     const all = curves.flatMap((curve) => curve.data)
     if (!all.length) return { xMin: 0, xMax: 1, yMin: 0, yMax: 1 }
@@ -427,8 +426,8 @@ function SpectrumViewer({ token, onToast, onClose, actionsTarget, viewing = 'spe
   const pointWidth = Number(active?.layout?.point_width_um ?? active?.layout?.point_width ?? 0)
   const spacing = (pixelMode === 10
     ? pointWidth / 1000 * 10 * (profile ? profile.screen_resolution_px / profile.screen_width_mm : 0)
-    : pixelMode ?? 0) / (window.devicePixelRatio || 1)
-  const zoomX = raw && spacing > 0 ? clampSpectrumZoom(fullXSpan * spacing / Math.max(1, plotWidth)) : manualZoomX
+    : pixelMode ?? 0)
+  const zoomX = raw && spacing > 0 ? clampSpectrumZoom(fullXSpan * spacing / Math.max(1, plotPixels)) : manualZoomX
   const xSpan = fullXSpan / zoomX
   const ySpan = fullYSpan / zoomY
   const xStart = fullRange.xMin + ((panX + 1) / 2) * Math.max(0, fullXSpan - xSpan)
@@ -969,8 +968,8 @@ function SpectrumViewer({ token, onToast, onClose, actionsTarget, viewing = 'spe
               />
 
           <div className="spectrum-point-layout">
-            <div className="spectrum-point-plot">
-          <LegacySpectrumSurface fitPlot title={`${multiView?'':`记录号：[${selected?.band_id??active.record_index}] ${active.band_name?'谱带名称':'样品编号'}：[${active.band_name||active.sample_name||''}] `}CCD序号：[${Number(active.ccd?.index??ccd)+1}] ${visibleFrame?`${visibleFrame.phase==='burn'?'燃烧':'暗'}帧：[${visibleFrame.index+1}]`:`曝光区间：[${active.exposure_segment?.start??1}-${active.exposure_segment?.end??maxExposure}]`}`}
+            <div className="spectrum-point-plot" ref={plotRef}>
+          <LegacySpectrumSurface title={`${multiView?'':`记录号：[${selected?.band_id??active.record_index}] ${active.band_name?'谱带名称':'样品编号'}：[${active.band_name||active.sample_name||''}] `}CCD序号：[${Number(active.ccd?.index??ccd)+1}] ${visibleFrame?`${visibleFrame.phase==='burn'?'燃烧':'暗'}帧：[${visibleFrame.index+1}]`:`曝光区间：[${active.exposure_segment?.start??1}-${active.exposure_segment?.end??maxExposure}]`}`}
             curves={curves} xMin={xStart} xMax={xEnd} yMin={yStart} yMax={yEnd} cursor={cursor} locked={locked} tool={tool} onCursor={setCursor} onToggleLock={picked=>{if(picked)setCursor(picked);setLocked(value=>!value)}}
             onPointerPresence={follow.plotPresence}
             onPan={(dx,dy)=>{setPanX(value=>Math.max(-1,Math.min(1,value-dx*2)));setPanY(value=>Math.max(-1,Math.min(1,value+dy*2)))}} onBox={boxSelect}

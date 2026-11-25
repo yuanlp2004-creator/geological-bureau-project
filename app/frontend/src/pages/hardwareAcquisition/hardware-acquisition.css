@@ -64,7 +64,7 @@
 .key-band { color: var(--blue); font-size: 10px; font-weight: 500; }
 .hardware-spectrum { display: flex; flex-direction: column; overflow: hidden; }
 .hardware-spectrum > .spectrum-inspector { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 0; }
-.hardware-spectrum .spectrum-plot { flex: 1; min-height: 150px; height: 0; max-height: none; aspect-ratio: auto; border: 0; border-radius: 0; }
+.hardware-spectrum .spectrum-plot-stage { flex: 1; min-height: 150px; height: 0; max-height: none; aspect-ratio: auto; border: 0; border-radius: 0; }
 .hardware-spectrum .inspector-empty { flex: 1; min-height: 150px; margin: 10px; border: 1px solid var(--line); border-radius: 6px; }
 :root .app-shell .hardware-spectrum .inspector-icon-tools { flex: 0 0 32px; min-height: 32px; flex-wrap: nowrap; gap: 0; padding: 3px; margin: 0; border-bottom: 1px solid var(--line); background: var(--ui-soft); overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 :root .hardware-spectrum .inspector-tool-modes { flex: 0 0 auto; gap: 0; padding-right: 4px; margin-right: 3px; }

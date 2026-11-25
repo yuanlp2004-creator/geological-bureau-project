@@ -65,7 +65,7 @@
   flex: 1; min-height: 320px; display: flex; flex-direction: column; min-width: 0; margin: 0;
 }
 :root .app-shell .spectroscopy-spectrum .dispersion-spectrum-view > .spectrum-inspector { flex: 1; display: flex; flex-direction: column; min-height: 280px; }
-:root .app-shell .spectroscopy-spectrum .spectrum-inspector .spectrum-plot { flex: 1; min-height: 220px; height: 0; max-height: none; aspect-ratio: auto; }
+:root .app-shell .spectroscopy-spectrum .spectrum-inspector .spectrum-plot-stage { flex: 1; min-height: 220px; height: 0; max-height: none; aspect-ratio: auto; }
 :root .app-shell .spectroscopy-spectrum .inspector-tools { gap: 4px; margin-bottom: 6px; }
 :root .app-shell .spectroscopy-spectrum .inspector-tools button { padding-inline: 8px; }
 :root .app-shell .spectroscopy-spectrum :is(.inspector-tools, .inspector-readout, .inspector-frame-tools) { font-size: 12px; }
@@ -164,7 +164,7 @@
 :root .app-shell .capture-processing > .inspector-frame-tools { padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
 @media (max-width: 1200px) {
   :root .app-shell .spectroscopy-console.has-records:not(.legacy-capture-desk) { grid-template-columns: 138px minmax(0, 1fr) 230px; }
-  :root .app-shell .spectroscopy-spectrum .spectrum-inspector .spectrum-plot { min-height: 160px; }
+  :root .app-shell .spectroscopy-spectrum .spectrum-inspector .spectrum-plot-stage { min-height: 160px; }
   :root .app-shell .spectroscopy-records > header { flex-wrap: wrap; }
   :root .app-shell .capture-record-table th:first-child { width: 36px; }
 }
@@ -339,7 +339,7 @@
 :root .app-shell .spectroscopy-workbench .spectroscopy-console .spectroscopy-ccd-choice > span { flex: 0 0 20px; width: 20px; margin: 0; padding: 0; font: 11px/20px Consolas, monospace; }
 :root .app-shell .spectroscopy-console .inspector-workflow-tools { width: auto; flex: 0 0 auto; flex-wrap: nowrap; border: 0; padding: 0 2px; }
 :root .app-shell .spectroscopy-console .inspector-workflow-tools select { min-width: 100px; width: 100px; }
-:root .app-shell .spectroscopy-console .spectrum-plot { border-radius: 0; border-width: 0 0 1px; }
+:root .app-shell .spectroscopy-console .spectrum-plot-stage { border-radius: 0; border-width: 0 0 1px; }
 :root .app-shell .spectroscopy-console .inspector-empty {
   margin: 10px 14px; min-height: 160px; border: 1px solid var(--ui-control-border); background: #aacbed;
   display: block; padding: 10px; text-align: center; color: #35516a;

@@ -1,8 +1,21 @@
 import assert from 'node:assert/strict'
+import { waitForSpectrumInk, spectrumCanvas, selectViewerFile } from './legacy_desk_test_support.mjs'
 import {createHash} from 'node:crypto'
 import path from 'node:path'
 import {readFile,writeFile} from 'node:fs/promises'
 import {call,navigate} from './contract_browser_support.mjs'
+
+export async function checkSpectrumPixelSpacing(host, label, expected) {
+  const before = await waitForSpectrumInk(host)
+  await host.getByRole('button', { name: label, exact: true }).click()
+  await waitForSpectrumInk(host, { after: before.seq })
+  const spacing = await spectrumCanvas(host).evaluate(canvas => {
+    const { width } = canvas.nextElementSibling.querySelector('.plot-background').getBoundingClientRect()
+    return width * devicePixelRatio / (Number(canvas.dataset.xEnd) - Number(canvas.dataset.xStart))
+  })
+  assert.ok(Math.abs(spacing - expected) < .03, `${label}: ${spacing} expected ${expected}`)
+  return spacing
+}
 
 export async function checkLegacyOperators(page,fixture,result,output) {
   const entries=(await call(page,'/api/v1/capabilities')).capabilities.flatMap(m=>m.navigation_entries)
@@ -142,15 +155,19 @@ export async function checkLegacyOperators(page,fixture,result,output) {
   assert.ok(await host.locator('.spectrum-record-row:not(.active) button').first().isDisabled())
   await host.getByRole('button',{name:'解锁谱带记录',exact:true}).click()
   check('F13','Record lock blocks list and previous/next independently of cursor lock')
-  async function pixelSpacing(label,expected){await host.getByRole('button',{name:label,exact:true}).click();await page.waitForTimeout(150)
-    const spacing=await host.locator('.spectrum-plot-wrap svg').evaluate(svg=>{
-      const points=Array.from((svg.querySelector('path.spectrum-line.priority')?.getAttribute('d')||'').matchAll(/[ML]\s+([\d.e+-]+)\s+([\d.e+-]+)/g),match=>Number(match[1]))
-      return points?.length>1?(points[1]-points[0])*(svg.getScreenCTM()?.a ?? svg.getBoundingClientRect().width/960)*window.devicePixelRatio:null
-    });assert.ok(spacing!=null);assert.ok(Math.abs(spacing-expected)<.03,`${label}: ${spacing} expected ${expected}`);return spacing}
-  const pixel100=await pixelSpacing('100%',1),pixel400=await pixelSpacing('400%',4)
+  // The lock fixture has eight CCD points, too few for even a 1 px pitch at fit.
+  // Use the 2,048-point saved acquisition for the physical scale contract.
+  await selectViewerFile(host, `task:${fixture.source_task_id}`)
+  const { curveIds } = await waitForSpectrumInk(host, { lines: 1 })
+  const source = await call(page, `/api/v1/spectra/${encodeURIComponent(curveIds)}?ccd=0`)
+  const pointWidthUm = Number(source.layout.point_width_um ?? source.layout.point_width)
+  assert.ok(pointWidthUm > 0)
+  const pixel100=await checkSpectrumPixelSpacing(host,'100%',1),pixel400=await checkSpectrumPixelSpacing(host,'400%',4)
   const profile=(await call(page,'/api/v1/spectra/display-profiles'))[0]
+  await host.getByRole('button',{name:'打印谱图',exact:true}).click()
   await host.getByLabel('屏幕比例档案',{exact:true}).selectOption(String(profile.id))
-  const pixelTen=await pixelSpacing('十倍 CCD',14/1000*10*profile.screen_resolution_px/profile.screen_width_mm)
+  await host.getByRole('button',{name:'关闭显示与打印',exact:true}).click()
+  const pixelTen=await checkSpectrumPixelSpacing(host,'十倍 CCD',pointWidthUm/1000*10*profile.screen_resolution_px/profile.screen_width_mm)
   check('F12','100/400 use actual one/four pixels per CCD point; tenfold mode consumes point width and screen dimensions')
   await page.screenshot({path:path.join(output,'spectrum-fourteen.png'),fullPage:true})
   result.facts={sam,curve_nudge:{before,after},logarithmic_x:xs,pixel_spacing:{pixel100,pixel400,pixelTen,device_pixel_ratio:await page.evaluate(()=>window.devicePixelRatio)}}
@@ -187,7 +204,7 @@ export async function checkLegacyOperators(page,fixture,result,output) {
       if(target==='samples')await surface.locator('.sample-table-wrap table').waitFor()
       if(target==='dispersion')await surface.locator('.dispersion-line-table').waitFor()
       if(target==='analysis'){await surface.getByRole('button',{name:'曲线图',exact:true}).click();await surface.locator('svg[aria-label="标准曲线"] circle').first().waitFor()}
-      if(target==='spectra')await surface.locator('.spectrum-plot-wrap .spectrum-line').first().waitFor()
+      if(target==='spectra')await waitForSpectrumInk(surface)
       if(target==='postprocessing'){assert.equal(await surface.getByLabel('PDT 强度来源',{exact:true}).count(),0)}
       if(target==='reports')await surface.locator('.report-version-selector select').waitFor()
       if(target==='migration')await surface.locator('.migration-history-list button').first().waitFor()

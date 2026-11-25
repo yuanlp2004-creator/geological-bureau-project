@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawn, spawnSync } from 'node:child_process'
 import { call, navigate } from './contract_browser_support.mjs'
-import { leaveLegacyCapture } from './legacy_desk_test_support.mjs'
+import { leaveLegacyCapture, waitForSpectrumInk, assertSpectrumCleared } from './legacy_desk_test_support.mjs'
 
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const work = path.join(app, '.local/diagnostics/legacy-capture-20261023')
@@ -55,7 +55,8 @@ async function command(host, label, suffix) {
 }
 async function assertWarmupSpectrum(host, taskId, ccd = 0) {
   const frames = await call(page, `/api/v1/acquisitions/tasks/${taskId}/frames?ccd_index=${ccd}&phase=burn&include_points=true`)
-  const frame = frames.filter(item => !item.damaged && item.points?.length).at(-1)
+  const validFrames = frames.filter(item => !item.damaged && item.points?.length)
+  const frame = validFrames[validFrames.length - 1]
   assert.ok(frame, '预热必须保留可读取的燃烧帧')
   const peak = Math.max(...frame.points)
   const expected = `${peak.toLocaleString('zh-CN', { maximumFractionDigits: 3 })} / ${frame.points.indexOf(peak) + 1}`
@@ -63,8 +64,9 @@ async function assertWarmupSpectrum(host, taskId, ccd = 0) {
     const host = document.querySelector(`[data-testid="${taskKind}-acquisition-page"]`)
     return host?.querySelector('.acquisition-facts strong')?.textContent.trim() === expected
       && host.querySelector('.spectrum-inspector')?.getAttribute('aria-label')?.includes(`CCD ${ccd + 1}`)
-      && Boolean(host.querySelector('path.spectrum-line[d]'))
+      && Number(host.querySelector('canvas.spectrum-canvas')?.dataset.lineCount) > 0
   }, { taskKind: (await call(page, `/api/v1/acquisitions/tasks/${taskId}`)).task_kind, expected, ccd }, { timeout: 12000 })
+  await waitForSpectrumInk(host)
   assert.equal(await host.getByText('当前CCD没有已保存谱带', { exact: true }).count(), 0)
   assert.equal(await host.getByRole('button', { name: '打印谱图', exact: true }).isDisabled(), true)
 }
@@ -78,8 +80,9 @@ async function assertFormalSpectrum(host, sampleId, ccd = 0) {
     const host = document.querySelector(`[data-testid="${testId}"]`)
     return host?.querySelector('.acquisition-facts strong')?.textContent.trim() === expected
       && host.querySelector('.spectrum-inspector')?.getAttribute('aria-label')?.includes('已保存均值谱带')
-      && Boolean(host.querySelector('path.spectrum-line[d]'))
+      && Number(host.querySelector('canvas.spectrum-canvas')?.dataset.lineCount) > 0
   }, { testId: await host.getAttribute('data-testid'), expected })
+  await waitForSpectrumInk(host)
   assert.equal(await host.getByRole('button', { name: '打印谱图', exact: true }).isEnabled(), true)
 }
 async function checkEndedContext(host, parent, mode) {
@@ -103,7 +106,7 @@ async function checkEndedContext(host, parent, mode) {
   assert.equal((await call(page, `/api/v1/acquisitions/tasks/${parent.id}`)).result_sha256, parent.result_sha256)
   await screenshot(host, `${mode}-preheat-ended-context`)
   await host.getByRole('button', { name: '返回正式任务', exact: true }).click()
-  await assertFormalSpectrum(host, parent.samples.at(-1).id)
+  await assertFormalSpectrum(host, parent.samples[parent.samples.length - 1].id)
 }
 async function go(mode, name) {
   await leaveLegacyCapture(page)
@@ -287,7 +290,7 @@ try {
     `/acquisitions/tasks/${evapWarmup.id}/frames?phase=burn&ccd_index=0&include_points=true`))
   releaseWarmupRead(); await releasedWarmupResponse; await page.unroute(warmupPattern)
   assert.equal(await host.locator('.acquisition-facts strong').first().textContent().then(text => text.trim()), '--')
-  assert.equal(await host.locator('path.spectrum-line').count(), 0)
+  await assertSpectrumCleared(host)
   assert.equal((await call(page, `${base}/${evaporation.id}`)).status, 'draft')
   result.checks.push('预热完成、切换CCD、重新进入及再次预热均保留燃烧谱图；延迟响应不能覆盖其他任务，且不生成正式谱带')
   await command(host, '试样摄谱', `/${evaporation.id}/start`)
@@ -369,7 +372,7 @@ try {
   await dispersionDialog.waitFor(); await dispersionDialog.getByRole('button', { name: '取消', exact: true }).click()
   await host.getByRole('button', { name: '返回正式任务', exact: true }).click()
   await host.getByRole('heading', { name: '色散谱带', exact: true }).waitFor()
-  await host.locator('path.spectrum-line[d]').waitFor()
+  await waitForSpectrumInk(host)
   const savedBands = (await call(page, `${dispersionBase}?limit=200`))
     .filter(item => item.status === 'completed' && !item.condition.preheat && !item.condition.source_sha256)
     .sort((a, b) => a.id - b.id)

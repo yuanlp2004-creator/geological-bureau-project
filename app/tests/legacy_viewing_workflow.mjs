@@ -4,15 +4,14 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { call, navigate } from './contract_browser_support.mjs'
-import { openViewerFiles, openViewerPlotAction, selectViewerFile } from './legacy_desk_test_support.mjs'
+import { openViewerFiles, openViewerPlotAction, selectViewerFile, waitForSpectrumInk } from './legacy_desk_test_support.mjs'
 
 export async function checkSpectrumQueue(page, host, recordCount) {
   const pointTable=host.getByRole('region',{name:'多样品同点强度'})
   const rightRows=pointTable.locator('tbody tr'), leftRows=host.locator('.spectrum-record-list tbody tr')
-  const curves=host.locator('svg.spectrum-plot .spectrum-line')
   assert.equal(await rightRows.count(),recordCount)
   assert.equal(await leftRows.count(),recordCount)
-  assert.equal(await curves.count(),1)
+  await waitForSpectrumInk(host, { lines: 1 })
   const values=nodes=>nodes.map(row=>[...row.cells].map(cell=>cell.textContent))
   assert.deepEqual((await rightRows.evaluateAll(values)).map(row=>row.slice(0,3)),
     (await leftRows.evaluateAll(values)).map(row=>row.slice(1)))
@@ -59,7 +58,7 @@ export async function checkSpectrumQueue(page, host, recordCount) {
   assert.ok(Math.abs((await pointTable.locator('thead th').first().boundingBox()).y-(await pointTable.boundingBox()).y)<2)
   const lastId=await last.locator('td[data-record-id]').getAttribute('data-record-id')
   await last.click()
-  await curves.and(host.locator(`[data-curve-id="${lastId}"]`)).waitFor()
+  await waitForSpectrumInk(host, { lines: 1, id: lastId })
   assert.equal(await last.getAttribute('aria-selected'),'true')
   assert.ok(await pointTable.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop<2))
   await pointTable.press('Home')
@@ -88,7 +87,7 @@ export async function checkLegacyViewing(page,result,output,resizeWindow) {
     await navigate(page,entry.group,entry.label,name==='dispersion'?'[data-testid="dispersion-page"]':name==='evaporation-curves'?'[data-testid="evaporation-curves-page"]':'[data-testid="spectrum-viewer-page"]')
     return name==='dispersion'?page.getByTestId('dispersion-page'):name==='evaporation-curves'?page.getByTestId('evaporation-spectrum-page'):page.getByTestId('spectrum-viewer-page')
   }
-  const settle=async host=>{await host.locator('svg.spectrum-plot .spectrum-line').first().waitFor();await page.waitForTimeout(200)}
+  const settle=async host=>{await waitForSpectrumInk(host);await page.waitForTimeout(200)}
   const hover=async(host,fraction=.4)=>{const box=await host.locator('svg.spectrum-plot .plot-background').first().boundingBox();await page.mouse.move(box.x+box.width*fraction,box.y+box.height*.5);await page.waitForTimeout(80)}
   const resize=async(width,height)=>{
     if(resizeWindow)await resizeWindow(width,height)
@@ -137,7 +136,17 @@ export async function checkLegacyViewing(page,result,output,resizeWindow) {
     result.wdt_maximum=maximum
     assert.ok(Math.abs(maximum-14894)<1,`D13-9峰高应与旧截图约14894一致，实际${maximum}`)
     const count=writes,before=await gray.getAttribute('data-x-min')
-    await host.getByRole('button',{name:'横向放大',exact:true}).click();assert.notEqual(await gray.getAttribute('data-x-min'),before)
+    const zoom = host.getByRole('button',{name:'横向放大',exact:true})
+    for (let step = 0; step < 3; step++) await zoom.click()
+    assert.notEqual(await gray.getAttribute('data-x-min'),before)
+    const stripIndex = Math.floor((Number(await gray.getAttribute('data-x-min')) + Number(await gray.getAttribute('data-x-max'))) / 2) - 1
+    const cell = await gray.locator(`rect[data-point-index="${stripIndex}"]`).boundingBox()
+    const pointX = cell.x + cell.width / 2
+    await page.mouse.click(pointX, stripBox.y + stripBox.height / 2)
+    await host.getByLabel('谱图同步读数').filter({ hasText: new RegExp(`坐标：${stripIndex + 1} .*已锁定`) }).waitFor()
+    const cursor = await plot.locator('.plot-cursor').boundingBox()
+    assert.ok(Math.abs(cursor.x + cursor.width / 2 - pointX) <= 1)
+    await page.mouse.click(pointX, stripBox.y + stripBox.height / 2)
     await host.getByRole('button',{name:'适合图像',exact:true}).click();await hover(host)
     assert.match(await host.getByLabel('谱图同步读数').textContent(),/积分强度/)
     const frame=await plot.boundingBox();await hover(host,.7);const after=await plot.boundingBox();assert.equal(after.height,frame.height)
@@ -159,20 +168,19 @@ export async function checkLegacyViewing(page,result,output,resizeWindow) {
     assert.equal(await host.locator('.legacy-grayscale').count(),0)
     const pointTable=host.getByRole('region',{name:'多样品同点强度'})
     const body=pointTable.locator('tbody')
-    const countCurves=()=>host.locator('svg.spectrum-plot .spectrum-line').count()
     assert.equal(await host.getByLabel('谱图同步读数').count(),0)
     assert.equal(await host.locator('.legacy-view-desk input[type="checkbox"]').count(),0)
     const rows=host.locator('.spectrum-record-list tbody tr'),second=rows.nth(1)
     await checkSpectrumQueue(page,host,imported.cmt.record_ids.length)
     check(`${theme}: CMT 同点表只显示完整行，滚轮每次移动一行，选中末条后保留滚动位置`)
     await second.locator('td').nth(1).click();await settle(host)
-    assert.equal(await countCurves(),1)
+    await waitForSpectrumInk(host, { lines: 1 })
     await second.locator('.row-indicator .row-selection-arrow').waitFor()
     await rows.first().click({modifiers:['Control']});await settle(host)
-    assert.equal(await countCurves(),2)
+    await waitForSpectrumInk(host, { lines: 2 })
     await host.getByRole('button',{name:'锁定谱带记录',exact:true}).click()
     await rows.nth(2).click({modifiers:['Control']})
-    assert.equal(await countCurves(),2)
+    await waitForSpectrumInk(host, { lines: 2 })
     await host.getByRole('button',{name:'解锁谱带记录',exact:true}).click()
     await host.getByLabel('曝光区间',{exact:true}).fill('1-15');await host.getByLabel('曝光区间',{exact:true}).blur();await settle(host)
     const count2=writes
