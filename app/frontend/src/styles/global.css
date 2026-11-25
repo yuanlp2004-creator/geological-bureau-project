@@ -145,6 +145,17 @@ button {
   color: #fff;
   background: rgba(75, 126, 180, 0.2);
 }
+.nav-item:focus,
+.navigation-entry:focus,
+.topbar :is(.icon-button, .avatar, .workspace-method):focus {
+  outline: none;
+}
+.nav-item:focus-visible,
+.navigation-entry:focus-visible,
+.topbar :is(.icon-button, .avatar, .workspace-method):focus-visible {
+  outline: 2px solid #72b4ff;
+  outline-offset: 2px;
+}
 .nav-item.active {
   color: #fff;
   background: #2468dc;
@@ -279,6 +290,16 @@ button {
 .icon-button:hover {
   color: var(--blue);
   border-color: #9bbbf0;
+}
+.topbar .icon-button {
+  flex: 0 0 34px;
+  border-color: #b3c3d4;
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s;
+}
+.topbar .icon-button:not(:disabled):is(:hover, :focus-visible) {
+  color: #205fc8;
+  border-color: #8cafe4;
+  background: #edf4ff;
 }
 .icon-button:disabled {
   cursor: wait;
@@ -1652,6 +1673,14 @@ button {
 :root[data-theme='dark'] .icon-button.compact {
   background: #1b2e42;
 }
+:root[data-theme='dark'] .topbar .icon-button {
+  border-color: #607992;
+}
+:root[data-theme='dark'] .topbar .icon-button:not(:disabled):is(:hover, :focus-visible) {
+  color: #d7e9ff;
+  border-color: #81a5c9;
+  background: #253e59;
+}
 :root[data-theme='dark']
   .app-shell
   :is(
@@ -2588,7 +2617,6 @@ button {
 }
 .navigation-entry:hover,
 .navigation-entry:focus-visible {
-  outline: 0;
   color: #fff;
   border-left-color: #6da9e6;
   background: rgba(75, 126, 180, 0.18);

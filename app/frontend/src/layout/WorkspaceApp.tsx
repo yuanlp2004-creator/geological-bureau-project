@@ -26,6 +26,7 @@ import { PageHeading } from '../components/PageHeading'
 import { MessagePanel } from '../components/MessagePanel'
 import { RenderProfilerProbe } from '../components/RenderProfiler'
 import { runtimeEventsStore } from '../stores/runtimeEventsStore'
+import { themeStore, useTheme } from '../stores/themeStore'
 import type { CSSProperties } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
@@ -41,6 +42,7 @@ import { AuditPage } from '../pages/auth/AuditPage'
 import { ExtensionPage } from '../pages/extensions/ExtensionPage'
 
 export function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser; onLogout: () => void }) {
+  const theme = useTheme()
   const [target, setTarget] = useState<{ page: Page; key: string; view: string | null; spectrumFileGroup?: string; spectrumRecordId?: string }>({
     page: 'workspace',
     key: 'workspace.overview',
@@ -110,7 +112,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   }, [loadData, user.id])
   useEffect(() => {
     const root = document.documentElement
-    root.dataset.theme = settings?.display.theme === 'dark' ? 'dark' : 'light'
+    themeStore.setSettingsTheme(settings?.display.theme ?? null)
     root.dataset.density = settings?.display.density === 'compact' ? 'compact' : 'comfortable'
     root.dataset.timezone = settings?.time.timezone || 'Asia/Shanghai'
   }, [settings])
@@ -162,7 +164,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       className={`app-shell${canReadEvents ? ' with-runtime-messages' : ''}`}
       style={{ '--runtime-dock-height': `${canReadEvents ? dockHeight : 0}px` } as CSSProperties}
       data-testid="app-shell"
-      data-theme={settings?.display.theme ?? 'light'}
+      data-theme={theme}
       data-density={settings?.display.density ?? 'comfortable'}
     >
       <RenderProfilerProbe id="WorkspaceApp" />
@@ -191,6 +193,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               onMethodShortcut={handleMethodShortcut}
               user={user}
               currentMethod={currentMethod}
+              theme={theme}
+              onToggleTheme={themeStore.toggleTheme}
               onLogout={onLogout}
             />
             <div className="page-scroll-region">

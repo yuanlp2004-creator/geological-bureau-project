@@ -3,6 +3,7 @@ import { AppIcon } from './components/AppIcon'
 import { api, ApiError, type AuthUser } from './api'
 import { AuthForm } from './pages/auth/AuthForm'
 import { WorkspaceApp } from './layout/WorkspaceApp'
+import { themeStore } from './stores/themeStore'
 
 function App() {
   const [mode, setMode] = useState<'loading' | 'bootstrap' | 'login' | 'authenticated'>('loading')
@@ -10,19 +11,25 @@ function App() {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [authError, setAuthError] = useState<string | null>(null)
 
+  const showAuthScreen = useCallback((nextMode: 'loading' | 'bootstrap' | 'login') => {
+    themeStore.deactivate()
+    setMode(nextMode)
+  }, [])
+
   const startAuth = useCallback(async () => {
-    setMode('loading')
+    showAuthScreen('loading')
     setAuthError(null)
     try {
       const status = await api.authStatus()
       if (!status.bootstrapped) {
-        setMode('bootstrap')
+        showAuthScreen('bootstrap')
         return
       }
       const savedToken = window.sessionStorage.getItem('geospectrum.token')
       if (savedToken) {
         try {
           const savedUser = await api.me(savedToken)
+          themeStore.activateUser(savedUser.id)
           setToken(savedToken)
           setUser(savedUser)
           setMode('authenticated')
@@ -31,12 +38,12 @@ function App() {
           window.sessionStorage.removeItem('geospectrum.token')
         }
       }
-      setMode('login')
+      showAuthScreen('login')
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : '无法读取本地账户状态')
-      setMode('login')
+      showAuthScreen('login')
     }
-  }, [])
+  }, [showAuthScreen])
 
   useEffect(() => {
     void startAuth()
@@ -47,6 +54,7 @@ function App() {
     try {
       const result = await api.login(username, password)
       window.sessionStorage.setItem('geospectrum.token', result.access_token)
+      themeStore.activateUser(result.user.id)
       setToken(result.access_token)
       setUser(result.user)
       setMode('authenticated')
@@ -63,18 +71,18 @@ function App() {
     setAuthError(null)
     try {
       await api.bootstrap(username, password)
-      setMode('login')
+      showAuthScreen('login')
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : '初始化失败')
     }
   }
 
   const handleLogout = async () => {
-    if (token) await api.logout(token).catch(() => undefined)
     window.sessionStorage.removeItem('geospectrum.token')
     setToken(null)
     setUser(null)
-    setMode('login')
+    showAuthScreen('login')
+    if (token) await api.logout(token).catch(() => undefined)
   }
 
   if (mode === 'loading')

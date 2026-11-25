@@ -13,6 +13,10 @@ type Props = {
 
 const NICE_FACTORS = [1, 2, 2.5, 5, 10]
 
+function normalizeZero(value: number): number {
+  return value === 0 ? 0 : value
+}
+
 function niceIntegerStep(span: number, targetIntervals = 5): number {
   const rough = Math.max(1, Math.abs(span) / targetIntervals)
   const magnitude = 10 ** Math.floor(Math.log10(rough))
@@ -27,38 +31,42 @@ export function integerAxisTicks(minimum: number, maximum: number, targetInterva
   if (!Number.isFinite(minimum) || !Number.isFinite(maximum)) return [0, 1]
   const low = Math.min(minimum, maximum)
   const high = Math.max(minimum, maximum)
-  if (low === high) return Number.isInteger(low) ? [low] : []
+  if (low === high) return Number.isInteger(low) ? [normalizeZero(low)] : []
   const step = niceIntegerStep(high - low, targetIntervals)
   const first = Math.ceil(low / step) * step
   const last = Math.floor(high / step) * step
   const ticks: number[] = []
-  for (let value = first; value <= last && ticks.length < 12; value += step) ticks.push(Math.round(value))
+  for (let value = first; value <= last && ticks.length < 12; value += step) {
+    ticks.push(normalizeZero(Math.round(value)))
+  }
   if (ticks.length >= 2) return ticks
-  const fallback = Array.from(new Set([Math.ceil(low), Math.floor(high)])).filter(
+  const fallback = Array.from(new Set([normalizeZero(Math.ceil(low)), normalizeZero(Math.floor(high))])).filter(
     (value) => value >= low && value <= high
   )
   return fallback
 }
 
 export function formatIntegerTick(value: number): string {
-  return Math.round(value).toLocaleString('zh-CN')
+  return normalizeZero(Math.round(value)).toLocaleString('zh-CN')
 }
 
 export function fractionalTicks(low: number, high: number): number[] {
   const span = high - low
-  if (!Number.isFinite(span) || span <= 0) return [low]
+  if (!Number.isFinite(span) || span <= 0) return [normalizeZero(low)]
   const magnitude = 10 ** Math.floor(Math.log10(span / 5))
   const step = (NICE_FACTORS.find((factor) => factor * magnitude >= span / 5) ?? 10) * magnitude
   const ticks: number[] = []
   for (let index = Math.ceil(low / step); index * step <= high + step * 1e-9 && ticks.length < 12; index++) {
-    ticks.push(Number((index * step).toPrecision(12)))
+    ticks.push(normalizeZero(Number((index * step).toPrecision(12))))
   }
   return ticks
 }
 
 export function formatFractionalTick(value: number): string {
-  if (value !== 0 && Math.abs(value) < 1e-6) return value.toExponential(2)
-  return value.toLocaleString('zh-CN', { maximumFractionDigits: 10 })
+  if (value === 0) return '0'
+  if (Math.abs(value) < 1e-6) return value.toExponential(2)
+  const formatted = value.toLocaleString('zh-CN', { maximumFractionDigits: 10 })
+  return formatted === '-0' ? '0' : formatted
 }
 
 function formatLogTick(value: number): string {

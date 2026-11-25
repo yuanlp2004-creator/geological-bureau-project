@@ -9,7 +9,7 @@ import {
   SlidersHorizontal,
   Wrench,
 } from 'lucide-react'
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { type CurrentMethodState } from '../api'
 import { AppIcon } from '../components/AppIcon'
 import { FunctionIcon, iconForEntry } from '../components/FunctionIcon'
@@ -113,6 +113,14 @@ export function Sidebar({
       0
     )
   }
+  const resetKeyboardFocusOnMouseDown = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (event.button !== 0) return
+    event.preventDefault()
+    const focusedElement = document.activeElement
+    if (focusedElement instanceof HTMLElement && sidebarRef.current?.contains(focusedElement)) {
+      focusedElement.blur()
+    }
+  }
   const handleGroupKey = (event: ReactKeyboardEvent<HTMLButtonElement>, group: NavigationGroupId) => {
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault()
@@ -185,6 +193,7 @@ export function Sidebar({
                   aria-controls={direct ? undefined : `navigation-panel-${group.id}`}
                   aria-current={direct && active ? 'page' : undefined}
                   onMouseEnter={() => scheduleOpen(group.id)}
+                  onMouseDown={resetKeyboardFocusOnMouseDown}
                   onClick={() => (direct ? activate(direct) : toggleGroup(group.id))}
                   onKeyDown={(event) => handleGroupKey(event, group.id)}
                   title={group.description}
@@ -219,6 +228,7 @@ export function Sidebar({
                               aria-current={activeEntry?.key === entry.key ? 'page' : undefined}
                               aria-disabled={availability.disabled}
                               title={availability.reason ?? entry.description}
+                              onMouseDown={resetKeyboardFocusOnMouseDown}
                               onKeyDown={handleEntryKey}
                               onClick={() => activate(entry)}
                             >

@@ -350,6 +350,54 @@
   color: var(--ui-muted);
   font-size: 12px;
 }
+:root .app-shell .workspace-page .quick-icon > svg,
+:root[data-theme='dark'] .app-shell .workspace-page .quick-icon > img {
+  display: none;
+}
+:root[data-theme='dark'] .app-shell .workspace-page .quick-icon > svg {
+  display: block;
+}
+:root[data-theme='dark'] .app-shell .workspace-page .quick-icon {
+  color: #a9d2ff;
+  background: #1d3247;
+  border: 1px solid #35506c;
+}
+:root[data-theme='dark'] .app-shell .workspace-page .quick-action:hover strong {
+  color: var(--ui-accent);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .readiness-item {
+  border: 1px solid #2b3e52;
+}
+:root[data-theme='dark'] .app-shell .workspace-page :is(.readiness-icon.done, .stat-card.green .stat-icon) {
+  color: #75d2ae;
+  background: rgba(49, 130, 98, 0.18);
+  border: 1px solid rgba(117, 210, 174, 0.24);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .readiness-icon.pending {
+  color: #9bb0c6;
+  background: rgba(130, 155, 180, 0.14);
+  border: 1px solid rgba(130, 155, 180, 0.22);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .stat-card.blue .stat-icon {
+  color: #84b6ff;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(132, 182, 255, 0.24);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .stat-card.amber .stat-icon {
+  color: #f0cc91;
+  background: rgba(217, 155, 67, 0.18);
+  border: 1px solid rgba(240, 204, 145, 0.24);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .stat-card.violet .stat-icon {
+  color: #c2b3ff;
+  background: rgba(139, 118, 224, 0.18);
+  border: 1px solid rgba(194, 179, 255, 0.24);
+}
+:root[data-theme='dark'] .app-shell .workspace-page .stat-card.red .stat-icon {
+  color: #ffb4b0;
+  background: rgba(217, 104, 97, 0.18);
+  border: 1px solid rgba(255, 180, 176, 0.24);
+}
 :root .app-shell .workspace-page .protocol-row {
   min-height: 44px;
   font-size: 12px;

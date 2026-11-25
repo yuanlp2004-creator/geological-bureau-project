@@ -28,6 +28,15 @@ export async function call(page, url, body, method = body === undefined ? 'GET' 
   return result.value
 }
 
+export async function setWorkspaceTheme(page, theme) {
+  const toggle = page.getByRole('button', { name: '切换明暗主题', exact: true })
+  const pressed = String(theme === 'dark')
+  if (await toggle.getAttribute('aria-pressed') !== pressed) await toggle.click()
+  await page.waitForFunction(theme => document.documentElement.dataset.theme === theme
+    && document.querySelector('.app-shell')?.dataset.theme === theme, theme)
+  assert.equal(await toggle.getAttribute('aria-pressed'), pressed)
+}
+
 // 使用既有键盘导航，避免悬停计时影响测试菜单的展开状态。
 export async function navigate(page, group, label, selector) {
   const trigger = page.locator(`[data-navigation-group="${group}"]`)

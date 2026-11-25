@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { call } from './contract_browser_support.mjs'
+import { setWorkspaceTheme } from './contract_browser_support.mjs'
 
 async function navigate(page, group, label, selector) {
   await page.locator(`[data-navigation-group="${group}"]`).focus()
@@ -23,44 +23,44 @@ export async function checkOpenFileLayout(page, fixture, result, output) {
     ['tools','旧数据迁移','[data-testid="migration-workspace"]','batch-results','分析结果'],
     ['analysis-tests','样号与样品队列','.sample-queue-page','samples']
   ]
-  const originalTheme=(await call(page,'/api/v1/settings')).display.theme
+  const originalTheme=await page.getByTestId('app-shell').getAttribute('data-theme')
   result.openLayouts=[]
-  for (const [width,height,theme] of [[1440,1000,'light'],[1060,680,'dark']]) {
-    await call(page,'/api/v1/settings',{display:{theme}},'PATCH')
-    await page.getByRole('button',{name:'刷新服务状态',exact:true}).click()
-    await page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,theme)
-    if (process.env.QA_CDP) await page.evaluate(({width,height})=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height})
-    else await page.setViewportSize({width,height})
-    for (const [group,label,selector,purpose,tab] of entries) {
-      await page.waitForLoadState('networkidle')
-      await navigate(page,group,label,selector)
-      await page.waitForLoadState('networkidle')
-      if (purpose === 'reports') await page.getByRole('tab',{name:'分析报告',exact:true}).click()
-      if (tab) await page.getByRole('tab',{name:tab,exact:true}).click()
-      const button=purpose==='samples' ? page.getByRole('button',{name:'打开样品号',exact:true})
-        : page.locator(`.open-legacy-file[data-purpose="${purpose}"] > button`).filter({visible:true})
-      await button.waitFor()
-      await page.waitForFunction(purpose=>{const b=purpose==='samples'?[...document.querySelectorAll('.sample-queue-page button')].find(n=>n.textContent.includes('打开样品号')):document.querySelector(`.open-legacy-file[data-purpose="${purpose}"] > button`);return b && !b.disabled},purpose)
-      const geometry=await button.evaluate((el, purpose)=>{
-        const b=el.getBoundingClientRect(),actions=el.closest('.file-actions'),a=actions?.getBoundingClientRect()
-        const header=el.closest(purpose.startsWith('batch-') ? '.migration-source-surface > .surface-heading'
-          : purpose === 'reports' ? '.output-workspace-toolbar'
-          : '.page-intro,.hero-row,.analysis-hero,.spectroscopy-header,.method-context-bar')
-        const h=header?.getBoundingClientRect()
-        return {w:innerWidth,doc:document.documentElement.scrollWidth,left:b.left,right:b.right,top:b.top,bottom:b.bottom,actions:!!actions,header:!!header,headerTop:h?.top,headerBottom:h?.bottom,headerRight:h?.right,actionsRight:a?.right,text:el.textContent}
-      }, purpose)
-      assert.equal(geometry.actions,true,JSON.stringify({purpose,...geometry}))
-      assert.equal(geometry.header,true,JSON.stringify({purpose,...geometry}))
-      assert.ok(geometry.top>=geometry.headerTop-1 && geometry.bottom<=geometry.headerBottom+1,JSON.stringify({purpose,...geometry}))
-      assert.ok(geometry.left>=0 && geometry.right<=geometry.w+1 && geometry.doc<=geometry.w+1,JSON.stringify({purpose,...geometry}))
-      if(purpose === 'methods') assert.ok(Math.abs(geometry.headerRight-geometry.actionsRight)<=22,JSON.stringify(geometry))
-      assert.ok(!geometry.text.includes('打开旧'))
-      result.openLayouts.push({width,height,theme,purpose,...geometry})
-      if (['methods','dispersion','recalculate','reports'].includes(purpose)) await page.screenshot({path:`${output}/open-${purpose}-${width}-${theme}.png`})
+  try {
+    for (const [width,height,theme] of [[1440,1000,'light'],[1060,680,'dark']]) {
+      await setWorkspaceTheme(page,theme)
+      if (process.env.QA_CDP) await page.evaluate(({width,height})=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height})
+      else await page.setViewportSize({width,height})
+      for (const [group,label,selector,purpose,tab] of entries) {
+        await page.waitForLoadState('networkidle')
+        await navigate(page,group,label,selector)
+        await page.waitForLoadState('networkidle')
+        if (purpose === 'reports') await page.getByRole('tab',{name:'分析报告',exact:true}).click()
+        if (tab) await page.getByRole('tab',{name:tab,exact:true}).click()
+        const button=purpose==='samples' ? page.getByRole('button',{name:'打开样品号',exact:true})
+          : page.locator(`.open-legacy-file[data-purpose="${purpose}"] > button`).filter({visible:true})
+        await button.waitFor()
+        await page.waitForFunction(purpose=>{const b=purpose==='samples'?[...document.querySelectorAll('.sample-queue-page button')].find(n=>n.textContent.includes('打开样品号')):document.querySelector(`.open-legacy-file[data-purpose="${purpose}"] > button`);return b && !b.disabled},purpose)
+        const geometry=await button.evaluate((el, purpose)=>{
+          const b=el.getBoundingClientRect(),actions=el.closest('.file-actions'),a=actions?.getBoundingClientRect()
+          const header=el.closest(purpose.startsWith('batch-') ? '.migration-source-surface > .surface-heading'
+            : purpose === 'reports' ? '.output-workspace-toolbar'
+            : '.page-intro,.hero-row,.analysis-hero,.spectroscopy-header,.method-context-bar')
+          const h=header?.getBoundingClientRect()
+          return {w:innerWidth,doc:document.documentElement.scrollWidth,left:b.left,right:b.right,top:b.top,bottom:b.bottom,actions:!!actions,header:!!header,headerTop:h?.top,headerBottom:h?.bottom,headerRight:h?.right,actionsRight:a?.right,text:el.textContent}
+        }, purpose)
+        assert.equal(geometry.actions,true,JSON.stringify({purpose,...geometry}))
+        assert.equal(geometry.header,true,JSON.stringify({purpose,...geometry}))
+        assert.ok(geometry.top>=geometry.headerTop-1 && geometry.bottom<=geometry.headerBottom+1,JSON.stringify({purpose,...geometry}))
+        assert.ok(geometry.left>=0 && geometry.right<=geometry.w+1 && geometry.doc<=geometry.w+1,JSON.stringify({purpose,...geometry}))
+        if(purpose === 'methods') assert.ok(Math.abs(geometry.headerRight-geometry.actionsRight)<=22,JSON.stringify(geometry))
+        assert.ok(!geometry.text.includes('打开旧'))
+        result.openLayouts.push({width,height,theme,purpose,...geometry})
+        if (['methods','dispersion','recalculate','reports'].includes(purpose)) await page.screenshot({path:`${output}/open-${purpose}-${width}-${theme}.png`})
+      }
     }
+  } finally {
+    await setWorkspaceTheme(page,originalTheme)
   }
-  await call(page,'/api/v1/settings',{display:{theme:originalTheme}},'PATCH')
-  await page.getByRole('button',{name:'刷新服务状态',exact:true}).click()
   if (!process.env.QA_CDP) {
     await navigate(page,'analysis-tests','谱图查看','[data-testid="spectrum-viewer-page"]')
     const control=page.locator('[data-purpose="spectra"]')

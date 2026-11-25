@@ -1,7 +1,8 @@
-import { ChevronRight, LogOut, RefreshCw } from 'lucide-react'
+import { ChevronRight, LogOut, Moon, RefreshCw, Sun } from 'lucide-react'
 import { type AuthUser, type CurrentMethodState } from '../api'
 import { type NavigationEntry, type Page } from '../navigation'
 import type { MethodShortcutAction } from '../pages/methods/methodShortcuts'
+import type { Theme } from '../stores/themeStoreCore'
 import { QuickAccessBar } from './QuickAccessBar'
 
 export function Header({
@@ -15,6 +16,8 @@ export function Header({
   onMethodShortcut,
   user,
   currentMethod,
+  theme,
+  onToggleTheme,
   onLogout
 }: {
   activeEntry?: NavigationEntry
@@ -27,6 +30,8 @@ export function Header({
   onMethodShortcut: (action: MethodShortcutAction) => void
   user: AuthUser
   currentMethod: CurrentMethodState | null
+  theme: Theme
+  onToggleTheme: () => void
   onLogout: () => void
 }) {
   const title = activeEntry?.page === 'extension' ? (extensionTitle ?? '测试模块') : (activeEntry?.label ?? '工作台')
@@ -52,6 +57,16 @@ export function Header({
         </button>
         <button className="icon-button" title="刷新服务状态" onClick={onRefresh} disabled={loading}>
           <RefreshCw size={17} className={loading ? 'spin' : ''} />
+        </button>
+        <button
+          type="button"
+          className="icon-button"
+          title={theme === 'dark' ? '切换至浅色主题' : '切换至暗室深色主题'}
+          aria-label="切换明暗主题"
+          aria-pressed={theme === 'dark'}
+          onClick={onToggleTheme}
+        >
+          {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         </button>
         <button className="icon-button" title="退出登录" onClick={onLogout}>
           <LogOut size={15} />

@@ -166,6 +166,7 @@ export function Workspace({
               {hasPage('methods') && (
                 <QuickAction
                   icon="conditions"
+                  darkIcon={SlidersHorizontal}
                   label="方法管理"
                   detail="版本、条件与当前方法"
                   onClick={() => onNavigate('methods')}
@@ -174,6 +175,7 @@ export function Workspace({
               {hasPage('about') && (
                 <QuickAction
                   icon="about"
+                  darkIcon={Info}
                   label="关于软件"
                   detail="软件名称、版本和版权"
                   onClick={() => onNavigate('about')}
@@ -298,11 +300,13 @@ function ReadinessItem({
 
 function QuickAction({
   icon,
+  darkIcon: DarkIcon,
   label,
   detail,
   onClick
 }: {
   icon: FunctionIconName
+  darkIcon: typeof Info
   label: string
   detail: string
   onClick: () => void
@@ -311,6 +315,7 @@ function QuickAction({
     <button className="quick-action" onClick={onClick}>
       <span className="quick-icon">
         <FunctionIcon name={icon} />
+        <DarkIcon size={17} aria-hidden="true" />
       </span>
       <span>
         <strong>{label}</strong>
