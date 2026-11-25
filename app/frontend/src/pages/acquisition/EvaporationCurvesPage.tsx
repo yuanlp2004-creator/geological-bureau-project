@@ -22,7 +22,10 @@ function AcquisitionFrameViewer({token}:{token:string}) {
   </div>
 }
 
-export function EvaporationCurvesPage(props:{token:string;onToast:(message:string)=>void;onClose?:()=>void;actionsTarget?:HTMLElement|null;canExport?:boolean}) {
+export function EvaporationCurvesPage(props: {
+  token: string; userId?: number; permissionsKey?: string; currentMethodVersionId?: number | null
+  onToast: (message: string) => void; onClose?: () => void; actionsTarget?: HTMLElement | null; canExport?: boolean
+}) {
   const [spectra,setSpectra]=useState<boolean|null>(null)
   useEffect(()=>{let live=true;void api.me(props.token).then(user=>{if(live)setSpectra(user.permissions.includes('spectra.read'))})
     .catch(()=>{if(live)setSpectra(false)});return()=>{live=false}},[props.token])

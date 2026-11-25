@@ -2,6 +2,7 @@ import { api, saveFile, type AcquisitionTask } from '../../api'
 import type { DeviceCcd } from '../../api/devices'
 import { SpectrumInspector, type SpectrumViewRange } from '../../components/SpectrumInspector'
 import { stateLabel } from './acquisitionView'
+import { captureStatusInput } from './spectroscopyStatus'
 import { SpectroscopyConsole } from './SpectroscopyConsole'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CaptureBandList } from './CaptureBandList'
@@ -224,8 +225,7 @@ export function SampleAcquisitionMonitor({
           measurement.reset()
           setSampleId(id)
         }} />}
-      finish={{ run: finish, enabled: canFinish }} name={formal?.name ?? selected?.name} status={selected?.status}
-      statusLabel={awaitingTurn ? '等待下一转角' : selected ? stateLabel[selected.status] : undefined}
+      finish={{ run: finish, enabled: canFinish }} name={formal?.name ?? selected?.name} {...captureStatusInput(selected)}
       start={{ run: () => apply('start', startAngle), enabled: enabled && canStart && readyAngle,
         disabledReason: formalEnded ? '正式任务已结束，请新建任务后再摄谱' : !readyAngle ? '请先从当前待采转角开始' : undefined }}
       singleTurn={sampleTurns?.multiple || formal?.capture_turn?.multiple ? { run: () => apply('start', startAngle, true), enabled: enabled && canStart && readyAngle,

@@ -213,8 +213,9 @@
   background: currentColor;
 }
 :root .app-shell .spectroscopy-task-list .task-status-badge.running { color: var(--ui-accent); background: var(--ui-selected); }
+:root .app-shell .spectroscopy-task-list .task-status-badge.ready { color: var(--spec-located); }
 :root .app-shell .spectroscopy-task-list .task-status-badge.warning { color: var(--ui-warning); background: var(--ui-warning-bg); }
-:root .app-shell .spectroscopy-task-list .task-status-badge.danger { color: var(--ui-danger); background: var(--ui-danger-bg); }
+:root .app-shell .spectroscopy-task-list .task-status-badge:is(.burn, .danger) { color: var(--ui-danger); background: var(--ui-danger-bg); }
 :root .app-shell .spectroscopy-task-list .task-status-badge.success { color: var(--ui-success); background: var(--ui-success-bg); }
 :root .app-shell .spectroscopy-task-list .spectroscopy-task-actions > .task-open {
   color: var(--ui-accent);

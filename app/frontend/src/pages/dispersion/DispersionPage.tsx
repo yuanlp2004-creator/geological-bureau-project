@@ -480,7 +480,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     </SpectroscopyTaskDialog>
     {screen === 'tasks' && <SpectroscopyTaskList title="色散摄谱" busy={busy} runningId={runningTask?.id}
       tasks={groupedCaptureTasks(tasks.filter(task => !task.capture_turn?.group || !task.condition.preheat)).map(task => ({ id: task.id, name: task.name,
-        ...captureTaskPresentation(task, statusLabels, `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`),
+        ...captureTaskPresentation(task, `${task.layout.name} · ${task.burn_frames_captured}/${task.frame_count} 燃烧帧${task.condition.preheat ? ' · 预热' : ''}`, tasks),
         completed: task.capture_turns?.length ? task.capture_turns.every(turn => turn.status === 'completed') : task.status === 'completed' }))}
       onView={onViewSpectra ? id => {
         const task = tasks.find(item => item.id === id)

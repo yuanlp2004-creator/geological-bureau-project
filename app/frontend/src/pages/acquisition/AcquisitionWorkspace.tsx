@@ -5,7 +5,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { api, type AcquisitionOptions, type AcquisitionTask } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
-import { EMPTY_POINTS, Props, stateLabel } from './acquisitionView'
+import { EMPTY_POINTS, Props } from './acquisitionView'
 import { SampleAcquisitionForm } from './SampleAcquisitionForm'
 import { EvaporationAcquisitionForm } from './EvaporationAcquisitionForm'
 import { SampleAcquisitionMonitor } from './SampleAcquisitionMonitor'
@@ -491,7 +491,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       </SpectroscopyTaskDialog>
       {screen === 'tasks' && <SpectroscopyTaskList title={title} busy={busy || loading} runningId={runningTask?.id}
         tasks={groupedCaptureTasks(tasks.filter(item => !item.capture_turn?.group || item.sample_kind !== 'preheat')).map(item => ({ id: item.id, name: item.name,
-          ...captureTaskPresentation(item, stateLabel, `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`),
+          ...captureTaskPresentation(item, `${item.sample_name || (isSample ? '未命名样品' : '蒸发实验')} · ${item.completed_repeats}/${item.repeat_count} 重复`, tasks),
           completed: item.capture_turns?.length ? item.capture_turns.every(turn => turn.status === 'completed') : item.status === 'completed' }))}
         onView={onViewSpectra ? id => {
           const turn = tasks.find(task => task.id === id)?.capture_turn

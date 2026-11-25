@@ -5,11 +5,12 @@ import { SampleInputToolButton } from './SampleInputToolButton'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { CaptureLineBar } from './CaptureLineBar'
 import { LegacyDeskDock } from './legacyDesk'
+import { resolveSpectroscopyStatus, type SpectroscopyStatusInput } from './spectroscopyStatus'
 import './capture-operation-layout.css'
 
 type Command = { run: () => unknown; enabled: boolean; disabledReason?: string }
-type Props = {
-  className: string; name?: string; status?: string; statusLabel?: string
+type Props = SpectroscopyStatusInput & {
+  className: string; name?: string
   start: Command; preheat: Command; pause: Command; resume: Command; stop: Command; finish?: Command
   records?: ReactNode; leadingActions?: ReactNode; lineBar?: ReactNode; topActions?: ReactNode; inputToolbar?: ReactNode; sampleInput?: ReactNode
   recordTitle?: string; recordChoices?: { value: string; name: string; disabled?: boolean }[]
@@ -43,6 +44,7 @@ export function SpectroscopyConsole(props: Props) {
       captureButton.current?.focus({ preventScroll: true })
     }
   }, [captureLocked, props.start.enabled, rightOpen])
+  const resolved = resolveSpectroscopyStatus(props)
   const running = Boolean(props.status && ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping'].includes(props.status))
   const canUseRightDock = rightOpen && !running && props.status !== 'between_repeats'
   const finish = props.finish ?? { run: () => {}, enabled: false }
@@ -60,11 +62,14 @@ export function SpectroscopyConsole(props: Props) {
     </button>
   }
   return <section className={`spectroscopy-console legacy-capture-desk ${props.className} ${!leftOpen ? 'left-closed' : ''} ${!rightOpen ? 'right-closed' : ''}`}
-    data-testid="spectroscopy-console" data-status={props.status} aria-label="摄谱激发工作台">
-    <header className="legacy-window-caption" tabIndex={0} title="右键或Shift+F10恢复停靠面板"
+    data-testid="spectroscopy-console" data-status={props.status} data-capture-status={resolved.key} aria-label="摄谱激发工作台">
+    <header className="legacy-window-caption" data-capture-status={resolved.key} data-status-tone={resolved.tone}
+      tabIndex={0} title="右键或Shift+F10恢复停靠面板"
       onContextMenu={event => menu.open(event, 'caption')}
       onKeyDown={event => { if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) menu.open(event, 'caption') }}>
       <div className="capture-task-caption"><span>{label}</span><strong title={props.name}>{props.name}</strong></div>
+      <span className="capture-caption-status state-chip" data-capture-status={resolved.key} data-tone={resolved.tone}
+        title={resolved.detail || resolved.label}>{resolved.label}</span>
       {props.turnPages}
       {(!leftOpen || !rightOpen) && <button type="button" className="capture-restore-panels" onClick={() => { setLeftOpen(true); setRightOpen(true) }}>恢复面板</button>}
     </header>
@@ -109,7 +114,7 @@ export function SpectroscopyConsole(props: Props) {
         </fieldset>
         <fieldset className="spectroscopy-command-area"><legend>激发控制</legend>
           {props.context && <div className="capture-context" role="group" aria-label="摄谱记录与状态">{props.context}</div>}
-          {running && <output className="legacy-running-state" role="status">{props.statusLabel} {props.progress[0]?.value}</output>}
+          {running && <output className="legacy-running-state" role="status">{resolved.label} {props.progress[0]?.value}</output>}
           <div className="spectroscopy-controls" data-single-turn={Boolean(props.singleTurn)} aria-label="摄谱控制">
             {command('试样摄谱', props.start, 'start')}{props.singleTurn && command('仅摄本转角', props.singleTurn, 'single-turn')}
             {command('预热摄谱', props.preheat, 'preheat')}

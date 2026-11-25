@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   BarChart3,
@@ -71,12 +71,12 @@ export function Sidebar({
     }
   }, [opened?.id])
 
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     if (openTimer.current !== null) window.clearTimeout(openTimer.current)
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
     openTimer.current = null
     closeTimer.current = null
-  }
+  }, [])
   const scheduleOpen = (group: NavigationGroupId) => {
     if (pinnedGroup) return
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
@@ -86,11 +86,11 @@ export function Sidebar({
     if (openTimer.current !== null) window.clearTimeout(openTimer.current)
     if (!pinnedGroup) closeTimer.current = window.setTimeout(() => setHoveredGroup(null), 200)
   }
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     clearTimers()
     setHoveredGroup(null)
     setPinnedGroup(null)
-  }
+  }, [clearTimers])
   const toggleGroup = (group: NavigationGroupId) => {
     clearTimers()
     setHoveredGroup(null)
@@ -126,7 +126,7 @@ export function Sidebar({
       event.preventDefault()
       focusFirstEntry(group)
     }
-    if (event.key === 'Escape') closeMenu()
+    if (event.key === 'Escape' && openGroup === null) closeMenu()
   }
   const handleEntryKey = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     const buttons = Array.from(
@@ -141,13 +141,23 @@ export function Sidebar({
       event.preventDefault()
       buttons[(index - 1 + buttons.length) % buttons.length]?.focus()
     }
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      const group = openGroup
-      closeMenu()
-      document.querySelector<HTMLButtonElement>(`[data-navigation-group="${group}"]`)?.focus()
-    }
   }
+
+  useEffect(() => {
+    if (openGroup === null) return
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      const sidebar = sidebarRef.current
+      const groupTrigger = sidebar?.contains(document.activeElement)
+        ? sidebar.querySelector<HTMLButtonElement>(`[data-navigation-group="${openGroup}"]`)
+        : null
+      closeMenu()
+      groupTrigger?.focus()
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [openGroup, closeMenu])
 
   useEffect(() => {
     const outside = (event: PointerEvent) => {
@@ -158,7 +168,7 @@ export function Sidebar({
       document.removeEventListener('pointerdown', outside)
       clearTimers()
     }
-  }, [])
+  }, [clearTimers, closeMenu])
 
   return (
     <aside className="sidebar" ref={sidebarRef}>

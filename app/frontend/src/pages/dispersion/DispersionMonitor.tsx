@@ -4,6 +4,7 @@ import type { DeviceCcd } from '../../api/devices'
 import { SpectroscopyConsole } from '../acquisition/SpectroscopyConsole'
 import { DispersionSpectrum } from './DispersionSpectrum'
 import { runningStates, statusLabels } from './dispersionView'
+import { captureStatusInput } from '../acquisition/spectroscopyStatus'
 import { SpectrumInspector } from '../../components/SpectrumInspector'
 import { CaptureBandList } from '../acquisition/CaptureBandList'
 import { CaptureLineBar } from '../acquisition/CaptureLineBar'
@@ -145,8 +146,7 @@ export function DispersionMonitor({
         disabled={Boolean(recordDisabled)} onChoose={id => { if (id !== null) onRecordChoose?.(String(id)) }} />}
       viewLabel={completedView ? isPreheat ? '预热谱图 · 仅观察' : active?.status === 'completed'
         ? `已保存谱带 · ${displayName ?? active.name}` : '停止谱图 · 燃烧均值' : '实时谱图'}
-      name={formalName} status={active?.status}
-      statusLabel={active?.positioning ? '正在定位转角' : active ? statusLabels[active.status] : undefined}
+      name={formalName} {...captureStatusInput(active)}
       start={{ run: start, enabled: enabled && canStart, disabledReason: formalEnded ? '正式任务已结束，请新建任务后再摄谱' : undefined }}
       singleTurn={formal?.capture_turn?.multiple ? { run: () => start(true), enabled: enabled && canStart } : undefined}
       preheat={{ run: preheat, enabled: enabled && canPreheat }}

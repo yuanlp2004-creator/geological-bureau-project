@@ -35,6 +35,7 @@ import { MethodsPage } from '../pages/methods/MethodsPage'
 import type { MethodShortcutAction, MethodShortcutRequest } from '../pages/methods/methodShortcuts'
 import { MigrationWorkspace } from '../pages/migration/MigrationWorkspace'
 import { SpectrumViewerPage } from '../pages/spectra/SpectrumViewerPage'
+import { hashPermissions } from '../stores/workbenchStore'
 import { SampleQueuePage } from '../pages/sampleQueues/SampleQueuePage'
 import { AboutPage } from '../pages/about/AboutPage'
 import { UsersPage } from '../pages/auth/UsersPage'
@@ -69,6 +70,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   const [activeExtension, setActiveExtension] = useState<Capability | null>(null)
   const showToast = useCallback((message: string) => setToast({ message, tone: feedbackToneFor(message) }), [])
   const entries = useMemo(() => navigationEntries(capabilities, user.permissions), [capabilities, user.permissions])
+  const permissionsKey = useMemo(() => hashPermissions(user.permissions), [user.permissions])
   const activeEntry =
     entries.find((entry) => entry.key === target.key) ?? entryForPage(entries, target.page, target.view)
   const page = target.page
@@ -225,7 +227,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               />
             )}
             {page === 'migration' && <MigrationWorkspace token={token} currentUser={user} onToast={showToast} />}
-            {page === 'spectra' && <SpectrumViewerPage key={JSON.stringify([target.spectrumFileGroup, target.spectrumRecordId])}
+            {page === 'spectra' && <SpectrumViewerPage userId={user.id} permissionsKey={permissionsKey}
               token={token} initialFileGroup={target.spectrumFileGroup} initialRecordId={target.spectrumRecordId}
               currentMethodVersionId={currentMethod?.referenced_version?.id}
               actionsTarget={pageActionsTarget} canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
@@ -247,7 +249,9 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               <SpectroscopyWorkbench mode={page} view={page === 'dispersion' && target.view === 'curve' ? 'curve' : 'capture'} token={token} permissions={user.permissions} entries={entries}
                 currentMethod={currentMethod} onNavigate={handleNavigation} onViewSpectra={viewSpectrumFile} onLockChange={updateSpectroscopyLock} onToast={showToast} />
             )}
-            {page === 'evaporation-curves' && <EvaporationCurvesPage token={token} actionsTarget={pageActionsTarget} canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
+            {page === 'evaporation-curves' && <EvaporationCurvesPage token={token} userId={user.id} permissionsKey={permissionsKey}
+              currentMethodVersionId={currentMethod?.referenced_version?.id} actionsTarget={pageActionsTarget}
+              canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
             {page === 'analysis' && (
               <AnalysisPage
                 token={token}

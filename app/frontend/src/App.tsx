@@ -4,6 +4,7 @@ import { api, ApiError, type AuthUser } from './api'
 import { AuthForm } from './pages/auth/AuthForm'
 import { WorkspaceApp } from './layout/WorkspaceApp'
 import { themeStore } from './stores/themeStore'
+import { workbenchStore } from './stores/workbenchStore'
 
 function App() {
   const [mode, setMode] = useState<'loading' | 'bootstrap' | 'login' | 'authenticated'>('loading')
@@ -79,6 +80,7 @@ function App() {
 
   const handleLogout = async () => {
     window.sessionStorage.removeItem('geospectrum.token')
+    workbenchStore.clearAll()
     setToken(null)
     setUser(null)
     showAuthScreen('login')
@@ -97,7 +99,7 @@ function App() {
     )
   if (mode === 'bootstrap') return <AuthForm mode="bootstrap" error={authError} onSubmit={handleBootstrap} />
   if (mode === 'login') return <AuthForm mode="login" error={authError} onSubmit={handleLogin} onRetry={startAuth} />
-  return token && user ? <WorkspaceApp token={token} user={user} onLogout={handleLogout} /> : null
+  return token && user ? <WorkspaceApp key={user.id} token={token} user={user} onLogout={handleLogout} /> : null
 }
 
 export default App

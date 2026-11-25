@@ -7,6 +7,8 @@
   --capture-command-fg: #23374d;
   --capture-stop-fg: #a53636;
   --capture-stop-bg: #fff2f1;
+  --capture-burn-fg: #8e2b24;
+  --capture-burn-bg: #fbe1dc;
   --capture-left: clamp(150px, 17.5%, 216px); --capture-right: clamp(198px, 20%, 240px);
   position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; height: max(460px, calc(var(--workspace-available-height) - 42px - var(--capture-heading-height, 47px)));
   min-width: 0; min-height: 460px; padding: 0; margin: 0; border: 1px solid var(--line); border-radius: 8px;
@@ -16,23 +18,42 @@
   --capture-command-fg: #e2ebf5;
   --capture-stop-fg: #ffb4b0;
   --capture-stop-bg: #47282d;
+  --capture-burn-fg: #ffd0c8;
+  --capture-burn-bg: #61343a;
 }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk.left-closed { --capture-left: 0px; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk.right-closed { --capture-right: 0px; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk [hidden] { display: none !important; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk :is(button, input, select) { font-family: inherit; font-size: 12px; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 0 0 auto; min-height: 40px;
+  --capture-status-fg: var(--muted);
+  --capture-status-bg: var(--surface);
+  display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex: 0 0 auto; min-height: 40px;
   padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--ui-soft); color: var(--ink);
+  box-shadow: inset 0 2px 0 var(--capture-status-fg);
 }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='ready'] { --capture-status-fg: var(--spec-located); }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='running'] { --capture-status-fg: var(--ui-accent); --capture-status-bg: var(--ui-selected); }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='burn'] { --capture-status-fg: var(--capture-burn-fg); --capture-status-bg: var(--capture-burn-bg); }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='warning'] { --capture-status-fg: var(--ui-warning); --capture-status-bg: var(--ui-warning-bg); }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='danger'] { --capture-status-fg: var(--ui-danger); --capture-status-bg: var(--ui-danger-bg); }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='success'] { --capture-status-fg: var(--ui-success); --capture-status-bg: var(--ui-success-bg); }
 :root .app-shell .legacy-capture-desk .capture-task-caption { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 12px; }
 :root .app-shell .legacy-capture-desk .capture-task-caption > span { flex: 0 0 auto; color: var(--muted); }
 :root .app-shell .legacy-capture-desk .capture-task-caption > strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-:root .app-shell .legacy-capture-desk .capture-turn-pages { display: flex; flex: 1 1 auto; align-items: center; gap: 5px; min-width: 0; overflow-x: auto; }
+:root .app-shell .legacy-capture-desk .capture-caption-status {
+  display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; min-height: 20px;
+  padding: 1px 6px; font-size: 11px; line-height: 16px; white-space: nowrap;
+  color: var(--capture-status-fg); background: var(--capture-status-bg);
+}
+:root .app-shell .legacy-capture-desk .capture-caption-status::before {
+  content: ''; flex: 0 0 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+:root .app-shell .legacy-capture-desk .capture-turn-pages { display: flex; flex: 1 0 max-content; align-items: center; gap: 5px; min-width: 0; max-width: 60%; overflow-x: auto; }
 :root .app-shell .legacy-capture-desk .capture-turn-pages button { flex: 0 0 auto; min-height: 26px; padding: 2px 8px; white-space: nowrap; border: 1px solid var(--ui-control-border); border-radius: 5px; color: var(--ink); background: var(--surface); }
 :root .app-shell .legacy-capture-desk .capture-turn-pages button[aria-pressed='true'] { border-color: var(--primary); box-shadow: inset 0 -2px var(--primary); font-weight: 600; }
 :root .app-shell .legacy-capture-desk .capture-turn-pages button span { font-size: 10px; color: var(--muted); }
-:root .app-shell .legacy-capture-desk .capture-restore-panels { min-height: 28px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--surface); white-space: nowrap; }
+:root .app-shell .legacy-capture-desk .capture-restore-panels { flex: 0 0 auto; margin-inline-start: auto; min-height: 28px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--surface); white-space: nowrap; }
 :root .app-shell .legacy-capture-desk .capture-context { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
 :root .app-shell .legacy-capture-desk .capture-context button { min-height: 24px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
 :root .app-shell .legacy-capture-desk .capture-empty-message { padding: 8px !important; white-space: normal; overflow-wrap: anywhere; color: var(--muted); font-size: 11px; line-height: 1.5; }
@@ -179,6 +200,14 @@
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button[data-command='stop']:enabled:hover {
   box-shadow: inset 0 0 0 1px currentColor;
 }
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk:is([data-capture-status='burn'], [data-capture-status='pre_excitation']) .spectroscopy-controls button[data-command='stop']:enabled {
+  color: var(--capture-burn-fg);
+  background: var(--capture-burn-bg);
+  box-shadow: inset 2px 0 currentColor;
+}
+:root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk:is([data-capture-status='burn'], [data-capture-status='pre_excitation']) .spectroscopy-controls button[data-command='stop']:enabled:hover {
+  box-shadow: inset 2px 0 currentColor, inset 0 0 0 1px currentColor;
+}
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-controls button:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
@@ -210,10 +239,8 @@
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .legacy-running-state { margin-bottom: 2px; }
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls { gap: 4px; }
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls button { height: 30px; min-height: 30px; }
-  :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls button[data-command='finish'] { margin-top: 2px; }
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls:has([data-command='single-turn']) { gap: 3px; padding: 2px 0; margin: 0; }
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls:has([data-command='single-turn']) button { height: 28px; min-height: 28px; padding: 2px 8px; }
-  :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-controls:has([data-command='single-turn']) button[data-command='finish'] { margin-top: 0; }
 }
 @container (max-width: 420px) {
   :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .spectroscopy-console.legacy-capture-desk .spectroscopy-spectrum .inspector-tools.inspector-icon-tools {

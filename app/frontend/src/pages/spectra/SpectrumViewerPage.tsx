@@ -1,7 +1,7 @@
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { PageFileActions } from '../../components/PageFileActions'
 import { Activity, Download, RefreshCw } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { api, saveFile, type SpectrumRecord, type SpectrumRecordSummary } from '../../api'
 import { NumericInput as EmptyableNumberInput } from '../../components/NumericInput'
 import { ExposureIntervalInput } from '../../components/ExposureIntervalInput'
@@ -20,12 +20,42 @@ import { parseCcdCoordinate } from '../../components/legacyObservation'
 import { ViewerDialog } from './ViewerDialog'
 import { EvaporationFrameStatistics } from '../acquisition/EvaporationFrameStatistics'
 import { clampSpectrumZoom, limitSpectrumRange, stepSpectrumRange, type SpectrumAxis, type SpectrumViewRange } from '../../components/spectrumZoom'
+import { buildWorkbenchScopeKey, workbenchStore, type SpectrumViewerSnapshot } from '../../stores/workbenchStore'
 
 const groupKey = (item: SpectrumRecordSummary) => item.file_group_key || (item.task_id ? `task:${item.task_id}` : `${item.kind}:${item.source_sha256}`)
 const compareRecords = (a: SpectrumRecordSummary, b: SpectrumRecordSummary) =>
   (a.turn_index ?? 0) - (b.turn_index ?? 0) || (a.repeat_index ?? a.record_index) - (b.repeat_index ?? b.record_index)
 
-export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, viewing = 'spectra', initialFileGroup = '', initialRecordId, canExport = true, currentMethodVersionId }: { token: string; onToast: (message: string) => void; onClose?:()=>void; actionsTarget?: HTMLElement | null; viewing?:'spectra'|'evaporation'; initialFileGroup?:string; initialRecordId?:string; canExport?: boolean; currentMethodVersionId?:number|null }) {
+type ViewerProps = {
+  token: string; onToast: (message: string) => void; onClose?: () => void; actionsTarget?: HTMLElement | null
+  viewing?: 'spectra' | 'evaporation'; initialFileGroup?: string; initialRecordId?: string; canExport?: boolean
+  userId?: number; permissionsKey?: string; currentMethodVersionId?: number | null
+}
+
+type RestoreIntent =
+  | { phase: 'list'; snapshot: SpectrumViewerSnapshot }
+  | { phase: 'viewport'; snapshot: SpectrumViewerSnapshot; recordId: string }
+
+type SettledRequest = { query: string; requestId: number }
+
+const defaultMode = (record: SpectrumRecordSummary): SpectrumViewerSnapshot['mode'] =>
+  record.kind !== 'result' ? 'mean' : record.matrix_kind === 'peak_back' ? 'peak' : 'value'
+
+export function SpectrumViewerPage(props: ViewerProps) {
+  const scopeKey = props.userId === undefined ? null : buildWorkbenchScopeKey({
+    userId: props.userId, permissionsHash: props.permissionsKey ?? '',
+    page: props.viewing ?? 'spectra', methodVersionId: props.currentMethodVersionId
+  })
+  return <SpectrumViewer key={JSON.stringify([scopeKey, props.initialFileGroup, props.initialRecordId])} {...props} scopeKey={scopeKey} />
+}
+
+function SpectrumViewer({ token, onToast, onClose, actionsTarget, viewing = 'spectra', initialFileGroup = '', initialRecordId,
+  canExport = true, currentMethodVersionId, userId, scopeKey }: ViewerProps & { scopeKey: string | null }) {
+  const hasExplicitTarget = Boolean(initialFileGroup || initialRecordId)
+  const restoreIntentRef = useRef<RestoreIntent | null>(null)
+  const sessionRevision = useRef<number | null>(null)
+  const [queryReady, setQueryReady] = useState(!scopeKey || hasExplicitTarget)
+  const [restoreApplied, setRestoreApplied] = useState(false)
   const [showRecords,setShowRecords]=useState(true)
   const [fileGroup,setFileGroup]=useState(initialFileGroup)
   const [fileSources,setFileSources]=useState<SpectrumFileSummary[]>([])
@@ -39,6 +69,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
   const [sourceKind, setSourceKind] = useState('all')
   const [search, setSearch] = useState('')
   const listRequest = useRef(0)
+  const [settledList, setSettledList] = useState<SettledRequest | null>(null)
   const [records, setRecords] = useState<SpectrumRecordSummary[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [overlayIds, setOverlayIds] = useState<string[]>([])
@@ -87,25 +118,66 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
   const [printPaper, setPrintPaper] = useState<'A4' | 'A3' | 'Letter'>('A4')
   const [busy, setBusy] = useState(false)
   const detailRequest = useRef(0)
+  const [settledDetail, setSettledDetail] = useState<SettledRequest | null>(null)
   const palette = ['#1c68b2', '#c75b39', '#27805d', '#8b5bb5', '#d18b22', '#247c8b', '#b54769', '#58677a']
   const openingRequestedGroup = Boolean(initialFileGroup && fileGroup === initialFileGroup &&
     sourceKind === 'all' && !search && angleFilter === 'all')
+  const openingRequestedRecord = Boolean(initialRecordId && !initialFileGroup && !fileGroup &&
+    sourceKind === 'all' && !search && angleFilter === 'all')
+  const listQuery = JSON.stringify([token, viewing, fileGroup, sourceKind, search, angleFilter])
+
+  useLayoutEffect(() => {
+    if (!scopeKey || userId === undefined) return
+    const revision = workbenchStore.getSessionRevision(userId)
+    sessionRevision.current = revision
+    if (hasExplicitTarget) return
+    const snapshot = workbenchStore.consumeSpectrumSnapshot(scopeKey)
+    if (snapshot) {
+      restoreIntentRef.current = { phase: 'list', snapshot }
+      setFileGroup(snapshot.fileGroup)
+      setSourceKind(snapshot.sourceKind)
+      setSearch(snapshot.search)
+      setAngleFilter(snapshot.angleFilter)
+    }
+    setQueryReady(true)
+    return () => {
+      const pending = restoreIntentRef.current
+      restoreIntentRef.current = null
+      // A page left during loading can retry the original snapshot on its next visit.
+      if (pending && revision === workbenchStore.getSessionRevision(userId) && !workbenchStore.peekSpectrumSnapshot(scopeKey)) {
+        workbenchStore.saveSpectrumSnapshot(scopeKey, pending.snapshot)
+      }
+    }
+  }, [scopeKey, userId, hasExplicitTarget])
+
+  const cancelRestore = () => { restoreIntentRef.current = null }
 
   const loadRecords = useCallback(async () => {
+    if (!queryReady) return
     const requestId = ++listRequest.current
     setBusy(true)
     try {
       const scope=viewing==='evaporation'?'evaporation':'all', angle=angleFilter==='all'?undefined:Number(angleFilter)
       const files=await api.spectrumFiles(token,scope,sourceKind,search,angle)
-      let chosen=files.find(item=>item.key===fileGroup)??(openingRequestedGroup ? undefined : files[0])
-      let requestedId = openingRequestedGroup ? initialRecordId : undefined
+      if (requestId !== listRequest.current) return
+      let chosen=files.find(item=>item.key===fileGroup)??(openingRequestedGroup || openingRequestedRecord ? undefined : files[0])
+      let requestedId = openingRequestedGroup || openingRequestedRecord ? initialRecordId : undefined
       if (!chosen && openingRequestedGroup && fileGroup.startsWith('task:')) {
         const matching = await api.spectrumRecords(token, sourceKind, angle, 0, search, scope, fileGroup)
         if (requestId !== listRequest.current) return
-        const first = matching.sort(compareRecords)[0]
+        const first = matching.find(item => item.id === requestedId) ?? matching.sort(compareRecords)[0]
         if (first) {
           chosen = files.find(item => item.key === groupKey(first))
           requestedId ??= first.id
+        }
+      }
+      if (openingRequestedRecord && requestedId) {
+        for (let offset = 0; !chosen; offset += 100) {
+          const page = await api.spectrumRecords(token, sourceKind, angle, offset, requestedId, scope)
+          if (requestId !== listRequest.current) return
+          const match = page.find(item => item.id === requestedId)
+          if (match) chosen = files.find(item => item.key === groupKey(match))
+          if (match || page.length < 100) break
         }
       }
       const next:SpectrumRecordSummary[]=[]
@@ -117,11 +189,44 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
           if(page.length<100)break
         }
       }
-      if(requestId===listRequest.current)setFileSources(files)
       if (requestId !== listRequest.current) return
       const filtered = viewing==='evaporation' ? next.filter(item=>item.format==='edt'||item.task_kind==='evaporation') : next
+      setFileSources(files)
       setPageRecords(filtered)
       setRecords((current) => [...current.filter((item) => !next.some((fresh) => fresh.id === item.id)), ...next])
+      setSettledList({ query: listQuery, requestId })
+      const intent = restoreIntentRef.current
+      if (intent) {
+        const snapshot = intent.snapshot
+        const restored = filtered.find(item => item.id === snapshot.selectedId)
+        const record = restored ?? [...filtered].sort(compareRecords)[0]
+        restoreIntentRef.current = record ? { phase: 'viewport', snapshot, recordId: record.id } : null
+        if (intent.phase === 'list' && snapshot.selectedId && !restored) onToast(record
+          ? '原选中谱图记录已不存在，已切换至首条记录'
+          : '原选中谱图记录已不存在，当前没有可查看的记录')
+        setSelectedId(record?.id ?? null)
+        if (restored) {
+          const ids = new Set(filtered.map(item => item.id))
+          const maxExposure = Math.max(1, restored.burn_count ?? 1)
+          const start = Math.min(snapshot.exposureStart, maxExposure)
+          setOverlayIds(snapshot.overlayIds.filter(id => ids.has(id)))
+          setPriorityId(snapshot.priorityId && ids.has(snapshot.priorityId) ? snapshot.priorityId : restored.id)
+          setMultiMode(snapshot.multiMode)
+          setShowRecords(snapshot.showRecords)
+          setRecordLocked(snapshot.recordLocked)
+          setCcd(Math.min(snapshot.ccd, Math.max(0, (restored.ccd_count ?? 1) - 1)))
+          setLine(snapshot.line)
+          setMode(snapshot.mode)
+          setExposure([start, Math.max(start, Math.min(snapshot.exposureEnd, maxExposure))])
+        } else {
+          setPriorityId(record?.id ?? null)
+          if (record) {
+            setMode(defaultMode(record))
+            setExposure([1, Math.max(1, record.burn_count ?? 1)])
+          }
+        }
+        return
+      }
       const first = requestedId
         ? filtered.find(item => item.id === requestedId)?.id ?? null
         : [...filtered].sort(compareRecords)[0]?.id ?? null
@@ -132,7 +237,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     } finally {
       if (requestId === listRequest.current) setBusy(false)
     }
-  }, [token, onToast, sourceKind, angleFilter, search, viewing, fileGroup, openingRequestedGroup, initialRecordId])
+  }, [queryReady, token, onToast, sourceKind, angleFilter, search, viewing, fileGroup, openingRequestedGroup, openingRequestedRecord, initialRecordId, listQuery])
 
   useEffect(() => {
     void loadRecords()
@@ -144,6 +249,8 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
   const raw = selected != null && selected.kind !== 'result'
   const exposureEnabled = raw && Boolean(selected?.available?.burn)
   useEffect(()=>{
+    const intent = restoreIntentRef.current
+    if (intent?.phase === 'viewport' && intent.recordId === selectedId) return
     setOverlayIds([]);setViewLine('')
     setExposure([1, Math.max(1, selected?.burn_count ?? 1)])
   },[selectedId])
@@ -153,6 +260,9 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     if (!raw) return [selectedId]
     return Array.from(new Set([selectedId, ...overlayIds])).slice(0, 8)
   }, [selectedId, overlayIds, raw])
+  const detailQuery = JSON.stringify([token, displayIds, ccd, line, raw, exposureEnabled, exposureStart, exposureEnd])
+  const hasSettledList = settledList?.query === listQuery && settledList.requestId === listRequest.current
+  const hasSettledDetail = settledDetail?.query === detailQuery && settledDetail.requestId === detailRequest.current
 
   const loadDetails = useCallback(async () => {
     if (!displayIds.length) return
@@ -180,6 +290,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
       )
       if (coordinateKinds.size > 1) throw new Error('叠加来源的坐标和单位不可比，请取消叠加后分别查看')
       setDetails(Object.fromEntries(loaded))
+      setSettledDetail({ query: detailQuery, requestId })
       setFrameVisible(false)
       setCursor(null)
       setLocked(false)
@@ -188,7 +299,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     } finally {
       if (requestId === detailRequest.current) setBusy(false)
     }
-  }, [token, onToast, displayIds, records, ccd, line, raw, exposureEnabled, exposureStart, exposureEnd])
+  }, [token, onToast, displayIds, records, ccd, line, raw, exposureEnabled, exposureStart, exposureEnd, detailQuery])
   useEffect(() => {
     void loadDetails()
     return () => {
@@ -199,8 +310,8 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
   const loadedActive = selectedId ? (details[selectedId] ?? null) : null
   const active = loadedActive && (loadedActive.kind==='result'||loadedActive.ccd?.position===ccd) ? loadedActive : null
   const selectedGroupKey = fileSources.some(item => item.key === fileGroup) ? fileGroup : selected ? groupKey(selected) : ''
-  const requestedGroupMissing = openingRequestedGroup && !selectedGroupKey
-  const currentGroup = selectedGroupKey || (openingRequestedGroup ? '' : fileSources[0]?.key ?? '')
+  const requestedGroupMissing = (openingRequestedGroup || openingRequestedRecord) && !selectedGroupKey
+  const currentGroup = selectedGroupKey || (requestedGroupMissing ? '' : fileSources[0]?.key ?? '')
   const visibleRecords = useMemo(() => pageRecords.filter(item => groupKey(item) === currentGroup)
     .sort(compareRecords), [pageRecords, currentGroup])
   const multiTableScroll = useRef(0)
@@ -373,8 +484,46 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     setLocateValue('')
   }, [selectedId, selectedGroup, ccd, line, mode])
 
+  useLayoutEffect(() => {
+    if (!scopeKey || userId === undefined || sessionRevision.current !== workbenchStore.getSessionRevision(userId)
+      || restoreIntentRef.current || !hasSettledList
+      || (selectedId ? !active || !hasSettledDetail : pageRecords.length > 0 || hasExplicitTarget)) return
+    workbenchStore.saveSpectrumSnapshot(scopeKey, {
+      fileGroup: currentGroup, sourceKind, search, angleFilter, selectedId, overlayIds, priorityId,
+      multiMode, showRecords, recordLocked, ccd, line, mode, exposureStart, exposureEnd,
+      manualZoomX, zoomY, panX, panY, tool, pixelMode, pointCoordinates, fixedView, followPoint, viewLine, locateValue
+    })
+  }, [scopeKey, userId, hasSettledList, hasSettledDetail, active, pageRecords, hasExplicitTarget, restoreApplied, currentGroup, sourceKind,
+    search, angleFilter, selectedId, overlayIds, priorityId, multiMode, showRecords, recordLocked, ccd, line, mode,
+    exposureStart, exposureEnd, manualZoomX, zoomY, panX, panY, tool, pixelMode, pointCoordinates, fixedView, followPoint, viewLine, locateValue])
+
+  // Run after the record/CCD reset and only for the successfully loaded request.
+  useEffect(() => {
+    const intent = restoreIntentRef.current
+    if (intent?.phase !== 'viewport' || intent.recordId !== selectedId || active?.id !== selectedId
+      || !hasSettledList || settledDetail?.query !== detailQuery || settledDetail.requestId !== detailRequest.current
+      || !curves.length) return
+    const snapshot = intent.snapshot
+    setPointCoordinates(snapshot.pointCoordinates)
+    const pixelScale = snapshot.pixelMode
+    setPixelMode(raw && (pixelScale === 1 || pixelScale === 4 || pixelScale === 10) ? pixelScale : null)
+    setZoomX(snapshot.manualZoomX)
+    setPanX(snapshot.panX)
+    setZoomY(snapshot.zoomY)
+    setPanY(snapshot.panY)
+    setTool(multiView && snapshot.tool === 'pan' ? 'crosshair' : snapshot.tool)
+    setFixedView(snapshot.fixedView)
+    setFollowPoint(snapshot.followPoint)
+    setViewLine(snapshot.viewLine)
+    setLocateValue(snapshot.locateValue)
+    restoreIntentRef.current = null
+    // Commit the saved snapshot even when the restored viewport matches every default.
+    setRestoreApplied(true)
+  }, [active, selectedId, hasSettledList, settledDetail, detailQuery, curves, raw, multiView])
+
   const selectRecord = (record: SpectrumRecordSummary, additive = false) => {
     if(recordLocked && record.id!==selectedId)return
+    cancelRestore()
     if(additive && record.kind!=='result') { toggleOverlay(record.id); return }
     pendingLine.current = priorityLine && viewLine && selectedGroup === groupKey(record) && record.id !== selectedId
       ? { recordId: record.id, lineId: viewLine } : null
@@ -385,7 +534,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     setCcd(fixedView && record.kind !== 'result' && selectedGroup === groupKey(record) ? Math.min(ccd, Math.max(0, (record.ccd_count ?? 1) - 1)) : 0)
     setLine(0)
     setFrameVisible(false)
-    setMode(record.kind !== 'result' ? 'mean' : record.matrix_kind === 'peak_back' ? 'peak' : 'value')
+    setMode(defaultMode(record))
   }
   const moveRecord = (delta: number) => {
     if (!selectedId || !visibleRecords.length) return
@@ -425,6 +574,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
       })
       if (requestId !== detailRequest.current) return
       setDetails((current) => ({ ...current, [selectedId]: next }))
+      setSettledDetail({ query: detailQuery, requestId })
       setFrameVisible(true)
       setMode('mean')
       return true
@@ -761,6 +911,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     ]]} />}
     <PageFileActions target={actionsTarget}>
       <OpenLegacyFile onBusyChange={setBusy} token={token} purpose={viewing==='evaporation'?'evaporation':'spectra'} label={viewing==='evaporation'?'打开蒸发文件':'打开谱文件'} disabled={busy||recordLocked} onOpened={async(result,path)=>{
+        cancelRestore()
         setFileNames(current=>({...current,[result.source_sha256]:path.split(/[\\/]/).pop()||path}))
         setFileGroup(`raw:${result.source_sha256}`);setSourceKind('raw');setSearch(result.source_sha256);setAngleFilter('all');setOverlayIds([]);setMultiMode('auto')
         const next=await api.spectrumRecords(token,'raw',undefined,0,result.source_sha256)
@@ -867,6 +1018,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
       {operation==='files'&&<div className="viewer-dialog-fields">
         <label>谱文件<select aria-label="当前谱文件" value={currentGroup} disabled={busy||recordLocked} onChange={event=>{
           if(event.target.value===currentGroup)return
+          cancelRestore()
           multiTableScroll.current=0;setDetails({});setSelectedId(null);setPriorityId(null);setPageRecords([]);setCursor(null);setLocked(false);setOverlayIds([]);setMultiMode('auto');setFileGroup(event.target.value);setCcd(0);setLine(0)
           setOperation(null)
         }}>
@@ -874,11 +1026,11 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
             : !groups.length && <option value="">尚无谱文件</option>}
           {groups.map(item=><option key={item.key} value={item.key}>{item.task_name||fileNames[item.source_sha256]||item.source_filename||`${item.format.toUpperCase()} · ${item.source_sha256.slice(0,10)}`} · {item.record_count} 条</option>)}
         </select></label>
-        <label>来源<select aria-label="谱图来源" value={sourceKind} disabled={busy} onChange={event=>setSourceKind(event.target.value)}>
+        <label>来源<select aria-label="谱图来源" value={sourceKind} disabled={busy} onChange={event=>{cancelRestore();setSourceKind(event.target.value)}}>
           <option value="all">全部</option><option value="raw">原始谱图</option><option value="result">旧结果</option><option value="sample">新采集样品</option>
         </select></label>
-        <label>检索<input aria-label="检索谱图" value={search} onChange={event=>setSearch(event.target.value)}/></label>
-        <label>转角<input aria-label="检索转角" value={angleFilter==='all'?'':angleFilter} onChange={event=>setAngleFilter(event.target.value||'all')}/></label>
+        <label>检索<input aria-label="检索谱图" value={search} onChange={event=>{cancelRestore();setSearch(event.target.value)}}/></label>
+        <label>转角<input aria-label="检索转角" value={angleFilter==='all'?'':angleFilter} onChange={event=>{cancelRestore();setAngleFilter(event.target.value||'all')}}/></label>
       </div>}
       {operation==='reference'&&<>
         <div className="viewer-dialog-fields"><label>参考校正偏移<EmptyableNumberInput aria-label="参考校正偏移" step="0.001" value={referenceShift} onValueChange={value => {
