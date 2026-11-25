@@ -1,6 +1,7 @@
 import { useRef, useState, type HTMLAttributes } from 'react'
+import { isSampleComposition, sampleDragFillValue, type SampleCell } from './sampleGridFlow'
 
-export type SampleCell = { row: number; column: number }
+export type { SampleCell } from './sampleGridFlow'
 export type SampleMatrix = string[][]
 
 const sameCell = (one: SampleCell, other: SampleCell) => one.row === other.row && one.column === other.column
@@ -9,29 +10,6 @@ const arrowSteps: Record<string, [number, number] | undefined> = {
   ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1],
 }
 export const sampleClipboardHint = '拖选或 Shift 扩选，Ctrl+C 复制，Ctrl+V 粘贴'
-
-const suffixParts = (value: string) => /^(.*?)([0-9]+)$/u.exec(value)
-const numberedName = (prefix: string, value: bigint, width: number) =>
-  prefix + (value < 0n ? '-' : '') + (value < 0n ? -value : value).toString().padStart(width, '0')
-
-export function nextSampleName(value: string) {
-  const parts = suffixParts(value)
-  return parts ? numberedName(parts[1], BigInt(parts[2]) + 1n, parts[2].length) : ''
-}
-
-function fillValue(values: string[], offset: number) {
-  const parts = values.map(suffixParts)
-  const first = parts[0]
-  if (first && parts.every(part => part?.[1] === first[1])) {
-    const initial = BigInt(first[2])
-    const step = parts.length === 1 ? 1n : BigInt(parts[1]![2]) - initial
-    if (parts.every((part, index) => BigInt(part![2]) === initial + BigInt(index) * step)) {
-      const width = parts.some(part => part![2].startsWith('0')) ? Math.max(...parts.map(part => part![2].length)) : 1
-      return numberedName(first[1], initial + BigInt(offset) * step, width)
-    }
-  }
-  return values[(offset % values.length + values.length) % values.length]
-}
 
 const escapeCellHtml = (value: string) => value.replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!)
@@ -123,7 +101,7 @@ export function useSampleGrid({ active, disabled, canSelect, onActivate, read, o
         const row = start.row + y, column = start.column + x
         const values = Array.from({ length: sourceLength }, (_, index) => read(vertical
           ? { row: first.row + index, column } : { row, column: first.column + index }))
-        return fillValue(values, vertical ? row - first.row : column - first.column)
+        return sampleDragFillValue(values, vertical ? row - first.row : column - first.column)
       }))
     try { await onFill(matrix, start) }
     catch (error) { onError(error instanceof Error ? error.message : '填充样号失败，请重试。') }
@@ -148,7 +126,8 @@ export function useSampleGrid({ active, disabled, canSelect, onActivate, read, o
     },
     onPointerCancel: () => { drag.current = null; clearFill() },
     onKeyDown: event => {
-      if (disabled || !clipboardTarget(event.target) || event.altKey || event.ctrlKey || event.metaKey) return
+      if (disabled || event.defaultPrevented || isSampleComposition(event.nativeEvent)
+        || !clipboardTarget(event.target) || event.altKey || event.ctrlKey || event.metaKey) return
       const delta = arrowSteps[event.key]
       if (!delta) return
       event.preventDefault()
@@ -204,6 +183,9 @@ export function useSampleGrid({ active, disabled, canSelect, onActivate, read, o
   })
   const isSelected = ({ row, column }: SampleCell) =>
     row >= first.row && row <= last.row && column >= first.column && column <= last.column
+  const selectedCells = () => Array.from({ length: last.row - first.row + 1 }, (_, y) =>
+    Array.from({ length: last.column - first.column + 1 }, (_, x) =>
+      ({ row: first.row + y, column: first.column + x }))).flat().filter(canSelect)
   const fillHandle = (cell: SampleCell): HTMLAttributes<HTMLButtonElement> | undefined =>
     onFill && !disabled && sameCell(cell, last) && canSelect(cell) && read(active) ? {
       onPointerDown: event => {
@@ -217,5 +199,5 @@ export function useSampleGrid({ active, disabled, canSelect, onActivate, read, o
     } : undefined
   const isFilling = ({ row, column }: SampleCell) => !!preview
     && row >= preview.start.row && row <= preview.end.row && column >= preview.start.column && column <= preview.end.column
-  return { events, cellProps, isSelected, isFilling, fillHandle, clearRange, select }
+  return { events, cellProps, isSelected, isFilling, fillHandle, clearRange, select, selectedCells }
 }

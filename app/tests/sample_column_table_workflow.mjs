@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { call, navigate } from './contract_browser_support.mjs'
+import { call, navigate, setWorkspaceTheme } from './contract_browser_support.mjs'
 
 export async function readSampleCells(page) {
   return page.getByRole('table', { name: '样号按列排列表格' }).locator('[data-sample-id]').evaluateAll(cells =>
@@ -8,10 +8,11 @@ export async function readSampleCells(page) {
       const text = cell.querySelector('strong'), range = document.createRange()
       range.selectNodeContents(text)
       const bounds = range.getBoundingClientRect(), content = text.getBoundingClientRect()
+      const box = cell.getBoundingClientRect(), table = cell.closest('table').getBoundingClientRect()
       return { id: Number(cell.dataset.sampleId), position: Number(cell.dataset.samplePosition),
       name: cell.querySelector('strong').textContent, title: cell.title,
-      x: cell.getBoundingClientRect().x + scrollX, y: cell.getBoundingClientRect().y + scrollY,
-      width: cell.getBoundingClientRect().width, height: cell.getBoundingClientRect().height,
+      x: box.x + scrollX, y: box.y + scrollY, tableX: box.x - table.x, tableY: box.y - table.y,
+      width: box.width, height: box.height,
       textLines: range.getClientRects().length,
       fullTextVisible: text.scrollWidth <= text.clientWidth && bounds.left >= content.left - .5 && bounds.right <= content.right + .5
         && bounds.top >= cell.getBoundingClientRect().top && bounds.bottom <= cell.getBoundingClientRect().bottom,
@@ -65,7 +66,7 @@ export async function checkSampleColumnTable(page, result, output) {
   async function append(queue, index) {
     const waiting = page.waitForResponse(r => r.url().endsWith(`/sample-queues/${queue.id}`) && r.request().method() === 'PATCH')
     await input.fill(nameOf(queue.name_length, index))
-    await host.getByRole('button', { name: '插入样品', exact: true }).click()
+    await host.getByRole('button', { name: '添加样品', exact: true }).click()
     const response = await waiting
     assert.equal(response.status(), 200)
     const next = await response.json()
@@ -76,7 +77,9 @@ export async function checkSampleColumnTable(page, result, output) {
     for (const previous of before) {
       const current = after.find(cell => cell.id === previous.id)
       assert.ok(current)
-      for (const coordinate of ['x', 'y', 'width']) assert.ok(Math.abs(current[coordinate] - previous[coordinate]) < .6, `${previous.position}: ${coordinate} shifted`)
+      assert.equal(current.position, previous.position)
+      // The workspace scrolls independently of the window when focus returns to the grid.
+      for (const coordinate of ['tableX', 'tableY', 'width']) assert.ok(Math.abs(current[coordinate] - previous[coordinate]) < .6, `${previous.position}: ${coordinate} shifted`)
     }
   }
   async function gridMetrics() {
@@ -259,9 +262,7 @@ export async function checkSampleColumnTable(page, result, output) {
   for (const [width, theme] of [[1440, 'light'], [1060, 'dark']]) {
     if (process.env.QA_CDP) await page.evaluate(width => window.__TAURI__.core.invoke('plugin:window|set_size', { value: { Logical: { width, height: 1000 } } }), width)
     else await page.setViewportSize({ width, height: 1000 })
-    await call(page, '/api/v1/settings', { display: { theme, density: theme === 'dark' ? 'compact' : 'comfortable' } }, 'PATCH')
-    await page.getByRole('button', { name: '刷新服务状态', exact: true }).click()
-    await page.waitForFunction(theme => document.querySelector('.app-shell')?.dataset.theme === theme, theme)
+    await setWorkspaceTheme(page, theme)
     const metrics = await gridMetrics()
     const cells = await readSampleCells(page)
     assert.equal(cells.length, Math.min(deleted.items.length, metrics.capacity))
@@ -272,7 +273,7 @@ export async function checkSampleColumnTable(page, result, output) {
     await capture(`sample-table-${width}-${theme}.png`)
     result.layouts.push({ width, theme, ...metrics })
   }
-  checked('12/20位切换同步调整格宽且保存原名称；明色1440与暗色紧凑1060完整显示满位样号，铺满宽度，无多余水平滚动条或窗口溢出')
+  checked('12/20位切换同步调整格宽且保存原名称；明色1440与暗色1060完整显示满位样号，铺满宽度，无多余水平滚动条或窗口溢出')
 
   const protectedQueue = await call(page, '/api/v1/sample-queues', { name: '采集关联保护', name_length: 20,
     items: [{ pre_name: 'LOCKED001', repeats: 1 }] })

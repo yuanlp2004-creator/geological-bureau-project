@@ -9,7 +9,8 @@ import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from 
 import { SampleNumberTable } from './SampleNumberTable'
 import { useSamImport } from './useSamImport'
 import { SectionHeading } from '../../components/SectionHeading'
-import { nextSampleName } from '../../components/useSampleGrid'
+import { assertSampleGridWritable, nextSampleName, type SampleGridChange } from '../../components/sampleGridFlow'
+import { extractMethodStandardNames } from '../../components/sampleSemanticRole'
 
 export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation, onBusyChange, insertion }: {
   token: string
@@ -23,11 +24,13 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
   const [selectedItemId,setSelectedItemId]=useState<number|null>(insertion?.itemId??null)
   const [queues, setQueues] = useState<SampleQueue[]>([])
   const [selected, setSelected] = useState<SampleQueue | null>()
+  const [inlineQueueId, setInlineQueueId] = useState<number | null>(null)
   const [name, setName] = useState('现场样品')
   const [entryName, setEntryName] = useState('')
   const [nameLength, setNameLength] = useState<10 | 12 | 20>(12)
   const [manualRepeats, setManualRepeats] = useState<number | null>(null)
   const [methodDefaults, setMethodDefaults] = useState<MethodConditions | null>(null)
+  const [methodStandardNames, setMethodStandardNames] = useState<ReadonlySet<string>>(() => new Set())
   const { importSam, samPreview } = useSamImport()
   const fileRef = useRef<HTMLInputElement>(null)
   const entryRef = useRef<HTMLInputElement>(null)
@@ -38,7 +41,13 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
   useLayoutEffect(() => { onBusyChange?.(locked); return () => onBusyChange?.(false) }, [locked, onBusyChange])
   useEffect(() => {
     let live = true
-    void api.currentMethod(token).then((current) => { if (live) setMethodDefaults(current.referenced_version?.conditions ?? null) }).catch(() => { if (live) setMethodDefaults(null) })
+    setMethodDefaults(null)
+    setMethodStandardNames(new Set())
+    void api.currentMethod(token).then(({ referenced_version: version }) => {
+      if (!live) return
+      setMethodDefaults(version?.conditions ?? null)
+      setMethodStandardNames(extractMethodStandardNames(version?.lines))
+    }).catch(() => {})
     return () => { live = false }
   }, [token])
   const repeatsFor = (sampleName: string) => {
@@ -80,11 +89,12 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
   const chooseQueue = async (queue: SampleQueue | null) => {
     if (locked) return
     if (confirmInDialog) {
+      setInlineQueueId(null)
       setSelected(queue)
       return
     }
     setEntryBusy(true)
-    try { await api.selectSampleQueue(token, queue?.id ?? null); setSelected(queue) }
+    try { await api.selectSampleQueue(token, queue?.id ?? null); setInlineQueueId(null); setSelected(queue) }
     catch (error) { onToast(error instanceof Error ? error.message : '选择样号表失败') }
     finally { setEntryBusy(false) }
   }
@@ -226,23 +236,13 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     } finally { setEntryBusy(false) }
   }
 
-  const editItem = async (itemId: number, preName: string) => {
-    if (!selected || entryBusy) throw new Error('队列正忙，请稍后保存')
-    setEntryBusy(true)
-    try {
-      const next = await api.updateSampleQueue(token, selected.id,
-        selected.items.map(item => ({ id: item.id, pre_name: item.id === itemId ? preName : item.pre_name, repeats: item.repeats })))
-      setSelected(next)
-      setQueues(current => current.map(item => item.id === next.id ? next : item))
-      onToast('样号已修改')
-    } finally { setEntryBusy(false) }
-  }
-
-  const pasteItems = async (changes: Array<{ position: number; name: string }>, action: 'paste' | 'fill') => {
-    if (locked) throw new Error('队列正忙，请稍后粘贴。')
-    if ((manualRepeats !== null || !methodDefaults) && !reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) {
+  const writeGridCells = async (changes: SampleGridChange[], action: 'paste' | 'fill' | 'edit') => {
+    if (entryBusy || loading) throw new Error(action === 'edit' ? '队列正忙，请稍后保存' : '队列正忙，请稍后粘贴。')
+    if ((action !== 'edit' || changes.some(({ position }) => !selected?.items[position]?.pre_name))
+      && (manualRepeats !== null || !methodDefaults) && !reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) {
       throw new Error('请先修正重复次数。')
     }
+    if (action === 'fill') assertSampleGridWritable(changes.map(cell => cell.position), selected?.items ?? [])
     const items: Array<{ id?: number; pre_name: string; repeats: number }> = (selected?.items ?? [])
       .map(item => ({ id: item.id, pre_name: item.pre_name, repeats: item.repeats }))
     const lastPosition = Math.max(...changes.map(cell => cell.position))
@@ -250,10 +250,10 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     for (const { position, name: text } of changes) {
       if (/[\x00-\x1f\x7f-\x9f\u2028\u2029]/.test(text)) throw new Error(`第 ${position + 1} 项含有换行、制表符或其他控制字符。`)
       const trimmed = text.trim()
-      const preName = trimmed === ',' ? '' : trimmed
+      const preName = action !== 'edit' && trimmed === ',' ? '' : trimmed
       const previous = selected?.items[position]
       if (previous?.pre_name === preName) continue
-      if (previous?.spectrum_hash) throw new Error(`第 ${position + 1} 项已关联采集，整批样号未保存。`)
+      assertSampleGridWritable([position], selected?.items ?? [])
       items[position] = {
         id: previous?.id, pre_name: preName,
         repeats: preName ? previous?.pre_name ? previous.repeats : repeatsFor(preName) : 0,
@@ -263,6 +263,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     try {
       const next = selected ? await api.updateSampleQueue(token, selected.id, items)
         : await api.createSampleQueue(token, { name, name_length: nameLength === 10 ? undefined : nameLength, items })
+      if (!selected) setInlineQueueId(next.id)
       setSelected(next)
       setQueues(current => selected ? current.map(queue => queue.id === next.id ? next : queue) : [next, ...current])
       if (!selected && !confirmInDialog) {
@@ -272,7 +273,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
           return
         }
       }
-      onToast(`已${action === 'fill' ? '填充' : '粘贴'} ${changes.length} 个样号位置`)
+      onToast(action === 'edit' ? '样号已修改' : `已${action === 'fill' ? '填充' : '粘贴'} ${changes.length} 个样号位置`)
     } finally { setEntryBusy(false) }
   }
 
@@ -400,9 +401,11 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
             </div>}
           </div>
           <SampleNumberTable initialSelectedId={selected?.id === insertion?.queueId ? insertion?.itemId : undefined}
-            onSelectionChange={setSelectedItemId} key={selected?.id ?? 'new'} items={selected?.items ?? []}
-            nameLength={selected?.name_length ?? nameLength} onDelete={deleteItem} onEdit={editItem}
-            onPaste={pasteItems} onEditingChange={setEditingItem} busy={entryBusy || loading} />
+            onSelectionChange={setSelectedItemId} key={selected?.id === inlineQueueId ? 'new' : selected?.id ?? 'new'}
+            items={selected?.items ?? []} methodStandardNames={methodStandardNames}
+            nameLength={selected?.name_length ?? nameLength} onDelete={deleteItem}
+            onCommitCell={(position, name) => writeGridCells([{ position, name }], 'edit')}
+            onPaste={writeGridCells} onEditingChange={setEditingItem} busy={entryBusy || loading} />
         </section>
       </div>
       {samPreview}

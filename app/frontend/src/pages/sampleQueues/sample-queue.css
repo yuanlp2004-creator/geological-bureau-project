@@ -82,16 +82,16 @@
   gap: 10px;
   margin-top: 20px;
   padding-bottom: 18px;
-  border-bottom: 1px solid #edf1f4;
+  border-bottom: 1px solid var(--line);
 }
 .small-field {
   min-width: 72px;
 }
 .status-chip {
   padding: 5px 8px;
-  color: #267658;
+  color: var(--ui-success);
   border-radius: 100px;
-  background: #e9f8f1;
+  background: var(--ui-success-bg);
   font-size: 9px;
   font-weight: 600;
 }
@@ -146,6 +146,26 @@
   }
 }
 .sample-number-sheet { width: 100%; margin-top: 12px; min-width: 0; }
+:root .app-shell :is(.sample-number-sheet, .analysis-sample-rail, .analysis-numbering) {
+  --sample-standard-mark: #327b97;
+  --sample-standard-bg: #eaf4f8;
+  --sample-control-mark: #946421;
+  --sample-control-bg: #faf1df;
+}
+:root .app-shell[data-theme='dark'] :is(.sample-number-sheet, .analysis-sample-rail, .analysis-numbering) {
+  --sample-standard-mark: #70adc4;
+  --sample-standard-bg: #213949;
+  --sample-control-mark: #cfaa64;
+  --sample-control-bg: #3b3226;
+}
+:is(.sample-number-sheet, .analysis-sample-rail, .analysis-numbering) [data-sample-role='standard'] {
+  --sample-role-mark: var(--sample-standard-mark);
+  --sample-role-bg: var(--sample-standard-bg);
+}
+:is(.sample-number-sheet, .analysis-sample-rail, .analysis-numbering) [data-sample-role='control'] {
+  --sample-role-mark: var(--sample-control-mark);
+  --sample-role-bg: var(--sample-control-bg);
+}
 .sample-number-toolbar { margin-bottom: 10px; }
 .sample-number-toolbar nav { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
 .sample-number-scroll { overflow: auto; border: 1px solid var(--line); border-radius: 2px; }
@@ -158,17 +178,22 @@
 .sample-number-table tbody tr:last-child > * { border-bottom: 0; }
 .sample-number-table th { height: 28px; color: var(--muted); background: var(--surface-soft); font-size: 11px; font-weight: 500; text-align: center; }
 .sample-number-table td { position: relative; height: 28px; }
-.sample-number-cell { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 4px; background: var(--surface); color: var(--ink); text-align: left; border-radius: 0; }
+.sample-number-cell { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 4px; background: var(--sample-role-bg, var(--surface)); color: var(--ink); text-align: left; border-radius: 0; box-shadow: inset 2px 0 var(--sample-role-mark, transparent); }
 .sample-number-cell:hover { background: var(--surface-soft); }
 .sample-number-cell[aria-pressed="true"] { background: var(--ui-selected); }
 .sample-number-table [data-sample-fill-preview] .sample-number-cell { background: var(--ui-selected); }
 .sample-fill-handle { position: absolute; right: 0; bottom: 0; z-index: 1; width: 10px; height: 10px; padding: 0;
   border: 1px solid var(--surface); border-radius: 0; background: var(--ui-accent); cursor: crosshair; touch-action: none; }
-.sample-number-cell[data-sample-active="true"] { box-shadow: inset 0 0 0 1px var(--ui-accent); }
+.sample-number-cell[data-sample-active="true"] { box-shadow: inset 2px 0 var(--sample-role-mark, transparent), inset 0 0 0 1px var(--ui-accent); }
 .sample-number-cell:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
 :root .app-shell .sample-queue-page .sample-number-table .sample-number-cell strong { display: block; width: 100%; min-width: 0; font: 12px/13px Consolas, 'Microsoft YaHei UI', monospace; white-space: normal; word-break: break-all; }
 .sample-number-empty { display: block; height: 28px; }
 :root .app-shell .sample-queue-page .sample-number-table .sample-number-edit { display: block; width: 100%; min-width: 0; min-height: 0; height: 28px; padding: 0 4px; border: 1px solid var(--ui-accent); border-radius: 0; font: 12px/13px Consolas, 'Microsoft YaHei UI', monospace; }
+:root .app-shell .sample-queue-page .sample-number-table .sample-number-edit[data-sample-role]:not([data-sample-role='neutral']) {
+  background: var(--sample-role-bg);
+  border-left: 2px solid var(--sample-role-mark);
+  padding-left: 3px;
+}
 :root .app-shell .sample-queue-page .sample-number-table .sample-number-edit:focus-visible { outline-offset: -2px; box-shadow: none; }
 .sample-number-detail-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .sample-number-edit-error { color: var(--danger, #c03535); font-size: 12px; }

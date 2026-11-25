@@ -13,6 +13,9 @@ import { useFixedSpectrumView } from '../../components/useFixedSpectrumView'
 import { spectralLineMenuGroups } from '../../components/spectrumMenu'
 import type { SpectrumPlotMarker } from '../../components/SpectrumPlot'
 import { ContextMenu, useContextMenu, type MenuGroup } from '../../components/ContextMenu'
+import {
+  acquisitionSourceKind, extractMethodStandardNames, resolveSampleSemanticRole, sampleRoleLabels, type SampleRoleEvidence,
+} from '../../components/sampleSemanticRole'
 
 type Props = {
   token: string; run: AnalysisRun | null; canSaveMethod: boolean; canPrint: boolean; canExecute: boolean
@@ -37,6 +40,8 @@ export function AnalysisDesk(p: Props) {
   const [lineId, setLineId] = useState<string | null>(null), [wave, setWave] = useState('')
   const [data, setData] = useState<AnalysisSpectrum | null>(null)
   const [source, setSource] = useState<SpectrumRecord | null>(null), [task, setTask] = useState<AcquisitionTask | null>(null)
+  const [managementTaskIds, setManagementTaskIds] = useState<ReadonlySet<number>>(() => new Set())
+  const [methodStandardNames, setMethodStandardNames] = useState<ReadonlySet<string>>(() => new Set())
   const [error, setError] = useState(''), [refresh, setRefresh] = useState(0), [loading, setLoading] = useState(false)
   const [recordLocked, setRecordLocked] = useState(false), [focus, setFocus] = useState<number | null>(null), [picked, setPicked] = useState<number | null>(null)
   const [dialog, setDialog] = useState<'calibration' | 'point' | 'names' | null>(null), [calibration, setCalibration] = useState<CalibrationPreview | null>(null)
@@ -52,9 +57,23 @@ export function AnalysisDesk(p: Props) {
   const running = run?.status === 'running' && !p.paused
   const navigationLocked = running || p.busy
   const sampleNavigationLocked = recordLocked || navigationLocked
-  const sampleTasks = new Map(p.sampleSources.flatMap(group => group.map(item => [item.id, item.acquisition_task_id] as const)))
+  const sourcesById = new Map(p.sampleSources.flatMap(group => group.map(item => [item.id, item] as const)))
   const numbering = run?.input_snapshot?.sample_numbering
   const recordIds = numbering?.source_sample_ids ?? run?.samples.map(item => item.acquisition_sample_id) ?? []
+  const qcManagementPositions = new Set(numbering ? [] : run?.quality?.latest_snapshot?.groups
+    .filter(group => group.management_sample === true).flatMap(group => group.members.map(member => member.sample_position)))
+  const samplePositionById = new Map(run?.samples.map(item => [item.acquisition_sample_id, item.position]))
+  const roleEvidenceFor = (id: number): SampleRoleEvidence => {
+    const origin = sourcesById.get(id)
+    const taskId = origin?.acquisition_task_id ?? (active?.acquisition_sample_id === id ? source?.task_id : undefined)
+    const position = samplePositionById.get(id)
+    return {
+      explicitManagementTask: taskId != null && managementTaskIds.has(taskId),
+      qualityManagementSample: position !== undefined && qcManagementPositions.has(position),
+      sourceKind: acquisitionSourceKind(origin),
+      sampleNumbering: !!numbering,
+    }
+  }
   const groupNumbers = new Map<number, number>()
   const initialEntries: AnalysisSampleNumber[] = []
   let previousTask: number | undefined
@@ -65,7 +84,7 @@ export function AnalysisDesk(p: Props) {
       groupNumbers.set(item.position, numbering.entries.slice(0, frozenPosition + 1).filter(entry => entry.repeats > 0).length)
       continue
     }
-    const taskId = sampleTasks.get(item.acquisition_sample_id)
+    const taskId = sourcesById.get(item.acquisition_sample_id)?.acquisition_task_id
     const previous = initialEntries[initialEntries.length - 1]
     if (taskId !== undefined && taskId === previousTask && item.sample_name && previous?.name === item.sample_name) previous.repeats++
     else {
@@ -77,6 +96,14 @@ export function AnalysisDesk(p: Props) {
   }
   const inputNames = () => setDialog('names')
   const namesDisabled = !run || !p.canExecute || p.busy || ['running', 'paused'].includes(run.status)
+  useEffect(() => {
+    let live = true
+    setMethodStandardNames(new Set())
+    if (run) void api.methodLines(token, run.method_id, run.method_version)
+      .then(({ lines }) => { if (live) setMethodStandardNames(extractMethodStandardNames(lines)) })
+      .catch(() => {})
+    return () => { live = false }
+  }, [token, run?.method_id, run?.method_version])
   useEffect(() => {
     if (p.followSample && run && ['running', 'paused'].includes(run.status) && !recordLocked) {
       if (!priority && run.current_sample_position !== sample) setLineId(null)
@@ -114,7 +141,13 @@ export function AnalysisDesk(p: Props) {
     void api.spectrum(token, `sample:${active.acquisition_sample_id}`, { ccd: slot, detail: 'summary' }).then(record => {
       if (!live) return
       setSource(record)
-      if (record.task_id) void api.acquisitionTask(token, record.task_id).then(next => { if (live) setTask(next) }).catch(() => {})
+      if (record.task_id) void api.acquisitionTask(token, record.task_id).then(next => {
+        if (!live) return
+        setTask(next)
+        if (next.excitation_condition.management_sample === true) {
+          setManagementTaskIds(ids => ids.has(next.id) ? ids : new Set([...ids, next.id]))
+        }
+      }).catch(() => {})
     }).catch(() => {}) // Metadata is optional; intensities always come from the verified analysis snapshot.
     return () => { live = false }
   }, [token, active?.acquisition_sample_id, data, ccd, turnIndex])
@@ -244,10 +277,15 @@ export function AnalysisDesk(p: Props) {
         </div>
         <div className="legacy-view-table-wrap"><table className="legacy-view-table"><colgroup><col style={{ width: 18 }} /><col style={{ width: 54 }} /><col /><col style={{ width: 65 }} /></colgroup>
           <thead><tr><th className="row-indicator" /><th>记录号</th><th>样品编号</th><th>样品序号</th></tr></thead>
-          <tbody>{run?.samples.map(item => <tr key={item.id} aria-selected={sample === item.position} onClick={() => chooseSample(item.position)}>
-            <td className="row-indicator">{sample === item.position && <RowSelectionArrow />}</td><td>{item.position + 1}</td>
-            <td><button disabled={sampleNavigationLocked} title={item.sample_name}>{item.sample_name}</button></td><td>{item.sample_name ? groupNumbers.get(item.position) : '?'}</td>
-          </tr>)}</tbody>
+          <tbody>{run?.samples.map(item => {
+            const role = resolveSampleSemanticRole({ name: item.sample_name, methodStandardNames, ...roleEvidenceFor(item.acquisition_sample_id) })
+            return <tr key={item.id} aria-selected={sample === item.position} data-sample-role={role} onClick={() => chooseSample(item.position)}>
+              <td className="row-indicator">{sample === item.position && <RowSelectionArrow />}</td><td>{item.position + 1}</td>
+              <td><button disabled={sampleNavigationLocked}
+                title={role === 'neutral' ? item.sample_name : `${item.sample_name} · ${sampleRoleLabels[role]}`}>{item.sample_name}</button></td>
+              <td>{item.sample_name ? groupNumbers.get(item.position) : '?'}</td>
+            </tr>
+          })}</tbody>
         </table></div>
         <div className="legacy-view-footer">{source?.measure_time?.replace('T', ' ').slice(0, 19) || '测量时间未记录'}</div>
       </aside>}
@@ -273,6 +311,7 @@ export function AnalysisDesk(p: Props) {
     </div>
     {dialog === 'names' && run && <AnalysisSampleNamesDialog token={token}
       initialEntries={numbering?.entries ?? (validSamples ? initialEntries : [])} repeatDefaults={p.repeatDefaults}
+      methodStandardNames={methodStandardNames} bandEvidence={recordIds.map(roleEvidenceFor)}
       capacity={recordIds.length} busy={namesDisabled} onSave={entries => p.onSaveSampleNames(recordIds, entries)}
       onClose={() => setDialog(null)} />}
     {dialog === 'calibration' && <ViewerDialog title={scope === 'reference' ? '校参考线' : '校正谱线'} onClose={() => setDialog(null)}>

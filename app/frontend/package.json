@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs ../tests/frontend_alignment_view.test.mjs ../tests/frontend_spectrum_zoom.test.mjs ../tests/frontend_runtime_events_store.test.mjs ../tests/frontend_theme_resolver.test.mjs ../tests/frontend_workbench_store.test.mjs",
+    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs ../tests/frontend_alignment_view.test.mjs ../tests/frontend_spectrum_zoom.test.mjs ../tests/frontend_runtime_events_store.test.mjs ../tests/frontend_theme_resolver.test.mjs ../tests/frontend_workbench_store.test.mjs ../tests/frontend_sample_grid_and_semantics.test.mjs",
     "test:api": "node ../tests/frontend_api_browser.mjs",
     "test:pages": "node ../tests/frontend_api_browser.mjs --pages",
     "preview": "vite preview"
