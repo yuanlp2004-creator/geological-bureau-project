@@ -1,6 +1,7 @@
 import { api, type AnalysisCurveSnapshot, type AnalysisRun } from '../../api'
 import type { AnalysisCurveLine } from '../../api/analysis'
 import { StandardCurveWorkspace, standardCurveLineLabel, type StandardCurveAdjustment } from './StandardCurveWorkspace'
+import { findPreviousCurveSnapshot } from './standardCurveModel'
 
 type PanelProps = {
   curveLine: AnalysisCurveLine
@@ -27,7 +28,8 @@ export function AnalysisCurves({
     && shownSnapshot.adjustment_set_id === workspace.adjustment_set_id
     && shownSnapshot.fit_mode === workspace.fit_mode && shownSnapshot.coordinate_type === workspace.coordinate_type)
   const canEdit = !busy && canCurve && selected.status === 'completed' && Boolean(selected.quality.latest_snapshot)
-  const samplePreview = shownSnapshot?.diagnostics.sample_preview ?? selected.curves.results
+  const previousSnapshot = findPreviousCurveSnapshot(curveLine.snapshots, shownSnapshot)
+  const samplePreview = shownSnapshot?.diagnostics?.sample_preview ?? selected.curves.results
     .filter((item) => !item.is_standard && item.curve_snapshot_id === shownSnapshot?.id)
   const canOutput = currentFit && !busy
 
@@ -38,7 +40,7 @@ export function AnalysisCurves({
     curveAction(lineId, payload, message, legacy && refit ? fit : undefined)
 
   return <StandardCurveWorkspace key={`${selected.id}/${lineId}`} line={curveLine} workspace={workspace}
-    profile={selected.calculation_profile} shownSnapshot={shownSnapshot} currentFit={currentFit}
+    profile={selected.calculation_profile} shownSnapshot={shownSnapshot} previousSnapshot={previousSnapshot} currentFit={currentFit}
     canEdit={canEdit} fit={fit} adjust={adjust} samplePreview={currentFit ? samplePreview : []}
     toolbar={<>
       <button type="button" disabled={next.disabled} onClick={next.action}>{next.label}</button>

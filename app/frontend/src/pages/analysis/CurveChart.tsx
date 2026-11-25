@@ -22,7 +22,10 @@ export function curveChartLimits(snapshot: AnalysisCurveSnapshot | undefined, po
   }
 }
 
-export function CurveChart({ snapshot, lineLabel, unit, points, logarithmic, legacy, selectedPoint, onSelectPoint, onPointContext, onAdjustPoint }: {
+export function CurveChart({
+  snapshot, lineLabel, unit, points, logarithmic, legacy, selectedPoint, hoveredPoint,
+  onSelectPoint, onHoverPoint, onPointContext, onAdjustPoint,
+}: {
   snapshot: AnalysisCurveSnapshot | undefined
   lineLabel: string
   unit: string
@@ -30,7 +33,9 @@ export function CurveChart({ snapshot, lineLabel, unit, points, logarithmic, leg
   logarithmic: boolean
   legacy: boolean
   selectedPoint: number
+  hoveredPoint: number | null
   onSelectPoint: (index: number) => void
+  onHoverPoint: (index: number | null) => void
   onPointContext?: (event: MouseEvent<HTMLButtonElement>, index: number) => void
   onAdjustPoint?: (index: number, intensity: number) => void
 }) {
@@ -68,8 +73,10 @@ export function CurveChart({ snapshot, lineLabel, unit, points, logarithmic, leg
           const selected = selectedPoint === item.point_index
           return <button key={item.point_index} className="standard-curve-dot" type="button"
             style={{ left: `${x(item.standard_value)}%`, top: `${Math.max(0, Math.min(100, y(intensity)))}%` }}
-            data-active={item.active} data-draggable={Boolean(onAdjustPoint)} aria-pressed={selected} aria-label={`标准点 ${item.name}`}
+            data-active={item.active} data-draggable={Boolean(onAdjustPoint)} data-hovered={hoveredPoint === item.point_index}
+            aria-pressed={selected} aria-label={`标准点 ${item.name}`}
             title={`${item.name} · 强度 ${intensity}${onAdjustPoint ? ' · 上下拖动调节强度' : ''}`} onClick={() => onSelectPoint(item.point_index)}
+            onPointerEnter={() => onHoverPoint(item.point_index)} onPointerLeave={() => onHoverPoint(null)}
             onPointerDown={event => {
               if (!onAdjustPoint || event.button !== 0 || !event.isPrimary || !plot.current) return
               const height = plot.current.getBoundingClientRect().height

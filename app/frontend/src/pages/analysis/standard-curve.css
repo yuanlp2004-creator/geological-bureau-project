@@ -13,12 +13,63 @@
 :root .app-shell .analysis-workbench.remaining-page .standard-curve-manager .analysis-view-tabs button { min-height: 28px; padding: 3px 0; }
 
 .standard-curve-window {
+  --curve-plot: var(--spec-plot, #fff);
+  --curve-border: #414b56;
+  --curve-grid: #b3bdc8;
+  --curve-fit: #c32d35;
+  --curve-label-bg: rgb(255 255 255 / 0.9);
+  --curve-label: #31465c;
+  --curve-reading-bg: #edf4fc;
+  --curve-reading-border: #c4d7eb;
+  --curve-reading-ink: #203e57;
+  --curve-dot: #2455d6;
+  --curve-dot-border: #26364a;
+  --curve-dot-inactive: #69798c;
+  --curve-dot-selected: #f5c545;
+  --curve-dot-hover: #2768bb;
+  --curve-axis: #75889c;
+  --curve-row-hover: #e9f2fc;
+  --curve-kpi-bg: #f2f6fb;
+  --curve-kpi-border: #d5e1ed;
+  --curve-error-ok: #206342;
+  --curve-error-warn: #825000;
+  --curve-error-high: #a32535;
+  --curve-pending-bg: #fbf3e5;
+  --curve-pending-border: #eadac0;
+  --curve-checkbox: #1365b4;
   height: 100%;
   min-width: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   font-size: 12px;
+  line-height: 1.35;
   color: var(--ink);
+}
+[data-theme="dark"] .standard-curve-window {
+  --curve-plot: var(--spec-plot, #172638);
+  --curve-border: rgba(148, 163, 184, 0.24);
+  --curve-grid: #2a415a;
+  --curve-fit: #fb7185;
+  --curve-label-bg: rgba(23, 38, 56, 0.88);
+  --curve-label: #cbd5e1;
+  --curve-reading-bg: linear-gradient(90deg, rgba(30, 58, 95, 0.55), rgba(30, 58, 95, 0.32));
+  --curve-reading-border: rgba(96, 165, 250, 0.25);
+  --curve-reading-ink: #dbeafe;
+  --curve-dot: #7aafff;
+  --curve-dot-border: #101e2d;
+  --curve-dot-inactive: #9aaec5;
+  --curve-dot-selected: #f2ca72;
+  --curve-dot-hover: #8fc2fa;
+  --curve-axis: #8096af;
+  --curve-row-hover: #243c55;
+  --curve-kpi-bg: #1d3046;
+  --curve-kpi-border: #38506a;
+  --curve-error-ok: #92cfac;
+  --curve-error-warn: #e3bc80;
+  --curve-error-high: #f0a0a7;
+  --curve-pending-bg: #352f29;
+  --curve-pending-border: #5b4a37;
+  --curve-checkbox: #81aff4;
 }
 .standard-curve-toolbar, .standard-curve-footer {
   display: flex;
@@ -31,7 +82,8 @@
 .standard-curve-toolbar { border-bottom: 1px solid var(--analysis-rule); }
 .standard-curve-footer { border-top: 1px solid var(--analysis-rule); }
 .standard-curve-toolbar label, .standard-curve-footer label { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-.standard-curve-window input[type="checkbox"] { margin: 0; accent-color: #1365b4; }
+.standard-curve-toolbar :is(label, select) { min-width: 0; max-width: 100%; }
+.standard-curve-window input[type="checkbox"] { margin: 0; accent-color: var(--curve-checkbox); }
 .standard-curve-window :is(button, select) { font: inherit; }
 :root .app-shell .standard-curve-window :is(.standard-curve-toolbar, .standard-curve-footer) :is(button, select) {
   min-height: 27px;
@@ -42,6 +94,7 @@
   color: var(--ink);
   white-space: nowrap;
 }
+:root .app-shell .standard-curve-window .standard-curve-toolbar select { height: 27px; }
 .standard-curve-window button:not(:disabled) { cursor: pointer; }
 .standard-curve-window .standard-curve-footer button.primary-button:not(:disabled) {
   border-color: var(--ui-accent);
@@ -51,6 +104,44 @@
 .standard-curve-window button:disabled { opacity: .55; cursor: default; }
 .standard-curve-window:focus { outline: none; }
 .standard-curve-status { margin-right: auto; color: var(--ui-muted); }
+.standard-curve-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 6px;
+  padding: 2px 8px;
+  border-bottom: 1px solid var(--analysis-rule);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.curve-kpi {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  padding: 1px 8px;
+  line-height: 16px;
+  border: 1px solid var(--curve-kpi-border);
+  border-radius: 10px;
+  background: var(--curve-kpi-bg);
+  color: var(--curve-label);
+}
+:root .app-shell .standard-curve-window .standard-curve-kpis .curve-kpi,
+:root .app-shell .standard-curve-window .curve-kpi :is(strong, .curve-kpi-delta) { font-size: inherit; }
+:root .app-shell .standard-curve-window .standard-curve-kpis .curve-kpi strong {
+  color: var(--curve-error-color, var(--ink));
+  font-weight: 600;
+}
+.curve-kpi-delta { padding-inline-start: 6px; border-inline-start: 1px solid var(--curve-kpi-border); }
+.curve-kpi-pending {
+  border-color: var(--curve-pending-border);
+  background: var(--curve-pending-bg);
+  color: var(--curve-error-warn);
+}
+.standard-curve-window .tier-ok { --curve-error-color: var(--curve-error-ok); }
+.standard-curve-window .tier-warn { --curve-error-color: var(--curve-error-warn); }
+.standard-curve-window .tier-high { --curve-error-color: var(--curve-error-high); }
+
 .standard-curve-panes { display: grid; grid-template-columns: minmax(0, 44fr) minmax(0, 56fr); min-height: 0; }
 .standard-curve-list, .standard-curve-plot { min-height: 0; min-width: 0; display: flex; flex-direction: column; }
 .standard-curve-list { border-right: 3px double var(--analysis-rule); padding: 4px; }
@@ -72,11 +163,24 @@
 }
 .standard-curve-table p { margin: 5px 0 10px; }
 .standard-curve-table table { width: 100%; border-collapse: collapse; font-size: inherit; line-height: 1.35; }
-:root .app-shell .standard-curve-window .standard-curve-table :is(th, td) { padding: 1px 4px; text-align: right; white-space: nowrap; border: 0; color: var(--ink); font-size: inherit; }
+:root .app-shell .standard-curve-window .standard-curve-table :is(th, td) {
+  padding: 1px 4px;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border: 0;
+  color: var(--curve-error-color, var(--ink));
+  font-size: inherit;
+}
 :root .app-shell .standard-curve-window .standard-curve-table th { font-weight: 600; background: transparent; }
 :root .app-shell .standard-curve-window .standard-curve-table :is(th, td):first-child { text-align: left; }
+.standard-curve-table td:nth-child(n + 2):nth-child(-n + 6) { min-width: 7ch; }
+.standard-curve-table td:is(:nth-child(4), :nth-child(5)) { min-width: 8.5ch; }
 .standard-curve-table tbody tr.selected { background: var(--ui-selected); }
+.standard-curve-table tbody tr.hovered { box-shadow: inset 2px 0 var(--curve-dot-hover); }
+.standard-curve-table tbody tr.hovered:not(.selected) { background: var(--curve-row-hover); }
 .standard-curve-table td button { color: inherit; border: 0; padding: 0 3px; background: transparent; }
+.curve-fit-toggle { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
 
 .standard-curve-plot { padding: 4px; gap: 4px; }
 .standard-curve-reading {
@@ -84,16 +188,22 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 2px 12px;
-  padding: 5px 4px;
-  background: #a8c9eb;
-  color: #182a3f;
+  padding: 3px 4px;
+  border: 1px solid var(--curve-reading-border);
+  background: var(--curve-reading-bg);
+  color: var(--curve-reading-ink);
   font-variant-numeric: tabular-nums;
 }
-.standard-curve-chart { flex: 1; min-height: 0; display: flex; padding: 10px; border: 1px solid #323232; background: #fff; color: #171717; }
+.standard-curve-chart { flex: 1; min-height: 0; display: flex; padding: 10px; }
+.standard-curve-chart, .standard-curve-residuals {
+  border: 1px solid var(--curve-border);
+  background: var(--curve-plot);
+  color: var(--curve-label);
+}
 .standard-curve-grid { position: relative; flex: 1; min-width: 0; }
 .standard-curve-grid svg { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
-.standard-curve-grid path { stroke: #858585; stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
-.standard-curve-grid polyline { stroke: #e52525; stroke-width: 1.4; fill: none; }
+.standard-curve-grid path { stroke: var(--curve-grid); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+.standard-curve-grid polyline { stroke: var(--curve-fit); stroke-width: 1.4; fill: none; }
 .standard-curve-grid .standard-curve-dot {
   position: absolute;
   z-index: 1;
@@ -101,28 +211,88 @@
   height: 10px;
   padding: 0;
   transform: translate(-50%, -50%);
-  border: 1px solid #171717;
+  border: 1px solid var(--curve-dot-border);
   border-radius: 50%;
-  background: #1744da;
+  background: var(--curve-dot);
 }
-.standard-curve-grid .standard-curve-dot[data-active="false"] { background: #929292; }
+.standard-curve-grid .standard-curve-dot[data-active="false"] { background: var(--curve-dot-inactive); }
 .standard-curve-grid .standard-curve-dot[data-draggable="true"] { cursor: ns-resize; touch-action: none; }
-.standard-curve-drag-value { position: absolute; inset: 8px 8px auto auto; pointer-events: none; }
-.standard-curve-grid .standard-curve-dot[aria-pressed="true"] { background: #fff435; z-index: 2; }
-.standard-curve-grid .standard-curve-dot[data-active="false"][aria-pressed="true"] { background: #a552bb; }
-.standard-curve-grid > span { position: absolute; pointer-events: none; background: #fffe; }
+.standard-curve-drag-value { inset: 8px 8px auto auto; }
+.standard-curve-grid .standard-curve-dot[aria-pressed="true"] { background: var(--curve-dot-selected); z-index: 2; }
+.standard-curve-grid .standard-curve-dot[data-active="false"][aria-pressed="true"] {
+  border-color: var(--curve-dot-selected);
+  background: var(--curve-dot-inactive);
+}
+.standard-curve-grid .standard-curve-dot:is([data-hovered="true"], :focus-visible) {
+  outline: 2px solid var(--curve-dot-hover);
+  outline-offset: 1px;
+  z-index: 3;
+}
+.standard-curve-grid > :is(span, output) {
+  position: absolute;
+  pointer-events: none;
+  padding-inline: 3px;
+  background: var(--curve-label-bg);
+}
 .standard-curve-y { top: 3px; left: 3px; }
 .standard-curve-line { top: 3px; left: 50%; transform: translateX(-50%); }
 .standard-curve-x { right: 3px; bottom: 3px; }
 .standard-curve-preview { display: block; border: 0; width: 100%; height: min(68dvh, 720px); background: white; }
+
+.standard-curve-residuals {
+  flex: none;
+  min-width: 0;
+  border-radius: 3px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.curve-residual-toggle {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  padding: 2px 6px;
+  min-height: 20px;
+  line-height: 14px;
+  text-align: left;
+  background: var(--curve-kpi-bg);
+  color: inherit;
+}
+.curve-residual-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.curve-residual-panel { padding: 0 6px 2px; }
+.curve-residual-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 8px; padding-top: 2px; }
+.curve-residual-meta > span:first-child { white-space: nowrap; }
+.curve-residual-reading { color: var(--curve-reading-ink); overflow-wrap: anywhere; }
+.curve-residual-graph { position: relative; margin-inline: 14px 4px; }
+.curve-residual-graph svg { display: block; }
+.curve-residual-zero { position: absolute; top: 50%; left: -12px; transform: translateY(-50%); }
+.curve-residual-empty { padding-inline: 14px; }
+.curve-residual-baseline { stroke: var(--curve-axis); stroke-dasharray: 3 3; }
+.curve-residual-marker { color: var(--curve-dot); }
+.curve-residual-marker[data-active="false"] { color: var(--curve-dot-inactive); }
+.curve-residual-marker[data-selected="true"] { color: var(--curve-dot-selected); }
+.curve-residual-marker[data-hovered="true"] { color: var(--curve-dot-hover); }
+.curve-residual-marker line { stroke: currentColor; stroke-width: 1.5; }
+.curve-residual-marker circle { stroke: var(--curve-dot-border); fill: currentColor; }
+.curve-residual-marker[data-active="false"] line { stroke-dasharray: 2 2; }
+.curve-residual-marker[data-active="false"] circle { fill: var(--curve-plot); stroke: currentColor; stroke-width: 1.5; }
+.curve-residual-marker text { fill: var(--curve-label); font-size: 9px; text-anchor: middle; }
+.curve-residual-marker:is([data-selected="true"], [data-hovered="true"]) text { font-weight: 700; fill: var(--curve-reading-ink); }
+.curve-residual-hit-targets { position: absolute; inset: 0; display: grid; }
+.curve-residual-hit-targets button { min-width: 0; padding: 0; background: transparent; }
+.curve-residual-hit-targets button:focus-visible, .curve-residual-toggle:focus-visible {
+  outline: 2px solid var(--curve-dot-hover);
+  outline-offset: -2px;
+}
 
 @media (min-width: 1250px) {
   .standard-curve-window { font-size: 14px; }
   .standard-curve-toolbar, .standard-curve-footer { gap: 5px 10px; }
 }
 @media (max-width: 1249px) {
-  .standard-curve-toolbar, .standard-curve-footer { gap: 3px 5px; font-size: 11px; }
+  .standard-curve-toolbar, .standard-curve-footer { gap: 3px 5px; padding-block: 4px; font-size: 11px; }
   .standard-curve-manager .standard-curve-toolbar { column-gap: 3px; }
+  .standard-curve-panes { grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); }
   :root .app-shell .standard-curve-window :is(.standard-curve-toolbar, .standard-curve-footer) :is(button, select) { padding-inline: 4px; }
   :root .app-shell .standard-curve-window .standard-curve-table :is(th, td) { padding-inline: 2px; font-size: 11px; }
 }

@@ -6,6 +6,8 @@ import { calculationProfileLabel } from '../../components/calculationProfile'
 import { nudgeStandardIntensity } from '../../components/legacyObservation'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { CurveChart, curveChartLimits } from './CurveChart'
+import { CurveResiduals } from './CurveResiduals'
+import { canToggleCurvePoint, computeCurveKpis, formatCurveNumber as displayNumber, relativeErrorTier } from './standardCurveModel'
 import './standard-curve.css'
 
 const fitModes = {
@@ -15,7 +17,6 @@ const fitModes = {
   spline: '样条函数',
 }
 
-const displayNumber = (value: number | null | undefined, digits: number) => value == null ? '—' : value.toFixed(digits)
 const pointNumber = (index: number) => index.toString(16).toUpperCase()
 export const standardCurveLineLabel = (line: Pick<AnalysisCurveLine, 'element' | 'wavelength_nm'>) =>
   `${line.element}  ${line.wavelength_nm.toFixed(4)}`
@@ -40,6 +41,7 @@ type WorkspaceProps = {
   workspace: Pick<AnalysisCurveLine['workspace'], 'points' | 'fit_mode' | 'coordinate_type'>
   profile: AnalysisRun['calculation_profile']
   shownSnapshot?: AnalysisCurveSnapshot
+  previousSnapshot?: AnalysisCurveSnapshot
   currentFit: boolean
   canEdit: boolean
   fit: () => void
@@ -51,10 +53,11 @@ type WorkspaceProps = {
 }
 
 export function StandardCurveWorkspace({
-  line, workspace, profile, shownSnapshot, currentFit, canEdit, fit, adjust, samplePreview, toolbar, footer, status,
+  line, workspace, profile, shownSnapshot, previousSnapshot, currentFit, canEdit, fit, adjust, samplePreview, toolbar, footer, status,
 }: WorkspaceProps) {
   const { points, coordinate_type: coordinate } = workspace
   const [selection, setSelectedPoint] = useState<number | undefined>()
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
   const menu = useContextMenu<number>()
   const [ruler, setRuler] = useState<1 | 5>(5)
   const [tab, setTab] = useState<'standards' | 'samples'>('standards')
@@ -64,12 +67,16 @@ export function StandardCurveWorkspace({
   const legacy = profile === 'legacy_2_0_2'
   const logarithmic = coordinate === 'logarithmic'
   const fitForChart = shownSnapshot?.coordinate_type === coordinate ? shownSnapshot : undefined
-  const activeCount = points.filter((item) => item.active && item.adjusted_intensity != null).length
-  const canTogglePoint = (item: typeof point) => canEdit && item?.adjusted_intensity != null && !(legacy && item.active && activeCount <= 4)
+  const { correlation, activeCount, totalCount, maxRelativeErrorPercent, pendingFit, deltaR } =
+    computeCurveKpis({ points, currentFit, shownSnapshot, previousSnapshot })
+  const canTogglePoint = (item: typeof point | undefined) => canToggleCurvePoint(item, canEdit, profile, activeCount)
   const canRestorePoint = (item: typeof point) => canEdit && Boolean(item && item.adjusted_intensity !== item.original_intensity)
   const canRestoreAll = canEdit && points.some(canRestorePoint)
-  const togglePoint = (index: number, value: boolean) => adjust({ action: 'set_active', point_index: index, active: value,
-    reason: '修改参与拟合状态' }, '参与拟合状态已保存', true)
+  const togglePoint = (index: number, value: boolean) => {
+    const item = points.find((entry) => entry.point_index === index)
+    if (!canTogglePoint(item) || item?.active === value) return
+    adjust({ action: 'set_active', point_index: index, active: value, reason: '修改参与拟合状态' }, '参与拟合状态已保存', true)
+  }
   const restorePoint = (index: number) => adjust({ action: 'restore', point_index: index, reason: '还原当前标准点测量强度' }, '当前标准点强度已还原')
   const restoreAll = () => adjust({ action: 'restore_all', restore_activation: false, reason: '恢复全部原始标准强度' }, '全部标准点强度已还原')
   const menuPoint = points.find(item => item.point_index === menu.target?.data)
@@ -129,6 +136,24 @@ export function StandardCurveWorkspace({
         {toolbar}
       </div>
 
+      <div className="standard-curve-kpis" data-testid="standard-curve-kpi-bar" role="group" aria-label="拟合指标">
+        <span className="curve-kpi">相关系数 R <strong data-testid="standard-curve-kpi-r">{displayNumber(correlation, 6)}</strong>
+          {deltaR != null && <span className="curve-kpi-delta" data-testid="standard-curve-kpi-delta-r">
+            ΔR {deltaR > 0 ? '+' : ''}{displayNumber(deltaR, 6)}
+          </span>}
+        </span>
+        <span className="curve-kpi">有效点数 <strong data-testid="standard-curve-kpi-active">{activeCount}/{totalCount}</strong></span>
+        <span className="curve-kpi">最大相对误差
+          <strong className={`tier-${relativeErrorTier(maxRelativeErrorPercent)}`} data-testid="standard-curve-kpi-max-error">
+            {maxRelativeErrorPercent == null ? '—' : `${displayNumber(maxRelativeErrorPercent, 2)}%`}
+          </strong>
+        </span>
+        {pendingFit && <span className="curve-kpi curve-kpi-pending" data-testid="standard-curve-kpi-pending"
+          title={legacy ? '启停标准点或切换拟合方式时自动拟合，其余调整后请点击「重新拟合」' : '调整标准点或拟合条件后，请点击「重新拟合」'}>
+          待拟合
+        </span>}
+      </div>
+
       <div className="standard-curve-panes">
         <section className="standard-curve-list" aria-label="标准曲线数据">
           <div className="standard-curve-tabs" role="tablist" aria-label="标准曲线数据视图">
@@ -142,16 +167,25 @@ export function StandardCurveWorkspace({
                 <tbody>{points.map((item) => {
                   const row = diagnostics?.points.find((entry) => entry.point_index === item.point_index)
                   const digits = item.standard_value < 1 ? 6 : 3
-                  return <tr key={item.point_index} className={selectedPoint === item.point_index ? 'selected' : undefined}
+                  const rowClass = [selectedPoint === item.point_index ? 'selected' : '', hoveredPoint === item.point_index ? 'hovered' : ''].join(' ').trim()
+                  return <tr key={item.point_index} className={rowClass}
+                    onPointerEnter={() => setHoveredPoint(item.point_index)} onPointerLeave={() => setHoveredPoint(null)}
                     onClick={() => setSelectedPoint(item.point_index)}>
                     <td><button type="button" aria-label={`选择标准点 ${item.name}`}>{pointNumber(item.point_index)}</button></td>
                     <td>{displayNumber(item.original_intensity, 3)}</td><td>{displayNumber(item.adjusted_intensity, 3)}</td>
                     <td>{displayNumber(item.standard_value, digits)}</td><td>{displayNumber(row?.calculated_value, digits)}</td>
-                    <td>{displayNumber(row?.relative_error_percent, 2)}</td><td>{item.active ? '是' : '否'}</td>
+                    <td className={`curve-error-cell tier-${relativeErrorTier(row?.relative_error_percent)}`}>
+                      {displayNumber(row?.relative_error_percent, 2)}
+                    </td>
+                    <td><span className="curve-fit-toggle">
+                      <input type="checkbox" aria-label={`切换标准点 ${item.name} 参与拟合`} checked={item.active}
+                        disabled={!canTogglePoint(item)} onClick={(event) => event.stopPropagation()}
+                        onChange={(event) => togglePoint(item.point_index, event.target.checked)} />
+                      {item.active ? '是' : '否'}
+                    </span></td>
                   </tr>
                 })}</tbody>
               </table>
-              <p>相关系数 = {displayNumber(diagnostics?.correlation, 6)}</p>
               <p>标准样品分析结果</p>
               {samplePreview.filter((item) => item.management_sample).map((item, index) =>
                 <p key={index}>{item.sample_name}　{displayNumber(item.calculated_value, 6)}</p>)}
@@ -174,7 +208,8 @@ export function StandardCurveWorkspace({
             <span>修正强度：{displayNumber(point?.adjusted_intensity, 3)}</span>
           </output>
           <CurveChart snapshot={fitForChart} lineLabel={label} unit={line.unit} points={points}
-            logarithmic={logarithmic} legacy={legacy} selectedPoint={selectedPoint} onSelectPoint={setSelectedPoint}
+            logarithmic={logarithmic} legacy={legacy} selectedPoint={selectedPoint} hoveredPoint={hoveredPoint}
+            onSelectPoint={setSelectedPoint} onHoverPoint={setHoveredPoint}
             onAdjustPoint={canEdit ? (index, intensity) => {
               const adjusted = points.find(item => item.point_index === index)
               if (!adjusted || adjusted.adjusted_intensity === intensity) return
@@ -182,6 +217,8 @@ export function StandardCurveWorkspace({
                 reason: `鼠标拖动调整标准点 ${adjusted.name} 强度` }, '标准点修正已保存，请重新拟合')
             } : undefined}
             onPointContext={(event, index) => { setSelectedPoint(index); menu.open(event, index) }} />
+          <CurveResiduals points={points} diagnostics={diagnostics} selectedPoint={selectedPoint} hoveredPoint={hoveredPoint}
+            onSelectPoint={setSelectedPoint} onHoverPoint={setHoveredPoint} />
         </div>
       </div>
 
@@ -191,7 +228,7 @@ export function StandardCurveWorkspace({
         <button type="button" disabled={!canNudge} aria-label="上移标准点" title="Ctrl＋↑" onClick={() => nudge(1)}><ArrowUp size={14} /></button>
         <button type="button" disabled={!canNudge} aria-label="下移标准点" title="Ctrl＋↓" onClick={() => nudge(-1)}><ArrowDown size={14} /></button>
         {footer}
-        <span className="standard-curve-status" role="status">{!currentFit ? (shownSnapshot ? '标准点或条件已改变，请重新拟合' : '待拟合') : status}</span>
+        <span className="standard-curve-status" role="status">{!currentFit ? (shownSnapshot ? '标准点或条件已改变，请重新拟合' : '请先拟合标准点') : status}</span>
         <span>{calculationProfileLabel(profile)}</span>
       </div>
     </div>

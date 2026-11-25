@@ -695,8 +695,100 @@
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 16px;
 }
+.methods-page .spectral-ccd-coverage-bar {
+  grid-column: 1 / -1;
+  min-width: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ui-text);
+  font-size: 12px;
+}
+.spectral-ccd-coverage-bar summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  padding: 7px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+.spectral-ccd-coverage-bar summary::-webkit-details-marker { display: none; }
+.spectral-ccd-coverage-bar summary svg { color: var(--ui-accent); }
+.spectral-ccd-coverage-bar[open] summary svg { transform: rotate(90deg); }
+.spectral-ccd-coverage-bar summary span { color: var(--ui-muted); }
+.spectral-coverage-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  align-items: start;
+  gap: 8px;
+  max-block-size: min(32vh, 300px);
+  overflow: auto;
+  padding: 10px 12px;
+  border-top: 1px solid var(--ui-border);
+}
+.spectral-coverage-group {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-soft);
+  overflow-wrap: anywhere;
+}
+.spectral-coverage-group h3 { margin: 0; font-size: 13px; }
+.spectral-coverage-group :is(small, p, .spectral-coverage-range span) { color: var(--ui-muted); }
+.spectral-coverage-group small { font-size: 12px; font-weight: 400; }
+.spectral-coverage-group p { margin: 4px 0 0; }
+.spectral-coverage-range { font-variant-numeric: tabular-nums; }
+.spectral-coverage-range span { margin-right: 4px; }
+.spectral-coverage-track {
+  position: relative;
+  height: 9px;
+  margin: 6px 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface);
+}
+.spectral-coverage-track span { position: absolute; border-radius: inherit; }
+.spectral-coverage-track .physical { inset-block: 0; background: var(--ui-control-border); }
+.spectral-coverage-track .safe { inset-block: 2px; background: var(--ui-success); }
+.spectral-coverage-group .spectral-coverage-warning { color: var(--ui-warning); }
+.spectral-coverage-angle-ccd { margin-top: 5px; }
+.spectral-coverage-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0;
+  margin: 6px 0 0;
+  list-style: none;
+}
+.spectral-coverage-links:empty { display: none; }
+.spectral-coverage-undetermined {
+  color: var(--ui-warning);
+  background: var(--ui-warning-bg);
+}
+.spectral-coverage-undetermined ul { display: grid; gap: 6px; }
+.spectral-coverage-undetermined li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.methods-page :is(.spectral-coverage-links, .spectral-filter-actions, .spectral-preview-heading) button {
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ui-accent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.methods-page :is(.spectral-coverage-links, .spectral-filter-actions, .spectral-preview-heading) button:hover {
+  border-color: var(--ui-accent);
+  background: var(--ui-selected);
+}
+.methods-page :is(.spectral-ccd-coverage-bar, .spectral-search-filters, .spectral-batch-preview, .spectral-line-list) :focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: -2px;
+}
 :root .app-shell .methods-page .spectral-list-surface {
-  top: 20px;
+  position: static;
   padding: 16px;
 }
 :root .app-shell .methods-page .spectral-list-surface[hidden] {
@@ -707,15 +799,79 @@
 }
 :root .app-shell .methods-page .spectral-heading {
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
-:root .app-shell .methods-page .spectral-heading > button {
+.spectral-search-filters {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.spectral-search-field { position: relative; }
+.spectral-search-field svg {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  color: var(--ui-muted);
+  pointer-events: none;
+}
+.methods-page .spectral-search-field input { padding-inline-start: 28px; }
+.spectral-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+.spectral-filter-grid label { color: var(--ui-muted); font-size: 12px; }
+.methods-page .spectral-search-filters :is(input, select) {
   width: 100%;
+  min-width: 0;
+  min-height: 29px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ui-text);
+  font-size: 12px;
+}
+.spectral-filter-grid select { display: block; padding-inline: 4px; }
+.spectral-search-field input::placeholder { color: var(--ui-muted); }
+.spectral-filter-actions,
+.spectral-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--ui-muted);
+  font-size: 12px;
+}
+.spectral-selected-hidden { color: var(--ui-warning); }
+.spectral-batch-preview {
+  margin-top: 8px;
+  padding: 7px 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-selected);
+  color: var(--ui-text);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.spectral-preview-heading strong { color: var(--ui-text); }
+.spectral-batch-preview p { margin: 3px 0 0; }
+.spectral-line-item-row {
+  display: grid;
+  grid-template-columns: 17px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+.spectral-line-item-row input { inline-size: 15px; block-size: 15px; margin: 0; accent-color: var(--ui-accent); }
+.spectral-line-list .spectral-list-empty { margin: 6px 0; color: var(--ui-muted); font-size: 12px; }
+:root .app-shell .methods-page .spectral-batch-preview + .spectral-line-list {
+  max-height: clamp(112px, calc(100vh - 535px), 610px);
 }
 :root .app-shell .methods-page .spectral-line-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  max-height: calc(100vh - 390px);
+  max-height: clamp(112px, calc(100vh - 430px), 610px);
   overflow-y: auto;
 }
 :root .app-shell .methods-page .spectral-editor-surface > .surface-heading {
@@ -735,13 +891,15 @@
   grid-column: 1 / -1;
 }
 :root .app-shell .methods-page .spectral-line-card {
-  min-height: 68px;
+  min-height: 54px;
   background: var(--ui-soft);
   border-color: var(--ui-border);
 }
 :root .app-shell .methods-page .spectral-sortbar {
   flex-wrap: wrap;
   background: var(--ui-soft);
+  margin-top: 8px;
+  padding-block: 4px;
   gap: 6px;
 }
 :root .app-shell .methods-page .spectral-sortbar :is(span, button) {
@@ -1080,19 +1238,16 @@
   }
 }
 
-@media (max-width: 1350px) {
+@media (max-width: 1160px) {
   :root .app-shell .methods-page .spectral-workbench {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 248px minmax(0, 1fr);
   }
 }
 @media (max-width: 900px) {
   :root .app-shell .methods-page .spectral-workbench {
     grid-template-columns: minmax(0, 1fr);
   }
-  :root .app-shell .methods-page .spectral-list-surface {
-    position: static;
-  }
-  :root .app-shell .methods-page .spectral-line-list {
+  :root .app-shell .methods-page :is(.spectral-line-list, .spectral-batch-preview + .spectral-line-list) {
     max-height: 150px;
   }
 }

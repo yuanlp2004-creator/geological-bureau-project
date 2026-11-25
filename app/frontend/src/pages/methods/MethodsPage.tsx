@@ -667,6 +667,8 @@ export function MethodsPage({
                 <SpectralLinesPanel
                   key={`${selected.id}:${lineEditorRevision}`}
                   methodId={selected.id}
+                  conditions={conditions}
+                  methodOptions={options}
                   initialLineId={selectedLineId}
                   onSelectedLineChange={setSelectedLineId}
                   onDirtyChange={setLineDirty}

@@ -5,7 +5,9 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import {
   api,
   type LineDetectability,
+  type MethodConditions,
   type MethodLineCollection,
+  type MethodOptions,
   type SpectralLine,
   type SpectralLineInput,
   type SpectralLineOptions
@@ -13,12 +15,16 @@ import {
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { SpectralLineEditor } from './SpectralLineEditor'
 import { SpectralLineList } from './SpectralLineList'
+import { SpectralCcdCoverage } from './SpectralCcdCoverage'
 import { defaultLine, lineToInput, methodExposureMode } from './spectralLineDraft'
+import { buildCcdCoverageSummary, defaultSpectralLineFilters, filterSpectralLines, locateSpectralLine } from './spectralLineFilters'
 import { availableId } from '../../stores/workbenchRestore'
 import { lineFormIsDirty } from '../../layout/navigationGuard'
 
 export function SpectralLinesPanel({
   methodId,
+  conditions,
+  methodOptions,
   initialLineId,
   onSelectedLineChange,
   onDirtyChange,
@@ -28,6 +34,8 @@ export function SpectralLinesPanel({
   onToast
 }: {
   methodId: number
+  conditions: MethodConditions | null
+  methodOptions: MethodOptions | null
   initialLineId?: string | null
   onSelectedLineChange?: (lineId: string | null) => void
   onDirtyChange?: (dirty: boolean) => void
@@ -46,7 +54,11 @@ export function SpectralLinesPanel({
   const [detectability, setDetectability] = useState<LineDetectability | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [filters, setFilters] = useState(defaultSpectralLineFilters)
+  const [batchSelectedIds, setBatchSelectedIds] = useState<ReadonlySet<string>>(() => new Set())
+  const [location, setLocation] = useState<{ id: string; focus: boolean } | null>(null)
 
+  const workbench = useRef<HTMLDivElement>(null)
   const linesRequest = useRef(0)
   const initialSelection = useRef(initialLineId)
   const lineSelection = useRef<string | null>(null)
@@ -56,7 +68,7 @@ export function SpectralLinesPanel({
     lineSelection.current = selectedId
   }, [selectedId])
   useLayoutEffect(() => () => { linesRequest.current++ }, [methodId, token])
-  const loadLines = useCallback(async () => {
+  const loadLines = useCallback(async (preserveEditor = false) => {
     if (currentMethod.current.methodId !== methodId || currentMethod.current.token !== token) return
     const requestId = ++linesRequest.current
     const isCurrent = () =>
@@ -74,11 +86,12 @@ export function SpectralLinesPanel({
       initialSelection.current = undefined
       setCollection(nextCollection)
       setOptions(nextOptions)
+      setError(null)
+      if (preserveEditor && (!lineSelection.current || nextLine?.id === lineSelection.current)) return
       setCreating(false)
       setSelectedId(nextId ?? null)
       setDraft(nextLine ? lineToInput(nextLine) : defaultLine())
       setDetectability(nextLine?.detectability ?? null)
-      setError(null)
     } catch (cause) {
       if (isCurrent()) setError(cause instanceof Error ? cause.message : '无法读取谱线')
     }
@@ -92,10 +105,32 @@ export function SpectralLinesPanel({
     setCreating(false)
     setSelectedId(null)
     setBusy(false)
+    setFilters(defaultSpectralLineFilters)
+    setBatchSelectedIds(new Set())
+    setLocation(null)
     saving.current = null
   }, [methodId, token])
 
+  useEffect(() => {
+    if (!collection) return
+    const lineIds = new Set(collection.lines.map(line => line.id))
+    setBatchSelectedIds(previous => {
+      const available = new Set([...previous].filter(id => lineIds.has(id)))
+      return available.size === previous.size ? previous : available
+    })
+  }, [collection])
+
   const selected = collection?.lines.find((line) => line.id === selectedId) ?? null
+  const visibleLines = useMemo(() => filterSpectralLines(collection?.lines ?? [], filters), [collection, filters])
+  const ccdLayout = methodOptions?.ccd_layouts.find(layout =>
+    String(layout.id) === String(conditions?.ccd_layout_id) || layout.name === conditions?.ccd_layout_id)
+  const calibration = methodOptions?.dispersion_calibrations.find(item =>
+    item.ccd_layout_id === ccdLayout?.id && (
+      String(item.id) === String(conditions?.dispersion_calibration_id) || item.name === conditions?.dispersion_calibration_id
+    ))
+  const coverage = useMemo(() => conditions && collection
+    ? buildCcdCoverageSummary({ lines: collection.lines, conditions, calibration, ccdLayout }) : null,
+  [collection, conditions, calibration, ccdLayout])
   const savedInput = useMemo(() => selected ? lineToInput(selected) : null, [selected])
   const dirty = lineFormIsDirty(draft, creating ? createBaseline : savedInput)
   useLayoutEffect(() => {
@@ -142,11 +177,35 @@ export function SpectralLinesPanel({
   const updateDraft = <K extends keyof SpectralLineInput>(key: K, value: SpectralLineInput[K]) =>
     setDraft((previous) => ({ ...previous, [key]: value }))
   const edit = (line: SpectralLine) => {
+    if (line.id === selectedId && !creating) return
     setCreating(false)
     setSelectedId(line.id)
     setDraft(lineToInput(line))
     setDetectability(line.detectability ?? null)
   }
+  const revealLine = (id: string, focus: boolean) => {
+    const target = locateSpectralLine(collection?.lines ?? [], id, filters)
+    if (!target) return
+    setFilters(target.filters)
+    setLocation({ id, focus })
+    return target.line
+  }
+  const locateFromOverview = (id: string) => {
+    const line = revealLine(id, true)
+    if (!line) return
+    setListCollapsed(false)
+    // 输入框里的无效原文也属于草稿，即使尚未写入 draft。
+    const invalidInput = workbench.current?.querySelector(
+      '.spectral-editor-surface [data-numeric-input][aria-invalid="true"]:invalid:not(:disabled)'
+    )
+    if (!busy && !creating && !dirty && !invalidInput) edit(line)
+  }
+  const toggleBatchSelection = (id: string) => setBatchSelectedIds(previous => {
+    const next = new Set(previous)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    return next
+  })
   const beginCreate = () => {
     const next = convertLineUnit(defaultLine(), collection?.lines.find((line) => line.line_type === 'baseline')?.unit ?? 'ug/g')
     setCreating(true)
@@ -156,11 +215,11 @@ export function SpectralLinesPanel({
     setDetectability(null)
   }
 
-  const mutate = async (action: () => Promise<unknown>, success: string) => {
+  const mutate = async (action: () => Promise<unknown>, success: string, preserveEditor = false) => {
     setBusy(true)
     try {
       await action()
-      await Promise.all([loadLines(), onChanged()])
+      await Promise.all([loadLines(preserveEditor), onChanged()])
       onToast(success)
       setError(null)
     } catch (cause) {
@@ -173,7 +232,7 @@ export function SpectralLinesPanel({
   const saving = useRef<object | null>(null)
   const save = async () => {
     if (saving.current || !canWrite || selected?.line_type === 'baseline') return
-    if (!reportInvalidNumericInput(document.querySelector('.spectral-editor-surface')))
+    if (!reportInvalidNumericInput(workbench.current?.querySelector('.spectral-editor-surface')))
       return onToast('请先修正谱线中的无效数值')
     const creatingNow = creating
     const requestEpoch = linesRequest.current
@@ -198,12 +257,15 @@ export function SpectralLinesPanel({
       if (!valid()) return
       const revision = result.version
       if (!revision) throw new Error('保存已完成，请刷新读取方法版本后继续编辑')
+      const changedId = result.changed_line_id ?? selectedId
+      const previousDetection = new Map(collection?.lines.map(line => [line.id, line.detectability]))
       const next = { method_id: methodId, version: revision.version, state: revision.state,
-        lines: revision.lines.map((line) => line.id === (result.changed_line_id ?? selectedId)
-          ? { ...line, detectability: detectability ?? undefined } : line),
+        lines: revision.lines.map(line => ({ ...line, detectability: line.detectability ?? (
+          line.id === changedId ? detectability ?? undefined : previousDetection.get(line.id)
+        ) })),
         exposure_mode: methodExposureMode(revision.conditions, revision.lines), frame_count: revision.conditions.frame_count }
       setCollection(next)
-      const saved = next.lines.find((line) => line.id === (result.changed_line_id ?? selectedId))
+      const saved = next.lines.find(line => line.id === changedId)
       if (saved) {
         setSelectedId(saved.id)
         setDraft(lineToInput(saved))
@@ -232,6 +294,7 @@ export function SpectralLinesPanel({
   }
 
   const reorder = (ordered: SpectralLine[], success: string) => {
+    if (selectedId) revealLine(selectedId, false)
     void mutate(
       () =>
         api.reorderLines(
@@ -239,7 +302,8 @@ export function SpectralLinesPanel({
           methodId,
           ordered.map((line) => line.id)
         ),
-      success
+      success,
+      true
     )
   }
 
@@ -288,13 +352,14 @@ export function SpectralLinesPanel({
   const isBaseline = !creating && selected?.line_type === 'baseline'
 
   return (
-    <div className={`spectral-workbench ${listCollapsed ? 'list-collapsed' : ''}`} data-testid="spectral-lines-panel">
+    <div ref={workbench} className={`spectral-workbench ${listCollapsed ? 'list-collapsed' : ''}`} data-testid="spectral-lines-panel">
       {error && (
         <div className="auth-error">
           <AlertTriangle size={15} />
           {error}
         </div>
       )}
+      {coverage && <SpectralCcdCoverage coverage={coverage} onLocate={locateFromOverview} />}
       <SpectralLineList
         listCollapsed={listCollapsed}
         collection={collection}
@@ -306,6 +371,15 @@ export function SpectralLinesPanel({
         selectedId={selectedId}
         creating={creating}
         edit={edit}
+        visibleLines={visibleLines}
+        filters={filters}
+        setFilters={setFilters}
+        ccdLayout={ccdLayout}
+        batchSelectedIds={batchSelectedIds}
+        toggleBatchSelection={toggleBatchSelection}
+        clearBatchSelection={() => setBatchSelectedIds(new Set())}
+        location={location}
+        onLocate={locateFromOverview}
       />
 
       <SpectralLineEditor

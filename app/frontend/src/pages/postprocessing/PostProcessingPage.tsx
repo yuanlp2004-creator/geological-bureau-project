@@ -19,7 +19,12 @@ import { restorePostProcessingSelection } from '../../stores/workbenchRestore'
 import { recalculationIsDirty, type RegisterDirtyGuard } from '../../layout/navigationGuard'
 
 type CurveWorkspace = Pick<AnalysisCurveSnapshot, 'points' | 'fit_mode' | 'coordinate_type'>
-type WorkingCurve = { workspace: CurveWorkspace; snapshot?: AnalysisCurveSnapshot; fittedRequest?: RecalculationCurveDraft }
+type WorkingCurve = {
+  workspace: CurveWorkspace
+  snapshot?: AnalysisCurveSnapshot
+  previousSnapshot?: AnalysisCurveSnapshot
+  fittedRequest?: RecalculationCurveDraft
+}
 
 type Props = WorkbenchIdentity & {
   actionsTarget?: HTMLElement | null
@@ -210,7 +215,10 @@ export function PostProcessingPage({
     setBusy(true)
     try {
       const { snapshot } = await api.fitPostprocessingRecalculationCurve(token, id, request)
-      setDrafts((current) => ({ ...current, [id]: { workspace: snapshot, snapshot, fittedRequest: request } }))
+      setDrafts((current) => ({
+        ...current,
+        [id]: { workspace: snapshot, snapshot, previousSnapshot: current[id]?.snapshot ?? details?.snapshot, fittedRequest: request },
+      }))
       onToast('重算草稿已拟合')
     } catch (error) {
       onToast(error instanceof Error ? error.message : '拟合失败')
@@ -232,7 +240,10 @@ export function PostProcessingPage({
         return { ...point, adjusted_intensity: action.action === 'restore' ? point.original_intensity : action.adjusted_intensity }
       }) }
     }
-    setDrafts((current) => ({ ...current, [curveId]: { workspace: value, snapshot: draft?.snapshot } }))
+    setDrafts((current) => ({
+      ...current,
+      [curveId]: { ...current[curveId], workspace: value, fittedRequest: undefined },
+    }))
     if (profile === 'legacy_2_0_2' && refit) void fitDraft(curveId, value)
   }
 
@@ -330,7 +341,8 @@ export function PostProcessingPage({
 
             {view === 'recalculate' && <div className="recalculation-curve-surface">
               {details && workspace && viewedCurve ? <StandardCurveWorkspace key={viewedCurve.id} line={details} workspace={workspace}
-                profile={profile} shownSnapshot={draft?.snapshot ?? details.snapshot} currentFit={!draft || Boolean(draft.fittedRequest)}
+                profile={profile} shownSnapshot={draft?.snapshot ?? details.snapshot} previousSnapshot={draft?.previousSnapshot}
+                currentFit={!draft || Boolean(draft.fittedRequest)}
                 canEdit={canExecute && !busy} adjust={adjustDraft} fit={() => void fitDraft(viewedCurve.id, workspace)}
                 samplePreview={samplePreview}
                 status={lastBatch?.status === 'completed' ? '重算已完成，请查看数据预览'
