@@ -6,7 +6,6 @@ import {
   type AuthUser,
   type Capability,
   type CurrentMethodState,
-  type RuntimeEvent,
   type Settings
 } from '../api'
 import type { AnalysisRun } from '../api'
@@ -25,6 +24,8 @@ import { type ToastNotice, feedbackToneFor } from './feedback'
 import { ErrorPage } from './StatusPages'
 import { PageHeading } from '../components/PageHeading'
 import { MessagePanel } from '../components/MessagePanel'
+import { RenderProfilerProbe } from '../components/RenderProfiler'
+import { runtimeEventsStore } from '../stores/runtimeEventsStore'
 import type { CSSProperties } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
@@ -45,7 +46,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     key: 'workspace.overview',
     view: null
   })
-  const [events, setEvents] = useState<RuntimeEvent[]>([])
   const [dockHeight, setDockHeight] = useState(184)
   const [informationExpanded, setInformationExpanded] = useState<boolean>()
   const canReadEvents = user.permissions.includes('runtime-events.read')
@@ -75,22 +75,21 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
 
   const loadData = useCallback(async () => {
     setLoading(true)
+    if (canReadEvents) void runtimeEventsStore.refresh()
     try {
       const currentPromise = user.permissions.includes('methods.read')
         ? api.currentMethod(token)
         : Promise.resolve(null)
       const aboutPromise = user.permissions.includes('about.read') ? api.about(token) : Promise.resolve(null)
-      const [nextHealth, nextEvents, nextSettings, nextAbout, nextCapabilities, nextCurrentMethod] =
+      const [nextHealth, nextSettings, nextAbout, nextCapabilities, nextCurrentMethod] =
         await Promise.all([
           api.health(),
-          canReadEvents ? api.logs(token, '?limit=500') : Promise.resolve([]),
           user.permissions.includes('settings.read') ? api.settings(token) : Promise.resolve(null),
           aboutPromise,
           api.capabilities(),
           currentPromise
         ])
       setHealth(nextHealth.status === 'ok' ? 'online' : 'offline')
-      setEvents(nextEvents)
       setSettings(nextSettings)
       setAbout(nextAbout)
       setCapabilities(nextCapabilities.capabilities)
@@ -103,24 +102,18 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   }, [token, user.permissions, canReadEvents])
 
   useEffect(() => {
+    runtimeEventsStore.startSession({ token, userId: user.id, canRead: canReadEvents })
+    return () => runtimeEventsStore.stopSession()
+  }, [token, user.id, canReadEvents])
+  useEffect(() => {
     void loadData()
-  }, [loadData])
+  }, [loadData, user.id])
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = settings?.display.theme === 'dark' ? 'dark' : 'light'
     root.dataset.density = settings?.display.density === 'compact' ? 'compact' : 'comfortable'
     root.dataset.timezone = settings?.time.timezone || 'Asia/Shanghai'
   }, [settings])
-  useEffect(() => {
-    if (!canReadEvents) return
-    const interval = window.setInterval(() => {
-      void api
-        .logs(token, '?limit=500')
-        .then(setEvents)
-        .catch(() => undefined)
-    }, 1500)
-    return () => window.clearInterval(interval)
-  }, [token, canReadEvents])
   useEffect(() => {
     if (!toast) return
     const timeout = window.setTimeout(() => setToast(null), 2800)
@@ -172,6 +165,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       data-theme={settings?.display.theme ?? 'light'}
       data-density={settings?.display.density ?? 'comfortable'}
     >
+      <RenderProfilerProbe id="WorkspaceApp" />
       {health === 'offline' && !loading && !about && !capabilities.length ? (
         <ErrorPage onRetry={loadData} />
       ) : (
@@ -206,12 +200,10 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 token={token}
                 health={health}
                 canClearEvents={user.permissions.includes('runtime-events.write')}
-                events={events}
                 currentMethod={currentMethod}
                 capabilities={capabilities}
                 entries={entries}
                 onNavigate={handlePage}
-                onEventsChange={setEvents}
                 onToast={showToast}
               />
             )}
@@ -285,7 +277,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               <ExtensionPage token={token} extension={activeExtension} onToast={showToast} />
             )}
             </div>
-            {canReadEvents && <MessagePanel key={user.id} events={events} userId={user.id} onHeightChange={setDockHeight}
+            {canReadEvents && <MessagePanel key={user.id} userId={user.id} onHeightChange={setDockHeight}
               expanded={informationExpanded} onExpandedChange={setInformationExpanded} />}
           </main>
         </>

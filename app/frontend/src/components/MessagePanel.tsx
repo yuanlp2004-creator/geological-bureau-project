@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { RuntimeEvent } from '../api'
+import { useRuntimeEvents } from '../stores/runtimeEventsStore'
+import { RenderProfiler } from './RenderProfiler'
 import { formatTime } from './dateFormat'
 import { categoryLabel, severityLabel } from './eventLabels'
 import './message-panel.css'
@@ -41,13 +43,13 @@ function preferences(key: string) {
   } catch { return { collapsed: true, height: 184, level: 'default' as Level } }
 }
 
-export function MessagePanel({ events, userId, onHeightChange, expanded, onExpandedChange }: {
-  events: RuntimeEvent[]
+export function MessagePanel({ userId, onHeightChange, expanded, onExpandedChange }: {
   userId: number
   onHeightChange: (height: number) => void
   expanded: boolean | undefined
   onExpandedChange: (value: boolean) => void
 }) {
+  const events = useRuntimeEvents()
   const storageKey = `geospectrum:information-panel:${userId}`
   const [initial] = useState(() => preferences(storageKey))
   const [channel, setChannel] = useState<Channel>('general')
@@ -105,7 +107,7 @@ export function MessagePanel({ events, userId, onHeightChange, expanded, onExpan
     const latest = source.filter(event => channelOf(event) === channel).reduce((id, event) => Math.max(id, event.id), 0)
     setCleared(previous => ({ ...previous, [channel]: Math.max(previous[channel], latest) }))
   }
-  return (
+  const content = (
     <section ref={panel} className={`runtime-message-panel${collapsed ? ' is-collapsed' : ''}`} data-testid="runtime-messages"
       aria-label="信息记录" style={collapsed ? undefined : { height }}>
       {!collapsed && <div className="runtime-message-resizer" role="separator" aria-label="调整信息记录高度"
@@ -156,4 +158,5 @@ export function MessagePanel({ events, userId, onHeightChange, expanded, onExpan
       </div>
     </section>
   )
+  return <RenderProfiler id="MessagePanel">{content}</RenderProfiler>
 }

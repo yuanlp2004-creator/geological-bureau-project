@@ -15,7 +15,8 @@ import {
   SlidersHorizontal,
   SquareTerminal,
 } from 'lucide-react'
-import { api, saveFile, type Capability, type CurrentMethodState, type RuntimeEvent } from '../../api'
+import { saveFile, type Capability, type CurrentMethodState } from '../../api'
+import { runtimeEventsStore, useRuntimeEvents } from '../../stores/runtimeEventsStore'
 import { type NavigationEntry, type Page } from '../../navigation'
 import { formatTime } from '../../components/dateFormat'
 import { categoryLabel } from '../../components/eventLabels'
@@ -26,25 +27,22 @@ export function Workspace({
   token,
   health,
   canClearEvents,
-  events,
   currentMethod,
   capabilities,
   entries,
   onNavigate,
-  onEventsChange,
   onToast
 }: {
   token: string
   health: 'online' | 'offline'
   canClearEvents: boolean
-  events: RuntimeEvent[]
   currentMethod: CurrentMethodState | null
   capabilities: Capability[]
   entries: NavigationEntry[]
   onNavigate: (page: Page) => void
-  onEventsChange: (events: RuntimeEvent[]) => void
   onToast: (message: string) => void
 }) {
+  const events = useRuntimeEvents()
   const [eventFilter, setEventFilter] = useState('all')
   const [selected, setSelected] = useState<number[]>([])
   const filteredEvents = useMemo(
@@ -63,8 +61,7 @@ export function Workspace({
       return
     }
     try {
-      await api.clearLogs(token)
-      onEventsChange([])
+      await runtimeEventsStore.clearServerEvents(token)
       setSelected([])
       onToast('运行消息已清空')
     } catch {

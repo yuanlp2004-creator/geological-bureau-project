@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type PointerEvent, type Wh
 import { ZOOM_IN, ZOOM_OUT, type SpectrumViewRange } from './spectrumZoom'
 import type { SpectrumPoint } from '../api'
 import { formatIntegerTick, integerAxisTicks, fractionalTicks, formatFractionalTick } from './SimpleChartAxes'
+import { RenderProfiler } from './RenderProfiler'
 
 export type SpectrumPlotDatum = { point: SpectrumPoint; x: number; y: number }
 export type SpectrumPlotCurve = {
@@ -219,7 +220,7 @@ export function SpectrumPlot({
     }
   }
 
-  return (
+  const content = (
     <svg
       className={`spectrum-plot tool-${tool}`}
       ref={svgRef}
@@ -349,4 +350,5 @@ export function SpectrumPlot({
       </text>
     </svg>
   )
+  return <RenderProfiler id="SpectrumPlot">{content}</RenderProfiler>
 }

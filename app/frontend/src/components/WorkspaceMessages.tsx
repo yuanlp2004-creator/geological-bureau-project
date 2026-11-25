@@ -7,8 +7,8 @@ import { formatTime } from './dateFormat'
   events, filteredEvents, selected, setSelected, selectAll, setSelectAll, filter, setFilter,
   onClear, onCopy, onSave
 }: {
-  events: RuntimeEvent[]
-  filteredEvents: RuntimeEvent[]
+  events: readonly RuntimeEvent[]
+  filteredEvents: readonly RuntimeEvent[]
   selected: number[]
   setSelected: (ids: number[]) => void
   selectAll: boolean
