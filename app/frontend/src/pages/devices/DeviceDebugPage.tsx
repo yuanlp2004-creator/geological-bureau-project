@@ -4,6 +4,7 @@ import { AcquisitionPage } from './AcquisitionPage'
 import { SoftwareParameters } from './SoftwareParameters'
 import { DeviceParameters } from './DeviceParameters'
 import { DeviceConnection } from './DeviceConnection'
+import { hardwareLockStore } from '../../stores/hardwareLockStore'
 import './device-debug.css'
 
 type Tab = 'software' | 'device' | 'alignment' | 'connection'
@@ -40,6 +41,8 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
   }, [requestedView])
   const choose = (next: Tab) => {
     if (next === tab) return
+    const blocked = hardwareLockStore.blockedReason()
+    if (blocked) { onToast(blocked); return }
     setTab(next)
     setVisited(current => new Set([...current, next]))
     onViewChange(next)
@@ -56,6 +59,9 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
       {item.id === 'software' && settings && <SoftwareParameters token={token} settings={settings} canWrite={permissions.includes('settings.write')}
         onSettingsChange={onSettingsChange} onToast={onToast} actionsTarget={actionsTarget} active={tab === item.id} />}
       {item.id === 'device' && <DeviceParameters token={token} canWrite={permissions.includes('devices.write')} canExecute={permissions.includes('devices.execute')}
+        handoffPurpose={permissions.includes('acquisition.execute') ? 'acquisition'
+          : permissions.includes('dispersion.execute') ? 'dispersion'
+          : permissions.includes('hardware-acquisition.execute') ? 'hardware-acquisition' : undefined}
         canWriteScreen={permissions.includes('settings.write')} canReadLayouts={permissions.includes('methods.read')}
         settings={settings} onSettingsChange={onSettingsChange} revision={revision} onSaved={onDeviceSaved} onProfileChange={setProfile} onToast={onToast} actionsTarget={actionsTarget} active={tab === item.id} />}
       {item.id === 'connection' && <DeviceConnection token={token} canWrite={permissions.includes('devices.write')} canExecute={permissions.includes('devices.execute')}

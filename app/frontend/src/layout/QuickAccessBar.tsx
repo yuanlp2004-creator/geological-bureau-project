@@ -35,8 +35,8 @@ export function QuickAccessBar({ entries, permissions, currentMethod, activeEntr
   permissions: string[]
   currentMethod: CurrentMethodState | null
   activeEntry?: NavigationEntry
-  onNavigate: (entry: NavigationEntry) => void
-  onMethodShortcut: (action: MethodShortcutAction) => void
+  onNavigate: (entry: NavigationEntry) => void | Promise<boolean>
+  onMethodShortcut: (action: MethodShortcutAction) => void | Promise<boolean>
 }) {
   const visibleGroups = groups.map(group => ({ ...group, items: group.items.flatMap(shortcut => {
     const entry = entries.find(item => item.page === shortcut.page &&

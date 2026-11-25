@@ -75,10 +75,11 @@ export function OpenMethodDialog({ token, methods, selectedId, busy, loading = f
   </dialog>
 }
 
-export function WorkspaceOpenMethodDialog({ token, selectedId, switchBlockedReason, onOpened, onCancel }: {
+export function WorkspaceOpenMethodDialog({ token, selectedId, switchBlockedReason, beforeOpen, onOpened, onCancel }: {
   token: string
   selectedId: number | null
   switchBlockedReason: () => string | null
+  beforeOpen: () => Promise<boolean>
   onOpened: (method: CurrentMethodState) => void
   onCancel: () => void
 }) {
@@ -115,6 +116,9 @@ export function WorkspaceOpenMethodDialog({ token, selectedId, switchBlockedReas
     updateBusy(true)
     setError(null)
     try {
+      if (!await beforeOpen() || !mounted.current) return
+      const currentBlock = switchBlockedReason()
+      if (currentBlock) { setError(currentBlock); return }
       const current = await openPublishedMethod(token, id)
       if (mounted.current) onOpened(current)
     } catch (cause) {

@@ -51,6 +51,12 @@ export function createDeviceStatusStore({ fetchDiagnostics }: {
     })
   }
 
+  function publishError(error: unknown) {
+    if (!session?.canRead) return
+    setSnapshot({ ...snapshot, status: 'error', stateLabel: '诊断读取失败',
+      lastError: error instanceof Error ? error.message : '无法读取设备诊断' })
+  }
+
   function refresh(): Promise<void> {
     if (!session?.canRead) return Promise.resolve()
     if (inFlight) return inFlight
@@ -64,10 +70,7 @@ export function createDeviceStatusStore({ fetchDiagnostics }: {
         // A newer operation receipt takes precedence over an in-flight read.
         if (snapshot === loading) publish(next.adapter, next.active_captures?.length ?? 0, loading.generation)
       } catch (error) {
-        if (snapshot === loading) {
-          setSnapshot({ ...snapshot, status: 'error', stateLabel: '诊断读取失败',
-            lastError: error instanceof Error ? error.message : '无法读取设备诊断' })
-        }
+        if (snapshot === loading) publishError(error)
       } finally {
         if (loading.generation === snapshot.generation) inFlight = null
       }
@@ -86,11 +89,11 @@ export function createDeviceStatusStore({ fetchDiagnostics }: {
     getSessionGeneration(token: string) {
       return session?.canRead && session.token === token ? snapshot.generation : null
     },
-    startSession(next: Session) {
+    startSession(next: Session, refreshOnStart = true) {
       session = { ...next, canRead: next.canRead === true }
       inFlight = null
       setSnapshot(emptyStatus(snapshot.generation + 1, session.canRead ? 'idle' : 'unauthorized'))
-      return refresh()
+      return refreshOnStart ? refresh() : Promise.resolve()
     },
     stopSession() {
       session = null
@@ -98,6 +101,7 @@ export function createDeviceStatusStore({ fetchDiagnostics }: {
       setSnapshot(emptyStatus(snapshot.generation + 1))
     },
     refresh,
-    publish
+    publish,
+    publishError
   }
 }

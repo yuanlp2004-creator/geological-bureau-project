@@ -5,6 +5,7 @@ import { navigationAvailability, type NavigationEntry } from '../../navigation'
 import { DispersionPage } from '../dispersion/DispersionPage'
 import { AcquisitionWorkspace } from './AcquisitionWorkspace'
 import { SpectroscopySession, spectroscopyModes, type SpectroscopyMode } from './spectroscopySession'
+import { hardwareLockStore, useHardwareLock } from '../../stores/hardwareLockStore'
 
 type Props = {
   mode: SpectroscopyMode
@@ -31,6 +32,10 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
     setLocks((current) => current[page] === reason ? current : { ...current, [page]: reason })
   }, [])
   const reason = Object.values(locks).find(Boolean) ?? null
+  const hardware = useHardwareLock()
+  const blocked = hardware.operation || !['idle', 'connected_idle'].includes(hardware.status)
+    ? hardwareLockStore.blockedReason() : null
+  const switchReason = reason ?? blocked
   useEffect(() => { setVisited((current) => current.includes(mode) ? current : [...current, mode]) }, [mode])
   useLayoutEffect(() => {
     onLockChange(reason)
@@ -60,7 +65,8 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
     }
   }, [capturing, reason])
   const viewSpectra = (group: string, recordId?: string) => {
-    if (reason) onToast(reason)
+    const currentBlock = hardwareLockStore.blockedReason() ?? reason
+    if (currentBlock) onToast(currentBlock)
     else onViewSpectra(group, recordId)
   }
   return (
@@ -75,28 +81,33 @@ export function SpectroscopyWorkbench({ mode, view = 'capture', token, permissio
             const entry = entries.find((entry) => entry.page === item.page && entry.view !== 'curve')
             if (!entry) return null
             const availability = navigationAvailability(entry, currentMethod)
-            const disabledReason = item.page === mode ? null : reason || availability.reason
+            const disabledReason = item.page === mode ? null : switchReason || availability.reason
             return <button key={item.page} type="button" aria-current={item.page === mode ? 'page' : undefined}
               disabled={Boolean(disabledReason)} title={disabledReason ?? item.description}
-              onClick={() => { if (item.page !== mode) onNavigate(entry) }}>{item.label}</button>
+              onClick={() => {
+                if (item.page === mode) return
+                const currentBlock = hardwareLockStore.blockedReason() ?? reason
+                if (currentBlock) onToast(currentBlock)
+                else onNavigate(entry)
+              }}>{item.label}</button>
           })}
         </nav>}
-        <div className="spectroscopy-page-actions"><div ref={setActionsTarget} className="page-file-actions-slot"/>{view === 'curve' && <button className="secondary-button" disabled={Boolean(reason)} onClick={() => {
+        <div className="spectroscopy-page-actions"><div ref={setActionsTarget} className="page-file-actions-slot"/>{view === 'curve' && <button className="secondary-button" disabled={Boolean(switchReason)} onClick={() => {
           const entry = entries.find((entry) => entry.page === 'dispersion' && entry.view !== 'curve')
           if (entry) onNavigate(entry)
         }}>返回色散摄谱</button>}</div>
       </section>
-      {reason && <p ref={lockRef} className="spectroscopy-lock" role="status"><LockKeyhole size={14} />{reason}</p>}
+      {switchReason && <p ref={lockRef} className="spectroscopy-lock" role="status"><LockKeyhole size={14} />{switchReason}</p>}
       <SpectroscopySession.Provider value={report}>
         {spectroscopyModes.filter((item) => item.page === mode || visited.includes(item.page)).map((item) => (
           <div key={item.page} className="spectroscopy-mode-panel" hidden={item.page !== mode}>
             {item.page === 'dispersion' ? (
-              <DispersionPage token={token} actionsTarget={item.page === mode ? actionsTarget : undefined} onCaptureChange={reportScreen} view={view} canWrite={permissions.includes('dispersion.write')} canExport={permissions.includes('spectra.export')}
+              <DispersionPage token={token} visible={item.page === mode} actionsTarget={item.page === mode ? actionsTarget : undefined} onCaptureChange={reportScreen} view={view} canWrite={permissions.includes('dispersion.write')} canExport={permissions.includes('spectra.export')}
                 onViewSpectra={viewSpectra}
                 onCloseCurve={()=>{const entry=entries.find(entry=>entry.page==='dispersion'&&entry.view!=='curve');if(entry&&!reason)onNavigate(entry)}}
                 canReadMethods={permissions.includes('methods.read')} canExecute={permissions.includes('dispersion.execute')} onToast={onToast} />
             ) : (
-              <AcquisitionWorkspace token={token} actionsTarget={item.page === mode ? actionsTarget : undefined} onCaptureChange={reportScreen} taskKind={item.page === 'sample-acquisition' ? 'sample' : 'evaporation'}
+              <AcquisitionWorkspace token={token} active={item.page === mode} actionsTarget={item.page === mode ? actionsTarget : undefined} onCaptureChange={reportScreen} taskKind={item.page === 'sample-acquisition' ? 'sample' : 'evaporation'}
                 currentMethodKey={currentMethod?.method_id && currentMethod.version ? `${currentMethod.method_id}:${currentMethod.version}` : undefined}
                 canWrite={permissions.includes('acquisition.write')} canExecute={permissions.includes('acquisition.execute')}
                 canExport={permissions.includes('spectra.read') && permissions.includes('spectra.export')}

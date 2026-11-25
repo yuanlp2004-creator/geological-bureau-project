@@ -14,6 +14,7 @@ export function MethodPrintPanel({
   version,
   token,
   canWrite,
+  autoPreview = true,
   onToast
 }: {
   methodId: number
@@ -21,6 +22,7 @@ export function MethodPrintPanel({
   version: number | null
   token: string
   canWrite: boolean
+  autoPreview?: boolean
   onToast: (message: string) => void
 }) {
   const [settings, setSettings] = useState<MethodPrintSettings | null>(null)
@@ -60,13 +62,13 @@ export function MethodPrintPanel({
       setSettings(nextSettings)
       setPrinters(printerResult.printers)
       setJobs(jobResult.jobs)
-      await refreshPreview(nextSettings)
+      if (autoPreview) await refreshPreview(nextSettings)
     } catch (cause) {
       reportError(cause, '无法加载方法预览')
     } finally {
       setBusy(false)
     }
-  }, [methodId, refreshPreview, token])
+  }, [autoPreview, methodId, refreshPreview, token])
 
   useEffect(() => {
     void load()

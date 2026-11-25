@@ -72,7 +72,7 @@ export type DeviceDiagnostics = {
     contract: Record<string, number>
   }
   profiles: DeviceProfile[]
-  active_captures?: Array<{ task_id: number; owner: string; port: string; state: string }>
+  active_captures?: Array<{ task_id: number; owner: string; port: string; state: string; profile_id?: number | null }>
 }
 
 export type DevicePort = { device: string; port: number; description: string; is_bluetooth: boolean

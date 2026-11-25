@@ -4,6 +4,7 @@ import type { SampleQueue } from './sampleQueues'
 export type SampleAcquisitionContext = {
   method: { id: number; version: number; name: string }
   profile: { id: number; name: string; transport: 'serial' | 'simulator' }
+  position_controlled?: boolean
   queue: { id: number; name: string; name_length: 10 | 12 | 20 }
   item: { id: number; name: string; repeats: number }
 }

@@ -8,7 +8,7 @@ import {
   X,
 } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { api, savePdfFile, type AnalysisCurveSnapshot, type AnalysisOptions, type AnalysisRun } from '../../api'
+import { api, ApiError, savePdfFile, type AnalysisCurveSnapshot, type AnalysisOptions, type AnalysisRun } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { PreviewFrame } from '../../components/PreviewFrame'
 import type { AnalysisSampleNumber } from '../../api/analysis'
@@ -25,10 +25,17 @@ import { AnalysisRunForm } from './AnalysisRunForm'
 import { AnalysisSamples } from './AnalysisSamples'
 import { AnalysisStandards } from './AnalysisStandards'
 import { active, AnalysisView, Props, statusLabels } from './analysisView'
+import { useWorkbenchVisit } from '../../stores/workbenchStore'
+import { availableId, restoreAnalysisSelection } from '../../stores/workbenchRestore'
 
 export function AnalysisPage({
   token,
+  userId,
+  permissionsKey,
+  methodVersionId,
   initialView,
+  explicitInitialView,
+  navigationId,
   onViewChange,
   canExecute,
   canIntervene,
@@ -61,9 +68,18 @@ export function AnalysisPage({
   const [adjustments, setAdjustments] = useState<Record<string, number>>({})
   const [preview, setPreview] = useState<{ title: string; html: string } | null>(null)
   const [railCollapsed, setRailCollapsed] = useState(false)
-  const [manager, setManager] = useState<'setup' | 'review' | null>(initialView === 'raw' ? null : 'review')
+  const [manager, setManager] = useState<'setup' | 'review' | null>(null)
   const [paused, setPaused] = useState(false)
   const [spectrumRevision, setSpectrumRevision] = useState(0)
+  const visit = useWorkbenchVisit('analysis', { userId, permissionsKey, methodVersionId }, token)
+  const [loadedVisit, setLoadedVisit] = useState<typeof visit | null>(null)
+  const externalView = useRef<AnalysisView | undefined>(undefined)
+  useLayoutEffect(() => {
+    externalView.current = explicitInitialView ? initialView : undefined
+    if (loadedVisit !== visit || !externalView.current) return
+    setManager('review')
+    if (selected) setViewByRun(current => ({ ...current, [selected.id]: initialView }))
+  }, [initialView, explicitInitialView, navigationId, visit])
 
   const epoch = useRef(0),
     mounted = useRef(false),
@@ -82,7 +98,7 @@ export function AnalysisPage({
       epoch.current++
       cancelIntent.current = true
     }
-  }, [token])
+  }, [token, visit])
 
   // Retain each batch's local view; the old quality deep-link opens the shared review area.
   const priorStatus = useRef<Record<number, string>>({})
@@ -101,28 +117,47 @@ export function AnalysisPage({
     if (next.checkpoint?.status === 'pending') setManager('review')
   }, [])
 
-  const loadRequest = useRef(0)
   const load = useCallback(async () => {
-    const current = ticket(),
-      requestId = ++loadRequest.current
-    const valid = () => current() && requestId === loadRequest.current
+    const current = ticket()
+    const request = visit.beginLoad()
+    const valid = () => current() && request.valid()
     setBusy(true)
     try {
       const [nextOptions, nextRuns] = await Promise.all([api.analysisOptions(token), api.analysisRuns(token)])
       if (!valid()) return
-      setOptions(nextOptions)
-      setRuns(nextRuns)
-      setSpectrumRevision(value => value + 1)
-      if (nextRuns[0]) {
-        const next = await api.analysisRun(token, nextRuns[0].id)
-        if (valid()) update(next)
+      const runIds = nextRuns.map(run => run.id)
+      let id = availableId(runIds, request.peek()?.selectedRunId)
+      let detail: AnalysisRun | null = null
+      while (id !== undefined) {
+        try {
+          detail = await api.analysisRun(token, id)
+          break
+        } catch (error) {
+          if (!valid()) return
+          if (!(error instanceof ApiError) || error.status !== 404) throw error
+          runIds.splice(runIds.indexOf(id), 1)
+          id = runIds[0]
+        }
       }
+      if (!valid()) return
+      const snapshot = request.consume()
+      const restored = restoreAnalysisSelection(snapshot, runIds, detail, externalView.current)
+      setOptions(nextOptions)
+      setRuns(nextRuns.filter(run => runIds.includes(run.id)))
+      setSpectrumRevision(value => value + 1)
+      if (detail) update(detail)
+      else setSelected(null)
+      if (snapshot || externalView.current) setManager(restored.manager)
+      setRailCollapsed(restored.railCollapsed)
+      setViewByRun(restored.viewByRun)
+      setLineByRun(restored.lineByRun)
+      setLoadedVisit(visit)
     } catch (error) {
       if (valid()) onToast(error instanceof Error ? error.message : '无法读取分析数据')
     } finally {
       if (valid()) setBusy(false)
     }
-  }, [onToast, token, update])
+  }, [onToast, token, update, visit])
 
   useEffect(() => {
     void load()
@@ -369,8 +404,17 @@ export function AnalysisPage({
   const span = Math.max(1, (chart[chart.length - 1]?.point_index ?? minPoint + 1) - minPoint)
   const requestedView = selected ? (viewByRun[selected.id] ?? (selected.status === 'completed' && initialView === 'raw' ? 'curve' : initialView)) : initialView
   const currentView = requestedView === 'quality' ? 'curve' : requestedView
-  const curveLineId = selected ? (lineByRun[selected.id] ?? selected.curves.lines[0]?.line_id ?? '') : ''
-  const curveLine = selected?.curves.lines.find((item) => item.line_id === curveLineId) ?? selected?.curves.lines[0]
+  const curveLine = selected?.curves.lines.find((item) => item.line_id === lineByRun[selected.id]) ?? selected?.curves.lines[0]
+  const curveLineId = curveLine?.line_id
+  useLayoutEffect(() => {
+    if (loadedVisit !== visit) return
+    const lines = { ...lineByRun }
+    if (selected) {
+      if (curveLineId) lines[selected.id] = curveLineId
+      else delete lines[selected.id]
+    }
+    visit.save({ selectedRunId: selected?.id ?? null, manager, railCollapsed, viewByRun, lineByRun: lines })
+  }, [visit, loadedVisit, selected, manager, railCollapsed, viewByRun, lineByRun, curveLineId])
   const activeSnapshot = curveLine?.snapshots.find((item) => item.id === curveLine.active_curve_snapshot_id)
   const shownSnapshot = curveLine?.snapshots[curveLine.snapshots.length - 1] ?? activeSnapshot
   const standardCurveView = manager === 'review' && currentView === 'curve' && Boolean(curveLine)

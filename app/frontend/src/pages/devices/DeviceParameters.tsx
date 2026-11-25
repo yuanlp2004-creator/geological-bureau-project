@@ -5,14 +5,19 @@ import { ConnectionPortSelect, connectionValue } from './ConnectionPortSelect'
 import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
 import { SectionHeading } from '../../components/SectionHeading'
+import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner } from '../../stores/hardwareLockStore'
 
-export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, canReadLayouts, settings, onSettingsChange, onSaved, onProfileChange, onToast, actionsTarget, active = true, revision = 0 }: {
+const owner = 'device-parameters'
+
+export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, canReadLayouts, settings, onSettingsChange, onSaved, onProfileChange, onToast, actionsTarget, active = true, revision = 0, handoffPurpose }: {
   token: string; canWrite: boolean; canExecute: boolean; canWriteScreen: boolean; canReadLayouts: boolean
   settings: Settings | null; onSettingsChange: (settings: Settings) => void
   onSaved: () => void; onToast: (message: string) => void; actionsTarget?: HTMLElement | null; active?: boolean
   onProfileChange?: (profile: DeviceProfile) => void
   revision?: number
+  handoffPurpose?: 'acquisition' | 'dispersion' | 'hardware-acquisition'
 }) {
+  useHardwareOwner(token, owner, active)
   const [profiles, setProfiles] = useState<DeviceProfile[]>([])
   const [ports, setPorts] = useState<DevicePort[]>([])
   const [draft, setDraft] = useState<DeviceProfile | null>(null)
@@ -35,16 +40,24 @@ export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, 
     if (!canWrite || busy || inFlight.current) return
     if (!value) return
     if (dirty.current || screenDirty.current) return onToast('请先保存当前设备参数，再切换通讯口')
+    const operation = acquireHardwareOperation({ owner, kind: 'save' }, onToast)
+    if (!operation) return
     inFlight.current = true; setBusy(true)
     try {
       const previous = restorePrevious ? profiles.find(item => item.id === lastSerialProfileId.current && item.enabled && item.transport === 'serial' && connectionValue(item) === value) : null
       const current = previous ? await api.selectDeviceProfile(token, previous.id)
         : await api.selectDevicePort(token, value === 'simulator' ? 'simulator' : 'serial', value === 'simulator' ? undefined : Number(value.slice(3)))
+      if (!hardwareLockStore.owns(operation)) return
       if (current.transport === 'serial') { lastSerialPort.current = connectionValue(current); lastSerialProfileId.current = current.id }
-      setProfiles(await api.deviceProfiles(token)); setCurrentProfileId(current.id); select(current); onSaved()
+      const next = await api.deviceProfiles(token)
+      if (!hardwareLockStore.owns(operation)) return
+      setProfiles(next); setCurrentProfileId(current.id); select(current); onSaved()
     }
-    catch (error) { onToast(error instanceof Error ? error.message : '选择设备失败') }
-    finally { inFlight.current = false; setBusy(false) }
+    catch (error) {
+      hardwareLockStore.failOperation(operation, error)
+      onToast(error instanceof Error ? error.message : '选择设备失败')
+    }
+    finally { hardwareLockStore.completeOperation(operation); inFlight.current = false; setBusy(false) }
   }
   const load = useCallback(async () => {
     try { const [next, current, available] = await Promise.all([api.deviceProfiles(token), api.currentDeviceProfile(token), api.devicePorts(token)]); setPorts(available); setProfiles(next); setCurrentProfileId(current?.id ?? null); const profile = next.find(item => item.id === current?.id) ?? next[0]; if (profile) select(profile)
@@ -76,19 +89,25 @@ export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, 
     const volume = draft.frame_count * draft.ccds_per_frame
     if (!slots.trim() || indices.some(index => !Number.isInteger(index) || index < 0 || index >= volume) || new Set(indices).size !== indices.length)
       return onToast(`CCD 安装插槽须为 1–${volume} 之间不重复的整数`)
+    const operation = acquireHardwareOperation({ owner, kind: 'save', profileId: draft.id }, onToast)
+    if (!operation) return
     inFlight.current = true; setBusy(true)
     try {
       const saved = await api.updateDeviceProfile(token, draft.id, { name: draft.name, transport: draft.transport,
         port: draft.port, baud_rate: draft.baud_rate, ccd_indices: indices,
         ...(canWriteScreen ? { screen_width_mm: screenWidth, screen_resolution_px: Math.min(16000, screenPixels) } : {}) })
+      if (!hardwareLockStore.owns(operation)) return
       await api.selectDeviceProfile(token, saved.id)
+      if (!hardwareLockStore.owns(operation)) return
       setCurrentProfileId(saved.id)
       setProfiles(current => current.map(item => item.id === saved.id ? saved : item))
       if (canWriteScreen) {
         try {
           const current = await api.settings(token)
+          if (!hardwareLockStore.owns(operation)) return
           const savedSettings = await api.saveSettings(token, { display: { ...current.display,
             screen_width_mm: screenWidth, screen_resolution_px: Math.min(16000, screenPixels) } })
+          if (!hardwareLockStore.owns(operation)) return
           screenDirty.current = false; onSettingsChange(savedSettings)
         } catch (error) {
           onSaved()
@@ -97,19 +116,32 @@ export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, 
       }
       select(saved)
       onSaved(); onToast('设备参数已保存，重新连接设备后使用新参数')
-    } catch (error) { onToast(error instanceof Error ? error.message : '保存设备参数失败') }
-    finally { inFlight.current = false; setBusy(false) }
+    } catch (error) {
+      hardwareLockStore.failOperation(operation, error)
+      onToast(error instanceof Error ? error.message : '保存设备参数失败')
+    }
+    finally { hardwareLockStore.completeOperation(operation); inFlight.current = false; setBusy(false) }
   }
   const testConnection = async () => {
     if (!draft || !canExecute || inFlight.current) return
     if (dirty.current || screenDirty.current) return onToast('请先保存设备参数，再进行连接测试')
+    const handoff = hardwareLockStore.getSnapshot().status === 'connected_idle' ? handoffPurpose : undefined
+    const operation = acquireHardwareOperation({ owner, kind: 'test', profileId: draft.id }, onToast)
+    if (!operation) return
     inFlight.current = true; setBusy(true)
     setTestMessage(draft.transport === 'serial' ? '正在执行一次短采集，等待有效CCD响应…' : '正在测试模拟设备…')
     try {
-      await api.testDeviceConnection(token, draft.id)
+      const result = await api.testDeviceConnection(token, draft.id, handoff)
+      if (!result.passed) throw new Error('连接测试未通过')
+      if (result.connected) throw new Error('连接测试结束后串口状态仍需核实')
+      if (!hardwareLockStore.completeOperation(operation, { portReleased: Boolean(handoff) })) return
       const message = draft.transport === 'serial' ? '连接测试通过：已收到有效CCD数据，测试结束后串口已关闭' : '模拟设备连接测试通过'
       setTestMessage(message); onToast(message)
-    } catch (error) { const message = error instanceof Error ? error.message : '连接测试失败'; setTestMessage(message); onToast(message) }
+    } catch (error) {
+      hardwareLockStore.failOperation(operation, error)
+      const message = error instanceof Error ? error.message : '连接测试失败'
+      setTestMessage(message); onToast(message)
+    }
     finally { inFlight.current = false; setBusy(false) }
   }
   if (!draft) return <section className="surface device-parameter-form"><p>暂无设备档案</p><button className="secondary-button" onClick={() => void load()}><RefreshCw size={15} />重新读取</button></section>

@@ -5,7 +5,8 @@ import { api, type DeviceDiagnostics, type DeviceEvent } from '../../api'
 import type { DeviceDebugTurn } from '../../api/devices'
 import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
-import { deviceStatusStore } from '../../stores/deviceStatusStore'
+import { acquireHardwareOperation, hardwareLockStore, useHardwareLock, useHardwareOwner } from '../../stores/hardwareLockStore'
+import type { OperationToken } from '../../stores/hardwareLockStoreCore'
 import { AlignmentMonitor } from './AlignmentMonitor'
 import { ensureCaptureConnection } from '../acquisition/captureConnection'
 
@@ -15,9 +16,13 @@ type AcquisitionPageProps = {
   preferredProfileId?: number
 }
 const SAMPLE_OPTIONS = ['280-288.acq', '291-299.acq', '303-310.acq']
+const owner = 'alignment'
 
 export function AcquisitionPage({ token, canExecute, onToast, revision = 0, actionsTarget, active = true,
   preferredProfileId }: AcquisitionPageProps) {
+  useHardwareOwner(token, owner, active)
+  const hardware = useHardwareLock()
+  const stopUnconfirmed = hardware.status === 'unknown' && hardwareLockStore.canRetryStop(owner)
   const [diagnostics, setDiagnostics] = useState<DeviceDiagnostics | null>(null)
   const [selectedProfile, setSelectedProfile] = useState<number | null>(null)
   const [event, setEvent] = useState<DeviceEvent | null>(null)
@@ -37,6 +42,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   const sessionRef = useRef<string | null>(null)
   const commandInFlight = useRef(false)
   const stepInFlight = useRef(false)
+  const stepTimer = useRef<number | null>(null)
   const turnSnapshot = useRef<DeviceDebugTurn | null>(null)
   const switchInFlight = useRef(false)
   const turnRevision = useRef(0)
@@ -44,6 +50,10 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   const frameRevision = useRef(0)
   const diagnosticRead = useRef(0)
   const debugParameters = useRef<HTMLDivElement>(null)
+  const clearStepTimer = () => {
+    if (stepTimer.current !== null) window.clearInterval(stepTimer.current)
+    stepTimer.current = null
+  }
   const remember = useCallback((next: DeviceEvent, profileId?: number | null) => {
     setEvent(next)
     if (profileId != null && next.ccds.some(ccd => ccd.points?.length)) setObserved({ profileId, frame: next })
@@ -72,13 +82,11 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   }, [showTurn, token])
   const load = useCallback(async () => {
     const read = ++diagnosticRead.current
-    const generation = deviceStatusStore.getSessionGeneration(token)
     setLoading(true)
     try {
-      const [next, currentProfile] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token)])
-      if (read !== diagnosticRead.current) return
+      const [next, currentProfile] = await Promise.all([hardwareLockStore.reconcile(token), api.currentDeviceProfile(token)])
+      if (!next || read !== diagnosticRead.current || hardwareLockStore.getSnapshot().operation) return
       setDiagnostics(next)
-      deviceStatusStore.publish(next.adapter, next.active_captures?.length ?? 0, generation)
       const live = next.adapter.connected && next.adapter.state === 'debugging'
       setRunning(live); runningRef.current = live
       sessionRef.current = live ? next.adapter.session_id : null
@@ -102,17 +110,22 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
 
   useEffect(() => {
     if (active) void load()
+    return () => { diagnosticRead.current++; frameRevision.current++; turnRead.current++ }
   }, [load, revision, active])
   useEffect(() => {
-    if (!turn?.moving || switching) return
+    if (!active || !turn?.moving || switching) return
     const timer = window.setTimeout(() => void load(), 650)
     return () => window.clearTimeout(timer)
-  }, [load, switching, turn])
+  }, [active, load, switching, turn])
   useEffect(() => {
-    if (!running) return
-    const timer = window.setInterval(() => {
+    if (!running || !active) return
+    if (controlling) return
+    stepTimer.current = window.setInterval(() => {
       if (stepInFlight.current || !runningRef.current || switchInFlight.current || turnSnapshot.current?.moving) return
+      const hardware = hardwareLockStore.getSnapshot()
+      if (hardware.operation || hardware.status !== 'debugging') return
       stepInFlight.current = true
+      const observation = hardwareLockStore.observation(token)
       const profileId = profileRef.current
       const sessionId = sessionRef.current
       const frameVersion = frameRevision.current
@@ -131,6 +144,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
           if (result.event.event_type === 'fault') {
             runningRef.current = false
             setRunning(false)
+            hardwareLockStore.observeFailure(token, observation, new Error('CCD 故障，调试已停止'))
             onToast('CCD 故障，调试已停止并保留诊断信息')
           }
         })
@@ -138,29 +152,28 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
           if (!runningRef.current || frameVersion !== frameRevision.current) return
           runningRef.current = false
           setRunning(false)
+          hardwareLockStore.observeFailure(token, observation, error)
           await load()
-          runningRef.current = false
           onToast(error instanceof Error ? error.message : '实时调试连接失败')
         })
         .finally(() => {
           stepInFlight.current = false
         })
     }, 850)
-    return () => {
-      window.clearInterval(timer)
-      stepInFlight.current = false
-    }
-  }, [onToast, remember, running, token, load, refreshTurn])
+    return clearStepTimer
+  }, [active, controlling, onToast, remember, running, token, load, refreshTurn])
 
   const profile = diagnostics?.profiles.find((item) => item.id === selectedProfile)
   const activeTurn = turn?.profile_id === profile?.id ? turn : null
-  const turning = switching || Boolean(activeTurn ? activeTurn.moving : diagnostics?.adapter.turning)
+  const turning = switching || hardware.status === 'turning' || Boolean(activeTurn?.moving || diagnostics?.adapter.turning)
   const selectedAngle = targetAngle != null && activeTurn?.angles.includes(targetAngle) ? targetAngle : null
   const canChooseAngle = Boolean(canExecute && profile && diagnostics?.adapter.connected
     && ['connected', 'debugging'].includes(diagnostics.adapter.state) && activeTurn?.angles.length && !loading && !controlling && !turning)
   const switchTurn = async () => {
     if (!canChooseAngle || !profile || selectedAngle === null || selectedAngle === activeTurn?.current_angle_deg
         || commandInFlight.current || switchInFlight.current) return
+    const operation = acquireHardwareOperation({ owner, kind: 'turn', profileId: profile.id }, onToast)
+    if (!operation) return
     switchInFlight.current = true
     const request = ++turnRevision.current
     turnRead.current++
@@ -169,13 +182,16 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
     setSwitching(true)
     try {
       const next = await api.switchDeviceDebugTurn(token, profile.id, selectedAngle)
-      if (request === turnRevision.current && profileRef.current === profile.id) {
+      if (hardwareLockStore.completeOperation(operation, { turning: next.moving })
+        && request === turnRevision.current && profileRef.current === profile.id) {
         showTurn(next)
         setTargetAngle(null)
         if (!next.moving && next.current_angle_deg === selectedAngle) onToast(`转角 ${selectedAngle}° 已到位`)
       }
     } catch (error) {
-      if (request === turnRevision.current) {
+      const current = hardwareLockStore.owns(operation)
+      hardwareLockStore.failOperation(operation, error)
+      if (current && request === turnRevision.current) {
         if (turnSnapshot.current?.profile_id === profile.id) showTurn({ ...turnSnapshot.current, current_angle_deg: null })
         onToast(error instanceof Error ? error.message : '切换转角失败')
       }
@@ -185,25 +201,35 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
       setSwitching(false)
     }
   }
+  const applyReceipt = (operation: OperationToken, result: { diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent },
+    profileId?: number | null) => {
+    if (!hardwareLockStore.completeOperation(operation, { adapter: result.diagnostics, profileId })) return false
+    setDiagnostics(current => current ? { ...current, adapter: result.diagnostics } : current)
+    remember(result.event, profileId)
+    return true
+  }
   const connect = async () => {
     if (!canExecute) return onToast('当前账户没有设备执行权限')
     if (commandInFlight.current) return
+    const operation = acquireHardwareOperation({ owner, kind: 'connect', profileId: profileRef.current }, onToast)
+    if (!operation) return
     commandInFlight.current = true; setControlling(true)
-    const generation = deviceStatusStore.getSessionGeneration(token)
+    diagnosticRead.current++
     try {
       const profile = await api.currentDeviceProfile(token)
+      if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
       profileRef.current = profile?.id ?? null
       setSelectedProfile(profile?.id ?? null)
       if (!profile) throw new Error('请先在设备参数中选择通讯口，或勾选模拟设备用于测试')
       setObserved(null)
       await ensureCaptureConnection(token, profile.id, profile.transport, 'devices')
+      if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
       const result = await api.connectDevice(token, profile.id)
-      setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
-      deviceStatusStore.publish(result.diagnostics, undefined, generation)
-      remember(result.event, result.profile.id)
+      if (!applyReceipt(operation, result, result.profile.id)) return
       await refreshTurn()
       onToast(profile.transport === 'serial' ? '串口已打开，开始调试后确认仪器响应' : '模拟设备已连接')
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error)
       await load()
       onToast(error instanceof Error ? error.message : '设备连接失败')
     } finally {
@@ -214,87 +240,63 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
     if (!canExecute) return onToast('当前账户没有设备执行权限')
     if (!reportInvalidNumericInput(debugParameters.current)) return onToast('请先修正调试参数')
     if (commandInFlight.current) return
+    const operation = acquireHardwareOperation({ owner, kind: 'debug_start', profileId: profileRef.current }, onToast)
+    if (!operation) return
     commandInFlight.current = true; setControlling(true)
-    const generation = deviceStatusStore.getSessionGeneration(token)
+    diagnosticRead.current++
     try {
       const result = await api.startDeviceDebug(token, { sample, seed })
       setObserved(null)
-      remember(result.event, result.diagnostics.profile_id ?? (result.diagnostics.adapter === 'acq-simulator' ? profileRef.current : null))
+      if (!applyReceipt(operation, result, result.diagnostics.profile_id ?? (result.diagnostics.adapter === 'acq-simulator' ? profileRef.current : null))) return
       sessionRef.current = result.session_id
       runningRef.current = true
       setRunning(true)
-      setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
-      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       onToast('实时调试已开始，数据不会写入样品记录')
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error)
       await load()
       onToast(error instanceof Error ? error.message : '无法启动实时调试')
     } finally {
       commandInFlight.current = false; setControlling(false)
     }
   }
-  const stop = async () => {
-    if (commandInFlight.current) return
-    commandInFlight.current = true; setControlling(true)
-    const generation = deviceStatusStore.getSessionGeneration(token)
-    diagnosticRead.current++
-    setLoading(false)
-    if (turning) turnRevision.current++
-    runningRef.current = false
-    try {
-      const result = await api.stopDeviceDebug(token)
-      deviceStatusStore.publish(result.diagnostics, undefined, generation)
-      setRunning(false)
-      remember(result.event)
-      setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
-      await refreshTurn()
-      onToast('调试已停止，未生成样品/谱图记录')
-    } catch (error) {
-      await load(); runningRef.current = false
-      onToast(error instanceof Error ? error.message : '停止调试失败')
-    } finally {
-      commandInFlight.current = false; setControlling(false)
-    }
-  }
-  const disconnect = async () => {
-    if (commandInFlight.current) return
-    commandInFlight.current = true; setControlling(true)
-    const generation = deviceStatusStore.getSessionGeneration(token)
-    diagnosticRead.current++
-    setLoading(false)
-    if (turning) turnRevision.current++
-    runningRef.current = false
-    try {
-      const result = await api.disconnectDevice(token)
-      deviceStatusStore.publish(result.diagnostics, undefined, generation)
-      setRunning(false)
-      remember(result.event)
-      setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
-      await refreshTurn()
-      onToast('设备已断开')
-    } catch (error) {
-      await load()
-      onToast(error instanceof Error ? error.message : '设备断开失败')
-    } finally {
-      commandInFlight.current = false; setControlling(false)
-    }
-  }
-  const finish = async () => {
+  const shutdown = async (kind: 'debug_stop' | 'disconnect' | 'finish') => {
     if (!canExecute || commandInFlight.current) return
-    commandInFlight.current = true; setControlling(true); runningRef.current = false
-    const generation = deviceStatusStore.getSessionGeneration(token)
+    const operation = acquireHardwareOperation({ owner, kind, profileId: profileRef.current }, onToast)
+    if (!operation) return
+    commandInFlight.current = true; setControlling(true)
+    clearStepTimer()
+    runningRef.current = false
+    setRunning(false)
+    frameRevision.current++
     diagnosticRead.current++
     setLoading(false)
-    if (turning) turnRevision.current++
+    turnRevision.current++
+    turnRead.current++
     try {
-      if (running || turning) { await api.stopDeviceDebug(token); setRunning(false) }
+      if (kind === 'debug_stop' || kind === 'finish' && (running || hardware.status === 'debugging' || turning || stopUnconfirmed)) {
+        const stopped = await api.stopDeviceDebug(token)
+        if (stopped.diagnostics.turning || ['debugging', 'error'].includes(stopped.diagnostics.state))
+          throw new Error('停止调试结果尚未确认')
+        if (kind === 'debug_stop') {
+          if (!applyReceipt(operation, stopped)) return
+          await refreshTurn()
+          onToast('调试已停止，未生成样品/谱图记录')
+          return
+        }
+        if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
+      }
       const result = await api.disconnectDevice(token)
-      deviceStatusStore.publish(result.diagnostics, undefined, generation)
-      remember(result.event)
-      setDiagnostics(current => current ? { ...current, adapter: result.diagnostics } : current)
+      if (result.diagnostics.connected || result.diagnostics.turning || result.diagnostics.state === 'error')
+        throw new Error('设备断开结果尚未确认')
+      if (!applyReceipt(operation, result)) return
       await refreshTurn()
-      onToast('调试已结束，设备已断开')
-    } catch (error) { await load(); onToast(error instanceof Error ? error.message : '结束调试失败，请重试停止或断开') }
+      onToast(kind === 'finish' ? '调试已结束，设备已断开' : '设备已断开')
+    } catch (error) {
+      hardwareLockStore.failOperation(operation, error)
+      await load()
+      onToast(error instanceof Error ? error.message : '设备停机失败，请重试停止或断开')
+    }
     finally { commandInFlight.current = false; setControlling(false) }
   }
   const indices = profile?.ccd_indices ?? lastCcds.map(item => item.ccd_index)
@@ -314,12 +316,12 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
         <span className="alignment-turn-status" aria-live="polite">{diagnostics?.adapter.connected && turning ? '正在切换转角' :
           diagnostics?.adapter.connected && activeTurn?.current_angle_deg != null ? `当前转角 ${activeTurn.current_angle_deg}°` : '当前转角 --'}</span>
       </div>}
-      canFinish={canExecute && !controlling && Boolean(running || diagnostics?.adapter.connected)} finish={finish}
+      canFinish={canExecute && !controlling && Boolean(running || diagnostics?.adapter.connected || stopUnconfirmed)} finish={() => shutdown('finish')}
       connection={<>
         <button className="secondary-button" onClick={() => void connect()} disabled={!canExecute || !profile || controlling || turning || Boolean(diagnostics?.adapter.connected)}><Cable size={15}/>连接诊断</button>
         <button className="secondary-button" onClick={() => void start()} disabled={!canExecute || controlling || turning || running || !diagnostics?.adapter.connected || diagnostics.adapter.state !== 'connected'}><PlayCircle size={15}/>开始</button>
-        <button className="secondary-button" onClick={() => void stop()} disabled={!canExecute || controlling || !(running || turning)}><Square size={15}/>停止</button>
-        <button className="secondary-button" onClick={() => void disconnect()} disabled={!canExecute || controlling || !diagnostics?.adapter.connected}><XCircle size={15}/>断开</button>
+        <button className="secondary-button" onClick={() => void shutdown('debug_stop')} disabled={!canExecute || controlling || !(running || turning || stopUnconfirmed)}><Square size={15}/>停止</button>
+        <button className="secondary-button" onClick={() => void shutdown('disconnect')} disabled={!canExecute || controlling || !(diagnostics?.adapter.connected || stopUnconfirmed)}><XCircle size={15}/>断开</button>
         <details className="alignment-settings"><summary>调试设置</summary><div ref={debugParameters} className="alignment-settings-content">
           <p>{profile?.transport === 'simulator' ? '模拟设备 · 仅用于软件验证' : '真实串口设备'}</p>
           {profile?.transport === 'simulator' && <AdvancedSettings title="模拟调试"><div className="device-debug-fields">

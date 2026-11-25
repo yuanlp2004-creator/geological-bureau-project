@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bluetooth, Cable, RefreshCw, Save, Unplug } from 'lucide-react'
 import { api, type BluetoothDevice, type DeviceDiagnostics, type DeviceProfile } from '../../api'
-import { deviceStatusStore } from '../../stores/deviceStatusStore'
+import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner } from '../../stores/hardwareLockStore'
+import type { HardwareOperation, OperationToken } from '../../stores/hardwareLockStoreCore'
 import { openBluetoothSettings } from '../../platform/bluetooth'
 import { BluetoothDevicePicker } from './BluetoothDevicePicker'
 import { MotorConnection } from './MotorConnection'
@@ -12,8 +13,10 @@ type Props = {
   onSaved: () => void; onProfileChange: (profile: DeviceProfile) => void
   onConfigure: () => void; onToast: (message: string) => void
 }
+const owner = 'device-connection'
 
 export function DeviceConnection({ token, canWrite, canExecute, active, revision, onSaved, onProfileChange, onConfigure, onToast }: Props) {
+  useHardwareOwner(token, owner, active)
   const [devices, setDevices] = useState<BluetoothDevice[]>([])
   const [wiredPorts, setWiredPorts] = useState<number[]>([])
   const [profile, setProfile] = useState<DeviceProfile | null>(null)
@@ -39,14 +42,13 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
   }
   const load = useCallback(async () => {
     if (refreshing.current) return
-    const generation = deviceStatusStore.getSessionGeneration(token)
     refreshing.current = true; setLoading(true)
     try {
-      const [next, current, bluetooth, systemPorts] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token), api.bluetoothDevices(token),
+      const [next, current, bluetooth, systemPorts] = await Promise.all([hardwareLockStore.reconcile(token), api.currentDeviceProfile(token), api.bluetoothDevices(token),
         api.devicePorts(token)])
-      deviceStatusStore.publish(next.adapter, next.active_captures?.length ?? 0, generation)
       bluetooth.devices = bluetooth.devices.filter(item => !deleted.current.has(item.address))
-      setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []); setProfile(current); setDevices(bluetooth.devices)
+      if (next && !pending.current) { setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []) }
+      setProfile(current); setDevices(bluetooth.devices)
       setWiredPorts(systemPorts.filter(item => !item.is_bluetooth).map(item => item.port))
       if (dirty.current) {
         const selected = bluetooth.devices.find(item => item.address === selection.current.address)
@@ -67,63 +69,87 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
     const timer = window.setInterval(() => {
       if (pending.current || refreshing.current || polling) return
       polling = true
-      void Promise.all([api.deviceDiagnostics(token), api.bluetoothDevices(token)]).then(([next, bluetooth]) => {
-        if (!cancelled) { setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []); setDevices(bluetooth.devices.filter(item => !deleted.current.has(item.address))) }
+      void Promise.all([hardwareLockStore.reconcile(token), api.bluetoothDevices(token)]).then(([next, bluetooth]) => {
+        if (!cancelled && !pending.current) {
+          if (next) { setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []) }
+          setDevices(bluetooth.devices.filter(item => !deleted.current.has(item.address)))
+        }
       }).catch(cause => { if (!cancelled) { setDiagnostics(null); setError(cause instanceof Error ? cause.message : '读取连接状态失败') } })
         .finally(() => { polling = false })
     }, 3000)
     return () => { cancelled = true; window.clearInterval(timer) }
   }, [active, token])
-  const command = async (operation: () => Promise<void>) => {
+  const command = async (kind: HardwareOperation['kind'], work: (operation: OperationToken) => Promise<void>) => {
     if (pending.current) return
+    const operation = acquireHardwareOperation({ owner, kind, profileId: profile?.id }, onToast)
+    if (!operation) return
     pending.current = true; setBusy(true); setError('')
-    try { await operation() }
-    catch (cause) { const message = cause instanceof Error ? cause.message : '设备操作失败'; await load(); setError(message); onToast(message) }
-    finally { pending.current = false; setBusy(false) }
-  }
-  const save = () => command(async () => {
-    if (!canWrite || !bound || !device || connected) return
-    const saved = await api.selectDevicePort(token, 'serial', Number(port.slice(3)), device.address)
-    setProfile(saved); onProfileChange(saved); dirty.current = false; onSaved(); onToast('蓝牙设备与COM口选择已保存，摄谱将使用此通讯口')
-  })
-  const remove = (item: BluetoothDevice) => command(async () => {
-    if (!canWrite || connected) return
-    await api.deleteBluetoothDevice(token, item.address)
-    deleted.current.add(item.address)
-    setDevices(items => items.filter(candidate => candidate.address !== item.address))
-    if (selection.current.address === item.address) { dirty.current = false; choose('', '') }
-  })
-  const connect = () => command(async () => {
-    if (!canExecute || !profile || changed || !(bound || wiredCcd) || connected) return
-    const generation = deviceStatusStore.getSessionGeneration(token)
-    if (wiredCcd) {
-      const systemPorts = await api.devicePorts(token)
-      if (!systemPorts.some(item => item.port === profile.port && !item.is_bluetooth))
-        throw new Error('CCD 有线串口已变化，请刷新后重新选择')
-    } else {
-      const windows = await api.bluetoothDevices(token)
-      if (!windows.devices.some(item => item.address === address && item.ports.some(p => p.device === port)))
-        throw new Error('Windows蓝牙端口映射已变化，请刷新后重新选择')
+    try { await work(operation) }
+    catch (cause) {
+      hardwareLockStore.failOperation(operation, cause)
+      const message = cause instanceof Error ? cause.message : '设备操作失败'
+      pending.current = false
+      await load()
+      setError(message); onToast(message)
     }
-    const result = await api.connectDevice(token, profile.id); setDiagnostics(result.diagnostics)
-    deviceStatusStore.publish(result.diagnostics, captures.length, generation)
-    onToast('串口已打开，开始调试或摄谱后确认仪器响应')
-  })
-  const disconnect = () => command(async () => {
+    finally { hardwareLockStore.completeOperation(operation); pending.current = false; setBusy(false) }
+  }
+  const save = () => {
+    if (!canWrite || !bound || !device || connected) return
+    return command('save', async operation => {
+      const saved = await api.selectDevicePort(token, 'serial', Number(port.slice(3)), device.address)
+      if (!hardwareLockStore.owns(operation)) return
+      setProfile(saved); onProfileChange(saved); dirty.current = false; onSaved(); onToast('蓝牙设备与COM口选择已保存，摄谱将使用此通讯口')
+    })
+  }
+  const remove = async (item: BluetoothDevice) => {
+    if (!canWrite || connected) return
+    return command('remove', async operation => {
+      await api.deleteBluetoothDevice(token, item.address)
+      if (!hardwareLockStore.owns(operation)) return
+      deleted.current.add(item.address)
+      setDevices(items => items.filter(candidate => candidate.address !== item.address))
+      if (selection.current.address === item.address) { dirty.current = false; choose('', '') }
+    })
+  }
+  const connect = () => {
+    if (!canExecute || !profile || changed || !(bound || wiredCcd) || connected) return
+    return command('connect', async operation => {
+      if (wiredCcd) {
+        const systemPorts = await api.devicePorts(token)
+        if (!systemPorts.some(item => item.port === profile.port && !item.is_bluetooth))
+          throw new Error('CCD 有线串口已变化，请刷新后重新选择')
+      } else {
+        const windows = await api.bluetoothDevices(token)
+        if (!windows.devices.some(item => item.address === address && item.ports.some(p => p.device === port)))
+          throw new Error('Windows蓝牙端口映射已变化，请刷新后重新选择')
+      }
+      if (!hardwareLockStore.owns(operation)) return
+      const result = await api.connectDevice(token, profile.id)
+      if (!hardwareLockStore.completeOperation(operation, { adapter: result.diagnostics, profileId: result.profile.id })) return
+      setDiagnostics(result.diagnostics)
+      onToast('串口已打开，开始调试或摄谱后确认仪器响应')
+    })
+  }
+  const disconnect = () => {
     if (!canExecute || running) return
-    const generation = deviceStatusStore.getSessionGeneration(token)
-    const result = await api.disconnectDevice(token)
-    setDiagnostics(result.diagnostics)
-    deviceStatusStore.publish(result.diagnostics, captures.length, generation)
-    onToast('设备已断开')
-  })
+    return command('disconnect', async operation => {
+      const result = await api.disconnectDevice(token)
+      if (result.diagnostics.connected || result.diagnostics.turning) throw new Error('设备断开结果尚未确认')
+      if (!hardwareLockStore.completeOperation(operation, { adapter: result.diagnostics })) return
+      setDiagnostics(result.diagnostics)
+      onToast('设备已断开')
+    })
+  }
   const state = !diagnostics ? '状态未获取' : captures.length ? '摄谱正在使用串口' : diagnostics.state === 'error' ? '连接异常'
     : diagnostics.connected ? diagnostics.adapter === 'acq-simulator' ? '模拟设备已连接'
       : diagnostics.state === 'debugging' ? '正在采集 / 调试' : '串口已打开' : '未连接'
   return <section className="device-connection" data-testid="device-connection">
     <div className="surface connection-pairing"><div><h2><Bluetooth size={19} />Windows 蓝牙连接</h2>
       <p>选择 Windows 中已连接或已配对的设备，再选择它对应的 COM 口。</p></div>
-      <div className="connection-actions"><button type="button" className="secondary-button" disabled={busy} onClick={() => void command(openBluetoothSettings)}><Bluetooth size={16} />打开 Windows 蓝牙设置</button>
+      <div className="connection-actions"><button type="button" className="secondary-button" disabled={busy} onClick={() => {
+        void openBluetoothSettings().catch(cause => onToast(cause instanceof Error ? cause.message : '无法打开 Windows 蓝牙设置'))
+      }}><Bluetooth size={16} />打开 Windows 蓝牙设置</button>
         <button type="button" className="secondary-button" disabled={busy || loading} onClick={() => void load()}><RefreshCw size={16} />刷新设备与端口</button></div>
     </div>
     <div className="surface connection-controls"><div className="connection-heading"><h2>CCD 采集连接</h2><span className={`connection-state${connected ? ' connected' : ''}`} role="status">{state}</span></div>

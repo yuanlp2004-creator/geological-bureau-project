@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { api, type BluetoothDevice, type DeviceProfile } from '../../api'
 import type { MotorPositionEvidence } from '../../api/devices'
 import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
+import { acquireHardwareOperation, hardwareLockStore } from '../../stores/hardwareLockStore'
 
 type Angle = { method: number | null; motor: number | null; evidence?: MotorPositionEvidence }
 
@@ -46,6 +47,8 @@ export function MotorConnection({ token, profile, devices, disabled, onToast }: 
       return
     }
     const [address, number] = selection.split(':')
+    const operation = acquireHardwareOperation({ owner: 'device-connection', kind: 'save', profileId: profile.id }, onToast)
+    if (!operation) return
     setSaving(true)
     setError('')
     try {
@@ -53,8 +56,11 @@ export function MotorConnection({ token, profile, devices, disabled, onToast }: 
         bluetooth_address: address, motor_port: Number(number), api_port: servicePort, calibration_id: calibration,
         angles: complete,
       })
-      onToast('CCD 与转角电机的双口绑定已保存')
-    } catch (cause) { setError(cause instanceof Error ? cause.message : '保存转角电机绑定失败') }
+      if (hardwareLockStore.completeOperation(operation)) onToast('CCD 与转角电机的双口绑定已保存')
+    } catch (cause) {
+      hardwareLockStore.failOperation(operation, cause)
+      setError(cause instanceof Error ? cause.message : '保存转角电机绑定失败')
+    }
     finally { setSaving(false) }
   }
   const edit = (index: number, field: 'method' | 'motor', value: number | null) =>

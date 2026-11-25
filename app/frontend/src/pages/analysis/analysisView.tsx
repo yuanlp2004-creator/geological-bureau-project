@@ -1,9 +1,12 @@
 
 import type { AnalysisRun } from '../../api'
+import type { AnalysisPageSnapshot, WorkbenchIdentity } from '../../stores/workbenchStore'
 
-export type Props = {
+export type Props = WorkbenchIdentity & {
   token: string
   initialView: AnalysisView
+  explicitInitialView: boolean
+  navigationId: number
   onViewChange: (view: AnalysisView) => void
   canExecute: boolean
   canIntervene: boolean
@@ -16,7 +19,7 @@ export type Props = {
   onToast: (message: string) => void
 }
 
-export type AnalysisView = 'raw' | 'quality' | 'curve' | 'standards' | 'samples'
+export type AnalysisView = AnalysisPageSnapshot['viewByRun'][number]
 
 export const statusLabels: Record<string, string> = {
   draft: '草稿',

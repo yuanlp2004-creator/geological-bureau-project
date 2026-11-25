@@ -1,4 +1,4 @@
-import { ensureCaptureConnection } from '../acquisition/captureConnection'
+import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection, prepareCaptureHandoff } from '../acquisition/captureConnection'
 import { PageFileActions } from '../../components/PageFileActions'
 import { RowSelectionArrow } from '../../components/RowSelectionArrow'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
@@ -6,7 +6,7 @@ import { confirmAction } from '../../platform/dialogs'
 import {
   RefreshCw
 } from 'lucide-react'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   api,
   type DispersionLine,
@@ -32,9 +32,13 @@ import { parseCcdCoordinate } from '../../components/legacyObservation'
 import { ViewerDialog } from '../spectra/ViewerDialog'
 import { ContextMenu, useContextMenu } from '../../components/ContextMenu'
 import { spectralLineMenuGroups } from '../../components/spectrumMenu'
+import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner } from '../../stores/hardwareLockStore'
+import type { HardwareOperation, OperationToken } from '../../stores/hardwareLockStoreCore'
 import '../../components/legacy-viewing.css'
 
-export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, canExport = false, onToast, actionsTarget, onCaptureChange, onCloseCurve, onViewSpectra, view = 'capture' }: Props & {
+const owner = 'dispersion'
+
+export function DispersionPage({ token, canWrite, canExecute, canReadMethods = true, canExport = false, onToast, actionsTarget, onCaptureChange, onCloseCurve, onViewSpectra, view = 'capture', visible = true }: Props & {
   canExport?: boolean
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
@@ -42,7 +46,16 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   onCloseCurve?:()=>void
   onViewSpectra?: (group: string, recordId?: string) => void
   view?: 'capture' | 'curve'
+  visible?: boolean
 }) {
+  const recovery = useMemo(() => ({ owner, read: async () => {
+    for (let offset = 0; ; offset += 200) {
+      const tasks = await api.dispersionTasks(token, 200, offset)
+      const task = activeCaptureTask(tasks)
+      if (task || tasks.length < 200) return captureActivity(task)
+    }
+  } }), [token])
+  useHardwareOwner(token, owner, visible && view === 'capture', recovery)
   const [options, setOptions] = useState<DispersionOptions | null>(null)
   const [tasks, setTasks] = useState<DispersionTask[]>([])
   const [methods, setMethods] = useState<MethodRecord[]>([])
@@ -84,8 +97,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const [bindMethodId, setBindMethodId] = useState<number | null>(null)
   const [autoRun, setAutoRun] = useState(false)
   const [busy, setBusy] = useState(false)
-  const runningTask = tasks.find(task => task.active_capture_id === task.id)
-    ?? tasks.find(task => !['draft', 'completed', 'failed', 'stopped'].includes(task.status))
+  const runningTask = activeCaptureTask(tasks)
   const embedded = useSpectroscopySession('dispersion', runningTask
     ? `色散摄谱任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
     : busy ? '色散摄谱操作尚未完成，请稍后切换摄谱方式。' : null)
@@ -108,6 +120,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   }
   useLayoutEffect(() => {
     mounted.current = true
+    stopIntent.current = false
     return () => {
       mounted.current = false
       generation.current++
@@ -118,24 +131,37 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     setActive(task)
     setTasks(items => updateCaptureTask(items, task))
   }
-  const perform = async (work: () => Promise<DispersionTask>, message = '') => {
+  const perform = async (work: (token: OperationToken | null) => Promise<DispersionTask | undefined>, message = '',
+    command?: Omit<HardwareOperation, 'owner'>) => {
     if (operation.current) {
       onToast('上一操作仍在完成，请稍后重试')
       return
     }
+    const hardware = command ? acquireHardwareOperation({ owner, ...command }, onToast) : null
+    if (command && !hardware) return
+    const observation = hardwareLockStore.observation(token)
+    const handoff = hardwareLockStore.getSnapshot().status === 'connected_idle'
+      && (command?.kind === 'capture_start' || command?.kind === 'capture_preheat') && formalTask?.profile.transport === 'serial'
     const valid = ticket()
     setBusy(true)
-    const pending = work()
+    const pending = work(hardware)
     operation.current = pending
     try {
       const task = await pending
+      if (hardware && !hardwareLockStore.completeOperation(hardware, {
+        capture: command?.kind === 'capture_create' ? undefined : captureActivity(task), portReleased: handoff
+      })) return
+      if (!task) return
       if (!valid()) return
+      if (!hardware) hardwareLockStore.observeCapture(observation, owner, captureActivity(task), active?.active_capture_id ?? active?.id)
       applyTask(task)
       if (!runningStates.has(task.status)) setAutoRun(false)
       if (task.status === 'failed' && active?.status !== 'failed' && task.failure_message) onToast(task.failure_message)
       else if (message) onToast(message)
       return task
     } catch (error) {
+      if (hardware) hardwareLockStore.failOperation(hardware, error, recovery)
+      else if (valid()) hardwareLockStore.observeFailure(token, observation, error, recovery)
       if (valid()) {
         setAutoRun(false)
         onToast(error instanceof Error ? error.message : '色散操作失败')
@@ -146,6 +172,12 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     }
   }
   const choose = async (id: number, checkConnection = true) => {
+    if (operation.current) return
+    const known = tasks.find(task => task.id === id)
+    const hardware = acquireHardwareOperation({ owner, kind: 'capture_choose', taskId: id,
+      profileId: checkConnection && view !== 'curve' && known?.status === 'draft' && !known.position_controlled
+        ? known.device_profile_id : undefined }, onToast)
+    if (!hardware) return
     generation.current++
     stopIntent.current = true
     setAutoRun(false)
@@ -153,19 +185,23 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     const valid = ticket()
     try {
       const fresh = await api.dispersionTask(token, id)
-      if (checkConnection && view !== 'curve' && !fresh.position_controlled && ['draft','ready'].includes(fresh.status))
-        await ensureCaptureConnection(token, fresh.device_profile_id, fresh.profile.transport, 'dispersion')
+      if (hardwareLockStore.owns(hardware) && checkConnection && view !== 'curve'
+        && !fresh.position_controlled && ['draft','ready'].includes(fresh.status))
+        await ensureCaptureConnection(token, fresh.device_profile_id, fresh.profile.transport, 'dispersion', hardware)
+      if (!hardwareLockStore.completeOperation(hardware, { capture: captureActivity(fresh) ?? undefined })) return
       if (valid()) {
         setSelectedCcd(current => fresh.ccd_indices.includes(current) ? current : fresh.ccd_indices[0] ?? 0)
         applyTask(fresh)
         if (view !== 'curve') setScreen('capture')
       }
     } catch (error) {
+      hardwareLockStore.failOperation(hardware, error, recovery)
       if (valid()) onToast(error instanceof Error ? error.message : '读取任务失败')
     } finally { if (valid()) setBusy(false) }
   }
   const loadRequest = useRef(0)
   const load = useCallback(async () => {
+    const observation = hardwareLockStore.observation(token)
     const current = ticket(),
       requestId = ++loadRequest.current
     const valid = () => current() && requestId === loadRequest.current
@@ -184,6 +220,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
         view === 'curve' && canReadMethods ? api.methods(token) : Promise.resolve([])
       ])
       if (!valid()) return
+      hardwareLockStore.observeCapture(observation, owner, captureActivity(activeCaptureTask(nextTasks)))
       if (!defaultsLoaded.current && nextOptions.preliminary_defaults) {
         defaultsLoaded.current = true
         const saved = nextOptions.preliminary_defaults
@@ -228,7 +265,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     if (!active || !active.ccd_indices.includes(selectedCcd)) setSelectedCcd(active?.ccd_indices[0] ?? 0)
   }, [active, selectedCcd])
   useEffect(() => {
-    if (!active || busy) return
+    if (!visible || view !== 'capture' || !active || busy) return
     const remote = active.active_capture_id !== undefined || active.profile.transport === 'serial' && runningStates.has(active.status)
     if (!remote && (!autoRun || !runningStates.has(active.status) || stopIntent.current)) return
     const timer = window.setTimeout(() => {
@@ -237,10 +274,11 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
         return fresh.active_capture_id !== undefined && fresh.active_capture_id !== fresh.id
           ? api.dispersionTask(token, fresh.active_capture_id) : fresh
       })
-      else if (!stopIntent.current) void perform(() => api.stepDispersionTask(token, active.id))
+      else if (!stopIntent.current && hardwareLockStore.getSnapshot().status === 'capturing')
+        void perform(() => api.stepDispersionTask(token, active.id))
     }, remote ? 250 : 850)
     return () => window.clearTimeout(timer)
-  }, [active, autoRun, busy, token])
+  }, [active, autoRun, busy, token, view, visible])
 
   const currentCcd =
     active?.last_event?.ccds.find((item) => item.ccd_index === selectedCcd) ?? active?.last_event?.ccds[0]
@@ -269,12 +307,17 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     if (!canWrite || busy || !curveName.trim()) return
     if (!reportInvalidNumericInput(document.querySelector('.dispersion-setup'))) return onToast('请先修正采集参数')
     setCreateError(null)
-    const created = await perform(async () => {
-      try { return await api.createDispersionSession(token, { name: curveName, frame_count: frameCount,
+    const created = await perform(async hardware => {
+      try {
+        if (!hardware) return
+        await prepareCaptureHandoff(token, hardware, 'dispersion', canReadMethods)
+        if (!hardwareLockStore.owns(hardware)) return
+        return await api.createDispersionSession(token, { name: curveName, frame_count: frameCount,
         dark_frame_count: darkFrameCount, pre_excitation_seconds: preSeconds,
-        sampling_period_seconds: samplingPeriod, save_conditions: saveExcitation }) }
+        sampling_period_seconds: samplingPeriod, save_conditions: saveExcitation })
+      }
       catch (error) { setCreateError(error instanceof Error ? error.message : '创建色散摄谱失败'); throw error }
-    }, '色散任务已创建')
+    }, '色散任务已创建', { kind: 'capture_create' })
     if (created) { defaultsLoaded.current = false; setSaveExcitation(false); setCurveName(''); setCreateOpen(false); setScreen('capture') }
   }
   const formalTask = active?.condition.preheat
@@ -296,36 +339,46 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     if (!formalTask || formalTask.condition.preheat || formalTask.status !== 'draft' || !canExecute || busy || runningTask) return
     stopIntent.current = false
     const next = await perform(() => api.startDispersionTask(token, formalTask.id, !singleTurn && formalTask.capture_turn?.multiple),
-      singleTurn ? '本转角摄谱已开始' : '试样摄谱已开始')
+      singleTurn ? '本转角摄谱已开始' : '试样摄谱已开始',
+      { kind: 'capture_start', taskId: formalTask.id, profileId: formalTask.device_profile_id })
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const preheat = async () => {
     if (!formalTask || formalTask.condition.preheat || !canExecute || !canWrite || busy || runningTask) return
     stopIntent.current = false
-    const next = await perform(() => api.preheatDispersionTask(token, formalTask.id), '预热摄谱已开始')
+    const next = await perform(() => api.preheatDispersionTask(token, formalTask.id), '预热摄谱已开始',
+      { kind: 'capture_preheat', taskId: formalTask.id, profileId: formalTask.device_profile_id })
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const resume = async () => {
     if (!active || !canExecute) return
     stopIntent.current = false
-    const next = await perform(() => api.resumeDispersionTask(token, active.id), '采集已继续')
+    const next = await perform(() => api.resumeDispersionTask(token, active.id), '采集已继续',
+      { kind: 'capture_resume', taskId: active.active_capture_id ?? active.id, profileId: active.device_profile_id })
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const halt = async (mode: 'pause' | 'stop') => {
     if (!active || !canExecute) return
     const taskId = active.id,
       valid = ticket()
+    const hardware = acquireHardwareOperation({ owner, kind: `capture_${mode}`, taskId: active.active_capture_id ?? taskId,
+      profileId: active.device_profile_id }, onToast)
+    if (!hardware) return
     stopIntent.current = true
     setAutoRun(false)
     // Preserve this explicit command even when a frame is still awaiting a response.
     await operation.current?.catch(() => { })
     try {
+      if (!hardwareLockStore.owns(hardware)) { hardwareLockStore.completeOperation(hardware); return }
       const task = await (mode === 'stop' ? api.stopDispersionTask : api.pauseDispersionTask)(token, taskId)
+      checkCaptureShutdown(task)
+      if (!hardwareLockStore.completeOperation(hardware, { capture: captureActivity(task) })) return
       if (valid()) {
         applyTask(task)
         onToast(mode === 'stop' ? task.active_capture_id ? '已发出停止请求' : '采集已停止' : '采集已暂停')
       }
     } catch (error) {
+      hardwareLockStore.failOperation(hardware, error, recovery)
       if (valid()) onToast(error instanceof Error ? error.message : '停止操作失败，请重试')
     }
   }

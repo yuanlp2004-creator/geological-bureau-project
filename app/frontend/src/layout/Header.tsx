@@ -4,6 +4,7 @@ import { type NavigationEntry, type Page } from '../navigation'
 import type { MethodShortcutAction } from '../pages/methods/methodShortcuts'
 import type { Theme } from '../stores/themeStoreCore'
 import { QuickAccessBar } from './QuickAccessBar'
+import { hardwareLockStore, useHardwareLock } from '../stores/hardwareLockStore'
 
 export function Header({
   activeEntry,
@@ -27,11 +28,11 @@ export function Header({
   extensionTitle?: string
   onRefresh: () => void
   loading: boolean
-  onNavigate: (page: Page) => void
+  onNavigate: (page: Page) => void | Promise<boolean>
   entries: NavigationEntry[]
-  onNavigateEntry: (entry: NavigationEntry) => void
-  onMethodShortcut: (action: MethodShortcutAction) => void
-  onSwitchMethod: () => void
+  onNavigateEntry: (entry: NavigationEntry) => void | Promise<boolean>
+  onMethodShortcut: (action: MethodShortcutAction) => void | Promise<boolean>
+  onSwitchMethod: () => void | Promise<boolean>
   user: AuthUser
   currentMethod: CurrentMethodState | null
   theme: Theme
@@ -46,6 +47,9 @@ export function Header({
   const paused = method?.method_id && method.status !== 'active'
   const methodStatus = `当前方法 · ${method?.work_type || '未选择'}${paused ? ' · 已暂停' : ''}`
   const methodTitle = canReadMethods ? method?.title || '请选择已发布方法' : '无方法读取权限'
+  const hardware = useHardwareLock()
+  const hardwareReason = hardware.operation || !['idle', 'connected_idle'].includes(hardware.status)
+    ? hardwareLockStore.blockedReason() ?? undefined : undefined
   return (
     <>
     <header className="topbar">
@@ -62,7 +66,7 @@ export function Header({
             <strong>{methodTitle}</strong>
           </button>
           <button type="button" className="workspace-method-switch" aria-label="切换当前方法" aria-haspopup="dialog"
-            title="快速打开并切换运行方法" onClick={onSwitchMethod} disabled={!user.permissions.includes('methods.write')}>
+            title="快速打开并切换运行方法" aria-description={hardwareReason} onClick={onSwitchMethod} disabled={!user.permissions.includes('methods.write')}>
             <ChevronDown size={15} aria-hidden="true" />
           </button>
         </div>
@@ -84,7 +88,7 @@ export function Header({
         >
           {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         </button>
-        <button className="icon-button" title="退出登录" onClick={onLogout}>
+        <button className="icon-button" title="退出登录" aria-description={hardwareReason} onClick={onLogout}>
           <LogOut size={15} />
         </button>
         <button

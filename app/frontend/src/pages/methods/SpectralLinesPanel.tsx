@@ -1,7 +1,7 @@
 import { convertLineUnit } from '../../components/analysisUnits'
 import { confirmAction } from '../../platform/dialogs'
 import { AlertTriangle } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   api,
   type LineDetectability,
@@ -14,15 +14,23 @@ import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { SpectralLineEditor } from './SpectralLineEditor'
 import { SpectralLineList } from './SpectralLineList'
 import { defaultLine, lineToInput, methodExposureMode } from './spectralLineDraft'
+import { availableId } from '../../stores/workbenchRestore'
+import { lineFormIsDirty } from '../../layout/navigationGuard'
 
 export function SpectralLinesPanel({
   methodId,
+  initialLineId,
+  onSelectedLineChange,
+  onDirtyChange,
   token,
   canWrite,
   onChanged,
   onToast
 }: {
   methodId: number
+  initialLineId?: string | null
+  onSelectedLineChange?: (lineId: string | null) => void
+  onDirtyChange?: (dirty: boolean) => void
   token: string
   canWrite: boolean
   onChanged: () => Promise<void>
@@ -34,13 +42,20 @@ export function SpectralLinesPanel({
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState<SpectralLineInput>(defaultLine)
   const [creating, setCreating] = useState(false)
+  const [createBaseline, setCreateBaseline] = useState<SpectralLineInput | null>(null)
   const [detectability, setDetectability] = useState<LineDetectability | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const linesRequest = useRef(0)
+  const initialSelection = useRef(initialLineId)
+  const lineSelection = useRef<string | null>(null)
   const currentMethod = useRef({ methodId, token })
   currentMethod.current = { methodId, token }
+  useLayoutEffect(() => {
+    lineSelection.current = selectedId
+  }, [selectedId])
+  useLayoutEffect(() => () => { linesRequest.current++ }, [methodId, token])
   const loadLines = useCallback(async () => {
     if (currentMethod.current.methodId !== methodId || currentMethod.current.token !== token) return
     const requestId = ++linesRequest.current
@@ -54,11 +69,15 @@ export function SpectralLinesPanel({
         api.spectralLineOptions(token)
       ])
       if (!isCurrent()) return
+      const nextId = availableId(nextCollection.lines.map(line => line.id), initialSelection.current ?? lineSelection.current)
+      const nextLine = nextCollection.lines.find(line => line.id === nextId)
+      initialSelection.current = undefined
       setCollection(nextCollection)
       setOptions(nextOptions)
-      setSelectedId((previous) =>
-        nextCollection.lines.some((line) => line.id === previous) ? previous : (nextCollection.lines[0]?.id ?? null)
-      )
+      setCreating(false)
+      setSelectedId(nextId ?? null)
+      setDraft(nextLine ? lineToInput(nextLine) : defaultLine())
+      setDetectability(nextLine?.detectability ?? null)
       setError(null)
     } catch (cause) {
       if (isCurrent()) setError(cause instanceof Error ? cause.message : '无法读取谱线')
@@ -68,9 +87,6 @@ export function SpectralLinesPanel({
   useEffect(() => {
     setCollection(null)
     void loadLines()
-    return () => {
-      linesRequest.current++
-    }
   }, [loadLines])
   useEffect(() => {
     setCreating(false)
@@ -80,15 +96,27 @@ export function SpectralLinesPanel({
   }, [methodId, token])
 
   const selected = collection?.lines.find((line) => line.id === selectedId) ?? null
-  useEffect(() => {
-    if (creating || !selected) return
-    setDraft(lineToInput(selected))
-    setDetectability(selected.detectability ?? null)
-  }, [creating, selected])
+  const savedInput = useMemo(() => selected ? lineToInput(selected) : null, [selected])
+  const dirty = lineFormIsDirty(draft, creating ? createBaseline : savedInput)
+  useLayoutEffect(() => {
+    if (collection) onSelectedLineChange?.(selected?.id ?? null)
+  }, [collection, selected?.id, onSelectedLineChange])
+  useLayoutEffect(() => {
+    onDirtyChange?.(dirty)
+    return () => onDirtyChange?.(false)
+  }, [dirty, onDirtyChange])
 
   useEffect(() => {
+    if (!creating && (!savedInput || (
+      savedInput.wavelength_nm === draft.wavelength_nm &&
+      savedInput.actual_wavelength_nm === draft.actual_wavelength_nm &&
+      savedInput.scan_width_points === draft.scan_width_points
+    ))) {
+      setDetectability(selected?.detectability ?? null)
+      return
+    }
     setDetectability(null)
-    if (!Number.isFinite(draft.wavelength_nm) || (!creating && !selected)) return
+    if (!Number.isFinite(draft.wavelength_nm)) return
     let active = true
     const timer = window.setTimeout(() => {
       void api
@@ -109,7 +137,7 @@ export function SpectralLinesPanel({
       active = false
       window.clearTimeout(timer)
     }
-  }, [creating, selected?.id, draft.actual_wavelength_nm, draft.scan_width_points, draft.wavelength_nm, methodId, token])
+  }, [creating, savedInput, selected, draft.actual_wavelength_nm, draft.scan_width_points, draft.wavelength_nm, methodId, token])
 
   const updateDraft = <K extends keyof SpectralLineInput>(key: K, value: SpectralLineInput[K]) =>
     setDraft((previous) => ({ ...previous, [key]: value }))
@@ -120,9 +148,11 @@ export function SpectralLinesPanel({
     setDetectability(line.detectability ?? null)
   }
   const beginCreate = () => {
+    const next = convertLineUnit(defaultLine(), collection?.lines.find((line) => line.line_type === 'baseline')?.unit ?? 'ug/g')
     setCreating(true)
     setSelectedId(null)
-    setDraft(convertLineUnit(defaultLine(), collection?.lines.find((line) => line.line_type === 'baseline')?.unit ?? 'ug/g'))
+    setCreateBaseline(next)
+    setDraft(next)
     setDetectability(null)
   }
 

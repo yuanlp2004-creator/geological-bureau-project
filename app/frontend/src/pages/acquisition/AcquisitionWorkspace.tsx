@@ -1,7 +1,7 @@
-import { ensureCaptureConnection } from './captureConnection'
+import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection, prepareCaptureHandoff } from './captureConnection'
 import { groupedCaptureTasks, updateCaptureTask } from './CaptureTurnPages'
 import { RefreshCw } from 'lucide-react'
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { api, type AcquisitionOptions, type AcquisitionTask } from '../../api'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
@@ -14,7 +14,8 @@ import { SpectroscopyTaskDialog } from './SpectroscopyTaskDialog'
 import { captureTaskPresentation, SpectroscopyTaskList } from './SpectroscopyTaskList'
 import { SampleInputToolButton } from './SampleInputToolButton'
 import { SampleQueuePage } from '../sampleQueues/SampleQueuePage'
-export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadSpectra = false, canReadMethods = false, canWriteSamples = false, onOpenSamples, onViewSpectra, currentMethodKey }: Props & {
+import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner } from '../../stores/hardwareLockStore'
+export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, taskKind, actionsTarget, onCaptureChange, canExport = false, canReadSpectra = false, canReadMethods = false, canWriteSamples = false, onOpenSamples, onViewSpectra, currentMethodKey, active = true }: Props & {
   taskKind: AcquisitionTask['task_kind']
   actionsTarget?: HTMLElement | null
   onCaptureChange?: (mode: SpectroscopyMode, capture: boolean) => void
@@ -25,8 +26,13 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   onOpenSamples?: () => void
   onViewSpectra?: (group: string) => void
   currentMethodKey?: string
+  active?: boolean
 }) {
   const isSample = taskKind === 'sample'
+  const owner = isSample ? 'sample-acquisition' : 'evaporation-acquisition'
+  const recovery = useMemo(() => ({ owner, read: async () =>
+    captureActivity(activeCaptureTask(await api.acquisitionTasks(token, taskKind, false))) }), [owner, token, taskKind])
+  useHardwareOwner(token, owner, active, recovery)
   const title = isSample ? '样品摄谱' : '蒸发摄谱'
   const [options, setOptions] = useState<AcquisitionOptions | null>(null)
 
@@ -60,9 +66,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   }, [canExecute])
   const [busy, setBusy] = useState(false)
   const pageRef = useRef<HTMLDivElement>(null)
-  const runningTask = tasks.find(task => task.active_capture_id === task.id)
-    ?? tasks.find(task => !['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(task.status))
-  const embedded = useSpectroscopySession(isSample ? 'sample-acquisition' : 'evaporation-acquisition',
+  const runningTask = activeCaptureTask(tasks)
+  const embedded = useSpectroscopySession(owner,
     runningTask ? `${title}任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
       : busy || loading || sampleEditorBusy ? `${title}操作尚未完成，请稍后切换摄谱方式。` : null)
   useEffect(() => {
@@ -141,6 +146,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   useEffect(() => () => { loadGeneration.current++ }, [token, taskKind])
   const load = useCallback(async () => {
     const generation = ++loadGeneration.current
+    const observation = hardwareLockStore.observation(token)
     setLoading(true)
     try {
       const [nextOptions, nextTasks] = await Promise.all([
@@ -156,6 +162,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         setBurnCount(saved.frame_count); setDarkCount(saved.dark_frame_count)
       }
       const matchingTasks = nextTasks.filter((item) => item.task_kind === taskKind)
+      hardwareLockStore.observeCapture(observation, owner, captureActivity(activeCaptureTask(matchingTasks)))
       setOptions(nextOptions)
       setTasks(matchingTasks)
       setSelected((current) =>
@@ -167,7 +174,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     } finally {
       if (generation === loadGeneration.current) setLoading(false)
     }
-  }, [isSample, onToast, taskKind, title, token])
+  }, [isSample, onToast, owner, taskKind, title, token])
 
   useEffect(() => {
     void load()
@@ -181,10 +188,12 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     const taskId = selected.id
 
     const generation = selectionGeneration.current
+    const observation = hardwareLockStore.observation(token)
     void api
       .acquisitionTask(token, taskId, true)
       .then((next) => {
         if (cancelled || generation !== selectionGeneration.current) return
+        hardwareLockStore.observeCapture(observation, owner, captureActivity(next), taskId)
         setSelected((current) => (current?.id === taskId ? next : current))
       setTasks(current => updateCaptureTask(current, next))
       })
@@ -195,7 +204,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     return () => {
       cancelled = true
     }
-  }, [onToast, screen, selected, selectedNeedsPoints, token])
+  }, [onToast, owner, screen, selected, selectedNeedsPoints, token])
 
   const deleteTask = async (id: number) => {
     const task = tasks.find(item => item.id === id)
@@ -219,7 +228,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     const remote = selected?.active_capture_id !== undefined || selected?.profile.transport === 'serial'
     const activeStatus = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark'].includes(selected.status))
     if (
-      !canExecute ||
+      !active || !canExecute ||
       !selected ||
       !(selected.active_capture_id !== undefined || activeStatus && (auto || remote))
     )
@@ -233,17 +242,20 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         if (
           cancelled ||
           !remote && autoTask.current !== selected.id ||
+          !remote && hardwareLockStore.getSnapshot().status !== 'capturing' ||
           generation !== selectionGeneration.current ||
           busyRef.current ||
           controlPending.current
         )
           return
         busyRef.current = true
+        const observation = hardwareLockStore.observation(token)
         const request = (remote ? api.acquisitionTask(token, selected.id, true).then(fresh =>
           fresh.active_capture_id !== undefined && fresh.active_capture_id !== fresh.id
             ? api.acquisitionTask(token, fresh.active_capture_id, true) : fresh) : api.stepAcquisitionTask(token, selected.id))
           .then((next) => {
             if (cancelled || generation !== selectionGeneration.current) return
+            hardwareLockStore.observeCapture(observation, owner, captureActivity(next), selected.active_capture_id ?? selected.id)
             setSelected(next)
             setTasks(current => updateCaptureTask(current, next))
             if (['between_repeats', 'completed', 'failed', 'stopped', 'paused'].includes(next.status)) {
@@ -255,6 +267,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             if (cancelled || generation !== selectionGeneration.current) return
             setAuto(false)
             autoTask.current = null
+            hardwareLockStore.observeFailure(token, observation, error, recovery)
             onToast(error instanceof Error ? error.message : '摄谱推进失败')
           })
           .finally(() => {
@@ -271,7 +284,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [auto, canExecute, onToast, selected, token])
+  }, [active, auto, canExecute, onToast, owner, recovery, selected, token])
 
   const selectedCcd =
     selected?.last_event?.ccds.find((item) => item.ccd_index === ccdIndex) ?? selected?.last_event?.ccds[0]
@@ -291,14 +304,18 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     : selected
   const chooseEvaporationTurn = async (id: number) => {
     if (busy || loading || runningTask || busyRef.current || controlPending.current) return
+    const operation = acquireHardwareOperation({ owner, kind: 'capture_choose', taskId: id }, onToast)
+    if (!operation) return
     const generation = ++selectionGeneration.current
     setBusy(true)
     try {
       const next = await api.acquisitionTask(token, id, true)
+      if (!hardwareLockStore.completeOperation(operation, { capture: captureActivity(next) ?? undefined })) return
       if (generation !== selectionGeneration.current) return
       setSelected(next)
       setTasks(current => updateCaptureTask(current, next))
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error, recovery)
       if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '读取转角摄谱失败')
     } finally { setBusy(false) }
   }
@@ -312,12 +329,16 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   const chooseCaptureSample = async (value: string) => {
     if (busy || loading || runningTask || busyRef.current || controlPending.current || !inputTask) return
     if (value.startsWith('task:')) {
+      const blocked = hardwareLockStore.blockedReason()
+      if (blocked) return onToast(blocked)
       const task = availableTasks.find(item => `task:${item.id}` === value)
       if (task) { setInputCleared(false); setAuto(false); autoTask.current = null; setSelected(task) }
       return
     }
     const item = pendingSamples.find(item => `queue:${item.id}` === value)
     if (!item || !canWrite || !isSample || !inputQueue) return
+    const operation = acquireHardwareOperation({ owner, kind: 'capture_create', profileId: inputTask.device_profile_id }, onToast)
+    if (!operation) return
     const generation = ++selectionGeneration.current
     controlPending.current = true
     busyRef.current = true
@@ -328,18 +349,21 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         'burn_frame_count', 'dark_frame_count', 'countdown_seconds', 'pre_excitation_seconds',
         'sampling_period_seconds', 'burn_cycle_seconds', 'dark_cycle_seconds', 'storage_mode'] as const).map(key => [key, inputTask[key]]))
       if (!inputTask.position_controlled)
-        await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition')
+        await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition', operation)
+      if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
       const next = await api.createAcquisitionTask(token, { ...payload, task_kind: 'sample',
         name: inputTask.name, queue_id: inputQueue.id, queue_item_id: item.id,
         sample_name: item.post_name ?? item.pre_name, name_length: inputQueue.name_length,
         sample_kind: inputTask.sample_kind, repeat_count: item.repeats, management_sample: (item.post_name ?? item.pre_name).toUpperCase().startsWith('D'),
         simulator_sample: inputTask.simulator.sample, seed: inputTask.simulator.seed })
+      if (!hardwareLockStore.completeOperation(operation)) return
       if (generation !== selectionGeneration.current) return
       setTasks(current => [next, ...current]); setSelected(next)
       setInputCleared(false)
       setQueueProgressMessage('')
       onToast('样号已选择，请点击试样摄谱开始本次激发')
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error, recovery)
       if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '切换样号失败')
     } finally { controlPending.current = false; busyRef.current = false; setBusy(false) }
   }
@@ -351,10 +375,16 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     const automaticStep = pendingStep.current
     if (busyRef.current && !(automaticStep && ['pause', 'stop'].includes(action)))
       return onToast('当前采集操作尚未完成，请稍后再试')
-    const generation = ++selectionGeneration.current
-
     if (!canExecute) return onToast('当前账户没有采集执行权限')
     if (action === 'preheat' && !canWrite) return onToast('当前账户没有采集写入权限')
+    const target = action === 'start' || action === 'preheat' ? formalTask : selected
+    if (!target) return onToast('请先选择正式摄谱任务')
+    const handoff = hardwareLockStore.getSnapshot().status === 'connected_idle'
+      && target.profile.transport === 'serial' && (action === 'start' || action === 'preheat')
+    const operation = acquireHardwareOperation({ owner, kind: `capture_${action}`,
+      profileId: target.device_profile_id, taskId: runningTask?.active_capture_id ?? target.active_capture_id ?? target.id }, onToast)
+    if (!operation) return
+    const generation = ++selectionGeneration.current
     if (action === 'pause' || action === 'stop') {
       autoTask.current = null
       setAuto(false)
@@ -363,7 +393,10 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     setBusy(true)
     try {
       if (automaticStep) await automaticStep
-      if (generation !== selectionGeneration.current) return
+      if (generation !== selectionGeneration.current || !hardwareLockStore.owns(operation)) {
+        hardwareLockStore.completeOperation(operation)
+        return
+      }
       busyRef.current = true
       const methods = {
         start: api.startAcquisitionTask,
@@ -373,12 +406,12 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         stop: api.stopAcquisitionTask
       }
 
-      const target = action === 'start' || action === 'preheat' ? formalTask : selected
-      if (!target) return onToast('请先选择正式摄谱任务')
       const continuous = !singleTurn && Boolean(target.turns?.multiple || target.capture_turn?.multiple)
       const next = action === 'start' ? await api.startAcquisitionTask(token, target.id, turnIndex, singleTurn, continuous)
         : await methods[action](token, target.id, turnIndex)
+      if (action === 'pause' || action === 'stop') checkCaptureShutdown(next)
 
+      if (!hardwareLockStore.completeOperation(operation, { capture: captureActivity(next), portReleased: handoff })) return
       if (generation !== selectionGeneration.current) return
       setSelected(next)
       setTasks(current => updateCaptureTask(current, next))
@@ -387,6 +420,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       autoTask.current = capture ? next.id : null
       setAuto(capture)
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error, recovery)
       if (generation === selectionGeneration.current)
         onToast(error instanceof Error ? error.message : '采集控制失败')
     } finally {
@@ -400,14 +434,19 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     event.preventDefault()
     if (runningTask) return onToast('当前任务尚未结束，请先完成或停止摄谱')
     if (!canWrite) return onToast('当前账户没有采集写入权限')
+    if (!reportInvalidNumericInput(pageRef.current?.querySelector('.acquisition-form') ?? null)) return
+    const operation = acquireHardwareOperation({ owner, kind: 'capture_create' }, onToast)
+    if (!operation) return
     setCreateError(null)
     setBusy(true)
     try {
-      if (!reportInvalidNumericInput(pageRef.current?.querySelector('.acquisition-form') ?? null)) return
+      await prepareCaptureHandoff(token, operation, 'acquisition', canReadMethods)
+      if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
       const next = isSample ? await api.createSampleSession(token, taskName)
         : await api.createEvaporationSession(token, { name: taskName, pre_excitation_seconds: preExcitation,
           sampling_period_seconds: samplingPeriod, frame_count: burnCount, dark_frame_count: darkCount,
           save_conditions: saveExcitation })
+      if (!hardwareLockStore.completeOperation(operation)) return
       if (!isSample) { defaultsLoaded.current = false; setSaveExcitation(false); setTaskName('') }
       setTasks((current) => [next, ...current])
       setSelected(next)
@@ -417,6 +456,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       setCreateOpen(false)
       setScreen('capture')
     } catch (error) {
+      hardwareLockStore.failOperation(operation, error, recovery)
       setCreateError(error instanceof Error ? error.message : '创建采集任务失败')
       onToast(error instanceof Error ? error.message : '创建采集任务失败')
     } finally {
@@ -501,14 +541,22 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
         onChoose={id => {
           const task = tasks.find(item => item.id === id)
           if (task && !busy && (!runningTask || runningTask.id === id)) {
+            const operation = acquireHardwareOperation({ owner, kind: 'capture_choose', taskId: task.id,
+              profileId: ['draft', 'between_repeats'].includes(task.status) && !task.position_controlled
+                ? task.device_profile_id : undefined }, onToast)
+            if (!operation) return
             setBusy(true)
             void (async () => {
               try {
                 if (['draft','between_repeats'].includes(task.status))
                   if (!task.position_controlled)
-                    await ensureCaptureConnection(token, task.device_profile_id, task.profile.transport, 'acquisition')
+                    await ensureCaptureConnection(token, task.device_profile_id, task.profile.transport, 'acquisition', operation)
+                if (!hardwareLockStore.completeOperation(operation)) return
                 setSelected(task); setScreen('capture')
-              } catch (error) { onToast(error instanceof Error ? error.message : '仪器连接检查失败') }
+              } catch (error) {
+                hardwareLockStore.failOperation(operation, error, recovery)
+                onToast(error instanceof Error ? error.message : '仪器连接检查失败')
+              }
               finally { setBusy(false) }
             })()
           }

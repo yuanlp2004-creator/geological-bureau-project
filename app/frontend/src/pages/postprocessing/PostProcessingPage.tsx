@@ -2,7 +2,7 @@ import { SectionHeading } from '../../components/SectionHeading'
 import { PageFileActions } from '../../components/PageFileActions'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
 import { calculationProfileLabel } from '../../components/calculationProfile'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Database, Download, RefreshCw, Search } from 'lucide-react'
 import {
   api,
@@ -14,15 +14,19 @@ import type { AnalysisCurveSnapshot } from '../../api'
 import type { RecalculationCurveDetail, RecalculationCurveDraft } from '../../api/postprocessing'
 import { StandardCurveWorkspace, standardCurveLineLabel, type StandardCurveAdjustment } from '../analysis/StandardCurveWorkspace'
 import { ViewerDialog } from '../spectra/ViewerDialog'
+import { useWorkbenchVisit, type WorkbenchIdentity } from '../../stores/workbenchStore'
+import { restorePostProcessingSelection } from '../../stores/workbenchRestore'
+import { recalculationIsDirty, type RegisterDirtyGuard } from '../../layout/navigationGuard'
 
 type CurveWorkspace = Pick<AnalysisCurveSnapshot, 'points' | 'fit_mode' | 'coordinate_type'>
 type WorkingCurve = { workspace: CurveWorkspace; snapshot?: AnalysisCurveSnapshot; fittedRequest?: RecalculationCurveDraft }
 
-type Props = {
+type Props = WorkbenchIdentity & {
   actionsTarget?: HTMLElement | null
   active?: boolean
   embedded?: boolean
   token: string
+  registerDirtyGuard: RegisterDirtyGuard
   view: 'recalculate' | 'reports' | 'intensity'
   canWrite: boolean
   canExecute: boolean
@@ -43,6 +47,10 @@ export function PostProcessingPage({
   active = true,
   embedded = false,
   token,
+  userId,
+  permissionsKey,
+  methodVersionId: scopedMethodVersionId,
+  registerDirtyGuard,
   view,
   canWrite,
   canExecute,
@@ -72,7 +80,8 @@ export function PostProcessingPage({
   const [curveError, setCurveError] = useState('')
   const [drafts, setDrafts] = useState<Record<number, WorkingCurve>>({})
   const [lastBatch, setLastBatch] = useState<PostProcessingRun>()
-
+  const visit = useWorkbenchVisit('postprocessing', { userId, permissionsKey, methodVersionId: scopedMethodVersionId }, token)
+  const [loadedVisit, setLoadedVisit] = useState<typeof visit | null>(null)
 
   const filteredSources = useMemo(() => {
     const query = sourceQuery.trim().toLocaleLowerCase()
@@ -99,25 +108,56 @@ export function PostProcessingPage({
   const draftPending = selectedCurves.some((id) => drafts[id] && !drafts[id].fittedRequest)
   const exportSelectionCount = exportBatch ? 1 : selectedSources.length
 
-  const load = async () => {
+  const dirty = recalculationIsDirty(drafts, lastBatch?.status === 'completed')
+  useLayoutEffect(() => {
+    if (active && dirty) return registerDirtyGuard(() => ({ reason: '重算曲线有未提交的草稿，确定放弃并继续？' }))
+  }, [active, dirty, registerDirtyGuard])
+  useLayoutEffect(() => {
+    if (active && loadedVisit === visit) visit.save({
+      methodVersionId, profile, selectedSources, sourceQuery, selectedCurves, viewedCurveId: curveId,
+      allowOlderMethod, format, filename, setupOpen
+    })
+  }, [active, loadedVisit, visit, methodVersionId, profile, selectedSources, sourceQuery, selectedCurves, curveId,
+    allowOlderMethod, format, filename, setupOpen])
+
+  const load = useCallback(async () => {
+    const request = visit.beginLoad()
+    if (!request.valid()) return
     try {
       const [nextRecalculations, nextOptions] = await Promise.all([
         api.postprocessingRecalculations(token),
         api.postprocessingRecalculationOptions(token)
       ])
+      if (!request.valid()) return
+      const snapshot = request.consume()
+      const next = snapshot && restorePostProcessingSelection(snapshot, nextOptions)
       setRuns(nextRecalculations.runs)
       setOptions(nextOptions)
-      setMethodVersionId((current) => current ?? nextOptions.methods[0]?.method_version_id)
+      if (next) {
+        setMethodVersionId(next.methodVersionId)
+        setProfile(next.profile)
+        setSelectedSources(next.selectedSources)
+        setSourceQuery(next.sourceQuery)
+        setSelectedCurves(next.selectedCurves)
+        setViewedId(next.viewedCurveId)
+        setAllowOlderMethod(next.allowOlderMethod)
+        setFormat(next.format)
+        setFilename(next.filename)
+        setSetupOpen(next.setupOpen)
+      } else {
+        setMethodVersionId(current => current ?? nextOptions.methods[0]?.method_version_id)
+      }
+      setLoadedVisit(visit)
     } catch (error) {
-      onToast(error instanceof Error ? error.message : '无法加载 S18 数据')
+      if (request.valid()) onToast(error instanceof Error ? error.message : '无法加载 S18 数据')
     }
-  }
+  }, [token, visit, onToast])
 
   useEffect(() => {
-    void load()
-  }, [token])
+    if (active) void load()
+  }, [active, load])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setCurveError('')
     setCurveDetails(undefined)
     if (!active || curveId == null) return
@@ -130,7 +170,7 @@ export function PostProcessingPage({
     return () => { cancelled = true }
   }, [active, curveId, token])
 
-  useEffect(() => { setLastBatch(undefined) }, [methodVersionId, profile, selectedSources, selectedCurves, allowOlderMethod, drafts])
+  useLayoutEffect(() => { setLastBatch(undefined) }, [methodVersionId, profile, selectedSources, selectedCurves, allowOlderMethod, drafts])
 
   const toggleSource = (id: string) =>
     setSelectedSources((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
@@ -252,7 +292,7 @@ export function PostProcessingPage({
 
   const [recalculateActionsTarget, setRecalculateActionsTarget] = useState<HTMLDivElement | null>(null)
   const refreshActions = <PageFileActions target={view === 'recalculate' ? recalculateActionsTarget : actionsTarget} hidden={!active}>
-    <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="recalculate" label="打开强度文件" disabled={busy} onOpened={async result => {
+    <OpenLegacyFile onBusyChange={setBusy} token={token} purpose="recalculate" label="打开强度文件" disabled={busy || loadedVisit !== visit} onOpened={async result => {
       await load(); setSelectedSources(result.record_ids.map(id => `result:${id}`)); setSourceQuery('')
       if (profile !== 'legacy_2_0_2') { setProfile('legacy_2_0_2'); setSelectedCurves([]) }
     }}/>
@@ -283,7 +323,7 @@ export function PostProcessingPage({
         <section style={view === 'recalculate' || view === 'intensity' ? undefined : { display: 'none' }} className="surface postprocessing-surface postprocessing-recalculation-surface">
             <div className="surface-heading">
               <SectionHeading title={<>{view === 'recalculate' ? '确切版本重算' : '结果来源'}</>} />
-              {view === 'recalculate' && <button type="button" className="secondary-button" disabled={busy}
+              {view === 'recalculate' && <button type="button" className="secondary-button" disabled={busy || loadedVisit !== visit}
                 onClick={() => setSetupOpen(true)}>重算设置 · {selectedSources.length} 源 / {selectedCurves.length} 曲线</button>}
               <div ref={setRecalculateActionsTarget} className="page-file-actions-slot" />
             </div>

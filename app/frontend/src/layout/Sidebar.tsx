@@ -41,7 +41,7 @@ export function Sidebar({
 }: {
   activeEntry?: NavigationEntry
   entries: NavigationEntry[]
-  onNavigate: (entry: NavigationEntry) => void
+  onNavigate: (entry: NavigationEntry) => void | Promise<boolean>
   currentMethod: CurrentMethodState | null
   health: 'online' | 'offline'
   showStatusBar: boolean
@@ -104,13 +104,13 @@ export function Sidebar({
     setHoveredGroup(null)
     setPinnedGroup((current) => (current === group ? null : group))
   }
-  const activate = (entry: NavigationEntry) => {
+  const activate = async (entry: NavigationEntry) => {
     const availability = navigationAvailability(entry, currentMethod)
     if (availability.disabled) {
       onToast(availability.reason ?? '当前入口不可用')
       return
     }
-    onNavigate(entry)
+    if (await onNavigate(entry) === false) return
     if (!pinnedGroup) setHoveredGroup(null)
   }
   const focusFirstEntry = (group: NavigationGroupId) => {

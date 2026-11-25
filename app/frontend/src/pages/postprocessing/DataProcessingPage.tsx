@@ -4,11 +4,14 @@ import type { ReportSource } from '../reports/ReportBuilder'
 import { PostProcessingPage } from './PostProcessingPage'
 import { AnalysisIntensityOutput } from './AnalysisIntensityOutput'
 import { FullTimeExportPanel } from './FullTimeExportPanel'
+import type { WorkbenchIdentity } from '../../stores/workbenchStore'
+import type { RegisterDirtyGuard } from '../../layout/navigationGuard'
 import './data-processing.css'
 
 type OutputTab = 'reports' | 'intensity' | 'full-time'
-type Props = {
+type Props = WorkbenchIdentity & {
   token: string
+  registerDirtyGuard: RegisterDirtyGuard
   page: 'postprocessing' | 'reports'
   initialView: string | null
   permissions: string[]
@@ -18,7 +21,10 @@ type Props = {
   onToast: (message: string) => void
 }
 
-export function DataProcessingPage({ token, page, initialView, permissions, reportSource, onReportSourceChange, onViewChange, onToast }: Props) {
+export function DataProcessingPage({
+  token, userId, permissionsKey, methodVersionId, registerDirtyGuard,
+  page, initialView, permissions, reportSource, onReportSourceChange, onViewChange, onToast
+}: Props) {
   const canReadReports = permissions.includes('reports.read')
   const canReadProcessing = permissions.includes('postprocessing.read')
   const canReadAnalysis = permissions.includes('analysis.read')
@@ -53,8 +59,10 @@ export function DataProcessingPage({ token, page, initialView, permissions, repo
       style={recalculate || outputTab === 'intensity' ? undefined : { display: 'none' }}>
       {canReadAnalysis && <AnalysisIntensityOutput actionsTarget={actionsTarget} token={token} hidden={recalculate || outputTab !== 'intensity'}
         canPrint={permissions.includes('analysis.print')} onToast={onToast} />}
-      {canReadProcessing && <div style={recalculate ? undefined : { display: 'none' }}>
-          <PostProcessingPage embedded actionsTarget={actionsTarget} active={recalculate} token={token} view="recalculate"
+      {recalculate && canReadProcessing && <div>
+          <PostProcessingPage key={JSON.stringify([userId, permissionsKey, methodVersionId])}
+            userId={userId} permissionsKey={permissionsKey} methodVersionId={methodVersionId}
+            registerDirtyGuard={registerDirtyGuard} embedded actionsTarget={actionsTarget} token={token} view="recalculate"
             canWrite={permissions.includes('postprocessing.write')} canExecute={permissions.includes('postprocessing.execute')}
             canExport={permissions.includes('postprocessing.export')} onToast={onToast} />
         </div>}

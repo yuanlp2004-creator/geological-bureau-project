@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { hardwareLockStore } from '../stores/hardwareLockStore'
 import { AlertTriangle, CheckCircle2, Info, CircleX, X } from 'lucide-react'
 import {
   api,
@@ -32,6 +33,8 @@ import { themeStore, useTheme } from '../stores/themeStore'
 import type { CSSProperties } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { confirmAction } from '../platform/dialogs'
+import { createNavigationGuard, type DirtyGuard, type GuardNavigation, type RegisterDirtyGuard } from './navigationGuard'
 import { Workspace } from '../pages/workspace/WorkspacePage'
 import { MethodsPage } from '../pages/methods/MethodsPage'
 import { WorkspaceOpenMethodDialog } from '../pages/methods/OpenMethodDialog'
@@ -47,10 +50,16 @@ import { ExtensionPage } from '../pages/extensions/ExtensionPage'
 
 export function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser; onLogout: () => void }) {
   const theme = useTheme()
-  const [target, setTarget] = useState<{ page: Page; key: string; view: string | null; spectrumFileGroup?: string; spectrumRecordId?: string }>({
+  const [target, setTarget] = useState<{
+    page: Page; key: string; view: string | null; entryView: string | null; explicitView: boolean; navigationId: number
+    spectrumFileGroup?: string; spectrumRecordId?: string
+  }>({
     page: 'workspace',
     key: 'workspace.overview',
-    view: null
+    view: null,
+    entryView: null,
+    explicitView: false,
+    navigationId: 0
   })
   const [dockHeight, setDockHeight] = useState(28)
   const { sidebarCollapsed, informationExpanded, focusMode } = useShellLayout(user.id)
@@ -78,22 +87,52 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   const showToast = useCallback((message: string) => setToast({ message, tone: feedbackToneFor(message) }), [])
   const entries = useMemo(() => navigationEntries(capabilities, user.permissions), [capabilities, user.permissions])
   const permissionsKey = useMemo(() => hashPermissions(user.permissions), [user.permissions])
+  const methodVersionId = currentMethod?.referenced_version?.id ?? null
+  const workbenchIdentity = { userId: user.id, permissionsKey, methodVersionId }
+  const workbenchKey = JSON.stringify([user.id, permissionsKey, methodVersionId])
   const activeEntry =
     entries.find((entry) => entry.key === target.key) ?? entryForPage(entries, target.page, target.view)
   const page = target.page
   const spectroscopyLock = useRef<string | null>(null)
+  const dirtyGuardRef = useRef<DirtyGuard | null>(null)
+  const navigationSession = useRef(0)
+  const workspaceLoadRequest = useRef(0)
+  const [runGuard] = useState(() => createNavigationGuard(confirmAction))
+  const switchBlockedReason = useCallback(() => hardwareLockStore.blockedReason() ?? spectroscopyLock.current, [])
+  const canLeave = useCallback(() => {
+    const blocked = switchBlockedReason()
+    if (blocked) showToast(blocked)
+    return !blocked
+  }, [showToast, switchBlockedReason])
+  const registerDirtyGuard: RegisterDirtyGuard = useCallback((guard) => {
+    dirtyGuardRef.current = guard
+    return () => { if (dirtyGuardRef.current === guard) dirtyGuardRef.current = null }
+  }, [])
+  const guardNavigation: GuardNavigation = useCallback(async (guard, commit) => {
+    if (!canLeave()) return false
+    const session = navigationSession.current
+    try {
+      return await runGuard(guard, commit, () => session === navigationSession.current && canLeave())
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : '无法确认是否放弃修改')
+      return false
+    }
+  }, [canLeave, runGuard, showToast])
+  useLayoutEffect(() => () => { navigationSession.current++ }, [token, user.id, permissionsKey])
   const updateSpectroscopyLock = useCallback((reason: string | null) => { spectroscopyLock.current = reason }, [])
-  const switchBlockedReason = useCallback(() => spectroscopyLock.current, [])
   const updateCurrentMethod = useCallback((method: CurrentMethodState) => {
     currentMethodRevision.current++
     setCurrentMethod(method)
   }, [])
 
   const loadData = useCallback(async (refreshDevices = false) => {
+    const request = ++workspaceLoadRequest.current
+    const session = navigationSession.current
+    const isCurrent = () => request === workspaceLoadRequest.current && session === navigationSession.current
     const methodRevision = currentMethodRevision.current
     setLoading(true)
     if (canReadEvents) void runtimeEventsStore.refresh()
-    if (refreshDevices && canReadDevices) void deviceStatusStore.refresh()
+    if (refreshDevices && canReadDevices) void hardwareLockStore.reconcile(token)
     try {
       const currentPromise = user.permissions.includes('methods.read')
         ? api.currentMethod(token)
@@ -107,21 +146,27 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
           api.capabilities(),
           currentPromise
         ])
+      if (!isCurrent()) return
       setHealth(nextHealth.status === 'ok' ? 'online' : 'offline')
       setSettings(nextSettings)
       setAbout(nextAbout)
       setCapabilities(nextCapabilities.capabilities)
       if (methodRevision === currentMethodRevision.current) setCurrentMethod(nextCurrentMethod)
     } catch {
-      setHealth('offline')
+      if (isCurrent()) setHealth('offline')
     } finally {
-      setLoading(false)
+      if (isCurrent()) setLoading(false)
     }
   }, [token, user.permissions, canReadEvents, canReadDevices])
 
   useLayoutEffect(() => {
-    void deviceStatusStore.startSession({ token, userId: user.id, canRead: canReadDevices })
-    return () => deviceStatusStore.stopSession()
+    const session = { token, userId: user.id, canRead: canReadDevices }
+    void deviceStatusStore.startSession(session, false)
+    void hardwareLockStore.startSession(session)
+    return () => {
+      hardwareLockStore.stopSession()
+      deviceStatusStore.stopSession()
+    }
   }, [token, user.id, canReadDevices])
   useLayoutEffect(() => {
     runtimeEventsStore.startSession({ token, userId: user.id, canRead: canReadEvents })
@@ -163,49 +208,70 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     return () => window.clearTimeout(timeout)
   }, [toast])
 
-  const handleNavigation = (entry: NavigationEntry, spectrumFileGroup?: string, spectrumRecordId?: string) => {
-    if ((entry.page !== page || entry.view !== target.view) && isSpectroscopyMode(page)
-      && (isSpectroscopyMode(entry.page) || entry.page === 'evaporation-curves') && spectroscopyLock.current) {
-      showToast(spectroscopyLock.current)
-      return false
-    }
+  const handleNavigation = async (entry: NavigationEntry, spectrumFileGroup?: string, spectrumRecordId?: string,
+    methodAction?: MethodShortcutAction, explicitMethodView = false) => {
+    const sameTarget = entry.key === target.key && entry.view === target.view
+      && spectrumFileGroup === target.spectrumFileGroup && spectrumRecordId === target.spectrumRecordId
+    if (sameTarget && !methodAction) return true
+    if (!canLeave()) return false
     const availability = navigationAvailability(entry, currentMethod)
     if (availability.disabled) {
       showToast(availability.reason ?? '当前入口不可用')
       return false
     }
-    if (entry.extension) setActiveExtension(entry.extension)
-    setTarget({ page: entry.page, key: entry.key, view: entry.view, spectrumFileGroup, spectrumRecordId })
-    return true
+    return guardNavigation(() => dirtyGuardRef.current?.() ?? null, () => {
+      const explicitView = entry.page === 'methods'
+        ? Boolean(methodAction || explicitMethodView || entry.view === 'lines' || entry.view?.startsWith('print-') || page === 'methods')
+        : entry.page === 'analysis' && Boolean(entry.view && entry.view !== 'raw')
+      if (entry.extension) setActiveExtension(entry.extension)
+      setMethodShortcut(methodAction ? { id: ++shortcutId.current, action: methodAction } : null)
+      setTarget(current => ({
+        page: entry.page, key: entry.key, view: entry.view, entryView: entry.view, explicitView,
+        navigationId: current.navigationId + 1, spectrumFileGroup, spectrumRecordId
+      }))
+    })
   }
   const handleMethodShortcut = (action: MethodShortcutAction) => {
-    if (!user.permissions.includes('methods.write')) return
+    if (!canWriteMethods) return
     const entry = entryForPage(entries, 'methods', 'conditions')
-    if (entry && handleNavigation(entry)) setMethodShortcut({ id: ++shortcutId.current, action })
+    if (entry) return handleNavigation(entry, undefined, undefined, action)
   }
   const handleSwitchMethod = () => {
     if (!canWriteMethods) return
     const blocked = switchBlockedReason()
     if (blocked) { showToast(blocked); return }
-    if (page === 'methods') setMethodShortcut({ id: ++shortcutId.current, action: 'open' })
+    if (page === 'methods') return handleMethodShortcut('open')
     else setMethodDialogToken(token)
   }
-  const handleQuickNavigation = (entry: NavigationEntry) => {
-    if (handleNavigation(entry) && entry.page === 'samples') setSampleEntryRequest(request => request + 1)
+  const handleQuickNavigation = async (entry: NavigationEntry) => {
+    const accepted = await handleNavigation(entry, undefined, undefined, undefined, entry.page === 'methods')
+    if (accepted && entry.page === 'samples') setSampleEntryRequest(request => request + 1)
+    return accepted
   }
   const handlePage = (nextPage: Page) => {
-    const entry = entryForPage(entries, nextPage, nextPage === 'methods' ? 'lifecycle' : undefined)
-    if (entry) handleNavigation(entry)
+    const entry = entryForPage(entries, nextPage, nextPage === 'methods' ? 'conditions' : undefined)
+    if (entry) return handleNavigation(entry)
   }
   const viewSpectrumFile = (group: string, recordId?: string) => {
     const entry = entryForPage(entries, 'spectra')
-    if (entry) handleNavigation(entry, group, recordId)
+    if (entry) return handleNavigation(entry, group, recordId)
     else showToast('当前账号没有谱图查看权限')
   }
-  const handleInternalView = (nextPage: Page, view: string) => {
+  const handleInternalView = useCallback((nextPage: Page, view: string) => {
     const entry = entryForPage(entries, nextPage, nextPage === 'analysis' ? undefined : view)
-    if (entry) setTarget({ page: entry.page, key: entry.key, view })
-  }
+    if (!entry || !canLeave()) return
+    setTarget(current => (current.page === nextPage || (current.page === 'mercury-calibration' && nextPage === 'acquisition'))
+      && (current.view !== view || current.key !== entry.key) ? { ...current, page: nextPage, key: entry.key, view } : current)
+  }, [canLeave, entries])
+  const handleLogout = () => guardNavigation(() => dirtyGuardRef.current?.() ?? null, () => {
+    hardwareLockStore.stopSession()
+    deviceStatusStore.stopSession()
+    onLogout()
+  })
+  const handleMethodView = useCallback((view: string) => handleInternalView('methods', view), [handleInternalView])
+  const handleAnalysisView = useCallback((view: string) => handleInternalView('analysis', view), [handleInternalView])
+  const analysisInitialView = target.entryView === 'quality' || target.entryView === 'curve' ||
+    target.entryView === 'standards' || target.entryView === 'samples' ? target.entryView : 'raw'
 
   return (
     <div
@@ -250,11 +316,16 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               onToggleTheme={themeStore.toggleTheme}
               focusMode={focusMode}
               onToggleFocusMode={shellLayoutStore.toggleFocusMode}
-              onLogout={onLogout}
+              onLogout={handleLogout}
             />
             {canWriteMethods && methodDialogToken === token && (
               <WorkspaceOpenMethodDialog token={token} selectedId={currentMethod?.method_id ?? null}
-                switchBlockedReason={switchBlockedReason} onCancel={() => setMethodDialogToken(null)}
+                switchBlockedReason={switchBlockedReason}
+                beforeOpen={() => guardNavigation(() => {
+                  const dirty = dirtyGuardRef.current?.()
+                  return dirty ? { reason: dirty.reason } : null
+                }, () => {})}
+                onCancel={() => setMethodDialogToken(null)}
                 onOpened={method => {
                   updateCurrentMethod(method)
                   setMethodDialogToken(null)
@@ -278,15 +349,20 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             )}
             {page === 'methods' && (
               <MethodsPage
+                {...workbenchIdentity}
                 token={token}
                 currentUser={user}
                 currentMethod={currentMethod}
-                initialSection={target.view}
+                initialSection={target.entryView}
+                explicitInitialSection={target.explicitView}
+                navigationId={target.navigationId}
                 shortcut={methodShortcut}
                 onShortcutHandled={() => setMethodShortcut(null)}
-                onViewChange={(view) => handleInternalView('methods', view)}
+                onViewChange={handleMethodView}
                 onCurrentMethodChange={updateCurrentMethod}
                 switchBlockedReason={switchBlockedReason}
+                registerDirtyGuard={registerDirtyGuard}
+                guardNavigation={guardNavigation}
                 onToast={showToast}
               />
             )}
@@ -299,7 +375,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               canWrite={user.permissions.includes('postprocessing.write')} onToast={showToast}
               onViewSpectra={viewSpectrumFile} />}
             {(page === 'postprocessing' || page === 'reports') && (
-              <DataProcessingPage token={token} page={page} initialView={target.view}
+              <DataProcessingPage {...workbenchIdentity} registerDirtyGuard={registerDirtyGuard}
+                token={token} page={page} initialView={target.view}
                 reportSource={reportSource} onReportSourceChange={setReportSource}
                 permissions={user.permissions} onViewChange={(view) => handleInternalView('reports', view)} onToast={showToast} />
             )}
@@ -318,9 +395,13 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
               canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
             {page === 'analysis' && (
               <AnalysisPage
+                key={workbenchKey}
+                {...workbenchIdentity}
                 token={token}
-                initialView={target.view === 'quality' || target.view === 'curve' || target.view === 'standards' || target.view === 'samples' ? target.view : 'raw'}
-                onViewChange={(view) => handleInternalView('analysis', view)}
+                initialView={analysisInitialView}
+                explicitInitialView={target.explicitView && analysisInitialView !== 'raw'}
+                navigationId={target.navigationId}
+                onViewChange={handleAnalysisView}
                 canExecute={user.permissions.includes('analysis.execute')}
                 canIntervene={user.permissions.includes('analysis.intervene')}
                 canQuality={user.permissions.includes('analysis.quality')}

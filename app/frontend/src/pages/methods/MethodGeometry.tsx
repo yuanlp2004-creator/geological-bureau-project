@@ -14,6 +14,7 @@ import { NumericInput as EmptyableNumberInput } from '../../components/NumericIn
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
   token: string
+  autoReferenceOffset: boolean
   hasIssue: (field: string) => boolean
   currentLayout: CcdLayoutOption | undefined
   changeCalibration: (calibrationId: number) => void
@@ -26,6 +27,7 @@ type PanelProps = {
 
 export function MethodGeometry({
   token,
+  autoReferenceOffset,
   hasIssue,
   currentLayout,
   changeCalibration,
@@ -36,14 +38,17 @@ export function MethodGeometry({
   conditions,
 }: PanelProps) {
   const [offset, setOffset] = useState<{ wavelength_delta_nm: number; point_delta: number } | null>(null)
+  const [offsetInput, setOffsetInput] = useState<MethodConditions | null>(null)
+  const calculateOffset = autoReferenceOffset || offsetInput === conditions
   const offsetLabelId = useId()
   useEffect(() => {
     let cancelled = false
     setOffset(null)
+    if (!calculateOffset) return
     void api.referenceOffset(token, conditions).then((value) => { if (!cancelled) setOffset(value) })
       .catch(() => { if (!cancelled) setOffset(null) })
     return () => { cancelled = true }
-  }, [token, conditions])
+  }, [token, conditions, calculateOffset])
   return (
     <section
       className={`surface method-section method-geometry ${hasIssue('selected_ccds') || hasIssue('reference_wavelength_nm') || hasIssue('actual_reference_wavelength_nm') ? 'has-errors' : ''}`}
@@ -104,8 +109,11 @@ export function MethodGeometry({
           <span id={offsetLabelId}>基线偏移</span>
           <div className="field-with-action reference-offset-control">
             <output aria-labelledby={offsetLabelId}>
-              {offset ? `${offset.wavelength_delta_nm.toFixed(4)} nm (${offset.point_delta} 点)` : '波长超出有效 CCD 范围'}
+              {offset ? `${offset.wavelength_delta_nm.toFixed(4)} nm (${offset.point_delta} 点)`
+                : calculateOffset ? '波长超出有效 CCD 范围' : '待计算'}
             </output>
+            {!calculateOffset && <button type="button" className="secondary-button"
+              onClick={() => setOffsetInput(conditions)}>计算偏移</button>}
             <button type="button" className="secondary-button" disabled={!canWrite}
               onClick={() => setCondition('actual_reference_wavelength_nm', conditions.reference_wavelength_nm)}>偏移清零</button>
           </div>
