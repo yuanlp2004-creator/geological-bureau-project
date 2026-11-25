@@ -98,7 +98,7 @@ class SerialAcqAdapter:
 
     def prepare_capture(self, *, pre_seconds: float, burn_seconds: float, burn_count: int,
                         dark_seconds: float, dark_count: int, countdown_seconds: float = 0,
-                        correlation_id: str, continuous: bool = False) -> DeviceEvent:
+                        correlation_id: str, continuous: bool = False, motor_turn=None) -> DeviceEvent:
         with self._control:
             self._check_exit()
             if self.state != AcquisitionState.CONNECTED or self._worker and self._worker.is_alive():
@@ -112,14 +112,14 @@ class SerialAcqAdapter:
                 raise DeviceError("serial_countdown_invalid", "倒计时超出范围")
             self._continuous = continuous
             self._settings = dict(pre=pre, burn=burn, dark=dark, burns=burn_count, darks=dark_count,
-                                  countdown=countdown_seconds, correlation_id=correlation_id)
+                                  countdown=countdown_seconds, correlation_id=correlation_id, motor_turn=motor_turn)
             self.session_id = str(uuid.uuid4())
             self._frames = queue.Queue(maxsize=1 if continuous else 32)
             self._last = None
             self._error = self._stop_error = None
             self._command_sent = self._end_sent = self._stop_confirmed = False
             self._cancel.clear()
-            self.capture_phase = "countdown"
+            self.capture_phase = "turning" if motor_turn else "countdown"
             self._trace.clear()
             return DeviceEvent("prepared", self.state, correlation_id=correlation_id,
                                message="真实采集已准备", details={"transport": "serial", "effective_pre_seconds": max(8, pre) * .25})
@@ -173,7 +173,12 @@ class SerialAcqAdapter:
                      suffix=payload.hex(' ').upper(), command_hex=payload.hex(), bytes_written=count)
 
     def _wait_until(self, deadline: float) -> bool:
-        return not self._cancel.wait(max(0, deadline - time.monotonic()))
+        while not self._cancel.is_set():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return True
+            self._cancel.wait(remaining)
+        return False
 
     @property
     def _transfer_seconds(self) -> float:
@@ -198,7 +203,10 @@ class SerialAcqAdapter:
     def _parse(self, payload: bytes) -> dict[str, Any]:
         return parse_acq_frame(payload, mirror=self.profile["mirror"], ccd_indices=self.profile["ccd_indices"])
 
-    def _capture_frame(self, phase: str, index: int, started: float, *, extra_wait: float = 0) -> None:
+    def _capture_frame(self, phase: str, index: int, started: float, *, extra_wait: float = 0,
+                       exposure_started_at: float | None = None) -> None:
+        if exposure_started_at is not None:
+            exposure_started_at = min(exposure_started_at, time.monotonic())
         receive_start_ms = time.perf_counter_ns() // 1_000_000
         payload = self._read_transfer(extra_wait=extra_wait)
         receive_end_ms = time.perf_counter_ns() // 1_000_000
@@ -208,9 +216,17 @@ class SerialAcqAdapter:
                 **{key: parsed[key] for key in ("sha256", "frame_size", "byte_length", "headers", "mirror", "ccd_indices")},
                 "transport": "serial", "phase": phase, "phase_index": index,
                 "receive_start_ms": receive_start_ms, "receive_end_ms": receive_end_ms,
+                **({"exposure_started_at": exposure_started_at} if exposure_started_at is not None else {}),
                 "elapsed_ms": (time.monotonic() - started) * 1000,
                 "communication": list(self._trace),
+                **({"turn_position": self._settings["turn_position"]} if "turn_position" in self._settings else {}),
             })
+        if not self._continuous and self._settings.get("motor_turn"):
+            final_phase = "dark" if self._settings["darks"] else "burn"
+            final_count = self._settings["darks"] or self._settings["burns"]
+            if phase == final_phase and index + 1 == final_count:
+                self._settings["final_event"] = event
+                return
         if self._continuous:
             try:
                 self._frames.get_nowait()  # alignment observes the newest frame
@@ -224,7 +240,26 @@ class SerialAcqAdapter:
     def _run(self) -> None:
         s = self._settings
         correlation_id = s["correlation_id"]
+        motor, angle = s["motor_turn"] or (None, None)
+        monitoring = threading.Event()
+        monitor = None
+        motor_errors = []
         try:
+            if motor is not None:
+                self._notice('motor_turning', f'正在定位转角 {angle:g}°')
+                s["turn_position"] = motor.position(angle, correlation_id, self._cancel)
+                self._notice('motor_positioned', f'转角 {angle:g}° 已到位', **s["turn_position"])
+                def watch_position():
+                    while not monitoring.wait(1):
+                        try:
+                            motor.verify_position()
+                        except DeviceError as exc:
+                            motor_errors.append(exc)
+                            self._cancel.set()
+                            return
+                monitor = threading.Thread(target=watch_position, name="ccd-motor-position-monitor", daemon=True)
+                monitor.start()
+            self.capture_phase = "countdown"
             if not self._wait_until(time.monotonic() + s["countdown"]):
                 return
             self.capture_phase = "pre_excitation"
@@ -244,7 +279,8 @@ class SerialAcqAdapter:
             while self._continuous or index < s["burns"]:
                 if not self._wait_until(pre_end + (index + 1) * s["burn"] * .25 + self._margin):
                     return
-                self._capture_frame("burn", index, started)
+                self._capture_frame("burn", index, started,
+                                    exposure_started_at=pre_end + index * s["burn"] * .25 if self._continuous else None)
                 index += 1
                 if not self._continuous and index == s["burns"] - 1:
                     self._write(bytes((s["dark"],)))
@@ -262,14 +298,33 @@ class SerialAcqAdapter:
                     if index == s["darks"] - 2:
                         self._write(b"\x00")
             self._stop_confirmed = True  # final transfer after the old end command
+            if motor is not None:
+                monitoring.set()
+                monitor.join()
+                if motor_errors:
+                    raise motor_errors[0]
+                if not self._cancel.is_set():
+                    motor.verify_position()
+                    try:
+                        self._frames.put_nowait(s["final_event"])
+                    except queue.Full as exc:
+                        raise DeviceError("serial_consumer_stalled", "采集保存未及时处理，已停止设备以避免丢帧") from exc
             self._notice('measurement_ended', '设备测量结束')
         except InterruptedError:
             pass
         except (DeviceError, OSError, ValueError, serial.SerialException) as exc:
             self._error = exc if isinstance(exc, DeviceError) else DeviceError("serial_io_failed", f"串口通信失败：{exc}")
-            self._notice('communication_fault', 'CCD 通信异常', suffix=self._error.message,
+            label = '转角电机异常' if self._error.code.startswith('motor_') else 'CCD 通信异常'
+            self._notice('communication_fault', label, suffix=self._error.message,
                          severity='error', code=self._error.code)
         finally:
+            monitoring.set()
+            if monitor is not None:
+                monitor.join()
+            if motor_errors and self._error is None:
+                self._error = motor_errors[0]
+                self._notice('communication_fault', '转角电机异常', suffix=self._error.message,
+                             severity='error', code=self._error.code)
             if self._command_sent and not self._stop_confirmed:
                 self._notice('stop_waiting', '等待中止')
                 try:
@@ -283,16 +338,27 @@ class SerialAcqAdapter:
                                                   details={"reason": str(exc), "correlation_id": correlation_id})
                     self._notice('stop_unconfirmed', '中止未确认', suffix=self._stop_error.message,
                                  severity='error', code=self._stop_error.code)
+            if motor is not None and s.get("turn_position") and (self._error or self._cancel.is_set()):
+                try:
+                    motor.stop()
+                except DeviceError as exc:
+                    self._stop_error = exc
+                    self._notice('motor_stop_unconfirmed', '电机停止未确认', suffix=exc.message,
+                                 severity='error', code=exc.code)
             self.state = AcquisitionState.ERROR if self._error or self._stop_error else AcquisitionState.CONNECTED
+
+    def wait_for_capture_end(self) -> None:
+        if self._worker is not None:
+            self._worker.join()
+        if self.capture_error:
+            raise self.capture_error
 
     def next_capture_event(self) -> DeviceEvent | None:
         try:
             self._last = self._frames.get_nowait()
         except queue.Empty:
-            if self._error:
-                raise self._error
-            if self._stop_error:
-                raise self._stop_error
+            if self.capture_error:
+                raise self.capture_error
             return None
         return self._last
 
@@ -302,7 +368,21 @@ class SerialAcqAdapter:
 
     @property
     def capture_error(self) -> DeviceError | None:
+        # Unconfirmed physical stop takes precedence over the triggering fault.
+        if self._stop_error and self._stop_error.code == "motor_stop_unconfirmed":
+            return self._stop_error
         return self._error or self._stop_error
+
+    @property
+    def turn_position(self) -> dict[str, Any] | None:
+        return self._settings.get("turn_position")
+
+    @property
+    def stop_requested(self) -> bool:
+        return self._cancel.is_set()
+
+    def request_stop(self) -> None:
+        self._cancel.set()
 
     def step_debug(self, *, correlation_id: str) -> DeviceEvent:
         event = self.next_capture_event()
@@ -314,13 +394,14 @@ class SerialAcqAdapter:
         with self._control:
             self._cancel.set()
             if self._worker and self._worker.is_alive():
-                self._worker.join(timeout=max(self._settings["burn"], self._settings["dark"]) * .25 + 2 * (self._transfer_seconds + self._margin) + 1)
+                timeout = max(self._settings["burn"], self._settings["dark"]) * .25 + 2 * (self._transfer_seconds + self._margin) + 1
+                self._worker.join(timeout=timeout + (60 if self._settings.get("motor_turn") else 0))
                 if self._worker.is_alive():
                     self._stop_error = DeviceError("serial_stop_unconfirmed", "串口停止超时，请检查仪器状态")
                     self._notice('stop_unconfirmed', '中止未确认', suffix=self._stop_error.message,
                                  severity='error', code=self._stop_error.code)
-            if self._stop_error:
-                raise self._stop_error
+            if self._stop_error or self._error and self._error.code == "motor_stop_unconfirmed":
+                raise self._stop_error or self._error
             if self._port is not None:
                 self.state = AcquisitionState.CONNECTED
             self.session_id = None
@@ -363,7 +444,13 @@ class SerialAcqAdapter:
 def monitor_capture(adapter: SerialAcqAdapter, advance: Callable[[], Any], fail: Callable[[str], Any]) -> None:
     """Persist serial captures independently of the current page/polling rate."""
     def run() -> None:
-        while not adapter._cancel.wait(.03):
+        while True:
+            cancelled = adapter._cancel.wait(.03)
+            if cancelled and adapter.capture_error is None:
+                if adapter._settings.get("motor_turn") and adapter._worker and adapter._worker.is_alive():
+                    threading.Event().wait(.03)
+                    continue
+                return
             try:
                 result = advance()
                 if result["status"] in {"completed", "between_repeats", "failed", "stopped"}:

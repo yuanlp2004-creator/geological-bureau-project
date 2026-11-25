@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -21,6 +21,7 @@ class AppConfig:
     version: str = "0.1.0"
     api_version: str = "v1"
     data_dir: Path = _default_data_dir()
+    activation_public_key: str = field(default_factory=lambda: os.environ.get("GEOSPECTRUM_ACTIVATION_PUBLIC_KEY", ""))
 
     @property
     def database_path(self) -> Path:

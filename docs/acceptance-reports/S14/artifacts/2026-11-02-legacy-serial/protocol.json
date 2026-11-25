@@ -1,0 +1,43 @@
+{
+  "source_sha256": {
+    "Spec Source/Source/Common/uSioLink.pas": "3f88dba7322c2013512743b120efe8620e391a7c24fb828f768fcb5b6bb546eb",
+    "Spec Source/Source/Common/uCcdThread.pas": "d3fd592a630fbf42b4d0f2d5b56950a62f532052a39f40cb411500a11d6f95fd",
+    "Spec Source/Source/Common/uGlobal.pas": "2a9ab392adeb66e7c89cbe94bd605bc10d8779274eee5ab076f6372628d9f795",
+    "Spec Source/Source/Main/mmTool/FmDebug.pas": "9977f384aaed052d5930be6be146aff6eb961ec311026e216eeed526a650cc44"
+  },
+  "source_locations": {
+    "serial_open_read_write": "uSioLink.pas:140-156,168-172,203-206",
+    "start_and_phase_switch": "uCcdThread.pas:232-247,294-305,371-415,463-466",
+    "clock_bounds": "uGlobal.pas:21-37",
+    "continuous_debug": "FmDebug.pas:417-432,490-494"
+  },
+  "serial": {
+    "baud_rates": [
+      460800,
+      921600
+    ],
+    "data_bits": 8,
+    "parity": "none",
+    "stop_bits": 2,
+    "flow_control": false
+  },
+  "frame": {
+    "groups": 3,
+    "ccds_per_group": 2,
+    "points_per_ccd": 2048,
+    "bytes": 24579,
+    "dtype": "uint16",
+    "endianness": "little"
+  },
+  "start_command": "F0 <pre_ticks> <burn_ticks> <burns+darks+1 or 00 for continuous> F0",
+  "tick_seconds": 0.25,
+  "minimum_effective_pre_seconds": 2,
+  "maximum_pre_seconds": 10,
+  "cycle_range_seconds": [
+    1,
+    2
+  ],
+  "phase_switch": "Before the last burn receive, send dark ticks or 00; discard one complete transition transfer before saving dark frames.",
+  "end_command": "00 before the last dark receive, or before the last burn when no dark frames are requested.",
+  "arbitrary_turn_and_mercury_commands": "unavailable; existing gates unchanged"
+}

@@ -1,4 +1,5 @@
 """EDT preparation: numerical evidence, target decisions, identity and rollback."""
+import hashlib
 import json
 import sqlite3
 import struct
@@ -18,8 +19,12 @@ def seed_prepared(database):
     method, version, _ = _seed_method_curve(database)
     with database.write() as db:
         db.execute("UPDATE ccd_layouts SET ccds_per_frame=2,gap_points_json='[0]' WHERE id=2")
+        calibration = db.execute(
+            "INSERT INTO dispersion_calibrations(name,ccd_layout_id,wavelength_min,wavelength_max,coefficients_json,created_at) "
+            "VALUES ('prepared tiny',2,1,10,'[0,1,-1]','2026-11-05T00:00:00+00:00')"
+        ).lastrowid
         payload = json.loads(db.execute('SELECT payload_json FROM method_versions WHERE id=?', (version,)).fetchone()[0])
-        payload['conditions'] = MethodCondition(ccd_layout_id=2, dispersion_calibration_id='default', frame_count=2,
+        payload['conditions'] = MethodCondition(ccd_layout_id=2, dispersion_calibration_id=calibration, frame_count=2,
             reference_wavelength_nm=200, selected_ccds=[0, 1],
             angle_exposures=[{'angle_deg': 0, 'storage_mode': 'averaged', 'start_frame': 1, 'end_frame': 2}]).model_dump()
         payload['legacy_migration'] = {'legacy_method_id': 88}
@@ -157,16 +162,20 @@ def test_layout_and_append_ignition_mismatch_reject(prepared):
         service.import_records(input_for(version, target_name='不兼容'), None)
 
 
-def test_v28_upgrade_preserves_existing_records(prepared):
-    database, _, _ = prepared
-    with database.write() as db:
-        db.execute('DROP TABLE postprocessing_prepared_dispersion')
-        db.execute('DROP TABLE postprocessing_prepared_targets')
-        db.execute('DELETE FROM schema_migrations WHERE version=28')
+def test_v28_upgrade_preserves_existing_records(tmp_path, monkeypatch):
+    from backend import db as migration_runner
+
+    with monkeypatch.context() as historical:
+        historical.setattr(migration_runner, 'SCHEMA_VERSION', 27)
+        historical.setattr(migration_runner, 'MIGRATIONS', tuple(
+            step for step in migration_runner.MIGRATIONS if step[0] <= 27))
+        database, _ = _fixture(tmp_path)
     with database.read() as db: before = tuple(db.execute('SELECT * FROM spectrum_bands').fetchone())
     database.initialize()
     with database.read() as db:
         assert tuple(db.execute('SELECT * FROM spectrum_bands').fetchone()) == before
+        assert db.execute('SELECT COUNT(*) FROM postprocessing_prepared_targets').fetchone()[0] == 0
+        assert db.execute('SELECT 1 FROM schema_migrations WHERE version=28').fetchone()
         assert db.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
 
 
@@ -186,4 +195,80 @@ def test_prepared_http_permissions_and_current_method(client_state):
     assert client.post('/api/v1/postprocessing/prepared-import', headers=readonly, json=body).status_code == 403
     assert client.post('/api/v1/postprocessing/prepared-dispersion', headers=readonly,
                        json={'source_sha256': 'source-sha', 'expected_method_version_id': options['method']['version_id']}).status_code == 403
+
+
+def test_completed_native_evaporation_converts_and_traces_exact_frames(client_state):
+    from backend.modules.acquisition import AcquisitionService, average_points
+
+    client, runtime, headers, call, method = client_state
+    database = runtime.database
+    acquisition = AcquisitionService(database)
+    task = acquisition.create_task({
+        'task_kind': 'evaporation', 'name': '蒸发-原始记录', 'sample_name': 'E-001', 'method_id': method['id'],
+        'pre_excitation_seconds': 0, 'burn_cycle_seconds': 2, 'dark_cycle_seconds': 1,
+        'burn_frame_count': 3, 'dark_frame_count': 1, 'seed': 17,
+    })
+    path = '/postprocessing/prepared-import'
+    assert call(path)['acquisition_sources'] == []
+    acquisition.start(task['id'])
+    for _ in range(8):
+        complete = acquisition.step(task['id'])
+        if complete['status'] == 'completed':
+            break
+    assert complete['status'] == 'completed'
+    options = call(f"{path}?source_task_id={task['id']}")
+    assert options['acquisition_sources'][0]['task_id'] == task['id']
+    record, = options['records']
+    original = complete['samples'][0]
+    assert (record['id'], record['measure_time'], record['source_sha256']) == (
+        f"sample:{original['id']}", original['completed_at'], original['result_sha256'])
+    assert record['ccd_indices'] == [0]
+    bare = input_for(options['method']['version_id'], source_task_id=task['id'],
+                     record_ids=[record['id']], storage_mode='full_interval')
+    bare.pop('source_sha256')
+    assert client.post('/api/v1' + path, headers=headers,
+                       json=bare | {'source_sha256': 'unrelated-file'}).status_code == 422
+    wrong = client.post('/api/v1' + path, headers=headers, json=bare | {'record_ids': ['raw:1']})
+    assert wrong.status_code == 422 and wrong.json()['detail']['code'] == 'prepared_source_mismatch'
+    with database.read() as db:
+        original_band = dict(db.execute('SELECT * FROM acquisition_sample_bands WHERE sample_id=?',
+                                        (original['id'],)).fetchone())
+    reply = call(path, bare)
+    assert call(path, bare)['reused']
+    target = reply['target']
+    output, = target['records']
+    assert (output['name'], output['source_task_id'], output['source_record_id'], output['source_sha256'],
+            output['start_frame'], output['end_frame']) == ('E-001', task['id'], record['id'], original['result_sha256'], 2, 3)
+    size = original_band['points_count'] * 2
+    burn = original_band['burn_frames_blob']
+    dark = original_band['dark_frames_blob']
+    viewer = SpectrumViewerService(database)
+    assert viewer.list(kind='sample', group='prepared:' + target['id'])[0]['id'] == f"sample:{output['id']}"
+    assert viewer.list(kind='sample', group=output['source_viewer_group'])[0]['id'] == record['id']
+    assert viewer.get(f"sample:{output['id']}")['measure_time'] == original['completed_at']
+    with database.read() as db:
+        converted = db.execute('SELECT * FROM acquisition_sample_bands WHERE sample_id=?', (output['id'],)).fetchone()
+        assert converted['burn_frames_blob'] == burn[size:]
+        assert converted['dark_frames_blob'] == dark
+        assert converted['burn_sha256'] == hashlib.sha256(burn[size:]).hexdigest()
+        assert converted['mean_blob'] == average_points(
+            [burn[size:2*size], burn[2*size:]], [dark], original_band['points_count'],
+            burn_cycle_seconds=2, dark_cycle_seconds=1)
+        report = json.loads(db.execute('SELECT report_json FROM postprocessing_conversion_runs WHERE id=?',
+                                       (reply['run_id'],)).fetchone()[0])
+        assert report['source_task_id'] == task['id'] and report['source_record_ids'] == [record['id']]
+        assert dict(db.execute('SELECT * FROM acquisition_sample_bands WHERE sample_id=?',
+                               (original['id'],)).fetchone()) == original_band
+
+    with database.write() as db:
+        # Deliberate corruption of this isolated fixture, after verifying that normal writes are blocked.
+        with pytest.raises(sqlite3.IntegrityError, match='immutable'):
+            db.execute('UPDATE acquisition_sample_bands SET burn_sha256=? WHERE sample_id=?', ('invalid', original['id']))
+        db.execute('DROP TRIGGER acquisition_sample_bands_immutable_update')
+        db.execute('UPDATE acquisition_sample_bands SET burn_sha256=? WHERE sample_id=?', ('invalid', original['id']))
+    bad = client.post('/api/v1' + path, headers=headers,
+                      json=bare | {'request_id': uuid.uuid4().hex, 'target_name': '受损源', 'storage_mode': 'averaged'})
+    assert bad.status_code == 409 and bad.json()['detail']['code'] == 'prepared_acquisition_frames_invalid'
+    assert all(item['name'] != '受损源' for item in call(path)['targets'])
+    assert len(call(path)['targets']) == 1
 

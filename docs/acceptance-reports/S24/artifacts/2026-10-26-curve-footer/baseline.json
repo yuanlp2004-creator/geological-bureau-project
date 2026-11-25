@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "checks": [
+    "normal-light: 记录两条原底栏和谱图尺寸",
+    "small-dark: 记录两条原底栏和谱图尺寸",
+    "wide-light: 记录两条原底栏和谱图尺寸"
+  ],
+  "layouts": [
+    {
+      "name": "normal-light",
+      "visualHeight": 586.953125,
+      "peakHeight": 340.953125,
+      "frameHeight": 681,
+      "footerCount": 2,
+      "footerHeight": 53.046875,
+      "bottomGap": 59.046875,
+      "headerTop": 18,
+      "overflow": false
+    },
+    {
+      "name": "small-dark",
+      "visualHeight": 310.953125,
+      "peakHeight": 136.953125,
+      "frameHeight": 401,
+      "footerCount": 2,
+      "footerHeight": 53.046875,
+      "bottomGap": 57.046875,
+      "headerTop": 18,
+      "overflow": false
+    },
+    {
+      "name": "wide-light",
+      "visualHeight": 778.953125,
+      "peakHeight": 532.953125,
+      "frameHeight": 873,
+      "footerCount": 2,
+      "footerHeight": 53.046875,
+      "bottomGap": 59.046875,
+      "headerTop": 18,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

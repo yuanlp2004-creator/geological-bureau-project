@@ -7,7 +7,7 @@ import { formatMeasureTime } from './formatting'
 import './prepared-import.css'
 
 type Props = { token: string; currentMethod: CurrentMethodState | null; canWrite: boolean
-  onToast: (message: string) => void; onViewSpectra: (group: string) => void }
+  onToast: (message: string) => void; onViewSpectra: (group: string, recordId?: string) => void }
 
 export function PreparedImportPage({ token, currentMethod, canWrite, onToast, onViewSpectra }: Props) {
   const [options, setOptions] = useState<PreparedImportOptions | null>(null)
@@ -28,6 +28,7 @@ export function PreparedImportPage({ token, currentMethod, canWrite, onToast, on
   const records = options?.records ?? []
   const target = options?.targets.find(item => item.name.toLocaleLowerCase() === targetName.trim().toLocaleLowerCase())
   const methodId = options?.method.version_id
+  const nativeSource = source.startsWith('task:')
 
   async function load(sha = source, reset = false) {
     const current = ++generation.current
@@ -62,14 +63,16 @@ export function PreparedImportPage({ token, currentMethod, canWrite, onToast, on
   const prepare = (): Omit<PreparedImportInput, 'request_id' | 'same_name_strategy'> | null => {
     const parts = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(interval)
     const start = parts ? Number(parts[1]) : 0, end = parts ? Number(parts[2] ?? parts[1]) : 0
-    if (!source) { setError('请先打开蒸发摄谱文件'); return null }
+    if (!source) { setError('请选择蒸发记录，或打开 EDT 文件'); return null }
     if (!selected.length) { setError('请选择要导入的记录'); return null }
     if (!targetName.trim()) { setError('请填写输出样品集名称'); return null }
     if (!methodId) { setError('请先打开当前方法'); return null }
     if (!start || start > end || selected.some(id => end > (records.find(item => item.id === id)?.ignition.burn_count ?? 0))) {
       setError('请填写有效的帧区间，例如 1-20，且不超出所选记录'); return null
     }
-    return { source_sha256: source, record_ids: selected, target_name: targetName.trim(), storage_mode: storage,
+    return { ...(nativeSource ? { source_task_id: Number(source.slice(5)) } : { source_sha256: source }),
+      record_ids: records.filter(record => selected.includes(record.id)).map(record => record.id),
+      target_name: targetName.trim(), storage_mode: storage,
       start_frame: start, end_frame: end, use_method_id: useMethod, expected_method_version_id: methodId,
       ...(target ? { expected_target_revision: target.revision } : {}) }
   }
@@ -94,7 +97,7 @@ export function PreparedImportPage({ token, currentMethod, canWrite, onToast, on
   }
 
   const saveDispersion = async () => {
-    if (pending.current || !canWrite || !source || !methodId) return
+    if (pending.current || !canWrite || !source || nativeSource || !methodId) return
     pending.current = true; setBusy(true); setError('')
     try {
       const result = await api.savePreparedDispersion(token, source, methodId)
@@ -107,10 +110,16 @@ export function PreparedImportPage({ token, currentMethod, canWrite, onToast, on
   return <div className="page-content prepared-import-page refined-page" data-testid="prepared-import-page" aria-busy={disabled}>
     <section className="surface prepared-import-workspace">
       <div className="prepared-file-row">
-        <label className="prepared-source-field field"><span>导入蒸发文件</span>
+        <label className="prepared-source-field field"><span>蒸发记录来源</span>
           <select aria-label="导入蒸发文件" value={source} disabled={disabled} onChange={event => void selectSource(event.target.value)}>
-            <option value="">请选择已打开的 EDT 文件</option>
-            {options?.sources.map(item => <option key={item.sha256} value={item.sha256}>{item.name} · {item.record_count} 条</option>)}
+            <option value="">选择系统蒸发任务或已打开的 EDT 文件</option>
+            {!!options?.sources.length && <optgroup label="已打开的 EDT 文件">
+              {options.sources.map(item => <option key={item.sha256} value={item.sha256}>{item.name} · {item.record_count} 条</option>)}
+            </optgroup>}
+            {!!options?.acquisition_sources?.length && <optgroup label="系统蒸发任务">
+              {options.acquisition_sources.map(item => <option key={item.task_id} value={`task:${item.task_id}`}>
+                {item.name}{item.angle_deg === null ? '' : ` · ${item.angle_deg}°`} · 任务 {item.task_id} · {item.record_count} 条
+              </option>)}</optgroup>}
           </select>
         </label>
         <OpenLegacyFile token={token} purpose="edt-conversion" label="打开蒸发文件" disabled={disabled || !canWrite}
@@ -148,25 +157,32 @@ export function PreparedImportPage({ token, currentMethod, canWrite, onToast, on
                 disabled={disabled} onChange={()=>toggle(item.id)}/></td>
               <td title={item.band_name || item.sample_name || ''}>{item.band_name || item.sample_name || item.id}</td>
               <td>{formatMeasureTime(item.measure_time)}</td></tr>)}
-              {!records.length && <tr><td colSpan={3} className="prepared-empty">{loading ? '正在读取…' : '请打开或选择蒸发摄谱文件'}</td></tr>}
+              {!records.length && <tr><td colSpan={3} className="prepared-empty">{loading ? '正在读取…' : source
+                ? '此来源没有可导入的记录' : '请选择蒸发任务或打开 EDT 文件'}</td></tr>}
             </tbody></table></div>
           <footer>已选 {selected.length} / {records.length} 条记录</footer>
         </section>
         <div className="prepared-operation-bar">
           <button className="primary-button" disabled={disabled || !canWrite || !selected.length} onClick={()=>void runImport()}>导入记录<ArrowRight size={16}/></button>
-          <button className="secondary-button" disabled={disabled || !canWrite || !source || !methodId} title="将当前方法色散保存到源文件的新版工作副本"
+          <button className="secondary-button" disabled={disabled || !canWrite || !source || nativeSource || !methodId} title="将当前方法色散保存到 EDT 文件的新版工作副本"
             onClick={()=>void saveDispersion()}><ArrowLeft size={16}/>保存色散</button>
         </div>
         <section className="prepared-record-panel prepared-output-panel" aria-label="输出记录">
           <div className="prepared-selection-bar"><strong>{target?.name || '输出记录'}</strong>
             <button className="secondary-button" disabled={!target?.records.length || disabled} onClick={()=>target && onViewSpectra('prepared:' + target.id)}>查看谱图</button></div>
-          <div className="prepared-record-scroll"><table><thead><tr><th>记录号</th><th>样品名称</th><th>测量时间</th></tr></thead>
-            <tbody>{target?.records.map(item=><tr key={item.id}><td>{item.id}</td><td title={item.name}>{item.name}</td><td>{formatMeasureTime(item.measure_time)}</td></tr>)}
-              {!target?.records.length && <tr><td colSpan={3} className="prepared-empty">导入后在这里显示输出记录</td></tr>}
+          <div className="prepared-record-scroll"><table><thead><tr><th>记录号</th><th>样品名称</th><th>测量时间</th><th>来源 / 帧</th></tr></thead>
+            <tbody>{target?.records.map(item=><tr key={item.id}><td>{item.id}</td><td title={item.name}>{item.name}</td><td>{formatMeasureTime(item.measure_time)}</td>
+              <td title={item.source_sha256 ?? item.source_record_id}>
+                {item.source_viewer_group ? <button type="button" className="prepared-source-link" disabled={disabled}
+                  onClick={() => onViewSpectra(item.source_viewer_group!, item.source_record_id)}
+                  aria-label={`查看样品 ${item.name} 的蒸发源谱图`}>任务 {item.source_task_id} · {item.start_frame}–{item.end_frame}</button>
+                  : <span>{item.source_record_id} · {item.start_frame}–{item.end_frame}</span>}
+              </td></tr>)}
+              {!target?.records.length && <tr><td colSpan={4} className="prepared-empty">导入后在这里显示输出记录</td></tr>}
             </tbody></table></div><footer>{target?.records.length ?? 0} 条输出记录</footer>
         </section>
       </div>
-      <p className="prepared-storage-note">区间按帧编号，两端计入。输出保存在新版样品集中；保存色散更新新版工作副本，旧文件原件保持不变。</p>
+      <p className="prepared-storage-note">帧区间包含起止帧。保存色散更新所选 EDT 的新版工作副本。</p>
     </section>
     {conflict && <ViewerDialog title="输出样品集已存在" onClose={()=>setConflict(false)}>
       <p>“{targetName.trim()}”已有 {target?.records.length ?? 0} 条记录，请选择本次导入方式。</p>

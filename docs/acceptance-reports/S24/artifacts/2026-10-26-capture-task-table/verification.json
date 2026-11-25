@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "6476000ebaa49fd220a7e5d1c798c03f6cbb5cdfdd922092fbfa2c250bea9de5",
+  "changed_product_files": [
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/acquisition/SpectroscopyTaskList.tsx"
+  ],
+  "cause": "Shared sample-table-wrap nth-child numeric alignment overrode task text alignment; automatic table layout distributed columns by content; native scrollbars occupied different widths for long and short lists.",
+  "fix": "Dedicated task table wrapper, stable scrollbar gutter and fixed columns, left aligned name/details, centered status/action, wrapping full text.",
+  "browser": {
+    "checks": 15,
+    "layouts": 9
+  },
+  "desktop": {
+    "checks": 15,
+    "layouts": 9
+  },
+  "profiles": [
+    "1440x1000 light compact",
+    "1060x720 dark comfortable",
+    "2560x1200 light comfortable"
+  ],
+  "long_names_empty_states_draft_navigation_and_no_acquisition_writes_verified": true,
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_and_other_product_legacy_sources_unchanged": true,
+  "root_app_inventory_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "370b65ba32edc9f3f7f9b24470dd92b05105baaea4c74522b8b59f400a676789",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-capture-task-table\\qa\\GeoSpectrum.exe",
+    "pid": 4364,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\capture-task-table-20261026\\before"
+}

@@ -1,0 +1,183 @@
+{
+    "date":  "2026-11-24",
+    "status":  "passed",
+    "baseline_commit":  "d60085746d941ed856df12198ff07a1c014e7e86",
+    "plan_sha256_at_execution":  "A2F5A57A70C8811C01531AAAF02A424C7A3A6EB080C229B9D941355D906B03C3",
+    "source_fingerprints":  [
+                                {
+                                    "component":  "sidecar",
+                                    "inputs":  238,
+                                    "first_before":  "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373",
+                                    "first_after":  "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373",
+                                    "final_before":  "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373",
+                                    "final_after":  "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373",
+                                    "pre_deploy":  "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373"
+                                },
+                                {
+                                    "component":  "desktop",
+                                    "inputs":  386,
+                                    "first_before":  "d462d6b386c32ad38738b712b2af249240518dbef5d0c46819dc4d2fb4902199",
+                                    "first_after":  "d462d6b386c32ad38738b712b2af249240518dbef5d0c46819dc4d2fb4902199",
+                                    "final_before":  "658cfd9958ec21d05c0e7be0e81fea0566411f7655b4ed423f0a9a8b38ab709a",
+                                    "final_after":  "658cfd9958ec21d05c0e7be0e81fea0566411f7655b4ed423f0a9a8b38ab709a",
+                                    "pre_deploy":  "658cfd9958ec21d05c0e7be0e81fea0566411f7655b4ed423f0a9a8b38ab709a"
+                                },
+                                {
+                                    "component":  "manifest",
+                                    "inputs":  1,
+                                    "first_before":  "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54",
+                                    "first_after":  "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54",
+                                    "final_before":  "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54",
+                                    "final_after":  "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54",
+                                    "pre_deploy":  "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54"
+                                }
+                            ],
+    "desktop_only_fix":  [
+                             "app/src-tauri/src/main.rs"
+                         ],
+    "outputs":  {
+                    "root_pair_sha256":  {
+                                             "geospectrum-backend.exe":  "9A72A82C12B9D65B69AE633EBFF5B20056F964778D38C8442714F57B330E23AD",
+                                             "GeoSpectrum.exe":  "2300DB6538204DFF97E315F82B958C3ACD3DBF741A400B33DA780D348FD6FFF0"
+                                         },
+                    "review_desktop_sha256":  "F1E9342D9FB06CA4F8B7617B140992C63933F47976F86CAFF59913E6892A8995",
+                    "rollback_pair_sha256":  [
+                                                 {
+                                                     "name":  "GeoSpectrum.exe",
+                                                     "sha256":  "23DA44605F88FFD5D22CCCF0FFD3F2C4BE92D1CC3663A5913AD75251A99943BE"
+                                                 },
+                                                 {
+                                                     "name":  "geospectrum-backend.exe",
+                                                     "sha256":  "3649111DBE8290DEB3A9E890B2263D151676471FDCD85D29565ADD188C6D4C2B"
+                                                 }
+                                             ],
+                    "rollback_path":  "app/.local/test-runs/20261124-integration/delivery/previous-root-pair",
+                    "installer_rebuilt":  false
+                },
+    "tests":  {
+                  "expanded":  {
+                                   "command":  "python -X utf8 -m pytest -q tests/test_capture_task_actions.py tests/test_s12_dispersion.py tests/test_s13_acquisition.py tests/test_s14_hardware_acquisition.py tests/test_s15_mercury_calibration.py tests/test_legacy_capture_controls.py tests/test_legacy_serial_acquisition.py tests/test_legacy_capture_parameters.py tests/test_continuous_capture_motor.py tests/test_dispersion_legacy_alignment.py tests/test_gap_workflows.py tests/test_legacy_d05_contract.py tests/test_legacy_fourteen_closure.py tests/test_analysis_frame_observation.py tests/test_sample_workbook.py tests/test_s17_quality_curves.py",
+                                   "passed":  153,
+                                   "exit_code":  0
+                               },
+                  "cross":  {
+                                "command":  "python -X utf8 -m pytest -q tests/test_dispersion_point_buttons.py tests/test_sample_turn_integration.py tests/test_prepared_import.py tests/test_sample_queues.py tests/test_s10_spectrum_viewer.py tests/test_analysis_spectrum_view.py tests/test_s16_analysis.py tests/test_auth.py tests/test_s18_postprocessing.py::test_recalculation_refits_a_local_variant_and_keeps_source_curve tests/test_architecture.py tests/test_auth_transactions.py tests/test_deployment_access.py tests/test_runtime_isolation.py tests/test_tauri_contract.py",
+                                "passed":  100,
+                                "exit_code":  0
+                            },
+                  "native_contract":  {
+                                          "command":  "python -X utf8 -m pytest -q tests/test_tauri_contract.py tests/test_sample_workbook.py tests/test_architecture.py",
+                                          "passed":  20,
+                                          "exit_code":  0
+                                      },
+                  "frontend":  {
+                                   "command":  "npm.cmd --prefix frontend test",
+                                   "passed":  22,
+                                   "exit_code":  0
+                               }
+              },
+    "builds":  {
+                   "commands":  [
+                                    "python -X utf8 tools/build_sidecar.py",
+                                    "python -X utf8 tools/verify_sidecar.py",
+                                    "npm.cmd --prefix frontend run build",
+                                    "tauri build --ci --no-bundle --config \u003cvariant\u003e"
+                                ],
+                   "python":  "3.11.9",
+                   "pyinstaller":  "6.15.0",
+                   "tauri_cli":  "2.11.4",
+                   "all_exit_codes":  0,
+                   "sidecar_probe":  {
+                                         "sidecar_bytes":  60235933,
+                                         "health_status":  "ok",
+                                         "schema_version":  32,
+                                         "running_before_stop":  true,
+                                         "clean_exit":  true,
+                                         "process_returncode":  1,
+                                         "remaining_sidecar_pids":  [
+
+                                                                    ],
+                                         "business":  {
+                                                          "profile_connected":  true,
+                                                          "start_ccd_count":  5,
+                                                          "step_frame_index":  1,
+                                                          "source_sha256":  "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+                                                          "stopped_state":  "connected",
+                                                          "legacy_reader_attempts":  [
+                                                                                         "windows-powershell-x86"
+                                                                                     ]
+                                                      },
+                                         "error":  null
+                                     },
+                   "vite_large_chunk_warning":  true
+               },
+    "frozen_webview2":  {
+                            "status":  "passed",
+                            "health":  {
+                                           "status":  "ok",
+                                           "app":  "GeoSpectrum",
+                                           "version":  "0.1.0",
+                                           "schema_version":  32,
+                                           "database":  "ok",
+                                           "uptime_seconds":  0.625
+                                       },
+                            "checks":  [
+                                           "冻结 WebView2 和配套 sidecar 握手，schema 32",
+                                           "旧 CDT/CMT 按当前方法给出铜 79.00、锌 99.00 ug/g，布局不相容时原谱仍可看",
+                                           "界面执行精确重算成功，源曲线快照一致",
+                                           "色散摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+                                           "蒸发摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+                                           "样品摄谱一次启动双角，整次重复及逐角谱带均完成",
+                                           "软件激活与诊断入口可达，激活状态可刷新，诊断保持关闭"
+                                       ],
+                            "errors":  [
+
+                                       ]
+                        },
+    "native_xlsx":  {
+                        "result":  "passed",
+                        "rows":  [
+                                     {
+                                         "name":  "0007",
+                                         "repeats":  2
+                                     },
+                                     {
+                                         "name":  "",
+                                         "repeats":  0
+                                     },
+                                     {
+                                         "name":  "=A+1",
+                                         "repeats":  1
+                                     }
+                                 ],
+                        "files":  {
+                                      "input":  {
+                                                    "bytes":  5556,
+                                                    "sha256":  "273d18da3dda5c6ea492c73a6e7abf47edee519261a39329c1971a988444dbfc",
+                                                    "sample_name_width":  20,
+                                                    "leading_zero_and_formula_like_text_are_strings":  true
+                                                },
+                                      "output":  {
+                                                     "bytes":  5555,
+                                                     "sha256":  "f1fd5556c5eb504941363999f1e3eba1a3b69c437e0eea9c2be067429f6d2fee",
+                                                     "sample_name_width":  20,
+                                                     "leading_zero_and_formula_like_text_are_strings":  true
+                                                 }
+                                  }
+                    },
+    "isolated_review":  {
+                            "status":  "ok",
+                            "page":  "样号与样品队列",
+                            "queue":  2,
+                            "state_kept":  true,
+                            "sidecar_running":  true,
+                            "closed_previous_cleanly":  true
+                        },
+    "formal_database_metadata_unchanged":  true,
+    "external_pending":  [
+                             "S14 and S15 real CCD, motor, mercury reference, excitation, stop and disconnect validation",
+                             "Production Ed25519 public key and issuance procedure",
+                             "Diagnostics test across two physical machines and the site network",
+                             "Windows code signing and clean Windows install/upgrade"
+                         ]
+}

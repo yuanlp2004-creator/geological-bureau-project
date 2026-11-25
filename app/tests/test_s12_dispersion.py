@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
-from backend.db import Database
+from backend.db import Database, utc_now
 from backend.modules.dispersion import DispersionError, DispersionService, _evaluate, _fit_polynomial
 
 
@@ -106,6 +106,46 @@ def test_s12_duplicate_insufficient_and_residual_failures_keep_draft(tmp_path: P
     with pytest.raises(DispersionError) as insufficient:
         service.fit_calibration(two_point_task["id"], {"degree": 2})
     assert insufficient.value.code == "calibration_points_insufficient"
+
+
+def test_new_calibrations_use_four_to_eight_points_and_old_publications_read(tmp_path: Path) -> None:
+    database = Database(tmp_path / 'calibration-limits.sqlite3')
+    database.initialize()
+    service = DispersionService(database)
+    points = [{'element': f'Fe{index}', 'wavelength_nm': 250 + index, 'ccd_index': 0,
+               'actual_position': 100 + index * 100} for index in range(9)]
+    task = service.create_task({'name': 'calibration-limits', 'ccd_indices': [0], 'lines': points[:6]})
+    task_id = task['id']
+    six = service.fit_calibration(task_id, {'degree': 2, 'use_legacy_limit': True})
+    assert six['point_count'] == 6 and six['publishable']
+    historical = []
+    with database.write() as db:
+        for state in ('draft', 'published'):
+            historical.append(db.execute('''INSERT INTO dispersion_calibration_versions
+                (name, version, state, ccd_layout_id, source_task_id, coefficients_json, residuals_json,
+                 wavelength_min, wavelength_max, residual_rms, residual_max, point_count, residual_limit_points, created_at)
+                VALUES (?, 1, ?, ?, ?, ?, ?, 250, 252, 0, 0, 3, 1, ?)''',
+                (f'historical-{state}', state, six['ccd_layout_id'], task_id, json.dumps(six['coefficients']),
+                 json.dumps(six['residuals'][:3]), utc_now())).lastrowid)
+    old_draft, old_published = historical
+    assert not service.calibration(old_draft)['publishable']
+    with pytest.raises(DispersionError) as insufficient:
+        service.publish_calibration(old_draft)
+    assert insufficient.value.code == 'calibration_points_insufficient'
+    assert service.calibration(old_published)['point_count'] == 3
+    assert service.publish_calibration(old_published)['state'] == 'published'
+
+    for point in points[6:8]:
+        service.add_line(task_id, point)
+    eight = service.fit_calibration(task_id, {'degree': 2})
+    assert service.publish_calibration(eight['id'])['point_count'] == 8
+    service.add_line(task_id, points[8])
+    with pytest.raises(DispersionError) as exceeded:
+        service.fit_calibration(task_id, {'degree': 2})
+    assert exceeded.value.code == 'calibration_points_exceeded'
+    with pytest.raises(DispersionError) as stale:
+        service.publish_calibration(six['id'])
+    assert stale.value.code == 'calibration_inputs_changed'
 
 
 @pytest.fixture()
@@ -265,6 +305,26 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     assert any(error['line_id'] == line_id and error['code'] == 'dispersion_peak_not_found' for error in located_all.json()['errors'])
     assert client.delete(f"/api/v1/dispersion/tasks/{task_id}/lines/{line_id}", headers=headers).status_code == 200
 
+    base = f"/api/v1/dispersion/tasks/{task_id}"
+    pending_response = client.post(f'{base}/lines', headers=headers,
+                                   json={'element': 'D', 'wavelength_nm': 255.0, 'ccd_index': 0})
+    assert pending_response.status_code == 201, pending_response.text
+    pending = pending_response.json()
+    task = client.get(base, headers=headers).json()
+    lines = {line['id']: line for line in task['lines']}
+    assert len(lines) == 4 and pending['located_position'] is None
+    for legacy_limit in (False, True):
+        blocked = client.post(f'{base}/calibrations/fit', headers=headers, json={'use_legacy_limit': legacy_limit})
+        assert blocked.status_code == 422, blocked.text
+        assert blocked.json()['detail']['code'] == 'calibration_points_insufficient'
+        assert blocked.json()['detail']['details']['actual'] == 3
+    measured = [row for row in task['legacy_lines'] if row['measured_step'] is not None]
+    coefficients = _fit_polynomial([lines[row['line_id']]['wavelength_nm'] for row in measured],
+                                   [row['measured_step'] for row in measured], 2)
+    point = _evaluate(coefficients, pending['wavelength_nm'])
+    positioned = client.post(f"{base}/lines/{pending['id']}/position", headers=headers, params={'position': point})
+    assert positioned.status_code == 200, positioned.text
+
     fitted = client.post(
         f"/api/v1/dispersion/tasks/{task_id}/calibrations/fit",
         headers=headers,
@@ -272,6 +332,7 @@ def test_s12_api_state_frames_calibration_binding_and_audit(dispersion_client) -
     )
     assert fitted.status_code == 201, fitted.text
     assert fitted.json()["publishable"] is True
+    assert fitted.json()['point_count'] == 4
     calibration_version_id = fitted.json()["id"]
     published = client.post(f"/api/v1/dispersion/calibrations/{calibration_version_id}/publish", headers=headers)
     assert published.status_code == 200, published.text

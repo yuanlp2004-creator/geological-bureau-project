@@ -148,6 +148,11 @@ class AcqSimulatorAdapter:
             self._frame = None
             return event
 
+    def position_angle(self, angle: float, correlation_id: str) -> dict[str, Any]:
+        if self.state not in {AcquisitionState.CONNECTED, AcquisitionState.DEBUGGING}:
+            raise DeviceError("device_not_connected", "请先连接调试设备", status_code=409)
+        return {"event_type": "turn_complete", "angle_deg": angle, "correlation_id": correlation_id, "simulated": True}
+
     def diagnostics(self) -> dict[str, Any]:
         return {
             "adapter": "acq-simulator",

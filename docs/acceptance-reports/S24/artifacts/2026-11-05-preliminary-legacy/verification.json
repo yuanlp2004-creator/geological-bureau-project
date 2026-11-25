@@ -1,0 +1,115 @@
+{
+  "status": "passed",
+  "initial_plan_sha256": "80396b77f2858db5ed1813045b657e293a402b96123e5c5d15ba4a2e2afb374e",
+  "execution_plan_sha256": "11c23ed89ea5789fe0ac249e267fe3ec1f3c525c053b2798cc11df8f2f35bdc9",
+  "backend_tests": 45,
+  "frontend_tests": 20,
+  "browser": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品新建只有编号；设备与样号表从所属页面选择并持久化，方法与采集条件来自当前方法；取消／失败保留输入，下一样品不再重复填写编号",
+      "蒸发只显示旧版四项激发参数、保存复选框与曲线名；取消／失败不改默认，勾选成功后只保存蒸发条件，设备与方法布局自动沿用",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "frozen_desktop": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品新建只有编号；设备与样号表从所属页面选择并持久化，方法与采集条件来自当前方法；取消／失败保留输入，下一样品不再重复填写编号",
+      "蒸发只显示旧版四项激发参数、保存复选框与曲线名；取消／失败不改默认，勾选成功后只保存蒸发条件，设备与方法布局自动沿用",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "product_changes": [
+    "app\\backend\\services.py",
+    "app\\backend\\api\\acquisition.py",
+    "app\\backend\\api\\dispersion.py",
+    "app\\backend\\api\\preliminary.py",
+    "app\\backend\\modules\\offline_help.py",
+    "app\\backend\\modules\\acquisition\\repository.py",
+    "app\\backend\\modules\\acquisition\\service.py",
+    "app\\backend\\modules\\dispersion\\service.py",
+    "app\\backend\\schemas\\preliminary.py",
+    "app\\backend\\schemas\\system.py",
+    "app\\frontend\\src\\api\\acquisition.ts",
+    "app\\frontend\\src\\api\\dispersion.ts",
+    "app\\frontend\\src\\pages\\acquisition\\AcquisitionWorkspace.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\EvaporationAcquisitionForm.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\PreliminaryCaptureFields.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\spectroscopy-workbench.css",
+    "app\\frontend\\src\\pages\\dispersion\\DispersionPage.tsx",
+    "app\\frontend\\src\\pages\\dispersion\\DispersionSetup.tsx",
+    "app\\frontend\\src\\styles\\remaining-pages.css"
+  ],
+  "product_deletions": [
+    "app\\frontend\\src\\pages\\acquisition\\AcquisitionConditionFields.tsx"
+  ],
+  "production_and_qa_sources_match": true,
+  "schema_version": 27,
+  "production_metadata_preserved_tables": 13,
+  "original_user_data_unchanged_during_deployment": true,
+  "root_and_app_entries_unchanged": true,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "a987e9a322ca588a042d73c36f7d0311573fe4e165ccc17ee81cafe7dcac7c24",
+      "after_sha256": "73ad6de38821dde4f914d6ec9568ce6b3ff790b3516642fcdef389d2533677b8"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "6e1d9130a759c5b45ba289b354a54295630b35a43e0a43c7299e10cac11dd008",
+      "after_sha256": "78dfca1e1103ad1dc628b27ccf199665d46ae3b75facbcc336b472d36e0cf573"
+    }
+  },
+  "retained_review": {
+    "status": "passed",
+    "pages": [
+      {
+        "mode": "evaporation-acquisition",
+        "input_count": 5,
+        "save_checkboxes": 1,
+        "select_count": 0,
+        "full_width": {
+          "actual": 623,
+          "available": 623
+        }
+      },
+      {
+        "mode": "dispersion",
+        "input_count": 5,
+        "save_checkboxes": 1,
+        "select_count": 0,
+        "full_width": {
+          "actual": 623,
+          "available": 623
+        }
+      }
+    ],
+    "retained_for_review": true,
+    "device_disconnected": true
+  }
+}

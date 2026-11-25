@@ -1,0 +1,9 @@
+{
+  "before_frontend": "052f3164a7b4ae70efa27fa7240d13dd5dae57030290d4595a8c6aad750a4bee",
+  "frontend": "effa24c3ef597bf4db4f364daf546e62c04b577b5f7eeccd7eeedc2893126d55",
+  "backend": "955f1511d8f19e2b527faf9a0b817860f9ef700f7e67f6d9ff2ffe8254ab3601",
+  "assets": [
+    "dist/assets/index-DnAZUpff.js",
+    "dist/assets/index-VCAkEEkh.css"
+  ]
+}

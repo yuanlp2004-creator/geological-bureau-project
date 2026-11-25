@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "77339d21b783edbed49b038c896fb355c0cfd1041453abf7459856450098e151",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/ObservationToolbar.tsx",
+    "app/frontend/src/components/SpectrumInspector.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/EvaporationCurvesPage.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx",
+    "app/frontend/src/components/LegacyCcdPicker.tsx"
+  ],
+  "scope": "Match FmView/FmDockAwareSam icon groups and flat tool style in the three viewers",
+  "icons": "Existing Qwen HD assets reused byte-for-byte",
+  "toolbar_button_css_px": [
+    23,
+    24
+  ],
+  "browser": {
+    "checks": 22,
+    "layouts": 22
+  },
+  "desktop": {
+    "checks": 22,
+    "layouts": 22
+  },
+  "frontend_tests": 16,
+  "max_boundary_error_css_px": {
+    "browser": 0,
+    "desktop": 0
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-viewer-toolbar\\qa\\GeoSpectrum.exe",
+    "pid": 35272,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "774d842462b3938a835330ada18823eca32812daab730e326aeb25b88325545c",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-toolbar-20261026\\before",
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false
+}

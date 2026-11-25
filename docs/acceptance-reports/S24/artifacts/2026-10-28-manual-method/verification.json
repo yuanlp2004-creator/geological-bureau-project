@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "c39f9de8ddeaa759277c6c80da5a668d934100a4b3f93100d81e7386df2ffe16",
+  "changed_product_files": [
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/modules/hardware_acquisition/exposures.py",
+    "app/backend/modules/hardware_acquisition/analysis_sample.py",
+    "app/frontend/src/api/hardwareAcquisition.ts",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx"
+  ],
+  "method_binding_by_angle": true,
+  "reorder_and_repeated_angles_preserve_method_config": true,
+  "calculation_interval_unchanged_by_dwell": true,
+  "raw_extra_frames_retained": true,
+  "analysis_uses_exact_method_version": true,
+  "unmatched_angles_and_insufficient_duration_rejected": true,
+  "backend_tests": 38,
+  "browser_checks": 13,
+  "capture_layouts": 3,
+  "message_layouts": 9,
+  "frozen_backend": {
+    "status": "passed",
+    "binary_sha256": "4b67cea9078ce2d992cd609fc2ac004bd9fcff18b41d69d34f1e6ff0acf016e0",
+    "schema_version": 25,
+    "method_options": true,
+    "angle_mismatch_rejected": true,
+    "background_manual_completed": true,
+    "method_interval_preserved": true,
+    "analysis_sample_saved": true,
+    "user_database_touched": false
+  },
+  "production_tauri_build": "passed",
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "f76cc666c422e344d3923ea569b29aadb0dac7854f2455487e10b8006270b860",
+    "geospectrum-backend.exe": "4b67cea9078ce2d992cd609fc2ac004bd9fcff18b41d69d34f1e6ff0acf016e0"
+  },
+  "desktop_gui_validation": "not_run_user_requested_commands_only",
+  "schema_version": 25,
+  "user_database_migration_or_write_performed": false,
+  "installer_rebuilt": false,
+  "backup": "D:\\地质局\\app\\.local\\diagnostics\\manual-method-20261028\\before",
+  "running_user_processes_stopped": false,
+  "root_app_inventory_unchanged": true,
+  "hardware_protocols": "deferred_external"
+}

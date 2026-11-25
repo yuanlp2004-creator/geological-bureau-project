@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "date": "2026-10-25",
+  "plan_sha256": "33355f91ac3a2c05edfbd579890396c9bc797331a404e7d45b32a2cdc895e2a1",
+  "git_baseline": "8087c56",
+  "checks": {
+    "browser": {
+      "checks": 9,
+      "layouts": 6
+    },
+    "desktop": {
+      "checks": 9,
+      "layouts": 6
+    },
+    "capture-regression": {
+      "checks": 5,
+      "layouts": 9
+    }
+  },
+  "frontend_tests": 15,
+  "source_and_frontend_match": true,
+  "backend_sources_and_executable_unchanged": true,
+  "root_and_app_inventory_unchanged": true,
+  "test_data": "Isolated seed databases; user data was not replaced",
+  "desktop_closed_normally": true,
+  "desktop_remaining_owned_pids": [],
+  "paired_executables": {
+    "GeoSpectrum.exe": "cbe946cc7ca11e150ffee029bc5f83608b88346fd27063359241505ac64daa24",
+    "geospectrum-backend.exe": "dcfc41ec79b38c7ebf3201938ba3d90be70bdfa341fd7444453cba991df76bff"
+  },
+  "backup_directory": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-operations-20261025\\before",
+  "installer_updated": false,
+  "limits": [
+    "UI and software verification only. Original hardware, signing, clean-Windows and physical-printer gates remain open.",
+    "Evaporation retains the existing stored per-frame peak/integral semantics; no new spectral-line evaporation algorithm is claimed."
+  ]
+}

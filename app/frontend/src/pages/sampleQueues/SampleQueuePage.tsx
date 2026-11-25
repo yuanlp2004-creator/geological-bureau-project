@@ -4,10 +4,12 @@ import { createPortal } from 'react-dom'
 import { Download, Plus, RefreshCw, Trash2, FolderOpen } from 'lucide-react'
 import { api, saveFile, type SampleQueue } from '../../api'
 import type { MethodConditions } from '../../api/methods'
+import type { SamEncoding } from '../../api/sampleQueues'
 import { NumericInput as EmptyableNumberInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { SampleNumberTable } from './SampleNumberTable'
 import { useSamImport } from './useSamImport'
 import { SectionHeading } from '../../components/SectionHeading'
+import { nextSampleName } from '../../components/useSampleGrid'
 
 export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation, onBusyChange, insertion }: {
   token: string
@@ -123,16 +125,19 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     if (locked) return
     setEntryBusy(true)
     try {
+      const workbook = /\.xlsx$/i.test(file.name)
+      if (workbook && file.size > 5_000_000) throw new Error('Excel 文件超过 5 MB。')
       const bytes = new Uint8Array(await file.arrayBuffer())
-      const next = await importSam(file.name, encoding =>
-        api.importSampleQueue(token, file.name, bytes, undefined, file.lastModified, encoding))
+      const read = (encoding?: SamEncoding) =>
+        api.importSampleQueue(token, file.name, bytes, undefined, file.lastModified, encoding)
+      const next = workbook ? await read() : await importSam(file.name, read)
       if (!next) return
       if (!confirmInDialog) await api.selectSampleQueue(token, next.id)
       setQueues((current) => [next, ...current.filter((item) => item.id !== next.id)])
       setSelected(next)
       onToast(`已导入 ${next.record_count} 条样品记录`)
     } catch (error) {
-      onToast(error instanceof Error ? error.message : 'SAM 导入失败')
+      onToast(error instanceof Error ? error.message : '样号文件导入失败')
     } finally { setEntryBusy(false) }
   }
 
@@ -148,14 +153,15 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     finally { setEntryBusy(false) }
   }
 
-  const exportQueue = async () => {
+  const exportQueue = async (format: 'xlsx' | 'sam') => {
     if (!selected || locked) return
     setEntryBusy(true)
     try {
-      const result = await api.exportSampleQueue(token, selected.id)
-      const path = await saveFile(result.blob, `queue-${selected.id}.sam`)
-      onToast(path ? `SAM 文件已保存：${path}` : '已取消保存')
-    } catch(error){onToast(error instanceof Error?error.message:'SAM 导出失败')}
+      const result = await api.exportSampleQueue(token, selected.id, format)
+      const filename = format === 'xlsx' ? `样号表-${selected.id}.xlsx` : `queue-${selected.id}.sam`
+      const path = await saveFile(result.blob, filename)
+      onToast(path ? `样号文件已保存：${path}` : '已取消保存')
+    } catch(error){onToast(error instanceof Error?error.message:'样号文件导出失败')}
     finally{setEntryBusy(false)}
   }
 
@@ -177,9 +183,9 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
   }
 
   const advanceName = () => {
-    const value = entryName.trim()
-    setEntryName(/^\d+$/.test(value) ? (BigInt(value)+1n).toString() : '')
-    entryRef.current?.focus()
+    const next = nextSampleName(entryName.trim())
+    setEntryName([...next].length <= nameLength ? next : '')
+    requestAnimationFrame(() => { entryRef.current?.focus(); entryRef.current?.select() })
   }
   const entryCommand = async (insert = false) => {
     if (locked) return
@@ -232,7 +238,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     } finally { setEntryBusy(false) }
   }
 
-  const pasteItems = async (changes: Array<{ position: number; name: string }>) => {
+  const pasteItems = async (changes: Array<{ position: number; name: string }>, action: 'paste' | 'fill') => {
     if (locked) throw new Error('队列正忙，请稍后粘贴。')
     if ((manualRepeats !== null || !methodDefaults) && !reportInvalidNumericInput(document.querySelector('.sample-entry-form'))) {
       throw new Error('请先修正重复次数。')
@@ -242,6 +248,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
     const lastPosition = Math.max(...changes.map(cell => cell.position))
     while (items.length <= lastPosition) items.push({ pre_name: '', repeats: 0 })
     for (const { position, name: text } of changes) {
+      if (/[\x00-\x1f\x7f-\x9f\u2028\u2029]/.test(text)) throw new Error(`第 ${position + 1} 项含有换行、制表符或其他控制字符。`)
       const trimmed = text.trim()
       const preName = trimmed === ',' ? '' : trimmed
       const previous = selected?.items[position]
@@ -265,7 +272,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
           return
         }
       }
-      onToast(`已粘贴 ${changes.length} 个样号位置`)
+      onToast(`已${action === 'fill' ? '填充' : '粘贴'} ${changes.length} 个样号位置`)
     } finally { setEntryBusy(false) }
   }
 
@@ -312,7 +319,7 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
           </button>
             <input ref={fileRef}
               type="file"
-              accept=".sam,.txt"
+              accept=".xlsx,.sam,.txt"
               hidden
               disabled={locked}
               onChange={(event) => {
@@ -325,7 +332,10 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
             <Plus size={15} />
             新建队列
           </button>
-          <button className="secondary-button" onClick={() => void exportQueue()} disabled={!selected || locked}>
+          <button className="secondary-button" onClick={() => void exportQueue('xlsx')} disabled={!selected?.items.length || locked}>
+            <Download size={15} />导出 Excel
+          </button>
+          <button className="secondary-button" onClick={() => void exportQueue('sam')} disabled={!selected || locked}>
             <Download size={15} />
             导出 SAM
           </button>
@@ -382,10 +392,11 @@ export function SampleQueuePage({ token, onToast, entryRequest = 0, confirmation
               </label>
             </div>
             {(!selected || !confirmInDialog) && <div className="sample-entry-actions">
-              <button className="primary-button" disabled={locked} onClick={() => void entryCommand(true)}>
+              <button className="primary-button" disabled={locked} onClick={() => void entryCommand()}>
                 <Plus size={16} strokeWidth={1.75} aria-hidden="true" />
-                {selected ? '插入样品' : '创建队列'}
+                {selected ? '添加样品' : '创建队列'}
               </button>
+              {selected && <button className="secondary-button" disabled={locked} onClick={() => void entryCommand(true)}>插入样品</button>}
             </div>}
           </div>
           <SampleNumberTable initialSelectedId={selected?.id === insertion?.queueId ? insertion?.itemId : undefined}

@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "6814853f8ab200b6119e6b6451d0249272b202ba8b03cda85ef595c7a79e4943",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css"
+  ],
+  "scope": "Unify the three viewer outer gutters with the dispersion acquisition desk",
+  "css_gutters": {
+    "default": 28,
+    "at_most_1350": 20,
+    "at_most_1280": 16,
+    "at_least_2400": 36,
+    "max_page_width": 1640
+  },
+  "browser": {
+    "checks": 4,
+    "layouts": 16
+  },
+  "desktop": {
+    "checks": 4,
+    "layouts": 16
+  },
+  "max_boundary_error_css_px": {
+    "browser": 0,
+    "desktop": 0
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-viewer-margins\\qa\\GeoSpectrum.exe",
+    "pid": 11276,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "all_other_product_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "b33eec019ef6a924a05b0c04223bbf26179df08b769dba50f36c1c1e9b78097c",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-margins-20261026\\before",
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false
+}

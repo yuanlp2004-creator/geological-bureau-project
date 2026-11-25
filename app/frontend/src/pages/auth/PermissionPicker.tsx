@@ -8,19 +8,33 @@ const groups: Record<string, string> = {
   'result-migration': '旧结果迁移', spectra: '谱图查看', samples: '样号与样品队列', results: '分析结果',
   devices: '设备调试', dispersion: '色散摄谱与曲线', acquisition: '蒸发与样品摄谱',
   'hardware-acquisition': '自动转角', 'mercury-calibration': '汞灯与光学校准', analysis: '分析与标准曲线',
-  postprocessing: '数据后处理', reports: '报告', maintenance: '数据维护', help: '帮助', about: '关于软件'
+  postprocessing: '数据后处理', reports: '报告', maintenance: '数据维护', help: '帮助', about: '关于软件',
+  activation: '软件激活', support: '模块远程诊断'
 }
 const actions: Record<string, string> = {
   read: '查看', write: '编辑', execute: '执行', export: '导出', print: '打印',
   intervene: '慢进人工干预', quality: '重复性质控', curve: '标准曲线调整'
+}
+const permissionActions: Record<string, string> = {
+  'methods.write': '新增、编辑与删除',
+  'analysis.execute': '测量与分析',
+  'dispersion.execute': '执行色散摄谱',
+  'acquisition.execute': '执行样品与蒸发摄谱',
+  'hardware-acquisition.execute': '执行自动转角摄谱',
+  'activation.manage': '查看状态与导入授权',
+  'support.manage': '开启与结束诊断共享'
+}
+
+function permissionAction(key: string): string {
+  const action = key.split('.').slice(1).join('.')
+  return permissionActions[key] ?? actions[action] ?? action
 }
 export function permissionGroupLabel(key: string, capabilities: Capability[]): string {
   const prefix = key.split('.')[0]
   return groups[prefix] ?? capabilities.find((item) => item.permissions.includes(key))?.title ?? prefix
 }
 export function permissionLabel(key: string, capabilities: Capability[]): string {
-  const action = key.split('.').slice(1).join('.')
-  return `${permissionGroupLabel(key, capabilities)}：${actions[action] ?? action}`
+  return `${permissionGroupLabel(key, capabilities)}：${permissionAction(key)}`
 }
 
 function GroupSelection({ label, permissions, selected, onChange }: {
@@ -66,7 +80,7 @@ export function PermissionPicker({ keys, selected, onChange, capabilities, disab
           <input type="checkbox" data-permission-key={key} aria-label={permissionLabel(key, capabilities)}
             checked={selected.includes(key)} onChange={(event) => onChange(event.target.checked
               ? [...new Set([...selected, key])] : selected.filter((value) => value !== key))} />
-          <span>{actions[key.split('.').slice(1).join('.')] ?? key.split('.').slice(1).join('.')}</span>
+          <span>{permissionAction(key)}</span>
         </label>)}
         </details>
       </fieldset>)}

@@ -99,13 +99,13 @@ export const sampleQueuesApi = {
         queue_name: queueName
       })
     }),
-  exportSampleQueue: /* 生成 SAM 文件并记录输出摘要。 */ async (token: string, queueId: number) => {
-    const response = await requestRaw(`/api/v1/sample-queues/${queueId}/export`, {
+  exportSampleQueue: async (token: string, queueId: number, format: 'sam' | 'xlsx' = 'sam') => {
+    const response = await requestRaw(`/api/v1/sample-queues/${queueId}/export${format === 'xlsx' ? '?format=xlsx' : ''}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     return {
       blob: await response.blob(),
-      filename: response.headers.get('Content-Disposition') ?? `queue-${queueId}.sam`
+      filename: response.headers.get('Content-Disposition') ?? `queue-${queueId}.${format}`
     }
   }
 }

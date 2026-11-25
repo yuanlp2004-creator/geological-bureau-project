@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "1440×1000 · 960 rows, both pane order, whole rows, one row per wheel step, sticky header, scroll retained",
+    "1440×1000 · overlay intensity, click to lock, single view, stable geometry",
+    "1440×1000 · WDT and EDT idle hint absent, real cursor values and lock retained",
+    "1060×680 · 960 rows, both pane order, whole rows, one row per wheel step, sticky header, scroll retained",
+    "1060×680 · overlay intensity, click to lock, single view, stable geometry",
+    "1060×680 · WDT and EDT idle hint absent, real cursor values and lock retained",
+    "样品分析 · 常驻提示隐藏，真实点位读数及锁定可用"
+  ],
+  "errors": [],
+  "sources": {
+    "cmt": {
+      "sha": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "count": 960
+    },
+    "wdt": {
+      "sha": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "count": 120
+    },
+    "edt": {
+      "sha": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "count": 120
+    }
+  }
+}

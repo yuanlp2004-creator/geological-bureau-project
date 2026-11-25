@@ -65,13 +65,14 @@ def test_dispersion_warmup_cannot_be_used_as_formal_calibration(tmp_path):
     service = DispersionService(db)
     formal = service.create_task({'name': 'formal', 'frame_count': 2, 'dark_frame_count': 1,
                                   'pre_excitation_seconds': 0, 'sample': '280-288.acq'})
+    before = service.get_task(formal['id'])
     warmup = service.preheat_task(formal['id'])
     for _ in range(8):
         if warmup['status'] == 'completed': break
         warmup = service.step_task(warmup['id'])
     assert warmup['status'] == 'completed' and warmup['condition']['preheat'] is True
     assert warmup['calibrations'] == [] and service.frames(warmup['id'])
-    assert service.get_task(formal['id']) == formal
+    assert service.get_task(formal['id']) == before
     with pytest.raises(DispersionError) as error:
         service.fit_calibration(warmup['id'], {'degree': 2})
     assert error.value.code == 'preheat_not_calibration_source'

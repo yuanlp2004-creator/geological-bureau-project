@@ -1,0 +1,200 @@
+{
+  "status": "passed",
+  "batch": "2026-11-06-sample-turns",
+  "plan_execution_sha256": "5a42a99fff0ad3fa6b1709f79463b9de9c531ab81528d6b0ad2fad6de427598e",
+  "tests": {
+    "backend_core": 86,
+    "serial_boundary": 31,
+    "backend_total": 117,
+    "frontend": 20,
+    "desktop_flows": 7,
+    "desktop_layouts": [
+      {
+        "width": 1123,
+        "height": 1000,
+        "overflow": false,
+        "pickers": 1
+      },
+      {
+        "width": 798,
+        "height": 760,
+        "overflow": false,
+        "pickers": 1
+      }
+    ],
+    "desktop_errors": []
+  },
+  "ui_checks": [
+    "独立自动转角入口从正式导航清单移除，历史接口仍可读取",
+    "样品新建仅填写编号；全部转角、关键波段和顺序取确切发布方法",
+    "预热不执行转角计划，不占用正式样号及重复次数",
+    "一次试样摄谱完成全部转角后才计一次重复，并停在人工重复确认处",
+    "两次重复完整保存并回写原队列；查看转角仅观察，宽窄窗口可操作",
+    "谱图查看与分析快照保持转角、CCD、波长及原始帧的同一关联",
+    "采集故障保留已收帧并安全结束，不确认不完整重复"
+  ],
+  "changes": {
+    "modified_products": [
+      "app\\backend\\api\\analysis.py",
+      "app\\backend\\migrations\\__init__.py",
+      "app\\backend\\modules\\manifest.py",
+      "app\\backend\\modules\\offline_help.py",
+      "app\\backend\\modules\\spectral_lines.py",
+      "app\\backend\\modules\\spectrum_viewer.py",
+      "app\\backend\\modules\\acquisition\\repository.py",
+      "app\\backend\\modules\\acquisition\\service.py",
+      "app\\backend\\modules\\analysis\\daily_operations.py",
+      "app\\backend\\modules\\analysis\\inputs.py",
+      "app\\backend\\modules\\analysis\\measurement.py",
+      "app\\backend\\modules\\analysis\\service.py",
+      "app\\backend\\modules\\hardware_acquisition\\adapters.py",
+      "app\\backend\\modules\\methods\\geometry.py",
+      "app\\backend\\modules\\methods\\service.py",
+      "app\\backend\\schemas\\analysis.py",
+      "app\\frontend\\src\\navigation.ts",
+      "app\\frontend\\src\\api\\acquisition.ts",
+      "app\\frontend\\src\\api\\analysis.ts",
+      "app\\frontend\\src\\components\\SpectrumInspector.tsx",
+      "app\\frontend\\src\\layout\\WorkspaceApp.tsx",
+      "app\\frontend\\src\\pages\\acquisition\\CaptureLineBar.tsx",
+      "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionMonitor.tsx",
+      "app\\frontend\\src\\pages\\analysis\\AnalysisDesk.tsx",
+      "app\\frontend\\src\\pages\\analysis\\AnalysisSpectrum.tsx",
+      "app\\frontend\\src\\pages\\methods\\MethodAngles.tsx",
+      "app\\frontend\\src\\pages\\spectra\\SpectrumViewerPage.tsx",
+      "app\\frontend\\src\\pages\\spectra\\SpectrumViewToolbar.tsx"
+    ],
+    "new_products": [
+      "app\\backend\\migrations\\v30_sample_turn_bands.py",
+      "app\\backend\\modules\\acquisition\\turns.py",
+      "app\\backend\\modules\\methods\\sample_plan.py"
+    ]
+  },
+  "delivery": {
+    "status": "passed",
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "5c9f56616c58f5c6ba2868c150f1a057ecd05c760b1cfe2bc0cabb26de4d38d2",
+        "after": "430868f3f8570f2e9cb22b9eda2ae0693bcae21261a9e8a371f3332b416b35bb"
+      },
+      "geospectrum-backend.exe": {
+        "before": "6ab420c31e28fb296233e27aafc41fda9c5bf7aaf65932d8733a77076ada9d34",
+        "after": "1876fc5248def2810ca53c5257836ed77077b38f175405fce92f4845cd4b1d5c"
+      }
+    },
+    "product_sources_match": true,
+    "product_source_count": 464,
+    "production_tables_unchanged": 94
+  },
+  "migration": {
+    "status": "passed",
+    "backup": "D:\\地质局\\app\\.local\\diagnostics\\sample-turns-20261106\\production-backup\\before-schema30.sqlite3",
+    "historical_tables_preserved": [
+      "acquisition_frames",
+      "acquisition_intervals",
+      "acquisition_management_tasks",
+      "acquisition_messages",
+      "acquisition_sample_bands",
+      "acquisition_sample_disposals",
+      "acquisition_samples",
+      "acquisition_task_options",
+      "acquisition_tasks",
+      "acquisition_turn_bands",
+      "acquisition_turn_frames",
+      "acquisition_turn_tasks",
+      "dispersion_calibration_metadata",
+      "dispersion_calibration_versions",
+      "dispersion_calibrations",
+      "dispersion_task_frames",
+      "dispersion_task_lines",
+      "dispersion_tasks",
+      "hardware_decisions",
+      "hardware_exposure_frames",
+      "hardware_exposure_results",
+      "hardware_frames",
+      "hardware_messages",
+      "hardware_plan_steps",
+      "hardware_tasks",
+      "hardware_traces",
+      "method_calibration_bindings",
+      "method_print_jobs",
+      "method_runtime_state",
+      "method_versions",
+      "methods",
+      "sample_queue_items",
+      "sample_queue_options",
+      "sample_queue_runtime_state",
+      "sample_queues"
+    ],
+    "source_unchanged": true,
+    "sqlite_integrity": "ok",
+    "foreign_key_errors": 0,
+    "schema": 30
+  },
+  "review": {
+    "retained": true,
+    "mode": "isolated",
+    "status": "completed",
+    "selectedAngle": "17° · 关键波段",
+    "profile": "simulator",
+    "activeAcquisitions": 0,
+    "pid": 2068
+  },
+  "external_gates": [
+    "real-turn-protocol",
+    "real-instrument-acceptance",
+    "mercury-protocol",
+    "signing-and-formal-release"
+  ],
+  "commands": {
+    "core": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "pytest",
+      "app/tests/test_sample_turn_integration.py",
+      "app/tests/test_legacy_capture_parameters.py",
+      "app/tests/test_sample_current_context.py",
+      "app/tests/test_s13_acquisition.py",
+      "app/tests/test_s16_analysis.py",
+      "app/tests/test_analysis_spectrum_view.py",
+      "app/tests/test_schema_migrations.py",
+      "app/tests/test_architecture.py",
+      "app/tests/test_spectral_lines.py",
+      "-q",
+      "--basetemp",
+      "app/.local/test-runs/sample-turns-core-check"
+    ],
+    "serial": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "pytest",
+      "app/tests/test_legacy_serial_acquisition.py",
+      "-q",
+      "--basetemp",
+      "app/.local/test-runs/sample-turns-serial-check"
+    ],
+    "frontend": [
+      "npm --prefix app/frontend test",
+      "npm --prefix app/frontend run build"
+    ],
+    "sidecar": "python -X utf8 app/tools/build_sidecar.py",
+    "desktop": "node app/.local/diagnostics/sample-turns-20261106/check_ui.mjs"
+  },
+  "notes": [
+    "No historical spectrum tables were rewritten by schema30.",
+    "The older standalone hardware API and stored records remain for compatibility; the application no longer mounts that workbench.",
+    "Missing or ambiguous multi-angle calibration associations block acquisition; no new method form fields were added.",
+    "Desktop test harness size-serialization error was corrected and the complete final workflow reran successfully."
+  ],
+  "directories_new_items": {
+    ".": [],
+    "app": []
+  },
+  "final_product_sources_unchanged": true,
+  "historical_inputs_read_only": true,
+  "directory_cleanup": "Automatic approval rejected batch removal of this task temporary test databases with blocked by policy. Files remain in ignored app/.local; no root/app-level items were added."
+}

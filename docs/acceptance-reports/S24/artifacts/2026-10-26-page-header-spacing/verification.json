@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "d362a27b2091cc1f5f7955871ff0e35c3d29dd427416a4b5438bde32318f763a",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/page-heading.css",
+    "app/frontend/src/components/PageHeading.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx"
+  ],
+  "scope": "Remove page-title descriptions and unify header top, divider and body spacing",
+  "header_geometry_css_px": {
+    "top": 18,
+    "icon_to_text": 10,
+    "icon_to_divider": 10,
+    "divider_to_body": 16,
+    "header_row_and_rule": 47
+  },
+  "title_format": {
+    "font_px": 22,
+    "font_weight": 700,
+    "line_height": 1.35,
+    "icon_box_px": 36,
+    "icon_glyph_px": 24
+  },
+  "browser": {
+    "checks": 7,
+    "layouts": 84
+  },
+  "desktop": {
+    "checks": 7,
+    "layouts": 84
+  },
+  "navigation_entries": 25,
+  "page_header_description_count": 0,
+  "section_dialog_titles_and_business_warnings_preserved": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-page-header-spacing\\qa\\GeoSpectrum.exe",
+    "pid": 37772,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "all_other_product_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "549c8630c88d205564a904c73c27646896697f2c6be953b856114aeef9209470",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\page-header-spacing-20261026\\before"
+}

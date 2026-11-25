@@ -8,6 +8,8 @@ import threading
 from typing import Any
 from ...db import Database, utc_now
 from ..devices import AcqSimulatorAdapter, SerialAcqAdapter, create_device_adapter, monitor_capture, AcquisitionState, DeviceError
+from ..devices.capture_sequence import CaptureSequence
+from ..devices.motor_turn import prepare_motor_turn, requires_motor
 from .calibration import CalibrationService
 from .repository import DispersionRepository
 from .values import DispersionError, DispersionState, _finite, _json, _task_command, _task_scope
@@ -29,6 +31,7 @@ class DispersionService:
         self._exit_gate = exit_gate
         self._on_frame_saved = on_frame_saved
         self._on_serial_notice = on_serial_notice
+        self._sequence = CaptureSequence(DispersionError, exit_gate)
 
     def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None, *, connection=None, capture_turn=None) -> dict[str, Any]:
         with (self.database.write() if connection is None else nullcontext(connection)) as db:
@@ -129,7 +132,15 @@ class DispersionService:
             return self.repository._task_dict(task_id, db)
 
     def get_task(self, task_id: int) -> dict[str, Any]:
-        return self.repository._task_dict(task_id)
+        task = self.repository._task_dict(task_id)
+        current = self._sequence.current(task_id)
+        if current is not None:
+            task['active_capture_id'] = current
+        if turn := task.get('capture_turn'):
+            task['position_controlled'] = requires_motor(self.database, task['profile'], multiple=turn['multiple'])
+        adapter = self._adapters.get(task_id)
+        task['positioning'] = isinstance(adapter, SerialAcqAdapter) and adapter.capture_phase == 'turning'
+        return task
 
     def coordinate(self, task_id: int, wavelength: float) -> dict[str, Any]:
         wavelength = _finite(wavelength, 'wavelength_nm')
@@ -170,13 +181,40 @@ class DispersionService:
         return adapter
 
     def active_serial_connections(self) -> list[dict[str, Any]]:
-        return [{"task_id": task_id, **adapter.diagnostics()} for task_id, adapter in list(self._adapters.items())
-                if isinstance(adapter, SerialAcqAdapter) and adapter.diagnostics()['connected']]
+        result = [{"task_id": task_id, **adapter.diagnostics()} for task_id, adapter in list(self._adapters.items())
+                  if isinstance(adapter, SerialAcqAdapter) and adapter.diagnostics()['connected']]
+        current = self._sequence.current()
+        if current is not None and not any(item['task_id'] == current for item in result):
+            profile = self.repository._context(current).profile
+            if profile['transport'] == 'serial':
+                result.append({'task_id': current, 'port': f"COM{profile['port']}", 'state': 'reserved'})
+        return result
 
     @_task_command
-    def start_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def start_task(self, task_id: int, actor_user_id: int | None = None, *, _sequence=False) -> dict[str, Any]:
         with self._start_lock:
+            if not _sequence and self._sequence.current(task_id) is not None:
+                raise DispersionError('capture_sequence_busy', '当前任务正在执行连续摄谱', status_code=409)
+            if _sequence and self._sequence.cancelled(task_id):
+                raise DispersionError('capture_sequence_cancelled', '连续摄谱已停止', status_code=409)
             return self._start_task(task_id, actor_user_id)
+
+    def start_sequence(self, task_id: int, actor_user_id: int):
+        task = self.get_task(task_id)
+        turn = task.get('capture_turn')
+        members = task.get('capture_turns') if turn and turn.get('multiple') and not task['condition'].get('preheat') else None
+        if not members:
+            return self.start_task(task_id, actor_user_id)
+        if any(item['status'] not in {'draft', 'completed'} for item in members):
+            raise DispersionError('capture_sequence_incomplete', '有转角已中止或正在摄谱，请检查状态后新建整组摄谱任务', status_code=409)
+        pending = [item['id'] for item in members if item['status'] == 'draft']
+        if not pending:
+            raise DispersionError('dispersion_task_not_startable', '全部转角已完成', status_code=409)
+        return self._sequence.start(pending, all_members=[item['id'] for item in members],
+                                    start=lambda i: self.start_task(i, actor_user_id, _sequence=True),
+                                    step=lambda i: self.step_task(i, actor_user_id), get_task=self.get_task,
+                                    stop=lambda i: self._stop_control(i, actor_user_id),
+                                    fail=lambda i, code, message: self._fail_task(i, code, message, actor_user_id))
 
     def _start_task(self, task_id: int, actor_user_id: int | None) -> dict[str, Any]:
         context = self.repository._context(task_id)
@@ -198,19 +236,21 @@ class DispersionService:
         turn = condition.get('capture_turn')
         position = None
         if turn:
-            if turn['multiple'] and context.profile['transport'] != 'simulator':
-                raise DispersionError('hardware_protocol_unavailable', '真实自动转角协议尚未确认，不能执行多转角摄谱', status_code=409)
             with self.database.read() as db:
                 members = self.repository.capture_turn_members(db, turn, include_preheat=True)
             if any(row['id'] != task_id and row['status'] not in {'draft', 'completed', 'failed', 'stopped'} for row in members):
                 raise DispersionError('dispersion_task_busy', '请先完成或停止正在摄谱的转角', status_code=409)
         try:
+            motor_turn = None
+            if turn and requires_motor(self.database, context.profile, multiple=turn['multiple']):
+                angle = turn['angle_deg']
+                motor_turn = (prepare_motor_turn(self.database, context.profile, [angle], preflight=False), angle)
             adapter = self._adapter(task_id, context.profile)
             if isinstance(adapter, SerialAcqAdapter):
                 event = adapter.prepare_capture(pre_seconds=float(context.task["pre_excitation_seconds"]),
                     burn_seconds=float(context.task["sampling_period_seconds"]), burn_count=int(context.task["frame_count"]),
                     dark_seconds=float(context.task["sampling_period_seconds"]), dark_count=int(context.task["dark_frame_count"]),
-                    correlation_id=f"dispersion-{task_id}")
+                    correlation_id=f"dispersion-{task_id}", **({'motor_turn': motor_turn} if motor_turn else {}))
             else:
                 correlation_id = f'dispersion-{task_id}'
                 args = {'sample': condition.get('sample') or '280-288.acq', 'seed': int(condition.get('seed') or 0),
@@ -223,7 +263,8 @@ class DispersionService:
         except DeviceError as exc:
             self._fail_task(task_id, exc.code, exc.message, actor_user_id)
             raise DispersionError(
-                "dispersion_start_failed", exc.message, details=exc.detail(), status_code=exc.status_code
+                exc.code if motor_turn or exc.code.startswith(('motor_', 'hardware_protocol_')) else "dispersion_start_failed",
+                exc.message, details=exc.detail(), status_code=exc.status_code
             ) from exc
         now = utc_now()
         with self.database.write() as db:
@@ -244,6 +285,8 @@ class DispersionService:
             )
         if isinstance(adapter, SerialAcqAdapter):
             try:
+                if self._sequence.cancelled(task_id):
+                    adapter.request_stop()
                 adapter.begin_capture()
             except DeviceError as exc:
                 self._fail_task(task_id, exc.code, exc.message, actor_user_id)
@@ -380,7 +423,8 @@ class DispersionService:
                 "dispersion.frame.capture",
                 task_id,
                 {"phase": phase, "frame_index": phase_index, "sha256": event.details.get("sha256"),
-                 **({"communication": event.details.get("communication", [])} if real else {})},
+                 **({"communication": event.details.get("communication", []),
+                     "turn_position": event.details.get("turn_position")} if real else {})},
             )
         if self._on_frame_saved is not None:
             self._on_frame_saved(task_id, phase, phase_index, event.details)
@@ -443,7 +487,7 @@ class DispersionService:
                     raise
 
     def shutdown(self) -> list[dict[str, Any]]:
-        errors = []
+        errors = self._sequence.shutdown()
         for task_id in list(self._adapters):
             adapter = self._adapters.get(task_id)
             if isinstance(adapter, SerialAcqAdapter):
@@ -460,8 +504,17 @@ class DispersionService:
                     logging.getLogger(__name__).exception("Serial dispersion shutdown was not confirmed")
         return errors
 
-    @_task_command
     def stop_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        current = self._sequence.cancel(task_id)
+        if current is not None:
+            adapter = self._adapters.get(current)
+            if isinstance(adapter, SerialAcqAdapter):
+                adapter.request_stop()
+            return self.get_task(current)
+        return self._stop_control(task_id, actor_user_id)
+
+    @_task_command
+    def _stop_control(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         return self._stop_task(task_id, actor_user_id)
 
     def _stop_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
@@ -518,7 +571,11 @@ class DispersionService:
         self._close_adapter(task_id)
 
     def list_tasks(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
-        return self.repository.list_tasks(limit, offset)
+        tasks = self.repository.list_tasks(limit, offset)
+        for task in tasks:
+            if (current := self._sequence.current(task['id'])) is not None:
+                task['active_capture_id'] = current
+        return tasks
 
     def discard_task(self, task_id: int, actor_user_id: int) -> None:
         with self.database.read() as db:

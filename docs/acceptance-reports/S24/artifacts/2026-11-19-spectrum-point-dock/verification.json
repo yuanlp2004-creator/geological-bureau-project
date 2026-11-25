@@ -1,0 +1,202 @@
+{
+  "checks": [
+    {
+      "label": "色散摄谱",
+      "marks": [
+        "(1, 532)",
+        "(1, 723)",
+        "(1, 914)",
+        "(1, 1105)",
+        "(1, 1296)",
+        "(1, 1487)"
+      ],
+      "panel": {
+        "x": 1100,
+        "y": 289,
+        "width": 184,
+        "height": 197
+      },
+      "rail": {
+        "left": 1080.6015625,
+        "top": 257,
+        "right": 1284,
+        "bottom": 796,
+        "className": "spectroscopy-operator spectrum-point-rail"
+      },
+      "chartRight": 1069.6015625
+    },
+    {
+      "label": "样品摄谱",
+      "marks": [
+        "(1, 532)",
+        "(1, 723)",
+        "(1, 914)",
+        "(1, 1105)",
+        "(1, 1296)",
+        "(1, 1487)"
+      ],
+      "panel": {
+        "x": 1100,
+        "y": 289,
+        "width": 184,
+        "height": 197
+      },
+      "rail": {
+        "left": 1080.6015625,
+        "top": 257,
+        "right": 1284,
+        "bottom": 796,
+        "className": "spectroscopy-operator spectrum-point-rail"
+      },
+      "chartRight": 1069.6015625
+    },
+    {
+      "label": "蒸发摄谱",
+      "marks": [
+        "(1, 532)",
+        "(1, 723)",
+        "(1, 914)",
+        "(1, 1105)",
+        "(1, 1296)",
+        "(1, 1487)"
+      ],
+      "panel": {
+        "x": 1100,
+        "y": 289,
+        "width": 184,
+        "height": 197
+      },
+      "rail": {
+        "left": 1080.6015625,
+        "top": 257,
+        "right": 1284,
+        "bottom": 796,
+        "className": "spectroscopy-operator spectrum-point-rail"
+      },
+      "chartRight": 1069.6015625
+    },
+    {
+      "label": "蒸发曲线",
+      "marks": [
+        "(1, 526)",
+        "(1, 719)",
+        "(1, 911)",
+        "(1, 1104)",
+        "(1, 1296)",
+        "(1, 1489)"
+      ],
+      "panel": {
+        "x": 1104,
+        "y": 274,
+        "width": 180,
+        "height": 197
+      },
+      "rail": {
+        "left": 1100,
+        "top": 274,
+        "right": 1284,
+        "bottom": 805,
+        "className": "spectrum-point-dock"
+      },
+      "chartRight": 1083
+    },
+    {
+      "label": "谱图查看",
+      "marks": [
+        "(1, 4)",
+        "(1, 6)",
+        "(1, 8)"
+      ],
+      "panel": {
+        "x": 1104,
+        "y": 274,
+        "width": 180,
+        "height": 197
+      },
+      "rail": {
+        "left": 1100,
+        "top": 274,
+        "right": 1284,
+        "bottom": 805,
+        "className": "spectrum-point-dock"
+      },
+      "chartRight": 1083
+    },
+    {
+      "label": "样品分析",
+      "marks": [
+        "(1, 509)",
+        "(1, 706)",
+        "(1, 903)",
+        "(1, 1100)",
+        "(1, 1297)",
+        "(1, 1495)"
+      ],
+      "panel": {
+        "x": 1119,
+        "y": 244,
+        "width": 180,
+        "height": 197
+      },
+      "rail": {
+        "left": 1115,
+        "top": 244,
+        "right": 1299,
+        "bottom": 805,
+        "className": "spectrum-point-dock"
+      },
+      "chartRight": 1069.65625
+    },
+    {
+      "label": "色散曲线灰度谱带",
+      "marks": [
+        "(1, 531)",
+        "(1, 723)",
+        "(1, 914)",
+        "(1, 1105)",
+        "(1, 1296)",
+        "(1, 1487)"
+      ],
+      "panel": {
+        "x": 1105,
+        "y": 265,
+        "width": 179,
+        "height": 197
+      },
+      "rail": {
+        "left": 1104,
+        "top": 265,
+        "right": 1284,
+        "bottom": 786,
+        "className": "legacy-view-rail right spectrum-point-rail"
+      },
+      "chartRight": 1087
+    },
+    {
+      "label": "旧 WDT 窄窗口",
+      "marks": [
+        "(1, 501)",
+        "(1, 700)",
+        "(1, 900)",
+        "(1, 1099)",
+        "(1, 1298)",
+        "(1, 1497)"
+      ],
+      "panel": {
+        "x": 891,
+        "y": 265,
+        "width": 137,
+        "height": 360
+      },
+      "rail": {
+        "left": 890,
+        "top": 265,
+        "right": 1028,
+        "bottom": 625,
+        "className": "legacy-view-rail right spectrum-point-rail"
+      },
+      "chartRight": 881
+    }
+  ],
+  "errors": []
+}

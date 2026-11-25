@@ -1,0 +1,2283 @@
+{
+  "status": "passed",
+  "checks": [
+    "normal-light: 全部25个导航入口的说明文字已删除，标题顶部/图标/分隔线/正文间距及字号一致，无越界",
+    "normal-light: 色散、蒸发、样品摄谱进入当前观察页后，说明文字已删除，页头间距与普通页一致；未启动采集",
+    "small-dark: 全部25个导航入口的说明文字已删除，标题顶部/图标/分隔线/正文间距及字号一致，无越界",
+    "small-dark: 色散、蒸发、样品摄谱进入当前观察页后，说明文字已删除，页头间距与普通页一致；未启动采集",
+    "wide-light: 全部25个导航入口的说明文字已删除，标题顶部/图标/分隔线/正文间距及字号一致，无越界",
+    "wide-light: 色散、蒸发、样品摄谱进入当前观察页后，说明文字已删除，页头间距与普通页一致；未启动采集",
+    "查看页刷新与筛选正常，标题不跳动；弹窗与内部小标题未被放大"
+  ],
+  "layouts": [
+    {
+      "name": "workspace.overview-normal-light",
+      "text": "工作台概览",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.settings-normal-light",
+      "text": "软件设置",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.about-normal-light",
+      "text": "关于软件",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.users-normal-light",
+      "text": "用户与权限",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.audit-normal-light",
+      "text": "审计记录",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lifecycle-normal-light",
+      "text": "方法管理与参数",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 474,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lines-normal-light",
+      "text": "分析谱线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.print-preview-normal-light",
+      "text": "预览与打印",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-methods-normal-light",
+      "text": "旧方法与配置迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 496,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.samples-normal-light",
+      "text": "样号与样品队列",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 474,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-spectra-normal-light",
+      "text": "旧谱数据迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 452,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-results-normal-light",
+      "text": "旧结果迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.spectra-normal-light",
+      "text": "谱图查看",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.devices-normal-light",
+      "text": "设备调试",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-normal-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-curves-normal-light",
+      "text": "色散曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-normal-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.acquisition-normal-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-curves-normal-light",
+      "text": "蒸发曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.hardware-normal-light",
+      "text": "自动转角采集",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 452,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.raw-normal-light",
+      "text": "样品分析",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.recalculate-normal-light",
+      "text": "重新计算",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.reports-normal-light",
+      "text": "打印与导出",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.maintenance-normal-light",
+      "text": "备份与维护",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 430,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.offline-normal-light",
+      "text": "离线帮助",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "dispersion-capture-normal-light",
+      "text": "色散摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-acquisition-capture-normal-light",
+      "text": "蒸发摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "sample-acquisition-capture-normal-light",
+      "text": "样品摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 320,
+      "top": 113.15625,
+      "right": 408,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "workspace.overview-small-dark",
+      "text": "工作台概览",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.settings-small-dark",
+      "text": "软件设置",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.about-small-dark",
+      "text": "关于软件",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.users-small-dark",
+      "text": "用户与权限",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.audit-small-dark",
+      "text": "审计记录",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lifecycle-small-dark",
+      "text": "方法管理与参数",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 431,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lines-small-dark",
+      "text": "分析谱线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.print-preview-small-dark",
+      "text": "预览与打印",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-methods-small-dark",
+      "text": "旧方法与配置迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 453,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.samples-small-dark",
+      "text": "样号与样品队列",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 431,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-spectra-small-dark",
+      "text": "旧谱数据迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 409,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-results-small-dark",
+      "text": "旧结果迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.spectra-small-dark",
+      "text": "谱图查看",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.devices-small-dark",
+      "text": "设备调试",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-small-dark",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-curves-small-dark",
+      "text": "色散曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-small-dark",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.acquisition-small-dark",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-curves-small-dark",
+      "text": "蒸发曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.hardware-small-dark",
+      "text": "自动转角采集",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 409,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.raw-small-dark",
+      "text": "样品分析",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.recalculate-small-dark",
+      "text": "重新计算",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.reports-small-dark",
+      "text": "打印与导出",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.maintenance-small-dark",
+      "text": "备份与维护",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 387,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.offline-small-dark",
+      "text": "离线帮助",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "dispersion-capture-small-dark",
+      "text": "色散摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-acquisition-capture-small-dark",
+      "text": "蒸发摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "sample-acquisition-capture-small-dark",
+      "text": "样品摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 277,
+      "top": 117.15625,
+      "right": 365,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "workspace.overview-wide-light",
+      "text": "工作台概览",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.settings-wide-light",
+      "text": "软件设置",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.about-wide-light",
+      "text": "关于软件",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.users-wide-light",
+      "text": "用户与权限",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.audit-wide-light",
+      "text": "审计记录",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lifecycle-wide-light",
+      "text": "方法管理与参数",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 506,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.lines-wide-light",
+      "text": "分析谱线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "methods.print-preview-wide-light",
+      "text": "预览与打印",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-methods-wide-light",
+      "text": "旧方法与配置迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 528,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.samples-wide-light",
+      "text": "样号与样品队列",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 506,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-spectra-wide-light",
+      "text": "旧谱数据迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 484,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.legacy-results-wide-light",
+      "text": "旧结果迁移",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.spectra-wide-light",
+      "text": "谱图查看",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "tools.devices-wide-light",
+      "text": "设备调试",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-wide-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.dispersion-curves-wide-light",
+      "text": "色散曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-wide-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.acquisition-wide-light",
+      "text": "建立摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.evaporation-curves-wide-light",
+      "text": "蒸发曲线",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.hardware-wide-light",
+      "text": "自动转角采集",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 484,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "analysis-tests.raw-wide-light",
+      "text": "样品分析",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.recalculate-wide-light",
+      "text": "重新计算",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "data.reports-wide-light",
+      "text": "打印与导出",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "system.maintenance-wide-light",
+      "text": "备份与维护",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 462,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "help.offline-wide-light",
+      "text": "离线帮助",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 352,
+      "top": 117.15625,
+      "right": 440,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "dispersion-capture-wide-light",
+      "text": "色散摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-acquisition-capture-wide-light",
+      "text": "蒸发摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    },
+    {
+      "name": "sample-acquisition-capture-wide-light",
+      "text": "样品摄谱",
+      "font": "22px",
+      "weight": "700",
+      "lineHeight": "29.7px",
+      "icon": [
+        36,
+        36
+      ],
+      "glyph": [
+        24,
+        24
+      ],
+      "left": 669.5,
+      "top": 117.15625,
+      "right": 757.5,
+      "topGap": 18,
+      "dividerPadding": 10,
+      "contentGap": 16,
+      "iconTextGap": 10,
+      "headerHeight": 47,
+      "descriptionCount": 0,
+      "iconDividerGap": 10,
+      "visible": true,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,159 @@
+{
+  "status": "passed",
+  "pages": [
+    {
+      "label": "工作台概览",
+      "page": "workspace",
+      "status": "opened",
+      "visible_text_length": 9815
+    },
+    {
+      "label": "关于软件",
+      "page": "about",
+      "status": "opened",
+      "visible_text_length": 238
+    },
+    {
+      "label": "用户与权限",
+      "page": "users",
+      "status": "opened",
+      "visible_text_length": 621
+    },
+    {
+      "label": "审计记录",
+      "page": "audit",
+      "status": "opened",
+      "visible_text_length": 16634
+    },
+    {
+      "label": "方法管理与参数",
+      "page": "methods",
+      "status": "opened",
+      "visible_text_length": 822
+    },
+    {
+      "label": "分析谱线",
+      "page": "methods",
+      "status": "opened",
+      "visible_text_length": 1231
+    },
+    {
+      "label": "预览与打印",
+      "page": "methods",
+      "status": "opened",
+      "visible_text_length": 3001
+    },
+    {
+      "label": "旧方法与配置迁移",
+      "page": "migration",
+      "status": "opened",
+      "visible_text_length": 489
+    },
+    {
+      "label": "样号与样品队列",
+      "page": "samples",
+      "status": "opened",
+      "visible_text_length": 1076
+    },
+    {
+      "label": "旧谱数据迁移",
+      "page": "spectrum-migration",
+      "status": "opened",
+      "visible_text_length": 446
+    },
+    {
+      "label": "旧结果迁移",
+      "page": "result-migration",
+      "status": "opened",
+      "visible_text_length": 982
+    },
+    {
+      "label": "谱图查看",
+      "page": "spectra",
+      "status": "opened",
+      "visible_text_length": 250
+    },
+    {
+      "label": "设备连接",
+      "page": "acquisition",
+      "status": "opened",
+      "visible_text_length": 463
+    },
+    {
+      "label": "设备调试",
+      "page": "acquisition",
+      "status": "opened",
+      "visible_text_length": 241
+    },
+    {
+      "label": "色散摄谱",
+      "page": "dispersion",
+      "status": "opened",
+      "visible_text_length": 258
+    },
+    {
+      "label": "色散曲线",
+      "page": "dispersion",
+      "status": "opened",
+      "visible_text_length": 696
+    },
+    {
+      "label": "蒸发摄谱",
+      "page": "evaporation-acquisition",
+      "status": "opened",
+      "visible_text_length": 292
+    },
+    {
+      "label": "样品摄谱",
+      "page": "sample-acquisition",
+      "status": "opened",
+      "visible_text_length": 754
+    },
+    {
+      "label": "蒸发曲线",
+      "page": "evaporation-curves",
+      "status": "opened",
+      "visible_text_length": 259
+    },
+    {
+      "label": "样品分析",
+      "page": "analysis",
+      "status": "opened",
+      "visible_text_length": 669
+    },
+    {
+      "label": "重新计算",
+      "page": "postprocessing",
+      "status": "opened",
+      "visible_text_length": 1345
+    },
+    {
+      "label": "导入预备摄谱文件",
+      "page": "prepared-import",
+      "status": "opened",
+      "visible_text_length": 460
+    },
+    {
+      "label": "打印与导出",
+      "page": "reports",
+      "status": "opened",
+      "visible_text_length": 409
+    },
+    {
+      "label": "备份与维护",
+      "page": "maintenance",
+      "status": "opened",
+      "visible_text_length": 327
+    },
+    {
+      "label": "离线帮助",
+      "page": "help",
+      "status": "opened",
+      "visible_text_length": 1630
+    }
+  ],
+  "errors": [],
+  "url": "http://127.0.0.1:64295",
+  "mode": "browser_using_frozen_frontend_and_real_backend",
+  "curve_practice_visible": true
+}

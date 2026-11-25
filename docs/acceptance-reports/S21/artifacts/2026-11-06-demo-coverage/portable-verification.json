@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "schema30_and_18_modules_after_extracting",
+    "current_method_simulator_and_ready_queue",
+    "spectra_analysis_report_and_curve_practice_without_original_paths",
+    "edt_conversion_uses_only_packaged_database",
+    "auditor_can_read_reports_and_cannot_save_methods",
+    "all_three_bundled_simulator_samples_and_no_sample_writes"
+  ],
+  "source_examples_temporarily_unavailable": true,
+  "original_bundle_data_unchanged": true
+}

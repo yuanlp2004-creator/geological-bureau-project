@@ -75,7 +75,7 @@ export async function checkSeparatedSpectroscopy(page, fixture, result, output) 
   check('采后重命名位于右侧，20位名称保存且哈希保持；失败留稿、请求期间禁止重复和换任务，即时结果与异常删除保留')
 
   const curveTask = await call(page, '/api/v1/dispersion/tasks', { name: '独立色散曲线测试', frame_count: 1, dark_frame_count: 0, pre_excitation_seconds: 0,
-    lines: [{ element: 'A', wavelength_nm: 250, ccd_index: 0, actual_position: 100 }, { element: 'B', wavelength_nm: 260, ccd_index: 0, actual_position: 200 }, { element: 'C', wavelength_nm: 270, ccd_index: 0, actual_position: 300 }] })
+    lines: [{ element: 'A', wavelength_nm: 250, ccd_index: 0, actual_position: 100 }, { element: 'B', wavelength_nm: 260, ccd_index: 0, actual_position: 200 }, { element: 'C', wavelength_nm: 270, ccd_index: 0, actual_position: 300 }, { element: 'D', wavelength_nm: 280, ccd_index: 0, actual_position: 400 }] })
   // Refresh once in capture; the same mounted state is retained by the curve entry.
   await go('analysis-tests.dispersion')
   let dispersion = page.getByTestId('dispersion-page')

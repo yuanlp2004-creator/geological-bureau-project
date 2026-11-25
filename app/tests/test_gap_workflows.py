@@ -83,7 +83,7 @@ def test_wdt_manual_calibration_catalogue_and_atomic_audit(tmp_path):
         service.create_task({"source_record_id": source_id})
     task = service.create_task({"source_record_id": source_id, "ccd_layout_id": layout_id})
     assert task["status"] == "completed" and len(service.frames(task["id"])) == 6
-    for wavelength, position in [(260, 1), (270, 3), (280, 5)]:
+    for wavelength, position in [(260, 1), (270, 3), (280, 5), (290, 7)]:
         line = service.add_line(task["id"], {"element": "Fe", "wavelength_nm": wavelength, "ccd_index": 0})
         service.set_line_position(task["id"], line["id"], position)
         service.save_line_position(task["id"], line["id"])

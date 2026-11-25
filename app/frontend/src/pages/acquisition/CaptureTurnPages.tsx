@@ -14,7 +14,7 @@ export function CaptureTurnPages({ pages, current, disabled, choose }: {
   </nav>
 }
 
-type TurnTask = { id: number; name: string; capture_turn?: CaptureTurn; capture_turns?: CaptureTurnPage[] }
+type TurnTask = { id: number; name: string; status: string; active_capture_id?: number; capture_turn?: CaptureTurn; capture_turns?: CaptureTurnPage[] }
 
 export function groupedCaptureTasks<T extends TurnTask>(tasks: T[]): T[] {
   const representatives = new Map<string, T>()
@@ -31,7 +31,11 @@ export function captureAngleName(task: TurnTask) {
 }
 
 export function updateCaptureTask<T extends TurnTask>(tasks: T[], fresh: T): T[] {
-  const updated = tasks.map(task => task.id === fresh.id ? fresh : fresh.capture_turn?.group &&
-    task.capture_turn?.group === fresh.capture_turn.group ? { ...task, capture_turns: fresh.capture_turns } : task)
+  const updated = tasks.map(task => {
+    if (task.id === fresh.id) return fresh
+    if (!fresh.capture_turn?.group || task.capture_turn?.group !== fresh.capture_turn.group) return task
+    const status = fresh.capture_turns?.find(turn => turn.id === task.id)?.status ?? task.status
+    return { ...task, status, active_capture_id: fresh.active_capture_id, capture_turns: fresh.capture_turns }
+  })
   return updated.some(task => task.id === fresh.id) ? updated : [fresh, ...updated]
 }

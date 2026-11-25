@@ -1,0 +1,404 @@
+{
+  "status": "passed",
+  "checks": [
+    "Method default, cancel preserves draft, invalid custom JSON rejected, method ignores unused custom JSON, create never starts",
+    "One start completes every method turn, confirmed bands, visible baseline/peak measurements, shared capture and spectrum icons with working zoom",
+    "Light/dark and normal/small/wide layouts retain three columns, readable controls and no horizontal overflow",
+    "Pause halts automatic requests, return locked while active, resume runs automatically, key band executes before normal short-to-long order",
+    "Peak drift automatically corrects and recollects; diagnostics retain the abnormal attempt and correction",
+    "Baseline abnormality visibly requests intervention; retry continues automatically; damaged frames cannot be accepted; stop retains unconfirmed evidence",
+    "Manual acceptance preserves abnormal readings, exhausted retries stop safely, missing serial protocol sends no device commands",
+    "Failed automatic request stops its timer, reports error, and explicit continue resumes successfully",
+    "Read-only presentation disables create/start while preserving existing task viewing; backend permission enforcement covered by S14 tests"
+  ],
+  "layouts": [
+    {
+      "profile": "normal-light",
+      "desk": {
+        "x": 274,
+        "y": 177,
+        "width": 1123,
+        "height": 740
+      },
+      "plan": {
+        "x": 275,
+        "y": 178,
+        "width": 232,
+        "height": 738
+      },
+      "spectrum": {
+        "x": 507,
+        "y": 178,
+        "width": 651,
+        "height": 738
+      },
+      "controls": {
+        "x": 1158,
+        "y": 178,
+        "width": 238,
+        "height": 738
+      },
+      "iconSizes": [
+        {
+          "x": 519,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 545,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 650.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 676.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 702.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 737.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 763.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 789.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 815.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 850.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 877.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 904.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 931.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 958.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 985.78125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "plot": {
+        "x": 519,
+        "y": 306,
+        "width": 626,
+        "height": 527.40625
+      },
+      "plotContentHeight": 525,
+      "viewBox": 525.40625,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "profile": "small-dark",
+      "desk": {
+        "x": 231,
+        "y": 177,
+        "width": 798,
+        "height": 460
+      },
+      "plan": {
+        "x": 232,
+        "y": 178,
+        "width": 190,
+        "height": 458
+      },
+      "spectrum": {
+        "x": 422,
+        "y": 178,
+        "width": 398,
+        "height": 458
+      },
+      "controls": {
+        "x": 820,
+        "y": 178,
+        "width": 208,
+        "height": 458
+      },
+      "iconSizes": [
+        {
+          "x": 431,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 457,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 562.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 588.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 614.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 649.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 675.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 701.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 727.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 762.78125,
+          "y": 272,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 431,
+          "y": 300,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 458,
+          "y": 300,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 485,
+          "y": 300,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 512,
+          "y": 300,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 539,
+          "y": 300,
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "plot": {
+        "x": 431,
+        "y": 330,
+        "width": 379,
+        "height": 226.40625
+      },
+      "plotContentHeight": 224,
+      "viewBox": 224.40625,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "profile": "wide-light",
+      "desk": {
+        "x": 523.5,
+        "y": 177,
+        "width": 1768,
+        "height": 940
+      },
+      "plan": {
+        "x": 524.5,
+        "y": 178,
+        "width": 232,
+        "height": 938
+      },
+      "spectrum": {
+        "x": 756.5,
+        "y": 178,
+        "width": 1296,
+        "height": 938
+      },
+      "controls": {
+        "x": 2052.5,
+        "y": 178,
+        "width": 238,
+        "height": 938
+      },
+      "iconSizes": [
+        {
+          "x": 768.5,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 794.5,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 900.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 926.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 952.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 987.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1013.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1039.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1065.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1100.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1127.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1154.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1181.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1208.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1235.28125,
+          "y": 275,
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "plot": {
+        "x": 768.5,
+        "y": 306,
+        "width": 1271,
+        "height": 727.40625
+      },
+      "plotContentHeight": 725,
+      "viewBox": 725.40625,
+      "overflow": false,
+      "clipped": false
+    }
+  ],
+  "errors": []
+}

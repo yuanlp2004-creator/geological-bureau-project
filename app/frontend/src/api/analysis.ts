@@ -11,6 +11,7 @@ export const exportLineTimeSeries = async (token: string, runId: number, sample:
   (await requestRaw(`/api/v1/analyses/runs/${runId}/spectra/${sample}/time-series`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ include_mean: includeMean }) })).blob()
 export type AnalysisStatus = 'draft' | 'running' | 'paused' | 'completed' | 'cancelled' | 'failed'
 export type AnalysisSampleNumber = { name: string; repeats: number }
+export type AnalysisSampleFileFormat = 'sam' | 'xlsx'
 export type AnalysisSampleOption = {
   id: number
   sample_name: string
@@ -352,17 +353,17 @@ export type AnalysisRun = {
   updated_at: string
 }
 export const analysisApi = {
-  readAnalysisSampleNumbers: (token: string, bytes: Uint8Array, encoding?: SamEncoding) =>
+  readAnalysisSampleNumbers: (token: string, bytes: Uint8Array, encoding?: SamEncoding, format: AnalysisSampleFileFormat = 'sam') =>
     request<{ entries: AnalysisSampleNumber[] }>('/api/v1/analyses/sample-numbers/read', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ content_base64: btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join('')), encoding }),
+      body: JSON.stringify({ content_base64: btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join('')), encoding, format }),
     }),
-  writeAnalysisSampleNumbers: async (token: string, entries: AnalysisSampleNumber[]) =>
+  writeAnalysisSampleNumbers: async (token: string, entries: AnalysisSampleNumber[], format: AnalysisSampleFileFormat = 'sam') =>
     (await requestRaw('/api/v1/analyses/sample-numbers/write', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ entries }),
+      body: JSON.stringify({ entries, format }),
     })).blob(),
 
   importLegacyAnalysisSources: (token: string, ids: number[], methodVersionId: number) =>

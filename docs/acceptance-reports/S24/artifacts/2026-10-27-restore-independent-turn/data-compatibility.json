@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "schema_version": 24,
+  "existing_business_tables_preserved": 85,
+  "source_database_untouched": true,
+  "compatibility_copy_integrity": "ok",
+  "foreign_key_errors": 0
+}

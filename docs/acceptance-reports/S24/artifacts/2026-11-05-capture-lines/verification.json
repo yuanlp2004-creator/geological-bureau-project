@@ -1,0 +1,213 @@
+{
+  "status": "passed",
+  "date": "2026-11-05",
+  "plan_sha256": "f83931c3d83017389959154d618c5f0aa1f89ecff0759fd637c4793f0747bb34",
+  "plan_sha256_before": "93d3a99ae140a71364ccbcf5237fb6a06fe0d967abe4df9146b20d8be9e42377",
+  "backend_tests": 8,
+  "frontend_tests": 20,
+  "browser": {
+    "checks": [
+      "sample：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "evaporation：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "dispersion：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察"
+    ],
+    "layouts": [
+      {
+        "kind": "sample",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.640625,
+          "height": 620.5
+        }
+      },
+      {
+        "kind": "sample",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 320.5
+        }
+      },
+      {
+        "kind": "evaporation",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.640625,
+          "height": 620.5
+        }
+      },
+      {
+        "kind": "evaporation",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 320.5
+        }
+      },
+      {
+        "kind": "dispersion",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.640625,
+          "height": 645
+        }
+      },
+      {
+        "kind": "dispersion",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 345
+        }
+      }
+    ]
+  },
+  "desktop": {
+    "checks": [
+      "sample：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "evaporation：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "dispersion：无底部谱线按钮；顶部选择跨CCD定位；图内标记鼠标／回车／空格与顶部同步",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察"
+    ],
+    "layouts": [
+      {
+        "kind": "sample",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.6328125,
+          "height": 620.5
+        }
+      },
+      {
+        "kind": "sample",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 320.5
+        }
+      },
+      {
+        "kind": "evaporation",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.6328125,
+          "height": 620.5
+        }
+      },
+      {
+        "kind": "evaporation",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 320.5
+        }
+      },
+      {
+        "kind": "dispersion",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "plot": {
+          "x": 471.171875,
+          "y": 291,
+          "width": 700.6328125,
+          "height": 645
+        }
+      },
+      {
+        "kind": "dispersion",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark",
+        "plot": {
+          "x": 382,
+          "y": 291,
+          "width": 448,
+          "height": 345
+        }
+      }
+    ]
+  },
+  "native_review": {
+    "status": "passed",
+    "selected_line": "2",
+    "selected_markers": 2,
+    "bottom_line_buttons": 0,
+    "native_click_verified": true,
+    "native_focus_border_fixed": true,
+    "retained_for_review": true
+  },
+  "retained_review": {
+    "status": "passed",
+    "task_id": 1,
+    "visible_markers": 8,
+    "bottom_line_buttons": 0,
+    "device_disconnected": true,
+    "mercury_safe": true,
+    "retained_for_review": true
+  },
+  "sources_match_final_packages": true,
+  "files": {
+    "GeoSpectrum.exe": "94dd9da7ee4a9fb32b4b23e0ef6ad7a095fd3d39602abf8495895b2351ba9982",
+    "geospectrum-backend.exe": "6bcdfb5fb1d250c21c18d01073f01da08bdbc67b0f93be6b6cc66561c50beb87"
+  },
+  "schema_version": 26,
+  "production_core_metadata_unchanged": true,
+  "original_files": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "b5562189f43d40247594d6ce53ef4465dc5b8239468f3a90849bd6574cf8e05d",
+      "after_sha256": "29bf9e2cb89912c70a55fa08f1224a5af6595c1a79b4f3d2ba15fd46e2777b04"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "eb0d77acc6c4404836b19e31cec8c19061a0afd79108324d88669a31a70c6b6c",
+      "after_sha256": "6bcdfb5fb1d250c21c18d01073f01da08bdbc67b0f93be6b6cc66561c50beb87"
+    }
+  },
+  "original_user_window_preserved": true,
+  "installation_package_updated": false
+}

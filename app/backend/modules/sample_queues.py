@@ -22,17 +22,19 @@ class SampleQueueError(ValueError):
         return {"code": self.code, "message": self.message, "details": self.details}
 
 
-def normalize_name(value: str, name_length: int = 10) -> tuple[str, bool]:
+def normalize_name(value: str, name_length: int = 10, *, normalize_standards: bool = True) -> tuple[str, bool]:
     if name_length not in {10, 12, 20}:
         raise SampleQueueError("sample_name_length_invalid", "样号长度只能选择 12 位或 20 位")
+    if any(ord(char) < 32 or 127 <= ord(char) <= 159 or char in '\u2028\u2029' for char in value):
+        raise SampleQueueError("sample_name_invalid", "样品名不能包含换行、制表符或其他控制字符")
     value = value.strip()
     if value in {",", ""}:
         return "", False
     upper = value.upper()
-    if upper in OLD_STANDARDS:
+    if normalize_standards and upper in OLD_STANDARDS:
         number = OLD_STANDARDS[upper]
         return f"S{number}", True
-    if any(char in value for char in "\\/:*?<>|\t\r\n"):
+    if any(char in value for char in "\\/:*?<>|"):
         raise SampleQueueError("sample_name_invalid", "样品名包含不允许的字符")
     try:
         length = len(value.encode("gb18030"))
@@ -212,15 +214,19 @@ class SampleQueueService:
         now = utc_now()
         normalized_items = self._validate_items(items, name_length or 10)
         with self.database.write() as db:
-            cur = db.execute(
-                "INSERT INTO sample_queues(name, source_sha256, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-                (name.strip() or "未命名队列", source_sha256, actor, now, now),
-            )
-            queue_id = int(cur.lastrowid)
-            db.execute("INSERT INTO sample_queue_options VALUES (?,?)", (queue_id, name_length or 10))
-            self._replace_items(db, queue_id, normalized_items, now)
-            self._audit(db, actor, "sample_queue.create", queue_id, {"record_count": len(normalized_items)})
+            queue_id = self._insert_queue(db, name, normalized_items, actor, source_sha256, name_length or 10, now)
         return self.get(queue_id)
+
+    def _insert_queue(self, db, name, items, actor, fingerprint, name_length, now):
+        cur = db.execute(
+            "INSERT INTO sample_queues(name, source_sha256, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (name.strip() or "未命名队列", fingerprint, actor, now, now),
+        )
+        queue_id = int(cur.lastrowid)
+        db.execute("INSERT INTO sample_queue_options VALUES (?,?)", (queue_id, name_length))
+        self._replace_items(db, queue_id, items, now)
+        self._audit(db, actor, "sample_queue.create", queue_id, {"record_count": len(items)})
+        return queue_id
 
     @_queue_mutation
     def update(
@@ -494,6 +500,34 @@ class SampleQueueService:
         queue = self.get(queue_id)
         # 旧 SAM 名称槽只有 10 字节，超长新版样号不得写成不兼容文件。
         output = write_sample_numbers([{"name": item["pre_name"], "repeats": item["repeats"]} for item in queue["items"]])
+        return output, hashlib.sha256(output).hexdigest()
+
+    def import_workbook(self, content: bytes, actor: int, queue_name: str, source_name: str,
+                        source_mtime_ms: int | None) -> dict[str, Any]:
+        from .sample_workbook import read_sample_workbook
+
+        records, name_length = read_sample_workbook(content)
+        items = self._validate_items(records, name_length)
+        fingerprint = hashlib.sha256(content).hexdigest()
+        with self.database.write() as db:
+            db.execute("BEGIN IMMEDIATE")
+            existing = db.execute("SELECT id FROM sample_queues WHERE source_sha256=?", (fingerprint,)).fetchone()
+            if existing:
+                queue_id = int(existing[0])
+            else:
+                queue_id = self._insert_queue(db, queue_name, items, actor, fingerprint, name_length, utc_now())
+                self._audit(db, actor, "sample_queue.xlsx_import", queue_id, {
+                    "path": source_name, "sha256": fingerprint, "bytes": len(content), "modified_at_ms": source_mtime_ms,
+                    "parser_version": "xlsx-v1", "records": len(records),
+                })
+        return self.get(queue_id)
+
+    def export_workbook(self, queue_id: int) -> tuple[bytes, str]:
+        from .sample_workbook import write_sample_workbook
+
+        queue = self.get(queue_id)
+        output = write_sample_workbook([{"name": item["pre_name"], "repeats": item["repeats"]} for item in queue["items"]],
+                                       queue["name_length"])
         return output, hashlib.sha256(output).hexdigest()
 
     @staticmethod

@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "date": "2026-11-03",
+  "scope": "Remove standalone Mercury tab; retain alignment and verified legacy serial interface",
+  "plan_sha256_at_validation": "76475110dc7f17d53a06c0dfb35c89e87d7090400b17e8dec1b4b63fa0f0b56d",
+  "backend_core_tests": 43,
+  "frontend_tests": 20,
+  "desktop_checks": 12,
+  "desktop_layouts": 20,
+  "checks": [
+    "One device-debug menu entry contains the three permission-controlled tabs without Mercury",
+    "Software and device parameter drafts survive tab changes",
+    "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+    "Device parameters persist through the existing API and reject duplicate CCD slots",
+    "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+    "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+    "All three tabs fit light/dark themes and both desktop window sizes",
+    "Alignment fills wide windows and follows information-panel expansion without leaving a bottom gap",
+    "A real read-only role can inspect all three tabs without gaining parameter-write or device-execution rights",
+    "Legacy Mercury-only permission no longer exposes an empty device-debug entry",
+    "独立建立真实串口档案，原模拟档案逐字段保持；连接失败不允许开始且不回退模拟"
+  ],
+  "retained_review": {
+    "window_retained": true,
+    "backend_retained": true,
+    "page": "设备调试 / 调试对中",
+    "serial_profile_id": 4,
+    "transport": "serial",
+    "device_connected": false,
+    "physical_hardware_tested": false,
+    "simulator_profiles": 1
+  },
+  "production_files": {
+    "GeoSpectrum.exe": "34bf38f3e8c18b5ca4105c25554351bcae4ac7f9849b9d28bfd697f3986e0259",
+    "geospectrum-backend.exe": "6dfa4d37f3c3edeef60650a03067f8e288cd3bbeb237e3d4be93154b273bee49"
+  },
+  "production_qa_sources_match": true,
+  "production_metadata_unchanged": true,
+  "native_window_verified": true,
+  "physical_instrument_tested": false,
+  "ports_enumerated_only": [
+    {
+      "port": "COM3",
+      "description": "蓝牙链接上的标准串行"
+    },
+    {
+      "port": "COM4",
+      "description": "蓝牙链接上的标准串行"
+    }
+  ],
+  "existing_unrelated_failure": "test_architecture.py::test_frontend_bugfix_accessibility_localization_and_queue_contracts requires obsolete hidden-picker in SettingsPage; known from 2026-11-02 report. Broad run: 52 passed, 1 failed; no change/skip to this assertion.",
+  "preserved": [
+    "Historical mercury sessions, calibration versions and API",
+    "Simulator profile",
+    "Schema 26",
+    "Historical original files"
+  ],
+  "not_closed": [
+    "Physical instrument operation, disconnect and safety acceptance",
+    "Unconfirmed turn and mercury protocols",
+    "Signing, installer and manual acceptance"
+  ]
+}

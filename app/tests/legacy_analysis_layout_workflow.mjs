@@ -35,14 +35,24 @@ export async function checkLegacyAnalysisLayout(page,result,output){
  const names=page.getByRole('dialog',{name:'输入样号',exact:true})
  assert.equal(await names.getByRole('heading',{name:'分析设置',exact:true}).count(),0)
  const input=names.getByRole('textbox',{name:'样号输入',exact:true})
+ const repeats=names.getByRole('textbox',{name:'重复摄谱',exact:true})
  const cell=position=>names.getByRole('button',{name:`样号位置 ${position}`,exact:true})
  async function enterNames(prefix){
   for(let position=1;position<=samples.length;position++){
    await cell(position).click();await input.fill(prefix+position)
-   await names.getByRole('spinbutton',{name:'重复摄谱',exact:true}).fill('1');await input.press('Enter')
+   await repeats.fill('1');await input.press('Enter')
   }
  }
  assert.equal(await names.getByRole('columnheader').count(),11)
+ const firstName=await cell(1).innerText()
+ await cell(1).click();await input.fill('核对编号1')
+ await repeats.fill('');await repeats.press('Enter')
+ assert.equal(await repeats.inputValue(),'')
+ assert.equal(await cell(1).innerText(),firstName)
+ await repeats.press('ArrowUp');assert.equal(await repeats.inputValue(),'1')
+ await repeats.press('ArrowUp');assert.equal(await repeats.inputValue(),'2')
+ await repeats.press('ArrowDown');assert.equal(await repeats.inputValue(),'1')
+ await repeats.press('Enter');assert.equal(await cell(1).innerText(),'核对编号1')
  await enterNames('核对编号')
  const createPattern=/\/api\/v1\/analyses\/runs$/
  const fail=route=>route.request().method()==='POST'?route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({detail:'编号保存冲突'})}):route.continue()

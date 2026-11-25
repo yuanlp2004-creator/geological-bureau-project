@@ -157,10 +157,13 @@
 .sample-number-table tr > :last-child { border-right: 0; }
 .sample-number-table tbody tr:last-child > * { border-bottom: 0; }
 .sample-number-table th { height: 28px; color: var(--muted); background: var(--surface-soft); font-size: 11px; font-weight: 500; text-align: center; }
-.sample-number-table td { height: 28px; }
+.sample-number-table td { position: relative; height: 28px; }
 .sample-number-cell { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 4px; background: var(--surface); color: var(--ink); text-align: left; border-radius: 0; }
 .sample-number-cell:hover { background: var(--surface-soft); }
 .sample-number-cell[aria-pressed="true"] { background: var(--ui-selected); }
+.sample-number-table [data-sample-fill-preview] .sample-number-cell { background: var(--ui-selected); }
+.sample-fill-handle { position: absolute; right: 0; bottom: 0; z-index: 1; width: 10px; height: 10px; padding: 0;
+  border: 1px solid var(--surface); border-radius: 0; background: var(--ui-accent); cursor: crosshair; touch-action: none; }
 .sample-number-cell[data-sample-active="true"] { box-shadow: inset 0 0 0 1px var(--ui-accent); }
 .sample-number-cell:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
 :root .app-shell .sample-queue-page .sample-number-table .sample-number-cell strong { display: block; width: 100%; min-width: 0; font: 12px/13px Consolas, 'Microsoft YaHei UI', monospace; white-space: normal; word-break: break-all; }

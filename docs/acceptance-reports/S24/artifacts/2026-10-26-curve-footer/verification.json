@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "90aaf132b82fc1bbcf34e8137c53d09953b8c667b23af633feb82baa46f5a46a",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/SpectrumInspector.tsx",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx"
+  ],
+  "updated_workflow": "app/tests/legacy_viewing_workflow.mjs",
+  "scope": "Remove two permanent bottom rows from the dispersion curve viewer; reuse their actions in processing settings",
+  "browser": {
+    "checks": 6,
+    "layouts": 3
+  },
+  "desktop": {
+    "checks": 6,
+    "layouts": 3
+  },
+  "gained_height_css_px": {
+    "browser": {
+      "normal-light": 53.046875,
+      "small-dark": 53.046875,
+      "wide-light": 53.046875
+    },
+    "desktop": {
+      "normal-light": 53.046875,
+      "small-dark": 53.046875,
+      "wide-light": 53.046875
+    }
+  },
+  "baseline_footer_height_css_px": {
+    "normal-light": 53.046875,
+    "small-dark": 53.046875,
+    "wide-light": 53.046875
+  },
+  "manual_point_zero_and_real_write_verified": true,
+  "ccd_change_and_unselected_line_guards_verified": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-curve-footer\\qa\\GeoSpectrum.exe",
+    "pid": 19912,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "all_other_product_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "ac6865976d91fdfac1356425362a3cbb0834f8c9041b844183fab0a480abdb13",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\curve-footer-20261026\\before"
+}

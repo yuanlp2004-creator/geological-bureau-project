@@ -1,0 +1,1522 @@
+{
+  "stage": "S24 / front-end refinement 3.5",
+  "date": "2026-11-23",
+  "base_commit": "787744e",
+  "plan_sha256": "a2f5a57a70c8811c01531aaaf02a424c7a3a6eb080c229b9d941355d906b03c3",
+  "status": "passed",
+  "visual_acceptance": "awaiting user review",
+  "build": {
+    "npm.cmd --prefix app/frontend test": {
+      "exit_code": 0,
+      "passed": 22,
+      "failed": 0
+    },
+    "npm.cmd --prefix app/frontend run build": {
+      "exit_code": 0,
+      "warning": "Vite chunk > 500 kB"
+    },
+    "tauri build --ci --no-bundle": {
+      "exit_code": 0
+    },
+    "tauri build --ci --no-bundle --config <isolated review config>": {
+      "exit_code": 0
+    },
+    "previous": "1781d42f965bd643c2db48f8b4d34f61539330464eb8408115890de87f7fe250",
+    "production": "69ac0b59a68c03554784736e802ca7905419303de6f93221b2f52a95db44da90",
+    "review": "da68ff00cb5689d5fd1846f4c6df40a128f237b8f123071904ffeea6b3f761a4",
+    "sidecar": "3649111dbe8290deb3a9e890b2263d151676471fdcd85d29565add188c6d4c2b",
+    "backup": "app/.local/backups/2026-11-23-frontend-refinement-stage3-5/GeoSpectrum.exe",
+    "assets": [
+      "dist/assets/index-CMXNwo78.js",
+      "dist/assets/index-jdVxyG8n.css"
+    ]
+  },
+  "contracts": {
+    "frontend_workspace_rebuild_checks.mjs": {
+      "status": "passed",
+      "checks": [
+        "restored method, messages and side-column layout; original sample-queue and method entries navigate correctly",
+        "1060/1440/1920 viewports using the default light/comfortable appearance have no window overflow",
+        "diagnostics show the factual runtime environment and 1.5-second message refresh"
+      ]
+    },
+    "runtime_messages_workflow.mjs": {
+      "status": "failed",
+      "checks_before_stop": [
+        "Original workbench method/messages and right-hand information cards restored; footer starts folded",
+        "Two legacy categories with detailed/default/brief display and text filtering; no request logging or extra actions",
+        "Pause freezes display and resumes pending messages; clearing one category preserves stored records and the other category",
+        "Actual simulator events reach communication records; actual analysis progress reaches general records",
+        "Real analysis messages change between default/brief/detailed; detailed shows actual task/source/code and category counts follow filtering"
+      ],
+      "baseline_limitation": "The stage 3 navigation suite waits for the former standalone 软件设置 menu item, at line 126. The footer geometry was checked independently in the packaged desktop."
+    },
+    "page_layout_workflow.mjs": {
+      "status": "failed",
+      "layouts_before_stop": [
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "workspace.overview"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "help.about"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "system.users"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "system.audit"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "methods.lifecycle"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "methods.lines"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "methods.print-preview"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "tools.legacy-migration"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "key": "analysis-tests.samples"
+        }
+      ],
+      "baseline_limitation": "The stage 3 suite times out at the visible .section-heading selector, at line 69. The requested screens and responsive geometry were checked independently in the packaged desktop."
+    }
+  },
+  "desktop": {
+    "capture_source": "Windows Tauri 2 review executable, live WebView2 client area, CSS-pixel PNG",
+    "review": {
+      "pid": 34588,
+      "errors": [],
+      "checks": {
+        "workspace": {
+          "schema": 32,
+          "moduleCount": 18,
+          "observations": [
+            {
+              "viewport": [
+                1440,
+                900
+              ],
+              "theme": "light",
+              "grid": {
+                "x": 244,
+                "y": 163,
+                "width": 1153,
+                "height": 742.671875
+              },
+              "gap": "20px",
+              "topBorder": "3px",
+              "columns": [
+                {
+                  "name": "primary-column",
+                  "x": 244,
+                  "y": 163,
+                  "width": 775.5703125,
+                  "height": 742.671875,
+                  "cards": [
+                    {
+                      "name": "surface status-surface",
+                      "x": 244,
+                      "y": 163,
+                      "width": 775.5703125,
+                      "height": 294.671875
+                    },
+                    {
+                      "name": "surface message-surface",
+                      "x": 244,
+                      "y": 473.671875,
+                      "width": 775.5703125,
+                      "height": 432
+                    }
+                  ]
+                },
+                {
+                  "name": "secondary-column",
+                  "x": 1039.5703125,
+                  "y": 163,
+                  "width": 357.4296875,
+                  "height": 614.984375,
+                  "cards": [
+                    {
+                      "name": "surface quick-surface",
+                      "x": 1039.5703125,
+                      "y": 163,
+                      "width": 357.4296875,
+                      "height": 354.796875
+                    },
+                    {
+                      "name": "workspace-diagnostics",
+                      "x": 1039.5703125,
+                      "y": 533.796875,
+                      "width": 357.4296875,
+                      "height": 67.390625
+                    },
+                    {
+                      "name": "surface protocol-surface",
+                      "x": 1039.5703125,
+                      "y": 617.1875,
+                      "width": 357.4296875,
+                      "height": 160.796875
+                    }
+                  ]
+                }
+              ],
+              "readiness": [
+                {
+                  "x": 265,
+                  "y": 253.59375,
+                  "width": 361.78125,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 636.78125,
+                  "y": 253.59375,
+                  "width": 361.7890625,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 265,
+                  "y": 329.3359375,
+                  "width": 361.78125,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 636.78125,
+                  "y": 329.3359375,
+                  "width": 361.7890625,
+                  "height": 65.7421875
+                }
+              ],
+              "metrics": [
+                {
+                  "x": 1039.5703125,
+                  "y": 533.796875,
+                  "width": 174.7109375,
+                  "height": 67.390625
+                },
+                {
+                  "x": 1222.28125,
+                  "y": 533.796875,
+                  "width": 174.71875,
+                  "height": 67.390625
+                }
+              ],
+              "protocol": 3,
+              "shortcuts": [
+                {
+                  "x": 1060.5703125,
+                  "y": 208.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "方法管理"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 258.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "预录样号"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 308.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "样品摄谱"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 358.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "样品分析"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 408.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "谱图查看"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 458.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "分析报告"
+                }
+              ],
+              "messages": {
+                "rows": 458,
+                "height": 320,
+                "scrollHeight": 20152,
+                "overflow": "auto",
+                "time": "13:20:41",
+                "font": "Consolas, monospace"
+              },
+              "overflow": 0,
+              "gutter": "stable",
+              "footerCardDriftPx": 0,
+              "footerKeyboardResizePx": 16
+            },
+            {
+              "viewport": [
+                1440,
+                900
+              ],
+              "theme": "dark",
+              "grid": {
+                "x": 244,
+                "y": 163,
+                "width": 1153,
+                "height": 742.671875
+              },
+              "gap": "20px",
+              "topBorder": "3px",
+              "columns": [
+                {
+                  "name": "primary-column",
+                  "x": 244,
+                  "y": 163,
+                  "width": 775.5703125,
+                  "height": 742.671875,
+                  "cards": [
+                    {
+                      "name": "surface status-surface",
+                      "x": 244,
+                      "y": 163,
+                      "width": 775.5703125,
+                      "height": 294.671875
+                    },
+                    {
+                      "name": "surface message-surface",
+                      "x": 244,
+                      "y": 473.671875,
+                      "width": 775.5703125,
+                      "height": 432
+                    }
+                  ]
+                },
+                {
+                  "name": "secondary-column",
+                  "x": 1039.5703125,
+                  "y": 163,
+                  "width": 357.4296875,
+                  "height": 614.984375,
+                  "cards": [
+                    {
+                      "name": "surface quick-surface",
+                      "x": 1039.5703125,
+                      "y": 163,
+                      "width": 357.4296875,
+                      "height": 354.796875
+                    },
+                    {
+                      "name": "workspace-diagnostics",
+                      "x": 1039.5703125,
+                      "y": 533.796875,
+                      "width": 357.4296875,
+                      "height": 67.390625
+                    },
+                    {
+                      "name": "surface protocol-surface",
+                      "x": 1039.5703125,
+                      "y": 617.1875,
+                      "width": 357.4296875,
+                      "height": 160.796875
+                    }
+                  ]
+                }
+              ],
+              "readiness": [
+                {
+                  "x": 265,
+                  "y": 253.59375,
+                  "width": 361.78125,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 636.78125,
+                  "y": 253.59375,
+                  "width": 361.7890625,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 265,
+                  "y": 329.3359375,
+                  "width": 361.78125,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 636.78125,
+                  "y": 329.3359375,
+                  "width": 361.7890625,
+                  "height": 65.7421875
+                }
+              ],
+              "metrics": [
+                {
+                  "x": 1039.5703125,
+                  "y": 533.796875,
+                  "width": 174.7109375,
+                  "height": 67.390625
+                },
+                {
+                  "x": 1222.28125,
+                  "y": 533.796875,
+                  "width": 174.71875,
+                  "height": 67.390625
+                }
+              ],
+              "protocol": 3,
+              "shortcuts": [
+                {
+                  "x": 1060.5703125,
+                  "y": 208.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "方法管理"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 258.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "预录样号"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 308.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "样品摄谱"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 358.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "样品分析"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 408.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "谱图查看"
+                },
+                {
+                  "x": 1060.5703125,
+                  "y": 458.796875,
+                  "width": 315.4296875,
+                  "height": 46,
+                  "label": "分析报告"
+                }
+              ],
+              "messages": {
+                "rows": 458,
+                "height": 320,
+                "scrollHeight": 20152,
+                "overflow": "auto",
+                "time": "13:20:41",
+                "font": "Consolas, monospace"
+              },
+              "overflow": 0,
+              "gutter": "stable",
+              "footerCardDriftPx": 0,
+              "footerKeyboardResizePx": 16
+            },
+            {
+              "viewport": [
+                1060,
+                680
+              ],
+              "theme": "dark",
+              "grid": {
+                "x": 232,
+                "y": 163,
+                "width": 797,
+                "height": 1293.65625
+              },
+              "gap": "20px",
+              "topBorder": "3px",
+              "columns": [
+                {
+                  "name": "primary-column",
+                  "x": 232,
+                  "y": 163,
+                  "width": 797,
+                  "height": 658.671875,
+                  "cards": [
+                    {
+                      "name": "surface status-surface",
+                      "x": 232,
+                      "y": 163,
+                      "width": 797,
+                      "height": 294.671875
+                    },
+                    {
+                      "name": "surface message-surface",
+                      "x": 232,
+                      "y": 473.671875,
+                      "width": 797,
+                      "height": 348
+                    }
+                  ]
+                },
+                {
+                  "name": "secondary-column",
+                  "x": 232,
+                  "y": 841.671875,
+                  "width": 797,
+                  "height": 614.984375,
+                  "cards": [
+                    {
+                      "name": "surface quick-surface",
+                      "x": 232,
+                      "y": 841.671875,
+                      "width": 797,
+                      "height": 354.796875
+                    },
+                    {
+                      "name": "workspace-diagnostics",
+                      "x": 232,
+                      "y": 1212.46875,
+                      "width": 797,
+                      "height": 67.390625
+                    },
+                    {
+                      "name": "surface protocol-surface",
+                      "x": 232,
+                      "y": 1295.859375,
+                      "width": 797,
+                      "height": 160.796875
+                    }
+                  ]
+                }
+              ],
+              "readiness": [
+                {
+                  "x": 249,
+                  "y": 253.59375,
+                  "width": 376.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 635.5,
+                  "y": 253.59375,
+                  "width": 376.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 249,
+                  "y": 329.3359375,
+                  "width": 376.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 635.5,
+                  "y": 329.3359375,
+                  "width": 376.5,
+                  "height": 65.7421875
+                }
+              ],
+              "metrics": [
+                {
+                  "x": 232,
+                  "y": 1212.46875,
+                  "width": 394.5,
+                  "height": 67.390625
+                },
+                {
+                  "x": 634.5,
+                  "y": 1212.46875,
+                  "width": 394.5,
+                  "height": 67.390625
+                }
+              ],
+              "protocol": 3,
+              "shortcuts": [
+                {
+                  "x": 249,
+                  "y": 887.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "方法管理"
+                },
+                {
+                  "x": 249,
+                  "y": 937.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "预录样号"
+                },
+                {
+                  "x": 249,
+                  "y": 987.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "样品摄谱"
+                },
+                {
+                  "x": 249,
+                  "y": 1037.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "样品分析"
+                },
+                {
+                  "x": 249,
+                  "y": 1087.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "谱图查看"
+                },
+                {
+                  "x": 249,
+                  "y": 1137.46875,
+                  "width": 763,
+                  "height": 46,
+                  "label": "分析报告"
+                }
+              ],
+              "messages": {
+                "rows": 458,
+                "height": 240,
+                "scrollHeight": 17493,
+                "overflow": "auto",
+                "time": "13:20:41",
+                "font": "Consolas, monospace"
+              },
+              "overflow": 0,
+              "gutter": "stable",
+              "footerCardDriftPx": 0,
+              "footerKeyboardResizePx": 16
+            },
+            {
+              "viewport": [
+                1119,
+                900
+              ],
+              "theme": "light",
+              "grid": {
+                "x": 232,
+                "y": 163,
+                "width": 856,
+                "height": 1377.65625
+              },
+              "gap": "20px",
+              "topBorder": "3px",
+              "columns": [
+                {
+                  "name": "primary-column",
+                  "x": 232,
+                  "y": 163,
+                  "width": 856,
+                  "height": 742.671875,
+                  "cards": [
+                    {
+                      "name": "surface status-surface",
+                      "x": 232,
+                      "y": 163,
+                      "width": 856,
+                      "height": 294.671875
+                    },
+                    {
+                      "name": "surface message-surface",
+                      "x": 232,
+                      "y": 473.671875,
+                      "width": 856,
+                      "height": 432
+                    }
+                  ]
+                },
+                {
+                  "name": "secondary-column",
+                  "x": 232,
+                  "y": 925.671875,
+                  "width": 856,
+                  "height": 614.984375,
+                  "cards": [
+                    {
+                      "name": "surface quick-surface",
+                      "x": 232,
+                      "y": 925.671875,
+                      "width": 856,
+                      "height": 354.796875
+                    },
+                    {
+                      "name": "workspace-diagnostics",
+                      "x": 232,
+                      "y": 1296.46875,
+                      "width": 856,
+                      "height": 67.390625
+                    },
+                    {
+                      "name": "surface protocol-surface",
+                      "x": 232,
+                      "y": 1379.859375,
+                      "width": 856,
+                      "height": 160.796875
+                    }
+                  ]
+                }
+              ],
+              "readiness": [
+                {
+                  "x": 253,
+                  "y": 253.59375,
+                  "width": 402,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 665,
+                  "y": 253.59375,
+                  "width": 402,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 253,
+                  "y": 329.3359375,
+                  "width": 402,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 665,
+                  "y": 329.3359375,
+                  "width": 402,
+                  "height": 65.7421875
+                }
+              ],
+              "metrics": [
+                {
+                  "x": 232,
+                  "y": 1296.46875,
+                  "width": 424,
+                  "height": 67.390625
+                },
+                {
+                  "x": 664,
+                  "y": 1296.46875,
+                  "width": 424,
+                  "height": 67.390625
+                }
+              ],
+              "protocol": 3,
+              "shortcuts": [
+                {
+                  "x": 253,
+                  "y": 971.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "方法管理"
+                },
+                {
+                  "x": 253,
+                  "y": 1021.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "预录样号"
+                },
+                {
+                  "x": 253,
+                  "y": 1071.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "样品摄谱"
+                },
+                {
+                  "x": 253,
+                  "y": 1121.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "样品分析"
+                },
+                {
+                  "x": 253,
+                  "y": 1171.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "谱图查看"
+                },
+                {
+                  "x": 253,
+                  "y": 1221.46875,
+                  "width": 814,
+                  "height": 46,
+                  "label": "分析报告"
+                }
+              ],
+              "messages": {
+                "rows": 458,
+                "height": 320,
+                "scrollHeight": 20152,
+                "overflow": "auto",
+                "time": "13:20:41",
+                "font": "Consolas, monospace"
+              },
+              "overflow": 0,
+              "gutter": "stable",
+              "footerCardDriftPx": 0,
+              "footerKeyboardResizePx": 16
+            },
+            {
+              "viewport": [
+                1120,
+                900
+              ],
+              "theme": "light",
+              "grid": {
+                "x": 232,
+                "y": 163,
+                "width": 857,
+                "height": 742.671875
+              },
+              "gap": "20px",
+              "topBorder": "3px",
+              "columns": [
+                {
+                  "name": "primary-column",
+                  "x": 232,
+                  "y": 163,
+                  "width": 527,
+                  "height": 742.671875,
+                  "cards": [
+                    {
+                      "name": "surface status-surface",
+                      "x": 232,
+                      "y": 163,
+                      "width": 527,
+                      "height": 294.671875
+                    },
+                    {
+                      "name": "surface message-surface",
+                      "x": 232,
+                      "y": 473.671875,
+                      "width": 527,
+                      "height": 432
+                    }
+                  ]
+                },
+                {
+                  "name": "secondary-column",
+                  "x": 779,
+                  "y": 163,
+                  "width": 310,
+                  "height": 614.984375,
+                  "cards": [
+                    {
+                      "name": "surface quick-surface",
+                      "x": 779,
+                      "y": 163,
+                      "width": 310,
+                      "height": 354.796875
+                    },
+                    {
+                      "name": "workspace-diagnostics",
+                      "x": 779,
+                      "y": 533.796875,
+                      "width": 310,
+                      "height": 67.390625
+                    },
+                    {
+                      "name": "surface protocol-surface",
+                      "x": 779,
+                      "y": 617.1875,
+                      "width": 310,
+                      "height": 160.796875
+                    }
+                  ]
+                }
+              ],
+              "readiness": [
+                {
+                  "x": 253,
+                  "y": 253.59375,
+                  "width": 237.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 500.5,
+                  "y": 253.59375,
+                  "width": 237.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 253,
+                  "y": 329.3359375,
+                  "width": 237.5,
+                  "height": 65.7421875
+                },
+                {
+                  "x": 500.5,
+                  "y": 329.3359375,
+                  "width": 237.5,
+                  "height": 65.7421875
+                }
+              ],
+              "metrics": [
+                {
+                  "x": 779,
+                  "y": 533.796875,
+                  "width": 151,
+                  "height": 67.390625
+                },
+                {
+                  "x": 938,
+                  "y": 533.796875,
+                  "width": 151,
+                  "height": 67.390625
+                }
+              ],
+              "protocol": 3,
+              "shortcuts": [
+                {
+                  "x": 800,
+                  "y": 208.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "方法管理"
+                },
+                {
+                  "x": 800,
+                  "y": 258.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "预录样号"
+                },
+                {
+                  "x": 800,
+                  "y": 308.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "样品摄谱"
+                },
+                {
+                  "x": 800,
+                  "y": 358.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "样品分析"
+                },
+                {
+                  "x": 800,
+                  "y": 408.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "谱图查看"
+                },
+                {
+                  "x": 800,
+                  "y": 458.796875,
+                  "width": 268,
+                  "height": 46,
+                  "label": "分析报告"
+                }
+              ],
+              "messages": {
+                "rows": 458,
+                "height": 320,
+                "scrollHeight": 20152,
+                "overflow": "auto",
+                "time": "13:20:41",
+                "font": "Consolas, monospace"
+              },
+              "overflow": 0,
+              "gutter": "stable",
+              "footerCardDriftPx": 0,
+              "footerKeyboardResizePx": 16
+            }
+          ]
+        },
+        "workspaceStates": {
+          "offlineAndRecovery": true,
+          "limitedNames": [
+            "方法管理",
+            "样品摄谱",
+            "样品分析"
+          ],
+          "tracks": "320.078px"
+        },
+        "migration": [
+          {
+            "viewport": [
+              1440,
+              900
+            ],
+            "tab": "方法与配置",
+            "source": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 265,
+              "right": 1303
+            },
+            "blocks": [
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              }
+            ],
+            "paths": [
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              }
+            ],
+            "actions": [
+              {
+                "left": 1161,
+                "right": 1303,
+                "width": 142
+              }
+            ]
+          },
+          {
+            "viewport": [
+              1440,
+              900
+            ],
+            "tab": "谱图数据",
+            "source": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 265,
+              "right": 1303
+            },
+            "blocks": [
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              }
+            ],
+            "paths": [
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              }
+            ],
+            "actions": [
+              {
+                "left": 1161,
+                "right": 1303,
+                "width": 142
+              }
+            ]
+          },
+          {
+            "viewport": [
+              1440,
+              900
+            ],
+            "tab": "分析结果",
+            "source": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 244,
+              "right": 1324,
+              "width": 1080
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 265,
+              "right": 1303
+            },
+            "blocks": [
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              },
+              {
+                "left": 265,
+                "right": 1303,
+                "width": 1038
+              }
+            ],
+            "paths": [
+              {
+                "left": 265,
+                "right": 1188,
+                "width": 923
+              }
+            ],
+            "actions": [
+              {
+                "left": 1200,
+                "right": 1303,
+                "width": 103
+              }
+            ]
+          },
+          {
+            "viewport": [
+              1060,
+              680
+            ],
+            "tab": "方法与配置",
+            "source": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 253,
+              "right": 1008
+            },
+            "blocks": [
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              }
+            ],
+            "paths": [
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              }
+            ],
+            "actions": [
+              {
+                "left": 866,
+                "right": 1008,
+                "width": 142
+              }
+            ]
+          },
+          {
+            "viewport": [
+              1060,
+              680
+            ],
+            "tab": "谱图数据",
+            "source": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 253,
+              "right": 1008
+            },
+            "blocks": [
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              }
+            ],
+            "paths": [
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              }
+            ],
+            "actions": [
+              {
+                "left": 866,
+                "right": 1008,
+                "width": 142
+              }
+            ]
+          },
+          {
+            "viewport": [
+              1060,
+              680
+            ],
+            "tab": "分析结果",
+            "source": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "maximum": "1080px",
+            "history": {
+              "left": 232,
+              "right": 1029,
+              "width": 797
+            },
+            "historyMaximum": "1080px",
+            "inner": {
+              "left": 253,
+              "right": 1008
+            },
+            "blocks": [
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              },
+              {
+                "left": 253,
+                "right": 1008,
+                "width": 755
+              }
+            ],
+            "paths": [
+              {
+                "left": 253,
+                "right": 893,
+                "width": 640
+              }
+            ],
+            "actions": [
+              {
+                "left": 905,
+                "right": 1008,
+                "width": 103
+              }
+            ]
+          }
+        ],
+        "capture": [
+          {
+            "viewport": [
+              1440,
+              900
+            ],
+            "bottomGap": 13,
+            "height": 262.546875,
+            "clientHeight": 261,
+            "scrollHeight": 241,
+            "bottom": 662.2890625,
+            "commands": [
+              {
+                "text": "试样摄谱",
+                "height": 34
+              },
+              {
+                "text": "仅摄本转角",
+                "height": 34
+              },
+              {
+                "text": "预热摄谱",
+                "height": 34
+              },
+              {
+                "text": "停止摄谱",
+                "height": 34
+              },
+              {
+                "text": "结束",
+                "height": 34
+              }
+            ],
+            "flexGrow": "0",
+            "autoRows": "auto",
+            "gap": "8px"
+          },
+          {
+            "viewport": [
+              1060,
+              680
+            ],
+            "bottomGap": 57.2578125,
+            "height": 243.2578125,
+            "clientHeight": 241,
+            "scrollHeight": 226,
+            "bottom": 574.7421875,
+            "commands": [
+              {
+                "text": "试样摄谱",
+                "height": 28
+              },
+              {
+                "text": "仅摄本转角",
+                "height": 28
+              },
+              {
+                "text": "预热摄谱",
+                "height": 28
+              },
+              {
+                "text": "停止摄谱",
+                "height": 28
+              },
+              {
+                "text": "结束",
+                "height": 28
+              }
+            ],
+            "flexGrow": "1",
+            "autoRows": "auto",
+            "gap": "3px"
+          }
+        ],
+        "alignment": [
+          {
+            "palette": "light",
+            "channel": 2,
+            "label": "CCD2",
+            "pressed": "true",
+            "weight": "700",
+            "color": "rgb(36, 95, 147)",
+            "buttonColor": "rgb(36, 95, 147)",
+            "shadow": "rgb(36, 95, 147) 3px 0px 0px 0px inset",
+            "plotColor": "rgb(36, 95, 147)",
+            "plotWidth": "1.5px",
+            "plotStyle": "solid",
+            "expected": "rgb(36, 95, 147)",
+            "visibleCurves": 3,
+            "inactive": [
+              "none",
+              "none"
+            ]
+          },
+          {
+            "palette": "dark",
+            "channel": 1,
+            "label": "CCD1",
+            "pressed": "true",
+            "weight": "700",
+            "color": "rgb(131, 190, 255)",
+            "buttonColor": "rgb(131, 190, 255)",
+            "shadow": "rgb(131, 190, 255) 3px 0px 0px 0px inset",
+            "plotColor": "rgb(131, 190, 255)",
+            "plotWidth": "1.5px",
+            "plotStyle": "solid",
+            "expected": "rgb(131, 190, 255)",
+            "visibleCurves": 3,
+            "inactive": [
+              "none",
+              "none"
+            ]
+          }
+        ],
+        "alignmentCleanup": {
+          "stoppedAndDisconnected": true
+        },
+        "retained": {
+          "viewport": [
+            1440,
+            900
+          ],
+          "heading": "工作台概览",
+          "health": {
+            "status": "ok",
+            "app": "GeoSpectrum",
+            "version": "0.1.0",
+            "schema_version": 32,
+            "database": "ok",
+            "uptime_seconds": 35.328
+          }
+        }
+      },
+      "status": "passed"
+    },
+    "interactive_window": {
+      "title": "GeoSpectrum - 阶段 3.5 隔离审阅",
+      "native_frame": [
+        1442,
+        930
+      ],
+      "last_screen": "工作台概览",
+      "footer": "collapsed",
+      "native_expand_and_fold_confirmed": true
+    },
+    "production_smoke_in_isolated_data_dir": {
+      "pid": 38340,
+      "errors": [],
+      "checks": {
+        "rootSmoke": {
+          "schema": 32,
+          "heading": "工作台概览"
+        }
+      },
+      "status": "passed"
+    }
+  },
+  "images": {
+    "workspace-1440-light.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "300a35a07ef9ada53598f5a0b4217979246a5b552b4a2d64ed91badc23e82956"
+    },
+    "workspace-1440-dark.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "4234db504f0c1e4760aea0f559c50ffecf0f082daf2741c0aa14c2c39cf343df"
+    },
+    "migration-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "0b03515fe17dc004a9c90eec1610ed26eaf9980e201b10b87b8d601c2f2ef950"
+    },
+    "capture-right-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "160a6b5762cdcbdfbf62baa405acf2e4d17b2ae0f074ab413e97fead052bbe41"
+    },
+    "alignment-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "adc83aeb50f66030f228369e2793893cfad0cb7315c119dbe8ee86f70361f8bb"
+    },
+    "capture-turns-1060.png": {
+      "width": 1060,
+      "height": 680,
+      "sha256": "27417109c5403430dd7c079605e4db91edc58a6d058b554aee79daff5974f7b3"
+    }
+  },
+  "test_conditions": [
+    "Dark and compact visuals used the existing theme and density render attributes in the isolated WebView2. Persistent product appearance settings were not edited.",
+    "Device alignment used the isolated simulator with all three CCD curves, then stopped and disconnected. Acquisition layout used existing simulated two-angle data.",
+    "Migration checked all three tab layouts. The reader was reported unavailable by the isolated environment and no import was run.",
+    "The existing stage 3 instance remained open. New launches load the stage 3.5 program after the previous production instance exits."
+  ]
+}

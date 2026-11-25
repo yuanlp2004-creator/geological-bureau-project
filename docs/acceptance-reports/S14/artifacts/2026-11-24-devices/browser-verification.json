@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "色散摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+    "蒸发摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+    "样品摄谱一次启动双角，整次重复及逐角谱带均完成",
+    "切换 CCD 档案清空旧电机端口、标定与转角",
+    "汞谱双峰点位比较、操作者确认目标、导出定位记录及转交指定 CCD 档案",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

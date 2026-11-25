@@ -60,7 +60,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   }, [canExecute])
   const [busy, setBusy] = useState(false)
   const pageRef = useRef<HTMLDivElement>(null)
-  const runningTask = tasks.find((task) => !['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(task.status))
+  const runningTask = tasks.find(task => task.active_capture_id === task.id)
+    ?? tasks.find(task => !['draft', 'between_repeats', 'completed', 'failed', 'stopped'].includes(task.status))
   const embedded = useSpectroscopySession(isSample ? 'sample-acquisition' : 'evaporation-acquisition',
     runningTask ? `${title}任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
       : busy || loading || sampleEditorBusy ? `${title}操作尚未完成，请稍后切换摄谱方式。` : null)
@@ -215,11 +216,12 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
   }
 
   useEffect(() => {
+    const remote = selected?.active_capture_id !== undefined || selected?.profile.transport === 'serial'
+    const activeStatus = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark'].includes(selected.status))
     if (
-      !auto ||
       !canExecute ||
       !selected ||
-      !['countdown', 'pre_excitation', 'burn', 'dark'].includes(selected.status)
+      !(selected.active_capture_id !== undefined || activeStatus && (auto || remote))
     )
       return
     const generation = selectionGeneration.current
@@ -230,15 +232,16 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       () => {
         if (
           cancelled ||
-          autoTask.current !== selected.id ||
+          !remote && autoTask.current !== selected.id ||
           generation !== selectionGeneration.current ||
           busyRef.current ||
           controlPending.current
         )
           return
         busyRef.current = true
-        const request = api
-          .stepAcquisitionTask(token, selected.id)
+        const request = (remote ? api.acquisitionTask(token, selected.id, true).then(fresh =>
+          fresh.active_capture_id !== undefined && fresh.active_capture_id !== fresh.id
+            ? api.acquisitionTask(token, fresh.active_capture_id, true) : fresh) : api.stepAcquisitionTask(token, selected.id))
           .then((next) => {
             if (cancelled || generation !== selectionGeneration.current) return
             setSelected(next)
@@ -261,7 +264,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
 
         pendingStep.current = request
       },
-      Math.max(250, selected.sampling_period_seconds * 1000)
+      remote ? 250 : Math.max(250, selected.sampling_period_seconds * 1000)
     )
 
     return () => {
@@ -324,7 +327,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       const payload = Object.fromEntries((['device_profile_id', 'ccd_layout_id', 'ccd_indices', 'method_id', 'method_version',
         'burn_frame_count', 'dark_frame_count', 'countdown_seconds', 'pre_excitation_seconds',
         'sampling_period_seconds', 'burn_cycle_seconds', 'dark_cycle_seconds', 'storage_mode'] as const).map(key => [key, inputTask[key]]))
-      await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition')
+      if (!inputTask.position_controlled)
+        await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition')
       const next = await api.createAcquisitionTask(token, { ...payload, task_kind: 'sample',
         name: inputTask.name, queue_id: inputQueue.id, queue_item_id: item.id,
         sample_name: item.post_name ?? item.pre_name, name_length: inputQueue.name_length,
@@ -371,7 +375,9 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
 
       const target = action === 'start' || action === 'preheat' ? formalTask : selected
       if (!target) return onToast('请先选择正式摄谱任务')
-      const next = await methods[action](token, target.id, turnIndex, singleTurn)
+      const continuous = !singleTurn && Boolean(target.turns?.multiple || target.capture_turn?.multiple)
+      const next = action === 'start' ? await api.startAcquisitionTask(token, target.id, turnIndex, singleTurn, continuous)
+        : await methods[action](token, target.id, turnIndex)
 
       if (generation !== selectionGeneration.current) return
       setSelected(next)
@@ -499,7 +505,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             void (async () => {
               try {
                 if (['draft','between_repeats'].includes(task.status))
-                  await ensureCaptureConnection(token, task.device_profile_id, task.profile.transport, 'acquisition')
+                  if (!task.position_controlled)
+                    await ensureCaptureConnection(token, task.device_profile_id, task.profile.transport, 'acquisition')
                 setSelected(task); setScreen('capture')
               } catch (error) { onToast(error instanceof Error ? error.message : '仪器连接检查失败') }
               finally { setBusy(false) }

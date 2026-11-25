@@ -33,7 +33,7 @@ type PanelProps = {
   active: DispersionTask | null
   formalTask?: DispersionTask | null
   onShowFormalTask: () => void
-  start: () => Promise<void>
+  start: (singleTurn?: boolean) => Promise<void>
   preheat: () => Promise<void>
   canStart: boolean
   canPreheat: boolean
@@ -146,15 +146,17 @@ export function DispersionMonitor({
       viewLabel={completedView ? isPreheat ? '预热谱图 · 仅观察' : active?.status === 'completed'
         ? `已保存谱带 · ${displayName ?? active.name}` : '停止谱图 · 燃烧均值' : '实时谱图'}
       name={formalName} status={active?.status}
-      statusLabel={active ? statusLabels[active.status] : undefined}
+      statusLabel={active?.positioning ? '正在定位转角' : active ? statusLabels[active.status] : undefined}
       start={{ run: start, enabled: enabled && canStart, disabledReason: formalEnded ? '正式任务已结束，请新建任务后再摄谱' : undefined }}
+      singleTurn={formal?.capture_turn?.multiple ? { run: () => start(true), enabled: enabled && canStart } : undefined}
       preheat={{ run: preheat, enabled: enabled && canPreheat }}
       pause={{ run: pause, enabled: Boolean(active && canExecute && running && active.profile.transport !== 'serial'), disabledReason: active?.profile.transport === 'serial' ? '旧设备协议未提供暂停命令，请使用停止' : undefined }}
       resume={{ run: resume, enabled: enabled && active?.status === 'paused' }}
-      stop={{ run: stop, enabled: Boolean(active && canExecute && (running || active.status === 'paused' || active.status === 'stopping')) }}
+      stop={{ run: stop, enabled: Boolean(active && canExecute
+        && (active.active_capture_id !== undefined || running || active.status === 'paused' || active.status === 'stopping')) }}
       progress={active ? [
         { label: '总进度', value: `${total ? (captured / total * 100).toFixed(1) : '0.0'}%`, current: captured, maximum: total },
-        { label: '当前阶段', value: statusLabels[active.status] },
+        { label: '当前阶段', value: active.positioning ? '正在定位转角' : statusLabels[active.status] },
         { label: '燃烧帧 / 暗帧', value: `${active.burn_frames_captured}/${active.frame_count} · ${active.dark_frames_captured}/${active.dark_frame_count}` }
       ] : []}
       ccd={selectedCcd} ccdIndices={active?.ccd_indices ?? []} onCcdChange={setSelectedCcd} hash={active?.last_event?.details.sha256}

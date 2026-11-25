@@ -1,0 +1,174 @@
+{
+  "created_date": "2026-11-06",
+  "status": "passed",
+  "bundle": "D:\\地质局\\app\\.local\\releases\\GeoSpectrum_全流程演示_20261106",
+  "archive": "D:\\地质局\\app\\.local\\releases\\GeoSpectrum_全流程演示_20261106.zip",
+  "file_count": 15,
+  "bytes": 245428277,
+  "archive_bytes": 180745735,
+  "archive_sha256": "568031322960e7b6ca3d344128ac62e924157e36d8ee6653b2d6eb822cf70f14",
+  "database_bytes": 1839104,
+  "schema_version": 29,
+  "counts": {
+    "methods": 1,
+    "method_versions": 8,
+    "sample_queues": 2,
+    "sample_queue_items": 10,
+    "acquisition_tasks": 8,
+    "acquisition_samples": 13,
+    "analysis_runs": 1,
+    "analysis_curve_snapshots": 3,
+    "reports": 1
+  },
+  "files": [
+    {
+      "path": "data/geospectrum.sqlite3",
+      "bytes": 1839104,
+      "sha256": "96b930fafddfdbd8d8ca29ed3f1d9e1f7a961654d90a0bc1315713052a009598"
+    },
+    {
+      "path": "geospectrum-backend.exe",
+      "bytes": 56384883,
+      "sha256": "6ab420c31e28fb296233e27aafc41fda9c5bf7aaf65932d8733a77076ada9d34"
+    },
+    {
+      "path": "GeoSpectrum.exe",
+      "bytes": 15543808,
+      "sha256": "5c9f56616c58f5c6ba2868c150f1a057ecd05c760b1cfe2bc0cabb26de4d38d2"
+    },
+    {
+      "path": "启动演示.cmd",
+      "bytes": 495,
+      "sha256": "7ec3e34a82b916ec3d43b6fba4690f5caff8ffca48d5ca65f33bead01fc5534b"
+    },
+    {
+      "path": "演示说明.txt",
+      "bytes": 3375,
+      "sha256": "202b1875d1dfa9cc8aa8bbcd38ee627dde9dfd1476152bf7567d127a58a834a9"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.CFG",
+      "bytes": 144,
+      "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.MTD",
+      "bytes": 323584,
+      "sha256": "02377f3a6fbf313000b1a1952ec3336aa5bb86af4045679b0c31039363105685"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.OPT",
+      "bytes": 379,
+      "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79"
+    },
+    {
+      "path": "示例文件/样品编号/演示样品.sam",
+      "bytes": 36,
+      "sha256": "c9c0ea0b520aa0a9b593087d78f35b903e52f4a8ee0485b8fe6e0777ac6b7ddd"
+    },
+    {
+      "path": "示例文件/结果/测试15-5_20190421_1842.dat",
+      "bytes": 2105,
+      "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd"
+    },
+    {
+      "path": "示例文件/结果/测试15-5_20190421_1842.pdt",
+      "bytes": 11068,
+      "sha256": "d13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534"
+    },
+    {
+      "path": "示例文件/谱图/20141029_测试.edt",
+      "bytes": 57708544,
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+    },
+    {
+      "path": "示例文件/谱图/20141029_测试.wdt",
+      "bytes": 57708544,
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde"
+    },
+    {
+      "path": "示例文件/谱图/测试15-5_20170509_[2-16].cdt",
+      "bytes": 5578752,
+      "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+    },
+    {
+      "path": "示例文件/谱图/测试15-5_20170509_[2-16].cmt",
+      "bytes": 50323456,
+      "sha256": "db09294199d9f49ee2dfb7e17e9dd58f35048b742c06cea2caf93f4f1329f3aa"
+    }
+  ],
+  "sources": [
+    {
+      "source": "Spec Source/Bin/DIRECT.MTD",
+      "file": "示例文件\\方法\\DIRECT.MTD",
+      "bytes": 323584,
+      "sha256": "02377f3a6fbf313000b1a1952ec3336aa5bb86af4045679b0c31039363105685",
+      "mtime_ns": 1793865741644562400
+    },
+    {
+      "source": "Spec Source/Bin/DIRECT.CFG",
+      "file": "示例文件\\方法\\DIRECT.CFG",
+      "bytes": 144,
+      "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236",
+      "mtime_ns": 1787726422442391600
+    },
+    {
+      "source": "Spec Source/Bin/DIRECT.OPT",
+      "file": "示例文件\\方法\\DIRECT.OPT",
+      "bytes": 379,
+      "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79",
+      "mtime_ns": 1787726422494468400
+    },
+    {
+      "source": "Spec Source/Bin/DATA/20141029_测试.wdt",
+      "file": "示例文件\\谱图\\20141029_测试.wdt",
+      "bytes": 57708544,
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "mtime_ns": 1787726457515434800
+    },
+    {
+      "source": "Spec Source/Bin/DATA/测试15-5_20170509_[2-16].cmt",
+      "file": "示例文件\\谱图\\测试15-5_20170509_[2-16].cmt",
+      "bytes": 50323456,
+      "sha256": "db09294199d9f49ee2dfb7e17e9dd58f35048b742c06cea2caf93f4f1329f3aa",
+      "mtime_ns": 1787726465899101200
+    },
+    {
+      "source": "Spec Source/Bin/DATA/测试15-5_20170509_[2-16].cdt",
+      "file": "示例文件\\谱图\\测试15-5_20170509_[2-16].cdt",
+      "bytes": 5578752,
+      "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756",
+      "mtime_ns": 1787726454767321800
+    },
+    {
+      "source": "Spec Source/Bin/DATA/20141029_测试.edt",
+      "file": "示例文件\\谱图\\20141029_测试.edt",
+      "bytes": 57708544,
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "mtime_ns": 1787726459101784000
+    },
+    {
+      "source": "Spec Source/Bin/DATA/测试15-5_20190421_1842.pdt",
+      "file": "示例文件\\结果\\测试15-5_20190421_1842.pdt",
+      "bytes": 11068,
+      "sha256": "d13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534",
+      "mtime_ns": 1787726451765671900
+    },
+    {
+      "source": "Spec Source/Bin/DATA/测试15-5_20190421_1842.dat",
+      "file": "示例文件\\结果\\测试15-5_20190421_1842.dat",
+      "bytes": 2105,
+      "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd",
+      "mtime_ns": 1787726451809604100
+    }
+  ],
+  "seed": {
+    "seed": "docs\\releases\\0.1.0\\GeoSpectrum_便携演示版\\demo-data\\geospectrum.sqlite3",
+    "seed_sha256": "43474a62ec90212e1268e46d3fa0aa26106ebe84a27e3affff1e8b6d2c6bba36",
+    "executables": {
+      "GeoSpectrum.exe": "5c9f56616c58f5c6ba2868c150f1a057ecd05c760b1cfe2bc0cabb26de4d38d2",
+      "geospectrum-backend.exe": "6ab420c31e28fb296233e27aafc41fda9c5bf7aaf65932d8733a77076ada9d34"
+    }
+  },
+  "plan_sha256": "16037aff0ef131092e3032d8380ba238f763b485914423ac73daeb70489bf5c6"
+}

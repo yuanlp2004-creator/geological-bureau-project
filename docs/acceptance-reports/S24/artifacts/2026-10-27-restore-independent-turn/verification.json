@@ -1,0 +1,101 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "529acecb3463cda7b2afb0a3a4ba1c09407f7ca6d978e25bbc2032de15ea9981",
+  "restored_product_files": [
+    "app/backend/api/acquisition.py",
+    "app/backend/modules/acquisition/repository.py",
+    "app/backend/modules/acquisition/service.py",
+    "app/backend/modules/devices/__init__.py",
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/modules/hardware_acquisition/service.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/schemas/acquisition.py",
+    "app/frontend/src/api/acquisition.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css",
+    "app/frontend/src/pages/devices/DeviceDebugPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardwareView.tsx",
+    "app/manifest.generated.json"
+  ],
+  "archived_merge_files": [
+    "app/backend/modules/acquisition/turn_control.py",
+    "app/backend/modules/devices/turn_monitoring.py",
+    "app/frontend/src/pages/acquisition/AcquisitionTurnStatus.tsx",
+    "app/frontend/src/pages/devices/AcquisitionTurnDiagnostics.tsx",
+    "app/tests/test_acquisition_turns.py",
+    "app/tests/integrated_turn_workflow.mjs",
+    "app/tests/seed_integrated_turn_ui.py"
+  ],
+  "pre_merge_frontend_sources_and_built_assets_equal": true,
+  "only_retained_source_differences": [
+    "app/backend/migrations/__init__.py",
+    "app/backend/migrations/v24_acquisition_turns.py"
+  ],
+  "reason_for_schema_compatibility": "Existing schema24 databases reject a schema23 executable; retain the published additive migration without restoring integrated runtime.",
+  "database_preserved": {
+    "status": "passed",
+    "schema_version": 24,
+    "existing_business_tables_preserved": 85,
+    "source_database_untouched": true,
+    "compatibility_copy_integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "backend_tests": 72,
+  "frontend_tests": 16,
+  "workflows": {
+    "browser": {
+      "checks": 10,
+      "layouts": 3
+    },
+    "desktop": {
+      "checks": 10,
+      "layouts": 3
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 9
+    }
+  },
+  "qa_processes": {
+    "desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-restore-independent-turn\\qa\\GeoSpectrum.exe",
+      "pid": 28844,
+      "loaded_pair_sha256": {
+        "GeoSpectrum.exe": "40958517865b5838575af925c386e14788f60f3972085cf845588b806977f3d4",
+        "geospectrum-backend.exe": "1b40876e323312cdfac65c4a87f33383b695535cc15e326e6a77968e8c6b83aa"
+      },
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    },
+    "legacy-desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-restore-independent-turn\\qa\\GeoSpectrum.exe",
+      "pid": 29128,
+      "loaded_pair_sha256": {
+        "GeoSpectrum.exe": "40958517865b5838575af925c386e14788f60f3972085cf845588b806977f3d4",
+        "geospectrum-backend.exe": "1b40876e323312cdfac65c4a87f33383b695535cc15e326e6a77968e8c6b83aa"
+      },
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "production_qa_sources_and_assets_equal": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "93b87279b81ef58a8fea0a2eed32dd7a4fe5c0455637f081825e22720f96326d",
+    "geospectrum-backend.exe": "1b40876e323312cdfac65c4a87f33383b695535cc15e326e6a77968e8c6b83aa"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\restore-independent-turn-20261027\\before"
+}

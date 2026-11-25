@@ -5,7 +5,7 @@ import sqlite3
 from typing import Any
 from ...db import Database, utc_now
 from .codec import _unpack_points
-from .fitting import _evaluate, _fit_polynomial
+from .fitting import _evaluate, _fit_polynomial, legacy_results, validate_calibration_points
 from .repository import DispersionRepository
 from .values import DispersionError, _finite, _json
 
@@ -435,36 +435,19 @@ class CalibrationService:
     def fit_calibration(
         self, task_id: int, payload: dict[str, Any], actor_user_id: int | None = None
     ) -> dict[str, Any]:
-        context = self.repository._context(task_id)
-        if json.loads(context.task["condition_json"] or "{}").get("preheat"):
-            raise DispersionError("preheat_not_calibration_source", "预热谱图仅供观察，不能制作正式色散曲线", status_code=409)
         degree = int(payload.get("degree", 2))
+        if degree not in (1, 2, 3):
+            raise DispersionError("calibration_degree_invalid", "色散拟合次数必须为一至三次")
         with self.database.read() as db:
-            rows = db.execute(
-                "SELECT * FROM dispersion_task_lines WHERE task_id=? ORDER BY wavelength_nm, id", (task_id,)
-            ).fetchall()
-            values: list[tuple[sqlite3.Row, float, float]] = []
-            if any(float(row['wavelength_nm']) <= 0 for row in rows):
-                raise DispersionError('calibration_wavelength_missing', '请先填写所有谱线的已知波长，再拟合色散曲线')
-            if payload.get('use_legacy_limit') and len(rows) < 4:
-                raise DispersionError('calibration_points_insufficient', '旧版色散拟合至少需要四条谱线')
-            seen_wavelengths: list[float] = []
-            for row in rows:
-                # The old RealStep is the current measured position; saved values are restore points.
-                position = row["located_position"] if row["located_position"] is not None else row["saved_position"]
-                if position is None:
-                    continue
-                wavelength = float(row["wavelength_nm"])
-                if any(math.isclose(wavelength, old, abs_tol=0.01) for old in seen_wavelengths):
-                    raise DispersionError(
-                        "calibration_duplicate_wavelength",
-                        "校准谱线不能有重复波长",
-                        details={"wavelength_nm": wavelength},
-                    )
-                seen_wavelengths.append(wavelength)
-                left, _ = self.repository._geometry(context.layout, int(row["ccd_index"]))
-                values.append((row, wavelength, left + float(position)))
-            coefficients = _fit_polynomial([item[1] for item in values], [item[2] for item in values], degree)
+            db.execute("BEGIN")
+            context = self.repository._context(task_id, db)
+            if json.loads(context.task["condition_json"] or "{}").get("preheat"):
+                raise DispersionError("preheat_not_calibration_source", "预热谱图仅供观察，不能制作正式色散曲线", status_code=409)
+            values = self.repository.calibration_inputs(db, context)
+            wavelengths = [item[1] for item in values]
+            positions = [item[2] for item in values]
+            validate_calibration_points(wavelengths, positions)
+            coefficients = _fit_polynomial(wavelengths, positions, degree)
             residuals = []
             errors = []
             for row, wavelength, actual in values:
@@ -484,7 +467,6 @@ class CalibrationService:
                 errors.append(residual)
         rms = math.sqrt(sum(error * error for error in errors) / len(errors)) if errors else math.inf
         if payload.get('use_legacy_limit'):
-            from .fitting import legacy_results
             results = legacy_results(coefficients, residuals)
             if results is None or results['wave_per_step'] is None:
                 raise DispersionError('calibration_positions_duplicate', '谱线测量步数重复，不能计算每步波长')
@@ -516,8 +498,8 @@ class CalibrationService:
                     task_id,
                     _json(coefficients),
                     _json(residuals),
-                    min(item[1] for item in values),
-                    max(item[1] for item in values),
+                    min(wavelengths),
+                    max(wavelengths),
                     rms,
                     maximum,
                     len(values),
@@ -540,9 +522,8 @@ class CalibrationService:
                     "residual_max": maximum,
                 },
             )
-            return self.repository._calibration_decode(
-                db.execute("SELECT * FROM dispersion_calibration_versions WHERE id=?", (calibration_id,)).fetchone()
-            )
+            row = db.execute("SELECT * FROM dispersion_calibration_versions WHERE id=?", (calibration_id,)).fetchone()
+            return self.repository._calibration_view(db, row)
 
     def publish_calibration(self, calibration_version_id: int, actor_user_id: int | None = None, *, name: str | None = None) -> dict[str, Any]:
         with self.database.write() as db:
@@ -555,8 +536,11 @@ class CalibrationService:
                 return self.repository._calibration_decode(row)
             if row["state"] != "draft":
                 raise DispersionError("calibration_version_not_publishable", "当前校准版本不能发布", status_code=409)
-            if int(row["point_count"]) < 3:
-                raise DispersionError("calibration_points_insufficient", "至少需要三个不同定位点才能发布")
+            points = json.loads(row["residuals_json"])
+            validate_calibration_points([point["wavelength_nm"] for point in points],
+                                        [point["measured_position"] for point in points])
+            if len(points) != row["point_count"]:
+                raise DispersionError('calibration_inputs_changed', '拟合点记录不完整，请重新拟合', status_code=409)
             if not self.repository.calibration_inputs_current(db, row):
                 raise DispersionError('calibration_inputs_changed', '谱线或布局已修改，请按当前实测位置重新拟合', status_code=409)
             if float(row["residual_max"]) >= float(row["residual_limit_points"]):

@@ -1,0 +1,83 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "99487f5f7c95383c8f84b0ea3ccf293cb8a6d76f1489f144e1c99da9b8bfb4d1",
+  "changed_product_files": [
+    "app/backend/db.py",
+    "app/backend/main.py",
+    "app/backend/migrations/__init__.py",
+    "app/backend/migrations/v25_manual_turns.py",
+    "app/backend/modules/hardware_acquisition/exposures.py",
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/modules/hardware_acquisition/runner.py",
+    "app/backend/modules/hardware_acquisition/service.py",
+    "app/backend/runtime.py",
+    "app/backend/schemas/hardware_acquisition.py",
+    "app/frontend/src/api/hardwareAcquisition.ts",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPlan.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css"
+  ],
+  "backend_tests": 67,
+  "frontend_tests": 16,
+  "schema_version": 25,
+  "automatic_method_snapshot_preserved": true,
+  "manual_input_order_and_repeated_angles_verified": true,
+  "manual_background_timed_capture_and_pause_stop_verified": true,
+  "live_unconfirmed_spectrum_and_confirmed_averages_verified": true,
+  "migration_rollback_and_real_library_copy_verified": true,
+  "workflows": {
+    "browser": {
+      "checks": 13,
+      "capture_layouts": 3,
+      "message_panel_layouts": 9
+    },
+    "desktop": {
+      "checks": 13,
+      "capture_layouts": 3,
+      "message_panel_layouts": 9
+    }
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-28-turn-modes\\qa\\GeoSpectrum.exe",
+    "pid": 29732,
+    "loaded_pair_sha256": {
+      "GeoSpectrum.exe": "c0968972c66843e1384c87bcf1cd77618167996f71f744784b7ca48ebacb74d0",
+      "geospectrum-backend.exe": "1051ad6fd934f019e9075334efdb188ec0b33408a36762e1fe65a99c4147e593"
+    },
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "a8b7ddc02dc49a2f123994c34005e93da533be7c943cb1c244faf7bf224a5fe7",
+    "geospectrum-backend.exe": "1051ad6fd934f019e9075334efdb188ec0b33408a36762e1fe65a99c4147e593"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\turn-modes-20261028\\before",
+  "relocated_older_validation_copies": [
+    {
+      "Original": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\integrated-turn-20261027\\upgraded-user-copy.sqlite3",
+      "Archive": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-turn-modes-20261028-previous-validation\\upgraded-user-copy.sqlite3",
+      "Sha256": "AECF5740798F08F3C21CDB76377771E32E7B014B44ADF8F35B2CC4E76189EB51"
+    },
+    {
+      "Original": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\integrated-turn-20261027\\before\\user-database-snapshot.sqlite3",
+      "Archive": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-turn-modes-20261028-previous-validation\\user-database-snapshot.sqlite3",
+      "Sha256": "1C0E02F3B0938B3E478B32E2B771B890BA365742C0C39E50CCF6F92C3A481314"
+    }
+  ],
+  "qa_cold_start_attach_retry": {
+    "same_binary_pair": true,
+    "source_changed": false,
+    "assertions_relaxed": false,
+    "final_status": "passed"
+  }
+}

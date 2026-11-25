@@ -776,10 +776,36 @@ class SpectrumViewerService:
                     raise AnalysisError("spectrum_concentration_mean_invalid", "谱图平均强度校验失败")
                 return list(struct.unpack_from(f"<{point_count}f", mean, ccd * point_count * 4))
 
-            current = methods.current().get("referenced_version") or {}
-            return analysis.concentration_preview(current.get("id"), source=(locate, values_for))
+            version_id, warning = self._legacy_concentration_method(methods, layout)
+            preview = analysis.concentration_preview(version_id, source=(locate, values_for))
+            return {**preview, 'method_notice': warning} if warning else preview
         except (AcquisitionError, AnalysisError) as exc:
             raise SpectrumViewerError(exc.code, exc.message, status_code=exc.status_code) from exc
+
+    def _legacy_concentration_method(self, methods, layout: dict[str, Any]) -> tuple[int, str | None]:
+        from .methods import MethodDomainError
+
+        current_id = (methods.current().get('referenced_version') or {}).get('id')
+        with self.database.read() as db:
+            current = methods.bind_snapshots(db).by_id(current_id, published_only=True) if current_id else None
+            if current is None or current.method.status == 'deleted':
+                raise SpectrumViewerError('spectrum_concentration_method_required',
+                                          '请先在「光谱方法」打开已发布的方法，再展开记录查看参考含量', status_code=422)
+            label = f'{current.method.name}（版本 {current.version}）'
+            try:
+                geometry = methods.bind_geometry(db, current.payload['conditions'])
+            except MethodDomainError as exc:
+                raise SpectrumViewerError('spectrum_concentration_layout_incompatible',
+                                          f'当前方法 {label} 的色散布局不可用：{exc.message}', status_code=422) from exc
+            if not geometry.accepts_legacy_layout(layout):
+                raise SpectrumViewerError('spectrum_concentration_layout_incompatible',
+                                          f'当前方法 {label} 与该记录的 CCD 或色散布局不相容，请打开适用的已发布方法',
+                                          status_code=422)
+            legacy_id = layout.get('legacy_method_id') or None
+            current_legacy_id = current.payload.get('legacy_migration', {}).get('legacy_method_id')
+            notice = (f'记录的旧方法编号为 {legacy_id}，参考含量按当前打开的方法估算。'
+                      if legacy_id is not None and str(legacy_id) != str(current_legacy_id) else None)
+            return current.version_id, notice
 
     def point_details(self, record_id: str, *, ccd: int, point: int | None) -> dict[str, Any]:
         """Verified integrations for one point, or the whole CCD for interactive observation."""

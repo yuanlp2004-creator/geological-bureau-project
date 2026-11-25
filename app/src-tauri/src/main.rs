@@ -166,18 +166,18 @@ async fn select_legacy_directory(app: tauri::AppHandle) -> Result<Option<String>
 
 #[tauri::command]
 async fn select_legacy_files(app: tauri::AppHandle, extensions: Vec<String>, multiple: bool) -> Result<Vec<String>, String> {
-    select_files(&app, extensions, multiple)
-}
-
-fn select_files(app: &tauri::AppHandle, extensions: Vec<String>, multiple: bool) -> Result<Vec<String>, String> {
     let allowed = ["mtd", "cdt", "cmt", "edt", "wdt", "pdt", "dat", "sam", "txt"];
     if extensions.is_empty() || extensions.iter().any(|ext| !allowed.contains(&ext.as_str())) {
         return Err("不支持的文件类型".to_string());
     }
     let filters: Vec<&str> = extensions.iter().map(String::as_str).collect();
+    select_files(&app, &filters, multiple)
+}
+
+fn select_files(app: &tauri::AppHandle, extensions: &[&str], multiple: bool) -> Result<Vec<String>, String> {
     let state = app.state::<OpenLocationState>();
     let mut location = state.0.lock().map_err(|_| "文件目录状态不可用")?;
-    let mut dialog = app.dialog().file().set_title("打开文件").add_filter("兼容数据文件", &filters);
+    let mut dialog = app.dialog().file().set_title("打开文件").add_filter("兼容数据文件", extensions);
     if let Some(directory) = location.directory() { dialog = dialog.set_directory(directory); }
     let selected = if multiple { dialog.blocking_pick_files().unwrap_or_default() }
         else { dialog.blocking_pick_file().into_iter().collect() };
@@ -192,20 +192,23 @@ fn select_files(app: &tauri::AppHandle, extensions: Vec<String>, multiple: bool)
 #[derive(serde::Serialize)]
 struct SampleFile { name: String, bytes: Vec<u8>, last_modified: u64 }
 
+const SAMPLE_FILE_EXTENSIONS: &[&str] = &["sam", "txt", "xlsx"];
+
 #[tauri::command]
 async fn select_sample_file(app: tauri::AppHandle) -> Result<Option<SampleFile>, String> {
-    let paths = select_files(&app, vec!["sam".into(), "txt".into()], false)?;
+    let paths = select_files(&app, SAMPLE_FILE_EXTENSIONS, false)?;
     let Some(selected) = paths.first() else { return Ok(None) };
     read_sample_file(Path::new(selected)).map(Some)
 }
 
 fn read_sample_file(path: &Path) -> Result<SampleFile, String> {
     let extension = path.extension().and_then(|value| value.to_str()).unwrap_or_default().to_ascii_lowercase();
-    if !["sam", "txt"].contains(&extension.as_str()) { return Err("请选择 SAM 或 TXT 样品号文件".into()); }
+    if !SAMPLE_FILE_EXTENSIONS.contains(&extension.as_str()) { return Err("请选择 Excel、SAM 或 TXT 样品号文件".into()); }
     let metadata = path.metadata().map_err(|error| format!("无法读取样品号文件：{error}"))?;
-    if metadata.len() > MAX_EXPORT_BYTES as u64 { return Err("样品号文件超过 64 MiB 限制".into()); }
+    let limit = if extension == "xlsx" { 5_000_000 } else { MAX_EXPORT_BYTES };
+    if metadata.len() > limit as u64 { return Err("样品号文件过大".into()); }
     let bytes = std::fs::read(path).map_err(|error| format!("无法读取样品号文件：{error}"))?;
-    if bytes.len() > MAX_EXPORT_BYTES { return Err("样品号文件超过 64 MiB 限制".into()); }
+    if bytes.len() > limit { return Err("样品号文件过大".into()); }
     let last_modified = metadata.modified().ok()
         .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
         .map(|duration| duration.as_millis() as u64).unwrap_or(0);

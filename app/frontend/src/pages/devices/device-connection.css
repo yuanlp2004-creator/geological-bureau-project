@@ -10,6 +10,8 @@
 .connection-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
 .connection-fields .field { min-width: 0; }
 .connection-fields select { width: 100%; text-overflow: ellipsis; }
+.motor-angle-fields { grid-template-columns: minmax(0, 1fr); }
+.motor-angle-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; margin: 0; }
 .bluetooth-device-picker { position: relative; min-width: 0; }
 .bluetooth-device-trigger { width: 100%; height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--border-color, #8699af); border-radius: 6px; padding: 0 12px; color: inherit; background: var(--surface, #fff); font: inherit; cursor: pointer; }
 .bluetooth-device-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -18,6 +18,8 @@ from ..acquisition_import import (
     ImportedAcquisition,
     ImportedBand,
 )
+from ..acquisition import AcquisitionError
+from ..acquisition.preparation import evaporation_bands
 from .repository import PostProcessingRepository
 
 
@@ -78,7 +80,8 @@ class ConversionService:
                     fingerprint_context: dict | None = None,
                     source_layout: dict | None = None,
                     report_extra: dict | None = None,
-                    prefer_band_name: bool = False) -> dict[str, Any]:
+                    prefer_band_name: bool = False,
+                    evaporation_records: list[dict] | None = None) -> dict[str, Any]:
         record_ids = list(dict.fromkeys(str(value) for value in payload.get("record_ids") or []))
         if not record_ids:
             raise PostProcessingError("postprocessing_selection_empty", "至少选择一个 EDT 记录")
@@ -107,26 +110,31 @@ class ConversionService:
             ).fetchone()
             if existing is not None:
                 return self.repository._conversion_dict(existing)
-            rows = [self.repository._raw(identifier, db) for identifier in record_ids]
-            if any(row["format"] != "edt" for row in rows):
+            native = evaporation_records is not None
+            rows = evaporation_records if native else [self.repository._raw(identifier, db) for identifier in record_ids]
+            if not native and any(row["format"] != "edt" for row in rows):
                 raise PostProcessingError("postprocessing_edt_required", "蒸发转换只接受 EDT 记录")
             source_hashes = [str(row["source_sha256"]) for row in rows]
             tasks: list[int] = []
             samples: list[int] = []
             now = utc_now()
-            for row in rows:
-                frames, count, source_ccd_count, points = self.repository._raw_frames(row, "burn")
-                ignition = json.loads(row['ignition_json'] or '{}')
-                dark_frames = self.repository._raw_frames(row, 'dark')[0] if ignition.get('dark_count') else []
+            for identifier, row in zip(record_ids, rows):
+                if native:
+                    ignition, source_indices = row['ignition'], row['ccd_indices']
+                    count, source_ccd_count, points = ignition['burn_count'], row['ccd_count'], row['points_per_ccd']
+                else:
+                    frames, count, source_ccd_count, points = self.repository._raw_frames(row, "burn")
+                    ignition = json.loads(row['ignition_json'] or '{}')
+                    dark_frames = self.repository._raw_frames(row, 'dark')[0] if ignition.get('dark_count') else []
+                    source_indices = [int(value) for value in json.loads(row["ccd_indices_json"] or "[]")]
                 end = count if interval_end is None else int(interval_end)
                 if not 1 <= interval_start <= end <= count:
                     raise PostProcessingError(
                         "postprocessing_interval_invalid",
-                        "选择区间不适用于所有 EDT 记录",
-                        details={"record_id": self.repository._id("raw", row["id"]), "frame_count": count},
+                        "选择区间不适用于所有蒸发记录",
+                        details={"record_id": identifier, "frame_count": count},
                     )
                 layout, selected = self._target_layout(db, layout_id, points, payload.get("target_ccd_indices"))
-                source_indices = [int(value) for value in json.loads(row["ccd_indices_json"] or "[]")]
                 missing_source_indices = [value for value in selected if value not in source_indices]
                 if len(source_indices) != source_ccd_count or missing_source_indices:
                     raise PostProcessingError(
@@ -148,6 +156,18 @@ class ConversionService:
                         raise PostProcessingError(
                             "postprocessing_method_not_found", "目标方法版本不存在或未发布", status_code=404
                         )
+                if native:
+                    try:
+                        bands = evaporation_bands(db, row, selected, interval_start, end)
+                    except AcquisitionError as exc:
+                        raise PostProcessingError(exc.code, exc.message, status_code=exc.status_code) from exc
+                else:
+                    bands = []
+                    for target_ccd in selected:
+                        position = source_indices.index(target_ccd)
+                        bands.append(ImportedBand(target_ccd, points,
+                                                  [frame[position] for frame in frames[interval_start - 1:end]],
+                                                  [frame[position] for frame in dark_frames]))
                 task_id, sample_id = transaction.acquisitions.import_record(
                     ImportedAcquisition(
                         name=task_name,
@@ -158,7 +178,7 @@ class ConversionService:
                         sample_name=(row['band_name'] or row['long_name'] or row['sample_name'] if prefer_band_name
                                      else row['sample_name'] or row['band_name']) or f"EDT-{row['id']}",
                         original_sample_name=row["sample_name"] or "",
-                        source_record_id=self.repository._id("raw", row["id"]),
+                        source_record_id=identifier,
                         source_sha256=row["source_sha256"],
                         measure_time=row["measure_time"],
                         interval_start=interval_start,
@@ -169,18 +189,7 @@ class ConversionService:
                         burn_cycle_seconds=float(ignition.get('burn_cyc') or 1),
                         dark_cycle_seconds=float(ignition.get('dark_cyc') or 1),
                         source_layout=source_layout,
-                        bands=[
-                            ImportedBand(
-                                target_ccd,
-                                points,
-                                [
-                                    frames[index][source_indices.index(target_ccd)]
-                                    for index in range(interval_start - 1, end)
-                                ],
-                                [frame[source_indices.index(target_ccd)] for frame in dark_frames],
-                            )
-                            for target_ccd in selected
-                        ],
+                        bands=bands,
                         actor_user_id=actor_user_id,
                         created_at=now,
                     )
@@ -222,14 +231,12 @@ class ConversionService:
                     now,
                 ),
             )
-            db.execute(
-                (
+            if not native:
+                db.execute(
                     "INSERT INTO audit_events(actor_user_id,action,target_type,target_id,details_json"
-                    ",created_at) VALUES (?, 'postprocessing.edt.convert', 'postprocessing', NULL, "
-                    "?, ?)"
-                ),
-                (actor_user_id, _json(report | {"run_id": run_id}), now),
-            )
+                    ",created_at) VALUES (?, 'postprocessing.edt.convert', 'postprocessing', NULL, ?, ?)",
+                    (actor_user_id, _json(report | {"run_id": run_id}), now),
+                )
             return {
                 "id": run_id,
                 "status": "converted",

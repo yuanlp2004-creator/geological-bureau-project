@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "batch": "2026-11-06-line-turn-detect",
+  "plan_execution_sha256": "e975f2e03f49d907672b6ce5dc5d9b5005eeba1a636f35c2710116cb215dd000",
+  "modified_products": [
+    "app\\backend\\api\\methods.py",
+    "app\\backend\\modules\\spectral_lines.py",
+    "app\\backend\\schemas\\methods.py",
+    "app\\frontend\\src\\api\\methods.ts",
+    "app\\frontend\\src\\pages\\methods\\SpectralLineEditor.tsx",
+    "app\\frontend\\src\\pages\\methods\\SpectralLinesPanel.tsx"
+  ],
+  "tests": {
+    "backend": 24,
+    "frontend": 20,
+    "desktop_flows": 6,
+    "page_errors": []
+  },
+  "desktop_checks": [
+    "截图中的252.7377nm谱线重新检测后仍绑定17°，不再被延迟响应改为误报",
+    "不同谱线即使临时输入相同波长，切换后仍重新检测各自绑定",
+    "上一谱线的慢响应不覆盖当前谱线检测结果",
+    "完整精度波长可原样保存，范围与偏差非法输入仍被拦截",
+    "已有谱线可保存为新版本，原发布版本及转角关联保持",
+    "新增谱线不借用已有标识，确有多转角歧义时继续禁止保存"
+  ],
+  "request_identities": [
+    "AL",
+    "IS",
+    "IS",
+    "AL",
+    "IS",
+    "AL",
+    "IS",
+    "AL",
+    "AL",
+    "AL",
+    null,
+    "AL"
+  ],
+  "delivery": {
+    "status": "passed",
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "430868f3f8570f2e9cb22b9eda2ae0693bcae21261a9e8a371f3332b416b35bb",
+        "after": "e9588311deb529611d3f5ee0d075ab05f5fdeb42fbc20f873350ce65b6408a71"
+      },
+      "geospectrum-backend.exe": {
+        "before": "1876fc5248def2810ca53c5257836ed77077b38f175405fce92f4845cd4b1d5c",
+        "after": "f63e2f4380c001b74975971950939b4772dbbf814b7df41c70521bd9be536d3c"
+      }
+    },
+    "product_sources_match": true,
+    "product_source_count": 464,
+    "production_metadata_tables_preserved": 94
+  },
+  "review": {
+    "status": "passed",
+    "pid": 26840,
+    "isolated": true,
+    "page": "分析谱线",
+    "line_id": "AL",
+    "wavelength_nm": 252.737748321013,
+    "angle_deg": 17,
+    "input_valid": true,
+    "save_enabled": true,
+    "active_acquisitions": 0
+  },
+  "directory_new_items": {
+    ".": [],
+    "app": []
+  },
+  "schema_migration": false,
+  "calibration_values_changed": false,
+  "original_published_method_preserved": true,
+  "commands": [
+    "python -X utf8 -m pytest app/tests/test_line_turn_detection.py app/tests/test_spectral_lines.py app/tests/test_sample_turn_integration.py -q --basetemp app/.local/test-runs/line-turn-detect",
+    "npm --prefix app/frontend test",
+    "npm --prefix app/frontend run build",
+    "python -X utf8 app/tools/build_sidecar.py",
+    "python -X utf8 app/.local/diagnostics/line-turn-detect-20261106/build_delivery.py production",
+    "python -X utf8 app/.local/diagnostics/line-turn-detect-20261106/build_delivery.py qa",
+    "node app/.local/diagnostics/line-turn-detect-20261106/check_ui.mjs",
+    "python -X utf8 app/.local/diagnostics/line-turn-detect-20261106/deploy.py"
+  ],
+  "notes": [
+    "The earlier sample-turn acquisition test did not exercise the live spectral-line editor; this batch closes that missing consumer path.",
+    "The first save test exposed existing wavelength step validation rejecting valid full-precision calibration values; both wavelength fields now accept finite in-range values without rounding.",
+    "An automation locator was corrected to remain stable when numeric validation text changes the label accessible name; all final checks reran with the original assertions retained."
+  ]
+}

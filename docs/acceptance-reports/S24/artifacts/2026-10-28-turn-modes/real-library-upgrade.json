@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "source_opened_readonly": true,
+  "source_database_replaced": false,
+  "schema_before": 24,
+  "schema_after": 25,
+  "business_tables_preserved": 87,
+  "all_table_counts_preserved": true,
+  "hardware_plan_and_frame_content_preserved": true,
+  "integrity": "ok",
+  "foreign_key_errors": 0,
+  "temporary_clone_removed": true
+}

@@ -2,6 +2,7 @@
 from fastapi import HTTPException
 from uuid import uuid4
 from ..modules.devices import DeviceError
+from ..modules.devices.motor_turn import prepare_motor_turn, requires_motor
 from ..modules.methods import MethodDomainError
 from ..schemas.preliminary import PreliminaryCaptureCreate
 from ..schemas.dispersion import DispersionTaskCreate
@@ -26,11 +27,11 @@ def create_preliminary_session(kind, payload: PreliminaryCaptureCreate, runtime,
         permission = 'dispersion.execute' if kind == 'dispersion' else 'acquisition.execute'
         if permission not in session.permissions:
             raise HTTPException(403, detail='permission denied')
-        if multiple:
-            raise HTTPException(409, detail={'code': 'hardware_protocol_unavailable',
-                                            'message': '真实自动转角协议尚未确认，不能执行多转角摄谱'})
         try:
-            runtime.devices_service().test_connection(profile['id'], actor_user_id=session.user_id)
+            if requires_motor(runtime.database, profile, multiple=multiple):
+                prepare_motor_turn(runtime.database, profile, [angle['angle_deg'] for angle in plan['angles']])
+            else:
+                runtime.devices_service().test_connection(profile['id'], actor_user_id=session.user_id)
         except DeviceError as exc:
             raise HTTPException(exc.status_code, detail=exc.detail()) from exc
     conditions = {key: value for key, value in payload.model_dump().items() if key not in {'name', 'save_conditions'}}

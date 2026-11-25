@@ -1,0 +1,24 @@
+[
+  {
+    "width": 1440,
+    "height": 1000,
+    "labelWidth": 72,
+    "labelHeight": 16.796875,
+    "tag": "SPAN",
+    "font": "12px",
+    "plotWidth": 1064,
+    "dx": 0,
+    "dy": 0.0078125
+  },
+  {
+    "width": 1060,
+    "height": 680,
+    "labelWidth": 72,
+    "labelHeight": 16.796875,
+    "tag": "SPAN",
+    "font": "12px",
+    "plotWidth": 732,
+    "dx": 0,
+    "dy": 0.0078125
+  }
+]

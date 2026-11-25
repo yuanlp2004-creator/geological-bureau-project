@@ -1,0 +1,109 @@
+{
+  "status": "passed",
+  "checks": [
+    "切换 CCD 档案清空旧电机端口、标定与转角",
+    "三路空态使用居中 HTML 字，1440 和 1060 视口字号、字宽与字高一致",
+    "两种视口独立点选参考峰 2 和观测峰 4，SVG 标线点位一致",
+    "调试对中离线开放，显式连接诊断失败后仍可在同一活动 CCD 比对、选峰、导出和转交",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, keyboard panning without a slider, pixel scales, box zoom and reset",
+    "三路对中使用活动 CCD 的既有实时帧，选峰固定来源，导出模拟标志且不转入现场绑定",
+    "更换离线 CCD 档案不显示上一个档案帧，未安装路使用等比文字",
+    "旧汞灯入口落到同一调试对中工作台"
+  ],
+  "details": {
+    "emptyGeometry": [
+      {
+        "tag": "SPAN",
+        "font": "12px",
+        "width": 72,
+        "height": 16.796875,
+        "plotWidth": 1064,
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "tag": "SPAN",
+        "font": "12px",
+        "width": 72,
+        "height": 16.796875,
+        "plotWidth": 717,
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "pointChecks": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "positions": [
+          2,
+          4
+        ]
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "positions": [
+          2,
+          4
+        ]
+      }
+    ],
+    "offline": {
+      "reference_source": "现场参考记录 HG-QA-01",
+      "reference_file": "reference.csv",
+      "observed_file": "observed.csv",
+      "reference_sha256": "4ec808939211f08fda133158d141f2271712de710c1a9d7ea6fd890e64af55e0",
+      "observed_sha256": "472ece601ede7fdab9e7db23cb9491ee366dadcdf2ded943f75f46f420ff3da5",
+      "ccd_index": 0,
+      "reference_angle_deg": 17,
+      "reference_peak": 2,
+      "observed_peak": 4,
+      "target_angle_deg": 18,
+      "peak_offset_points": 2,
+      "confirmed_at": "2026-11-25T05:57:00.942Z"
+    },
+    "live": {
+      "reference_source": "QA 实时帧夹具",
+      "reference_file": "live-reference.csv",
+      "observed_file": "模拟对中帧 1 · 2026-11-25T05:57:20.266+00:00",
+      "reference_sha256": "933cf81c93536d00e58b695235414e67296605e9ededc01abf4e222af5b47206",
+      "observed_sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+      "ccd_index": 1,
+      "reference_angle_deg": 17,
+      "reference_peak": 1000,
+      "observed_peak": 1200,
+      "target_angle_deg": 18,
+      "peak_offset_points": 200,
+      "observed_frame": {
+        "index": 0,
+        "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+        "occurredAt": "2026-11-25T05:57:20.266+00:00",
+        "simulated": true
+      },
+      "confirmed_at": "2026-11-25T05:57:21.252Z"
+    },
+    "after": {
+      "reference_source": "QA 实时帧夹具",
+      "reference_file": "live-reference.csv",
+      "observed_file": "模拟对中帧 1 · 2026-11-25T05:57:20.266+00:00",
+      "reference_sha256": "933cf81c93536d00e58b695235414e67296605e9ededc01abf4e222af5b47206",
+      "observed_sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+      "ccd_index": 1,
+      "reference_angle_deg": 17,
+      "reference_peak": 1000,
+      "observed_peak": 1200,
+      "target_angle_deg": 18,
+      "peak_offset_points": 200,
+      "observed_frame": {
+        "index": 0,
+        "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+        "occurredAt": "2026-11-25T05:57:20.266+00:00",
+        "simulated": true
+      },
+      "confirmed_at": "2026-11-25T05:57:39.918Z"
+    }
+  },
+  "errors": [],
+  "reviewOpen": true
+}

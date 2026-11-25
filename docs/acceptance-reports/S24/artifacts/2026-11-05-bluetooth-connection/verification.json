@@ -1,0 +1,477 @@
+{
+  "status": "passed",
+  "batch": "2026-11-05-bluetooth-connection",
+  "plan_sha256": "b9cbf735e2dcfcea42adb7fedd2987ae7e727cb95a0eb01ad8c9b4247a875368",
+  "automated_tests": {
+    "backend": 108,
+    "frontend": 20,
+    "rust": 6
+  },
+  "ui": {
+    "browser": {
+      "status": "passed",
+      "checks": [
+        "设备连接独立入口与Windows串口只读枚举可用",
+        "独立蓝牙串口档案持久保存COM选择，原有模拟档案保持",
+        "串口被占用时显示失败，未显示已连接且保存参数保持",
+        "成功、断开和仪器未验证状态准确区分；连接中禁止改端口",
+        "摄谱占用时显示任务和端口，并阻止连接与断开",
+        "配对后无COM口或端口消失时保留设置并显示恢复方法",
+        "使用真实API完成模拟器连接和断开，最终设备断开",
+        "设备连接与原有设备参数可正常往返"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "viewport": 1060,
+          "scroll": 1060,
+          "width": 813,
+          "fields": [
+            {
+              "width": 731,
+              "scroll": 729
+            },
+            {
+              "width": 731,
+              "scroll": 729
+            }
+          ]
+        },
+        {
+          "requested_width": 1440,
+          "viewport": 1440,
+          "scroll": 1440,
+          "width": 1138,
+          "fields": [
+            {
+              "width": 416,
+              "scroll": 414
+            },
+            {
+              "width": 624,
+              "scroll": 622
+            }
+          ]
+        },
+        {
+          "requested_width": 1920,
+          "viewport": 1920,
+          "scroll": 1920,
+          "width": 1440,
+          "fields": [
+            {
+              "width": 536.796875,
+              "scroll": 535
+            },
+            {
+              "width": 805.1875,
+              "scroll": 803
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "systemPorts": [
+        {
+          "device": "COM3",
+          "port": 3,
+          "description": "蓝牙链接上的标准串行 (COM3)",
+          "is_bluetooth": true
+        },
+        {
+          "device": "COM4",
+          "port": 4,
+          "description": "蓝牙链接上的标准串行 (COM4)",
+          "is_bluetooth": true
+        }
+      ]
+    },
+    "desktop": {
+      "status": "passed",
+      "checks": [
+        "设备连接独立入口与Windows串口只读枚举可用",
+        "独立蓝牙串口档案持久保存COM选择，原有模拟档案保持",
+        "串口被占用时显示失败，未显示已连接且保存参数保持",
+        "成功、断开和仪器未验证状态准确区分；连接中禁止改端口",
+        "摄谱占用时显示任务和端口，并阻止连接与断开",
+        "配对后无COM口或端口消失时保留设置并显示恢复方法",
+        "使用真实API完成模拟器连接和断开，最终设备断开",
+        "设备连接与原有设备参数可正常往返"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "viewport": 1060,
+          "scroll": 1060,
+          "width": 813,
+          "fields": [
+            {
+              "width": 731,
+              "scroll": 729
+            },
+            {
+              "width": 731,
+              "scroll": 729
+            }
+          ]
+        },
+        {
+          "requested_width": 1440,
+          "viewport": 1440,
+          "scroll": 1440,
+          "width": 1138,
+          "fields": [
+            {
+              "width": 416,
+              "scroll": 414
+            },
+            {
+              "width": 624,
+              "scroll": 622
+            }
+          ]
+        },
+        {
+          "requested_width": 1920,
+          "viewport": 1920,
+          "scroll": 1920,
+          "width": 1440,
+          "fields": [
+            {
+              "width": 536.796875,
+              "scroll": 535
+            },
+            {
+              "width": 805.1953125,
+              "scroll": 803
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "systemPorts": [
+        {
+          "device": "COM3",
+          "port": 3,
+          "description": "蓝牙链接上的标准串行 (COM3)",
+          "is_bluetooth": true
+        },
+        {
+          "device": "COM4",
+          "port": 4,
+          "description": "蓝牙链接上的标准串行 (COM4)",
+          "is_bluetooth": true
+        }
+      ]
+    },
+    "browser_debug": {
+      "status": "passed",
+      "checks": [
+        "Device debug contains four permission-controlled tabs including Windows Bluetooth connection",
+        "Software and device parameter drafts survive tab changes",
+        "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+        "Device parameters persist through the existing API and reject duplicate CCD slots",
+        "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+        "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+        "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+        "All three tabs fit light/dark themes and both desktop window sizes",
+        "Alignment fills wide windows and follows information-panel expansion without leaving a bottom gap",
+        "A real read-only role can inspect all three tabs without gaining parameter-write or device-execution rights",
+        "Legacy Mercury-only permission no longer exposes an empty device-debug entry"
+      ],
+      "layouts": [
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "调试对中"
+        },
+        {
+          "width": 2560,
+          "height": 1200,
+          "tab": "调试对中",
+          "expanded": false
+        },
+        {
+          "width": 2560,
+          "height": 1200,
+          "tab": "调试对中",
+          "expanded": true
+        },
+        {
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中",
+          "expanded": false
+        },
+        {
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中",
+          "expanded": true
+        }
+      ],
+      "errors": []
+    },
+    "desktop_debug": {
+      "status": "passed",
+      "checks": [
+        "Device debug contains four permission-controlled tabs including Windows Bluetooth connection",
+        "Software and device parameter drafts survive tab changes",
+        "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+        "Device parameters persist through the existing API and reject duplicate CCD slots",
+        "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+        "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+        "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+        "All three tabs fit light/dark themes and both desktop window sizes",
+        "Alignment fills wide windows and follows information-panel expansion without leaving a bottom gap",
+        "A real read-only role can inspect all three tabs without gaining parameter-write or device-execution rights",
+        "Legacy Mercury-only permission no longer exposes an empty device-debug entry"
+      ],
+      "layouts": [
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "light",
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "light",
+          "width": 1060,
+          "height": 680,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "dark",
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "软件参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "设备参数 / 两框同时显示"
+        },
+        {
+          "theme": "dark",
+          "width": 1060,
+          "height": 680,
+          "tab": "调试对中"
+        },
+        {
+          "width": 2560,
+          "height": 1200,
+          "tab": "调试对中",
+          "expanded": false
+        },
+        {
+          "width": 2560,
+          "height": 1200,
+          "tab": "调试对中",
+          "expanded": true
+        },
+        {
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中",
+          "expanded": false
+        },
+        {
+          "width": 1440,
+          "height": 1000,
+          "tab": "调试对中",
+          "expanded": true
+        }
+      ],
+      "errors": []
+    }
+  },
+  "native_windows": {
+    "bluetooth_settings_button_opened": true,
+    "observed_page": "蓝牙和其他设备 / 设备",
+    "pairing_or_settings_changed": false,
+    "physical_serial_port_opened": false,
+    "review_retained": true,
+    "device_disconnected": true
+  },
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "deeeec199f178592af9cbce3b9d86dec540506df735ef64fcfdab6968e92870d",
+      "after_sha256": "9b41e0652727486f53e98aa60a9f18fe5f83c2023ddb0ecf50f05b13a1c8094a"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed",
+      "after_sha256": "89a01df8fc8b6b08856f79ffda921857b104fafc035089f0ae3e065be4bd2824"
+    }
+  },
+  "production_qa_sources_identical": true,
+  "source_file_count": 427,
+  "source_snapshot_sha256": "d1c101e5b76e250432d386a7b2eedb49a06b5dca2fe8d187b87ba3f16363cf17",
+  "production_business_metadata_unchanged": true,
+  "protected_table_count": 13,
+  "schema_version": 28,
+  "database_migration_added": false,
+  "external_validation": "Actual Bluetooth spectrometer, turn/lamp protocols and formal hardware acceptance remain external gates.",
+  "reference_documents": [
+    "https://learn.microsoft.com/en-us/windows/apps/develop/launch/launch-settings",
+    "https://pyserial.readthedocs.io/en/stable/tools.html"
+  ],
+  "production_schema_migrations_max": 28
+}

@@ -117,6 +117,7 @@ export type SpectrumCalibrationPosition = {
 export type SpectrumConcentrationPreview = {
   method_name: string
   method_version: number
+  method_notice?: string
   rows: Array<{
     line_id: string
     element: string
@@ -124,6 +125,12 @@ export type SpectrumConcentrationPreview = {
     concentration: number | null
     unit: string
     decimal_places: number
+    ccd_index: number | null
+    point_index: number | null
+    expected_point_index: number | null
+    raw_intensity: number | null
+    peak_found: boolean | null
+    code: string | null
     curve_source: 'published' | 'method_standards' | null
     message: string | null
   }>

@@ -2,6 +2,28 @@ from __future__ import annotations
 import math
 from .values import DispersionError
 
+MIN_CALIBRATION_POINTS = 4
+MAX_CALIBRATION_POINTS = 8
+
+
+def validate_calibration_points(wavelengths: list[float], positions: list[float]) -> None:
+    count = len(wavelengths)
+    limits = {"minimum": MIN_CALIBRATION_POINTS, "maximum": MAX_CALIBRATION_POINTS, "actual": count}
+    if count < MIN_CALIBRATION_POINTS:
+        raise DispersionError("calibration_points_insufficient", f"至少需要四个有效定位点，当前有 {count} 个", details=limits)
+    if count > MAX_CALIBRATION_POINTS:
+        raise DispersionError("calibration_points_exceeded", f"最多可用八个有效定位点，当前有 {count} 个", details=limits)
+    if any(not math.isfinite(wave) or wave <= 0 for wave in wavelengths):
+        raise DispersionError("calibration_wavelength_missing", "请填写已定位谱线的有效已知波长")
+    ordered = sorted(wavelengths)
+    if any(right - left <= 0.01 for left, right in zip(ordered, ordered[1:])):
+        raise DispersionError("calibration_duplicate_wavelength", "校准谱线不能有重复波长")
+    ordered = sorted(positions)
+    if any(not math.isfinite(position) for position in ordered) or any(
+        right - left <= 1e-7 for left, right in zip(ordered, ordered[1:])
+    ):
+        raise DispersionError("calibration_positions_duplicate", "校准谱线必须具有不同的有效测量步数")
+
 
 def _gaussian_solve(matrix: list[list[float]], vector: list[float]) -> list[float]:
     size = len(vector)

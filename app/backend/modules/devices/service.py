@@ -10,7 +10,8 @@ from ...db import Database, utc_now
 from .profiles import screen_conversion, validate_profile
 from .simulator import AcqSimulatorAdapter
 from .factory import create_device_adapter
-from .values import DeviceError
+from .motor_turn import motor_binding, prepare_motor_turn, save_motor_binding
+from .values import DeviceError, DeviceEvent
 from .ports import bluetooth_connections as system_bluetooth_connections
 
 
@@ -27,6 +28,12 @@ class DeviceService:
         self.database = database
         self.adapter = AcqSimulatorAdapter()
         self._control = threading.RLock()
+        self._turn_changed = threading.Condition(self._control)
+        self._turn_cancel: threading.Event | None = None
+        self._turn_stoppers = 0
+        self._unconfirmed_motor = None
+        self._angle: float | None = None
+        self._settled_at: float | None = None
         self._exit_gate = exit_gate
         self._on_serial_notice = on_serial_notice
 
@@ -244,6 +251,7 @@ class DeviceService:
             return self._connect(profile_id, actor_user_id)
 
     def _connect(self, profile_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        self._assert_turn_idle()
         profile = self.profile(profile_id)
         correlation_id = str(uuid.uuid4())
         try:
@@ -256,6 +264,7 @@ class DeviceService:
                     profile, exit_gate=self._exit_gate, on_serial_notice=self._on_serial_notice,
                 )
             event = self.adapter.connect(profile, correlation_id=correlation_id)
+            self._angle = self._settled_at = None
         except DeviceError as exc:
             exc.details.setdefault("correlation_id", correlation_id)
             self._audit(
@@ -268,7 +277,7 @@ class DeviceService:
             profile_id,
             {"state": event.state.value, "correlation_id": correlation_id, "transport": profile["transport"]},
         )
-        return {"profile": profile, "diagnostics": self.adapter.diagnostics(), "event": event.to_dict()}
+        return {"profile": profile, "diagnostics": self.diagnostics(), "event": event.to_dict()}
 
     def shutdown(self) -> list[dict[str, Any]]:
         with self._control:
@@ -279,8 +288,18 @@ class DeviceService:
         return []
 
     @device_command
+    def release_for_capture(self, profile_id: int, actor_user_id: int | None) -> None:
+        self._assert_turn_idle()
+        if not self.adapter.diagnostics()["connected"]:
+            return
+        if self.adapter.state.value != "connected" or self.adapter.profile.get("id") != profile_id:
+            raise DeviceError("device_busy", "请先停止并断开当前调试，再开始摄谱", status_code=409)
+        self.disconnect(actor_user_id=actor_user_id)
+
+    @device_command
     def test_connection(self, profile_id: int, actor_user_id: int | None = None, *, handoff: bool = False) -> dict[str, Any]:
         """Old FmOptHardWare test: one CCD frame, no sample records, then close."""
+        self._assert_turn_idle()
         profile = self.profile(profile_id)
         if self.adapter.diagnostics()["connected"]:
             # Capture owns its own adapter. Release only this same, idle port
@@ -335,14 +354,17 @@ class DeviceService:
     @device_command
     def disconnect(self, actor_user_id: int | None = None) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
+        self._cancel_turn_and_wait(correlation_id)
         event = self.adapter.disconnect(correlation_id=correlation_id)
+        self._angle = self._settled_at = None
         self._audit(
             actor_user_id, "device.disconnect", None, {"state": event.state.value, "correlation_id": correlation_id}
         )
-        return {"diagnostics": self.adapter.diagnostics(), "event": event.to_dict()}
+        return {"diagnostics": self.diagnostics(), "event": event.to_dict()}
 
     @device_command
     def start_debug(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        self._assert_turn_idle()
         correlation_id = str(uuid.uuid4())
         try:
             event = self.adapter.start_debug(
@@ -366,10 +388,13 @@ class DeviceService:
                 "correlation_id": correlation_id,
             },
         )
+        data = event.to_dict()
+        if event.ccds and self._angle is not None:
+            data["details"] = {**event.details, "angle_deg": self._angle}
         return {
             "session_id": self.adapter.session_id,
-            "event": event.to_dict(),
-            "diagnostics": self.adapter.diagnostics(),
+            "event": data,
+            "diagnostics": self.diagnostics(),
             "sample_records_created": 0,
             "spectrum_records_created": 0,
         }
@@ -392,10 +417,19 @@ class DeviceService:
                 {"frame_index": event.frame_index, "correlation_id": correlation_id,
                  **({"communication": event.details["communication"]} if "communication" in event.details else {})},
             )
+        data = event.to_dict()
+        if event.ccds:
+            before_arrival = (self._settled_at is not None and self.adapter.profile["transport"] == "serial"
+                              and event.details.get("exposure_started_at", 0) <= self._settled_at)
+            if self._turn_cancel or self._unconfirmed_motor or before_arrival:
+                data = DeviceEvent("waiting", event.state, correlation_id=correlation_id,
+                                   message="等待转角切换后的调试数据").to_dict()
+            elif self._angle is not None:
+                data["details"] = {**event.details, "angle_deg": self._angle}
         return {
             "session_id": self.adapter.session_id,
-            "event": event.to_dict(),
-            "diagnostics": self.adapter.diagnostics(),
+            "event": data,
+            "diagnostics": self.diagnostics(),
             "sample_records_created": 0,
             "spectrum_records_created": 0,
         }
@@ -403,16 +437,111 @@ class DeviceService:
     @device_command
     def stop_debug(self, actor_user_id: int | None = None) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
+        self._cancel_turn_and_wait(correlation_id)
         event = self.adapter.stop_debug(correlation_id=correlation_id)
         self._audit(
             actor_user_id, "device.debug.stop", None, {"state": event.state.value, "correlation_id": correlation_id}
         )
         return {
             "event": event.to_dict(),
-            "diagnostics": self.adapter.diagnostics(),
+            "diagnostics": self.diagnostics(),
             "sample_records_created": 0,
             "spectrum_records_created": 0,
         }
+
+    @device_command
+    def diagnostics(self) -> dict:
+        return {**self.adapter.diagnostics(), "angle_deg": self._angle, "turning": self._turn_cancel is not None}
+
+    def _assert_turn_idle(self) -> None:
+        if self._turn_cancel is not None or self._turn_stoppers:
+            raise DeviceError("device_busy", "正在切换转角", status_code=409)
+        if self._unconfirmed_motor is not None:
+            raise DeviceError("motor_stop_unconfirmed", "请先停止设备并确认电机已停", status_code=409)
+
+    def _cancel_turn_and_wait(self, correlation_id: str) -> None:
+        if self._turn_cancel is not None:
+            self._turn_cancel.set()
+            self._turn_stoppers += 1
+            try:
+                self._turn_changed.wait_for(lambda: self._turn_cancel is None)
+            finally:
+                self._turn_stoppers -= 1
+        if self._unconfirmed_motor is not None:
+            try:
+                self._unconfirmed_motor.stop()
+            except DeviceError as motor_error:
+                try:
+                    self.adapter.stop_debug(correlation_id=correlation_id)
+                except DeviceError as ccd_error:
+                    motor_error.details["ccd_stop"] = ccd_error.detail()
+                raise
+            self._unconfirmed_motor = None
+
+    @device_command
+    def update_motor_binding(self, profile_id, binding, actor) -> None:
+        self._assert_turn_idle()
+        if self.adapter.state.value == "debugging":
+            raise DeviceError("device_busy", "请先停止当前采集，再修改电机绑定", status_code=409)
+        save_motor_binding(self.database, self.profile(profile_id), binding, actor)
+        if (self.adapter.profile or {}).get("id") == profile_id:
+            self._angle = self._settled_at = None
+
+    @device_command
+    def turn_state(self, method_angles: list[float]) -> dict:
+        connected = self.adapter.diagnostics()["connected"]
+        profile = self.adapter.profile if connected else self.current_profile()
+        profile_id = profile["id"] if profile else None
+        simulated = bool(profile and profile["transport"] == "simulator")
+        angles = method_angles
+        if not angles and profile and not simulated:
+            binding = motor_binding(self.database, profile_id)
+            angles = [item.method_angle_deg for item in binding.angles] if binding else []
+        return {"profile_id": profile_id, "angles": angles, "simulated": simulated,
+                "current_angle_deg": self._angle if connected else None, "moving": self._turn_cancel is not None}
+
+    def switch_debug_angle(self, profile_id: int, angle: float, method_angles: list[float], actor: int) -> dict:
+        with self._control:
+            self._assert_turn_idle()
+            if self._exit_gate is not None and self._exit_gate.is_set():
+                raise DeviceError("device_exiting", "程序正在退出", status_code=409)
+            if self.adapter.state.value not in {"connected", "debugging"} or self.adapter.profile["id"] != profile_id:
+                raise DeviceError("device_not_connected", "请先连接当前调试设备", status_code=409)
+            options = self.turn_state(method_angles)
+            if angle not in options["angles"]:
+                raise DeviceError("device_angle_unavailable", "该转角不在当前可选范围内", status_code=409)
+            motor = None if options["simulated"] else prepare_motor_turn(
+                self.database, self.adapter.profile, [angle], preflight=False)
+            correlation_id = str(uuid.uuid4())
+            cancel = self._turn_cancel = threading.Event()
+            self._angle = self._settled_at = None
+        try:
+            if motor is None:
+                receipt = self.adapter.position_angle(angle, correlation_id)
+            else:
+                receipt = motor.position(angle, correlation_id, cancel)
+            with self._control:
+                if cancel.is_set():
+                    raise InterruptedError
+                self._settled_at = time.monotonic()
+                self._angle = angle
+                self._audit(actor, "device.debug.turn", profile_id, {**receipt, "correlation_id": correlation_id})
+                return {**options, "current_angle_deg": angle, "moving": False}
+        except InterruptedError as exc:
+            self._audit(actor, "device.debug.failed", profile_id, {"angle_deg": angle, "code": "device_turn_cancelled",
+                                                                  "correlation_id": correlation_id})
+            raise DeviceError("device_turn_cancelled", "转角切换已停止", status_code=409) from exc
+        except DeviceError as exc:
+            if exc.code == "motor_stop_unconfirmed":
+                with self._control:
+                    self._unconfirmed_motor = motor
+            self._audit(actor, "device.debug.failed", profile_id, {**exc.detail(), "angle_deg": angle,
+                                                                  "correlation_id": correlation_id})
+            raise
+        finally:
+            with self._turn_changed:
+                self._turn_cancel = None
+                self._turn_changed.notify_all()
 
     def _audit(self, actor_user_id: int | None, action: str, target_id: int | None, details: dict[str, Any]) -> None:
         with self.database.write() as db:

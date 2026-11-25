@@ -1,0 +1,388 @@
+{
+  "status": "passed",
+  "date": "2026-10-30",
+  "scope": "S11/S24 调试对中按 FmDebug 旧逻辑重排",
+  "plan_sha256": "6b1d4c3d42f5503d0fb8a19f52285696a66991d7518fa3bef1ff8c9f1c7bbdb0",
+  "frontend_tests": {
+    "status": "passed",
+    "total": 20,
+    "new_alignment_tests": 4
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "One device-debug menu entry contains all four permission-controlled tabs",
+      "Software and device parameter drafts survive tab changes",
+      "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+      "Device parameters persist through the existing API and reject duplicate CCD slots",
+      "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+      "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+      "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+      "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+      "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+      "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+      "Mercury-only read permission reaches the unified entry without requiring settings or device permissions"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": true
+      }
+    ]
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "One device-debug menu entry contains all four permission-controlled tabs",
+      "Software and device parameter drafts survive tab changes",
+      "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+      "Device parameters persist through the existing API and reject duplicate CCD slots",
+      "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+      "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+      "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+      "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+      "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+      "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+      "Mercury-only read permission reaches the unified entry without requiring settings or device permissions"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": true
+      }
+    ]
+  },
+  "reference_sources": {
+    "Spec Source/Source/Main/mmTool/FmDebug.dfm": "3a4e62c16afa7daf3e8235bad8169223e53d88ae3acbd775f389c6560e804bff",
+    "Spec Source/Source/Main/mmTool/FmDebug.pas": "9977f384aaed052d5930be6be146aff6eb961ec311026e216eeed526a650cc44",
+    "Spec Source/Source/Common/uZoom.pas": "a7ef662bd413e9f0d1f20b8ee8ff99ae40fe76196e66ced63918f26f1232d001"
+  },
+  "delivery": {
+    "exe_sha256": "dc185684c04c25157b7f0487fe6bb1bc495d5b26e85de66f85e91ceb72cd36db",
+    "backend_sha256": "4b67cea9078ce2d992cd609fc2ac004bd9fcff18b41d69d34f1e6ff0acf016e0",
+    "backend_unchanged": true,
+    "source_files_match": true,
+    "frontend_resources_match": true,
+    "backup": "D:\\地质局\\app\\.local\\diagnostics\\legacy-alignment-20261030\\before\\GeoSpectrum.exe"
+  },
+  "review": {
+    "pid": 23892,
+    "cdp": "http://127.0.0.1:51912",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-10-30-legacy-alignment\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\legacy-alignment-review-20261030-final",
+    "retained_for_review": true,
+    "check_exit_code": 0,
+    "running": true,
+    "native_window_verified": true,
+    "device_connected": false,
+    "page": "调试对中",
+    "three_ccd_curves_retained": true
+  },
+  "rules": {
+    "first_ccd_fixed": true,
+    "secondary_ccds_unique": true,
+    "background_changes_display_floor_only": true,
+    "valid_peak_strictly_above": 1000,
+    "zoom_y_range": [
+      1,
+      100
+    ],
+    "max_x_device_pixels_per_point": 16,
+    "snapshots_retained_in_memory_after_stop": true
+  },
+  "limits": [
+    "真实仪器和转角/汞灯协议门禁保持",
+    "小窗口纵向滚动保留三图高度",
+    "安装包未重建"
+  ],
+  "directory_cleanliness": {
+    "root_and_app_names_unchanged": true
+  },
+  "diagnostic_repairs": [
+    "option.disabled原生属性确认CCD选项限制，观察测试保留原断言",
+    "桌面发现滚动位置参与高度计算及外层40px底边，已扣除scrollTop并将该页底边设为8px；普通窗口新增无多余纵向滚动断言，完整流程重跑通过",
+    "透明CCD下拉最小高度显式设24px，消除工具栏竖滚动"
+  ]
+}

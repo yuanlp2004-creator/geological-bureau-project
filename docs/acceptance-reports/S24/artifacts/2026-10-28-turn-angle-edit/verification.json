@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "57dbc61522b609a373564a93c26447d2378f8b740ea77dbc4f0a67bc062cc65e",
+  "changed_product_files": [
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/schemas/hardware_acquisition.py",
+    "app/frontend/src/api/hardwareAcquisition.ts",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css"
+  ],
+  "backend_tests": 56,
+  "frontend_tests": 16,
+  "schema_version": 24,
+  "schema_changed": false,
+  "method_snapshots_modified": false,
+  "edited_angles_verified_in_adapter_requests": true,
+  "source_slot_ccd_mapping_and_sample_saving_preserved": true,
+  "workflows": {
+    "browser": {
+      "checks": 11,
+      "capture_layouts": 3,
+      "message_panel_layouts": 9
+    },
+    "desktop": {
+      "checks": 11,
+      "capture_layouts": 3,
+      "message_panel_layouts": 9
+    }
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-28-turn-angle-edit\\qa\\GeoSpectrum.exe",
+    "pid": 32892,
+    "loaded_pair_sha256": {
+      "GeoSpectrum.exe": "afb12c35dba4fb933615aaab1d43c697415246adae8e5c4721b20a8a93b10588",
+      "geospectrum-backend.exe": "f4f0ff0f331c9c74cbaac4b6dbdf6d4b1e72cfce28fa1bc041c2adcc62aeec63"
+    },
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "0678855f095f2a7a8379f39c486b42118904db8aa9edcd41d2d3ffd30ee768f1",
+    "geospectrum-backend.exe": "f4f0ff0f331c9c74cbaac4b6dbdf6d4b1e72cfce28fa1bc041c2adcc62aeec63"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\turn-angle-edit-20261028\\before"
+}

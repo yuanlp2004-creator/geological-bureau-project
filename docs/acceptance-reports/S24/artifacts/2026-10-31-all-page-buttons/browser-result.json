@@ -1,0 +1,2028 @@
+{
+  "status": "passed",
+  "checks": [
+    "25个已注册入口逐页打开；按钮声明与页面/后端调用链对应归档",
+    "备份目录选择保留完整含中文路径；取消保持草稿；选择动作不自动保存",
+    "样号插入作用于当前光标之前；回车连续录入保留；SAM导出失败可见且队列不变",
+    "摄谱插入打开当前队列的样号表；清除移走本次待测列表，保存队列/任务/已采数据保持",
+    "重算来源与旧记录区间的全选均幂等，反选单独翻转当前列表",
+    "曲线全部还原恢复原始强度，停用点保持停用；兼容API默认仍保留",
+    "分析谱图适合图像只还原横向，纵向还原独立有效",
+    "Single save request publishes valid edits; repeated clicks blocked; open selects method; current updates while old task/version stay unchanged",
+    "Invalid numeric input causes zero writes; duplicate-name and stale-version refusals preserve local input and database versions",
+    "Open reenables an existing paused method without rewriting history; Save As preserves source versions and current selection",
+    "Readonly method view exposes no mutation controls; light/wide and dark/narrow layouts keep the simplified operations visible without overflow",
+    {
+      "id": 1,
+      "message": "两个输出页签保留，已移除重算与迁移结果导出入口"
+    },
+    {
+      "id": 2,
+      "message": "报告建立/预览/确认保留，Excel/PDF真实内容接入统一保存边界，取消保存不记为已保存"
+    },
+    {
+      "id": 3,
+      "message": "强度Excel/PDF输出完整真实峰值/背景表，预览保留，不依赖文本/JSON或旧文件"
+    },
+    {
+      "id": 4,
+      "message": "输出中锁定批次，强度读取失败清空旧表并禁用输出，重选可恢复"
+    },
+    {
+      "id": 5,
+      "message": "打印使用真实系统打印机列表，指定打印机传入后端，取消反馈不会误报成功"
+    },
+    {
+      "id": 6,
+      "message": "重新计算和迁移工具保留，移除输出区域后两个页签状态仍保持"
+    },
+    {
+      "id": 7,
+      "message": "主体上移、空白压缩，两个页签的1440/1060宽度、680高度及明暗主题无横向越界"
+    },
+    "维护备份与校验按钮实际生成并验证隔离数据库副本",
+    "One device-debug menu entry contains all four permission-controlled tabs",
+    "Software and device parameter drafts survive tab changes",
+    "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+    "Device parameters persist through the existing API and reject duplicate CCD slots",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+    "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+    "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+    "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+    "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+    "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+    "Mercury-only read permission reaches the unified entry without requiring settings or device permissions",
+    "Default view shows every stored role summary and ordinary section actions",
+    "Eight layouts: real light/dark settings, both densities, 1060/1440 widths, forms closed/open",
+    "Template copies exact keys, including default analyst and explicit blank",
+    "Group toggle, partial selection, collapse and duplicate-name failure preserve exact draft",
+    "Custom role saves exactly the selected keys; all source roles remain unchanged",
+    "User receives the selected role, audit exists, read-only UI and server deny unauthorized account creation",
+    "方法生命周期、设备调试/汞灯安全收尾、用户角色与只读权限复用既有真实UI回归通过"
+  ],
+  "errors": [],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 295,
+          "right": 649.65625
+        },
+        {
+          "left": 665.65625,
+          "right": 1020.328125
+        },
+        {
+          "left": 1036.328125,
+          "right": 1390.984375
+        },
+        {
+          "left": 295,
+          "right": 465.125
+        },
+        {
+          "left": 469.125,
+          "right": 639.25
+        },
+        {
+          "left": 655.25,
+          "right": 942.125
+        },
+        {
+          "left": 958.125,
+          "right": 1245
+        },
+        {
+          "left": 1261,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 383,
+          "right": 463
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.953125
+        },
+        {
+          "left": 365.953125,
+          "right": 443.046875
+        },
+        {
+          "left": 451.046875,
+          "right": 530.046875
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1440-1000-light.png",
+      "doc": 1440,
+      "w": 1440,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 375
+        },
+        {
+          "left": 295,
+          "right": 1391
+        },
+        {
+          "left": 295,
+          "right": 357.953125
+        },
+        {
+          "left": 365.953125,
+          "right": 443.046875
+        },
+        {
+          "left": 451.046875,
+          "right": 530.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "分析报告",
+      "file": "output-report-1060-680-light.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 252,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 252,
+          "right": 373.15625
+        },
+        {
+          "left": 377.15625,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 892.984375,
+          "right": 1022.984375
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-680-light.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "分析报告",
+      "file": "output-report-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 252,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 252,
+          "right": 373.15625
+        },
+        {
+          "left": 377.15625,
+          "right": 498.328125
+        },
+        {
+          "left": 514.328125,
+          "right": 760.65625
+        },
+        {
+          "left": 776.65625,
+          "right": 1022.984375
+        },
+        {
+          "left": 892.984375,
+          "right": 1022.984375
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 340,
+          "right": 420
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "tab": "强度数据",
+      "file": "output-intensity-1060-1000-dark.png",
+      "doc": 1060,
+      "w": 1060,
+      "gap": 17,
+      "controls": [
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 332
+        },
+        {
+          "left": 252,
+          "right": 1023
+        },
+        {
+          "left": 252,
+          "right": 314.953125
+        },
+        {
+          "left": 322.953125,
+          "right": 400.046875
+        },
+        {
+          "left": 408.046875,
+          "right": 487.046875
+        }
+      ]
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "light",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "软件参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "设备参数"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "调试对中"
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 680,
+      "tab": "汞灯调试"
+    },
+    {
+      "width": 2560,
+      "height": 1200,
+      "tab": "调试对中",
+      "expanded": false
+    },
+    {
+      "width": 2560,
+      "height": 1200,
+      "tab": "调试对中",
+      "expanded": true
+    },
+    {
+      "width": 2560,
+      "height": 1200,
+      "tab": "汞灯调试",
+      "expanded": false
+    },
+    {
+      "width": 2560,
+      "height": 1200,
+      "tab": "汞灯调试",
+      "expanded": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中",
+      "expanded": false
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "tab": "调试对中",
+      "expanded": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试",
+      "expanded": false
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "tab": "汞灯调试",
+      "expanded": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "density": "comfortable",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 654.265625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 654.265625,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 785.53125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 785.53125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 916.796875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 916.796875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1048.0625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "density": "comfortable",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 272,
+          "width": 315,
+          "right": 610,
+          "kind": "field"
+        },
+        {
+          "x": 626,
+          "y": 272,
+          "width": 315,
+          "right": 941,
+          "kind": "field"
+        },
+        {
+          "x": 957,
+          "y": 272,
+          "width": 315,
+          "right": 1272,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 752.859375,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 752.859375,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 884.125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 884.125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1015.390625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 1015.390625,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1146.65625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1309.921875,
+          "width": 320,
+          "right": 615,
+          "kind": "field"
+        },
+        {
+          "x": 631,
+          "y": 1309.921875,
+          "width": 320,
+          "right": 951,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "density": "compact",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 630.265625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 630.265625,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 761.53125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 761.53125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 892.796875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 892.796875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1024.0625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "dark",
+      "density": "compact",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 260,
+          "width": 209.328125,
+          "right": 457.328125,
+          "kind": "field"
+        },
+        {
+          "x": 473.328125,
+          "y": 260,
+          "width": 209.328125,
+          "right": 682.65625,
+          "kind": "field"
+        },
+        {
+          "x": 698.65625,
+          "y": 260,
+          "width": 209.328125,
+          "right": 907.984375,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 724.859375,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 724.859375,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 856.125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 856.125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 987.390625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 987.390625,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1118.65625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1281.921875,
+          "width": 320,
+          "right": 568,
+          "kind": "field"
+        },
+        {
+          "x": 584,
+          "y": 1281.921875,
+          "width": 320,
+          "right": 904,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1989.046875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1989.046875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "light",
+      "density": "compact",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 630.265625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 630.265625,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 761.53125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 761.53125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 892.796875,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 892.796875,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1024.0625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "theme": "light",
+      "density": "compact",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 248,
+          "y": 260,
+          "width": 209.328125,
+          "right": 457.328125,
+          "kind": "field"
+        },
+        {
+          "x": 473.328125,
+          "y": 260,
+          "width": 209.328125,
+          "right": 682.65625,
+          "kind": "field"
+        },
+        {
+          "x": 698.65625,
+          "y": 260,
+          "width": 209.328125,
+          "right": 907.984375,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 724.859375,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 724.859375,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 856.125,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 856.125,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 987.390625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 649.5,
+          "y": 987.390625,
+          "width": 377.5,
+          "right": 1027,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1118.65625,
+          "width": 377.5,
+          "right": 625.5,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 248,
+          "y": 1281.921875,
+          "width": 320,
+          "right": 568,
+          "kind": "field"
+        },
+        {
+          "x": 584,
+          "y": 1281.921875,
+          "width": 320,
+          "right": 904,
+          "kind": "field"
+        },
+        {
+          "x": 248,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1431.890625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1511.484375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1591.078125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1670.671875,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1750.265625,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1829.859375,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        },
+        {
+          "x": 780.65625,
+          "y": 1909.453125,
+          "width": 246.328125,
+          "right": 1026.984375,
+          "kind": "permission-group"
+        },
+        {
+          "x": 248,
+          "y": 1989.046875,
+          "width": 246.328125,
+          "right": 494.328125,
+          "kind": "permission-group"
+        },
+        {
+          "x": 514.328125,
+          "y": 1989.046875,
+          "width": 246.328125,
+          "right": 760.65625,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "density": "comfortable",
+      "expanded": false,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 654.265625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 654.265625,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 785.53125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 785.53125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 916.796875,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 916.796875,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1048.0625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "density": "comfortable",
+      "expanded": true,
+      "overflow": false,
+      "boxes": [
+        {
+          "x": 295,
+          "y": 272,
+          "width": 315,
+          "right": 610,
+          "kind": "field"
+        },
+        {
+          "x": 626,
+          "y": 272,
+          "width": 315,
+          "right": 941,
+          "kind": "field"
+        },
+        {
+          "x": 957,
+          "y": 272,
+          "width": 315,
+          "right": 1272,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 752.859375,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 752.859375,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 884.125,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 884.125,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1015.390625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 855,
+          "y": 1015.390625,
+          "width": 536,
+          "right": 1391,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1146.65625,
+          "width": 536,
+          "right": 831,
+          "kind": "auth-role-card"
+        },
+        {
+          "x": 295,
+          "y": 1309.921875,
+          "width": 320,
+          "right": 615,
+          "kind": "field"
+        },
+        {
+          "x": 631,
+          "y": 1309.921875,
+          "width": 320,
+          "right": 951,
+          "kind": "field"
+        },
+        {
+          "x": 295,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1463.890625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1543.484375,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1623.078125,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1702.671875,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        },
+        {
+          "x": 1132,
+          "y": 1782.265625,
+          "width": 259,
+          "right": 1391,
+          "kind": "permission-group"
+        },
+        {
+          "x": 295,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 554,
+          "kind": "permission-group"
+        },
+        {
+          "x": 574,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 833,
+          "kind": "permission-group"
+        },
+        {
+          "x": 853,
+          "y": 1861.859375,
+          "width": 259,
+          "right": 1112,
+          "kind": "permission-group"
+        }
+      ]
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "theme": "dark",
+      "width": 1060,
+      "height": 720
+    }
+  ],
+  "pages": [
+    {
+      "key": "workspace.overview",
+      "label": "工作台概览",
+      "page": "workspace",
+      "view": null
+    },
+    {
+      "key": "system.settings",
+      "label": "软件设置",
+      "page": "settings",
+      "view": null
+    },
+    {
+      "key": "help.about",
+      "label": "关于软件",
+      "page": "about",
+      "view": null
+    },
+    {
+      "key": "system.users",
+      "label": "用户与权限",
+      "page": "users",
+      "view": null
+    },
+    {
+      "key": "system.audit",
+      "label": "审计记录",
+      "page": "audit",
+      "view": null
+    },
+    {
+      "key": "methods.lifecycle",
+      "label": "方法管理与参数",
+      "page": "methods",
+      "view": "conditions"
+    },
+    {
+      "key": "methods.lines",
+      "label": "分析谱线",
+      "page": "methods",
+      "view": "lines"
+    },
+    {
+      "key": "methods.print-preview",
+      "label": "预览与打印",
+      "page": "methods",
+      "view": "print-preview"
+    },
+    {
+      "key": "tools.legacy-methods",
+      "label": "旧方法与配置迁移",
+      "page": "migration",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.samples",
+      "label": "样号与样品队列",
+      "page": "samples",
+      "view": null
+    },
+    {
+      "key": "tools.legacy-spectra",
+      "label": "旧谱数据迁移",
+      "page": "spectrum-migration",
+      "view": null
+    },
+    {
+      "key": "tools.legacy-results",
+      "label": "旧结果迁移",
+      "page": "result-migration",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.spectra",
+      "label": "谱图查看",
+      "page": "spectra",
+      "view": null
+    },
+    {
+      "key": "tools.devices",
+      "label": "设备调试",
+      "page": "acquisition",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.dispersion",
+      "label": "色散摄谱",
+      "page": "dispersion",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.dispersion-curves",
+      "label": "色散曲线",
+      "page": "dispersion",
+      "view": "curve"
+    },
+    {
+      "key": "analysis-tests.evaporation",
+      "label": "蒸发摄谱",
+      "page": "evaporation-acquisition",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.acquisition",
+      "label": "样品摄谱",
+      "page": "sample-acquisition",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.evaporation-curves",
+      "label": "蒸发曲线",
+      "page": "evaporation-curves",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.hardware",
+      "label": "自动转角采集",
+      "page": "hardware-acquisition",
+      "view": null
+    },
+    {
+      "key": "analysis-tests.raw",
+      "label": "样品分析",
+      "page": "analysis",
+      "view": "raw"
+    },
+    {
+      "key": "data.recalculate",
+      "label": "重新计算",
+      "page": "postprocessing",
+      "view": "recalculate"
+    },
+    {
+      "key": "data.reports",
+      "label": "打印与导出",
+      "page": "reports",
+      "view": null
+    },
+    {
+      "key": "system.maintenance",
+      "label": "备份与维护",
+      "page": "maintenance",
+      "view": null
+    },
+    {
+      "key": "help.offline",
+      "label": "离线帮助",
+      "page": "help",
+      "view": null
+    }
+  ],
+  "recalculationLayouts": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "file": "recalculate-1440-1000-light.png",
+      "gap": 16,
+      "padding": "0px",
+      "doc": 1440,
+      "w": 1440,
+      "controls": [
+        {
+          "top": 284.78125,
+          "bottom": 308.578125
+        },
+        {
+          "top": 278.6875,
+          "bottom": 314.6875
+        },
+        {
+          "top": 278.6875,
+          "bottom": 314.6875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 680,
+      "theme": "light",
+      "file": "recalculate-1060-680-light.png",
+      "gap": 16,
+      "padding": "0px",
+      "doc": 1060,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 219.78125,
+          "bottom": 243.578125
+        },
+        {
+          "top": 213.6875,
+          "bottom": 249.6875
+        },
+        {
+          "top": 213.6875,
+          "bottom": 249.6875
+        }
+      ]
+    },
+    {
+      "width": 1060,
+      "height": 1000,
+      "theme": "dark",
+      "file": "recalculate-1060-1000-dark.png",
+      "gap": 16,
+      "padding": "0px",
+      "doc": 1060,
+      "w": 1060,
+      "controls": [
+        {
+          "top": 219.78125,
+          "bottom": 243.578125
+        },
+        {
+          "top": 213.6875,
+          "bottom": 249.6875
+        },
+        {
+          "top": 213.6875,
+          "bottom": 249.6875
+        }
+      ]
+    }
+  ],
+  "failedRequests": [
+    {
+      "url": "http://127.0.0.1:54130/api/v1/auth/logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://127.0.0.1:54130/api/v1/auth/logout",
+      "error": "net::ERR_ABORTED"
+    }
+  ]
+}

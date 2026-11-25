@@ -66,6 +66,8 @@ export type DeviceDiagnostics = {
     port?: string
     instrument_responded?: boolean
     profile_id?: number | null
+    angle_deg?: number | null
+    turning?: boolean
     last_error?: { code: string; message: string } | null
     contract: Record<string, number>
   }
@@ -76,6 +78,25 @@ export type DeviceDiagnostics = {
 export type DevicePort = { device: string; port: number; description: string; is_bluetooth: boolean
   bluetooth_address?: string | null; direction?: 'outgoing' | 'incoming' | null }
 export type BluetoothDevice = { address: string; name: string; connected: boolean; paired: boolean; ports: DevicePort[] }
+export type MotorPositionEvidence = {
+  reference_source: string
+  reference_file: string
+  observed_file: string
+  reference_sha256?: string
+  observed_sha256?: string
+  ccd_index: number
+  reference_angle_deg: number
+  reference_peak: number
+  observed_peak: number
+  target_angle_deg: number
+}
+export type MotorBinding = {
+  bluetooth_address: string
+  motor_port: number
+  api_port: number
+  calibration_id: string
+  angles: { method_angle_deg: number; motor_angle_deg: number; evidence?: MotorPositionEvidence | null }[]
+}
 
 export type DeviceDebugResult = {
   session_id: string | null
@@ -85,7 +106,25 @@ export type DeviceDebugResult = {
   spectrum_records_created: number
 }
 
+export type DeviceDebugTurn = {
+  profile_id: number | null
+  angles: number[]
+  current_angle_deg: number | null
+  moving: boolean
+  simulated: boolean
+}
+
 export const devicesApi = {
+  deviceDebugTurn: (token: string) => request<DeviceDebugTurn>('/api/v1/devices/debug/turn', { headers: { Authorization: `Bearer ${token}` } }),
+  switchDeviceDebugTurn: (token: string, profileId: number, angle: number) =>
+    request<DeviceDebugTurn>('/api/v1/devices/debug/turn', { method: 'POST', timeoutMs: 390000,
+      headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ profile_id: profileId, angle_deg: angle }) }),
+  motorBinding: (token: string, profileId: number) =>
+    request<MotorBinding | null>(`/api/v1/devices/profiles/${profileId}/motor-binding`, { headers: { Authorization: `Bearer ${token}` } }),
+  saveMotorBinding: (token: string, profileId: number, binding: MotorBinding) =>
+    request<MotorBinding>(`/api/v1/devices/profiles/${profileId}/motor-binding`, {
+      method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(binding),
+    }),
   deleteBluetoothDevice: (token: string, address: string) => request<{ deleted: boolean }>(`/api/v1/devices/bluetooth/${encodeURIComponent(address)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
   bluetoothDevices: (token: string) => request<{ devices: BluetoothDevice[] }>('/api/v1/devices/bluetooth', { headers: { Authorization: `Bearer ${token}` } }),
   selectDevicePort: (token: string, transport: 'serial' | 'simulator', port?: number, bluetoothAddress?: string) =>
@@ -130,6 +169,7 @@ export const devicesApi = {
   disconnectDevice: (token: string) =>
     request<{ diagnostics: DeviceDiagnostics['adapter']; event: DeviceEvent }>('/api/v1/devices/disconnect', {
       method: 'POST',
+      timeoutMs: 70000,
       headers: { Authorization: `Bearer ${token}` }
     }),
   startDeviceDebug: (token: string, payload: { sample?: string; seed?: number; fault_frame?: number | null }) =>
@@ -146,6 +186,7 @@ export const devicesApi = {
   stopDeviceDebug: (token: string) =>
     request<Omit<DeviceDebugResult, 'session_id'>>('/api/v1/devices/debug/stop', {
       method: 'POST',
+      timeoutMs: 70000,
       headers: { Authorization: `Bearer ${token}` }
     })
 }

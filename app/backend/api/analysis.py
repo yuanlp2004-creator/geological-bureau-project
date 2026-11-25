@@ -3,6 +3,8 @@
 from __future__ import annotations
 import base64
 import binascii
+import hashlib
+import json
 from typing import Any, Literal
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -23,35 +25,66 @@ from ..schemas.analysis import (
     AnalysisSpectrumPrintRequest,
 )
 from ..auth import Session
+from ..db import utc_now
 from ..schemas.system import SettingsIntensityOutput,SettingsPatch
 from ..modules.analysis import AnalysisError
 from ..modules.sample_queues import SampleQueueError, read_sample_numbers, write_sample_numbers
+from ..modules.sample_workbook import MIME_TYPE as WORKBOOK_MIME_TYPE, read_sample_workbook, write_sample_workbook
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
+from .deployment_access import require_activation
 
 router = APIRouter()
 RunStatus = Literal["draft", "running", "paused", "completed", "cancelled", "failed"]
+
+
+def _validate_numbering_workbook(entries):
+    for position, item in enumerate(entries, 1):
+        has_name = item['name'].strip() not in {'', ','}
+        if has_name != bool(item['repeats']):
+            raise SampleQueueError('analysis_sample_numbering_invalid',
+                                   f'第 {position} 个样号位置的编号和重复次数不匹配。有效样号至少重复 1 次，空样为 0 次',
+                                   details={'position': position})
 
 
 @router.post("/api/v1/analyses/sample-numbers/read", tags=["analysis"])
 def read_analysis_sample_numbers(payload: AnalysisSampleNumbersFile,
     _: Session = Depends(require_permission("analysis.execute"))) -> dict[str, Any]:
     try:
-        return {"entries": read_sample_numbers(base64.b64decode(payload.content_base64, validate=True), payload.encoding)}
+        content = base64.b64decode(payload.content_base64, validate=True)
+        if payload.format == 'xlsx':
+            entries, _ = read_sample_workbook(content, limit=200, normalize_standards=False)
+            _validate_numbering_workbook(entries)
+            return {'entries': entries}
+        return {"entries": read_sample_numbers(content, payload.encoding)}
     except binascii.Error as exc:
-        raise HTTPException(422, detail={"code": "sam_payload_invalid", "message": "无法读取样号文件"}) from exc
+        code = 'sample_workbook_invalid' if payload.format == 'xlsx' else 'sam_payload_invalid'
+        raise HTTPException(422, detail={"code": code, "message": "无法读取样号文件"}) from exc
     except SampleQueueError as exc:
         raise HTTPException(exc.status_code, detail=exc.detail()) from exc
 
 
 @router.post("/api/v1/analyses/sample-numbers/write", tags=["analysis"])
 def write_analysis_sample_numbers(payload: AnalysisSampleNumbersExport,
-    _: Session = Depends(require_permission("analysis.execute"))) -> Response:
+    session: Session = Depends(require_permission("analysis.execute")),
+    *, runtime: Runtime = Depends(get_runtime)) -> Response:
+    entries = [item.model_dump() for item in payload.entries]
     try:
-        content = write_sample_numbers([item.model_dump() for item in payload.entries])
-        return Response(content=content, media_type="application/octet-stream")
+        if payload.format == 'sam':
+            return Response(content=write_sample_numbers(entries), media_type="application/octet-stream")
+        _validate_numbering_workbook(entries)
+        content = write_sample_workbook(entries, normalize_standards=False)
     except SampleQueueError as exc:
-        raise HTTPException(422, detail={"code": exc.code, "message": str(exc)}) from exc
+        raise HTTPException(exc.status_code, detail=exc.detail()) from exc
+    with runtime.database.write() as db:
+        db.execute(
+            "INSERT INTO audit_events(actor_user_id,action,target_type,target_id,details_json,created_at) "
+            "VALUES (?,'analysis.sample_numbers.xlsx_export','analysis',NULL,?,?)",
+            (session.user_id, json.dumps({'sha256': hashlib.sha256(content).hexdigest(), 'records': len(entries)}),
+             utc_now()),
+        )
+    return Response(content, media_type=WORKBOOK_MIME_TYPE,
+                    headers={'Content-Disposition': 'attachment; filename="analysis-sample-numbers.xlsx"'})
 
 
 @router.post('/api/v1/analyses/runs/{run_id}/intensity-output', tags=['analysis'])
@@ -161,6 +194,7 @@ def start_analysis_run(
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
+    require_activation(runtime)
     try:
         return runtime.messages.task(runtime.analysis_service().start(run_id, session.user_id), source='analysis', category='analysis')
     except AnalysisError as exc:

@@ -12,6 +12,8 @@ from .printing import SystemPrinters
 from .services import AppService
 from .runtime_messages import RuntimeMessages
 from .auth import AuthService
+from .modules.activation import ActivationService
+from .modules.support_diagnostics import SupportDiagnostics
 from .modules.methods import MethodService
 from .modules.method_printing import MethodPrintService
 from .modules.spectral_lines import SpectralLineService
@@ -39,6 +41,8 @@ class Runtime:
         self.service = AppService(self.database, config.runtime_log_path)
         self.messages = RuntimeMessages(self.service)
         self.auth_service = AuthService(self.database)
+        self.activation = ActivationService(config.data_dir, config.activation_public_key)
+        self.support_diagnostics = SupportDiagnostics()
         self.process_key = process_key
         self.device_exit_gate = threading.Event()
         self.event_subscribers: set[asyncio.Queue[dict]] = set()
@@ -126,6 +130,7 @@ class Runtime:
         return self._hardware_acquisition_service_instance
 
     def shutdown(self) -> list[dict]:
+        self.support_diagnostics.close()
         self.device_exit_gate.set()
         errors = []
         for service in (self._acquisition_service_instance, self._dispersion_service_instance,

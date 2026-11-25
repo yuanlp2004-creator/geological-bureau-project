@@ -1,0 +1,158 @@
+{
+  "status": "passed",
+  "date": "2026-11-01",
+  "execution_plan_sha256": "284f5e5aa9d188b42f91aca9ac013bfdbead62f20f67ec4ab7a5113ef11f2b27",
+  "backend_tests": 41,
+  "frontend_tests": 20,
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "主谱图选点＋增加谱线，保留CCD点位，波长在旧式网格中填写",
+      "六列表格与六项计算结果按旧版口径显示，跨CCD测量步数含间隔，二次拟合与每步波长正确",
+      "区间初始未选择、标尺调节、只重算步数不自动拟合；结果失效与保存取消保护正确",
+      "独立窗体顶部工具、左表右结果，普通／最小／超宽窗口及明暗主题无横向溢出",
+      "保存曲线弹出命名窗口，真实保存可选用版本并退出拟合窗口，取消草稿保留",
+      "谱线标记／列表右键菜单、Ctrl方向键微移、保存／还原全部位置接通；已保存曲线保持",
+      "保存后的曲线可在真实方法参数中选用并保存确切布局与系数，原方法保持",
+      "色散摄谱与色散曲线共用同一旧式独立窗口；重新打开不展示陈旧拟合结果"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680
+      },
+      {
+        "theme": "light",
+        "width": 2560,
+        "height": 1200
+      }
+    ],
+    "reviewTaskId": 2,
+    "savedCalibrationId": 6
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "主谱图选点＋增加谱线，保留CCD点位，波长在旧式网格中填写",
+      "六列表格与六项计算结果按旧版口径显示，跨CCD测量步数含间隔，二次拟合与每步波长正确",
+      "区间初始未选择、标尺调节、只重算步数不自动拟合；结果失效与保存取消保护正确",
+      "独立窗体顶部工具、左表右结果，普通／最小／超宽窗口及明暗主题无横向溢出",
+      "保存曲线弹出命名窗口，真实保存可选用版本并退出拟合窗口，取消草稿保留",
+      "谱线标记／列表右键菜单、Ctrl方向键微移、保存／还原全部位置接通；已保存曲线保持",
+      "保存后的曲线可在真实方法参数中选用并保存确切布局与系数，原方法保持",
+      "色散摄谱与色散曲线共用同一旧式独立窗口；重新打开不展示陈旧拟合结果"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680
+      },
+      {
+        "theme": "light",
+        "width": 2560,
+        "height": 1200
+      }
+    ],
+    "reviewTaskId": 2,
+    "savedCalibrationId": 6
+  },
+  "spectrum_regression": {
+    "status": "passed",
+    "checks": [
+      "＋在选定CCD点位直接增加谱线并选中；四个波长保持未填写",
+      "鼠标单击曲线选点可直接增加；删除只影响本次所选谱线",
+      "重复加点被拒绝，现有谱线保持",
+      "拟合按钮打开编辑窗口；未填波长禁止拟合；填写四条后完成真实二次拟合",
+      "Ctrl方向键按一点移动；右键保存全部位置及还原所选位置",
+      "CCD,点位定位联动CCD；非法坐标保持当前CCD；上下CCD及选择器可用",
+      "查看/框选/滚动、三种比例、横纵放大缩小与纵向还原；适合图像只还原横向；框选后回到查看",
+      "－实际删除所选谱线并清除选择；降至三条后拟合禁用",
+      "校正谱线读取均值扣暗帧；平坦信号明确失败并保留全部原位置",
+      "旧WDT打印生成真实PDF；原件只读打开"
+    ],
+    "errors": [],
+    "layouts": [
+      "light",
+      "dark"
+    ]
+  },
+  "deployment": {
+    "status": "passed",
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "5e0f8ca16246f59c9bbe4270601fd055f024bc86266a1ee77609333fc16bbda3",
+        "after": "abe4bd702306ae8c910fa994d4273640f70e8b5491f8656fbbbd168cbe5d923d",
+        "backup": "D:\\地质局\\app\\.local\\diagnostics\\legacy-dispersion-20261101\\before\\GeoSpectrum.exe"
+      },
+      "geospectrum-backend.exe": {
+        "before": "4dec41d678c8449feba284b683071e7561dcd8ecc8b9ee80e1946eaf9915b413",
+        "after": "c1c8035169345d0b4bfd4f648f7db77e5d6a77b75e973ed1627b2ab0ed504b7b",
+        "backup": "D:\\地质局\\app\\.local\\diagnostics\\legacy-dispersion-20261101\\before\\geospectrum-backend.exe"
+      }
+    },
+    "existing_windows_preserved": true
+  },
+  "review": {
+    "window_retained": true,
+    "backend_retained": true,
+    "page": "色散摄谱 / 色散曲线",
+    "task": 2,
+    "savedCalibrationId": 6,
+    "device": {
+      "adapter": "acq-simulator",
+      "state": "idle",
+      "session_id": null,
+      "connected": false,
+      "contract": {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "frame_size": 8193,
+        "byte_length": 24579
+      }
+    },
+    "mercury": [],
+    "frozen_positive_peak": {
+      "position": 107,
+      "repeated": 3,
+      "unchanged": true
+    }
+  },
+  "schema_version": 26,
+  "new_database_migrations": false,
+  "user_database_modified": false,
+  "root_and_app_top_level_unchanged": true,
+  "product_qa_sources_and_assets_identical": true,
+  "legacy_originals_sha256": {
+    "Spec Source/Source/Main/mmAnalyze/FmWstc.pas": "9d135ef96934edd975917eacd88042b1d92ec58183f03a7d0dad583cf1f57687",
+    "Spec Source/Source/Main/mmAnalyze/FmWstc.dfm": "8bd6b59fddc68bd495e6080c8caf1f2c57850ce13cf84b2c5dca0fee5e0c7596",
+    "Spec Source/Source/Main/mmAnalyze/FmViewSingle.pas": "d879af2a802431c432a1413778af8e3a1aaa4fc02bebb34f9a5ecbf044cb290b",
+    "Spec Source/Source/Main/mmAnalyze/FmView.pas": "fb748411b1ad8a8f997cf0abf7a241f081aafecd8331b35313144ec8e1c5c153",
+    "Spec Source/Source/Main/mmAnalyze/FmView.dfm": "9c512968d3025d031a5b879a4f25f1c0e763eb55670708c0ee68aad8f163d7e4",
+    "Spec Source/Source/Main/mmMethod/FmSelect.pas": "aaa9dee427cbb858474eb279facea107c05184a4ed441790ec6859489b70b511",
+    "Spec Source/Source/Common/uAnaLine.pas": "dd19a0c31ed345199504aa55498ce2a502141a187bb608409a93fb63a7562256",
+    "Spec Source/Source/Common/uAnaThread.pas": "9aa79a35def7cd7145dd6c2c4d9b43171582c151847e8839ca167eb45b1e3a7a",
+    "Spec Source/Source/Common/uCcdBand.pas": "7ce928e365a377349796a08739e363dfdd632ab2643c17f14fd6f151c912a942",
+    "Spec Source/Source/Common/uOptions.pas": "57327a67240cb581e64ec89dac2a17fbd3d59cc08348bd39ad1f8d21de625ad2",
+    "Spec Source/Source/Common/uGlobal.pas": "2a9ab392adeb66e7c89cbe94bd605bc10d8779274eee5ab076f6372628d9f795"
+  },
+  "preserved_differences": [
+    "同名保存生成不可变新版本，已被方法或结果引用的曲线保持",
+    "无唯一有效峰不移动；固定搜索基准防止重复漂移",
+    "稳定的归一化二次拟合，保持旧版公式含义及显示精度"
+  ]
+}

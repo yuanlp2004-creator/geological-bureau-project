@@ -1,0 +1,510 @@
+{
+  "status": "passed",
+  "checks": [
+    "normal-light: 三组图标顺序/位置与旧窗体对应，常态无框、选中可见；CCD键盘选择正常，页边距仍与摄谱一致",
+    "medium-light: 三组图标顺序/位置与旧窗体对应，常态无框、选中可见；CCD键盘选择正常，页边距仍与摄谱一致",
+    "small-dark: 三组图标顺序/位置与旧窗体对应，常态无框、选中可见；CCD键盘选择正常，页边距仍与摄谱一致",
+    "wide-light: 三组图标顺序/位置与旧窗体对应，常态无框、选中可见；CCD键盘选择正常，页边距仍与摄谱一致",
+    "从单谱滚动切换CMT后恢复十字线，隐藏工具不残留激活状态",
+    "列表关闭与恢复、三个查看页门形关闭按钮正常；未改动查看数据",
+    "light: 真实WDT谱带表、常驻谱线栏、平方根灰度、峰形共用坐标、悬停尺寸稳定及观察零写入",
+    "light: 旧设置面板已删除，筛选/校正/定位/原始帧/分时明细/打印由当前按钮打开独立窗口",
+    "light: 无记录/曝光勾选框，整行单选与Ctrl叠加、锁定保护、曝光直接生效及同点原值联动",
+    "light: 单样品/多样品切换与CCD切换均由当前保存谱图驱动",
+    "light: 删除下方第二套蒸发列表与工具；帧统计只在当前记录窗口按需读取",
+    "light: 真实EDT保留单一谱带/灰度/峰形工作区",
+    "dark: 真实WDT谱带表、常驻谱线栏、平方根灰度、峰形共用坐标、悬停尺寸稳定及观察零写入",
+    "dark: 旧设置面板已删除，筛选/校正/定位/原始帧/分时明细/打印由当前按钮打开独立窗口",
+    "dark: 无记录/曝光勾选框，整行单选与Ctrl叠加、锁定保护、曝光直接生效及同点原值联动",
+    "dark: 单样品/多样品切换与CCD切换均由当前保存谱图驱动",
+    "dark: 删除下方第二套蒸发列表与工具；帧统计只在当前记录窗口按需读取",
+    "dark: 真实EDT保留单一谱带/灰度/峰形工作区",
+    "旧WDT查看按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "切CCD遇503立即清空旧灰度和峰形，重试恢复，避免旧数据冒充新CCD",
+    "三份旧文件原件SHA-256保持；全部导入和观察操作仅在隔离库内",
+    "仅采集读取权限保留精简帧查看，不访问谱图接口或复活旧卡片界面"
+  ],
+  "layouts": [
+    {
+      "name": "reference-normal-light",
+      "x": 274,
+      "right": 1397,
+      "width": 1123,
+      "top": 145,
+      "bottom": 905,
+      "headingLeft": 274,
+      "headingRight": 1397,
+      "leftGutter": 28,
+      "rightGutter": 28,
+      "overflow": false
+    },
+    {
+      "name": "wdt-normal-light",
+      "x": 274,
+      "right": 1397,
+      "width": 1123,
+      "top": 191,
+      "bottom": 946,
+      "headingLeft": 274,
+      "headingRight": 1397,
+      "leftGutter": 28,
+      "rightGutter": 28,
+      "overflow": false
+    },
+    {
+      "name": "cmt-normal-light",
+      "x": 274,
+      "right": 1397,
+      "width": 1123,
+      "top": 183,
+      "bottom": 946,
+      "headingLeft": 274,
+      "headingRight": 1397,
+      "leftGutter": 28,
+      "rightGutter": 28,
+      "overflow": false
+    },
+    {
+      "name": "edt-normal-light",
+      "x": 274,
+      "right": 1397,
+      "width": 1123,
+      "top": 183,
+      "bottom": 946,
+      "headingLeft": 274,
+      "headingRight": 1397,
+      "leftGutter": 28,
+      "rightGutter": 28,
+      "overflow": false
+    },
+    {
+      "name": "reference-medium-light",
+      "x": 266,
+      "right": 1285,
+      "width": 1019,
+      "top": 153,
+      "bottom": 813,
+      "headingLeft": 266,
+      "headingRight": 1285,
+      "leftGutter": 20,
+      "rightGutter": 20,
+      "overflow": false
+    },
+    {
+      "name": "wdt-medium-light",
+      "x": 266,
+      "right": 1285,
+      "width": 1019,
+      "top": 203,
+      "bottom": 846,
+      "headingLeft": 266,
+      "headingRight": 1285,
+      "leftGutter": 20,
+      "rightGutter": 20,
+      "overflow": false
+    },
+    {
+      "name": "cmt-medium-light",
+      "x": 266,
+      "right": 1285,
+      "width": 1019,
+      "top": 187,
+      "bottom": 846,
+      "headingLeft": 266,
+      "headingRight": 1285,
+      "leftGutter": 20,
+      "rightGutter": 20,
+      "overflow": false
+    },
+    {
+      "name": "edt-medium-light",
+      "x": 266,
+      "right": 1285,
+      "width": 1019,
+      "top": 187,
+      "bottom": 846,
+      "headingLeft": 266,
+      "headingRight": 1285,
+      "leftGutter": 20,
+      "rightGutter": 20,
+      "overflow": false
+    },
+    {
+      "name": "reference-small-dark",
+      "x": 231,
+      "right": 1029,
+      "width": 798,
+      "top": 145,
+      "bottom": 625,
+      "headingLeft": 231,
+      "headingRight": 1029,
+      "leftGutter": 16,
+      "rightGutter": 16,
+      "overflow": false
+    },
+    {
+      "name": "wdt-small-dark",
+      "x": 231,
+      "right": 1029,
+      "width": 798,
+      "top": 191,
+      "bottom": 666,
+      "headingLeft": 231,
+      "headingRight": 1029,
+      "leftGutter": 16,
+      "rightGutter": 16,
+      "overflow": false
+    },
+    {
+      "name": "cmt-small-dark",
+      "x": 231,
+      "right": 1029,
+      "width": 798,
+      "top": 219,
+      "bottom": 702,
+      "headingLeft": 231,
+      "headingRight": 1029,
+      "leftGutter": 16,
+      "rightGutter": 16,
+      "overflow": false
+    },
+    {
+      "name": "edt-small-dark",
+      "x": 231,
+      "right": 1029,
+      "width": 798,
+      "top": 219,
+      "bottom": 666,
+      "headingLeft": 231,
+      "headingRight": 1029,
+      "leftGutter": 16,
+      "rightGutter": 16,
+      "overflow": false
+    },
+    {
+      "name": "reference-wide-light",
+      "x": 623.5,
+      "right": 2191.5,
+      "width": 1568,
+      "top": 153,
+      "bottom": 1113,
+      "headingLeft": 623.5,
+      "headingRight": 2191.5,
+      "leftGutter": 353.5,
+      "rightGutter": 353.5,
+      "overflow": false
+    },
+    {
+      "name": "wdt-wide-light",
+      "x": 623.5,
+      "right": 2191.5,
+      "width": 1568,
+      "top": 203,
+      "bottom": 1146,
+      "headingLeft": 623.5,
+      "headingRight": 2191.5,
+      "leftGutter": 353.5,
+      "rightGutter": 353.5,
+      "overflow": false
+    },
+    {
+      "name": "cmt-wide-light",
+      "x": 623.5,
+      "right": 2191.5,
+      "width": 1568,
+      "top": 187,
+      "bottom": 1146,
+      "headingLeft": 623.5,
+      "headingRight": 2191.5,
+      "leftGutter": 353.5,
+      "rightGutter": 353.5,
+      "overflow": false
+    },
+    {
+      "name": "edt-wide-light",
+      "x": 623.5,
+      "right": 2191.5,
+      "width": 1568,
+      "top": 187,
+      "bottom": 1146,
+      "headingLeft": 623.5,
+      "headingRight": 2191.5,
+      "leftGutter": 353.5,
+      "rightGutter": 353.5,
+      "overflow": false
+    },
+    {
+      "name": "wdt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 274,
+          "y": 191,
+          "w": 1123,
+          "h": 736,
+          "right": 1397
+        },
+        {
+          "type": "legacy-view-rail dispersion-sidebar",
+          "x": 275,
+          "y": 221,
+          "w": 190,
+          "h": 705,
+          "right": 465
+        },
+        {
+          "type": "legacy-view-center dispersion-curve-monitor",
+          "x": 465,
+          "y": 221,
+          "w": 751,
+          "h": 705,
+          "right": 1216
+        },
+        {
+          "type": "dispersion-spectrum-view legacy-view-center",
+          "x": 465,
+          "y": 221,
+          "w": 751,
+          "h": 676,
+          "right": 1216
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 482,
+          "y": 429,
+          "w": 717,
+          "h": 432.953125,
+          "right": 1199
+        },
+        {
+          "type": "legacy-view-rail right",
+          "x": 1216,
+          "y": 221,
+          "w": 180,
+          "h": 705,
+          "right": 1396
+        }
+      ]
+    },
+    {
+      "name": "cmt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 274,
+          "y": 183,
+          "w": 1123,
+          "h": 763,
+          "right": 1397
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 275,
+          "y": 213,
+          "w": 210,
+          "h": 732,
+          "right": 485
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 485,
+          "y": 213,
+          "w": 911,
+          "h": 732,
+          "right": 1396
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 502,
+          "y": 433,
+          "w": 877,
+          "h": 480,
+          "right": 1379
+        }
+      ]
+    },
+    {
+      "name": "edt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 274,
+          "y": 183,
+          "w": 1123,
+          "h": 763,
+          "right": 1397
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 275,
+          "y": 213,
+          "w": 210,
+          "h": 732,
+          "right": 485
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 485,
+          "y": 213,
+          "w": 911,
+          "h": 732,
+          "right": 1396
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 502,
+          "y": 421,
+          "w": 877,
+          "h": 492,
+          "right": 1379
+        }
+      ]
+    },
+    {
+      "name": "wdt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 231,
+          "y": 191,
+          "w": 798,
+          "h": 456,
+          "right": 1029
+        },
+        {
+          "type": "legacy-view-rail dispersion-sidebar",
+          "x": 232,
+          "y": 221,
+          "w": 145,
+          "h": 425,
+          "right": 377
+        },
+        {
+          "type": "legacy-view-center dispersion-curve-monitor",
+          "x": 377,
+          "y": 221,
+          "w": 513,
+          "h": 425,
+          "right": 890
+        },
+        {
+          "type": "dispersion-spectrum-view legacy-view-center",
+          "x": 377,
+          "y": 221,
+          "w": 513,
+          "h": 396,
+          "right": 890
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 386,
+          "y": 359,
+          "w": 495,
+          "h": 228.953125,
+          "right": 881
+        },
+        {
+          "type": "legacy-view-rail right",
+          "x": 890,
+          "y": 221,
+          "w": 138,
+          "h": 425,
+          "right": 1028
+        }
+      ]
+    },
+    {
+      "name": "cmt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 231,
+          "y": 219,
+          "w": 798,
+          "h": 483,
+          "right": 1029
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 232,
+          "y": 249,
+          "w": 154,
+          "h": 452,
+          "right": 386
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 386,
+          "y": 249,
+          "w": 642,
+          "h": 452,
+          "right": 1028
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 395,
+          "y": 409,
+          "w": 624,
+          "h": 266,
+          "right": 1019
+        }
+      ]
+    },
+    {
+      "name": "edt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 231,
+          "y": 219,
+          "w": 798,
+          "h": 447,
+          "right": 1029
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 232,
+          "y": 249,
+          "w": 154,
+          "h": 416,
+          "right": 386
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 386,
+          "y": 249,
+          "w": 642,
+          "h": 416,
+          "right": 1028
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 395,
+          "y": 387,
+          "w": 624,
+          "h": 252,
+          "right": 1019
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "wdt_maximum": 14894.388671875,
+  "source_integrity": {
+    "wdt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "records": 120
+    },
+    "cmt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+      "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "records": 960
+    },
+    "edt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120
+    }
+  }
+}

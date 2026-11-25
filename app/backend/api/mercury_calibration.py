@@ -10,6 +10,7 @@ from ..auth import Session
 from ..modules.mercury_calibration import MercuryError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
+from .deployment_access import require_activation
 
 router = APIRouter()
 
@@ -70,7 +71,9 @@ def start_mercury_calibration_session(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.mercury_calibration_service().start(session_id, session.user_id), source='mercury', category='acquisition')
+        service = runtime.mercury_calibration_service()
+        require_activation(runtime, begins_new_work=lambda: service.session(session_id)["status"] == "draft")
+        return runtime.messages.task(service.start(session_id, session.user_id), source='mercury', category='acquisition')
     except MercuryError as exc:
         raise mercury_error(exc) from exc
 

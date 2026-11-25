@@ -695,6 +695,11 @@ class AnalysisService:
             locate, values_for = acquired_source(db, self.methods, version, sample_id) if sample_id is not None else source
             return calculate_preview(db, version, locate, values_for)
 
+    def observe_acquisition_frame(self, acquisition, task_id, repeat_index, turn_index, frame_index, ccd, *, can_analyze) -> dict:
+        from .frame_observation import observe_frame
+        return observe_frame(self.database, self.methods, acquisition, task_id, repeat_index, turn_index, frame_index,
+                             ccd, can_analyze=can_analyze)
+
     def spectrum(self, run_id: int, sample_position: int, acquisition: Any, line_id: str | None = None, *,
                  observation_interval: tuple[int, int] | None = None, band_position: int | None = None) -> dict[str, Any]:
         import hashlib

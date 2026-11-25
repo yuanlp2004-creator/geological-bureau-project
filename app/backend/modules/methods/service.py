@@ -10,7 +10,7 @@ from ...db import Database, utc_now
 from ...schemas.methods import MethodCreate, MethodSave, MethodUpdate
 from .values import _json, _normalize_conditions, validate_method_name, DEFAULT_CONDITIONS
 from .errors import MethodDomainError
-from .geometry import MethodGeometry, MethodLineLocator
+from .geometry import MethodGeometry, MethodLineLocator, prepared_layout_geometry
 from .repository import MethodRepository
 from .runtime import MethodRuntime
 from .validation import MethodValidator
@@ -112,6 +112,13 @@ class MethodService:
             raise MethodDomainError('method_revision_not_found', '未找到已发布方法修订')
         return sample_plan(self, connection, snapshot)
 
+    def current_working_angles(self) -> list[float]:
+        from .sample_plan import configured_angles
+        version = self.current()["referenced_version"]
+        if not version or not version["conditions"].get("angle_exposures"):
+            return []
+        return [row["angle_deg"] for row in configured_angles(version["conditions"])]
+
     def preliminary_turns(self, connection: sqlite3.Connection, version_id: int) -> dict[str, Any]:
         """Color calibration can be collected before angle-to-line calibration exists."""
         from .sample_plan import configured_angles
@@ -146,6 +153,13 @@ class MethodService:
         if dispersion['ccd_layout_id'] != layout['id']:
             raise MethodDomainError('method_geometry_mismatch', '色散标定与CCD布局不匹配')
         return MethodLineLocator(layout, dispersion, self.geometry)
+
+    def layout_geometry(self, connection: sqlite3.Connection, layout_id: int) -> dict:
+        """读取采集引用的谱板几何，不要求它关联某条色散曲线。"""
+        layout = self.repository._layout(connection, layout_id)
+        if layout is None:
+            raise MethodDomainError('method_geometry_missing', '采集引用的 CCD 布局不存在')
+        return prepared_layout_geometry(layout)
 
     def _canonical_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         from ..spectral_lines import canonical_lines

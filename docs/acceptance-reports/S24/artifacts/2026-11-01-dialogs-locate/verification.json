@@ -1,0 +1,2456 @@
+{
+  "status": "passed",
+  "date": "2026-11-01",
+  "execution_plan_sha256": "632e8b73f097fe079ad5a158c1591341f85c3fd2181ec37e54d2df4f4fad215d",
+  "backend_tests": {
+    "passed": 55
+  },
+  "frontend_tests": {
+    "passed": 20
+  },
+  "browser": {
+    "checks": [
+      "method-open",
+      "dispersion-create",
+      "dispersion-details",
+      "dispersion-readout",
+      "三次批量定位平坦扣暗谱：四条均失败、位置和保存值保持、界面明确报告失败",
+      "capture-processing",
+      "dispersion-fit",
+      "curve-readout",
+      "sample-create",
+      "sample-details",
+      "sample-readout",
+      "sample-numbers",
+      "evaporation-create",
+      "evaporation-details",
+      "evaporation-readout",
+      "turn-automatic",
+      "turn-manual",
+      "mercury-create",
+      "mercury-readout",
+      "mercury-evidence",
+      "viewer-筛选谱文件",
+      "viewer-参考校正",
+      "viewer-谱线定位",
+      "viewer-原始帧",
+      "viewer-显示与打印",
+      "viewer-分时明细",
+      "evaporation-statistics",
+      "analysis-图像预览",
+      "analysis-文本预览",
+      "report-preview",
+      "intensity-preview",
+      "help-image"
+    ],
+    "layouts": [
+      {
+        "name": "method-open",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "method-open",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "method-open",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      }
+    ],
+    "errors": []
+  },
+  "desktop": {
+    "checks": [
+      "method-open",
+      "dispersion-create",
+      "dispersion-details",
+      "dispersion-readout",
+      "三次批量定位平坦扣暗谱：四条均失败、位置和保存值保持、界面明确报告失败",
+      "capture-processing",
+      "dispersion-fit",
+      "curve-readout",
+      "sample-create",
+      "sample-details",
+      "sample-readout",
+      "sample-numbers",
+      "evaporation-create",
+      "evaporation-details",
+      "evaporation-readout",
+      "turn-automatic",
+      "turn-manual",
+      "mercury-create",
+      "mercury-readout",
+      "mercury-evidence",
+      "viewer-筛选谱文件",
+      "viewer-参考校正",
+      "viewer-谱线定位",
+      "viewer-原始帧",
+      "viewer-显示与打印",
+      "viewer-分时明细",
+      "evaporation-statistics",
+      "analysis-图像预览",
+      "analysis-文本预览",
+      "report-preview",
+      "intensity-preview",
+      "help-image"
+    ],
+    "layouts": [
+      {
+        "name": "method-open",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "method-open",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "method-open",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "method-open",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "capture-processing",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "capture-processing",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "dispersion-fit",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "curve-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "curve-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "sample-numbers",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-details",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "turn-automatic",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "turn-manual",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "turn-manual",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-create",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-readout",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "mercury-evidence",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-筛选谱文件",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-参考校正",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-谱线定位",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-原始帧",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-显示与打印",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "viewer-分时明细",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "evaporation-statistics",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-图像预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "analysis-文本预览",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "report-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "report-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "intensity-preview",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 1440,
+        "height": 1000,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 1060,
+        "height": 680,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 1060,
+        "height": 680,
+        "theme": "dark"
+      },
+      {
+        "name": "help-image",
+        "width": 2560,
+        "height": 1200,
+        "theme": "light"
+      },
+      {
+        "name": "help-image",
+        "width": 2560,
+        "height": 1200,
+        "theme": "dark"
+      }
+    ],
+    "errors": []
+  },
+  "existing_spectrum_workflow": {
+    "checks": [
+      "＋在选定CCD点位直接增加谱线并选中；四个波长保持未填写",
+      "鼠标单击曲线选点可直接增加；删除只影响本次所选谱线",
+      "重复加点被拒绝，现有谱线保持",
+      "拟合按钮打开编辑窗口；未填波长禁止拟合；填写四条后完成真实二次拟合",
+      "短波/长波按一点移动；保存与还原作用于所选谱线",
+      "CCD,点位定位联动CCD；非法坐标保持当前CCD；上下CCD及选择器可用",
+      "查看/框选/滚动、三种比例、横纵放大缩小与纵向还原；适合图像只还原横向；框选后回到查看",
+      "－实际删除所选谱线并清除选择；降至三条后拟合禁用",
+      "校正谱线读取均值扣暗帧；平坦信号明确失败并保留全部原位置",
+      "旧WDT打印生成真实PDF；原件只读打开"
+    ],
+    "layouts": [
+      "light",
+      "dark"
+    ],
+    "status": "passed"
+  },
+  "frozen_positive_location": {
+    "status": "passed",
+    "position": 107,
+    "repeated": 3,
+    "unchanged": true
+  },
+  "user_database_copy_upgrade": {
+    "status": "passed",
+    "business_tables_preserved": 85,
+    "existing_startup_timestamp_refresh": [
+      "device_profiles",
+      "report_templates",
+      "help_topics"
+    ],
+    "source_read_only": true,
+    "schema_version": 26
+  },
+  "deployment": {
+    "status": "passed",
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "b24ea51545ebf47ae93a36eb434e4c4b716e422958ed6686a162d1776ff7d3e0",
+        "after": "5e0f8ca16246f59c9bbe4270601fd055f024bc86266a1ee77609333fc16bbda3",
+        "backup": "D:\\地质局\\app\\.local\\diagnostics\\dialogs-locate-20261101\\before\\GeoSpectrum.exe"
+      },
+      "geospectrum-backend.exe": {
+        "before": "14512be50b4684bb006bf7e80f9f5d7d97b0d8609205c2ebf17b87dff6e42c92",
+        "after": "4dec41d678c8449feba284b683071e7561dcd8ecc8b9ee80e1946eaf9915b413",
+        "backup": "D:\\地质局\\app\\.local\\diagnostics\\dialogs-locate-20261101\\before\\geospectrum-backend.exe"
+      }
+    },
+    "existing_window_preserved": true
+  },
+  "review": {
+    "window_retained": true,
+    "backend_retained": true,
+    "task": 2,
+    "device": {
+      "adapter": "acq-simulator",
+      "state": "idle",
+      "session_id": null,
+      "connected": false,
+      "contract": {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "frame_size": 8193,
+        "byte_length": 24579
+      }
+    },
+    "mercury": [
+      {
+        "id": 1,
+        "status": "stopped",
+        "safe_off": true
+      }
+    ],
+    "page": "色散摄谱 / 任务详情"
+  },
+  "product_qa_sources_identical": true,
+  "product_qa_assets_identical": true,
+  "popup_declarations": [
+    {
+      "file": "app/frontend/src/components/SpectrumInspector.tsx",
+      "line": 221,
+      "declaration": "{classic || legacyTitle ? <dialog ref={observerDialog} className=\"spectrum-observer-dialog\" aria-label=\"谱图点位与视野\">"
+    },
+    {
+      "file": "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+      "line": 107,
+      "declaration": "<dialog ref={details} className=\"legacy-task-details\" aria-label=\"任务条件与采后命名\" onClick={event => event.stopPropagation()}>"
+    },
+    {
+      "file": "app/frontend/src/pages/acquisition/SpectroscopyTaskDialog.tsx",
+      "line": 31,
+      "declaration": "return <dialog ref={dialog} className=\"spectroscopy-task-dialog refined-page remaining-page\""
+    },
+    {
+      "file": "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+      "line": 690,
+      "declaration": "<div className=\"analysis-preview-modal\" role=\"dialog\" aria-modal=\"true\" aria-label={preview.title}>"
+    },
+    {
+      "file": "app/frontend/src/pages/help/HelpArticle.tsx",
+      "line": 89,
+      "declaration": "<dialog className=\"help-image-dialog\" ref={dialog} aria-label={enlarged?.caption ?? '帮助图片'}"
+    },
+    {
+      "file": "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx",
+      "line": 238,
+      "declaration": "<dialog ref={evidence} className=\"device-debug-evidence\" aria-label=\"汞灯校准结果与轨迹\">"
+    },
+    {
+      "file": "app/frontend/src/pages/methods/OpenMethodDialog.tsx",
+      "line": 31,
+      "declaration": "return <dialog ref={dialog} className=\"method-open-dialog\" aria-labelledby=\"method-open-title\""
+    },
+    {
+      "file": "app/frontend/src/pages/reports/ReportOutput.tsx",
+      "line": 109,
+      "declaration": "role=\"dialog\""
+    },
+    {
+      "file": "app/frontend/src/pages/spectra/ViewerDialog.tsx",
+      "line": 7,
+      "declaration": "return <dialog ref={root} className=\"viewer-operation-dialog\" aria-label={title} onCancel={onClose} onClose={onClose}>"
+    }
+  ],
+  "core_risks": [
+    "无峰／多峰／窗口边缘失败并保持位置",
+    "独立搜索基准及人工移动重设",
+    "成功重复定位不重复更新／审计",
+    "旧库升级／事务回滚",
+    "弹窗横向溢出、底部控件与小窗口／主题"
+  ],
+  "root_and_app_top_level_unchanged": true
+}

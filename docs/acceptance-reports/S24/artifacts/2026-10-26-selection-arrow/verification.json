@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "bbf1119cc5a5a5d365cd6649895be68bfd258cdf0ce3d749bacf84c1a46a9922",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css",
+    "app/frontend/src/pages/acquisition/CaptureBandList.tsx",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/spectra/SpectrumRecordList.tsx"
+  ],
+  "added_product_files": [
+    "app/frontend/src/components/RowSelectionArrow.tsx",
+    "app/frontend/src/components/row-selection-arrow.css"
+  ],
+  "browser": {
+    "checks": 10,
+    "layouts": 10
+  },
+  "desktop": {
+    "checks": 10,
+    "layouts": 10
+  },
+  "arrow": {
+    "width_css_px": 10,
+    "height_css_px": 12,
+    "shape": "single filled right-pointing triangle",
+    "dot": false
+  },
+  "row_switch_return_to_live_and_read_only_verified": true,
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_and_other_product_legacy_sources_unchanged": true,
+  "root_app_inventory_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "0f44e25f2150523db33ffadff5756e5102ecf1c348836e39b2e87731007201a4",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-selection-arrow\\qa\\GeoSpectrum.exe",
+    "pid": 34656,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\selection-arrow-20261026\\before"
+}

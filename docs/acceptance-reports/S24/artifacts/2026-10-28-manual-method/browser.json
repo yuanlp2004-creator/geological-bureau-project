@@ -1,0 +1,653 @@
+{
+  "status": "passed",
+  "checks": [
+    "Standalone navigation restored; ordinary sample form and device debug contain no integrated turn controls",
+    "Bottom gap stays 8px with collapsed, expanded and resized message panel at three viewport sizes; minimum-height scrolling remains usable",
+    "Automatic mode uses published method angles without angle inputs or overrides; cancel retains method/sample drafts, invalid simulator JSON rejected and create never starts",
+    "One start completes every method turn, confirmed bands, visible baseline/peak measurements, shared capture and spectrum icons with working zoom",
+    "Capture desk dock widths, full-width top toolbar and bottom status, vertical shared-size controls, folded sample saving, light/dark and three sizes with no horizontal overflow",
+    "Pause halts automatic requests, return locked while active, resume runs automatically, key band executes before normal short-to-long order",
+    "Peak drift records an offset and recollects without claiming applied correction; diagnostics retain the abnormal attempt",
+    "Baseline abnormality visibly requests intervention; retry continues automatically; damaged frames cannot be accepted; stop retains unconfirmed evidence",
+    "Manual acceptance preserves abnormal readings, exhausted retries stop safely, missing serial protocol sends no device commands",
+    "Failed automatic request stops its timer, reports error, and explicit continue resumes successfully",
+    "Read-only presentation disables create/start while preserving existing task viewing; backend permission enforcement covered by S14 tests",
+    "Manual mode selects published method and only its angles; add/delete/reorder and mode/cancel drafts retained; insufficient method interval rejected",
+    "Manual repeated and reordered angles retain their own method CCD/storage/interval; timed collection and pause work, calculation interval stays fixed while extra raw frames remain"
+  ],
+  "layouts": [
+    {
+      "profile": "normal-light",
+      "desk": {
+        "x": 274,
+        "y": 177,
+        "width": 1123,
+        "height": 769
+      },
+      "plan": {
+        "x": 275,
+        "y": 248,
+        "width": 196.171875,
+        "height": 671
+      },
+      "spectrum": {
+        "x": 471.171875,
+        "y": 248,
+        "width": 700.640625,
+        "height": 671
+      },
+      "controls": {
+        "x": 1171.8125,
+        "y": 248,
+        "width": 224.1875,
+        "height": 671
+      },
+      "caption": {
+        "x": 275,
+        "y": 178,
+        "width": 1121,
+        "height": 36
+      },
+      "toolbar": {
+        "x": 275,
+        "y": 214,
+        "width": 1121,
+        "height": 34
+      },
+      "footer": {
+        "x": 275,
+        "y": 919,
+        "width": 1121,
+        "height": 26
+      },
+      "commands": [
+        {
+          "x": 1213.90625,
+          "y": 444.515625,
+          "width": 140,
+          "height": 32
+        },
+        {
+          "x": 1213.90625,
+          "y": 545.171875,
+          "width": 140,
+          "height": 32
+        },
+        {
+          "x": 1213.90625,
+          "y": 645.84375,
+          "width": 140,
+          "height": 32
+        }
+      ],
+      "health": {
+        "x": 1179.8125,
+        "y": 726.171875,
+        "width": 208.1875,
+        "height": 119.6875
+      },
+      "planOverflow": false,
+      "iconSizes": [
+        {
+          "x": 474.171875,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 498.171875,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 595.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 619.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 643.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 675.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 699.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 723.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 747.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 779.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 803.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 827.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 851.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 875.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 899.953125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "plot": {
+        "x": 471.171875,
+        "y": 280,
+        "width": 699.640625,
+        "height": 584.40625
+      },
+      "plotContentHeight": 584,
+      "viewBox": 584.40625,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "profile": "small-dark",
+      "desk": {
+        "x": 231,
+        "y": 177,
+        "width": 798,
+        "height": 489
+      },
+      "plan": {
+        "x": 232,
+        "y": 248,
+        "width": 150,
+        "height": 391
+      },
+      "spectrum": {
+        "x": 382,
+        "y": 248,
+        "width": 448,
+        "height": 391
+      },
+      "controls": {
+        "x": 830,
+        "y": 248,
+        "width": 198,
+        "height": 391
+      },
+      "caption": {
+        "x": 232,
+        "y": 178,
+        "width": 796,
+        "height": 36
+      },
+      "toolbar": {
+        "x": 232,
+        "y": 214,
+        "width": 796,
+        "height": 34
+      },
+      "footer": {
+        "x": 232,
+        "y": 639,
+        "width": 796,
+        "height": 26
+      },
+      "commands": [
+        {
+          "x": 859,
+          "y": 397.5625,
+          "width": 140,
+          "height": 28
+        },
+        {
+          "x": 859,
+          "y": 432.515625,
+          "width": 140,
+          "height": 28
+        },
+        {
+          "x": 859,
+          "y": 467.46875,
+          "width": 140,
+          "height": 28
+        }
+      ],
+      "health": {
+        "x": 836,
+        "y": 507.953125,
+        "width": 186,
+        "height": 93
+      },
+      "planOverflow": false,
+      "iconSizes": [
+        {
+          "x": 385,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 405,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 498.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 518.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 538.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 566.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 586.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 606.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 626.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 654.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 674.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 694.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 714.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 734.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "x": 754.78125,
+          "y": 253.5,
+          "width": 20,
+          "height": 20
+        }
+      ],
+      "plot": {
+        "x": 382,
+        "y": 280,
+        "width": 447,
+        "height": 304.40625
+      },
+      "plotContentHeight": 304,
+      "viewBox": 304.40625,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "profile": "wide-light",
+      "desk": {
+        "x": 523.5,
+        "y": 177,
+        "width": 1768,
+        "height": 969
+      },
+      "plan": {
+        "x": 524.5,
+        "y": 248,
+        "width": 216,
+        "height": 871
+      },
+      "spectrum": {
+        "x": 740.5,
+        "y": 248,
+        "width": 1310,
+        "height": 871
+      },
+      "controls": {
+        "x": 2050.5,
+        "y": 248,
+        "width": 240,
+        "height": 871
+      },
+      "caption": {
+        "x": 524.5,
+        "y": 178,
+        "width": 1766,
+        "height": 36
+      },
+      "toolbar": {
+        "x": 524.5,
+        "y": 214,
+        "width": 1766,
+        "height": 34
+      },
+      "footer": {
+        "x": 524.5,
+        "y": 1119,
+        "width": 1766,
+        "height": 26
+      },
+      "commands": [
+        {
+          "x": 2100.5,
+          "y": 477.84375,
+          "width": 140,
+          "height": 32
+        },
+        {
+          "x": 2100.5,
+          "y": 645.171875,
+          "width": 140,
+          "height": 32
+        },
+        {
+          "x": 2100.5,
+          "y": 812.5,
+          "width": 140,
+          "height": 32
+        }
+      ],
+      "health": {
+        "x": 2058.5,
+        "y": 926.171875,
+        "width": 224,
+        "height": 119.6875
+      },
+      "planOverflow": false,
+      "iconSizes": [
+        {
+          "x": 743.5,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 767.5,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 865.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 889.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 913.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 945.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 969.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 993.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1017.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1049.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1073.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1097.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1121.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1145.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        },
+        {
+          "x": 1169.28125,
+          "y": 251.5,
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "plot": {
+        "x": 740.5,
+        "y": 280,
+        "width": 1309,
+        "height": 784.40625
+      },
+      "plotContentHeight": 784,
+      "viewBox": 784.40625,
+      "overflow": false,
+      "clipped": false
+    }
+  ],
+  "errors": [],
+  "bottomSpacing": [
+    {
+      "profile": "normal-light",
+      "state": "collapsed",
+      "gap": 8,
+      "height": 769,
+      "padding": 8,
+      "dockTop": 954,
+      "deskBottom": 946,
+      "horizontalOverflow": false,
+      "scrollHeight": 858,
+      "clientHeight": 858
+    },
+    {
+      "profile": "normal-light",
+      "state": "expanded",
+      "gap": 8,
+      "height": 631,
+      "padding": 8,
+      "dockTop": 816,
+      "deskBottom": 808,
+      "horizontalOverflow": false,
+      "scrollHeight": 720,
+      "clientHeight": 720
+    },
+    {
+      "profile": "normal-light",
+      "state": "resized",
+      "gap": 8,
+      "height": 599,
+      "padding": 8,
+      "dockTop": 784,
+      "deskBottom": 776,
+      "horizontalOverflow": false,
+      "scrollHeight": 688,
+      "clientHeight": 688
+    },
+    {
+      "profile": "small-dark",
+      "state": "collapsed",
+      "gap": 8,
+      "height": 489,
+      "padding": 8,
+      "dockTop": 674,
+      "deskBottom": 666,
+      "horizontalOverflow": false,
+      "scrollHeight": 578,
+      "clientHeight": 578
+    },
+    {
+      "profile": "small-dark",
+      "state": "expanded",
+      "gap": 8,
+      "height": 360,
+      "padding": 8,
+      "dockTop": 536,
+      "deskBottom": 528,
+      "horizontalOverflow": false,
+      "scrollHeight": 449,
+      "clientHeight": 440
+    },
+    {
+      "profile": "small-dark",
+      "state": "resized",
+      "gap": 8,
+      "height": 360,
+      "padding": 8,
+      "dockTop": 504,
+      "deskBottom": 496,
+      "horizontalOverflow": false,
+      "scrollHeight": 449,
+      "clientHeight": 408
+    },
+    {
+      "profile": "wide-light",
+      "state": "collapsed",
+      "gap": 8,
+      "height": 969,
+      "padding": 8,
+      "dockTop": 1154,
+      "deskBottom": 1146,
+      "horizontalOverflow": false,
+      "scrollHeight": 1058,
+      "clientHeight": 1058
+    },
+    {
+      "profile": "wide-light",
+      "state": "expanded",
+      "gap": 8,
+      "height": 831,
+      "padding": 8,
+      "dockTop": 1016,
+      "deskBottom": 1008,
+      "horizontalOverflow": false,
+      "scrollHeight": 920,
+      "clientHeight": 920
+    },
+    {
+      "profile": "wide-light",
+      "state": "resized",
+      "gap": 8,
+      "height": 799,
+      "padding": 8,
+      "dockTop": 984,
+      "deskBottom": 976,
+      "horizontalOverflow": false,
+      "scrollHeight": 888,
+      "clientHeight": 888
+    }
+  ]
+}

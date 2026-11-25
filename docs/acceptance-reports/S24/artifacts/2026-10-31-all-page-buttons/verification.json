@@ -1,0 +1,183 @@
+{
+  "status": "passed",
+  "batch": "2026-10-31-all-page-buttons",
+  "plan_sha256_at_start": "270F31850C606536F68226B0EAEE0907DAB461A04F0079CC1287DDC42EFE0822",
+  "counts": {
+    "frontend_clickable_declarations": 418,
+    "legacy_control_action_declarations": 357,
+    "legacy_original_files_hash_verified": 106,
+    "product_files_changed": 14,
+    "source_domains": {
+      "components": 53,
+      "layout": 13,
+      "acquisition": 43,
+      "analysis": 47,
+      "auth": 9,
+      "devices": 26,
+      "dispersion": 38,
+      "extensions": 1,
+      "hardwareAcquisition": 19,
+      "help": 7,
+      "maintenance": 6,
+      "mercuryCalibration": 12,
+      "methods": 36,
+      "migration": 14,
+      "postprocessing": 14,
+      "reports": 8,
+      "sampleQueues": 14,
+      "settings": 3,
+      "spectra": 51,
+      "workspace": 4
+    }
+  },
+  "coverage_note": "418 source declarations include shared components and row selection; not 418 independently exercised runtime actions. 357 legacy declarations include actions and their controls.",
+  "tests": {
+    "backend": {
+      "passed": 68
+    },
+    "frontend": {
+      "passed": 20
+    },
+    "rust": {
+      "passed": 5
+    },
+    "browser": {
+      "status": "passed",
+      "groups": 37,
+      "navigation_entries": 25,
+      "layouts": 43,
+      "javascript_errors": []
+    },
+    "desktop": {
+      "status": "passed",
+      "groups": 37,
+      "navigation_entries": 25,
+      "layouts": 43,
+      "javascript_errors": []
+    },
+    "frontend_build": "passed",
+    "production_tauri_build": "passed",
+    "qa_tauri_build": "passed",
+    "sidecar": {
+      "sidecar_bytes": 56231666,
+      "health_status": "ok",
+      "schema_version": 25,
+      "running_before_stop": true,
+      "clean_exit": true,
+      "process_returncode": 1,
+      "remaining_sidecar_pids": [],
+      "business": {
+        "profile_connected": true,
+        "start_ccd_count": 5,
+        "step_frame_index": 1,
+        "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+        "stopped_state": "connected",
+        "legacy_reader_attempts": [
+          "windows-powershell-x86"
+        ]
+      },
+      "error": null
+    },
+    "git_diff_check": "passed"
+  },
+  "production_and_qa": {
+    "product_sources_equal": true,
+    "frontend_assets_equal": true,
+    "source_snapshot_current": true,
+    "production_pair": {
+      "GeoSpectrum.exe": "b24ea51545ebf47ae93a36eb434e4c4b716e422958ed6686a162d1776ff7d3e0",
+      "geospectrum-backend.exe": "14512be50b4684bb006bf7e80f9f5d7d97b0d8609205c2ebf17b87dff6e42c92"
+    },
+    "qa_pair": {
+      "GeoSpectrum.exe": "6f4b6b5524af8ac337fb043256c9ee9e9f04e6c2dcf6d4a692bb7a2691e2b4af",
+      "geospectrum-backend.exe": "14512be50b4684bb006bf7e80f9f5d7d97b0d8609205c2ebf17b87dff6e42c92"
+    }
+  },
+  "deployment": {
+    "before": {
+      "GeoSpectrum.exe": "1e463789cb06bfb152f63c19bdff7f715da7a139d2e3b3a7bec01d3aa67e2d85",
+      "geospectrum-backend.exe": "a849e55af0283312298ae550307326bcd98365eb8c6d090790ff257af1eb06e9"
+    },
+    "after": {
+      "GeoSpectrum.exe": "b24ea51545ebf47ae93a36eb434e4c4b716e422958ed6686a162d1776ff7d3e0",
+      "geospectrum-backend.exe": "14512be50b4684bb006bf7e80f9f5d7d97b0d8609205c2ebf17b87dff6e42c92"
+    },
+    "backup": {
+      "GeoSpectrum.exe": "D:\\地质局\\app\\.local\\diagnostics\\all-page-buttons-20261031\\before\\GeoSpectrum.exe",
+      "geospectrum-backend.exe": "D:\\地质局\\app\\.local\\diagnostics\\all-page-buttons-20261031\\before\\geospectrum-backend.exe"
+    }
+  },
+  "changed_product_files": [
+    "app/backend/modules/analysis/curves.py",
+    "app/backend/schemas/analysis.py",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/analysis/AnalysisCurves.tsx",
+    "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx",
+    "app/frontend/src/pages/migration/ResultMigrationPage.tsx",
+    "app/frontend/src/pages/postprocessing/PostProcessingIntervalPanel.tsx",
+    "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx",
+    "app/frontend/src/pages/reports/ReportsPage.tsx",
+    "app/frontend/src/pages/sampleQueues/SampleNumberTable.tsx",
+    "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx",
+    "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "app/frontend/src/platform/files.ts",
+    "app/src-tauri/src/main.rs"
+  ],
+  "integrity": {
+    "root_and_app_first_level_unchanged": true,
+    "legacy_original_hashes_unchanged": true,
+    "tests_used_isolated_databases": true,
+    "user_database_not_replaced_or_used_for_tests": true,
+    "schema_version": 25,
+    "schema_migration_added": false,
+    "installer_rebuilt": false
+  },
+  "retained_review": {
+    "pid": 38532,
+    "data": "D:\\地质局\\app\\.local\\runtime\\all-page-buttons-review-20261031-verified",
+    "page": "样号与样品队列",
+    "theme": "light",
+    "device_before": {
+      "adapter": "acq-simulator",
+      "state": "idle",
+      "session_id": null,
+      "connected": false,
+      "contract": {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "frame_size": 8193,
+        "byte_length": 24579
+      }
+    },
+    "device_after": {
+      "adapter": "acq-simulator",
+      "state": "idle",
+      "session_id": null,
+      "connected": false,
+      "contract": {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "frame_size": 8193,
+        "byte_length": 24579
+      }
+    },
+    "mercury": [
+      {
+        "id": 1,
+        "status": "rolled_back",
+        "safe_off": true
+      }
+    ],
+    "window_retained": true,
+    "backend_retained": true
+  },
+  "boundaries": [
+    "All device workflows used simulator profiles; real turn/mercury protocols and hardware acceptance remain deferred_external.",
+    "Native directory result/cancel were tested at the Tauri command boundary; the OS folder chooser itself was not automated.",
+    "XLS/PDF content and save boundaries were exercised; printer cancellation was simulated at the native boundary; no physical print acceptance.",
+    "Approved current role/version, readonly migration and output-tab differences are preserved."
+  ],
+  "plan_sha256_after_documentation": "632e8b73f097fe079ad5a158c1591341f85c3fd2181ec37e54d2df4f4fad215d"
+}

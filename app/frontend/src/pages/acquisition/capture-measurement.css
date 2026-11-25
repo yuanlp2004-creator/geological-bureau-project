@@ -1,0 +1,9 @@
+.capture-measurement { flex: 0 0 auto; padding: 4px 8px; border-bottom: 1px solid var(--spec-border, #aebbc8); }
+.capture-measurement-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.capture-measurement button { padding: 2px 7px; }
+.capture-measurement p { margin: 2px 0; }
+.capture-measurement summary { cursor: pointer; }
+.capture-measurement-table { max-height: 104px; overflow: auto; }
+.capture-measurement table { width: 100%; border-collapse: collapse; }
+.capture-measurement th, .capture-measurement td { padding: 2px 5px; text-align: left; }
+.capture-measurement tr[data-anomaly='true'] > td:last-child { color: var(--ui-danger); font-weight: 600; }

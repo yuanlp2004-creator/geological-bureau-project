@@ -1,0 +1,235 @@
+{
+  "status": "passed",
+  "batch": "2026-11-06-bluetooth-delete",
+  "plan_execution_sha256": "715c942dc1b0f5774ad65d8e5ef43763780672bd427cf99d20017c0c02a84e14",
+  "earlier_persistence_plan_sha256": "00c1a1962bfad9d9bf7ae38f96a76bb65085dbc3dc2e9c1adf96e163a84d1989",
+  "scope": "每个设备行最右侧提供垃圾桶图标；移除列表外删除按钮；按设备身份永久排除本软件列表项",
+  "backend_tests": {
+    "status": "passed",
+    "count": 46,
+    "command": "python -m pytest app/tests/test_bluetooth_list_delete.py app/tests/test_windows_bluetooth_mapping.py app/tests/test_schema_migrations.py app/tests/test_architecture.py -q"
+  },
+  "frontend_tests": {
+    "status": "passed",
+    "count": 20,
+    "command": "npm --prefix app/frontend test"
+  },
+  "build_checks": {
+    "typescript": "passed",
+    "vite": "passed",
+    "sidecar_build_and_verification": "passed",
+    "production_tauri": "passed",
+    "qa_tauri": "passed"
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "每个设备行最右侧仅有垃圾桶图标，列表外没有删除按钮",
+      "行内删除保存失败时保留原设备和当前选择",
+      "行内删除只作用于该设备，不误选或清空另一设备，列表保持打开",
+      "刷新和过期响应均不会恢复已删除的行",
+      "重新打开页面后永久删除仍生效，原设备档案保持",
+      "键盘上下选择、Enter确认、Escape关闭均正常"
+    ],
+    "layouts": [
+      {
+        "requested_width": 1060,
+        "viewport": 1060,
+        "scroll": 1060,
+        "width": 813,
+        "fields": [
+          {
+            "width": 731,
+            "scroll": 729
+          }
+        ]
+      },
+      {
+        "requested_width": 1440,
+        "viewport": 1440,
+        "scroll": 1440,
+        "width": 1138,
+        "fields": [
+          {
+            "width": 520,
+            "scroll": 518
+          }
+        ]
+      },
+      {
+        "requested_width": 1920,
+        "viewport": 1920,
+        "scroll": 1920,
+        "width": 1440,
+        "fields": [
+          {
+            "width": 671,
+            "scroll": 669
+          }
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "frozen_desktop": {
+    "status": "passed",
+    "checks": [
+      "每个设备行最右侧仅有垃圾桶图标，列表外没有删除按钮",
+      "行内删除保存失败时保留原设备和当前选择",
+      "行内删除只作用于该设备，不误选或清空另一设备，列表保持打开",
+      "刷新和过期响应均不会恢复已删除的行",
+      "重新打开页面后永久删除仍生效，原设备档案保持",
+      "键盘上下选择、Enter确认、Escape关闭均正常"
+    ],
+    "layouts": [
+      {
+        "requested_width": 1060,
+        "viewport": 1060,
+        "scroll": 1060,
+        "width": 798,
+        "fields": [
+          {
+            "width": 716,
+            "scroll": 714
+          }
+        ]
+      },
+      {
+        "requested_width": 1440,
+        "viewport": 1440,
+        "scroll": 1440,
+        "width": 1138,
+        "fields": [
+          {
+            "width": 520,
+            "scroll": 518
+          }
+        ]
+      },
+      {
+        "requested_width": 1920,
+        "viewport": 1920,
+        "scroll": 1920,
+        "width": 1440,
+        "fields": [
+          {
+            "width": 671,
+            "scroll": 669
+          }
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "source_count": 431,
+  "production_qa_sources_equal": true,
+  "current_product_sources_match_tested_packages": true,
+  "root_files_match_production_package": true,
+  "root_sha256": {
+    "GeoSpectrum.exe": "86340e7a8af06e482b22595b0327d950384c5371098cd4409a01e61932497516",
+    "geospectrum-backend.exe": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8"
+  },
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "7bb4f33fd6fd840dc0f385e876b20d85bbd8d43338635e8709aa8e6ed26c00ff",
+      "after_sha256": "86340e7a8af06e482b22595b0327d950384c5371098cd4409a01e61932497516"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8",
+      "after_sha256": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8"
+    }
+  },
+  "deployment_protected_table_count": 14,
+  "deployment_metadata_unchanged": true,
+  "production_read_only_verification": {
+    "schema": 29,
+    "counts": {
+      "methods": 20,
+      "sample_queues": 4,
+      "sample_queue_items": 907,
+      "spectrum_bands": 2548,
+      "device_bluetooth_hidden": 0
+    }
+  },
+  "upgrade_on_read_only_production_backup": {
+    "status": "passed",
+    "backup": "D:\\地质局\\app\\.local\\diagnostics\\bluetooth-delete-20261106\\production-before.sqlite3",
+    "source_was_read_only": true,
+    "target_schema": 29,
+    "existing_business_rows_and_blobs_unchanged": true,
+    "tables": {
+      "device_profiles": {
+        "count": 4,
+        "sha256": "5fe41ca71c25f09d8a3659ed5c1d1ed0345549d4dfc74620e4027b352f641afe"
+      },
+      "device_runtime_state": {
+        "count": 1,
+        "sha256": "22a9fe695b7b02d89307dfe732b91c5244d9133715dc45db3627bca852ee3515"
+      },
+      "sample_queue_runtime_state": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "methods": {
+        "count": 20,
+        "sha256": "842886a59dbb0eb414580f1b1435a332afa78a2aa63c0d893db2c95dd0e09e20"
+      },
+      "method_versions": {
+        "count": 35,
+        "sha256": "7f5ec7a04d939e4c60bcd23e62a58b6aa877abb6208cf835d35fd70b8b592396"
+      },
+      "sample_queues": {
+        "count": 4,
+        "sha256": "7af6a4394cb445b24c0c337b375d23925cb0875aff1acefe5e0c9a3c70cbf9b2"
+      },
+      "sample_queue_items": {
+        "count": 907,
+        "sha256": "bfa7a967b4a1eaa77b7ee3913aa3c20e9456380fd2afd7aa6a7556fe81df277e"
+      },
+      "app_settings": {
+        "count": 1,
+        "sha256": "c2b27d4d4a6a72c75e7e0e0aabd63ceca98e183363b4f8855293b61a8366ae46"
+      },
+      "acquisition_tasks": {
+        "count": 24,
+        "sha256": "d50f6d4a0ba7bb8e7ff9006d33bdf715e7c5c62d5d9f82fca2491d270923dee7"
+      },
+      "acquisition_samples": {
+        "count": 42,
+        "sha256": "cc3bb3438b3bd72d1f12955315c7333c5630f37832b15cf5753ce3acf0d8ed94"
+      },
+      "acquisition_sample_bands": {
+        "count": 195,
+        "sha256": "ee526606cacf501ee9139a93ffbd1d7377b05e8045a43a98d26b2fc4d72d6c41"
+      },
+      "dispersion_tasks": {
+        "count": 11,
+        "sha256": "aa5589539478469a26d8edb4dac8b0351e0cf33efc3cdd100f55870a9807fd6f"
+      },
+      "dispersion_task_frames": {
+        "count": 315,
+        "sha256": "1bf47bf8a620889d773b1f0ace7d3aacc6cc9028ef88a873b6dcb2025beee38a"
+      },
+      "spectrum_bands": {
+        "count": 2548,
+        "sha256": "6e4abe214594df530b48a210b6b8ee477b9cbff1029d5b15f7f38a50a829baeb"
+      }
+    },
+    "quick_check": "ok"
+  },
+  "review": {
+    "production_exe_opened": "D:\\地质局\\GeoSpectrum.exe",
+    "production_title": "GeoSpectrum",
+    "production_state": "登录工作台；未代填正式账户",
+    "qa_title": "GeoSpectrum 行内删除测试（隔离测试库）",
+    "qa_data_isolated": true,
+    "qa_page": "设备连接，设备断开",
+    "existing_production_window_at_final_check": false,
+    "windows_pairing_and_historical_profiles_preserved": true
+  },
+  "known_notes": [
+    "冷启动短暂连接拒绝由已有只读重试恢复",
+    "预期注入503用于删除失败边界；原有IPC回退CSP提示保持，页面JavaScript异常为0",
+    "真实仪器、完整帧及原硬件和发布门禁保持；本批未打开真实串口"
+  ]
+}

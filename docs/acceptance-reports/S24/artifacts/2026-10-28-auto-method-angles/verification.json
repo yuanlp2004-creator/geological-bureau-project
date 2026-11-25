@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "dbf01347b04712cab3d15a79487ec60fcb60ae1d621f44277c934e885e04f1ba",
+  "changed_product_files": [
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardwareView.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css"
+  ],
+  "automatic_angle_inputs_removed": true,
+  "automatic_custom_plan_removed": true,
+  "automatic_request_has_no_turns_or_angle_overrides": true,
+  "automatic_plan_matches_published_method": true,
+  "manual_angle_duration_drafts_preserved": true,
+  "browser": {
+    "checks": 13,
+    "capture_layouts": 3,
+    "message_panel_layouts": 9
+  },
+  "frontend_build": "passed",
+  "production_tauri_build": "passed",
+  "desktop_gui_validation": "not_run_user_requested_commands_only",
+  "backend_binary_unchanged": true,
+  "schema_version": 25,
+  "user_database_migration_or_write_performed": false,
+  "installer_rebuilt": false,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "a2a003831ab588248b7d9b0055db80ace3a277af3719c8e03d21fa4e93a27ad1",
+    "geospectrum-backend.exe": "1051ad6fd934f019e9075334efdb188ec0b33408a36762e1fe65a99c4147e593"
+  },
+  "backup": "D:\\地质局\\app\\.local\\diagnostics\\auto-method-angles-20261028\\before",
+  "root_app_inventory_unchanged": true,
+  "running_user_window_stopped": false
+}

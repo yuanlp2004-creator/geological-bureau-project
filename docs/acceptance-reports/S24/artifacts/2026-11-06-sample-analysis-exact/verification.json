@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "date": "2026-11-06",
+  "batch": "2026-11-06-sample-analysis-exact",
+  "plan_sha256": "b649c464d8ad61b7bdad28ea66b7c73e261da3a63242dc2550ec536d9b493882",
+  "frontend_tests": 20,
+  "backend_tests": 8,
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "上方仅保留打开文件及选择框；27个工具位置使用原始16px图标，两排及左右相对位置正确",
+      "顶部和左侧编号按钮均打开真实编号表；失败保留草稿，清除后编号为空且禁止测量，历史运行保持",
+      "定位、缩放、谱带切换及锁定动作正确；校线直接计算采用实测位置，两种范围准确且不改写方法",
+      "打印图标生成同源真实PDF，并通过公共保存入口处理取消",
+      "失败清图并能重试；关闭列表可经操作菜单恢复，不增加顶部按钮",
+      "开始、暂停和继续可完成分析；原曲线、标准点和结果通过操作菜单可用",
+      "两种桌面尺寸蓝底、青色标题、白色曲线区及相对位置正确，间距保持本批修改前设置"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "scroll": 1440,
+        "blue": "rgb(168, 201, 235)",
+        "cyan": "rgb(0, 255, 255)",
+        "white": "rgb(255, 255, 255)",
+        "leftBeforeChart": true,
+        "topBeforeTools": true,
+        "plotHeight": 499,
+        "footerGap": 0
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "scroll": 1060,
+        "blue": "rgb(168, 201, 235)",
+        "cyan": "rgb(0, 255, 255)",
+        "white": "rgb(255, 255, 255)",
+        "leftBeforeChart": true,
+        "topBeforeTools": true,
+        "plotHeight": 241,
+        "footerGap": 0
+      }
+    ],
+    "runId": 9
+  },
+  "native_window_observed": true,
+  "review_retained": true,
+  "source_count": 461,
+  "production_qa_sources_equal": true,
+  "production_tables_unchanged": 19,
+  "deployment": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "90fc8aec3f052445a8c2780345477c964f3c2aadf55bd4182ce4304802d2264e",
+      "after_sha256": "5c9f56616c58f5c6ba2868c150f1a057ecd05c760b1cfe2bc0cabb26de4d38d2"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626",
+      "after_sha256": "6ab420c31e28fb296233e27aafc41fda9c5bf7aaf65932d8733a77076ada9d34"
+    }
+  },
+  "schema_migration": false,
+  "installer_rebuilt": false,
+  "icon_assets": {
+    "displayed": 27,
+    "files": 28,
+    "pixels": "Unmodified 16x16 color/mask pixels from original image lists",
+    "redraw_needed": false
+  },
+  "sample_number_semantics": "Input and clear create a new immutable analysis copy with the same acquisition spectra; prior runs and source samples retain their original names. Empty names prevent measurement.",
+  "boundaries": "No hardware commands, Access writes, commits or pushes. Existing spacing retained; only relative placement, appearance and action bindings corrected."
+}

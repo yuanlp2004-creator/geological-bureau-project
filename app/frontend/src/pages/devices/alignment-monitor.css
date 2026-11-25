@@ -32,7 +32,8 @@
 .alignment-row.active .alignment-axis-labels { color: var(--spec-reference); }
 :root .app-shell .alignment-row.active .alignment-select-view { padding-left: 6px; font-weight: 700; box-shadow: inset 3px 0 var(--spec-reference); }
 .alignment-plot-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.alignment-plot { display: block; flex: 1; width: 100%; height: 0; min-height: 128px; overflow: hidden; touch-action: none; cursor: crosshair; }
+.alignment-plot-surface { position: relative; flex: 1; min-height: 128px; }
+.alignment-plot { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: hidden; touch-action: none; cursor: crosshair; }
 .alignment-row.active .alignment-plot:not(:focus-visible) { outline: 1.5px solid var(--spec-reference); outline-offset: -1.5px; }
 .alignment-plot:focus-visible { outline: 2px solid var(--spec-crosshair); outline-offset: 1px; }
 .alignment-plot-background { fill: var(--spec-plot); }
@@ -40,10 +41,14 @@
 .alignment-curve { fill: none; stroke: var(--spec-primary-curve); stroke-width: var(--spec-curve-width); vector-effect: non-scaling-stroke; }
 .alignment-crosshair { stroke: var(--spec-crosshair); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .alignment-selection { fill: var(--spec-selection-fill); stroke: var(--spec-crosshair); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.alignment-empty { fill: var(--spec-label); font-size: 11px; }
+.alignment-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; color: var(--spec-label); font-size: 12px; line-height: 1.4; }
 .alignment-x-range { display: flex; align-items: center; justify-content: space-between; flex: 0 0 20px; height: 20px; gap: 8px; color: var(--spec-label); font: 11px/16px Tahoma, sans-serif; }
 .alignment-status { display: flex; align-items: center; flex: 0 0 auto; min-height: 26px; gap: 12px; padding: 4px 8px; border-top: 1px solid var(--line); color: var(--muted); background: var(--ui-soft); font-size: 11px; }
 .alignment-status > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.alignment-status > span:first-child { flex: 1; }
 .alignment-status .alignment-error { color: var(--danger); }
+.alignment-turn-control { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; white-space: nowrap; }
+:root .app-shell .device-debug-page .alignment-tools .alignment-turn-control :is(select, button) { height: 24px; min-height: 24px; padding: 1px 6px; font-size: 12px; }
+:root .app-shell .device-debug-page .alignment-tools .alignment-turn-control select { width: 88px; min-width: 0; }
+.alignment-turn-status { min-width: 7em; margin-inline: 3px 5px; color: var(--muted); font-size: 12px; }
 :root[data-theme='dark'] .alignment-peak[data-has-peak='true'] { background: #493521; color: #ffc88a; }
 @media (max-width: 1180px) { .alignment-canvas { padding: 10px 12px; }.alignment-connection-bar > label select { width: 180px; }.alignment-status { font-size: 10px; gap: 8px; } }

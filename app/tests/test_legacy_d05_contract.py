@@ -52,9 +52,12 @@ def _method(client,headers,runtime):
     assert client.post(f"/api/v1/methods/{method['id']}/lines",headers=headers,json=line).status_code==201
     assert client.patch(f"/api/v1/methods/{method['id']}",headers=headers,json={'conditions':{
         'frame_count':3,'dark_frame_count':0,'angle_exposures':[
-            {'angle_deg':10,'start_frame':2,'end_frame':3,'storage_mode':'full_interval'},
-            {'angle_deg':20,'start_frame':2,'end_frame':3,'storage_mode':'averaged'},
-            {'angle_deg':30,'start_frame':2,'end_frame':3,'storage_mode':'full_interval'}]}}).status_code==200
+            {'angle_deg':10,'start_frame':2,'end_frame':3,'storage_mode':'full_interval',
+             'ccd_indices':[0,1],'dispersion_calibration_id':'default'},
+            {'angle_deg':20,'start_frame':2,'end_frame':3,'storage_mode':'averaged',
+             'ccd_indices':[2],'dispersion_calibration_id':'default'},
+            {'angle_deg':30,'start_frame':2,'end_frame':3,'storage_mode':'full_interval',
+             'ccd_indices':[4,5],'dispersion_calibration_id':'default'}]}}).status_code==200
     return _publish(client,headers,method['id'])
 
 
@@ -100,6 +103,9 @@ def test_confirmed_turn_samples_reach_analysis_curves_and_report(method_client):
             stored=db.execute('SELECT simulator_json FROM acquisition_tasks WHERE id=?',(record['acquisition_task_id'],)).fetchone()[0]
             metadata=json.loads(stored)
             assert metadata['method_content_sha256']==method_hash and metadata['confirmed_exposures']
+            assert {(item['angle_deg'], item['ccd_index']) for item in metadata['confirmed_exposures']} == {
+                (10, 0), (10, 1), (20, 2), (30, 4), (30, 5),
+            }
     assert len(runtime.analysis_service().options()['samples'])==5
     assert len(runtime.spectrum_viewer_service().list())==5
     service=runtime.analysis_service();run=service.create_run({'acquisition_sample_ids':samples});run=service.start(run['id'])

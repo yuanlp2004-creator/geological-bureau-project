@@ -1,0 +1,20 @@
+{
+  "reference_source": "QA 实时帧夹具",
+  "reference_file": "live-reference.csv",
+  "observed_file": "模拟对中帧 1 · 2026-11-25T05:57:20.266+00:00",
+  "reference_sha256": "933cf81c93536d00e58b695235414e67296605e9ededc01abf4e222af5b47206",
+  "observed_sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+  "ccd_index": 1,
+  "reference_angle_deg": 17,
+  "reference_peak": 1000,
+  "observed_peak": 1200,
+  "target_angle_deg": 18,
+  "peak_offset_points": 200,
+  "observed_frame": {
+    "index": 0,
+    "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+    "occurredAt": "2026-11-25T05:57:20.266+00:00",
+    "simulated": true
+  },
+  "confirmed_at": "2026-11-25T05:57:39.918Z"
+}

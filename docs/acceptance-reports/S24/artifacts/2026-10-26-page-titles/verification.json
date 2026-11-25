@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "8b67ac5fe12cd77bb3e667861ed87506c340886e680baf4ceb695bd7cb79fa9e",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/page-heading.css"
+  ],
+  "scope": "Page titles such as 谱图查看 and 色散摄谱; shared page header, analysis and spectroscopy workbenches only",
+  "title_format": {
+    "font_px": 22,
+    "font_weight": 700,
+    "line_height": 1.35,
+    "icon_box_px": 36,
+    "icon_glyph_px": 24,
+    "icon_text_gap_px": 10
+  },
+  "browser": {
+    "checks": 5,
+    "layouts": 56
+  },
+  "desktop": {
+    "checks": 5,
+    "layouts": 56
+  },
+  "navigation_entries": 25,
+  "section_and_dialog_titles_unchanged": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-page-titles\\qa\\GeoSpectrum.exe",
+    "pid": 41028,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "all_other_product_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "2f83f98106610e514e0633eab19608812086018bf8ec1f291c11f5a13812ae98",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\page-titles-20261026\\before"
+}

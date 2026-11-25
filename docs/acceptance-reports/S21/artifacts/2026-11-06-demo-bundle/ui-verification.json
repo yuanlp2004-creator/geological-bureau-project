@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": [
+    "isolated_demo_login",
+    "demo_method_visible",
+    "stored_analysis_and_spectra_visible",
+    "confirmed_report_has_21_result_rows"
+  ],
+  "errors": []
+}

@@ -1,7 +1,7 @@
 """Postprocessing models, moved without validation changes."""
 from __future__ import annotations
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class FullTimeExportRequest(BaseModel):
@@ -39,7 +39,8 @@ class PreparedImportRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     request_id: str = Field(min_length=16, max_length=80)
-    source_sha256: str = Field(min_length=1, max_length=128)
+    source_sha256: str | None = Field(default=None, min_length=1, max_length=128)
+    source_task_id: int | None = Field(default=None, ge=1, le=2**63-1)
     record_ids: list[str] = Field(min_length=1, max_length=5000)
     target_name: str = Field(min_length=1, max_length=120)
     storage_mode: Literal['averaged', 'full_interval'] = 'averaged'
@@ -49,6 +50,12 @@ class PreparedImportRequest(BaseModel):
     same_name_strategy: Literal['error', 'replace', 'append'] = 'error'
     expected_target_revision: int | None = Field(default=None, ge=1)
     expected_method_version_id: int = Field(ge=1)
+
+    @model_validator(mode='after')
+    def validate_source(self):
+        if (self.source_sha256 is None) == (self.source_task_id is None):
+            raise ValueError('请选择一份 EDT 文件或一项系统蒸发任务')
+        return self
 
 
 class PreparedDispersionRequest(BaseModel):

@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "checks": [
+    "One ordinary task: short-to-long turns, automatic standard sample storage, manual repeat boundary, no independent hardware task or secondary saving",
+    "Key bands first, remaining bands stay in wavelength order; shared capture icons and layout at 1440 and 1060",
+    "Threshold anomaly pauses after bounded retry, manual retry and stop work, no premature sample bands; rejected raw frames and legacy diagnostics remain accessible"
+  ],
+  "layouts": [
+    {
+      "profile": "normal-light",
+      "overflow": false,
+      "monitor": {
+        "x": 1180.8046875,
+        "y": 427.7421875,
+        "width": 207.1953125,
+        "height": 87
+      },
+      "operator": {
+        "x": 1171.8046875,
+        "y": 258,
+        "width": 224.1953125,
+        "height": 678
+      },
+      "plot": {
+        "x": 482.171875,
+        "y": 301,
+        "width": 678.6328125,
+        "height": 599.5
+      }
+    },
+    {
+      "profile": "small-dark",
+      "overflow": false,
+      "monitor": {
+        "x": 839,
+        "y": 427.7421875,
+        "width": 181,
+        "height": 87
+      },
+      "operator": {
+        "x": 830,
+        "y": 258,
+        "width": 198,
+        "height": 378
+      },
+      "plot": {
+        "x": 393,
+        "y": 301,
+        "width": 426,
+        "height": 299.5
+      }
+    }
+  ],
+  "errors": []
+}

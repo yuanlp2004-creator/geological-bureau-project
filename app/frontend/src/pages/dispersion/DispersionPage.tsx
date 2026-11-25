@@ -84,7 +84,8 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const [bindMethodId, setBindMethodId] = useState<number | null>(null)
   const [autoRun, setAutoRun] = useState(false)
   const [busy, setBusy] = useState(false)
-  const runningTask = tasks.find((task) => !['draft', 'completed', 'failed', 'stopped'].includes(task.status))
+  const runningTask = tasks.find(task => task.active_capture_id === task.id)
+    ?? tasks.find(task => !['draft', 'completed', 'failed', 'stopped'].includes(task.status))
   const embedded = useSpectroscopySession('dispersion', runningTask
     ? `色散摄谱任务“${runningTask.name}”尚未结束，请完成或停止后切换摄谱方式。`
     : busy ? '色散摄谱操作尚未完成，请稍后切换摄谱方式。' : null)
@@ -131,7 +132,8 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       if (!valid()) return
       applyTask(task)
       if (!runningStates.has(task.status)) setAutoRun(false)
-      if (message) onToast(message)
+      if (task.status === 'failed' && active?.status !== 'failed' && task.failure_message) onToast(task.failure_message)
+      else if (message) onToast(message)
       return task
     } catch (error) {
       if (valid()) {
@@ -151,7 +153,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     const valid = ticket()
     try {
       const fresh = await api.dispersionTask(token, id)
-      if (checkConnection && view !== 'curve' && ['draft','ready'].includes(fresh.status))
+      if (checkConnection && view !== 'curve' && !fresh.position_controlled && ['draft','ready'].includes(fresh.status))
         await ensureCaptureConnection(token, fresh.device_profile_id, fresh.profile.transport, 'dispersion')
       if (valid()) {
         setSelectedCcd(current => fresh.ccd_indices.includes(current) ? current : fresh.ccd_indices[0] ?? 0)
@@ -226,10 +228,17 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     if (!active || !active.ccd_indices.includes(selectedCcd)) setSelectedCcd(active?.ccd_indices[0] ?? 0)
   }, [active, selectedCcd])
   useEffect(() => {
-    if (!autoRun || !active || !runningStates.has(active.status) || busy || stopIntent.current) return
+    if (!active || busy) return
+    const remote = active.active_capture_id !== undefined || active.profile.transport === 'serial' && runningStates.has(active.status)
+    if (!remote && (!autoRun || !runningStates.has(active.status) || stopIntent.current)) return
     const timer = window.setTimeout(() => {
-      if (!stopIntent.current) void perform(() => api.stepDispersionTask(token, active.id))
-    }, 850)
+      if (remote) void perform(async () => {
+        const fresh = await api.dispersionTask(token, active.id)
+        return fresh.active_capture_id !== undefined && fresh.active_capture_id !== fresh.id
+          ? api.dispersionTask(token, fresh.active_capture_id) : fresh
+      })
+      else if (!stopIntent.current) void perform(() => api.stepDispersionTask(token, active.id))
+    }, remote ? 250 : 850)
     return () => window.clearTimeout(timer)
   }, [active, autoRun, busy, token])
 
@@ -283,10 +292,11 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       const page = active.capture_turns?.find(item => item.turn_index === index)
       if (page && !busy && !runningTask) void choose(page.id, false)
     }} />
-  const start = async () => {
+  const start = async (singleTurn = false) => {
     if (!formalTask || formalTask.condition.preheat || formalTask.status !== 'draft' || !canExecute || busy || runningTask) return
     stopIntent.current = false
-    const next = await perform(() => api.startDispersionTask(token, formalTask.id), '试样摄谱已开始')
+    const next = await perform(() => api.startDispersionTask(token, formalTask.id, !singleTurn && formalTask.capture_turn?.multiple),
+      singleTurn ? '本转角摄谱已开始' : '试样摄谱已开始')
     if (next && !stopIntent.current) setAutoRun(true)
   }
   const preheat = async () => {
@@ -313,7 +323,7 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
       const task = await (mode === 'stop' ? api.stopDispersionTask : api.pauseDispersionTask)(token, taskId)
       if (valid()) {
         applyTask(task)
-        onToast(mode === 'stop' ? '采集已安全收尾' : '采集已暂停')
+        onToast(mode === 'stop' ? task.active_capture_id ? '已发出停止请求' : '采集已停止' : '采集已暂停')
       }
     } catch (error) {
       if (valid()) onToast(error instanceof Error ? error.message : '停止操作失败，请重试')
@@ -386,8 +396,8 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
   const curveActions = active && <div className="inspector-workflow-tools" role="group" aria-label="色散谱线操作">
     <SpectroscopyToolButton icon="line-correction" label="校正谱线" description="在固定搜索范围内寻峰；无有效峰时保留原位置，人工移动后重新确定范围"
       disabled={Boolean(active.condition.preheat)||!canWrite||busy||Boolean(runningTask)||!active.lines.length||!active.burn_frames_captured} onClick={()=>void locateAll()}/>
-    <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="至少四条谱线；打开波长、CCD间隔、拟合与保存窗口"
-      disabled={!canWrite||Boolean(active.condition.preheat)||busy||Boolean(runningTask)||active.lines.length<4} onClick={()=>setProcessingOpen(true)} aria-pressed={processingOpen}/>
+    <SpectroscopyToolButton icon="fit-curve" label="拟合曲线" description="打开波长、CCD间隔及拟合窗口；使用 4–8 个有效定位点，通常使用 6 个"
+      disabled={!canWrite||Boolean(active.condition.preheat)||busy||Boolean(runningTask)||!active.lines.length} onClick={()=>setProcessingOpen(true)} aria-pressed={processingOpen}/>
 
   </div>
   const focusedLine=active?.lines.find(line=>line.id===manualLine&&line.ccd_index===selectedCcd)

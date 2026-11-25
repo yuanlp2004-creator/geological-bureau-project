@@ -21,7 +21,7 @@ from backend.db import Database, utc_now
 from backend.modules.analysis import AnalysisError, AnalysisService, legacy_gaussian
 from backend.modules.analysis.algorithms import _search_peak
 from backend.modules.methods import MethodService
-from backend.modules.spectrum_viewer import SpectrumViewerService
+from backend.modules.spectrum_viewer import SpectrumViewerError, SpectrumViewerService
 from backend.schemas import MethodCondition
 
 
@@ -254,12 +254,110 @@ def test_spectrum_concentration_preview_fits_stored_points_for_bound_method(tmp_
     assert preview["method_name"] == "S16 测试方法"
     assert [row["element"] for row in (copper, zinc, nickel)] == ["Cu", "Zn", "Ni"]
     assert copper["quantitative_signal"] == pytest.approx(790)
+    assert copper['raw_intensity'] == pytest.approx(800)
+    assert copper['point_index'] == 902 and copper['peak_found']
     assert copper["concentration"] == pytest.approx(79)
     assert copper["unit"] == "ug/g"
     assert copper["curve_source"] == "method_standards"
     assert zinc["concentration"] is None and "标准点不足" in zinc["message"]
     with database.read() as db:
         assert db.execute("SELECT COUNT(*) FROM analysis_curve_snapshots").fetchone()[0] == 0
+
+
+def seed_legacy_reference_review(database: Database) -> dict:
+    standards = [{'name': f'S{i}', 'value': intensity / 10, 'adjusted_intensity': intensity,
+                  'intensity_valid': True, 'active': True}
+                 for i, intensity in enumerate((100, 300, 600, 1200), start=1)]
+    version_id, sample_ids = _seed(database, copper_standards=standards)
+    methods = MethodService(database)
+    with database.write() as db:
+        version = methods.bind_snapshots(db).by_id(version_id)
+        condition = version.payload['conditions']
+        layout = methods.bind_geometry(db, condition).prepared_layout() | {'ccd_indices': [0], 'ccd_count': 1, 'legacy_method_id': 42}
+        raw = db.execute('SELECT mean_blob,mean_sha256 FROM acquisition_sample_bands WHERE sample_id=?', (sample_ids[0],)).fetchone()
+        now = utc_now()
+        db.execute('''INSERT INTO method_versions(method_id,version,state,payload_json,validation_errors_json,created_at)
+                     VALUES (?,2,'published',?,'[]',?)''',
+                   (version.method.id, json.dumps({**version.payload, 'legacy_migration': {'legacy_method_id': 42}}), now))
+        db.execute('UPDATE methods SET current_version=2 WHERE id=?', (version.method.id,))
+        baseline = next(line for line in version.payload['lines'] if line['line_type'] == 'baseline')
+        zinc = next(line for line in version.payload['lines'] if line['element'] == 'Zn')
+        different = {**version.payload, 'legacy_migration': {'legacy_method_id': 99},
+                     'lines': [baseline, {**zinc, 'internal_standard_mode': 'none', 'standard_points': standards}]}
+
+        def another_method(name, payload):
+            method_id = db.execute('''INSERT INTO methods(name,description,work_type,status,current_version,created_at,updated_at)
+                                      VALUES (?,'','spectral','active',1,?,?)''', (name, now, now)).lastrowid
+            db.execute('''INSERT INTO method_versions(method_id,version,state,payload_json,validation_errors_json,created_at)
+                          VALUES (?,1,'published',?,'[]',?)''', (method_id, json.dumps(payload), now))
+            return method_id
+
+        compatible_method = another_method('相容锌方法', different)
+        incompatible_layout = db.execute('''INSERT INTO ccd_layouts(name,frame_count,ccds_per_frame,points_per_ccd,point_width,
+            gap_points_json,ccd_indices_json,created_at) VALUES ('测试 1024 点布局',3,2,1024,?,?,'[0]',?)''',
+            (layout['point_width'], json.dumps(layout['gap_points']), now)).lastrowid
+        incompatible_calibration = db.execute('''INSERT INTO dispersion_calibrations(name,ccd_layout_id,coefficients_json,created_at)
+            VALUES ('测试 1024 点色散',?,?,?)''', (incompatible_layout, json.dumps(layout['ws_cof']), now)).lastrowid
+        incompatible_method = another_method('不相容锌方法', {**different, 'conditions': {**condition,
+            'ccd_layout_id': incompatible_layout, 'dispersion_calibration_id': incompatible_calibration}})
+
+        record_ids = {}
+        int_points = [round(value) for value in struct.unpack('<2048f', raw['mean_blob'])]
+        for format in ('cdt', 'cmt'):
+            source = f'raw-mtd-{format}'
+            burn = struct.pack('<2048H', *int_points) if format == 'cmt' else None
+            ignition = {'burn_count': 1, 'burn_cyc': 1, 'dark_count': 0}
+            db.execute('''INSERT INTO spectrum_migration_runs(id,fingerprint,format,status,source_json,reader_json,staging_json,
+                          report_json,created_at,updated_at) VALUES (?,?,?,'committed','{}','{}','{}','{}',?,?)''',
+                       (source, source, format, now, now))
+            record_ids[format] = db.execute('''INSERT INTO spectrum_bands(import_run_id,source_sha256,record_index,format,band_id,
+                sample_name,measure_time,frame_count,ccds_per_frame,points_per_ccd,ccd_count,ccd_indices_json,layout_json,ignition_json,
+                bad_frame_indices_json,mean_blob,mean_sha256,burn_adcs_blob,burn_sha256,sampled_values_json,details_json)
+                VALUES (?,?,0,?,7,'QA 旧谱图',?,3,2,2048,1,'[0]',?,?,'[]',?,?,?,?,'{}','{}')''',
+                (source, source, format, now, json.dumps(layout), json.dumps(ignition), raw['mean_blob'], raw['mean_sha256'],
+                 burn, hashlib.sha256(burn).hexdigest() if burn else None)).lastrowid
+    return {'source_method': version.method.id, 'compatible_method': compatible_method, 'incompatible_method': incompatible_method,
+            'raw_records': record_ids, 'sample': sample_ids[0], 'mean_sha256': raw['mean_sha256']}
+
+
+def test_legacy_concentration_uses_only_the_open_compatible_method(tmp_path: Path):
+    database = Database(tmp_path / 'legacy-concentration.sqlite3')
+    fixture = seed_legacy_reference_review(database)
+    methods = MethodService(database)
+    viewer = SpectrumViewerService(database)
+    for record_id in fixture['raw_records'].values():
+        with database.write() as db:
+            db.execute('UPDATE method_runtime_state SET current_method_id=NULL,current_version=NULL WHERE id=1')
+        with pytest.raises(SpectrumViewerError, match='在「光谱方法」打开已发布的方法') as missing:
+            viewer.concentrations(f'raw:{record_id}')
+        assert missing.value.code == 'spectrum_concentration_method_required'
+
+        methods.open(fixture['source_method'], 0)
+        source = viewer.concentrations(f'raw:{record_id}')
+        assert source['method_name'] == 'S16 测试方法' and source['method_version'] == 2
+        assert 'method_notice' not in source
+        copper = next(row for row in source['rows'] if row['element'] == 'Cu')
+        assert copper['raw_intensity'] == pytest.approx(800) and copper['concentration'] == pytest.approx(79)
+
+        methods.open(fixture['compatible_method'], 0)
+        reference = viewer.concentrations(f'raw:{record_id}')
+        assert reference['method_name'] == '相容锌方法' and reference['method_version'] == 1
+        assert '旧方法编号为 42' in reference['method_notice']
+        assert [row['element'] for row in reference['rows']] == ['Zn']
+        assert reference['rows'][0]['raw_intensity'] == pytest.approx(1000)
+        assert reference['rows'][0]['concentration'] == pytest.approx(99)
+
+        methods.open(fixture['incompatible_method'], 0)
+        with pytest.raises(SpectrumViewerError, match='不相容锌方法.*布局不相容.*打开适用') as incompatible:
+            viewer.concentrations(f'raw:{record_id}')
+        assert incompatible.value.code == 'spectrum_concentration_layout_incompatible'
+        assert viewer.get(f'raw:{record_id}')['ccd']['points'][902]['value'] == 800
+        with database.read() as db:
+            assert db.execute('SELECT mean_sha256 FROM spectrum_bands WHERE id=?', (record_id,)).fetchone()[0] == fixture['mean_sha256']
+
+    native = viewer.concentrations(f"sample:{fixture['sample']}")
+    assert native['method_name'] == 'S16 测试方法' and native['method_version'] == 1
+    assert 'method_notice' not in native and any(row['element'] == 'Cu' for row in native['rows'])
 
 
 def test_s16_legacy_gaussian_golden_vectors() -> None:

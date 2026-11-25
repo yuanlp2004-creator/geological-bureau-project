@@ -292,20 +292,41 @@ def test_schema30_addition_preserves_legacy_data_and_rolls_back_on_failure(tmp_p
         before = list(db.iterdump())
         tables = [row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
                   if row[0].startswith(('acquisition_', 'hardware_', 'method', 'sample_', 'dispersion_'))]
-        data = {table: [tuple(row) for row in db.execute(f'SELECT * FROM "{table}"')] for table in tables}
-    actual = next(step for step in MIGRATIONS if step[0] == 30)
+        legacy_queries = {}
+        for table in tables:
+            columns = ', '.join(
+                f'"{table}"."{column["name"]}"' for column in db.execute(f'PRAGMA table_info("{table}")')
+            )
+            legacy_queries[table] = f'SELECT {columns} FROM "{table}" ORDER BY rowid'
+        data = {table: [tuple(row) for row in db.execute(query)] for table, query in legacy_queries.items()}
+    migrate_v30 = next(migration for version, _, migration in MIGRATIONS if version == 30)
+
     def fail(connection):
-        actual[2](connection)
+        migrate_v30(connection)
         raise sqlite3.OperationalError('injected migration failure')
+
     with monkeypatch.context() as patch:
-        patch.setattr(db_module, 'MIGRATIONS', tuple((30, 'acquisition', fail) if step[0] == 30 else step for step in MIGRATIONS))
-        with pytest.raises(sqlite3.OperationalError, match='injected'): database.initialize()
-    with database.read() as db: assert list(db.iterdump()) == before
+        patch.setattr(db_module, 'MIGRATIONS', tuple(
+            (version, module, fail if version == 30 else migration)
+            for version, module, migration in MIGRATIONS
+        ))
+        with pytest.raises(sqlite3.OperationalError, match='injected migration failure'):
+            database.initialize()
+    with database.read() as db:
+        assert list(db.iterdump()) == before
     database.initialize()
     with database.read() as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
         assert not db.execute('PRAGMA foreign_key_check').fetchall()
-        for table in tables: assert [tuple(row) for row in db.execute(f'SELECT * FROM "{table}"')] == data[table]
+        for table, query in legacy_queries.items():
+            assert [tuple(row) for row in db.execute(query)] == data[table], table
+        assert not db.execute('SELECT 1 FROM acquisition_turn_bands').fetchall()
+        assert not db.execute('SELECT 1 FROM acquisition_tasks WHERE discarded_at IS NOT NULL').fetchall()
+        bands = db.execute('SELECT points_count, mean_blob, mean_sha256 FROM acquisition_sample_bands').fetchall()
+        assert len(bands) == 2
+        for band in bands:
+            assert len(band['mean_blob']) == band['points_count'] * 4
+            assert hashlib.sha256(band['mean_blob']).hexdigest() == band['mean_sha256']
 
 
 def test_each_angle_uses_its_own_calibration_and_line_positions(tmp_path):

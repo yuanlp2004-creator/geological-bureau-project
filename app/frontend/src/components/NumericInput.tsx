@@ -16,6 +16,7 @@ type CommonProps = Omit<
   min?: number | string
   max?: number | string
   step?: number | string
+  stepWithArrows?: boolean
 }
 
 type RequiredNumericInputProps = CommonProps & {
@@ -55,6 +56,7 @@ export function NumericInput(props: NumericInputProps) {
     min,
     max,
     step,
+    stepWithArrows,
     required = true,
     className,
     onBlur,
@@ -128,6 +130,15 @@ export function NumericInput(props: NumericInputProps) {
       } else {
         ;(onValueChange as (next: number) => void)(focusValue.current)
       }
+    } else if (stepWithArrows && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      const amount = Number(step ?? 1)
+      if (!Number.isFinite(amount) || amount <= 0) return
+      event.preventDefault()
+      const value = validateNumericText(text, { required: false }).value ?? 0
+      const direction = event.key === 'ArrowUp' ? 1 : -1
+      const next = Math.max(Number(min ?? -Infinity), Math.min(Number(max ?? Infinity), value + direction * amount))
+      const nextText = String(next)
+      if (commit(nextText, true)) setText(nextText)
     }
   }
 

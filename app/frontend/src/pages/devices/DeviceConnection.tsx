@@ -3,6 +3,7 @@ import { Bluetooth, Cable, RefreshCw, Save, Unplug } from 'lucide-react'
 import { api, type BluetoothDevice, type DeviceDiagnostics, type DeviceProfile } from '../../api'
 import { openBluetoothSettings } from '../../platform/bluetooth'
 import { BluetoothDevicePicker } from './BluetoothDevicePicker'
+import { MotorConnection } from './MotorConnection'
 import './device-connection.css'
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 
 export function DeviceConnection({ token, canWrite, canExecute, active, revision, onSaved, onProfileChange, onConfigure, onToast }: Props) {
   const [devices, setDevices] = useState<BluetoothDevice[]>([])
+  const [wiredPorts, setWiredPorts] = useState<number[]>([])
   const [profile, setProfile] = useState<DeviceProfile | null>(null)
   const [address, setAddress] = useState('')
   const [port, setPort] = useState('')
@@ -27,7 +29,8 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
   const device = devices.find(item => item.address === address)
   const ports = device?.ports ?? []
   const bound = Boolean(port && ports.some(item => item.device === port))
-  const changed = profile?.transport !== 'serial' || port !== `COM${profile.port}`
+  const wiredCcd = profile?.transport === 'serial' && !address && wiredPorts.includes(profile.port)
+  const changed = !wiredCcd && (profile?.transport !== 'serial' || port !== `COM${profile.port}`)
   const connected = Boolean(diagnostics?.connected || captures.length)
   const running = Boolean(captures.length || diagnostics?.connected && !['connected', 'error'].includes(diagnostics.state))
   const choose = (nextAddress: string, nextPort: string) => {
@@ -37,9 +40,11 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
     if (refreshing.current) return
     refreshing.current = true; setLoading(true)
     try {
-      const [next, current, bluetooth] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token), api.bluetoothDevices(token)])
+      const [next, current, bluetooth, systemPorts] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token), api.bluetoothDevices(token),
+        api.devicePorts(token)])
       bluetooth.devices = bluetooth.devices.filter(item => !deleted.current.has(item.address))
       setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []); setProfile(current); setDevices(bluetooth.devices)
+      setWiredPorts(systemPorts.filter(item => !item.is_bluetooth).map(item => item.port))
       if (dirty.current) {
         const selected = bluetooth.devices.find(item => item.address === selection.current.address)
         choose(selected?.address ?? '', selected?.ports.some(item => item.device === selection.current.port) ? selection.current.port : '')
@@ -86,10 +91,16 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
     if (selection.current.address === item.address) { dirty.current = false; choose('', '') }
   })
   const connect = () => command(async () => {
-    if (!canExecute || !profile || changed || !bound || connected) return
-    const windows = await api.bluetoothDevices(token)
-    if (!windows.devices.some(item => item.address === address && item.ports.some(p => p.device === port)))
-      throw new Error('Windows蓝牙端口映射已变化，请刷新后重新选择')
+    if (!canExecute || !profile || changed || !(bound || wiredCcd) || connected) return
+    if (wiredCcd) {
+      const systemPorts = await api.devicePorts(token)
+      if (!systemPorts.some(item => item.port === profile.port && !item.is_bluetooth))
+        throw new Error('CCD 有线串口已变化，请刷新后重新选择')
+    } else {
+      const windows = await api.bluetoothDevices(token)
+      if (!windows.devices.some(item => item.address === address && item.ports.some(p => p.device === port)))
+        throw new Error('Windows蓝牙端口映射已变化，请刷新后重新选择')
+    }
     const result = await api.connectDevice(token, profile.id); setDiagnostics(result.diagnostics)
     onToast('串口已打开，开始调试或摄谱后确认仪器响应')
   })
@@ -106,7 +117,7 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
       <div className="connection-actions"><button type="button" className="secondary-button" disabled={busy} onClick={() => void command(openBluetoothSettings)}><Bluetooth size={16} />打开 Windows 蓝牙设置</button>
         <button type="button" className="secondary-button" disabled={busy || loading} onClick={() => void load()}><RefreshCw size={16} />刷新设备与端口</button></div>
     </div>
-    <div className="surface connection-controls"><div className="connection-heading"><h2>蓝牙设备与 COM 口</h2><span className={`connection-state${connected ? ' connected' : ''}`} role="status">{state}</span></div>
+    <div className="surface connection-controls"><div className="connection-heading"><h2>CCD 采集连接</h2><span className={`connection-state${connected ? ' connected' : ''}`} role="status">{state}</span></div>
       <fieldset disabled={busy || loading || connected || !canWrite} className="connection-fields">
         <div className="field"><span>Windows 蓝牙设备</span><BluetoothDevicePicker devices={devices} value={address}
           disabled={!canWrite || busy || loading || connected} onDelete={remove} onChange={value => {
@@ -120,16 +131,19 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
       {device && <p className="field-hint">Windows状态：{device.connected ? '已连接' : device.paired ? '已配对，未连接' : '已记录，未连接'}。{!device.connected && ports.length > 0 ? '打开对应COM口时建立串口连接。' : ''}</p>}
       {device && !ports.length && <p className="field-hint">Windows尚未给此设备分配传出COM口，或此设备不提供串口服务。请在Windows蓝牙设置的“更多蓝牙设置 → COM端口”中添加，再回到这里刷新。</p>}
       <div className="connection-actions"><button type="button" className="secondary-button" disabled={!canWrite || !bound || !changed || busy || loading || connected} onClick={() => void save()}><Save size={16} />保存绑定</button>
-        <button type="button" className="primary-button" disabled={!canExecute || !profile?.enabled || changed || !bound || !diagnostics || busy || loading || connected} onClick={() => void connect()}><Cable size={16} />连接设备</button>
+        <button type="button" className="primary-button" disabled={!canExecute || !profile?.enabled || changed || !(bound || wiredCcd) || !diagnostics || busy || loading || connected} onClick={() => void connect()}><Cable size={16} />连接设备</button>
         <button type="button" className="secondary-button" disabled={!canExecute || busy || !connected || running} onClick={() => void disconnect()}><Unplug size={16} />断开设备</button>
         <button type="button" className="secondary-button" disabled={busy} onClick={onConfigure}>更多设备参数</button></div>
       {bound && changed && <p className="field-hint">请先保存绑定，再连接设备。</p>}
+      {wiredCcd && <p className="field-hint">当前 CCD 采集口为有线 COM{profile.port}。</p>}
       {profile?.transport === 'simulator' && <p className="field-hint">当前启用了模拟设备测试。可在设备参数中取消勾选，或在此保存真实蓝牙通讯口。</p>}
       {diagnostics?.connected && diagnostics.adapter !== 'acq-simulator' && <p className="field-hint">当前串口：{diagnostics.port}。{diagnostics.instrument_responded ? '本次连接已收到有效CCD数据。' : '尚未确认仪器响应，请进入调试对中或摄谱验证。'}</p>}
       {captures.map(item => <p className="field-hint" key={`${item.owner}-${item.task_id}`}>{item.port} · {item.owner} · 任务 {item.task_id}</p>)}
       {running && <p className="field-hint">请先在对应摄谱或调试页面停止任务，再断开设备。</p>}
       {(error || diagnostics?.last_error) && <p className="connection-error" role="alert">{error || diagnostics?.last_error?.message}</p>}
     </div>
-    <p className="field-hint">右侧仅显示Windows实际分配给所选设备的传出COM口。新增端口或更改COM号由Windows管理；模拟设备勾选项在设备参数的通讯口旁。</p>
+    {profile?.transport === 'serial' && <MotorConnection key={profile.id} token={token} profile={profile} devices={devices}
+      disabled={!canWrite || running} onToast={onToast} />}
+    <p className="field-hint">蓝牙列表只显示 Windows 分配的传出 COM 口。有线 CCD 通讯口和模拟设备可在设备参数中选择。</p>
   </section>
 }

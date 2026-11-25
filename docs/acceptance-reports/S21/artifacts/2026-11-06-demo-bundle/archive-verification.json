@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checks": [
+    "zip_crc_and_all_entry_hashes",
+    "startup_in_path_with_chinese_and_spaces",
+    "demo_login",
+    "schema_29",
+    "current_method",
+    "simulator_selected",
+    "queue_ready",
+    "13_samples",
+    "21_report_rows",
+    "new_sample_session",
+    "original_bundle_database_unchanged"
+  ],
+  "bundle_database_sha256": "96b930fafddfdbd8d8ca29ed3f1d9e1f7a961654d90a0bc1315713052a009598"
+}

@@ -1,0 +1,151 @@
+{
+  "status": "passed",
+  "initial_plan_sha256": "ed0928a57ad0b61a2e03962dac9998691cbcc1cd5e188a987e8b9dad82459431",
+  "execution_plan_sha256": "8fcc8fa619a748d1f71d16bea0f33cf093b86b75e5f41b8fc253847b0160323c",
+  "browser": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品新建只有编号；设备与样号表从所属页面选择并持久化，方法与采集条件来自当前方法；取消／失败保留输入，下一样品不再重复填写编号",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "frozen_desktop": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品新建只有编号；设备与样号表从所属页面选择并持久化，方法与采集条件来自当前方法；取消／失败保留输入，下一样品不再重复填写编号",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "backend_tests": 57,
+  "frontend_tests": 20,
+  "source_changes": [
+    "app\\backend\\services.py",
+    "app\\backend\\api\\acquisition.py",
+    "app\\backend\\api\\devices.py",
+    "app\\backend\\api\\sample_queues.py",
+    "app\\backend\\migrations\\defaults.py",
+    "app\\backend\\migrations\\v27_capture_context.py",
+    "app\\backend\\migrations\\__init__.py",
+    "app\\backend\\modules\\manifest.py",
+    "app\\backend\\modules\\offline_help.py",
+    "app\\backend\\modules\\sample_queues.py",
+    "app\\backend\\modules\\acquisition\\service.py",
+    "app\\backend\\modules\\devices\\service.py",
+    "app\\backend\\schemas\\acquisition.py",
+    "app\\backend\\schemas\\sample_queues.py",
+    "app\\frontend\\src\\navigation.ts",
+    "app\\frontend\\src\\api\\acquisition.ts",
+    "app\\frontend\\src\\api\\devices.ts",
+    "app\\frontend\\src\\api\\sampleQueues.ts",
+    "app\\frontend\\src\\components\\FunctionIcon.tsx",
+    "app\\frontend\\src\\layout\\WorkspaceApp.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\AcquisitionWorkspace.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\SampleAcquisitionForm.tsx",
+    "app\\frontend\\src\\pages\\acquisition\\spectroscopy-workbench.css",
+    "app\\frontend\\src\\pages\\auth\\PermissionPicker.tsx",
+    "app\\frontend\\src\\pages\\devices\\DeviceParameters.tsx",
+    "app\\frontend\\src\\pages\\devices\\SoftwareParameters.tsx",
+    "app\\frontend\\src\\pages\\maintenance\\MaintenancePage.tsx",
+    "app\\frontend\\src\\pages\\sampleQueues\\SampleQueuePage.tsx",
+    "app\\frontend\\src\\pages\\workspace\\WorkspacePage.tsx",
+    "app\\frontend\\src\\styles\\remaining-pages.css"
+  ],
+  "production_and_qa_sources_match": true,
+  "migration": {
+    "status": "passed",
+    "source_mode": "read_only",
+    "from_version": 26,
+    "to_version": 27,
+    "preserved_tables": 84,
+    "new_tables": [
+      "device_runtime_state",
+      "sample_queue_runtime_state"
+    ],
+    "expected_refreshes": [
+      "help_topics",
+      "report_templates.updated_at",
+      "app_metadata.schema_version",
+      "app_metadata.updated_at"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "source_backup": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\backups\\pre-upgrade-v26-to-v27-20261105T075609Z-8bd2f524.sqlite3"
+  },
+  "production_preservation": {
+    "status": "passed",
+    "compared_to_upgrade_backup": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\backups\\pre-upgrade-v26-to-v27-20261105T075609Z-8bd2f524.sqlite3",
+    "preserved_tables": 12,
+    "changed_tables": []
+  },
+  "deployment": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "39bdca566e23423ba45147675c34b3a9428db5a005af4c3b06dc1a08b337682b",
+      "after_sha256": "a987e9a322ca588a042d73c36f7d0311573fe4e165ccc17ee81cafe7dcac7c24"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "149d86b1104428ffd38aebd14351518d11505bc1e683f0fb969619f17fb2979a",
+      "after_sha256": "6e1d9130a759c5b45ba289b354a54295630b35a43e0a43c7299e10cac11dd008"
+    }
+  },
+  "review": {
+    "status": "passed",
+    "input_count": 1,
+    "select_count": 0,
+    "current_device_verified_in_owner_page": true,
+    "current_queue_verified_in_owner_page": true,
+    "context": {
+      "method": {
+        "id": 4,
+        "version": 3,
+        "name": "摄谱QAmw3a8jqi"
+      },
+      "profile": {
+        "id": 4,
+        "name": "当前设备mw3a8jux",
+        "transport": "simulator"
+      },
+      "queue": {
+        "id": 3,
+        "name": "单编号摄谱审阅样号表",
+        "name_length": 20
+      },
+      "item": {
+        "id": 4,
+        "name": "A001",
+        "repeats": 1
+      }
+    },
+    "device_disconnected": true,
+    "retained_for_review": true
+  },
+  "root_and_app_entries_unchanged": true,
+  "final_format_check": "passed"
+}

@@ -1,6 +1,7 @@
 """Explicit API registry; business modules are never discovered by filesystem scanning."""
 from fastapi import FastAPI
 from .system import router as system_router
+from .deployment_access import router as deployment_access_router
 from .auth import router as auth_router
 from .methods import router as methods_router
 from .legacy_migration import router as legacy_migration_router
@@ -25,6 +26,7 @@ def register_api(app: FastAPI) -> None:
     register_extensions(app)
     for router in (
         system_router,
+        deployment_access_router,
         auth_router,
         methods_router,
         legacy_migration_router,

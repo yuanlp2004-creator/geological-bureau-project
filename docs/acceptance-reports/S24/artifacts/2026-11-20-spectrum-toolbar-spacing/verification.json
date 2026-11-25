@@ -1,0 +1,2467 @@
+{
+  "checks": [
+    {
+      "label": "谱图查看",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 408.671875,
+              "right": 587.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 525.671875,
+              "right": 704.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 533.671875,
+              "right": 740.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 573,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "色散曲线",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "finish"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 529.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2
+              ],
+              "between": [
+                398.671875,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "finish"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 727.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2
+              ],
+              "between": [
+                596.671875,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "finish"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 759.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6
+              ],
+              "between": [
+                612.671875,
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 573,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "色散摄谱",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 4,
+              "right": 608.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2
+              ],
+              "between": [
+                472.671875,
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                20,
+                20,
+                20,
+                20,
+                36,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20
+              ],
+              "left": 3,
+              "right": 437,
+              "overflow": 0,
+              "rows": 2,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 4,
+              "right": 624.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2
+              ],
+              "between": [
+                488.671875,
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 505,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "add-line",
+                "delete-line",
+                "line-correction",
+                "fit-curve",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 4,
+              "right": 656.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6
+              ],
+              "between": [
+                504.671875,
+                16,
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 589,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "蒸发摄谱",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 467.671875,
+              "right": 549.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2
+              ],
+              "between": [
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                20,
+                20,
+                20,
+                20,
+                36,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20
+              ],
+              "left": 3,
+              "right": 437,
+              "overflow": 0,
+              "rows": 2,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 483.671875,
+              "right": 565.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2
+              ],
+              "between": [
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 505,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 491.671875,
+              "right": 585.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6
+              ],
+              "between": [
+                16,
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 589,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "样品摄谱",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 467.671875,
+              "right": 549.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2
+              ],
+              "between": [
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                20,
+                20,
+                20,
+                20,
+                36,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20,
+                20
+              ],
+              "left": 3,
+              "right": 437,
+              "overflow": 0,
+              "rows": 2,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 483.671875,
+              "right": 565.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2
+              ],
+              "between": [
+                8,
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 505,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:\n曝光区间:",
+              "widths": [
+                24,
+                24,
+                24
+              ],
+              "left": 491.671875,
+              "right": 585.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6
+              ],
+              "between": [
+                16,
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1",
+              "widths": [
+                24,
+                24,
+                24,
+                24,
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 3,
+              "right": 589,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "样品分析",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 381.78125,
+              "right": 535.78125,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 424.78125,
+              "right": 578.78125,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "line-correction",
+                "measure",
+                "pause",
+                "close"
+              ],
+              "text": "选择谱线:\n定位谱线:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 432.78125,
+              "right": 610.78125,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 573,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "调试对中",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "fit",
+                "close"
+              ],
+              "text": "扣除背景\nCCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 81,
+              "right": 479,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "fit",
+                "close"
+              ],
+              "text": "扣除背景\nCCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 81,
+              "right": 479,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "fit",
+                "close"
+              ],
+              "text": "扣除背景\nCCD 1\nCCD 2\nCCD 3\nCCD 5\nCCD 6",
+              "widths": [
+                36,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24,
+                24
+              ],
+              "left": 85,
+              "right": 551,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "蒸发曲线",
+      "cases": [
+        {
+          "name": "minimum",
+          "viewport": {
+            "width": 1060,
+            "height": 720
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 408.671875,
+              "right": 537.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "normal",
+          "viewport": {
+            "width": 1440,
+            "height": 870
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 525.671875,
+              "right": 654.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 489,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "between": [
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maximized",
+          "viewport": {
+            "width": 1920,
+            "height": 1010
+          },
+          "bars": [
+            {
+              "icons": [
+                "sample-input",
+                "reference-correction",
+                "measure",
+                "pause",
+                "finish"
+              ],
+              "text": "选择谱线:\n基线 253.65\nCu 254.35556536221358\n定位谱线:\n曝光区间:",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 533.671875,
+              "right": 682.671875,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16
+              ]
+            },
+            {
+              "icons": [
+                "previous-band",
+                "next-band",
+                "previous-ccd",
+                "next-ccd",
+                "select-ccd",
+                "crosshair",
+                "box-zoom",
+                "pan",
+                "fit",
+                "scale-1",
+                "scale-4",
+                "scale-10",
+                "zoom-x-in",
+                "zoom-x-out",
+                "zoom-y-in",
+                "zoom-y-out",
+                "reset-y",
+                "print"
+              ],
+              "text": "CCD 1\nCCD 2\nCCD 3\nCCD 4\nCCD 5",
+              "widths": [
+                23,
+                23,
+                23,
+                23,
+                36,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23
+              ],
+              "left": 4,
+              "right": 573,
+              "overflow": 0,
+              "rows": 1,
+              "within": [
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+              ],
+              "between": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "action": "蒸发曲线最大化后，横向放大及适合图像正常"
+}

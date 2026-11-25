@@ -1,0 +1,174 @@
+{
+  "status": "passed",
+  "completed_date": "2026-11-06",
+  "batch": "2026-11-05-bluetooth-mapping",
+  "plan_sha256": "ff92731c3c5d067c0ebfb539c70c9968d927143f86e3bf4d16f958019e118f96",
+  "automated_tests": {
+    "backend": 66,
+    "frontend": 20
+  },
+  "ui": {
+    "browser": {
+      "status": "passed",
+      "checks": [
+        "左侧显示Windows设备及真实状态，无串口服务的设备不可绑定或连接",
+        "右侧仅列所选设备的COM口，保存包含设备身份并保留旧档案和参数",
+        "连接失败显示错误并保留已选设备及端口，不报告假成功",
+        "Windows端口映射消失后禁用连接，要求系统添加端口后刷新",
+        "通讯口旁独立模拟勾选可测试，取消后恢复原COM和真实参数",
+        "重新打开页面后从Windows映射恢复当前设备和COM选择",
+        "最终审阅恢复系统真实设备映射，未连接实体串口"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "viewport": 1060,
+          "scroll": 1060,
+          "width": 813,
+          "fields": [
+            {
+              "width": 731,
+              "scroll": 729
+            },
+            {
+              "width": 731,
+              "scroll": 729
+            }
+          ]
+        },
+        {
+          "requested_width": 1440,
+          "viewport": 1440,
+          "scroll": 1440,
+          "width": 1138,
+          "fields": [
+            {
+              "width": 520,
+              "scroll": 518
+            },
+            {
+              "width": 520,
+              "scroll": 518
+            }
+          ]
+        },
+        {
+          "requested_width": 1920,
+          "viewport": 1920,
+          "scroll": 1920,
+          "width": 1440,
+          "fields": [
+            {
+              "width": 671,
+              "scroll": 669
+            },
+            {
+              "width": 671,
+              "scroll": 669
+            }
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "desktop": {
+      "status": "passed",
+      "checks": [
+        "左侧显示Windows设备及真实状态，无串口服务的设备不可绑定或连接",
+        "右侧仅列所选设备的COM口，保存包含设备身份并保留旧档案和参数",
+        "连接失败显示错误并保留已选设备及端口，不报告假成功",
+        "Windows端口映射消失后禁用连接，要求系统添加端口后刷新",
+        "通讯口旁独立模拟勾选可测试，取消后恢复原COM和真实参数",
+        "重新打开页面后从Windows映射恢复当前设备和COM选择",
+        "最终审阅恢复系统真实设备映射，未连接实体串口"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "viewport": 1060,
+          "scroll": 1060,
+          "width": 813,
+          "fields": [
+            {
+              "width": 731,
+              "scroll": 729
+            },
+            {
+              "width": 731,
+              "scroll": 729
+            }
+          ]
+        },
+        {
+          "requested_width": 1440,
+          "viewport": 1440,
+          "scroll": 1440,
+          "width": 1138,
+          "fields": [
+            {
+              "width": 520,
+              "scroll": 518
+            },
+            {
+              "width": 520,
+              "scroll": 518
+            }
+          ]
+        },
+        {
+          "requested_width": 1920,
+          "viewport": 1920,
+          "scroll": 1920,
+          "width": 1440,
+          "fields": [
+            {
+              "width": 671,
+              "scroll": 669
+            },
+            {
+              "width": 671,
+              "scroll": 669
+            }
+          ]
+        }
+      ],
+      "errors": []
+    }
+  },
+  "production_qa_sources_identical": true,
+  "source_files": 429,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "ffe17d6c2d9a333657f80d8d05d381cc15f4f0f43b7a7061256ddeb01bec638e",
+      "after_sha256": "8e91a84818516c49ca1cf8bf4303b3761bf837ef76d13fa1086bcfe4d3d09fa4"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "2726537fe61b15e039bca827647922a02753348c069fff8d61098544bb1ae553",
+      "after_sha256": "2726537fe61b15e039bca827647922a02753348c069fff8d61098544bb1ae553"
+    }
+  },
+  "schema_version": 28,
+  "migration_added": false,
+  "production_metadata_unchanged": true,
+  "protected_tables": 13,
+  "review_title": "GeoSpectrum 蓝牙映射测试（隔离测试库）",
+  "review_disconnected": true,
+  "production_window_preserved": true,
+  "production_window_requires_restart": true,
+  "native_mapping_observation": {
+    "device_name": "DM02",
+    "windows_paired": true,
+    "windows_connected": false,
+    "outgoing_ports": [
+      "COM3"
+    ],
+    "COM4_incoming_excluded": true
+  },
+  "windows_settings_or_pairing_changed": false,
+  "physical_instrument_validated": false,
+  "references": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/bluetoothapis/ns-bluetoothapis-bluetooth_device_info_struct",
+    "https://learn.microsoft.com/en-us/windows/win32/api/bluetoothapis/nf-bluetoothapis-bluetoothfindfirstdevice"
+  ],
+  "same_com_distinct_parameter_restore_tested": true
+}

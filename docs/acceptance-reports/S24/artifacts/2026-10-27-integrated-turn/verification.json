@@ -1,0 +1,125 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "10a67f47a491726caff17cf76038795241b4197fb6d897d5a622758f81050cb8",
+  "changed_product_files": [
+    "app/backend/api/acquisition.py",
+    "app/backend/migrations/__init__.py",
+    "app/backend/migrations/v24_acquisition_turns.py",
+    "app/backend/modules/acquisition/repository.py",
+    "app/backend/modules/acquisition/service.py",
+    "app/backend/modules/acquisition/turn_control.py",
+    "app/backend/modules/devices/__init__.py",
+    "app/backend/modules/devices/turn_monitoring.py",
+    "app/backend/modules/hardware_acquisition/repository.py",
+    "app/backend/modules/hardware_acquisition/rules.py",
+    "app/backend/modules/hardware_acquisition/service.py",
+    "app/backend/modules/manifest.py",
+    "app/backend/schemas/acquisition.py",
+    "app/frontend/src/api/acquisition.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionConditionFields.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionTurnStatus.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css",
+    "app/frontend/src/pages/devices/AcquisitionTurnDiagnostics.tsx",
+    "app/frontend/src/pages/devices/DeviceDebugPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardwareView.tsx",
+    "app/manifest.generated.json"
+  ],
+  "backend_tests": 66,
+  "contract_permissions_diagnostics_tests": 26,
+  "frontend_tests": 16,
+  "workflows": {
+    "browser": {
+      "checks": 3,
+      "layouts": 2
+    },
+    "desktop": {
+      "checks": 3,
+      "layouts": 2
+    },
+    "legacy-browser": {
+      "checks": 5,
+      "layouts": 9
+    },
+    "legacy-desktop": {
+      "checks": 5,
+      "layouts": 9
+    },
+    "diagnostic-browser": {
+      "checks": 9,
+      "layouts": 3
+    }
+  },
+  "desktop_processes": {
+    "desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-integrated-turn\\qa\\GeoSpectrum.exe",
+      "pid": 44096,
+      "loaded_pair_sha256": {
+        "GeoSpectrum.exe": "dabc7986831f0d22ddecb1af4deafc634d11d4db045461efe85d2954a56cc88a",
+        "geospectrum-backend.exe": "087dc0ad37ca05ab48bd83807257a212ea527938086c5e0e195bc3491961ed19"
+      },
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    },
+    "legacy-desktop": {
+      "status": "passed",
+      "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-integrated-turn\\qa\\GeoSpectrum.exe",
+      "pid": 44704,
+      "loaded_pair_sha256": {
+        "GeoSpectrum.exe": "dabc7986831f0d22ddecb1af4deafc634d11d4db045461efe85d2954a56cc88a",
+        "geospectrum-backend.exe": "087dc0ad37ca05ab48bd83807257a212ea527938086c5e0e195bc3491961ed19"
+      },
+      "returncode": 0,
+      "closed_normally": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "schema_version": 24,
+  "new_schema_tables": [
+    "acquisition_turn_tasks",
+    "acquisition_turn_frames"
+  ],
+  "production_qa_sources_and_frontend_equal": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "5ee64b765b8b0d9a11a076e17767a2da22d409f677529c279db0f2c37be15298",
+    "geospectrum-backend.exe": "087dc0ad37ca05ab48bd83807257a212ea527938086c5e0e195bc3491961ed19"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "user_database_copy_validation": {
+    "status": "passed",
+    "from_schema": 24,
+    "to_schema": 24,
+    "business_tables_compared": 85,
+    "business_data_preserved": true,
+    "expected_initialization_timestamp_changes": {
+      "device_profiles": [
+        "updated_at"
+      ],
+      "report_templates": [
+        "updated_at"
+      ],
+      "help_topics": [
+        "updated_at"
+      ]
+    },
+    "schema_metadata_updated": true,
+    "integrity_check": "ok",
+    "foreign_key_errors": 0,
+    "original_read_only": true
+  },
+  "v23_upgrade_preserves_samples_frames_bands_and_legacy_tasks": true,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\integrated-turn-20261027\\before",
+  "real_hardware_status": "deferred_external",
+  "automatic_correction_applied": false,
+  "feature_merge_withdrawn_by_user": true,
+  "superseded_by": "2026-10-27-restore-independent-turn"
+}

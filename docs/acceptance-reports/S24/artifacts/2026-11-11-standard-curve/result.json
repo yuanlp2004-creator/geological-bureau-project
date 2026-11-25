@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "checks": [
+    "样品分析从谱图右键打开，双栏、九个标准点、相关系数及试样预览",
+    "选点联动，强度微调和还原，旧拟合输出拦截，重新拟合及文本预览",
+    "重新计算沿用双栏和选点，草稿先拟合再执行，PDT 两条结果带拟合指纹，源曲线一致",
+    "最小宽度并排显示，工具条换行且无横向溢出"
+  ],
+  "errors": [],
+  "analysisLayout": {
+    "executeVisible": true,
+    "width": 1440,
+    "tableWidth": 607.6328125,
+    "chartWidth": 757.3671875,
+    "chartHeight": 744.8046875,
+    "sideBySide": true,
+    "toolbarAbove": true,
+    "overflow": 0
+  },
+  "recalculationLayout": {
+    "executeVisible": true,
+    "width": 1440,
+    "tableWidth": 463.7578125,
+    "chartWidth": 574.2421875,
+    "chartHeight": 549.40625,
+    "sideBySide": true,
+    "toolbarAbove": true,
+    "overflow": 0
+  },
+  "narrowLayout": {
+    "executeVisible": true,
+    "width": 1060,
+    "tableWidth": 320.7578125,
+    "chartWidth": 392.2421875,
+    "chartHeight": 209.359375,
+    "sideBySide": true,
+    "toolbarAbove": true,
+    "overflow": 0
+  },
+  "deployment": {
+    "files": {
+      "geospectrum-backend.exe": {
+        "before": "f296b40ca329e2d3b8c4e2e3ae207b98788badfd73585decd353f4f43dcb5b58",
+        "after": "694217bc892d647e5813014996bbc4bca4f7244b97c24f6b52ca3660e73e1ea6"
+      },
+      "GeoSpectrum.exe": {
+        "before": "21a7264caa3932d5d91252668441a2067ae8484e9a2ee6cc9944b31b78cf1920",
+        "after": "bb3d0adca47add9fada57484a230e8efeab4af8aee0e32a589233e69e0e60aec"
+      }
+    },
+    "same_source_files": 467
+  },
+  "browser_status": "passed",
+  "retained_review": "重新计算 · 标准列表"
+}

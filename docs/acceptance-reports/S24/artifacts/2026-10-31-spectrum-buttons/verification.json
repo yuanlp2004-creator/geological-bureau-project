@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "plan_sha256": "DAA40DE1AF238681A3AB6BD42A00A10B0990C15AE9EB83661F204A451FACD575",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "＋在选定CCD点位直接增加谱线并选中；四个波长保持未填写",
+      "鼠标单击曲线选点可直接增加；删除只影响本次所选谱线",
+      "重复加点被拒绝，现有谱线保持",
+      "拟合按钮打开编辑窗口；未填波长禁止拟合；填写四条后完成真实二次拟合",
+      "短波/长波按一点移动；保存与还原作用于所选谱线",
+      "CCD,点位定位联动CCD；非法坐标保持当前CCD；上下CCD及选择器可用",
+      "查看/框选/滚动、三种比例、横纵放大缩小与纵向还原；适合图像只还原横向；框选后回到查看",
+      "－实际删除所选谱线并清除选择；降至三条后拟合禁用",
+      "校正谱线实际读取已保存帧寻峰，更新全部谱线位置",
+      "旧WDT打印生成真实PDF；原件只读打开"
+    ],
+    "errors": [],
+    "layouts": [
+      "light",
+      "dark"
+    ]
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "＋在选定CCD点位直接增加谱线并选中；四个波长保持未填写",
+      "鼠标单击曲线选点可直接增加；删除只影响本次所选谱线",
+      "重复加点被拒绝，现有谱线保持",
+      "拟合按钮打开编辑窗口；未填波长禁止拟合；填写四条后完成真实二次拟合",
+      "短波/长波按一点移动；保存与还原作用于所选谱线",
+      "CCD,点位定位联动CCD；非法坐标保持当前CCD；上下CCD及选择器可用",
+      "查看/框选/滚动、三种比例、横纵放大缩小与纵向还原；适合图像只还原横向；框选后回到查看",
+      "－实际删除所选谱线并清除选择；降至三条后拟合禁用",
+      "校正谱线实际读取已保存帧寻峰，更新全部谱线位置",
+      "旧WDT打印生成真实PDF；原件只读打开"
+    ],
+    "errors": [],
+    "layouts": [
+      "light",
+      "dark"
+    ]
+  },
+  "deployment": {
+    "GeoSpectrum.exe": {
+      "before": "dc185684c04c25157b7f0487fe6bb1bc495d5b26e85de66f85e91ceb72cd36db",
+      "after": "1e463789cb06bfb152f63c19bdff7f715da7a139d2e3b3a7bec01d3aa67e2d85"
+    },
+    "geospectrum-backend.exe": {
+      "before": "4b67cea9078ce2d992cd609fc2ac004bd9fcff18b41d69d34f1e6ff0acf016e0",
+      "after": "a849e55af0283312298ae550307326bcd98365eb8c6d090790ff257af1eb06e9"
+    }
+  },
+  "changed_product_files": [
+    "app/backend/api/dispersion.py",
+    "app/backend/modules/dispersion/calibration.py",
+    "app/backend/modules/dispersion/service.py",
+    "app/backend/schemas/dispersion.py",
+    "app/frontend/src/api/dispersion.ts",
+    "app/frontend/src/components/SpectrumInspector.tsx",
+    "app/frontend/src/components/SpectrumPlot.tsx",
+    "app/frontend/src/pages/acquisition/CaptureLineBar.tsx",
+    "app/frontend/src/pages/dispersion/DispersionCalibration.tsx",
+    "app/frontend/src/pages/dispersion/DispersionLines.tsx",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx",
+    "app/frontend/src/pages/dispersion/dispersionView.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx"
+  ],
+  "schema_version": 25,
+  "root_and_app_entries_changed": false,
+  "installer_updated": false,
+  "user_database_used_for_tests": false,
+  "review": {
+    "pid": 15804,
+    "cdp": "http://127.0.0.1:56695",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-10-31-spectrum-buttons\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\spectrum-buttons-review-20261031",
+    "retained_for_review": true,
+    "check_exit_code": 0,
+    "running": true
+  },
+  "frontend_tests": 20,
+  "backend_tests": 14,
+  "production_qa_sources_match": true,
+  "production_qa_frontend_match": true,
+  "original_wdt_sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+  "desktop_theme_reload_verified": true
+}

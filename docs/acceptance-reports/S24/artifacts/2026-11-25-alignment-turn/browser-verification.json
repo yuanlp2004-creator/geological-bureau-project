@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "checks": [
+    "real UI bootstrap, invalid password and successful login",
+    "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+    "real browser PDF and UTF-8 CSV downloads with byte verification",
+    "色散摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+    "蒸发摄谱在 1060×680 显示五个操作，连续与仅摄本角分开执行",
+    "样品摄谱一次启动双角，整次重复及逐角谱带均完成",
+    "调试对中仍显示三路 CCD，空态文字在两种窗口宽度下保持字号和居中",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, keyboard panning without a slider, pixel scales, box zoom and reset",
+    "空闲及调试采集均可切角，转动时可停止和断开，迟到的旧角帧不会重画曲线",
+    "切角失败只发一次请求，刷新后显示未知角并可断开设备",
+    "plain HTTP error, no browser retry, 204 logout, 401 rejection and UI session recovery",
+    "controlled Tauri bridge: shared handshake, key, retry, file bytes, picker/save cancellation and failure"
+  ],
+  "nativeDialogTested": false
+}

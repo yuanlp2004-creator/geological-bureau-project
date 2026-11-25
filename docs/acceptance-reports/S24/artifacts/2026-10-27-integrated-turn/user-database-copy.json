@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "from_schema": 24,
+  "to_schema": 24,
+  "business_tables_compared": 85,
+  "business_data_preserved": true,
+  "expected_initialization_timestamp_changes": {
+    "device_profiles": [
+      "updated_at"
+    ],
+    "report_templates": [
+      "updated_at"
+    ],
+    "help_topics": [
+      "updated_at"
+    ]
+  },
+  "schema_metadata_updated": true,
+  "integrity_check": "ok",
+  "foreign_key_errors": 0,
+  "original_read_only": true
+}

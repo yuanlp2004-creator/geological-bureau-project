@@ -1,0 +1,148 @@
+{
+  "status": "passed",
+  "date": "2026-11-06",
+  "batch": "2026-11-06-sample-analysis-layout",
+  "plan_sha256": "1f7ab137356b4ea298038d69dd103bb0ebe8defb66f89134880853a458703988",
+  "frontend_tests": 20,
+  "backend_core_tests": 7,
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "三组工具图标顺序、样品表列及位置与旧版一致，全部复用既有高清资源",
+      "波长定位使用确切方法版本；样品切换、记录锁和横向缩放正常，灰度与曲线范围同步",
+      "校参考线与校正谱线分别打开对应真实预览并筛选正确谱线",
+      "打印图标经真实分析PDF接口生成灰度与曲线，使用公共保存入口并正确处理取消",
+      "读取失败清除旧谱图并禁用相关操作，重试后恢复同一真实样品",
+      "原分析设置改为独立窗口，关闭和重开保留建立运行草稿",
+      "开始、暂停、继续使用原分析流程；暂停后不再推进，继续后完成全部样品",
+      "曲线、标准点、样品结果及质控复核入口保持可用",
+      "三种实际桌面尺寸白底、时间贴底、工具无横向溢出且曲线完整可操作"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "scroll": 1440,
+        "background": "rgb(255, 255, 255)",
+        "banner": "rgb(255, 255, 255)",
+        "footerGap": 0,
+        "plotHeight": 499,
+        "toolbarOverflow": false,
+        "desk": {
+          "x": 274,
+          "y": 177,
+          "width": 1138,
+          "height": 769,
+          "top": 177,
+          "right": 1412,
+          "bottom": 946,
+          "left": 274
+        }
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "scroll": 1060,
+        "background": "rgb(255, 255, 255)",
+        "banner": "rgb(255, 255, 255)",
+        "footerGap": 0,
+        "plotHeight": 241,
+        "toolbarOverflow": false,
+        "desk": {
+          "x": 231,
+          "y": 177,
+          "width": 813,
+          "height": 449,
+          "top": 177,
+          "right": 1044,
+          "bottom": 626,
+          "left": 231
+        }
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "scroll": 1920,
+        "background": "rgb(255, 255, 255)",
+        "banner": "rgb(255, 255, 255)",
+        "footerGap": 0,
+        "plotHeight": 579,
+        "toolbarOverflow": false,
+        "desk": {
+          "x": 274,
+          "y": 177,
+          "width": 1618,
+          "height": 849,
+          "top": 177,
+          "right": 1892,
+          "bottom": 1026,
+          "left": 274
+        }
+      }
+    ],
+    "runId": 7
+  },
+  "native_review": {
+    "observed": true,
+    "window": "GeoSpectrum 样品分析布局审阅（隔离测试库）",
+    "retained_after_validation": true,
+    "final_review_process_exited_externally": true,
+    "user_navigation_respected": true
+  },
+  "icon_generation": {
+    "new_assets": 0,
+    "method": "Reused all existing Qwen high-resolution icons; no redraw needed"
+  },
+  "sources": {
+    "production_qa_equal": true,
+    "count": 433
+  },
+  "deployment": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "3f46d820827422542699a9950ed9f458b1c9c6c2e3c990e352abdfffcaf5688a",
+      "after_sha256": "fb342fc0a9ca83d2f872273423b482c3e289ea96f80f97dcc51190c52d24e68e"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8",
+      "after_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626"
+    }
+  },
+  "production_metadata_unchanged": true,
+  "production_tables": [
+    "device_profiles",
+    "device_runtime_state",
+    "sample_queue_runtime_state",
+    "methods",
+    "method_versions",
+    "sample_queues",
+    "sample_queue_items",
+    "app_settings",
+    "acquisition_tasks",
+    "acquisition_samples",
+    "acquisition_sample_bands",
+    "dispersion_tasks",
+    "dispersion_task_frames",
+    "device_bluetooth_hidden",
+    "analysis_runs",
+    "analysis_run_samples",
+    "analysis_line_results",
+    "analysis_curve_snapshots",
+    "analysis_qc_snapshots"
+  ],
+  "later_workspace_changes_preserved": [
+    "app\\frontend\\src\\styles\\visual-refinement.css"
+  ],
+  "schema_migration": false,
+  "installer_rebuilt": false,
+  "hardware_commands_sent": false,
+  "existing_baseline": {
+    "tests": [
+      "test_number_modes_and_linked_rename",
+      "test_discard_completed_sample_blocks_new_analysis_and_releases_queue",
+      "test_measurement_concentration_uses_published_curve"
+    ],
+    "result": "The same three acquisition_method_interval_missing failures reproduce with the pre-change spectrum() function; unrelated acquisition fixtures lack current angle exposure conditions."
+  },
+  "input_protection": "Clearing names of immutable analysis inputs stays disabled. Source preparation and new run creation remain available through analysis settings."
+}

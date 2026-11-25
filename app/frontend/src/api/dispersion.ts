@@ -67,6 +67,9 @@ export type DispersionCalibrationVersion = {
 }
 
 export type DispersionTask = {
+  active_capture_id?: number
+  positioning?: boolean
+  position_controlled?: boolean
   capture_turn?: import('./acquisition').CaptureTurn
   capture_turns?: import('./acquisition').CaptureTurnPage[]
   id: number
@@ -210,8 +213,8 @@ export const dispersionApi = {
     }),
   dispersionTask: (token: string, taskId: number) =>
     request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}`, { headers: { Authorization: `Bearer ${token}` } }),
-  startDispersionTask: (token: string, taskId: number) =>
-    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/start`, {
+  startDispersionTask: (token: string, taskId: number, continuous = false) =>
+    request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/start${continuous ? '?continuous=true' : ''}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     }),
@@ -237,6 +240,7 @@ export const dispersionApi = {
   stopDispersionTask: (token: string, taskId: number) =>
     request<DispersionTask>(`/api/v1/dispersion/tasks/${taskId}/stop`, {
       method: 'POST',
+      timeoutMs: 70000,
       headers: { Authorization: `Bearer ${token}` }
     }),
   dispersionFrames: (token: string, taskId: number, ccdIndex?: number) =>

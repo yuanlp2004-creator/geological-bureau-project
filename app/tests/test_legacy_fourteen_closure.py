@@ -69,14 +69,15 @@ def test_gap_correction_clones_geometry_and_wavelength_edits_keep_positions(tmp_
     task=service.create_task({'ccd_layout_id':'default','lines':[
         {'element':'A','wavelength_nm':250,'ccd_index':0,'actual_position':100},
         {'element':'B','wavelength_nm':260,'ccd_index':1,'actual_position':200},
-        {'element':'C','wavelength_nm':270,'ccd_index':2,'actual_position':300}]})
+        {'element':'C','wavelength_nm':270,'ccd_index':2,'actual_position':300},
+        {'element':'D','wavelength_nm':280,'ccd_index':2,'actual_position':400}]})
     old=service.fit_calibration(task['id'],{'name':'before','degree':2})
     with db.read() as connection:original=dict(connection.execute('SELECT * FROM ccd_layouts WHERE id=?',(task['ccd_layout_id'],)).fetchone())
     gap=task['layout']['gap_points'][0]+1
     updated=service.update_gap(task['id'],0,gap*task['layout']['point_width_um'])
     fitted=service.fit_calibration(task['id'],{'name':'after','degree':2})
     assert updated['ccd_layout_id']!=task['ccd_layout_id']
-    assert [new['measured_position']-prior['measured_position'] for new,prior in zip(fitted['residuals'],old['residuals'])]==pytest.approx([0,1,1])
+    assert [new['measured_position']-prior['measured_position'] for new,prior in zip(fitted['residuals'],old['residuals'])]==pytest.approx([0,1,1,1])
     with db.read() as connection:assert dict(connection.execute('SELECT * FROM ccd_layouts WHERE id=?',(task['ccd_layout_id'],)).fetchone())==original
     assert service.calibration(old['id'])['coefficients']==old['coefficients']
     first=updated['lines'][0];changed=service.update_line_wavelength(task['id'],first['id'],251)

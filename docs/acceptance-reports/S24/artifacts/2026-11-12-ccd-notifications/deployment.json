@@ -1,0 +1,11 @@
+{
+  "before": {
+    "GeoSpectrum.exe": "b8d3c1b71c8d5f4d110166058fc711b98df83d0b93da6cf66a16202cc8689f60",
+    "geospectrum-backend.exe": "ccabb2172e4a3978da2a3eb9d92adec6b40ca724b1aadf817dab105a5dfc3794"
+  },
+  "after": {
+    "GeoSpectrum.exe": "330de8e6417cd0ac638d62d566d218d63306a313365b64565879afa8674e99d8",
+    "geospectrum-backend.exe": "f3cc2e79d59d916d9b9095f45188b39c5df741ad3e9aea4fb60c73a5a11b004e"
+  },
+  "matching_source_files": 470
+}

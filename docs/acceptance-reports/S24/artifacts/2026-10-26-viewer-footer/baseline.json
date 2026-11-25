@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "checks": [
+    "normal-light: 记录旧列表限高、时间悬空和范围底栏",
+    "small-dark: 记录旧列表限高、时间悬空和范围底栏",
+    "wide-light: 记录旧列表限高、时间悬空和范围底栏"
+  ],
+  "layouts": [
+    {
+      "name": "evaporation-many-normal-light",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 135,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 520,
+      "maxHeight": "520px",
+      "visualHeight": 642,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-one-normal-light",
+      "time": "2026-10-26 10:16:21",
+      "footerBottomGap": 109,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 520,
+      "maxHeight": "520px",
+      "visualHeight": 642,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-many-normal-light",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 135,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 520,
+      "maxHeight": "520px",
+      "visualHeight": 642,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-many-small-dark",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 174,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 165,
+      "maxHeight": "165px",
+      "visualHeight": 330,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-one-small-dark",
+      "time": "2026-10-26 10:16:21",
+      "footerBottomGap": 184,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 165,
+      "maxHeight": "165px",
+      "visualHeight": 366,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-many-small-dark",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 210,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 165,
+      "maxHeight": "165px",
+      "visualHeight": 366,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "evaporation-many-wide-light",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 227,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 624,
+      "maxHeight": "624px",
+      "visualHeight": 838,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-one-wide-light",
+      "time": "2026-10-26 10:16:21",
+      "footerBottomGap": 201,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 624,
+      "maxHeight": "624px",
+      "visualHeight": 838,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    },
+    {
+      "name": "spectra-many-wide-light",
+      "time": "2014-10-29 17:24:43",
+      "footerBottomGap": 227,
+      "footerHeight": 21,
+      "listBottomGap": 0,
+      "listHeight": 624,
+      "maxHeight": "624px",
+      "visualHeight": 838,
+      "rightFooterCount": 1,
+      "rightFooterHeight": 21,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

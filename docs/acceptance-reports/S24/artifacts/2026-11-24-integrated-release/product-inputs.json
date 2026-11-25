@@ -1,0 +1,2527 @@
+{
+  "head": "d60085746d941ed856df12198ff07a1c014e7e86",
+  "plan": {
+    "sha256": "668d2d6473c9178f26e7beadc4f9938b48ff42c1f2812ba5f6fa8f4c8f95ee56",
+    "bytes": 194648
+  },
+  "groups": {
+    "sidecar": {
+      "sha256": "560bc0f0338b219962dfa6da4774b869139decf59b1c175c8b45c544e9e0b373",
+      "count": 238,
+      "inputs": {
+        "Spec Source/Res/模拟数据/280-288.acq": {
+          "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+          "bytes": 24579
+        },
+        "Spec Source/Res/模拟数据/291-299.acq": {
+          "sha256": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2",
+          "bytes": 24579
+        },
+        "Spec Source/Res/模拟数据/303-310.acq": {
+          "sha256": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297",
+          "bytes": 24579
+        },
+        "app/backend/__init__.py": {
+          "sha256": "7768db14da0411c17cc8995196fe3bf511119759325faf13d20ac41a2a230487",
+          "bytes": 68
+        },
+        "app/backend/api/__init__.py": {
+          "sha256": "352103aae49d8bc6e2c1148098e416d550745c0dd224344860e00ab758ae312a",
+          "bytes": 1950
+        },
+        "app/backend/api/acquisition.py": {
+          "sha256": "a4f4fbd9bf43d55967b1f4519ead3c3604bbb3441aa9fb5f68618fa3e067d016",
+          "bytes": 17201
+        },
+        "app/backend/api/analysis.py": {
+          "sha256": "6d388a4b047d5b3fb48380ffc7d7a73cb167ee054ef43c99c49508b493a779ad",
+          "bytes": 25065
+        },
+        "app/backend/api/auth.py": {
+          "sha256": "f597b47f4a31d2eaba36ed8443feba1aa9becc0fcd4e2a24fdba8b56de79237a",
+          "bytes": 5734
+        },
+        "app/backend/api/dependencies.py": {
+          "sha256": "ab794178874b22d041e67c8bc3dce21fab9618e31f60f557569602ed285c0499",
+          "bytes": 1048
+        },
+        "app/backend/api/deployment_access.py": {
+          "sha256": "535920e34802b011739b05bff5c71dc792080711bd82342dd7e2ff4c138c3db7",
+          "bytes": 6403
+        },
+        "app/backend/api/devices.py": {
+          "sha256": "03295e2106443af93f8c192c1581972dd4ee11b92f23cc54c72faadb3b5ab6ff",
+          "bytes": 11557
+        },
+        "app/backend/api/dispersion.py": {
+          "sha256": "ed8f4f610ca7004300c4e35ae178f1d7c1bcdc7a19987465d2ed112936a3114a",
+          "bytes": 24575
+        },
+        "app/backend/api/events.py": {
+          "sha256": "b660e5dc56d5022ee9219ae274734e676831d831d728a020e739b594100ed446",
+          "bytes": 1707
+        },
+        "app/backend/api/extensions.py": {
+          "sha256": "1854f59478ec1cd91242e8829d03ca36d7ed51bdbfe340287a5b954c20c32ad3",
+          "bytes": 3271
+        },
+        "app/backend/api/hardware_acquisition.py": {
+          "sha256": "7c2254610938261410c30c7edf773fce4fe0af2549836471122192803a1dd2c9",
+          "bytes": 8376
+        },
+        "app/backend/api/legacy_migration.py": {
+          "sha256": "97234174125c01f0ca5546a71b61751794608144a36adab9bf653083106f32d9",
+          "bytes": 6160
+        },
+        "app/backend/api/maintenance.py": {
+          "sha256": "52e4af4ea745180e54e81ab7f6c97b06c6244cf6ba1320f52583f98328ae1228",
+          "bytes": 6384
+        },
+        "app/backend/api/mercury_calibration.py": {
+          "sha256": "bdace841356254953baa27df155c59952f19ebe57721f5b62b10c9d01c17692f",
+          "bytes": 5424
+        },
+        "app/backend/api/methods.py": {
+          "sha256": "34f8bfac88cb8e0705771b5175f93b51356182d70cded5dd4b7db1e9f86e1b27",
+          "bytes": 19432
+        },
+        "app/backend/api/middleware.py": {
+          "sha256": "b22a9d8ab828aa9e93c0ead70414cf279604e65b126298f4cefa23dd5b80e5bf",
+          "bytes": 2336
+        },
+        "app/backend/api/module_diagnostics.py": {
+          "sha256": "9d2de2d344b4fadad9aa64a9e2c341843ac84939a116f5c713372480d0695c08",
+          "bytes": 5005
+        },
+        "app/backend/api/postprocessing.py": {
+          "sha256": "f5df170cd7cd177eb5f60a01bdcadcfe96adbe8b3d6e53048bac05213a5b9a2b",
+          "bytes": 12132
+        },
+        "app/backend/api/preliminary.py": {
+          "sha256": "36dc478a92efac4159494d603f0bd69196187f2640520e8174cd21c83f3a9326",
+          "bytes": 4803
+        },
+        "app/backend/api/reports.py": {
+          "sha256": "91a6648edd81209c393ac35ba3e501daf17bb61ce329484ae36800447a87a940",
+          "bytes": 4420
+        },
+        "app/backend/api/result_migration.py": {
+          "sha256": "44a415ebe7a969077c18a2a972b8e3d43b4c3b61412aa003770adbd9b96441ef",
+          "bytes": 3518
+        },
+        "app/backend/api/sample_queues.py": {
+          "sha256": "6365a5982fddd7b750746dcd1c82441e6d40babf313a3974480397645db92f07",
+          "bytes": 8092
+        },
+        "app/backend/api/spectrum_migration.py": {
+          "sha256": "d3b7fdd47df86695c2b3918fb7faaa141f9c32bb867366ca1b1c1d1c861391fa",
+          "bytes": 4191
+        },
+        "app/backend/api/spectrum_viewer.py": {
+          "sha256": "8b0c9a66b026d906c3336ab2ed0d472b608c4efe1a4e4c81fca82aa4df5951b8",
+          "bytes": 16074
+        },
+        "app/backend/api/system.py": {
+          "sha256": "70f7726401632e67b4a5e89618cd5cb5ff958ed0fe5a92905c4d6abf00095a31",
+          "bytes": 8234
+        },
+        "app/backend/auth.py": {
+          "sha256": "ff5a36ff875cb188d439f0090502010ca02bfbcb39f406df7b949d84effdfb55",
+          "bytes": 25884
+        },
+        "app/backend/config.py": {
+          "sha256": "9cb266f738610450c1b64d33fbc6f2413e276ee621989326263757dfb845d27a",
+          "bytes": 1214
+        },
+        "app/backend/db.py": {
+          "sha256": "743bb5d7c017d1e7f97d501168a59f3aa260964810265b2dfa44c9e980b6466e",
+          "bytes": 5480
+        },
+        "app/backend/file_exports.py": {
+          "sha256": "b7d9e67ef1b3f35887dd9a140f2b9786cdcc8acac44e2d346a4a318f2e162d0c",
+          "bytes": 1556
+        },
+        "app/backend/main.py": {
+          "sha256": "a7815c1b6357331bc635834273bfd3f5ca849dcaccc4a537d7eca2ce6017367d",
+          "bytes": 1759
+        },
+        "app/backend/migrations/__init__.py": {
+          "sha256": "7a3c785ada381393f425f3bd6aa667eed2f66308024dd39c2f19674b8fbf3ac9",
+          "bytes": 2072
+        },
+        "app/backend/migrations/baseline.py": {
+          "sha256": "9247524c5391db559b4e384a7819c3ea6ffa31f135737e40e0094cc2a6a02471",
+          "bytes": 76898
+        },
+        "app/backend/migrations/defaults.py": {
+          "sha256": "1bf3b029f77ecd7adf73b1382081778551bebdfbfd32cbbdacf844d38cebc4bb",
+          "bytes": 25504
+        },
+        "app/backend/migrations/sql.py": {
+          "sha256": "b85a8e04248ad3d604c488ac0ca3a6a356ecf26f07e2a519ea70aa6a092f9cea",
+          "bytes": 1232
+        },
+        "app/backend/migrations/v11_devices.py": {
+          "sha256": "e0c928d64b38438b99789ad4eaf5ea9168c2f0798e63ff0bc550e739691741b8",
+          "bytes": 216
+        },
+        "app/backend/migrations/v12_dispersion.py": {
+          "sha256": "0ed31169c9da4c4ab136651be5c4fb411335705b07865fa2ff5ecb9dadbb77ac",
+          "bytes": 3876
+        },
+        "app/backend/migrations/v13_acquisition.py": {
+          "sha256": "d6fb4657cb080c0339aabbfacf783cfc999cee85ea96facc2dd89e9dc0531b80",
+          "bytes": 468
+        },
+        "app/backend/migrations/v14_hardware_acquisition.py": {
+          "sha256": "c17f55eff02934d5040f4d0de90523e6fb71f1b60ad7574ba301487043a9f144",
+          "bytes": 456
+        },
+        "app/backend/migrations/v15_mercury_calibration.py": {
+          "sha256": "bce281e97ea011dcbee37ffc17ea8277f7501cc24072f2486cf27f88864ced61",
+          "bytes": 546
+        },
+        "app/backend/migrations/v16_analysis.py": {
+          "sha256": "c4e45a3b5f046caa86764a3804826bd920909512726f301f45e0966267046e5f",
+          "bytes": 459
+        },
+        "app/backend/migrations/v17_analysis_quality_curves.py": {
+          "sha256": "391539ee5519ee04dd7242bb1f3eccf06c1b3132c06f8b4c57fcbab497b1175c",
+          "bytes": 621
+        },
+        "app/backend/migrations/v18_postprocessing.py": {
+          "sha256": "3122adf2e2772c025caebf80f8d6a8d606c5ae7f27f58eaee8b0071dc5a1e516",
+          "bytes": 386
+        },
+        "app/backend/migrations/v19_reports.py": {
+          "sha256": "c540cdfe8c7369596dd239035125037ff1efd7c6ae368ad08a1af93e395b3ea7",
+          "bytes": 331
+        },
+        "app/backend/migrations/v20_maintenance.py": {
+          "sha256": "623263f17b485b080d2f0f20948e4e02a69413ccd6c56af88ad44d3d3881587c",
+          "bytes": 299
+        },
+        "app/backend/migrations/v21_calibration_metadata.py": {
+          "sha256": "0d203dacb778894a835f469dd0a0b8bf6e5f3875b70202c59b020b8c07dbbcaf",
+          "bytes": 1296
+        },
+        "app/backend/migrations/v22_contract_samples.py": {
+          "sha256": "520a4f66c2c78d0e2666cab9a17726c1659eb73ab546183e6f0ae52d6f232b1f",
+          "bytes": 2188
+        },
+        "app/backend/migrations/v23_contract_closure.py": {
+          "sha256": "591e29b46a4d2baea0cd63ecd2433f1c9df00c22832256a3f2734a056125ff2b",
+          "bytes": 3138
+        },
+        "app/backend/migrations/v24_acquisition_turns.py": {
+          "sha256": "3a9c216fc70817bf7a87dc682090f318a2be6d469579fd44aa1ffa67c2a1adf1",
+          "bytes": 2492
+        },
+        "app/backend/migrations/v25_manual_turns.py": {
+          "sha256": "b1207291d7872823e9620afca35e29e613cbfc113b874152deaba06641732236",
+          "bytes": 1759
+        },
+        "app/backend/migrations/v26_dispersion_locate_anchor.py": {
+          "sha256": "9b35a19cfc4ef02dda03b891f8deb113f10595933ae2db9a2391fc0e09c30722",
+          "bytes": 382
+        },
+        "app/backend/migrations/v27_capture_context.py": {
+          "sha256": "48a066c224356a8e906583d1e71b15d25e6b718feef81785a554c5ba84f2aeb9",
+          "bytes": 607
+        },
+        "app/backend/migrations/v28_prepared_import.py": {
+          "sha256": "bdf955736c40933a24f156bebdddda0aed3f99f500b0afe89aee8792abc04ad2",
+          "bytes": 1001
+        },
+        "app/backend/migrations/v29_bluetooth_hidden.py": {
+          "sha256": "30ad7255dea03b88130d003bc1bed5d393e6dd39d90914478333b8fa4e4423a9",
+          "bytes": 455
+        },
+        "app/backend/migrations/v30_sample_turn_bands.py": {
+          "sha256": "2841eb2e997a57c647547c3e746a59741802c2739de737d30aabab47425e803e",
+          "bytes": 1048
+        },
+        "app/backend/migrations/v31_analysis_numbering.py": {
+          "sha256": "2847afbda1892e746be8f3957599228e9f63fdb9c1b44766c94e31d2f5f25177",
+          "bytes": 1975
+        },
+        "app/backend/migrations/v32_capture_disposals.py": {
+          "sha256": "845c4c6655ea7b18d1907caba37ff38ed8c4c66568b4788fc3b1014e1ecd109f",
+          "bytes": 808
+        },
+        "app/backend/modules/__init__.py": {
+          "sha256": "9295cea4b85937e6126e34856aeb9b82f1df95734ee993654882174f78bc6d0f",
+          "bytes": 38
+        },
+        "app/backend/modules/acquisition/__init__.py": {
+          "sha256": "c8640d7594383d890c1b3aef56fd98f4489182618ece40a2f0a3356faff881c4",
+          "bytes": 421
+        },
+        "app/backend/modules/acquisition/codec.py": {
+          "sha256": "e97b85591592483227290253ddc9182cccf7ad06d3b9a3fd4317fad7140b6042",
+          "bytes": 2283
+        },
+        "app/backend/modules/acquisition/confirmed_import.py": {
+          "sha256": "fb232107c0433fe5c8b68b8cacd4be227db8a1ebd84a217f1b595cf0753b0064",
+          "bytes": 7637
+        },
+        "app/backend/modules/acquisition/preparation.py": {
+          "sha256": "9e53156cb9941aee2313224ab22b18363d21fb5d2ad6ddbd30010420bd9101e0",
+          "bytes": 4409
+        },
+        "app/backend/modules/acquisition/repository.py": {
+          "sha256": "d8d4fdf09cf476e0bde4e2b1a50808411930f4b069a079b534818348c0163a36",
+          "bytes": 63959
+        },
+        "app/backend/modules/acquisition/service.py": {
+          "sha256": "48c39319d2f5b1712f63088c6e8e0db20448cc7e862a4f1846380f0461748163",
+          "bytes": 70923
+        },
+        "app/backend/modules/acquisition/simulation.py": {
+          "sha256": "5a04317a628bed931c4b83cd5e0880197860d29fce600b849fddc368013b5726",
+          "bytes": 3868
+        },
+        "app/backend/modules/acquisition/turns.py": {
+          "sha256": "0f0a091ef5c5589db6b8028f78ef683f830aaac9906cb85d80a6fc584e519b55",
+          "bytes": 13438
+        },
+        "app/backend/modules/acquisition/values.py": {
+          "sha256": "7edaaa496bf31a83fbed6db165163148e6197ad91610f6e429d7259e706a52f4",
+          "bytes": 2034
+        },
+        "app/backend/modules/acquisition_import.py": {
+          "sha256": "9b60ce32009362d85e226b06561f2108393e961c739be21a2b2044f89fa4f4bc",
+          "bytes": 17513
+        },
+        "app/backend/modules/activation.py": {
+          "sha256": "d8bbe60d23cce3d3b77ca81d253d4a5db308a84857276043ab8afab5127b459d",
+          "bytes": 6720
+        },
+        "app/backend/modules/analysis/__init__.py": {
+          "sha256": "6d50355f0648f493095aa2a314e052e574412495132f63e08bcd16927fbd8da3",
+          "bytes": 377
+        },
+        "app/backend/modules/analysis/algorithms.py": {
+          "sha256": "553e8ed68476a0c964aeb30b0efb2e466f89d3237e91a65f847f040e4e9fea8a",
+          "bytes": 12839
+        },
+        "app/backend/modules/analysis/candidate.py": {
+          "sha256": "9a557453eec30d2a4088911390a3c7e6e1533e7ee0423e0018686313309bfb2b",
+          "bytes": 8060
+        },
+        "app/backend/modules/analysis/concentration_preview.py": {
+          "sha256": "fc9c4c6c54cfbb9da76962e40cadacc9c770200977d8135818842687713e1f8d",
+          "bytes": 9189
+        },
+        "app/backend/modules/analysis/contracts.py": {
+          "sha256": "3bbfd8f38596abcf12a166b515be4e8a604a3d4c2dfcde03bfe41d4e54cf9740",
+          "bytes": 769
+        },
+        "app/backend/modules/analysis/control_adaptation.py": {
+          "sha256": "febdd3b76b21adfd185d312c1da1e8f8ea84deda87505394217d139779a32b37",
+          "bytes": 4502
+        },
+        "app/backend/modules/analysis/curves.py": {
+          "sha256": "092e59c08060878b587dc2613ae2b89ef425344161f25454f9bb18fdfc51b4f1",
+          "bytes": 37280
+        },
+        "app/backend/modules/analysis/daily_operations.py": {
+          "sha256": "e986598ddc1ac02473e40d188c4b3dcaf2ed0c057bc030f1f6685168cfa2f4b8",
+          "bytes": 7934
+        },
+        "app/backend/modules/analysis/errors.py": {
+          "sha256": "dcbb129ca44d7e9ee205d31d227c421b477b2bf2748e0d591fb706b865799849",
+          "bytes": 562
+        },
+        "app/backend/modules/analysis/frame_observation.py": {
+          "sha256": "19daeea08a032558fa849d26bd2dfd24e688c23ee5154aa0eb03ced3c469cd51",
+          "bytes": 6188
+        },
+        "app/backend/modules/analysis/inputs.py": {
+          "sha256": "e42143fa20a2a5b36755e98f5e21d546df757910a3410a753057a6af9737de85",
+          "bytes": 13839
+        },
+        "app/backend/modules/analysis/intensity_output.py": {
+          "sha256": "f03ff3bd7343a1af7305637c0e82fbb03b2254b443c1e06f6b6f537c24bd1949",
+          "bytes": 5156
+        },
+        "app/backend/modules/analysis/legacy_curves.py": {
+          "sha256": "286a87c3858cbfced3a62c28850851c8469460ed3bcd70c7afadc41578b8c16f",
+          "bytes": 10609
+        },
+        "app/backend/modules/analysis/measurement.py": {
+          "sha256": "61e11a1fe9193c6f51eddb2ccf1e6019416aa3a084bcfad02388be5bfe411e71",
+          "bytes": 6660
+        },
+        "app/backend/modules/analysis/printing.py": {
+          "sha256": "bde0eb5e4957fa160273a4dfa5c460754f70337763c17273ee4a6a9778bf5f21",
+          "bytes": 14023
+        },
+        "app/backend/modules/analysis/quality.py": {
+          "sha256": "040d376c03b99d97a28317b7d33dae96f201724bdfb41ebd21e25e271452fa6c",
+          "bytes": 12909
+        },
+        "app/backend/modules/analysis/report_inputs.py": {
+          "sha256": "74998fd828b9015932fdc933ad4e1225bcc3cdde63a00e9a4980695f4cb11879",
+          "bytes": 2859
+        },
+        "app/backend/modules/analysis/repository.py": {
+          "sha256": "c8165454952ff69876be3d76ea8db7fc4d6780179d3cb86b3a965ff310533c2d",
+          "bytes": 13345
+        },
+        "app/backend/modules/analysis/rules.py": {
+          "sha256": "d8266bd00594600b36096287bc34f693030318055a96656d2208240f1f50e868",
+          "bytes": 3311
+        },
+        "app/backend/modules/analysis/serialization.py": {
+          "sha256": "32d3bf804a14684604c7098cdb9be9c094c3146232f4dcb1bbc5870eef037bbf",
+          "bytes": 391
+        },
+        "app/backend/modules/analysis/service.py": {
+          "sha256": "a442feea88bf8a28beae12063bfdc42216e79178c69095e9aab78312b9c5b21a",
+          "bytes": 42452
+        },
+        "app/backend/modules/devices/__init__.py": {
+          "sha256": "50eac08c7315fd83a24890b1349227e12f4c008744a7e3147c4906733e0f81ba",
+          "bytes": 630
+        },
+        "app/backend/modules/devices/bluetooth.py": {
+          "sha256": "83c8f53ed7b9eb6e7409069538b630c9a747392258d2c95a2e3d0e8e7905dc1d",
+          "bytes": 3697
+        },
+        "app/backend/modules/devices/capture_sequence.py": {
+          "sha256": "03007afd9e34da7b94de60551c8c904404403f1db533823bedc50f42fa8f31ab",
+          "bytes": 4904
+        },
+        "app/backend/modules/devices/factory.py": {
+          "sha256": "a49e752e76d074c911ebd9e2b2cbec315bb0d39a51a47affab420de7fc0c5b57",
+          "bytes": 462
+        },
+        "app/backend/modules/devices/motor_turn.py": {
+          "sha256": "335463547cae57ded606876d0665c6c6a1e4356b0bced2d04d1a6bbb26b72426",
+          "bytes": 12804
+        },
+        "app/backend/modules/devices/ports.py": {
+          "sha256": "2a4c0a4739ca27f49ce0366f1e6e43c50452d3fcf02ee7c474dbb85ecf32e2c9",
+          "bytes": 2566
+        },
+        "app/backend/modules/devices/profiles.py": {
+          "sha256": "6dafe31ab43160c99ca569ffd85d4a05088c1eb1fbd433e9793e02d3a3650917",
+          "bytes": 6364
+        },
+        "app/backend/modules/devices/protocol.py": {
+          "sha256": "101a58c0557bc2b61e7c8fd27d4691f04c94dc0b8d1fd7c3bdf138829503d77a",
+          "bytes": 4735
+        },
+        "app/backend/modules/devices/serial_acq.py": {
+          "sha256": "c825183f847864f830a9fea5f6c8e3ded901c55339b732a57adf7e2c89a698e7",
+          "bytes": 25705
+        },
+        "app/backend/modules/devices/service.py": {
+          "sha256": "128ddc6c903069ffcf9022f341c83a1000156e392ac2abc72aaa834991a95b79",
+          "bytes": 22828
+        },
+        "app/backend/modules/devices/simulator.py": {
+          "sha256": "d24c519ac08d4b5a3e26e6a3957f9df8a28b73d3a1a8d7af224fd452ce64fcef",
+          "bytes": 7338
+        },
+        "app/backend/modules/devices/values.py": {
+          "sha256": "c4ccf18b897437e0bf566ccf68a090dc99c6ee911db342dd4d5d7f990b971fe8",
+          "bytes": 2150
+        },
+        "app/backend/modules/dispersion/__init__.py": {
+          "sha256": "0fd7aa1e6bee42474bb54d8a50a4c27bab1fe1e95262967ad0125e88e2bc1a29",
+          "bytes": 358
+        },
+        "app/backend/modules/dispersion/calibration.py": {
+          "sha256": "79f16e4f92091e335c1c10712cb9c0acee866ac83fdd2e12ca0fde063adc1e51",
+          "bytes": 43912
+        },
+        "app/backend/modules/dispersion/codec.py": {
+          "sha256": "86357254b93d432d8a0254427a85b995fe2b6d406a2d97954f9967904d7d12c0",
+          "bytes": 1202
+        },
+        "app/backend/modules/dispersion/fitting.py": {
+          "sha256": "14275fb8dfa658b8cac66f5c01277c1b46b46be23a74dcf84b89402026185a4b",
+          "bytes": 5617
+        },
+        "app/backend/modules/dispersion/legacy_open.py": {
+          "sha256": "6124ab483eca151c32240c30321599b5696faf108faf206bd61c54abe18658b8",
+          "bytes": 2996
+        },
+        "app/backend/modules/dispersion/repository.py": {
+          "sha256": "ca5707062b67d8841121e4e8468b766e17ab2348c1da398c66712b6bf92ede02",
+          "bytes": 25796
+        },
+        "app/backend/modules/dispersion/service.py": {
+          "sha256": "93a3359bdf9191233b6498f82ea4621a5b0417f22cf07f8761254cbf2a65d402",
+          "bytes": 45566
+        },
+        "app/backend/modules/dispersion/values.py": {
+          "sha256": "83b1bf8db9544324569d8f642625b3edc8999267fd77a0fff227c6ee8c9d3d45",
+          "bytes": 2321
+        },
+        "app/backend/modules/extensions.py": {
+          "sha256": "7827720161382813fbdc7e5cf63dbc29510be1b8d57c275680082dbbec650092",
+          "bytes": 5217
+        },
+        "app/backend/modules/hardware_acquisition/__init__.py": {
+          "sha256": "10e0f2d13271decd438c6fc0c2668398fd665310bae2981f2cbaf26a71b461fd",
+          "bytes": 396
+        },
+        "app/backend/modules/hardware_acquisition/adapters.py": {
+          "sha256": "788095c7cd7adcbd79bc89d5cc0a7190b7ba12bee1d0a8495cd1e27fd4f867fe",
+          "bytes": 5342
+        },
+        "app/backend/modules/hardware_acquisition/analysis_sample.py": {
+          "sha256": "b403d74d13b610ed1b10f5cc1777c63fc3abc32d9e2df01144c203a2126a85dd",
+          "bytes": 7162
+        },
+        "app/backend/modules/hardware_acquisition/codec.py": {
+          "sha256": "76ad63211f6fdb8249dd0099e1f416a729d535970b7f96bc41a6bc805dc56b20",
+          "bytes": 772
+        },
+        "app/backend/modules/hardware_acquisition/exposures.py": {
+          "sha256": "9d73deef672404e70dd874d2f3e30f76edceca66b94e115e4f423220379ab2a8",
+          "bytes": 6858
+        },
+        "app/backend/modules/hardware_acquisition/repository.py": {
+          "sha256": "68b3600e8a052705526e1e718f7021c4bddea865f52140ccaa05ec3439ba6656",
+          "bytes": 34074
+        },
+        "app/backend/modules/hardware_acquisition/rules.py": {
+          "sha256": "a4316a452bd3e7fd73ce341fd9d7723ce31f9b270f41b18c45c65f3668c0f52f",
+          "bytes": 10558
+        },
+        "app/backend/modules/hardware_acquisition/runner.py": {
+          "sha256": "f0fb7acc73ce1670604480feb286d05758f5e0c937522ffdc900e257a4b17b68",
+          "bytes": 2709
+        },
+        "app/backend/modules/hardware_acquisition/service.py": {
+          "sha256": "5fde1643c7e95643bd8cb646c94a28ac5b20473b3376613e4f7d5a8c2393cc6a",
+          "bytes": 42320
+        },
+        "app/backend/modules/hardware_acquisition/values.py": {
+          "sha256": "f0d799750d922b973be6cc3753ca4426b0ac1cf8da72ecbd372b9007e02be954",
+          "bytes": 2489
+        },
+        "app/backend/modules/legacy_migration/__init__.py": {
+          "sha256": "a21b30c9b5d16c35a74c6003e436282b4bd9a3d028d8b78775ee6523a997cfd6",
+          "bytes": 488
+        },
+        "app/backend/modules/legacy_migration/configuration.py": {
+          "sha256": "79133e21fb0dd9a8847d3dfb36f0e9d1a937dd4114988c384860fd391e6cfb15",
+          "bytes": 5128
+        },
+        "app/backend/modules/legacy_migration/errors.py": {
+          "sha256": "50c9db414d5a2a18095f818611d99ccdc0ae425d18c410a252c44db5ca409dc8",
+          "bytes": 633
+        },
+        "app/backend/modules/legacy_migration/normalization.py": {
+          "sha256": "f5a1f5cf702dfea9802e2e931722b2617c22fe03e3f0365a57944f1ad04b50cc",
+          "bytes": 18226
+        },
+        "app/backend/modules/legacy_migration/opening.py": {
+          "sha256": "bd2222b4dac57330fe22fd2f6c3c7bfac08db1c2c340c181aef80740abe3f4ab",
+          "bytes": 2825
+        },
+        "app/backend/modules/legacy_migration/reader.py": {
+          "sha256": "53b5e75acf2f9cfccfc14a5adcae092371af75e98340736b7c54decce23736af",
+          "bytes": 5932
+        },
+        "app/backend/modules/legacy_migration/records.py": {
+          "sha256": "1384dddfd13f4d8f703e912dd5447b19407863d112925463898ad56dd1c2511d",
+          "bytes": 5248
+        },
+        "app/backend/modules/legacy_migration/service.py": {
+          "sha256": "63ae44a1511fdd8885359618340bd3d1c7015f63dc7bc9d8dcf44fb9e46d0d3e",
+          "bytes": 28922
+        },
+        "app/backend/modules/legacy_migration/sources.py": {
+          "sha256": "f3d59280f76a997ad30e2874af3275540beeec4ea2ee6cc9b478435e018a001a",
+          "bytes": 927
+        },
+        "app/backend/modules/legacy_sources.py": {
+          "sha256": "acee4fee657c982d3830693f52a1a93a815105b2699b47b4f9f821399f00e579",
+          "bytes": 5858
+        },
+        "app/backend/modules/maintenance.py": {
+          "sha256": "da9e6086c2a12b60b3cb6816b1ff8fceba3f48b7bf9831cb7e219835e37b1afb",
+          "bytes": 23423
+        },
+        "app/backend/modules/manifest.py": {
+          "sha256": "04804d8db38beacab6a24896f08d2393a0980bc483deaceb684a9640db77dec4",
+          "bytes": 34495
+        },
+        "app/backend/modules/mercury_calibration/__init__.py": {
+          "sha256": "8805dcd3474307b5086e3b7402d61d250c2d443c811b1482b85715b10a638b0e",
+          "bytes": 304
+        },
+        "app/backend/modules/mercury_calibration/adapters.py": {
+          "sha256": "4118e6a1380d4fe57cb4d664ffba6441b82e2a516e12e5f708d80474b36335b2",
+          "bytes": 5771
+        },
+        "app/backend/modules/mercury_calibration/calculation.py": {
+          "sha256": "020721cda37cac1c629c76acb394bfaad9b7b9ed993285a812fed75de7be3fcb",
+          "bytes": 2549
+        },
+        "app/backend/modules/mercury_calibration/codec.py": {
+          "sha256": "82154ccc50c8c5c3073858bd1c84a4f66b6f8f3747a457d6ed49e0e0ea233579",
+          "bytes": 439
+        },
+        "app/backend/modules/mercury_calibration/repository.py": {
+          "sha256": "5ffe36c1554d9260b037cdd43e5bbc14e883ff3649b7fbafacbb1602514a707e",
+          "bytes": 25106
+        },
+        "app/backend/modules/mercury_calibration/service.py": {
+          "sha256": "54a828e11ef5e159f88d33e44aec5d68b140a0e573c235cc6ec24a5f6f512b44",
+          "bytes": 22753
+        },
+        "app/backend/modules/mercury_calibration/values.py": {
+          "sha256": "30f24e5eebd88800bd57e10eb4923da0be44f9f6cffd12457d5f1b1f57a14a2f",
+          "bytes": 809
+        },
+        "app/backend/modules/method_printing/__init__.py": {
+          "sha256": "ed9580bcbc67f0bf33c3b1118d77dd1b4bca702d99043193482b85a2407b1894",
+          "bytes": 383
+        },
+        "app/backend/modules/method_printing/document.py": {
+          "sha256": "96cd01469ad861be638072aab2e6bc6d21b302f36021a72dce4c0b72d36e0685",
+          "bytes": 13090
+        },
+        "app/backend/modules/method_printing/rendering.py": {
+          "sha256": "f0d093be699ec780e58b2f3615282576b12a8eae5093654922679e263cede629",
+          "bytes": 9205
+        },
+        "app/backend/modules/method_printing/service.py": {
+          "sha256": "23b2690ae47a83ed228e817823c7f382544af0df88397d4645232ec8c1cf1bc7",
+          "bytes": 13720
+        },
+        "app/backend/modules/method_printing/settings.py": {
+          "sha256": "83f0626df780b48c365446a7afb674e123cd1a2b9c2fbc212f8622a3acdbb967",
+          "bytes": 573
+        },
+        "app/backend/modules/methods/__init__.py": {
+          "sha256": "600341a3306106d6df222fa85f3bfd2c2c3625e99a495f086cda5e76a7b7315c",
+          "bytes": 353
+        },
+        "app/backend/modules/methods/errors.py": {
+          "sha256": "d827b59544482ff027f9f91a6b340fb1b4c3696ca55f4182fae5629b25c92632",
+          "bytes": 790
+        },
+        "app/backend/modules/methods/geometry.py": {
+          "sha256": "6d3b9b64ce526083b030fe767b5c33ecea179b372388de0ac05d079d6c899f04",
+          "bytes": 5215
+        },
+        "app/backend/modules/methods/legacy_values.py": {
+          "sha256": "7bba63015bd180dcc115c454fbe9a915768c2f756f2869cabc31354b62e69a47",
+          "bytes": 2873
+        },
+        "app/backend/modules/methods/line_editing.py": {
+          "sha256": "3e598b3b386dc3e0009d84a7a33cd17bc99008fe063ffef8534417cee8887954",
+          "bytes": 3054
+        },
+        "app/backend/modules/methods/repository.py": {
+          "sha256": "1ba1d131dade4436f8c696a575c272a29643e95e1a3437eac8925fdc3650537e",
+          "bytes": 11250
+        },
+        "app/backend/modules/methods/runtime.py": {
+          "sha256": "c39b3d67e4372e8486c07d40aaf93d537f9b27fc5d8bf3fe4009ac78982788bf",
+          "bytes": 7125
+        },
+        "app/backend/modules/methods/sample_plan.py": {
+          "sha256": "13adbf83c1e82b73c9f07c9b08eec49dc0a99146bc4f0d856b51df84eb103304",
+          "bytes": 6386
+        },
+        "app/backend/modules/methods/service.py": {
+          "sha256": "1ee8cc30c18c78c40bcd1c058dbedabf0a1ac11d8fd2b8a6bfe40895cff180f2",
+          "bytes": 26972
+        },
+        "app/backend/modules/methods/snapshots.py": {
+          "sha256": "c097ee7c680b5b0b717ab538f5e43acd8d22c5bf40ed3ea5bc1882bbe5cfb253",
+          "bytes": 4180
+        },
+        "app/backend/modules/methods/units.py": {
+          "sha256": "bec6507ab7757f466136be5a626811d4dd123b7cb799345e273f39d248b999bd",
+          "bytes": 1918
+        },
+        "app/backend/modules/methods/validation.py": {
+          "sha256": "cc5fed5a7ea14d91205cf7de6f48a0454f220b226fba6c879f3592cc54434a8a",
+          "bytes": 10530
+        },
+        "app/backend/modules/methods/values.py": {
+          "sha256": "7fd8b01274fc1c717a9e32a5dce815d4a72a11a46ca4688325c6fb50082fceb7",
+          "bytes": 4922
+        },
+        "app/backend/modules/offline_help.py": {
+          "sha256": "fc50a71e2d6a17674aec04b3e32aef508a0f285e4f75022feec546e027200450",
+          "bytes": 34955
+        },
+        "app/backend/modules/postprocessing/__init__.py": {
+          "sha256": "5621908e61927735fc02a29424cd03ff068947bdb242ad1eef08c238ca8b4316",
+          "bytes": 346
+        },
+        "app/backend/modules/postprocessing/conversion.py": {
+          "sha256": "1de6137c2d38289c3bf7688d7fc43fd592a5d6b029020884fa6066be6d725c9d",
+          "bytes": 12910
+        },
+        "app/backend/modules/postprocessing/errors.py": {
+          "sha256": "0fd695960f973b2b34f2f6a36dd44fab6610650ee29fbdad9a4df9bde2e21a77",
+          "bytes": 556
+        },
+        "app/backend/modules/postprocessing/exporting.py": {
+          "sha256": "eb410fa7aa5078a1ec829fcce3ef10901a8939eb92f99ef91de817d3bec68fcc",
+          "bytes": 18008
+        },
+        "app/backend/modules/postprocessing/full_time.py": {
+          "sha256": "a87f7c76300046e6aef1cc6cd4848948cbb3c0ec2145295a5e24bd97cb63b33f",
+          "bytes": 12192
+        },
+        "app/backend/modules/postprocessing/intensity_output.py": {
+          "sha256": "23b4beb9f672e69df8f98ea1ac3c25451cef05bdd2a147c41014f9696f3d6c63",
+          "bytes": 2033
+        },
+        "app/backend/modules/postprocessing/legacy_calculation.py": {
+          "sha256": "913ed5fab5545bcf397e874246e18c2b0ecb19b8faf9eec81f19470bb99108c7",
+          "bytes": 6411
+        },
+        "app/backend/modules/postprocessing/prepared.py": {
+          "sha256": "2a4eff5a9cc859a9a1e1b96155c9736a734f7d2af2b7e5b886df2e1d8710ca98",
+          "bytes": 15800
+        },
+        "app/backend/modules/postprocessing/recalculation.py": {
+          "sha256": "22f3cc9684c1e91f905590b9ca1cd55528a9fb69cbb8651018549dfe61bfd273",
+          "bytes": 29253
+        },
+        "app/backend/modules/postprocessing/repository.py": {
+          "sha256": "aeb03fcd29373221cb62a8fcc656a687b2a930557bea6775c3080680f06a379d",
+          "bytes": 13494
+        },
+        "app/backend/modules/postprocessing/serialization.py": {
+          "sha256": "fe670fa01eb5a6df85286f1a33c9cb11ead5e23b9802f9ae87142561e3ebebfe",
+          "bytes": 442
+        },
+        "app/backend/modules/postprocessing/service.py": {
+          "sha256": "076c61977f77ae3442c251239e3b739fe7409869b0248e958d55dbb9def9b0d9",
+          "bytes": 6916
+        },
+        "app/backend/modules/reports/__init__.py": {
+          "sha256": "0d7a93a247e282eb5cc3c0c1eb46c79fd6b07b8180d987cd1271b97bc81b94c5",
+          "bytes": 192
+        },
+        "app/backend/modules/reports/rendering.py": {
+          "sha256": "3e70293cae3ac207570f3a5c26d751edad1c1c3929ce1b523eeb6e580b31f110",
+          "bytes": 10203
+        },
+        "app/backend/modules/reports/service.py": {
+          "sha256": "cd488ce51b519a7f5efd58379dc0a47f903b9dda5dfb9bb371e0e2424282e78b",
+          "bytes": 29851
+        },
+        "app/backend/modules/reports/values.py": {
+          "sha256": "e429e9a548cf3cacbe064835a6f91bafbcce460e0da94b9aaca023001de487c7",
+          "bytes": 734
+        },
+        "app/backend/modules/result_migration.py": {
+          "sha256": "9bcf27e9b2e079a92aa0e2e35535731742a57f5bf06d2dcfe894257b872da714",
+          "bytes": 31159
+        },
+        "app/backend/modules/sample_queues.py": {
+          "sha256": "f1b492803e9d57772284b0cfa529f961aeba03d26be6023a6bde41333eda57d6",
+          "bytes": 30670
+        },
+        "app/backend/modules/sample_workbook.py": {
+          "sha256": "4b974d2ab64c2d8b9ca786ec05b9c3f938f7f11bc4ad75cadc281ad6475c5390",
+          "bytes": 5291
+        },
+        "app/backend/modules/spectral_lines.py": {
+          "sha256": "e3b32226015569d74f01f5910eef3ae13e0afcd459666718de1c2b44ae58ff45",
+          "bytes": 37369
+        },
+        "app/backend/modules/spectrum_calibration.py": {
+          "sha256": "279310e49f68d80c44563a8fca8781d6018c34fd7adbe64ac672809af149c3ec",
+          "bytes": 3182
+        },
+        "app/backend/modules/spectrum_migration/__init__.py": {
+          "sha256": "b1ef3097d09b66fee8226715f918605fa57365dd7b7bb891413d4cf8900d9193",
+          "bytes": 204
+        },
+        "app/backend/modules/spectrum_migration/parsing.py": {
+          "sha256": "1f0a256e67dcaaa5f6394128debd43feaf57a3cc4a2e00a09cb77570bf2c9de7",
+          "bytes": 17581
+        },
+        "app/backend/modules/spectrum_migration/reader.py": {
+          "sha256": "48d55e2950e127c55531db00da08d252270f334e932e200727c09ef8401313c9",
+          "bytes": 5074
+        },
+        "app/backend/modules/spectrum_migration/records.py": {
+          "sha256": "25d1401d9dd31fcc4ee839b7e1ce824aec896c111988d1aaa10630ec77c31cc8",
+          "bytes": 819
+        },
+        "app/backend/modules/spectrum_migration/service.py": {
+          "sha256": "5e6708c8b51661bc2585a8b3e8408e3de24e93ab7104ede57d3c5ab71a6fdd8f",
+          "bytes": 18256
+        },
+        "app/backend/modules/spectrum_migration/staging.py": {
+          "sha256": "4e0207f2aa8e730fab077fb63c74f9c49efc060929b78507cc3d5dfcbb246b17",
+          "bytes": 9373
+        },
+        "app/backend/modules/spectrum_migration/timecurve.py": {
+          "sha256": "54c1cc590b7d28746944adaf8995b57e2c322f6248c1587c85760d163d706e77",
+          "bytes": 1873
+        },
+        "app/backend/modules/spectrum_migration/values.py": {
+          "sha256": "a2041f5a080cba1881f671b7a810186b98faf97e9a4160c9106467d4386db9e5",
+          "bytes": 201
+        },
+        "app/backend/modules/spectrum_observation.py": {
+          "sha256": "c1e576b065605f27d33af42f089d06e5dc80c6d2bd20b3cf639faf9e6c19c080",
+          "bytes": 5160
+        },
+        "app/backend/modules/spectrum_pdf.py": {
+          "sha256": "8176cfd66d5cfab8afc91217c9d403719708638c65b904e86ff5a509dc6e64ce",
+          "bytes": 9074
+        },
+        "app/backend/modules/spectrum_viewer.py": {
+          "sha256": "926ff3dd452a1b14e57a9087dfeec846bb87b68100d7c022925106f4dbaae54b",
+          "bytes": 67578
+        },
+        "app/backend/modules/support_diagnostics.py": {
+          "sha256": "32b60bcdaa0e560beabbf41109118c6e2e48b9fb469e18b1b44f8185d478bcdc",
+          "bytes": 7535
+        },
+        "app/backend/printing/__init__.py": {
+          "sha256": "99871e140db653b60a0568f57e4c4d94d660dc3d7d4338d04a7594e5e35169cd",
+          "bytes": 1786
+        },
+        "app/backend/printing/paper.py": {
+          "sha256": "9c806388a6ec529a0f7b5f80e6ba5b3453d7970b8fdf8af6dcbadc896cb11bf6",
+          "bytes": 1246
+        },
+        "app/backend/printing/windows.py": {
+          "sha256": "ec6a316c68f8b7fc5c501efeac24a27973d04dd022cc458b0ad06b9ba1efd913",
+          "bytes": 7661
+        },
+        "app/backend/requirements.txt": {
+          "sha256": "e0fa14d4beb55d436a0ff90ca5a652a4f565e8cc87a28436452c31b48a544986",
+          "bytes": 327
+        },
+        "app/backend/resources/__init__.py": {
+          "sha256": "ee12becdb1015be2b6bb066f7936ca97eea37f0228d1ad5b40285781a34b0f25",
+          "bytes": 72
+        },
+        "app/backend/resources/legacy_reader/__init__.py": {
+          "sha256": "3ab11774cc25f0d80e241b9c5c344d4aafa60385aec05668936b319a52b6740d",
+          "bytes": 67
+        },
+        "app/backend/resources/legacy_reader/read_access.ps1": {
+          "sha256": "e6eaab2bf663dd6fbf21279d3c224ad48779c5911106e91fc50214d342ee595d",
+          "bytes": 7177
+        },
+        "app/backend/resources/resource-manifest.json": {
+          "sha256": "db40a751046eab2b4351c3e32bf519ef9249ac26d09783b0efb83ea60e32fd55",
+          "bytes": 1068
+        },
+        "app/backend/resources/simulator/280-288.acq": {
+          "sha256": "ef130de0bde91cdb084333002207493380ad4b776fc2ce1c6960d19e0e164c0c",
+          "bytes": 24579
+        },
+        "app/backend/resources/simulator/291-299.acq": {
+          "sha256": "9ccf429c0b89e873711a400fba9267711f0287279c39593988a2ed4cb01294e2",
+          "bytes": 24579
+        },
+        "app/backend/resources/simulator/303-310.acq": {
+          "sha256": "b031f17cbc3c207a1213cba0abf351f3ccb011adcde8542e4ae9c85d322fd297",
+          "bytes": 24579
+        },
+        "app/backend/resources/simulator/__init__.py": {
+          "sha256": "8127a4a22dd4d14ae1eba5fcfa67a0e8f9c4bcbe8013317ef8d0adc08838ee95",
+          "bytes": 68
+        },
+        "app/backend/runtime.py": {
+          "sha256": "b13343577f2dd918baa29d21e0ca182fb4ea6e586688971f26500bf5ffd52a23",
+          "bytes": 8271
+        },
+        "app/backend/runtime_messages.py": {
+          "sha256": "2bcb57325c1829cfcd5343cc39b11e9a4f93c435109fb7c1f8539a3b77406421",
+          "bytes": 7923
+        },
+        "app/backend/schemas/__init__.py": {
+          "sha256": "4d37e65676e842d249b5f260445e889c6677962a6f706057abde6a2b3558b31a",
+          "bytes": 4747
+        },
+        "app/backend/schemas/acquisition.py": {
+          "sha256": "7820cb2a68d0c8c748f92b9b8ed461d89d5540fb0066de161d158032a3982391",
+          "bytes": 3375
+        },
+        "app/backend/schemas/analysis.py": {
+          "sha256": "5e920906d85f9df273895062487ebfb969a59edfacbb14e755777dd7f38563a9",
+          "bytes": 4973
+        },
+        "app/backend/schemas/auth.py": {
+          "sha256": "b2a6ff3512ff1fd605920a09c3a2cb2e7a549163f99c02606880a881bc384b51",
+          "bytes": 956
+        },
+        "app/backend/schemas/devices.py": {
+          "sha256": "e8bb18b9f9d31c134b9820b1ffc6ee6a54c7188ea36530406f4daa3b9cec8e3c",
+          "bytes": 2774
+        },
+        "app/backend/schemas/dispersion.py": {
+          "sha256": "7070960a44bb73436ac87c64ed383a92761b53156e8359bff8d75f9c5a062deb",
+          "bytes": 2916
+        },
+        "app/backend/schemas/hardware_acquisition.py": {
+          "sha256": "95777a40eaa0324c45ad1ed72d8c33ea0eed822a74c7cb4a42efa345edca8d67",
+          "bytes": 3262
+        },
+        "app/backend/schemas/legacy_migration.py": {
+          "sha256": "819040aa4a4c0516c04609bc229ecfcbb447f6fcfad80bbe750a3aa3e2d36b80",
+          "bytes": 582
+        },
+        "app/backend/schemas/legacy_open.py": {
+          "sha256": "851910935a45f68c69fe330dafd06d702ab34d836ee3af4cc64d7e4abf562209",
+          "bytes": 473
+        },
+        "app/backend/schemas/maintenance.py": {
+          "sha256": "cf51d6b0e7cfab3870a8a87e4da4f9446b196ea9d613ea1eff744348441d3adc",
+          "bytes": 708
+        },
+        "app/backend/schemas/mercury_calibration.py": {
+          "sha256": "6755e5a37d5b2ee040bec4231643a599a27823bf3fa0517293a72dccaa9d0317",
+          "bytes": 1041
+        },
+        "app/backend/schemas/methods.py": {
+          "sha256": "74b4e42c6d8384e9ce3c4e64d0ef0ca7c8b52acda27feafd686f235b4406ca65",
+          "bytes": 7423
+        },
+        "app/backend/schemas/postprocessing.py": {
+          "sha256": "e49aacbc46567cf00a436bd71bf2a9da4379d4aec358e3f3f1180ea181faf543",
+          "bytes": 4296
+        },
+        "app/backend/schemas/preliminary.py": {
+          "sha256": "1bd551397d39285f78dff49625e99809178aee4a33bf30232842c9a217c5cc12",
+          "bytes": 876
+        },
+        "app/backend/schemas/reports.py": {
+          "sha256": "f4fb5a210c3901482f549bbed17953f27e9920b39adbe2d39baa2adf3961af61",
+          "bytes": 1235
+        },
+        "app/backend/schemas/result_migration.py": {
+          "sha256": "a3dfbfeac327a24a0c2411211d794dcb306638c55ad0c3c4e8438cb2a3ce3b3b",
+          "bytes": 462
+        },
+        "app/backend/schemas/sample_queues.py": {
+          "sha256": "8e95e76a827bdc39d55548c9c786a987d3f1cd38d59863b4ac5ea86826d4ae7b",
+          "bytes": 1884
+        },
+        "app/backend/schemas/spectrum_migration.py": {
+          "sha256": "c1f038bc484e5791450dc2fb05cdfcfc5414cf95b24a96839259c9395cd87687",
+          "bytes": 468
+        },
+        "app/backend/schemas/spectrum_viewer.py": {
+          "sha256": "a78e1fb5814489581b964389d0febf5bb63c5c0ceac6104d8dc63809856c690b",
+          "bytes": 1332
+        },
+        "app/backend/schemas/system.py": {
+          "sha256": "54fe1e32a5678ad0a0b5ce9391faadb18cf56aee6b07a8ab1d3d08c2d7dc0e7f",
+          "bytes": 9829
+        },
+        "app/backend/services.py": {
+          "sha256": "4c3a81cdf12d08272b4f2aeb12ca9590a8fe82a73a6ef937456040fd78876dfb",
+          "bytes": 16886
+        },
+        "app/backend/sidecar_entry.py": {
+          "sha256": "0e3c66ad7321cc8f8761ec5492c2e749971de0791650737183aeb20732ff5ead",
+          "bytes": 2394
+        },
+        "app/backend/table_output.py": {
+          "sha256": "47c15440b21327b4fd1158d677e7ca251a196573d147bf4f454193594ab81a72",
+          "bytes": 3653
+        },
+        "app/backend/upgrade.py": {
+          "sha256": "3c75054709c1c041d81aee40a5118a13f5ef3b17b154d8de83a4180035c5e454",
+          "bytes": 10760
+        },
+        "app/requirements.txt": {
+          "sha256": "fb3ff435be42091b88998f5a053afb217a17d41b96c041f0c6ab6389d1dc68f8",
+          "bytes": 28
+        },
+        "app/tools/build_sidecar.py": {
+          "sha256": "5f2697966df16e9ab74d5585128fd43799cf0372ad79d8a20f8e30bc8100732b",
+          "bytes": 3369
+        },
+        "app/tools/legacy-mdb-reader/read_access.ps1": {
+          "sha256": "e6eaab2bf663dd6fbf21279d3c224ad48779c5911106e91fc50214d342ee595d",
+          "bytes": 7177
+        },
+        "app/tools/runtime_resources.py": {
+          "sha256": "8c1657f6b044ae2058bd66fd324f4775cba636a7894f3cb4438831c5c918c65c",
+          "bytes": 2032
+        },
+        "app/tools/verify_sidecar.py": {
+          "sha256": "d0bef688a1806ad95ccc428cdac3ae6feae239c84884040498e722462a625adf",
+          "bytes": 9726
+        }
+      }
+    },
+    "desktop": {
+      "sha256": "658cfd9958ec21d05c0e7be0e81fea0566411f7655b4ed423f0a9a8b38ab709a",
+      "count": 386,
+      "inputs": {
+        "app/frontend/index.html": {
+          "sha256": "27e7e49850d2899d6c886733e29096f13c6e6b4186e6186263755f4d4e4a6df8",
+          "bytes": 433
+        },
+        "app/frontend/package.json": {
+          "sha256": "e837fdbe4cb188f842298a252cfbd219f3d0b63ac9f098aa4836fba4a4cc62cc",
+          "bytes": 945
+        },
+        "app/frontend/pnpm-lock.yaml": {
+          "sha256": "b88a9dba7032b6c2d4636a6f2f7b1bf5e8d6732845e1e44178af0dac0871feea",
+          "bytes": 37444
+        },
+        "app/frontend/pnpm-workspace.yaml": {
+          "sha256": "ac02d96368617c760f093cfe61fdec64b6244007ab3553e0d6621f706f54a353",
+          "bytes": 29
+        },
+        "app/frontend/src/App.tsx": {
+          "sha256": "37240aa707e9ba792e69204bf16f250bc42d8102b1b3eab39b8e8e569880b864",
+          "bytes": 3189
+        },
+        "app/frontend/src/api/acquisition.ts": {
+          "sha256": "6f2d88a2c60717ebf33b921a6539cc6a12212149f7e47abb8b9fc1af18067a4e",
+          "bytes": 13428
+        },
+        "app/frontend/src/api/analysis.ts": {
+          "sha256": "56dab7dbff67ae13dc4fefb52f07df447348a0c7d085dbc677d73d8ce2b2eda5",
+          "bytes": 16980
+        },
+        "app/frontend/src/api/auth.ts": {
+          "sha256": "06c74c37360ae98984debae0201e98c2ac9350c578a5ea5dfef906beb64a7098",
+          "bytes": 3039
+        },
+        "app/frontend/src/api/client.ts": {
+          "sha256": "4676fc2baa56ec6b163a6a231098c603d601b2a0b699f54474876b53b48e9d05",
+          "bytes": 3847
+        },
+        "app/frontend/src/api/deploymentAccess.ts": {
+          "sha256": "84c53018f30829f2e87a7db3fea6bd45435864a2a07d2c08530172f1d6df0dbe",
+          "bytes": 1456
+        },
+        "app/frontend/src/api/devices.ts": {
+          "sha256": "377218ae89f6500252dd807e9af97a5dcaa334cbe4feb7104a0dc0e0d4ec0da5",
+          "bytes": 7185
+        },
+        "app/frontend/src/api/dispersion.ts": {
+          "sha256": "9747f368d058ef61b7f53bd2e6070b2846c7c1a293313c823964ff0ecb10c722",
+          "bytes": 14189
+        },
+        "app/frontend/src/api/events.ts": {
+          "sha256": "6743d845abe377487fb60c7f8e0898f74704f880216cc21e6e6981d8f5735c5e",
+          "bytes": 574
+        },
+        "app/frontend/src/api/hardwareAcquisition.ts": {
+          "sha256": "f611f614ceb77ba2b01785978bd9f794e544ff3d29a328afed90fa93e156aea3",
+          "bytes": 7148
+        },
+        "app/frontend/src/api/index.ts": {
+          "sha256": "237324610030e467e619ae9217342d7d7982ca4a29cdc614985eb7c6297f503a",
+          "bytes": 4101
+        },
+        "app/frontend/src/api/legacyMigration.ts": {
+          "sha256": "f5091bf5705d1d3ba7f40d083d765e45c6dc0351e435be14b4f9f3be8076b15a",
+          "bytes": 3151
+        },
+        "app/frontend/src/api/legacySources.ts": {
+          "sha256": "054fe87085d0110c30a6a079938e8e36e9787e53d423fb97f784a732baec4312",
+          "bytes": 834
+        },
+        "app/frontend/src/api/maintenance.ts": {
+          "sha256": "1bd5757dd5faf6a730e37eff9631512ab9ede2149eb8379b4122a6e66a283cfd",
+          "bytes": 2898
+        },
+        "app/frontend/src/api/mercuryCalibration.ts": {
+          "sha256": "b7e86bc33b73960a13d7e268c19feb49ad24a70a723309dfcad6f38851e80178",
+          "bytes": 5538
+        },
+        "app/frontend/src/api/methods.ts": {
+          "sha256": "e8665fb77a389705988b3ee6e77d80ec76ee1547e3a2c826390be662d241184c",
+          "bytes": 14998
+        },
+        "app/frontend/src/api/postprocessing.ts": {
+          "sha256": "83d7eb50b081bc8690f93fc6f17dd13a009ca9defaef7f3f4f951e2664b66a5c",
+          "bytes": 8876
+        },
+        "app/frontend/src/api/reports.ts": {
+          "sha256": "16fdf10acab171f34da7d08d14b7fe89688d960dea96904cb4101c68f72036ad",
+          "bytes": 4015
+        },
+        "app/frontend/src/api/resultMigration.ts": {
+          "sha256": "c3c3052ba763158bd20817e7d5c87ed83c6f850b051eb313ef0e45f52e40fe95",
+          "bytes": 3247
+        },
+        "app/frontend/src/api/sampleQueues.ts": {
+          "sha256": "42a2c0f3e610b7ec2f88b6df589343b7758c209c6d545790daa00054221b8c68",
+          "bytes": 4227
+        },
+        "app/frontend/src/api/spectrumMigration.ts": {
+          "sha256": "e07ef6fcbcf9505c645ea93d64724be35d32cd9ea0d226cb0232e6c4beb03d77",
+          "bytes": 3145
+        },
+        "app/frontend/src/api/spectrumViewer.ts": {
+          "sha256": "f7910947354f28d075c216c0a55d2a3505dbc50b0e21053c1fdd60a1a72125ea",
+          "bytes": 13201
+        },
+        "app/frontend/src/api/system.ts": {
+          "sha256": "88674fb140d8b62c2f2b26c512c105acd01530733613c05a5f5b7b2a6d5513c5",
+          "bytes": 4699
+        },
+        "app/frontend/src/assets/brand/geospectrum.png": {
+          "sha256": "bfa7eee5e7dfd47b065afd20daa4238ea721f62d19f1c1ffd2b124fa68693ae8",
+          "bytes": 190181
+        },
+        "app/frontend/src/assets/help/analysis-spectrum.png": {
+          "sha256": "f19c3e81b3ac7e6c5849f30f0600f3e1a82eca1f9175bab601d6f6dd08990113",
+          "bytes": 24123
+        },
+        "app/frontend/src/assets/help/dispersion-points.png": {
+          "sha256": "c64f48a4f232943117748e8cbde4a7ca5e6ff780ee129e6c7b45ead19b3d4f52",
+          "bytes": 30203
+        },
+        "app/frontend/src/assets/help/method-parameters.png": {
+          "sha256": "59bf2c174dbb20eae9ecb60837cb00c23a970e85d4f71a3c94fbc50626db0579",
+          "bytes": 15917
+        },
+        "app/frontend/src/assets/help/sample-numbers.png": {
+          "sha256": "4c6801e90d49673ddb3b3c6f13e3361659b1aee82ea0411044546e961188e8d2",
+          "bytes": 30608
+        },
+        "app/frontend/src/assets/help/spectral-lines.png": {
+          "sha256": "b511eadf1416991708b660bcbea2532b77fe29d9393e70cf6dc2f774d7090d56",
+          "bytes": 8607
+        },
+        "app/frontend/src/assets/help/standard-curve.png": {
+          "sha256": "da67a07567225e6691096ea23595c3ff6b12e5765791e08207b191c48c5d52ed",
+          "bytes": 17398
+        },
+        "app/frontend/src/assets/legacy-analysis/README.md": {
+          "sha256": "21161ae1ab18ee875064e2394cc3281ac7e1b8be45f3a5abad9d5972c6163662",
+          "bytes": 512
+        },
+        "app/frontend/src/assets/legacy-analysis/box-zoom.png": {
+          "sha256": "11810eb5eb3cbbe1c7662887a669492aa58488b19e4780f7d93761d62da3a21d",
+          "bytes": 651
+        },
+        "app/frontend/src/assets/legacy-analysis/close.png": {
+          "sha256": "5f2cf0ae7dc4e5aad2704915fe703096a0102dd3b4000b4b5f81c1e23cb82744",
+          "bytes": 463
+        },
+        "app/frontend/src/assets/legacy-analysis/crosshair.png": {
+          "sha256": "219435bf154d813ec3dd5b81d09e981c39ab4e0f94c519b3ea3cb89160cf80fd",
+          "bytes": 169
+        },
+        "app/frontend/src/assets/legacy-analysis/fit.png": {
+          "sha256": "0be45cd65840b877d8cf04814228929e5a97869610fb98f4d2cfed57700636d8",
+          "bytes": 313
+        },
+        "app/frontend/src/assets/legacy-analysis/line-correction.png": {
+          "sha256": "a197d3f6323549bb12d05c4fc96a09bdb4a2a080737ec5b3ed9d1b8be4842ce8",
+          "bytes": 268
+        },
+        "app/frontend/src/assets/legacy-analysis/measure.png": {
+          "sha256": "4cf7474cbf3ea26f34a5b6921ecae7558347686756c565e2f7e911ba933e7101",
+          "bytes": 779
+        },
+        "app/frontend/src/assets/legacy-analysis/next-band.png": {
+          "sha256": "31e69325932c4651085b68501909c5453b1cd433791b122174689f07e5b9a45c",
+          "bytes": 599
+        },
+        "app/frontend/src/assets/legacy-analysis/next-ccd.png": {
+          "sha256": "2dc58fe9514e685ccc02e3a5c701161665a2637afbe899324f188334c6aa46ff",
+          "bytes": 782
+        },
+        "app/frontend/src/assets/legacy-analysis/pan.png": {
+          "sha256": "be56fb76144e87c3ad21081ec8c32bb359692f38748fe6be3557bbf28543cbf6",
+          "bytes": 657
+        },
+        "app/frontend/src/assets/legacy-analysis/pause.png": {
+          "sha256": "22334a831b0c1876cbc0329bbba595c4695e21d092a3e7f57954d605837af789",
+          "bytes": 732
+        },
+        "app/frontend/src/assets/legacy-analysis/previous-band.png": {
+          "sha256": "a674811737f40223bfd58c603bcd65ea15e01c6160436f72445af7a8415d1c8a",
+          "bytes": 603
+        },
+        "app/frontend/src/assets/legacy-analysis/previous-ccd.png": {
+          "sha256": "de72a149be15e8f700f549b70845770ff441fec0aea523538cf991ccc0eeeef5",
+          "bytes": 769
+        },
+        "app/frontend/src/assets/legacy-analysis/print.png": {
+          "sha256": "d9bc92915ac5527ffaa00ee7f30ca1cff4a0c746b15bedb08a6077b932ba7417",
+          "bytes": 611
+        },
+        "app/frontend/src/assets/legacy-analysis/record-lock.png": {
+          "sha256": "7b180eb4a477e6e9eb74f5cee805aad24345dd3896305c0f191f797e09304a85",
+          "bytes": 576
+        },
+        "app/frontend/src/assets/legacy-analysis/record-unlock.png": {
+          "sha256": "ee4dcfe2c74e8767d9d12c913053424529759ed7dc507642a2496daca77ff2ca",
+          "bytes": 482
+        },
+        "app/frontend/src/assets/legacy-analysis/reference-correction.png": {
+          "sha256": "ff33117e2684cd528a3d7887304337ab1cfc215b1c02d1ef5c2d31d8615b1180",
+          "bytes": 584
+        },
+        "app/frontend/src/assets/legacy-analysis/reset-y.png": {
+          "sha256": "154611eb2dd9ac83cd32bec680865568b554ec0bf1b79f82cc29e24d3b6c9631",
+          "bytes": 621
+        },
+        "app/frontend/src/assets/legacy-analysis/sample-input.png": {
+          "sha256": "867f44803f4dc35c2964daadc9f90367655125e0823d76e54beeb64817f7c5cc",
+          "bytes": 536
+        },
+        "app/frontend/src/assets/legacy-analysis/sample-list-clear.png": {
+          "sha256": "028b3a64d180616240569a16b282869257e3d0b75da53b5c58e914b301a398db",
+          "bytes": 559
+        },
+        "app/frontend/src/assets/legacy-analysis/sample-list-input.png": {
+          "sha256": "867f44803f4dc35c2964daadc9f90367655125e0823d76e54beeb64817f7c5cc",
+          "bytes": 536
+        },
+        "app/frontend/src/assets/legacy-analysis/scale-1.png": {
+          "sha256": "8a7120006dc7dbcee7b895a5ebdb3232a830164979b1f7710a3efabea5efc823",
+          "bytes": 771
+        },
+        "app/frontend/src/assets/legacy-analysis/scale-10.png": {
+          "sha256": "1c17a216516dde7eafe3ea3dac7216ad1b772500bd4b287cf1440656eb1b04e5",
+          "bytes": 787
+        },
+        "app/frontend/src/assets/legacy-analysis/scale-4.png": {
+          "sha256": "9b61b59b23e27fb5df3d934e03431e5c975f1f686eb2c04999a970e96b121a05",
+          "bytes": 792
+        },
+        "app/frontend/src/assets/legacy-analysis/select-ccd.png": {
+          "sha256": "80c84b7f3881fddb3e01fc3f015edb1458b05aa58f56ffe63594e0cfd7a5b660",
+          "bytes": 396
+        },
+        "app/frontend/src/assets/legacy-analysis/zoom-x-in.png": {
+          "sha256": "12465ab89e78dd57161fe415435054bdf32456622409ac57fa3626d18efd18d7",
+          "bytes": 802
+        },
+        "app/frontend/src/assets/legacy-analysis/zoom-x-out.png": {
+          "sha256": "2ed97e9c4c183b419bb9877a29de3420147541b59786e8421f745e6fabf5809a",
+          "bytes": 719
+        },
+        "app/frontend/src/assets/legacy-analysis/zoom-y-in.png": {
+          "sha256": "4fe395d8910b93f66c19132bb297c64d8f472c33b65810ce8eade2ae7f1689d5",
+          "bytes": 766
+        },
+        "app/frontend/src/assets/legacy-analysis/zoom-y-out.png": {
+          "sha256": "f9d48e776201bd431692b6cf555840c661266a31673c0eaa0c90efa4b8b21bdf",
+          "bytes": 786
+        },
+        "app/frontend/src/assets/legacy/README.md": {
+          "sha256": "dab196e3dfe8c8786aaea3149a373f9e88200689f5f1c5bbf3fde36b9962fc04",
+          "bytes": 791
+        },
+        "app/frontend/src/assets/legacy/acquisition.png": {
+          "sha256": "fdfeb008879fa9604f21d73d6fd43d2b13f5b933c6eb5282b7eed94ee6a7b075",
+          "bytes": 280
+        },
+        "app/frontend/src/assets/legacy/analysis.png": {
+          "sha256": "cd2c2579e200c82454d46933485bdcd632cf9663c869c6fc4752360ed734a425",
+          "bytes": 762
+        },
+        "app/frontend/src/assets/legacy/conditions.png": {
+          "sha256": "b5e6b071d73438dcea6eaf357c21501406801045bd356b8cd5777b3874bc3664",
+          "bytes": 134
+        },
+        "app/frontend/src/assets/legacy/lines.png": {
+          "sha256": "1176919e0d67384aeff9d80773e0136ed75c83d2ecf2ce5f91320d1cb4c52d05",
+          "bytes": 363
+        },
+        "app/frontend/src/assets/legacy/new-method.png": {
+          "sha256": "95787b14a6d47ab239cbf449b8de2d5e4279e7016350267709ed43496b2acbaf",
+          "bytes": 285
+        },
+        "app/frontend/src/assets/legacy/open-method.png": {
+          "sha256": "b9e584e55f2fb5a45caf4f44d0e2cf0802b677a17b87d77a6997336024c1d3dd",
+          "bytes": 558
+        },
+        "app/frontend/src/assets/legacy/samples.png": {
+          "sha256": "867f44803f4dc35c2964daadc9f90367655125e0823d76e54beeb64817f7c5cc",
+          "bytes": 536
+        },
+        "app/frontend/src/assets/legacy/save-as.png": {
+          "sha256": "71f2161f010747e070b0ab61b01749703de2c169357ab2a6ce3616d51fa3d4c2",
+          "bytes": 361
+        },
+        "app/frontend/src/assets/menu/audit.png": {
+          "sha256": "920b02a76148e53831a3784f09e5cf9b27b28bf3d40629526b583d8590430923",
+          "bytes": 53777
+        },
+        "app/frontend/src/assets/menu/devices.png": {
+          "sha256": "b42355f8634128b7f89a9b7b4102993463ebce66ced5e2ae56529d458de54f62",
+          "bytes": 45173
+        },
+        "app/frontend/src/assets/menu/dispersion-acquisition.png": {
+          "sha256": "40947356ebd7155e4fdbd2bc513b2af515312a80da4b5c1d6a4e46a77027e95a",
+          "bytes": 43662
+        },
+        "app/frontend/src/assets/menu/dispersion-curve.png": {
+          "sha256": "8e2372cec460a865fa9bdc27b436378535d67e49ff0c82513c20b87847db6483",
+          "bytes": 39500
+        },
+        "app/frontend/src/assets/menu/evaporation-acquisition.png": {
+          "sha256": "6f50ce00a9a183c81a6c7889b83e16b1fd99a6ff8702f400320bac609acc02ea",
+          "bytes": 34502
+        },
+        "app/frontend/src/assets/menu/evaporation-curve.png": {
+          "sha256": "f8053cc3d9075242bc80b5ddbc3b8765e85acb60e0debecba08608ed7f6bdbd2",
+          "bytes": 20539
+        },
+        "app/frontend/src/assets/menu/help.png": {
+          "sha256": "8796e2489fe6c945bc9e694b4aec200a3fb4abd1ad71103e1cd95db1b0577be6",
+          "bytes": 49068
+        },
+        "app/frontend/src/assets/menu/import-methods.png": {
+          "sha256": "f3bc094e563c15501ddf387778c09f7dcd2d327e2a42cc56888871fa43192ed2",
+          "bytes": 35627
+        },
+        "app/frontend/src/assets/menu/import-results.png": {
+          "sha256": "47ea224e0e854ad7eb0ed6d988a1b7b3abb6af2e2ae731159f5d132f35352f32",
+          "bytes": 41268
+        },
+        "app/frontend/src/assets/menu/import-spectra.png": {
+          "sha256": "b7ba835d660b4470cefb042494f2a7df353121b45a96942016a14f92a7ff5906",
+          "bytes": 49026
+        },
+        "app/frontend/src/assets/menu/maintenance.png": {
+          "sha256": "773962cea5b90d866228f3517d866c925e2d1e8c01c53dd682c9885f482ba8ef",
+          "bytes": 56139
+        },
+        "app/frontend/src/assets/menu/mercury.png": {
+          "sha256": "f9fb5bc47da5719d8dbe9365f5dee6b3001f79b2f4720f81c20819d6bf89ccdd",
+          "bytes": 30784
+        },
+        "app/frontend/src/assets/menu/print.png": {
+          "sha256": "bf686fcfb8ccdee6079e158a050d315d646dccaf2571f269df634c113707b701",
+          "bytes": 39437
+        },
+        "app/frontend/src/assets/menu/recalculate.png": {
+          "sha256": "9ea9e9d99dad598e910537c9aa276dd1f5a5bbef21ae39d2d5b8deeab631367e",
+          "bytes": 40115
+        },
+        "app/frontend/src/assets/menu/rotation.png": {
+          "sha256": "afff1746fc1876da9d328d4839f64e827f022cf32d7a2c8b523316de9fbcfca6",
+          "bytes": 55236
+        },
+        "app/frontend/src/assets/menu/settings.png": {
+          "sha256": "f8f4fa5077c4cdb2d52d510988f0b188ce169ee27c2bd63fb3b2b4acf24a5f45",
+          "bytes": 65501
+        },
+        "app/frontend/src/assets/menu/spectra.png": {
+          "sha256": "6d7dd42be1e3dab9ec718775f6a9e823230f46b4a9a19ab92bf997c60d24ff27",
+          "bytes": 58329
+        },
+        "app/frontend/src/assets/menu/tools.png": {
+          "sha256": "7f75d9f8c26864d59797490436135e1b4395f9648e064f474162c5c872a9ff8b",
+          "bytes": 57901
+        },
+        "app/frontend/src/assets/menu/users.png": {
+          "sha256": "0767fc4906fcaec3aa98d5768ecd1f9a9f30bb459e0c948f5911a0be943a34f6",
+          "bytes": 47391
+        },
+        "app/frontend/src/assets/menu/workspace.png": {
+          "sha256": "3cb74b6720bc0343cd664f99675ec42e9f3bcbec9f493f4462c6df406b8e9e4c",
+          "bytes": 43900
+        },
+        "app/frontend/src/assets/spectroscopy/README.md": {
+          "sha256": "5c4bfe0c18b04b4b8b091badf059d6549518c4cbe0b5c5d97940f68a9647b26a",
+          "bytes": 2055
+        },
+        "app/frontend/src/assets/spectroscopy/add-line.png": {
+          "sha256": "0fea83b50dc6844e93b17dd888376cd9a15eed7a4e3bfda0f979de670fe6a29f",
+          "bytes": 48457
+        },
+        "app/frontend/src/assets/spectroscopy/box-zoom.png": {
+          "sha256": "d50e85a3bef9e9900949b02bd145184b00d74f95108f50805b5686c120d9857f",
+          "bytes": 43474
+        },
+        "app/frontend/src/assets/spectroscopy/capture.png": {
+          "sha256": "b38864e6cb2fa7636d1af29abe87d09c6e835a1b3b6485f89a9da8d8d60bf5ee",
+          "bytes": 40851
+        },
+        "app/frontend/src/assets/spectroscopy/clear-samples.png": {
+          "sha256": "2db58b8faccdc29e9a193ded4a2845ae71d775f8caec8b44d26dcf1a7462921d",
+          "bytes": 42086
+        },
+        "app/frontend/src/assets/spectroscopy/close.png": {
+          "sha256": "a25baa1c5d375498fb5cc9ae9c5784da808288701eb33f92bbb8f1a9469e326c",
+          "bytes": 32578
+        },
+        "app/frontend/src/assets/spectroscopy/crosshair.png": {
+          "sha256": "abc7cb56de78c29557fda7bb7058fc4fa05400e1729aa70768a95ab7482e0f26",
+          "bytes": 12054
+        },
+        "app/frontend/src/assets/spectroscopy/delete-line.png": {
+          "sha256": "5160bece6e655dbdb04171c739447d8e7b419d1b18d959913f7a926e0fb54efd",
+          "bytes": 44609
+        },
+        "app/frontend/src/assets/spectroscopy/finish.png": {
+          "sha256": "b916bf9368cf812d4a4be4750852b1c8310413788d3ca39d410a4be1b2d776a6",
+          "bytes": 31866
+        },
+        "app/frontend/src/assets/spectroscopy/fit-curve.png": {
+          "sha256": "e57d58b5ad4450031bfc6eb5f3a4b9bec1bb78a41a7e374cd7185711d20f10ac",
+          "bytes": 61546
+        },
+        "app/frontend/src/assets/spectroscopy/fit.png": {
+          "sha256": "ccbb66e5e4a735e030407e0319ad706495ac0f5fb6373bb3507b4df492bfd130",
+          "bytes": 41309
+        },
+        "app/frontend/src/assets/spectroscopy/input-samples.png": {
+          "sha256": "8627160929574f73f091a7de8bf1ddea543f4e13f572aaa5568cfdf8bee39561",
+          "bytes": 46623
+        },
+        "app/frontend/src/assets/spectroscopy/insert-sample.png": {
+          "sha256": "2cc705064300eb57b479c887e0bd48b6fdc20e825138dac3053e94ebdb2f781a",
+          "bytes": 47630
+        },
+        "app/frontend/src/assets/spectroscopy/line-correction.png": {
+          "sha256": "41f09117bc21f4f8f7e400f40f5a6ea25dd181b09d652d052ad28a8462ba4ad2",
+          "bytes": 31922
+        },
+        "app/frontend/src/assets/spectroscopy/lock.png": {
+          "sha256": "c6cfff1906f01c8db89e8529d9dadb06ee41090b42b52fcbf26ff1af85f40541",
+          "bytes": 37624
+        },
+        "app/frontend/src/assets/spectroscopy/measure.png": {
+          "sha256": "207adb84c2b769748267355043e8fde8495c675bbda1c5977cd5fd0fb40dbbe4",
+          "bytes": 48850
+        },
+        "app/frontend/src/assets/spectroscopy/multi-view.png": {
+          "sha256": "b90da3e572ce7ff1f28e4c065b1b662c2cda1cc08007ffa91a99595aacdab31e",
+          "bytes": 55133
+        },
+        "app/frontend/src/assets/spectroscopy/next-band.png": {
+          "sha256": "f3a404b2a5af6409bbaea034c69c1f637afc715771e4d421a1f00f0280829788",
+          "bytes": 32057
+        },
+        "app/frontend/src/assets/spectroscopy/next-ccd.png": {
+          "sha256": "33db1a5b038cfe043bb57fe8abc054e3a2ca917734aaec1d62240d18bce83d87",
+          "bytes": 38946
+        },
+        "app/frontend/src/assets/spectroscopy/pan.png": {
+          "sha256": "7ae73f51ac18122b666e4a212988252ac3e70de6affc0385d9407bf1fb52f16a",
+          "bytes": 54843
+        },
+        "app/frontend/src/assets/spectroscopy/pause.png": {
+          "sha256": "0d48fb5c7823e600fed5c439e4ef473d0252e29b3a66fb0b397b3ba7a7a3af67",
+          "bytes": 43388
+        },
+        "app/frontend/src/assets/spectroscopy/preheat.png": {
+          "sha256": "e48806a3af9f58df38651d02c74baa5a4dc0d4f48f3389997c2e12b68bd62fbf",
+          "bytes": 45330
+        },
+        "app/frontend/src/assets/spectroscopy/previous-band.png": {
+          "sha256": "1f394fb0fcd407af01dbc6ee408fb9202ae0ab01f51429acacb7d007b8d956e3",
+          "bytes": 31991
+        },
+        "app/frontend/src/assets/spectroscopy/previous-ccd.png": {
+          "sha256": "4528dcfb31ee7ef157f8f2ef04393ac66a3664da7a520e9edda7839aee2518c7",
+          "bytes": 38200
+        },
+        "app/frontend/src/assets/spectroscopy/print.png": {
+          "sha256": "5ae9f92cefee5bd816efccd05b01d7f301f4c3a6b32b94b3bfd43c72ffeb7319",
+          "bytes": 39529
+        },
+        "app/frontend/src/assets/spectroscopy/record-lock.png": {
+          "sha256": "ca95996abc5a2ca3cdccbc651ce1873ae9b271fa605c1e7b0ed256a2343b1bce",
+          "bytes": 38446
+        },
+        "app/frontend/src/assets/spectroscopy/record-unlock.png": {
+          "sha256": "ce782cfb7f4315aeb1f299b9f1a5eec83f5a869f1b4f6a2129872bec47adffdb",
+          "bytes": 34525
+        },
+        "app/frontend/src/assets/spectroscopy/reference-correction.png": {
+          "sha256": "f7c26a9f01ddccd6f1bdcd4bdade27915493a9dc67f1bcf19c808aaef0cae0ec",
+          "bytes": 38491
+        },
+        "app/frontend/src/assets/spectroscopy/reset-y.png": {
+          "sha256": "a7813de956b602ab7b15db413b9e575ec7475a008f017f8ce841d44b9c1c7468",
+          "bytes": 47685
+        },
+        "app/frontend/src/assets/spectroscopy/sample-input.png": {
+          "sha256": "fae83f41ec35c69c488cd2696a9ae8050e88bdb109552593c187d22ec5f41b56",
+          "bytes": 44148
+        },
+        "app/frontend/src/assets/spectroscopy/sample-list-clear.png": {
+          "sha256": "4f29a86beb3675b6c2d61b03b6514ab8ab3dcd7650418f2c0f9651776d4af262",
+          "bytes": 41738
+        },
+        "app/frontend/src/assets/spectroscopy/sample-list-input.png": {
+          "sha256": "a8cb0ddf33fe1de6719cb65f3a72df3dc06f1995ed54ef80aa75564ace8681b8",
+          "bytes": 38503
+        },
+        "app/frontend/src/assets/spectroscopy/scale-1.png": {
+          "sha256": "c1e187c5c2a54c77a5608e39a9957fbdb9dc3a72270cc461dcb35b83e577e0d5",
+          "bytes": 48052
+        },
+        "app/frontend/src/assets/spectroscopy/scale-10.png": {
+          "sha256": "57fc81953df998c2c6d852e0b674f83caef6a76f13d51f68c7624d522471d640",
+          "bytes": 48691
+        },
+        "app/frontend/src/assets/spectroscopy/scale-4.png": {
+          "sha256": "d3d12ea270cbe80e702d12a4a31e191a25f6b3f23867513ad609d36228addb28",
+          "bytes": 48723
+        },
+        "app/frontend/src/assets/spectroscopy/select-ccd.png": {
+          "sha256": "f23313eb553a417e6d6894363c37cbd64d8f77646330693b867a7b60e3a7d7d4",
+          "bytes": 34783
+        },
+        "app/frontend/src/assets/spectroscopy/stop.png": {
+          "sha256": "8f9eb2c97ede29413de9113d54fe36df55f6b8ba84f478f4e15a411fefaae1c8",
+          "bytes": 41187
+        },
+        "app/frontend/src/assets/spectroscopy/zoom-x-in.png": {
+          "sha256": "46d7859256b84b3fd3e3318b25879ccc82d7821cf186f70edfa3e44e71f9f4a6",
+          "bytes": 44433
+        },
+        "app/frontend/src/assets/spectroscopy/zoom-x-out.png": {
+          "sha256": "f242eb0f06a784a4a22ed714e1fbd9026cbb0586d35c56bce4f3bb95ddb49908",
+          "bytes": 42821
+        },
+        "app/frontend/src/assets/spectroscopy/zoom-y-in.png": {
+          "sha256": "31467d92598463d81e4bfeac8a670bff173f379a555820e551922ebbdd9f3792",
+          "bytes": 48683
+        },
+        "app/frontend/src/assets/spectroscopy/zoom-y-out.png": {
+          "sha256": "b7fab8066e1b2de4991eb90ebbaa4961243f3ca1525b891113f93a5684790be1",
+          "bytes": 50234
+        },
+        "app/frontend/src/assets/toolbar/README.md": {
+          "sha256": "f3476b1c4064fcd8121734c556ee8562d9d4cecb1580f8c75edba21556a7573a",
+          "bytes": 1218
+        },
+        "app/frontend/src/assets/toolbar/acquisition.png": {
+          "sha256": "cdd89ae8c28ebecbd5dc062122ebaeb26c4381498e8624bfdb1cf64ea2e3928e",
+          "bytes": 54260
+        },
+        "app/frontend/src/assets/toolbar/analysis.png": {
+          "sha256": "e6d20005a577bf60c62a740cc7dac68027dbbff094aa710167691b15b63e1378",
+          "bytes": 50667
+        },
+        "app/frontend/src/assets/toolbar/conditions.png": {
+          "sha256": "77812365160532cae06040564907330cb94a4e20037868b9641662322010b509",
+          "bytes": 23496
+        },
+        "app/frontend/src/assets/toolbar/lines.png": {
+          "sha256": "568ba81ab1b7224d5f9ad1ca505b852a042aec98b0edbf4cf2c4aa52f8dd7cbe",
+          "bytes": 43540
+        },
+        "app/frontend/src/assets/toolbar/new-method.png": {
+          "sha256": "56a6bb954914bba68c08a34158b0f6e3f2c78f61259e7aa5b4551c57f81d75fb",
+          "bytes": 30550
+        },
+        "app/frontend/src/assets/toolbar/open-method.png": {
+          "sha256": "a06d70a8ba95b60dfa5fb88c415c542773909f19353e5d54f7a45a31eac8efb0",
+          "bytes": 44676
+        },
+        "app/frontend/src/assets/toolbar/samples.png": {
+          "sha256": "19cd6097cd5842d1892be17fceb355a4c202cc49cde841e997c6c91d48b0222d",
+          "bytes": 54600
+        },
+        "app/frontend/src/assets/toolbar/save-as.png": {
+          "sha256": "951a9315c709907b2a6748557515b0761837ca4ad5e8a9a70a48a5df06bcfbf8",
+          "bytes": 45214
+        },
+        "app/frontend/src/components/AdvancedSettings.tsx": {
+          "sha256": "ba539f7c814f73c73fe7b25c99b3c3f700f7d0ccca3a83fdf7b75373f82d1f9d",
+          "bytes": 544
+        },
+        "app/frontend/src/components/AnalysisUnitSelect.tsx": {
+          "sha256": "3d4700e3b3a69da66edbbc95d77df144466850ed8a475d9e9e2db81ea337610c",
+          "bytes": 1035
+        },
+        "app/frontend/src/components/AppIcon.tsx": {
+          "sha256": "cf00ca44baae54b4bd6a349cf2cf968d1c8b126ed17cb01a1541d02d5aacb9c8",
+          "bytes": 318
+        },
+        "app/frontend/src/components/ContextMenu.tsx": {
+          "sha256": "f41f3af78eb1bf20d38a558fd22208389573f1e5b7847f14ee1e4ffe18b76ad9",
+          "bytes": 4842
+        },
+        "app/frontend/src/components/ExposureIntervalInput.tsx": {
+          "sha256": "fdd0a0d55c2f0ae0a4219288a88462c12291b847497dbc375b47c7c993ef329f",
+          "bytes": 1856
+        },
+        "app/frontend/src/components/FunctionIcon.tsx": {
+          "sha256": "3f0445cc59c750901560fc1ea0401e36ed7dbfc5ae228629ddb4acebbe22b80b",
+          "bytes": 3892
+        },
+        "app/frontend/src/components/InformationDisplay.tsx": {
+          "sha256": "eb505b035ac95b21b62185613e19fae2b1ecf5bf5ec49b37b629642b9a4f32c2",
+          "bytes": 1344
+        },
+        "app/frontend/src/components/LegacyCcdPicker.tsx": {
+          "sha256": "e7f23f2d634f8b333efd60b34c1aff92942a4382a751cd31af551fa75dde0f5d",
+          "bytes": 516
+        },
+        "app/frontend/src/components/LegacySourcePicker.tsx": {
+          "sha256": "46377915dde78ad4f99e1161030c7fb2a5c5fd479732c62871d7b2d82b4cafac",
+          "bytes": 4959
+        },
+        "app/frontend/src/components/LegacySpectrumSurface.tsx": {
+          "sha256": "4d4197eae7c437de93087bce9841864e11f48ec8869098c3acdad78779a5b653",
+          "bytes": 6303
+        },
+        "app/frontend/src/components/LegacyViewingDesk.tsx": {
+          "sha256": "cae5400d7c46a38a41267939117b3d87a82f9d9cc5c263a5b71df52dd0225ef3",
+          "bytes": 1296
+        },
+        "app/frontend/src/components/MessagePanel.tsx": {
+          "sha256": "bc742d2958e66c7a86a681c49b492cfc22dbd42c85b7b756e0e703f3096fade4",
+          "bytes": 9950
+        },
+        "app/frontend/src/components/NumericInput.tsx": {
+          "sha256": "b0103cf0352a92ac8296b1a9414b2583c185293db853646316c1237299b81985",
+          "bytes": 5981
+        },
+        "app/frontend/src/components/ObservationToolbar.tsx": {
+          "sha256": "da5aa838ddc6f78fbf9ccadf185271c3ad2143c6775d354e8ebb2b1167a4c284",
+          "bytes": 2464
+        },
+        "app/frontend/src/components/OpenLegacyFile.tsx": {
+          "sha256": "d4bd60d1817deb759aa8498a3555e65a920fa13c0653dbf40e4ce17b94a58edd",
+          "bytes": 6025
+        },
+        "app/frontend/src/components/PageFileActions.tsx": {
+          "sha256": "054e0f8b28d98e4761113fcc942e623496bf1213f446ddb147c446ad3c3cccea",
+          "bytes": 480
+        },
+        "app/frontend/src/components/PageHeading.tsx": {
+          "sha256": "d9b9526515d56bafafe79c7dc3230d9dc40e6e3aa9c8298ab51f4244c2d2a689",
+          "bytes": 1985
+        },
+        "app/frontend/src/components/PreviewFrame.tsx": {
+          "sha256": "17d397c5be72e9dceb938dfef99522ed334af4bae6b6d833f1d068b77f90bdc4",
+          "bytes": 403
+        },
+        "app/frontend/src/components/PrintExportPanel.tsx": {
+          "sha256": "86650ae3e9f4584e9b4245540fbf8ef7a5ad9f069ccc41985d7bc4d1238f46d6",
+          "bytes": 3352
+        },
+        "app/frontend/src/components/RowSelectionArrow.tsx": {
+          "sha256": "c5581bc7d64c7d60fcb82b35eabff027bb15de2be06ad26f051e6503cac1d6b9",
+          "bytes": 245
+        },
+        "app/frontend/src/components/SectionHeading.tsx": {
+          "sha256": "738e6397435b4441b24fc2454325914f1d9ea36c0ccdacc4c0b8401c7cbeafbf",
+          "bytes": 428
+        },
+        "app/frontend/src/components/SimpleChartAxes.tsx": {
+          "sha256": "1b93ee8caaa9487ada97e036ab714a9f528590f816f2b888482bbe593676470c",
+          "bytes": 4354
+        },
+        "app/frontend/src/components/SpectroscopyIcon.tsx": {
+          "sha256": "6ebcaeeef07d205a14cfd024bb204be0ce93c06d734fa949894cb60cf95aadf3",
+          "bytes": 3933
+        },
+        "app/frontend/src/components/SpectroscopyToolButton.tsx": {
+          "sha256": "9cc5e68bf0c92d4aa2322ed90b0246b4d4e6fff1e89dbf48a8f0fa00fcc66728",
+          "bytes": 566
+        },
+        "app/frontend/src/components/SpectrumInspector.tsx": {
+          "sha256": "b6f2564ca069b082264d2ac083310a07f18cd54f984a0dee8312aa01efcc0b55",
+          "bytes": 21419
+        },
+        "app/frontend/src/components/SpectrumPlot.tsx": {
+          "sha256": "00bb673857b15bc8d0a77ff3f2fab37a8fce8a19f603ecc7bc45072aca4bea53",
+          "bytes": 14843
+        },
+        "app/frontend/src/components/SpectrumPointDetails.tsx": {
+          "sha256": "04af59c3adc7614b86e1e829c7cf138c8f22bcdab391ff7b8962b1903d615239",
+          "bytes": 9829
+        },
+        "app/frontend/src/components/SpectrumPointPanel.tsx": {
+          "sha256": "bf5ea3f4b2c90f6aed092305120a41fb3f545813e62dec3c026e5d3c2c790f9d",
+          "bytes": 3279
+        },
+        "app/frontend/src/components/WorkspaceMessages.tsx": {
+          "sha256": "0a08cdf0b7bc2b7d8004b5cbf79e0013b1b92afbb8af416596bca6fe20956a3e",
+          "bytes": 4272
+        },
+        "app/frontend/src/components/advanced-settings.css": {
+          "sha256": "126f4e084b0d6eaebdee80420e1131557c977b6ac8c4139c4e7b1a5323fbc4b0",
+          "bytes": 605
+        },
+        "app/frontend/src/components/analysisUnits.ts": {
+          "sha256": "161e98777def2d6a93c75424ab391e2d4b4b7dc57e2e72137af8e62c38ecb819",
+          "bytes": 1609
+        },
+        "app/frontend/src/components/app-icon.css": {
+          "sha256": "a09aef5f42d928915f7209f5bb5869bafd801640b8c6dc1084382778e37f4d49",
+          "bytes": 213
+        },
+        "app/frontend/src/components/calculationProfile.ts": {
+          "sha256": "2c8149328a86db0f7ffa9942d8833baf202f3d086eb89f704ddc0bdcd6f5e05f",
+          "bytes": 216
+        },
+        "app/frontend/src/components/context-menu.css": {
+          "sha256": "b5e7bbe2301132bdb09e35c9a82333a01920966867833e410d2c9d9eb088cee8",
+          "bytes": 1119
+        },
+        "app/frontend/src/components/dateFormat.ts": {
+          "sha256": "fd3d00afa212eae7c9b738dc244bcd7541cb987846bea90a6a061d4e2b84f489",
+          "bytes": 826
+        },
+        "app/frontend/src/components/eventLabels.ts": {
+          "sha256": "63184e9467b28a1486c4d6f6e38e32374a22988073a3673704f53731a1c0d282",
+          "bytes": 309
+        },
+        "app/frontend/src/components/function-icons.css": {
+          "sha256": "ef330f8d926b48b9907ce6f7c2ca5bb965d4d877926bf4a39712975bcc2f870f",
+          "bytes": 372
+        },
+        "app/frontend/src/components/legacy-viewing.css": {
+          "sha256": "504b73837b1804d772a5fca3f22dd8f8231c4bdb33a023fadde752df98f95f9e",
+          "bytes": 27482
+        },
+        "app/frontend/src/components/legacyObservation.ts": {
+          "sha256": "b87fed009b8fcee84275a6c2f1571c9cdb1f0a686c06a04e5d623f843205bebb",
+          "bytes": 1710
+        },
+        "app/frontend/src/components/legacySources.css": {
+          "sha256": "84f7bfb63673ca1affc8a3ea07acab60ce0ee65cd4e81bceb507dc12928b5ba0",
+          "bytes": 1636
+        },
+        "app/frontend/src/components/message-panel.css": {
+          "sha256": "4bf93f3408fd70ae63174c4ac4c6490899cc0db23692436435ae4f662ba108fc",
+          "bytes": 5007
+        },
+        "app/frontend/src/components/numericInputModel.ts": {
+          "sha256": "157e2ad5b0746b5223326e58c0b79c63d9d5a2a6129ea7c45ec8c14a671dc838",
+          "bytes": 1955
+        },
+        "app/frontend/src/components/observation-toolbar.css": {
+          "sha256": "de96eec7f88fe4926cf7548e17e7875b705636da571dd407c83d4e5404992c54",
+          "bytes": 4096
+        },
+        "app/frontend/src/components/open-legacy-file.css": {
+          "sha256": "983140cc71b851792c4f81e494bfd5d8482538b80101cfb8c7808331505a56ec",
+          "bytes": 1310
+        },
+        "app/frontend/src/components/page-heading.css": {
+          "sha256": "ce1c6e63d183ef2e80340eb974453a87f26fec99cb27b0cf1358d5e93d4665cf",
+          "bytes": 4951
+        },
+        "app/frontend/src/components/row-selection-arrow.css": {
+          "sha256": "7a3b25954facac3ef427f2d92cd287f9e16c060fc03a5dda9179a903fd0f49a0",
+          "bytes": 196
+        },
+        "app/frontend/src/components/section-heading.css": {
+          "sha256": "d80eaf37101e0b8767f20ec1300d79745f6c443cc934719f04f499faac2bf320",
+          "bytes": 649
+        },
+        "app/frontend/src/components/simple-chart-axes.css": {
+          "sha256": "b1019eea240825c0dd468f07814c992e0b0b77c76d9400ae7e90be2853364ec8",
+          "bytes": 2461
+        },
+        "app/frontend/src/components/spectrum-inspector.css": {
+          "sha256": "d0b28b94fc844e5fcefc5e1233347dde061dc67f4e81b6e6a9d51266f53ac387",
+          "bytes": 4626
+        },
+        "app/frontend/src/components/spectrum-point-panel.css": {
+          "sha256": "1f31a8392d4e0ee6301743f5ed21f4f2b1156b675d668b0f128e693f399316e2",
+          "bytes": 2747
+        },
+        "app/frontend/src/components/spectrumMenu.ts": {
+          "sha256": "2d2807b5fd9170330e6ddb163458ac7bc55a053918b04765d473c63855291c5c",
+          "bytes": 2137
+        },
+        "app/frontend/src/components/spectrumZoom.ts": {
+          "sha256": "9f5ed520c5e2215c3af94edb97826beffaa9b80b693ae4d095496be5f81080e4",
+          "bytes": 1587
+        },
+        "app/frontend/src/components/useFixedSpectrumView.ts": {
+          "sha256": "41bb37c4a563b5a20fc6437fc5f5f045c4fb0fc03d3c09298452a7ea55ce9fd6",
+          "bytes": 452
+        },
+        "app/frontend/src/components/useSampleGrid.ts": {
+          "sha256": "4b06e6f4f7cc3c07b7e4beb9711b12c0137545694101c3a3dbece2dd845e3f4a",
+          "bytes": 10737
+        },
+        "app/frontend/src/layout/Header.tsx": {
+          "sha256": "c057a8b183fa3d6dc87112da5d857d6c6ede0f271b9551d3cac81202013479cb",
+          "bytes": 2722
+        },
+        "app/frontend/src/layout/QuickAccessBar.tsx": {
+          "sha256": "991619d850e0f0be333a985b7e3c6b3553cfd81cadc30f3facde88656a91416c",
+          "bytes": 3659
+        },
+        "app/frontend/src/layout/Sidebar.tsx": {
+          "sha256": "03a63b25b5acfad0111ca2e4bdee7287c70d7becf650b2740ef35a2fc255b249",
+          "bytes": 10658
+        },
+        "app/frontend/src/layout/StatusPages.tsx": {
+          "sha256": "df3d18543d9e696991d73cc0daad4d0e7b1eac7c416234c82019bac0f35393e5",
+          "bytes": 1507
+        },
+        "app/frontend/src/layout/TaskLayout.tsx": {
+          "sha256": "4f39a4e72504035effb1be6979c99782d05c07d9d95372d57bf636848a84f1bb",
+          "bytes": 3026
+        },
+        "app/frontend/src/layout/WorkspaceApp.tsx": {
+          "sha256": "7bc7f43ae85ad9ae76ea0006a4dc1b8e65309386c9818e734948e247d70b7ddf",
+          "bytes": 16418
+        },
+        "app/frontend/src/layout/feedback.ts": {
+          "sha256": "2037b333e6e1fa0df6956b63abde32a4bffb66d1c47278f8547f710f2f1621d4",
+          "bytes": 1126
+        },
+        "app/frontend/src/layout/quick-access.css": {
+          "sha256": "d32f88a1b1c82a2b6c079b0903787b768d7e300ce0c15c2a8aead8c3d466abb2",
+          "bytes": 2300
+        },
+        "app/frontend/src/main.tsx": {
+          "sha256": "4cebcacf7ec036627c894e433a300ad01e5e9ef50ba27d24f33f12178c307c30",
+          "bytes": 244
+        },
+        "app/frontend/src/navigation.ts": {
+          "sha256": "0d517dfef80fc6f853bf42a12bc5b0adf3f77d402a7298bfbea138ec14e71f9f",
+          "bytes": 5911
+        },
+        "app/frontend/src/pages/about/AboutPage.tsx": {
+          "sha256": "7df4a6ab8b9fd7791722b9a7679712b57ce0f49e8206c692d9800127e45b7066",
+          "bytes": 1085
+        },
+        "app/frontend/src/pages/about/DeploymentAccess.tsx": {
+          "sha256": "acb6373e75ab8d9a824572a39653722d43ae36e25e789365725de562988b0e85",
+          "bytes": 6980
+        },
+        "app/frontend/src/pages/about/deployment-access.css": {
+          "sha256": "8cbe5f538099c04e54698321b46d6ae2de0f2918f0867459bf789274b983690c",
+          "bytes": 556
+        },
+        "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx": {
+          "sha256": "a8f6bcd56d194318cb37c9fb867e417c623375b95843a67c2b228b4fd0b92f34",
+          "bytes": 30737
+        },
+        "app/frontend/src/pages/acquisition/CaptureBandList.tsx": {
+          "sha256": "ca38bfcdf115bfacafa4b002b1e3a28a795fb17f73ef9d32cc473cedf55cb611",
+          "bytes": 2552
+        },
+        "app/frontend/src/pages/acquisition/CaptureLineBar.tsx": {
+          "sha256": "45847437810c9c1601d518cad88670d9a398a0b756bd9949dd6743da9df38e14",
+          "bytes": 6791
+        },
+        "app/frontend/src/pages/acquisition/CaptureMeasurement.tsx": {
+          "sha256": "cffe3190d6ba8416fed1a6197d512ada135cace17e5c6ab1d70b7317dc08f2c3",
+          "bytes": 6099
+        },
+        "app/frontend/src/pages/acquisition/CaptureTurnPages.tsx": {
+          "sha256": "e26e23ecb67740c4f7525e6a90e6633a164af534942c2cc774f835beef209158",
+          "bytes": 2076
+        },
+        "app/frontend/src/pages/acquisition/EvaporationAcquisitionForm.tsx": {
+          "sha256": "f67af2e2161d915df9c6031ea1a9bc537cfb699950b1a8381cecdf1b0357f65a",
+          "bytes": 517
+        },
+        "app/frontend/src/pages/acquisition/EvaporationAcquisitionPage.tsx": {
+          "sha256": "49a0ff45eec53c2ce0be7ab7f6d165f246292cb50a1044f2258d3f647f7610db",
+          "bytes": 245
+        },
+        "app/frontend/src/pages/acquisition/EvaporationCurvePlot.tsx": {
+          "sha256": "72566712d4c67271d2758e104a069bacd1fc657998db84d1d65327ed7e7b352f",
+          "bytes": 3552
+        },
+        "app/frontend/src/pages/acquisition/EvaporationCurvesPage.tsx": {
+          "sha256": "010d3187c05ebe200fb0aa1aeae8b1c5342c9d843a5d44c454f3ec13dcf120da",
+          "bytes": 2683
+        },
+        "app/frontend/src/pages/acquisition/EvaporationFrameStatistics.tsx": {
+          "sha256": "ec2156572cf3269078676298701e0ea31753f54229644068b21e85341f78383f",
+          "bytes": 3445
+        },
+        "app/frontend/src/pages/acquisition/PreliminaryCaptureFields.tsx": {
+          "sha256": "dc2f60b5862d5c96b69a9559985b6a6b84a69ae376a8be7897c2d7ef74141a92",
+          "bytes": 2449
+        },
+        "app/frontend/src/pages/acquisition/SampleAcquisitionForm.tsx": {
+          "sha256": "f8edd6137ad7ab9db3caf6a53f21f2780121fe61df64956274e7b1623cde2491",
+          "bytes": 1001
+        },
+        "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx": {
+          "sha256": "18b6cded9b401d105bca4b41e68d2daa30293af8c712cbf0c30ed07446812202",
+          "bytes": 20522
+        },
+        "app/frontend/src/pages/acquisition/SampleAcquisitionPage.tsx": {
+          "sha256": "1c104e4a3672c2d3a59f488067e7e0d1bc895da99ed8e85ec1ae4148a135afd0",
+          "bytes": 235
+        },
+        "app/frontend/src/pages/acquisition/SampleInputToolButton.tsx": {
+          "sha256": "3d818384e8f74d4f5812d4a72373445b7da224ce7bb73f82aa00a8ce4127ee6d",
+          "bytes": 665
+        },
+        "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx": {
+          "sha256": "afd0908cb1479348035aa4f07f9e8a8e462bf35cc695b8b39efdd2fe9ed1bf33",
+          "bytes": 9667
+        },
+        "app/frontend/src/pages/acquisition/SpectroscopyTaskDialog.tsx": {
+          "sha256": "b155dd912bde1743f0421a8f35e7ae4c7048ea9cee28e99cf63c7ed526c4c3f4",
+          "bytes": 2009
+        },
+        "app/frontend/src/pages/acquisition/SpectroscopyTaskList.tsx": {
+          "sha256": "8af00f64b9066c5d43d52a1365e0607b9c8bebab61d27670120f17e31e80cb18",
+          "bytes": 5808
+        },
+        "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx": {
+          "sha256": "718ffefb7e1c4c26e7011dbca7aa61d7d280c3d493f019d49ab54505f48d3bf6",
+          "bytes": 7466
+        },
+        "app/frontend/src/pages/acquisition/acquisitionView.tsx": {
+          "sha256": "ae4cc36d821c099e790ec762f7e390bcba795f1d5f801f1bd32a5e8735c1842b",
+          "bytes": 1581
+        },
+        "app/frontend/src/pages/acquisition/capture-measurement.css": {
+          "sha256": "bae786d7acc044c7375a183d896154bfbb35c0872de06efcc778a37fe4da89d2",
+          "bytes": 690
+        },
+        "app/frontend/src/pages/acquisition/capture-operation-layout.css": {
+          "sha256": "6a508940dafdc22c7c33c329bc2a9dc4299ae95bf81a46819fb14409cb779f36",
+          "bytes": 29602
+        },
+        "app/frontend/src/pages/acquisition/captureConnection.ts": {
+          "sha256": "fbff3d9d9bbd073e31307ae66d512003035df0a64eadb00cb3aa52b74dfe0817",
+          "bytes": 673
+        },
+        "app/frontend/src/pages/acquisition/legacyDesk.ts": {
+          "sha256": "e5cfacc21f58351897d0e2a665dbe31478f6571dcf8ab7208de05390f2f6243b",
+          "bytes": 117
+        },
+        "app/frontend/src/pages/acquisition/sample-acquisition.css": {
+          "sha256": "94e9875ceb888dcb2a6a82c88643739e1de1507142c881f25f89a7f965a37954",
+          "bytes": 7116
+        },
+        "app/frontend/src/pages/acquisition/spectroscopy-workbench.css": {
+          "sha256": "f27f6ab66bff9c22a004e878485008d624a6db14acaaebc2fc04324aea159645",
+          "bytes": 37637
+        },
+        "app/frontend/src/pages/acquisition/spectroscopySession.ts": {
+          "sha256": "4800fc79ef409aec57f97312106afbd65fdfac05de9c63889b0790f9ab576a83",
+          "bytes": 1275
+        },
+        "app/frontend/src/pages/analysis/AnalysisCurves.tsx": {
+          "sha256": "924e780813941a7a8828b0a28aeb5444eda1dec707490ada215d80a290282b1f",
+          "bytes": 4171
+        },
+        "app/frontend/src/pages/analysis/AnalysisDesk.tsx": {
+          "sha256": "1399aae77ab83f7e82b4725169129d8efe668e6cf670ea4d30f26696c974f7ba",
+          "bytes": 24154
+        },
+        "app/frontend/src/pages/analysis/AnalysisExposure.tsx": {
+          "sha256": "484d024358f1c6302687beaa2fc0f769a46066345f7d60d7b1a891820e208eaa",
+          "bytes": 3293
+        },
+        "app/frontend/src/pages/analysis/AnalysisIntervention.tsx": {
+          "sha256": "1569b83a1f917b03b04c9c9524bca2b0ce9c73a1bae36c6fba54924f00b81cf6",
+          "bytes": 4077
+        },
+        "app/frontend/src/pages/analysis/AnalysisPage.tsx": {
+          "sha256": "70717de83e4661e73bd6b20b5d1774e0162a2f24e7ae0592fd43c0126de88eab",
+          "bytes": 36822
+        },
+        "app/frontend/src/pages/analysis/AnalysisQuality.tsx": {
+          "sha256": "723f51d5c9331a9f62d31d02003d063385723a08cef27bde66b3c8596076ae19",
+          "bytes": 8328
+        },
+        "app/frontend/src/pages/analysis/AnalysisRawResults.tsx": {
+          "sha256": "a92bbfcf3863b9cb334efd09eb7c2447aee293c3bc16e89367878e3a20ab57f1",
+          "bytes": 1824
+        },
+        "app/frontend/src/pages/analysis/AnalysisRunForm.tsx": {
+          "sha256": "d4e17a0b0d880fb11873eb0f9a0dbc3398978c4710b2023e7a85d84e4733379a",
+          "bytes": 4826
+        },
+        "app/frontend/src/pages/analysis/AnalysisSampleNamesDialog.tsx": {
+          "sha256": "a3769b864ba5d63f91a8ac435f9a4dc12485c42d11b430c26df6264a0483ca8d",
+          "bytes": 14452
+        },
+        "app/frontend/src/pages/analysis/AnalysisSamples.tsx": {
+          "sha256": "01773b8b0e59db713c74c3fc730600e9128cbaa2db29c1dd28ecd94a034cd844",
+          "bytes": 3325
+        },
+        "app/frontend/src/pages/analysis/AnalysisSpectrum.tsx": {
+          "sha256": "ecc6fcc3cdd0dae7c94f016d6a1aaab8c3e7ed63a9c62ce1a396ae7cbc354e11",
+          "bytes": 12649
+        },
+        "app/frontend/src/pages/analysis/AnalysisStandards.tsx": {
+          "sha256": "23e1f6413be7924059181cfd2558087c4ebb3f055c2e3674d2c7956705d41280",
+          "bytes": 8609
+        },
+        "app/frontend/src/pages/analysis/CurveChart.tsx": {
+          "sha256": "3f4758ad98b7c8438e6ef3acd0cb2a85a90ca147009ea0c4440acb56e79b89d8",
+          "bytes": 6578
+        },
+        "app/frontend/src/pages/analysis/IntensityOutput.tsx": {
+          "sha256": "f5fcb11be605565f765989858d043899f47d97a9d51b97fa737c7ca18fd3202c",
+          "bytes": 4860
+        },
+        "app/frontend/src/pages/analysis/StandardCurveWorkspace.tsx": {
+          "sha256": "695a690bfe9dbc8be070ab3010eb2b6793dd53c9b82f74e7f3f50c0c6075c61b",
+          "bytes": 13653
+        },
+        "app/frontend/src/pages/analysis/analysis-desk.css": {
+          "sha256": "b3f36693880271935352387d6cdfa45b234071ff97c234bdf860edb2b95db0c7",
+          "bytes": 7856
+        },
+        "app/frontend/src/pages/analysis/analysis-workspace.css": {
+          "sha256": "4164083bd790fb345a1b0878a73190c4c4677785f377edd3fcced4b53a885921",
+          "bytes": 29729
+        },
+        "app/frontend/src/pages/analysis/analysis.css": {
+          "sha256": "95cb53d5f50ea57ac245f52756a52ddd02efc78587a5f7431626b344f3a19f22",
+          "bytes": 10627
+        },
+        "app/frontend/src/pages/analysis/analysisView.tsx": {
+          "sha256": "89632a18600d8a148b64912b4d49eb6a8f15c76a9f32b5c330d31213a65faf0e",
+          "bytes": 824
+        },
+        "app/frontend/src/pages/analysis/quality.css": {
+          "sha256": "38c761775a5b7a5b675a6569199fe7898e6e39b61d8f5293deec7262351abdd9",
+          "bytes": 7259
+        },
+        "app/frontend/src/pages/analysis/standard-curve.css": {
+          "sha256": "b52461d06620370401924e560a84d3e14c35644946aef06b933208f5fa84e872",
+          "bytes": 6677
+        },
+        "app/frontend/src/pages/auth/AuditPage.tsx": {
+          "sha256": "0d8ddda49bc8ac07f492f85f0a96d507fbd0e2687c2585811846a07fd409b681",
+          "bytes": 3026
+        },
+        "app/frontend/src/pages/auth/AuthForm.tsx": {
+          "sha256": "bcd62720e34f111d3ecea09eca6dcccc3f5b4328798e9275e8d8cd6753e5280c",
+          "bytes": 3584
+        },
+        "app/frontend/src/pages/auth/PermissionPicker.tsx": {
+          "sha256": "c09bc790de75b0bf623a5e47608b8ac21b5a13f5dd36f49afceaf4995497e558",
+          "bytes": 4603
+        },
+        "app/frontend/src/pages/auth/UsersPage.tsx": {
+          "sha256": "c1fb7031f5c5e55ff38ecb4f147d263b1a4a0e55efa46b1f44048df9ed3b8538",
+          "bytes": 13291
+        },
+        "app/frontend/src/pages/auth/permissions.css": {
+          "sha256": "78a8ed08aacfb8982896e905fe32f428f7ab50f0f4cae587459d60fc802caf96",
+          "bytes": 3060
+        },
+        "app/frontend/src/pages/devices/AcquisitionPage.tsx": {
+          "sha256": "87d8ee229a7f66e6cacc6a9e5dad2e972d5723639b3db275abc1f462c74dd73e",
+          "bytes": 11377
+        },
+        "app/frontend/src/pages/devices/AlignmentMonitor.tsx": {
+          "sha256": "3155cb07eec2e5667e473aacbd600061c78844b5d15a3cec56eff0e90d8b6d3d",
+          "bytes": 15899
+        },
+        "app/frontend/src/pages/devices/BluetoothDevicePicker.tsx": {
+          "sha256": "ac469b7b0fe8eaf3f864b3bd3a00215b7192f97e984ab6be4b8da1dfc3aa1663",
+          "bytes": 5847
+        },
+        "app/frontend/src/pages/devices/ConnectionPortSelect.tsx": {
+          "sha256": "d12cbc4bfacfea1d68b9d1b4d00430e47ccb33b6ad11cdefe466be06891b6835",
+          "bytes": 1158
+        },
+        "app/frontend/src/pages/devices/DeviceConnection.tsx": {
+          "sha256": "d9b3ec28e384f616e5e344f652a98e29822fec17009d54b600c40e8ae2b80e28",
+          "bytes": 12326
+        },
+        "app/frontend/src/pages/devices/DeviceDebugPage.tsx": {
+          "sha256": "77febdd1b69d57ae0335130f34d9f98b7de509059f79d2f91bb0ec3940cdb997",
+          "bytes": 6311
+        },
+        "app/frontend/src/pages/devices/DeviceDebugWorkbench.tsx": {
+          "sha256": "83f79a704cbae036ff6979925d8249f97f2a7ff482091bc35e90ecaa85d662db",
+          "bytes": 3549
+        },
+        "app/frontend/src/pages/devices/DeviceParameters.tsx": {
+          "sha256": "768185e6198fbb0e902947b364b9058457195193a3690a11be29073c23ccdc8b",
+          "bytes": 14726
+        },
+        "app/frontend/src/pages/devices/MercuryComparison.tsx": {
+          "sha256": "1b728c3f7e6b4a96cceed242e2923072876d0f3dcfabe9fb57c4a379af9c79f7",
+          "bytes": 11397
+        },
+        "app/frontend/src/pages/devices/MotorConnection.tsx": {
+          "sha256": "f9a9156fc6762de3fbbe4ebd0b7cebb6f147067532620a2f977dae5fbc364589",
+          "bytes": 7517
+        },
+        "app/frontend/src/pages/devices/SoftwareParameters.tsx": {
+          "sha256": "0b3d676f442924fab531e816bf8d4fd49940068d8d5ccc53929e40b50d54fdf8",
+          "bytes": 3939
+        },
+        "app/frontend/src/pages/devices/acquisition.css": {
+          "sha256": "c061c411a798ac8e9e6ee2bd47847c082e2ba00fe4f48286659cb53797eaf274",
+          "bytes": 6998
+        },
+        "app/frontend/src/pages/devices/alignment-monitor.css": {
+          "sha256": "cfb4f02a674e65358a44039665557d632198bf3157cc9a773680ee3668f1265d",
+          "bytes": 7170
+        },
+        "app/frontend/src/pages/devices/alignmentView.ts": {
+          "sha256": "c7e19d5120cb191be133778122384f474b62c0e0b668cb29f50696264ced0175",
+          "bytes": 1825
+        },
+        "app/frontend/src/pages/devices/device-connection.css": {
+          "sha256": "738532e1ce2669072e3d7a4c4a8094937b2062f9186c3aa796866a84235c792f",
+          "bytes": 3384
+        },
+        "app/frontend/src/pages/devices/device-debug-workbench.css": {
+          "sha256": "42e1f3664c4b03ed028a06a60a5615a46ac08c7ff1906178cddbf1b71222f7be",
+          "bytes": 5780
+        },
+        "app/frontend/src/pages/devices/device-debug.css": {
+          "sha256": "a068c8356a12302fc83d4a3cf64c85d390b1f53edba4c468c27532c8c4920d4a",
+          "bytes": 4245
+        },
+        "app/frontend/src/pages/dispersion/DispersionCurveDialog.tsx": {
+          "sha256": "393249e452bc9b7f26cef491cca437c821f76d9de0c283799c7f601edda6745e",
+          "bytes": 12032
+        },
+        "app/frontend/src/pages/dispersion/DispersionMonitor.tsx": {
+          "sha256": "92789d7372b1428011d1259988ee744b85f4428bf252b5b5a37aa3358b8524cc",
+          "bytes": 11986
+        },
+        "app/frontend/src/pages/dispersion/DispersionPage.tsx": {
+          "sha256": "cc9ea710b2a16572e0a7abf05c300b1fb293dbed677eb6389154146c5ef447e3",
+          "bytes": 38853
+        },
+        "app/frontend/src/pages/dispersion/DispersionSetup.tsx": {
+          "sha256": "62310e75cbf3711f686b1955531d752ed67005f9c64ea3c73f35661cbefb8b2d",
+          "bytes": 347
+        },
+        "app/frontend/src/pages/dispersion/DispersionSpectrum.tsx": {
+          "sha256": "2a3fe18c7e6dd8e0ab36a89e2ded3cb4c77a99b3a0ee04ee0512fec10cb2cc70",
+          "bytes": 10430
+        },
+        "app/frontend/src/pages/dispersion/dispersion-curve-dialog.css": {
+          "sha256": "ac7b7dfd16e9df4b2d1be84229a2e2a95d98f812d778c905b55b5333780565d7",
+          "bytes": 7330
+        },
+        "app/frontend/src/pages/dispersion/dispersion.css": {
+          "sha256": "89456a8757af18bbc2530e94dbe0dbb11516f1bab343591259297766e4216588",
+          "bytes": 8290
+        },
+        "app/frontend/src/pages/dispersion/dispersionView.tsx": {
+          "sha256": "01e738c9cd3b17eca7c65f1e33767d9d4c0bd87d6c0f2401a2f02a20d0f1f139",
+          "bytes": 2915
+        },
+        "app/frontend/src/pages/extensions/ExtensionPage.tsx": {
+          "sha256": "3dd1b6fc815afb99337d64caf26d39f2297de1dab5752378505c92d6a67640e4",
+          "bytes": 1460
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx": {
+          "sha256": "2df354a2fe41e9476a4d24183b14d863bfefe98bc71cae77b8d236beba4cbc36",
+          "bytes": 9315
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx": {
+          "sha256": "948e0b6adf46865d2b00d4565ab9e4cabb4ecc735018dae2c775518357c0636f",
+          "bytes": 7226
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx": {
+          "sha256": "6395e751ff391cf860e606634b6736eea92cfca6f4de4223eb7f628a1a363f3e",
+          "bytes": 15896
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPlan.tsx": {
+          "sha256": "beb611d9ed4b5acd26c8dedda1d6c81eca1d3239512534bfdbfa5a214d2051f1",
+          "bytes": 1746
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareAnalysisSamplePanel.tsx": {
+          "sha256": "29b805eafc2b9432e034eba5f9b4ba9e1e18101e7c369be2c21a23688109a888",
+          "bytes": 2823
+        },
+        "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx": {
+          "sha256": "8b7fa8aefee7ca8409a74e28e8367cf35ce2df90a242205fc6f08d96c99959da",
+          "bytes": 4932
+        },
+        "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css": {
+          "sha256": "2e1581664f925dc4c966cb3f064c574cc89ed29666231a6caf48b590f418a993",
+          "bytes": 14308
+        },
+        "app/frontend/src/pages/hardwareAcquisition/hardwareView.tsx": {
+          "sha256": "808767fad8eb2a18ec84932c6c53fd896072f10e0f6c3dd4f7991ccc8a1efbc1",
+          "bytes": 1661
+        },
+        "app/frontend/src/pages/help/HelpArticle.tsx": {
+          "sha256": "078dd3e63dd370affd8ae97ed7dfc59309456755f1fc03b62debaf01fa1b94ca",
+          "bytes": 5491
+        },
+        "app/frontend/src/pages/help/HelpPage.tsx": {
+          "sha256": "d4a8b714f468a6520f75d2970926630d48d4c134bbece1cf05b55082efbfdb59",
+          "bytes": 4646
+        },
+        "app/frontend/src/pages/help/help.css": {
+          "sha256": "935c086fb91d4fa5c592e1f276b0ecbc94f18b008df1284a92fcbb045f5e3172",
+          "bytes": 3697
+        },
+        "app/frontend/src/pages/help/helpIllustrations.ts": {
+          "sha256": "23ab14380743665e172765e0770e196a9fab78c0658940c715f4b8c130946fd0",
+          "bytes": 1132
+        },
+        "app/frontend/src/pages/maintenance/MaintenancePage.tsx": {
+          "sha256": "b71d34cdada525706c82543209ea52e49fc5c0df2189c01d9a875cc0b0cfdc67",
+          "bytes": 5665
+        },
+        "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationForm.tsx": {
+          "sha256": "ebc6d55455bcb6b2a017b8ec5eb34c40cd9679f0f4bf867250e8a3ad611e141a",
+          "bytes": 6294
+        },
+        "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationMonitor.tsx": {
+          "sha256": "5d7fb97fd1f2f4b7f10d296ed2c642a922b6a3804cce8416042d5282b46a45e4",
+          "bytes": 5570
+        },
+        "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationPage.tsx": {
+          "sha256": "4656f80531864a8a2495b082267bf0bae3324a1dbd0440d117cee6e3d166054a",
+          "bytes": 14953
+        },
+        "app/frontend/src/pages/mercuryCalibration/MercuryCalibrationResults.tsx": {
+          "sha256": "2a2cb1df0573233dbb8a26e9d8ac81eedaf00845ab23f8e11d1a0bb54bb784f7",
+          "bytes": 1726
+        },
+        "app/frontend/src/pages/mercuryCalibration/mercury-calibration.css": {
+          "sha256": "a9120ce6d9a6aa25718f7e13b3b90f4b1a6a6642cb85bf0bca3fde0cf3c1baad",
+          "bytes": 6939
+        },
+        "app/frontend/src/pages/mercuryCalibration/mercuryView.tsx": {
+          "sha256": "e55c7297bfec05e8024cfbc6219d157ccd012c0f2fc534c32933682a74b83f64",
+          "bytes": 748
+        },
+        "app/frontend/src/pages/methods/MethodAngles.tsx": {
+          "sha256": "71c13fb049f37dfafa9198b368fca3cd7ba89f6f78e67a48cd4548c0bd27559e",
+          "bytes": 3116
+        },
+        "app/frontend/src/pages/methods/MethodExcitation.tsx": {
+          "sha256": "3e5a1106c9311632de58d6fc16afb084d93dc7679e2cc30294d890daa1f8e37d",
+          "bytes": 2781
+        },
+        "app/frontend/src/pages/methods/MethodGeometry.tsx": {
+          "sha256": "0e0f57087d88e69100ffeb65acd38fe0cd7fbccb4ce5e38830fc35fb0b4bb736",
+          "bytes": 4744
+        },
+        "app/frontend/src/pages/methods/MethodIdentity.tsx": {
+          "sha256": "b485b14900fa50bc8814b9f7d5a7bef97c1f3342777eceab9a9244f3baf7aefc",
+          "bytes": 1493
+        },
+        "app/frontend/src/pages/methods/MethodPrintPanel.tsx": {
+          "sha256": "371e4111b8e19b5ba34adc61c28dccce56b3b87ed24688e3a01abce3caa00227",
+          "bytes": 16938
+        },
+        "app/frontend/src/pages/methods/MethodQuality.tsx": {
+          "sha256": "860c660851fbf9bd4d98a7cdb1ffd82326ef86615789d2c5b2c69de5ea071848",
+          "bytes": 3084
+        },
+        "app/frontend/src/pages/methods/MethodsPage.tsx": {
+          "sha256": "e49033b9ab4607f51da399d17f946e7ddbe73ef745c60e3687e08e95647697e3",
+          "bytes": 24782
+        },
+        "app/frontend/src/pages/methods/NumberField.tsx": {
+          "sha256": "65ce22b5d3cb1a6b0f6bc57717115ae5540cdf8d64fdb797491badb76b4e4111",
+          "bytes": 724
+        },
+        "app/frontend/src/pages/methods/OpenMethodDialog.tsx": {
+          "sha256": "2f02366e69ce26b9b20d669679658d640ca8946907428bde89aa4adcdc940ae3",
+          "bytes": 3162
+        },
+        "app/frontend/src/pages/methods/SpectralLineEditor.tsx": {
+          "sha256": "9308c5571444dccd8ae4330c40c0dd3a139576f30167d09928e5b9f694bd1e09",
+          "bytes": 23364
+        },
+        "app/frontend/src/pages/methods/SpectralLineList.tsx": {
+          "sha256": "444e8fd026fbcf81ced7cc64230e5be9b798d7516dcc4250e8baa00683968220",
+          "bytes": 3180
+        },
+        "app/frontend/src/pages/methods/SpectralLinesPanel.tsx": {
+          "sha256": "01cf5c6d9e8714db2dcc5340aa49dbe3a19d8098dabdb90153b5bf959573b398",
+          "bytes": 11701
+        },
+        "app/frontend/src/pages/methods/methodShortcuts.ts": {
+          "sha256": "0a8831f5de7d5d8cfbbfd0018c9f0ea74c3b3e8f65ef083c1f42c569fc178f36",
+          "bytes": 147
+        },
+        "app/frontend/src/pages/methods/methods.css": {
+          "sha256": "ee05dbf9842b49e86a22b6331c49e9c6152f98d98fb9cae6afc6925fcdc05e38",
+          "bytes": 23230
+        },
+        "app/frontend/src/pages/methods/spectralLineDraft.tsx": {
+          "sha256": "1c14dced6ec36e0f72558cba3d8e9cade09f0c399aeed84aaedb8eb39f175570",
+          "bytes": 1717
+        },
+        "app/frontend/src/pages/migration/LegacyMigrationPage.tsx": {
+          "sha256": "d5b3987941f3e197b1a6c8ac82e827ab51e806a9a5c176be86bc23d70a6f4049",
+          "bytes": 14506
+        },
+        "app/frontend/src/pages/migration/MigrationCheckList.tsx": {
+          "sha256": "37fad308f719416f2e4e7d4f2e2be5672f47b6f6c71526d954f6ad597bc6e46c",
+          "bytes": 814
+        },
+        "app/frontend/src/pages/migration/MigrationWorkspace.tsx": {
+          "sha256": "3eda2157db8d508a898e8ff8adb53bd35946f99476915d4f4470436558b02471",
+          "bytes": 2700
+        },
+        "app/frontend/src/pages/migration/ResultMigrationPage.tsx": {
+          "sha256": "2a8549b1176bd8b643974b1b19cfd78202407ed351caacf00cc36535be551dee",
+          "bytes": 11777
+        },
+        "app/frontend/src/pages/migration/SpectrumMigrationPage.tsx": {
+          "sha256": "42294f02f8d658823f8b9daaaf753154dbf0b5a01d715e5d2809e6e538ea98bb",
+          "bytes": 12346
+        },
+        "app/frontend/src/pages/migration/migration.css": {
+          "sha256": "5617ccbe007ac2067d739de3d9aaa77635163dd557c8cd5168adca34d1e79e27",
+          "bytes": 9347
+        },
+        "app/frontend/src/pages/postprocessing/AnalysisIntensityOutput.tsx": {
+          "sha256": "ebb5774d97a1518d655268ffb330aeb3f8787f5223bef75e7df06e571896f5f4",
+          "bytes": 7877
+        },
+        "app/frontend/src/pages/postprocessing/DataProcessingPage.tsx": {
+          "sha256": "3f558926d97af9f1458d58e64d30a643728db1cdd07037f21581572d89a7796a",
+          "bytes": 4469
+        },
+        "app/frontend/src/pages/postprocessing/FullTimeExportPanel.tsx": {
+          "sha256": "73bbfcee879ef47ad7ff496e6119ed5f996eedc6afad7147309678296c0017e8",
+          "bytes": 5712
+        },
+        "app/frontend/src/pages/postprocessing/IntensityExportPanel.tsx": {
+          "sha256": "8681124637acc70a7a3d40b431d176e6d5889e2abc7b64e1d18c43d8aee44680",
+          "bytes": 1949
+        },
+        "app/frontend/src/pages/postprocessing/PostProcessingPage.tsx": {
+          "sha256": "61f67101c4e6d65750322cd57d6f17b32ff5a75e68ef7f295ed0efc48f371d82",
+          "bytes": 26134
+        },
+        "app/frontend/src/pages/postprocessing/PreparedImportPage.tsx": {
+          "sha256": "e0b0cdb871f677da7205c1979f85321747e10377472a809bcdf828cde21f228d",
+          "bytes": 14099
+        },
+        "app/frontend/src/pages/postprocessing/data-processing.css": {
+          "sha256": "d7160e342f28c4c35af33c0e40c082fd1c8ccd95ffab6a57b3a0a2732adf1b6b",
+          "bytes": 3869
+        },
+        "app/frontend/src/pages/postprocessing/formatting.ts": {
+          "sha256": "aad10ebfbdeb6c3514382b3c6b18b7535fbf037e91355c6706f49ddce69366f1",
+          "bytes": 378
+        },
+        "app/frontend/src/pages/postprocessing/postprocessing.css": {
+          "sha256": "9d7b3d0cb0a9790e13d4c8c23d74fa8500580009387e3e062be99b26886b12d5",
+          "bytes": 11623
+        },
+        "app/frontend/src/pages/postprocessing/prepared-import.css": {
+          "sha256": "64f1bf67a22063d377efbf039c7a9d3ee00f85c3451956b242e1aa4e7fa4261b",
+          "bytes": 3868
+        },
+        "app/frontend/src/pages/reports/ReportBuilder.tsx": {
+          "sha256": "6b91f7bec1dd3598a4ac78eff28d0d237e0420865e590eb41f9f95a97d5d0b88",
+          "bytes": 5889
+        },
+        "app/frontend/src/pages/reports/ReportExportPanel.tsx": {
+          "sha256": "f8361483abd711712a7ae4dff117ed8cfdc08419b14b9a3530577becde0e6aa9",
+          "bytes": 1135
+        },
+        "app/frontend/src/pages/reports/ReportOutput.tsx": {
+          "sha256": "537d20c9c7472ad797fa071678f8407c2c1fce1586c16700bcb3ff057f427605",
+          "bytes": 4848
+        },
+        "app/frontend/src/pages/reports/ReportsPage.tsx": {
+          "sha256": "5435e2f25d9a0f30b24e2e3f9bb6d05abca0a0c960ce318f4d286c1d99e808f2",
+          "bytes": 7731
+        },
+        "app/frontend/src/pages/sampleQueues/SampleNumberTable.tsx": {
+          "sha256": "e55a7dabf849cb5e198b210cb695a4177fc7694c4e524ffe59e68fe3a99d8d34",
+          "bytes": 10956
+        },
+        "app/frontend/src/pages/sampleQueues/SampleQueuePage.tsx": {
+          "sha256": "7b22dd49e4787fd4a7f217a89467484ea5cd21d83271055e825ceb070f5d8f07",
+          "bytes": 20269
+        },
+        "app/frontend/src/pages/sampleQueues/sample-queue.css": {
+          "sha256": "477004b6160e450a81f6ca7100d9d6912a5e05885bdea06b8d07b1e6758f54cf",
+          "bytes": 6953
+        },
+        "app/frontend/src/pages/sampleQueues/useSamImport.tsx": {
+          "sha256": "466a8db352d16ed874d44ccdaf3c66d079232160c08419b6c989bbff977946ba",
+          "bytes": 2834
+        },
+        "app/frontend/src/pages/spectra/LegacySpectrumViewerPage.tsx": {
+          "sha256": "70ab25cb6ec9196bc2019f6d99cd8efb31286bb1f90e6bb160242c6e1079028d",
+          "bytes": 19947
+        },
+        "app/frontend/src/pages/spectra/SpectrumRecordList.tsx": {
+          "sha256": "0d5531d9f4fdef842be96e9f68a8b7a63382416af4c6aa9a01542771cd628410",
+          "bytes": 7249
+        },
+        "app/frontend/src/pages/spectra/SpectrumViewToolbar.tsx": {
+          "sha256": "5c195ee563d398b688eddd22c6002d4715b2ca9077f5db7ad5fa00c600bcc4e7",
+          "bytes": 3183
+        },
+        "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx": {
+          "sha256": "84aa6abb90b5faa110455d90620247c53ccfec481215b667934b28711465667d",
+          "bytes": 56483
+        },
+        "app/frontend/src/pages/spectra/ViewerDialog.tsx": {
+          "sha256": "4f1e4f0c7e7a9ece0feb4665a3730d01c5da1a5b7403c51684cd2cf90173d69c",
+          "bytes": 638
+        },
+        "app/frontend/src/pages/spectra/spectrum-viewer.css": {
+          "sha256": "51bc0a93bcb1910e254dcc1ae2c6ea96784a1b3f16114412b8d4ce474fa92f11",
+          "bytes": 10188
+        },
+        "app/frontend/src/pages/workspace/WorkspacePage.tsx": {
+          "sha256": "9114a2d3b37dd8dc6cac5309a0b3da766a49d58caf047369e3eb79ee5b3f044f",
+          "bytes": 10521
+        },
+        "app/frontend/src/platform/bluetooth.ts": {
+          "sha256": "0dbaf8191a0024df91816f4ad2b865d9849b2dd6f318f756c9cce7936a712bef",
+          "bytes": 358
+        },
+        "app/frontend/src/platform/clipboard.ts": {
+          "sha256": "8c4160a1b3aae218dbd40a3a5f3f1fc947d2d00349303db7c4a83fb941e58b1a",
+          "bytes": 602
+        },
+        "app/frontend/src/platform/dialogs.ts": {
+          "sha256": "bd95730b45a70ed25440c262a6ad076f37151116edd70d9e836b006282205c52",
+          "bytes": 422
+        },
+        "app/frontend/src/platform/files.ts": {
+          "sha256": "87560c342e5576caba23edfa1d008078cfd970b1a0ab31c069b0c7fd8da2dc19",
+          "bytes": 1985
+        },
+        "app/frontend/src/platform/runtime.ts": {
+          "sha256": "e21c31a1dd528b8073a43563af393e973089d18c540162a32a259c22b9f49bba",
+          "bytes": 823
+        },
+        "app/frontend/src/styles/dialog-layout.css": {
+          "sha256": "ae52efb9c502afb6fd0cedf508835b79405c6378c1cecb247123740684fb070d",
+          "bytes": 6212
+        },
+        "app/frontend/src/styles/global.css": {
+          "sha256": "91d04504194542f4483ae0725b73ee86218388bf9ddcd6bb26fd0386091fe71b",
+          "bytes": 54852
+        },
+        "app/frontend/src/styles/index.ts": {
+          "sha256": "bbfaa412ba6ef29372e46f80d512e372e8e071f8f8f9b4d3a6df5944fe76889a",
+          "bytes": 1184
+        },
+        "app/frontend/src/styles/page-actions.css": {
+          "sha256": "3baada1c9bb981d8bd3776006a644b6e61f143fb6675fd918bae488ee4037df0",
+          "bytes": 2878
+        },
+        "app/frontend/src/styles/remaining-pages.css": {
+          "sha256": "3ea0d125935a4587fb97e51c9ee5ee1659392a27b0e536836fd9b3b394c70efc",
+          "bytes": 23855
+        },
+        "app/frontend/src/styles/text-selection.css": {
+          "sha256": "992483fd46d631085f84b3d784b5787e788886e99b2bbd9840653ccf7cb71ae1",
+          "bytes": 73
+        },
+        "app/frontend/src/styles/visual-refinement.css": {
+          "sha256": "5914c90c040e12e66ebf71b73f8d91199c0eba826f3d2452cc17f79659093407",
+          "bytes": 30585
+        },
+        "app/frontend/src/vite-env.d.ts": {
+          "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+          "bytes": 38
+        },
+        "app/frontend/tsconfig.json": {
+          "sha256": "b6d5d5044392331b0f29e15fe09e72c5df3f8f5346cc01505529533e126b2671",
+          "bytes": 527
+        },
+        "app/frontend/vite.config.ts": {
+          "sha256": "0e9aeb07c814e8134eac6b6b2bbae79f9d5855aa8f47182e75da926eca06e66a",
+          "bytes": 532
+        },
+        "app/package-lock.json": {
+          "sha256": "eeb0827c9b4cff2f0cafff2f8af503ea983d9887c0fb4fdea6245088d9a94778",
+          "bytes": 7442
+        },
+        "app/package.json": {
+          "sha256": "9c78fdd936e4f600f67ab5197624a9c70add8c5c37e3f92aeec1564572749d36",
+          "bytes": 814
+        },
+        "app/src-tauri/Cargo.lock": {
+          "sha256": "3397e55afb5eafeed21816eca9cb933fc564b4b2aece36e48ef45ca10b738496",
+          "bytes": 124097
+        },
+        "app/src-tauri/Cargo.toml": {
+          "sha256": "3f3ffe21c0371661436a885d5701f2884178fc905463494ee566e27205171f04",
+          "bytes": 512
+        },
+        "app/src-tauri/build.rs": {
+          "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+          "bytes": 39
+        },
+        "app/src-tauri/capabilities/default.json": {
+          "sha256": "854cd2d61e414bcddac3e4bcead36b6d1c8e273af649e3c104d8ae1fa8deb9f0",
+          "bytes": 365
+        },
+        "app/src-tauri/gen/schemas/acl-manifests.json": {
+          "sha256": "2a4748317c0ab859659e2c017f63f65b619c6dffd4de51c15334c9970d3970f6",
+          "bytes": 73725
+        },
+        "app/src-tauri/gen/schemas/capabilities.json": {
+          "sha256": "90230746f50d5bf74464bb892fc1af164a8d7e33272747858424d1695eef6aad",
+          "bytes": 288
+        },
+        "app/src-tauri/gen/schemas/desktop-schema.json": {
+          "sha256": "0b57b9068cc886bd9a2bd3b5d8cc58d85298398b94a69f546ed2d87e9dfc39d9",
+          "bytes": 137527
+        },
+        "app/src-tauri/gen/schemas/windows-schema.json": {
+          "sha256": "0b57b9068cc886bd9a2bd3b5d8cc58d85298398b94a69f546ed2d87e9dfc39d9",
+          "bytes": 137527
+        },
+        "app/src-tauri/icons/128x128.png": {
+          "sha256": "040e9f78e6bd874bd27f9d1804eab2ae9e7c50b171fc4a8c031916fbd4f605de",
+          "bytes": 19563
+        },
+        "app/src-tauri/icons/128x128@2x.png": {
+          "sha256": "357144e8be3d27409e14c07a7567156176c22425d7dc46f6ccb0bf4e63a7e565",
+          "bytes": 61768
+        },
+        "app/src-tauri/icons/32x32.png": {
+          "sha256": "159e80195ef351dec1ec3e87434c7119c9fa0eb9c85eec3fb19c21ab82786048",
+          "bytes": 2088
+        },
+        "app/src-tauri/icons/icon.ico": {
+          "sha256": "ca94fd9e7271e8225389fe1b856cd242fe65b0c8ad752e6d52334ed6f6965962",
+          "bytes": 112086
+        },
+        "app/src-tauri/icons/icon.png": {
+          "sha256": "201b7163243e4b13b6f7e4c469b6711756a073e1389cd104f76bde15749d27c5",
+          "bytes": 208318
+        },
+        "app/src-tauri/src/main.rs": {
+          "sha256": "5cfc97e64450a53a8bc8d4797e76d6c902da8290f8d247eaff99afcc1f54f358",
+          "bytes": 23624
+        },
+        "app/src-tauri/src/open_location.rs": {
+          "sha256": "4a6ef03e68946f4b3b6e6debdf034fcf061880c84d5a96b34c3fd405eaaded4e",
+          "bytes": 2756
+        },
+        "app/src-tauri/tauri.conf.json": {
+          "sha256": "610dc5e0b3b51c0daac1ab399bc9223a3d0bd1e28f075e7adbe68a0660d04e38",
+          "bytes": 1666
+        }
+      }
+    },
+    "manifest": {
+      "sha256": "f8e0c72db6eb416f3ee1484c6aef6d2857dd039405d7723d13d1c42827f03e54",
+      "count": 1,
+      "inputs": {
+        "app/manifest.generated.json": {
+          "sha256": "d1eafdd1104460dd111fbb38d4864fa8a0fa127ae4bc57b31d7a3fc69bb783c3",
+          "bytes": 36950
+        }
+      }
+    }
+  }
+}

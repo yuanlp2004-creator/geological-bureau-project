@@ -13,7 +13,7 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
   nameLength: 10 | 12 | 20
   onDelete: (id: number) => Promise<void>
   onEdit: (id: number, name: string) => Promise<void>
-  onPaste: (changes: Array<{ position: number; name: string }>) => Promise<void>
+  onPaste: (changes: Array<{ position: number; name: string }>, action: 'paste' | 'fill') => Promise<void>
   onEditingChange: (editing: boolean) => void
   busy: boolean
   initialSelectedId?: number
@@ -51,6 +51,16 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
   const selectedOffset = selectedPosition >= start && selectedPosition < start + pageSize ? selectedPosition - start : 0
   const selected = items[start + selectedOffset]
   const locked = busy || deleting || editingId !== null
+  const applyCells = async (matrix: string[][], origin: SampleCell, action: 'paste' | 'fill') => {
+    const position = positionFor(origin)
+    const changes = action === 'paste' && matrix.every(row => row.length === 1)
+      ? matrix.map(([name], offset) => ({ position: position + offset, name }))
+      : samplePasteCells(matrix, origin, ROWS, columns).map(cell => ({ position: positionFor(cell), name: cell.name }))
+    if (changes.some(cell => cell.position >= MAX_ITEMS)) throw new Error('队列最多可录入 1000 条样号。')
+    setEditError('')
+    scrollRef.current?.focus({ preventScroll: true })
+    await onPaste(changes, action)
+  }
   const grid = useSampleGrid({
     active: { row: selectedOffset % ROWS, column: Math.floor(selectedOffset / ROWS) },
     disabled: locked,
@@ -61,16 +71,8 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
       setEditError('')
     },
     read: cell => items[positionFor(cell)]?.pre_name ?? '',
-    onPaste: async (matrix, origin) => {
-      const position = positionFor(origin)
-      const changes = matrix.every(row => row.length === 1)
-        ? matrix.map(([name], offset) => ({ position: position + offset, name }))
-        : samplePasteCells(matrix, origin, ROWS, columns).map(cell => ({ position: positionFor(cell), name: cell.name }))
-      if (changes.some(cell => cell.position >= MAX_ITEMS)) throw new Error('队列最多可录入 1000 条样号。')
-      setEditError('')
-      scrollRef.current?.focus({ preventScroll: true })
-      await onPaste(changes)
-    },
+    onPaste: (matrix, origin) => applyCells(matrix, origin, 'paste'),
+    onFill: (matrix, origin) => applyCells(matrix, origin, 'fill'),
     onError: setEditError,
   })
   useEffect(()=>onSelectionChange?.(selected?.id??null),[selected?.id,onSelectionChange])
@@ -135,7 +137,8 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
             const cell = { row, column: col }
             const position = positionFor(cell)
             const item = items[position]
-            return <td key={col}>{item && editingId === item.id ? <input ref={inputRef}
+            const fill = grid.fillHandle(cell)
+            return <td key={col} data-sample-fill-preview={grid.isFilling(cell) || undefined}>{item && editingId === item.id ? <input ref={inputRef}
               className="sample-number-edit" aria-label={`修改样号 ${item.position + 1}`} value={draftName}
               aria-invalid={!!editError} aria-describedby={editError ? 'sample-name-edit-error' : undefined}
               disabled={saving} onChange={event => setDraftName(event.target.value)}
@@ -143,7 +146,7 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
                 if (event.nativeEvent.isComposing) return
                 if (event.key === 'Enter') { event.preventDefault(); void saveEdit() }
                 if (event.key === 'Escape' && !savingRef.current) { event.preventDefault(); finishEdit() }
-              }} /> : position < MAX_ITEMS ? <button type="button" className="sample-number-cell" {...grid.cellProps(cell)}
+            }} /> : position < MAX_ITEMS ? <><button type="button" className="sample-number-cell" {...grid.cellProps(cell)}
               data-sample-id={item?.id} data-sample-position={item ? position + 1 : undefined}
               aria-label={item ? `样品 ${position + 1}：${item.pre_name || '空样'}` : `样号位置 ${position + 1}（空位置）`}
               title={item ? `第 ${position + 1} 项：${item.pre_name || '空样'}` : undefined}
@@ -153,7 +156,8 @@ export function SampleNumberTable({ items, nameLength, onDelete, onEdit, onPaste
                 if (item && event.key === 'F2') { event.preventDefault(); beginEdit(item) }
               }}>
               {item && <strong>{item.pre_name || '空样'}</strong>}
-            </button> : <span className="sample-number-empty" aria-label="空位置" />}</td>
+            </button>{fill && <button type="button" className="sample-fill-handle" tabIndex={-1}
+              title="拖动填充样号" aria-label="拖动填充样号" {...fill} />}</> : <span className="sample-number-empty" aria-label="空位置" />}</td>
           })}
         </tr>)}</tbody>
       </table>

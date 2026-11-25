@@ -1,0 +1,289 @@
+{
+  "status": "passed",
+  "date": "2026-11-05",
+  "plan_sha256": "0a758d4dd4771b6ad71f1ef605f8bf33d7604b662389c92a0e48d2280e8b7c73",
+  "backend_tests": {
+    "passed": 101,
+    "failed": 0
+  },
+  "frontend_tests": {
+    "passed": 20,
+    "failed": 0
+  },
+  "navigation_tests": {
+    "passed": 1,
+    "failed": 0
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "独立工具入口、当前文件全选反选及越界区间拒绝",
+      "真实均值转换、失败保留草稿、同请求幂等重试及右侧结果",
+      "输出样品集直接打开查看谱图并含两条样品",
+      "同名目标取消、追加与替换，结果列表即时同步",
+      "全时格式切换清目标、区间逐帧转换及色散工作副本保存",
+      "重新计算独立保留，已移除EDT折叠区及打开蒸发文件入口",
+      "recalculation has no EDT UI or data loading; selected exact-version batch remains exportable",
+      "无额外即时测量请求"
+    ],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "viewport": 1440,
+        "scroll": 1440,
+        "panels": [
+          {
+            "width": 469,
+            "height": 348
+          },
+          {
+            "width": 469,
+            "height": 348
+          }
+        ]
+      },
+      {
+        "width": 1060,
+        "height": 740,
+        "viewport": 1060,
+        "scroll": 1060,
+        "panels": [
+          {
+            "width": 318,
+            "height": 348
+          },
+          {
+            "width": 318,
+            "height": 348
+          }
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "独立工具入口、当前文件全选反选及越界区间拒绝",
+      "真实均值转换、失败保留草稿、同请求幂等重试及右侧结果",
+      "输出样品集直接打开查看谱图并含两条样品",
+      "同名目标取消、追加与替换，结果列表即时同步",
+      "全时格式切换清目标、区间逐帧转换及色散工作副本保存",
+      "重新计算独立保留，已移除EDT折叠区及打开蒸发文件入口",
+      "无额外即时测量请求"
+    ],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "viewport": 1440,
+        "scroll": 1440,
+        "panels": [
+          {
+            "width": 469,
+            "height": 348
+          },
+          {
+            "width": 469,
+            "height": 348
+          }
+        ]
+      },
+      {
+        "width": 1060,
+        "height": 740,
+        "viewport": 1060,
+        "scroll": 1060,
+        "panels": [
+          {
+            "width": 310,
+            "height": 348
+          },
+          {
+            "width": 310,
+            "height": 348
+          }
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "native_windows_button_verified": true,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "73ad6de38821dde4f914d6ec9568ce6b3ff790b3516642fcdef389d2533677b8",
+      "after_sha256": "6be09303e15309d6dec9ebff4778860489f30ac48240cfc470b847aad2c705a0"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "78dfca1e1103ad1dc628b27ccf199665d46ae3b75facbcc336b472d36e0cf573",
+      "after_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed"
+    }
+  },
+  "production_qa_product_sources_identical": true,
+  "production_upgrade": {
+    "status": "passed",
+    "automatic_upgrade_observed": true,
+    "backup": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\backups\\pre-upgrade-v27-to-v28-20261105T093718Z-2255ad00.sqlite3",
+    "original_schema": 27,
+    "current_schema": 28,
+    "unchanged_tables": {
+      "device_profiles": {
+        "count": 2,
+        "sha256": "91751d6a9df79a4f231130efb845ab54e7580835309f7a4afc87569026b625c7"
+      },
+      "device_runtime_state": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sample_queue_runtime_state": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "methods": {
+        "count": 20,
+        "sha256": "95aacbdb68f4072931535925d8817e06898392ba6ae32450222fa1ce9e53a1fc"
+      },
+      "method_versions": {
+        "count": 35,
+        "sha256": "9912a5f035368e1c54faf45a1d3831b1471afed2d7b51946e7c34d8288f6be3e"
+      },
+      "sample_queues": {
+        "count": 4,
+        "sha256": "8339f3d11cb41a38e481e51655c6a8e20f07469019e4d784327c92deb1e2ca7b"
+      },
+      "sample_queue_items": {
+        "count": 907,
+        "sha256": "1f0c91afa78b181413a32e09028c8e94f23b57b06893fa9263d8bbc190f2e003"
+      },
+      "app_settings": {
+        "count": 1,
+        "sha256": "63185fc1bc3f40055593d3a577fedf9f71a90b59765aed10f9651bf737819be2"
+      },
+      "acquisition_tasks": {
+        "count": 22,
+        "sha256": "6164d3525e245383fe9b1cf10bd9b9dce94207a79b23030b398eb118cb7a1855"
+      },
+      "acquisition_samples": {
+        "count": 40,
+        "sha256": "3f258c03ebf343b2968028552448cd3baaf6f9ebf5f4a414e49f3545cfd6e9f5"
+      },
+      "acquisition_sample_bands": {
+        "count": 195,
+        "sha256": "15aae8a83a842cd538e770927f78ce982a2ab7bcdc5674de1ee49626113bc0aa"
+      },
+      "dispersion_tasks": {
+        "count": 11,
+        "sha256": "9f117f6a9b00c428af72921e348f1045f66431a77840da21d4a9a2c2073bb533"
+      },
+      "dispersion_task_frames": {
+        "count": 315,
+        "sha256": "ff96f3b091d02515ef691ae43e9058395f868e26c421daf0a2300f364c216519"
+      },
+      "spectrum_bands": {
+        "count": 2548,
+        "sha256": "9b786f8ff3bf0ef5de4c156eb47531ef5c5af727c3e072c679df32e9cb98cc40"
+      },
+      "postprocessing_conversion_runs": {
+        "count": 1,
+        "sha256": "6b6079740bba4235555f4af16314108fb05e7c36870d123cbe8242d4f2c3077d"
+      },
+      "postprocessing_recalculation_runs": {
+        "count": 1,
+        "sha256": "f779c19552cc3495d3ec1eb0a4aeb70c1bd145d4c40878984acbb209e3b65d42"
+      }
+    }
+  },
+  "copy_integrity": {
+    "status": "passed",
+    "source": "C:\\Users\\Leo\\AppData\\Local\\cn.geospectrum.desktop\\geospectrum.sqlite3",
+    "original_schema": 28,
+    "upgraded_schema": 28,
+    "unchanged_tables": {
+      "device_profiles": {
+        "count": 2,
+        "sha256": "91751d6a9df79a4f231130efb845ab54e7580835309f7a4afc87569026b625c7"
+      },
+      "device_runtime_state": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sample_queue_runtime_state": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "methods": {
+        "count": 20,
+        "sha256": "95aacbdb68f4072931535925d8817e06898392ba6ae32450222fa1ce9e53a1fc"
+      },
+      "method_versions": {
+        "count": 35,
+        "sha256": "9912a5f035368e1c54faf45a1d3831b1471afed2d7b51946e7c34d8288f6be3e"
+      },
+      "sample_queues": {
+        "count": 4,
+        "sha256": "8339f3d11cb41a38e481e51655c6a8e20f07469019e4d784327c92deb1e2ca7b"
+      },
+      "sample_queue_items": {
+        "count": 907,
+        "sha256": "1f0c91afa78b181413a32e09028c8e94f23b57b06893fa9263d8bbc190f2e003"
+      },
+      "app_settings": {
+        "count": 1,
+        "sha256": "63185fc1bc3f40055593d3a577fedf9f71a90b59765aed10f9651bf737819be2"
+      },
+      "acquisition_tasks": {
+        "count": 22,
+        "sha256": "6164d3525e245383fe9b1cf10bd9b9dce94207a79b23030b398eb118cb7a1855"
+      },
+      "acquisition_samples": {
+        "count": 40,
+        "sha256": "3f258c03ebf343b2968028552448cd3baaf6f9ebf5f4a414e49f3545cfd6e9f5"
+      },
+      "acquisition_sample_bands": {
+        "count": 195,
+        "sha256": "15aae8a83a842cd538e770927f78ce982a2ab7bcdc5674de1ee49626113bc0aa"
+      },
+      "dispersion_tasks": {
+        "count": 11,
+        "sha256": "9f117f6a9b00c428af72921e348f1045f66431a77840da21d4a9a2c2073bb533"
+      },
+      "dispersion_task_frames": {
+        "count": 315,
+        "sha256": "ff96f3b091d02515ef691ae43e9058395f868e26c421daf0a2300f364c216519"
+      },
+      "spectrum_bands": {
+        "count": 2548,
+        "sha256": "9b786f8ff3bf0ef5de4c156eb47531ef5c5af727c3e072c679df32e9cb98cc40"
+      },
+      "postprocessing_conversion_runs": {
+        "count": 1,
+        "sha256": "6b6079740bba4235555f4af16314108fb05e7c36870d123cbe8242d4f2c3077d"
+      },
+      "postprocessing_recalculation_runs": {
+        "count": 1,
+        "sha256": "f779c19552cc3495d3ec1eb0a4aeb70c1bd145d4c40878984acbb209e3b65d42"
+      }
+    }
+  },
+  "review": {
+    "pid": 44192,
+    "cdp": "http://127.0.0.1:54880",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-05-prepared-import\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\prepared-import-review-20261105",
+    "retained_for_review": true
+  },
+  "compatibility": {
+    "legacy_files": "read-only",
+    "output": "native persistent sample collections",
+    "dispersion": "native source-hash working copy",
+    "replacement": "updates collection members; historical acquisitions retained"
+  },
+  "cleanup": {
+    "temporary_directory_deletion": "blocked by automatic approval review",
+    "reason": "blocked by policy; no more specific reason supplied",
+    "retained": "ignored app/.local diagnostics and runtime copies",
+    "development_servers": "stopped",
+    "native_review_window": "retained with required backend"
+  }
+}

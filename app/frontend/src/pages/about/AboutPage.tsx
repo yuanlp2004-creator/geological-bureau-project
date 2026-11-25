@@ -1,7 +1,9 @@
 import { AppIcon } from '../../components/AppIcon'
 import { type About } from '../../api'
+import { ActivationPanel, SupportPanel } from './DeploymentAccess'
+import './deployment-access.css'
 
-export function AboutPage({ about }: { about: About | null }) {
+export function AboutPage({ about, token, permissions }: { about: About | null; token: string; permissions: string[] }) {
   return (
     <div className="page-content about-page refined-page remaining-page" data-testid="about-software">
       <section className="surface about-software-card">
@@ -14,6 +16,8 @@ export function AboutPage({ about }: { about: About | null }) {
           <div><dt>版权</dt><dd>{about?.copyright ?? '—'}</dd></div>
         </dl>
       </section>
+      {permissions.includes('activation.manage') && <ActivationPanel token={token} />}
+      {permissions.includes('support.manage') && <SupportPanel token={token} />}
     </div>
   )
 }

@@ -1,0 +1,289 @@
+{
+  "status": "passed",
+  "groups": {
+    "top": [
+      {
+        "name": "sample-input",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "reference-correction",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "line-correction",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "measure",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "pause",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": true
+      },
+      {
+        "name": "close",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      }
+    ],
+    "rail": [
+      {
+        "name": "sample-list-input",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "sample-list-clear",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "record-lock",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      }
+    ],
+    "observation": [
+      {
+        "name": "previous-band",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": true
+      },
+      {
+        "name": "next-band",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "previous-ccd",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": true
+      },
+      {
+        "name": "next-ccd",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": true
+      },
+      {
+        "name": "select-ccd",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "crosshair",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "box-zoom",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "pan",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "fit",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "scale-1",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "scale-4",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "scale-10",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "zoom-x-in",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "zoom-x-out",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "zoom-y-in",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "zoom-y-out",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "reset-y",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      },
+      {
+        "name": "print",
+        "intrinsic": [
+          256,
+          256
+        ],
+        "rendering": "auto",
+        "disabled": false
+      }
+    ]
+  },
+  "lockedIcons": [
+    {
+      "name": "sample-list-input",
+      "intrinsic": [
+        256,
+        256
+      ],
+      "rendering": "auto",
+      "disabled": false
+    },
+    {
+      "name": "sample-list-clear",
+      "intrinsic": [
+        256,
+        256
+      ],
+      "rendering": "auto",
+      "disabled": false
+    },
+    {
+      "name": "record-unlock",
+      "intrinsic": [
+        256,
+        256
+      ],
+      "rendering": "auto",
+      "disabled": false
+    }
+  ],
+  "checks": [
+    "图标资源与顺序",
+    "可用和禁用状态",
+    "锁定与解锁",
+    "横向放大与适合图像"
+  ]
+}

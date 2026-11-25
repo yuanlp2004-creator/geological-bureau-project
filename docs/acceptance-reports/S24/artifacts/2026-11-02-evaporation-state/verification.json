@@ -1,0 +1,913 @@
+{
+  "status": "passed",
+  "date": "2026-11-02",
+  "plan_sha256": "aacb35959a4dd29e7ff758d33809a51dbe301ecdc504c1c641d9cd3a22221302",
+  "root_cause": "Warm-up task 9 remained in burn after formal task 8 was started while warm-up was active; selected completed task differed from the task holding the navigation lock.",
+  "changes": [
+    "Block new start/preheat while a task is active",
+    "Keep selected controls on the active task",
+    "Align readouts and wrap complete fields",
+    "Correct mean-band label and warm-up completion feedback"
+  ],
+  "tests": {
+    "build": "TypeScript/Vite production build passed",
+    "frontend_unit": 20,
+    "backend_legacy_capture": 5,
+    "browser": {
+      "status": "passed",
+      "checks": [
+        "预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持",
+        "每次点击只完成一次重复，等待时不自动激发；二次手动摄谱完成并关联队列，下一样品不自动启动",
+        "蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验",
+        "重新进入时显示遗留预热任务，可停止并结束；已保存正式谱带哈希保持，随后可切换色散摄谱",
+        "色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集",
+        "帧响应延迟时停止仍可收尾，原始帧保留，停止后没有自动继续"
+      ],
+      "layouts": [
+        {
+          "name": "sample-preheat",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1875,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-preheat",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-preheat",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1875,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1875,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "dispersion-preheat-toolbar",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "formalToolbar": [
+            {
+              "name": "增加谱线",
+              "x": 4,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "删除谱线",
+              "x": 28,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "校正谱线",
+              "x": 540.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "拟合曲线",
+              "x": 564.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "关闭摄谱工作台",
+              "x": 601.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            }
+          ],
+          "preheatToolbar": [
+            {
+              "name": "增加谱线",
+              "x": 4,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "删除谱线",
+              "x": 28,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "校正谱线",
+              "x": 540.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "拟合曲线",
+              "x": 564.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "关闭摄谱工作台",
+              "x": 601.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            }
+          ]
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1875,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false
+        }
+      ],
+      "errors": []
+    },
+    "frozen_desktop": {
+      "status": "passed",
+      "checks": [
+        "预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持",
+        "每次点击只完成一次重复，等待时不自动激发；二次手动摄谱完成并关联队列，下一样品不自动启动",
+        "蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验",
+        "重新进入时显示遗留预热任务，可停止并结束；已保存正式谱带哈希保持，随后可切换色散摄谱",
+        "色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集",
+        "帧响应延迟时停止仍可收尾，原始帧保留，停止后没有自动继续"
+      ],
+      "layouts": [
+        {
+          "name": "sample-preheat",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1953125,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-preheat",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-preheat",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置--",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带0 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果预热完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1953125,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "sample-waiting",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果未完成",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1953125,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "evaporation-completed",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false,
+          "readouts": [
+            {
+              "text": "峰值 / 位置10,069.5 / 663",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "虚拟时间2000 ms",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "均值谱带5 个",
+              "baselineOffset": 0,
+              "inside": true
+            },
+            {
+              "text": "结果已收尾",
+              "baselineOffset": 0,
+              "inside": true
+            }
+          ]
+        },
+        {
+          "name": "dispersion-preheat-toolbar",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "formalToolbar": [
+            {
+              "name": "增加谱线",
+              "x": 4,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "删除谱线",
+              "x": 28,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "校正谱线",
+              "x": 540.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "拟合曲线",
+              "x": 564.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "关闭摄谱工作台",
+              "x": 601.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            }
+          ],
+          "preheatToolbar": [
+            {
+              "name": "增加谱线",
+              "x": 4,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "删除谱线",
+              "x": 28,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "校正谱线",
+              "x": 540.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "拟合曲线",
+              "x": 564.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            },
+            {
+              "name": "关闭摄谱工作台",
+              "x": 601.671875,
+              "y": 7,
+              "width": 24,
+              "height": 24
+            }
+          ]
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 1440,
+          "height": 1000,
+          "theme": "light",
+          "control_width": 189.1953125,
+          "right": 1379,
+          "bottom": 919,
+          "overflow": false
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 1060,
+          "height": 680,
+          "theme": "dark",
+          "control_width": 163,
+          "right": 1011,
+          "bottom": 619,
+          "overflow": false
+        },
+        {
+          "name": "dispersion-completed",
+          "width": 2560,
+          "height": 1200,
+          "theme": "light",
+          "control_width": 205,
+          "right": 2173.5,
+          "bottom": 1119,
+          "overflow": false
+        }
+      ],
+      "errors": []
+    },
+    "regression_before": {
+      "status": "failed_as_expected",
+      "message": "预热尚未结束时不能启动正式蒸发摄谱: false !== true"
+    }
+  },
+  "recovery": {
+    "sourceData": "D:\\地质局\\app\\.local\\runtime\\dispersion-layout-review-20261101",
+    "parent": {
+      "id": 8,
+      "status": "completed",
+      "result_sha256": "b60117b7164a5be24f3975a109f217fe4d59e6edb8ff07cd99d41b3505b437b5",
+      "samplesUnchanged": true
+    },
+    "warmup": {
+      "id": 9,
+      "transport": "simulator",
+      "before": "burn",
+      "after": "stopped"
+    }
+  },
+  "deployment": {
+    "files": {
+      "GeoSpectrum.exe": "959b4529edefb8d0cc1b1e14f40b6956d5d7eae131c0c0c3c41b7d65a0505e99",
+      "geospectrum-backend.exe": "c1c8035169345d0b4bfd4f648f7db77e5d6a77b75e973ed1627b2ab0ed504b7b"
+    },
+    "backendUnchanged": true,
+    "sourcesMatchQA": true,
+    "frontendMatchesQA": true,
+    "installerRebuilt": false
+  },
+  "review": {
+    "windowRetained": true,
+    "backendRetained": true,
+    "page": "蒸发摄谱",
+    "task": 8,
+    "status": "completed",
+    "finishEnabled": true,
+    "preheatEnabled": true,
+    "orphanWarmup": "stopped",
+    "savedResultUnchanged": true,
+    "deviceConnected": false,
+    "mercurySafe": true,
+    "nativeFinishReturnedToTaskList": true,
+    "nativeReopenedSavedSpectrum": true,
+    "finalReadouts": [
+      {
+        "text": "峰值 / 位置11,437 / 663",
+        "offset": 0
+      },
+      {
+        "text": "虚拟时间4000 ms",
+        "offset": 0
+      },
+      {
+        "text": "均值谱带5 个",
+        "offset": 0
+      },
+      {
+        "text": "结果已收尾",
+        "offset": 0
+      }
+    ]
+  },
+  "limits": [
+    "Simulator software verification; existing real-device/protocol/signature gates remain",
+    "Installer not rebuilt"
+  ],
+  "harness_notes": [
+    "Added explicit wait for resumed capture workspace",
+    "Updated obsolete delete-button name to current approved label without changing assertions",
+    "Removed QA hide-window invocation rather than widening ACL",
+    "One local GET polling request had a transient fetch failure; unchanged assertions passed on rerun"
+  ]
+}

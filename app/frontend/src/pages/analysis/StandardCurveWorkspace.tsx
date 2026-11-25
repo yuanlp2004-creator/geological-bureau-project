@@ -175,6 +175,12 @@ export function StandardCurveWorkspace({
           </output>
           <CurveChart snapshot={fitForChart} lineLabel={label} unit={line.unit} points={points}
             logarithmic={logarithmic} legacy={legacy} selectedPoint={selectedPoint} onSelectPoint={setSelectedPoint}
+            onAdjustPoint={canEdit ? (index, intensity) => {
+              const adjusted = points.find(item => item.point_index === index)
+              if (!adjusted || adjusted.adjusted_intensity === intensity) return
+              adjust({ action: 'adjust', point_index: index, adjusted_intensity: intensity,
+                reason: `鼠标拖动调整标准点 ${adjusted.name} 强度` }, '标准点修正已保存，请重新拟合')
+            } : undefined}
             onPointContext={(event, index) => { setSelectedPoint(index); menu.open(event, index) }} />
         </div>
       </div>

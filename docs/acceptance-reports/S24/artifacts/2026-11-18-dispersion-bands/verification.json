@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "Completed native band names appear once in record order, including records beyond the first 200 tasks",
+    "Preheat leaves the saved band list intact, locks browsing during acquisition and keeps the completed preview visible",
+    "Click and previous/next buttons select complete bands with correct boundary states and preserve all frame hashes",
+    "A completed formal acquisition appends exactly one named band and selects it, while drafts, stopped tasks and preheat stay excluded",
+    "All 120 WDT bands keep their original names and order, file groups stay separate and the historical source hash matches"
+  ],
+  "errors": [],
+  "frontend_sha256": "c3da6f2e2f6d964970232887113c5bb2a5c01c454b803ebe12ffea3a2147629c",
+  "previous_frontend_sha256": "3512e4a242f33cc0e53191fd65aaa465b945db03c39a5139f6b4664ee908b122",
+  "backend_sha256": "a2fc382e37ae2fba023ada9f2f4b5b484e9a4bab446640580546b084497ddcaf",
+  "plan_sha256": "8bf8a96290964de31353ade9d0c737174965e57753619d80b192d3aea5c5b630"
+}

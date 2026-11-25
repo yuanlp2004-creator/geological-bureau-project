@@ -112,8 +112,10 @@ export async function checkLegacyDispersion(page,fixture,result,output) {
   assert.equal(savedMethod.version.conditions.ccd_layout_id,version.ccd_layout_id)
   assert.deepEqual(await call(page,`/api/v1/methods/${fixture.method_id}`),originalMethod)
   check('保存后的曲线可在真实方法参数中选用并保存确切布局与系数，原方法保持')
+  const captureTask = await call(page, '/api/v1/dispersion/tasks', { name: '色散摄谱拟合窗口验收', ccd_indices: [0],
+    lines: [100, 200, 300, 400].map((point, index) => ({ element: 'Fe', wavelength_nm: 250 + index * 2, ccd_index: 0, actual_position: point })) })
   await go('capture')
-  const taskButton=host.locator(`[data-task-id="${task.id}"] button`)
+  const taskButton=host.locator(`[data-task-id="${captureTask.id}"]`).getByRole('button', { name: '进入摄谱', exact: true })
   if(await host.getAttribute('data-stage')==='tasks') {await taskButton.waitFor();await taskButton.click()}
   dialog=await open()
   assert.equal(await host.locator('.capture-processing').count(),0)

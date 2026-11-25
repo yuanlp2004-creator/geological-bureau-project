@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "label": "谱图查看",
+      "original": "1-18",
+      "updated": "2-3",
+      "submit": "Enter",
+      "viewport": [
+        1060,
+        720
+      ],
+      "requests": 1
+    },
+    {
+      "label": "色散曲线",
+      "original": "1-18",
+      "updated": "3-3",
+      "submit": "Tab",
+      "viewport": [
+        1060,
+        720
+      ],
+      "requests": 1
+    },
+    {
+      "label": "蒸发曲线",
+      "original": "1-18",
+      "updated": "2-4",
+      "submit": "Enter",
+      "viewport": [
+        1060,
+        720
+      ],
+      "requests": 1
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "date": "2026-10-26",
+  "execution_plan_sha256": "94daaaa28a34a2ebac453e238f5d3c6dbac22828f64717776f0ad4c4aaeb240d",
+  "scope": "S10/S12/S13/S24 existing legacy viewers; no new step",
+  "checks": {
+    "browser": {
+      "status": "passed",
+      "checks": 11,
+      "layouts": 6
+    },
+    "desktop": {
+      "status": "passed",
+      "checks": 11,
+      "layouts": 6
+    },
+    "capture-regression": {
+      "status": "passed",
+      "checks": 5,
+      "layouts": 9
+    },
+    "legacy-desktop": {
+      "status": "passed",
+      "checks": 5,
+      "layouts": 9
+    }
+  },
+  "backend_tests": {
+    "selected_suite": 33,
+    "legacy_query_and_display_recheck": 4,
+    "status": "passed"
+  },
+  "frontend_tests": {
+    "count": 16,
+    "status": "passed"
+  },
+  "builds": {
+    "sidecar": "passed",
+    "production": "passed",
+    "qa": "passed",
+    "source_and_frontend_match": true,
+    "sidecar_health": "ok",
+    "schema": 23,
+    "sidecar_cleaned_up": true
+  },
+  "wdt_D13_9_maximum": 14894.388671875,
+  "source_integrity": {
+    "wdt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "records": 120
+    },
+    "cmt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+      "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "records": 960
+    },
+    "edt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120
+    }
+  },
+  "historical_pas_dfm_files_unchanged": 106,
+  "root_and_app_inventory_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "3eade35b7239019f8a10ae86f0c9fb6a7935814890f6899caa56edc3d68a8bba",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "previous_pair_backup": "app/.local/diagnostics/legacy-viewer-20261026/before/",
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "limitations": [
+    "Hardware/protocol, physical printing, signature, clean Windows and formal acceptance gates remain open.",
+    "New navigation and themes are retained; this is not a full-window pixel-identical legacy clone."
+  ]
+}

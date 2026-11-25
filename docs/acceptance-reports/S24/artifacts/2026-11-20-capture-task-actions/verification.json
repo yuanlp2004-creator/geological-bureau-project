@@ -1,0 +1,30 @@
+{
+  "upgrade": {
+    "from": 31,
+    "to": 32,
+    "checked_tables": [
+      "acquisition_frames",
+      "acquisition_sample_bands",
+      "acquisition_samples",
+      "acquisition_tasks",
+      "acquisition_turn_bands",
+      "analysis_run_samples",
+      "dispersion_calibration_versions",
+      "dispersion_task_frames",
+      "dispersion_tasks",
+      "spectrum_bands"
+    ],
+    "row_counts_match": true,
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "desktop": {
+    "checks": [
+      "色散摄谱完成任务准确跳转，草稿和完成行都显示对齐的垃圾桶，取消和确认均通过",
+      "样品摄谱完成任务准确跳转，草稿和完成行都显示对齐的垃圾桶，取消和确认均通过",
+      "蒸发摄谱完成任务准确跳转，草稿和完成行都显示对齐的垃圾桶，取消和确认均通过",
+      "旧 WDT 直接选中所点的非首谱带，删除对应任务保留原文件全部谱带"
+    ],
+    "errors": []
+  }
+}

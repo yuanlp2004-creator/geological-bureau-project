@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { api, saveFile } from '../../api'
-import type { AnalysisRepeatDefaults, AnalysisSampleNumber } from '../../api/analysis'
+import type { AnalysisRepeatDefaults, AnalysisSampleFileFormat, AnalysisSampleNumber } from '../../api/analysis'
+import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { readSampleClipboard, sampleClipboardHint, samplePasteCells, useSampleGrid, type SampleCell, type SampleMatrix } from '../../components/useSampleGrid'
 import { ViewerDialog } from '../spectra/ViewerDialog'
 import { useSamImport } from '../sampleQueues/useSamImport'
@@ -35,11 +36,13 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
   const [entries, setEntries] = useState(initialEntries)
   const [index, setIndex] = useState(Math.min(initialEntries.length, Math.max(0, capacity - 1)))
   const [draft, setDraft] = useState(() => editorValue(initialEntries, index, sampleRepeats))
+  const [repeatEditorVersion, setRepeatEditorVersion] = useState(0)
   const [dirty, setDirty] = useState(false)
   const [menu, setMenu] = useState(false)
   const [fileBusy, setFileBusy] = useState(false)
   const { importSam, samPreview } = useSamImport()
   const [error, setError] = useState('')
+  const form = useRef<HTMLFormElement>(null)
   const input = useRef<HTMLInputElement>(null)
   const file = useRef<HTMLInputElement>(null)
   const grid = useRef<HTMLDivElement>(null)
@@ -64,6 +67,7 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
     setEntries(next)
     setIndex(target)
     setDraft(editorValue(next, target, sampleRepeats))
+    setRepeatEditorVersion(version => version + 1)
     setDirty(false)
     setMenu(false)
     setError('')
@@ -84,6 +88,7 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
 
   const setEntry = () => {
     const name = draft.name.trim()
+    if (name && !reportInvalidNumericInput(form.current)) return null
     if (name && (draft.repeats < 1 || draft.repeats > 10 || !Number.isInteger(draft.repeats))) {
       setError('有效样号的重复摄谱次数须为 1 至 10 的整数。')
       return null
@@ -155,17 +160,19 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
     else setError('保存样号失败，请重试。')
   }
 
-  const openSam = async (selected: File) => {
-    if (selected.size > 70_000) {
+  const openSampleFile = async (selected: File) => {
+    const workbook = /\.xlsx$/i.test(selected.name)
+    if (selected.size > (workbook ? 5_000_000 : 70_000)) {
       setError('样号文件过大。')
       return
     }
     setFileBusy(true)
     try {
       const bytes = new Uint8Array(await selected.arrayBuffer())
-      const result = await importSam(selected.name, encoding => api.readAnalysisSampleNumbers(token, bytes, encoding))
+      const result = workbook ? await api.readAnalysisSampleNumbers(token, bytes, undefined, 'xlsx')
+        : await importSam(selected.name, encoding => api.readAnalysisSampleNumbers(token, bytes, encoding))
       if (!result) return
-      const next = result.entries.map(entry => entry.repeats ? entry : { name: '', repeats: 0 })
+      const next = workbook ? result.entries : result.entries.map(entry => entry.repeats ? entry : blankEntry())
       if (next.some(entry => !entry.name && entry.repeats > 0)) {
         setError('样号文件含有未填写编号的重复记录。')
         return
@@ -178,11 +185,11 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
     }
   }
 
-  const saveSam = async () => {
+  const saveSampleFile = async (format: AnalysisSampleFileFormat) => {
     setFileBusy(true)
     setError('')
     try {
-      await saveFile(await api.writeAnalysisSampleNumbers(token, entries), '样品号.sam')
+      await saveFile(await api.writeAnalysisSampleNumbers(token, entries, format), `样品号.${format}`)
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : '无法保存样号文件。')
     } finally {
@@ -191,7 +198,7 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
   }
 
   return <><ViewerDialog title="输入样号" onClose={onClose}>
-    <form className="analysis-numbering" noValidate onSubmit={(event) => void confirm(event)}>
+    <form ref={form} className="analysis-numbering" noValidate onSubmit={(event) => void confirm(event)}>
       <div className="analysis-numbering-toolbar" aria-label="样号录入工具">
         <label>样号输入
           <input ref={input} aria-label="样号输入" value={draft.name} maxLength={20} disabled={locked}
@@ -199,7 +206,9 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
               const name = event.target.value
               const trimmed = name.trim()
               const repeats = !trimmed || /^[,./]/.test(trimmed) ? 0 : repeatsFor(trimmed)
-              setDraft({ name, repeats }); setDirty(true)
+              setDraft({ name, repeats })
+              setRepeatEditorVersion(version => version + 1)
+              setDirty(true)
             }}
             onPaste={event => {
               const text = event.clipboardData.getData('text/plain')
@@ -222,23 +231,34 @@ export function AnalysisSampleNamesDialog({ token, initialEntries, capacity, rep
             }} />
         </label>
         <label>重复摄谱
-          <input type="number" min="1" max="10" step="1" aria-label="重复摄谱"
+          <NumericInput key={repeatEditorVersion} min={1} max={10} step={1} stepWithArrows aria-label="重复摄谱"
             value={draft.repeats} disabled={locked || !draft.name.trim() || command}
-            onChange={(event) => { setDraft({ ...draft, repeats: Number(event.target.value) }); setDirty(true) }}
+            onInput={() => setDirty(true)}
+            onValueChange={(repeats) => {
+              if (repeats === draft.repeats) return
+              setDraft({ ...draft, repeats })
+              setDirty(true)
+            }}
             onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                onClose()
+                return
+              }
               if (event.key !== 'Enter') return
               event.preventDefault()
               const next = setEntry()
               if (next) move(next, index + 1)
             }} />
         </label>
-        <input ref={file} hidden type="file" accept=".sam" onChange={(event) => {
+        <input ref={file} hidden type="file" accept=".xlsx,.sam" onChange={(event) => {
           const selected = event.target.files?.[0]
           event.target.value = ''
-          if (selected) void openSam(selected)
+          if (selected) void openSampleFile(selected)
         }} />
         <button type="button" disabled={locked} onClick={() => file.current?.click()}>打开样品号</button>
-        <button type="button" disabled={locked || !entries.length} onClick={() => void saveSam()}>保存样品号</button>
+        <button type="button" disabled={locked || !entries.length} onClick={() => void saveSampleFile('xlsx')}>导出 Excel</button>
+        <button type="button" disabled={locked || !entries.length} onClick={() => void saveSampleFile('sam')}>保存样品号</button>
         <button type="submit" disabled={locked}>确定</button>
         <button type="button" disabled={locked} onClick={onClose}>退出</button>
       </div>

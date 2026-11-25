@@ -9,10 +9,13 @@ from ..schemas.devices import (
     DeviceConnectRequest,
     DevicePortSelection,
     DeviceDebugStartRequest,
+    DeviceDebugTurnRequest,
 )
 from ..auth import Session
 from ..modules.devices import DeviceError
 from ..modules.devices.ports import available_serial_ports, validate_bluetooth_binding
+from ..modules.devices.motor_turn import MotorBinding, motor_binding
+from ..modules.methods import MethodDomainError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission, require_session
 
@@ -71,6 +74,8 @@ def test_device_connection(profile_id: int, purpose: str = "devices",
     if purpose not in permissions or permissions[purpose] not in session.permissions:
         raise HTTPException(status_code=403, detail="permission denied")
     try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前摄谱，再测试串口", status_code=409)
         if purpose == 'devices':
             return runtime.devices_service().test_connection(profile_id, actor_user_id=session.user_id)
         return runtime.devices_service().test_connection(profile_id, actor_user_id=session.user_id, handoff=True)
@@ -110,6 +115,28 @@ def get_device_profile(
 ) -> dict[str, Any]:
     try:
         return runtime.devices_service().profile(profile_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@router.get("/api/v1/devices/profiles/{profile_id}/motor-binding", tags=["devices"])
+def get_motor_binding(profile_id: int, _: Session = Depends(require_permission("devices.read")), *,
+                      runtime: Runtime = Depends(get_runtime)) -> MotorBinding | None:
+    try:
+        runtime.devices_service().profile(profile_id)
+        return motor_binding(runtime.database, profile_id)
+    except DeviceError as exc:
+        raise device_error(exc) from exc
+
+
+@router.put("/api/v1/devices/profiles/{profile_id}/motor-binding", tags=["devices"])
+def update_motor_binding(profile_id: int, payload: MotorBinding, session: Session = Depends(require_permission("devices.write")), *,
+                         runtime: Runtime = Depends(get_runtime)) -> MotorBinding:
+    try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前采集，再修改电机绑定", status_code=409)
+        runtime.devices_service().update_motor_binding(profile_id, payload, session.user_id)
+        return payload
     except DeviceError as exc:
         raise device_error(exc) from exc
 
@@ -162,8 +189,29 @@ def device_diagnostics(
     _: Session = Depends(require_permission("devices.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
     current = runtime.devices_service()
-    return {"profiles": current.profiles(), "adapter": current.adapter.diagnostics(),
+    return {"profiles": current.profiles(), "adapter": current.diagnostics(),
             "active_captures": runtime.active_serial_captures()}
+
+
+@router.get("/api/v1/devices/debug/turn", tags=["devices"])
+def debug_turn_state(_: Session = Depends(require_permission("devices.read")), *,
+                     runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        return runtime.devices_service().turn_state(runtime.methods_service().current_working_angles())
+    except (DeviceError, MethodDomainError) as exc:
+        raise HTTPException(exc.status_code, detail=exc.detail()) from exc
+
+
+@router.post("/api/v1/devices/debug/turn", tags=["devices"])
+def switch_debug_angle(payload: DeviceDebugTurnRequest, session: Session = Depends(require_permission("devices.execute")), *,
+                       runtime: Runtime = Depends(get_runtime)) -> dict:
+    try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前摄谱，再切换调试转角", status_code=409)
+        return runtime.devices_service().switch_debug_angle(payload.profile_id, payload.angle_deg,
+                                                             runtime.methods_service().current_working_angles(), session.user_id)
+    except (DeviceError, MethodDomainError) as exc:
+        raise HTTPException(exc.status_code, detail=exc.detail()) from exc
 
 
 @router.post("/api/v1/devices/connect", tags=["devices"])
@@ -174,6 +222,8 @@ def connect_device(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前摄谱，再连接调试设备", status_code=409)
         return runtime.messages.device(runtime.devices_service().connect(payload.profile_id, actor_user_id=session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc
@@ -184,6 +234,8 @@ def disconnect_device(
     session: Session = Depends(require_permission("devices.execute")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
     try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前摄谱，再断开设备", status_code=409)
         return runtime.messages.device(runtime.devices_service().disconnect(actor_user_id=session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc
@@ -197,6 +249,8 @@ def start_device_debug(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
+        if runtime.active_serial_captures():
+            raise DeviceError("device_busy", "请先停止当前摄谱，再开始设备调试", status_code=409)
         return runtime.messages.device(runtime.devices_service().start_debug(payload.model_dump(), actor_user_id=session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc

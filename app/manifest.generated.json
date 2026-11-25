@@ -59,17 +59,25 @@
       "route": "/about",
       "enabled": true,
       "permissions": [
-        "about.read"
+        "about.read",
+        "activation.manage",
+        "support.manage"
       ],
       "audit_actions": [
-        "about.view"
+        "about.view",
+        "activation.install",
+        "support.open",
+        "support.refresh",
+        "support.close"
       ],
       "dependencies": [
         "core"
       ],
       "capabilities": [
         "about",
-        "capabilities"
+        "capabilities",
+        "offline-activation",
+        "support-diagnostics"
       ],
       "navigation_entries": [
         {
@@ -77,11 +85,13 @@
           "group": "help",
           "section_label": "",
           "label": "关于软件",
-          "description": "软件名称、版本和版权",
+          "description": "版本、激活与支持诊断",
           "page": "about",
           "order": 20,
           "required_any": [
-            "about.read"
+            "about.read",
+            "activation.manage",
+            "support.manage"
           ],
           "view": null,
           "status": "normal",
@@ -350,7 +360,9 @@
         "sample_queue.update",
         "sample_queue.rename",
         "sample_queue.sam_import",
-        "sample_queue.sam_export"
+        "sample_queue.sam_export",
+        "sample_queue.xlsx_import",
+        "sample_queue.xlsx_export"
       ],
       "dependencies": [
         "core",
@@ -545,6 +557,7 @@
         "device.connection_test.failed",
         "device.disconnect",
         "device.debug.start",
+        "device.debug.turn",
         "device.debug.failed",
         "device.debug.step",
         "device.debug.stop",
@@ -959,6 +972,7 @@
         "analysis.curve.print",
         "analysis.observation.print",
         "analysis.observation.export",
+        "analysis.sample_numbers.xlsx_export",
         "analysis.intensity.output"
       ],
       "dependencies": [

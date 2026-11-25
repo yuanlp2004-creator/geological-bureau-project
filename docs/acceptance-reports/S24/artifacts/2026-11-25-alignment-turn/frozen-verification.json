@@ -1,0 +1,126 @@
+{
+  "status": "passed",
+  "checks": [
+    "调试对中保留三路和共用工具，移除整组汞灯专用操作",
+    "两种窗口下三路空态等比居中，原网格与绘图区共用同一尺寸",
+    "冻结 sidecar 对未连接切角返回 409，当前角继续为空",
+    "切角成功经冻结 sidecar 确认，拒绝未配置角与错档案时保留上次确认角",
+    "实时观察中切到第二转角，随后曲线帧带新角度，仍在同一调试会话且未生成样品或谱图",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, keyboard panning without a slider, pixel scales, box zoom and reset",
+    "冻结审阅窗口留在调试对中，模拟器已停止断开"
+  ],
+  "errors": [],
+  "evidence": {
+    "firstReceipt": {
+      "profile_id": 1,
+      "angles": [
+        4,
+        17
+      ],
+      "simulated": true,
+      "current_angle_deg": 4,
+      "moving": false
+    },
+    "secondReceipt": {
+      "profile_id": 1,
+      "angles": [
+        4,
+        17
+      ],
+      "simulated": true,
+      "current_angle_deg": 17,
+      "moving": false
+    },
+    "disconnected": {
+      "status": 409,
+      "code": "device_not_connected"
+    },
+    "invalid": {
+      "status": 409,
+      "code": "device_angle_unavailable"
+    },
+    "foreign": {
+      "status": 409,
+      "code": "device_not_connected"
+    },
+    "emptyGeometry": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "labels": [
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 1064,
+            "dx": 0,
+            "dy": 0
+          },
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 1064,
+            "dx": 0,
+            "dy": 0
+          },
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 1064,
+            "dx": 0,
+            "dy": 0
+          }
+        ]
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "labels": [
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 717,
+            "dx": 0,
+            "dy": 0
+          },
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 717,
+            "dx": 0,
+            "dy": 0.00390625
+          },
+          {
+            "tag": "SPAN",
+            "font": "12px",
+            "width": 72,
+            "height": 16.796875,
+            "plotWidth": 717,
+            "dx": 0,
+            "dy": 0
+          }
+        ]
+      }
+    ],
+    "firstFrame": {
+      "index": 1,
+      "angle": 4
+    },
+    "secondFrame": {
+      "index": 2,
+      "angle": 17
+    }
+  },
+  "reviewOpen": true,
+  "stopped": true,
+  "physicalHardware": false
+}

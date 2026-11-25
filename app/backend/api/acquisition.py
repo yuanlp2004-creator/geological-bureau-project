@@ -12,8 +12,11 @@ from ..schemas.system import PreliminaryConditions
 from ..auth import Session
 from ..modules.sample_queues import SampleQueueError
 from ..modules.acquisition import AcquisitionError
+from ..modules.analysis import AnalysisError
+from ..modules.methods import MethodDomainError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
+from .deployment_access import require_activation
 
 router = APIRouter()
 
@@ -46,7 +49,8 @@ def create_sample_session(payload: SampleSessionCreate,
         if context['profile']['transport'] == 'serial':
             if 'acquisition.execute' not in session.permissions:
                 raise HTTPException(status_code=403, detail='permission denied')
-            runtime.devices_service().test_connection(context['profile']['id'], actor_user_id=session.user_id)
+            if not context['position_controlled']:
+                runtime.devices_service().test_connection(context['profile']['id'], actor_user_id=session.user_id)
         task = runtime.acquisition_service().create_task({
             'task_kind': 'sample', 'name': payload.name,
             'method_id': context['method']['id'], 'method_version': context['method']['version'],
@@ -149,11 +153,19 @@ def start_acquisition_task(
     runtime: Runtime = Depends(get_runtime),
     turn_index: int | None = Query(default=None, ge=0),
     single_turn: bool = Query(default=False),
+    continuous: bool = Query(default=False),
 ) -> dict[str, Any]:
     try:
-        task = runtime.acquisition_service().start(task_id, session.user_id, turn_index=turn_index, single_turn=single_turn)
+        service = runtime.acquisition_service()
+        current = service.get_task(task_id)
+        require_activation(runtime, begins_new_work=lambda: current["status"] == "draft" or (
+            continuous and any(item["status"] == "draft" for item in current.get("capture_turns", []))))
+        if not current.get('active_capture_id') and current['profile']['transport'] == 'serial':
+            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
+        task = (service.start_sequence(task_id, session.user_id, turn_index=turn_index) if continuous and not single_turn
+                else service.start(task_id, session.user_id, turn_index=turn_index, single_turn=single_turn))
         return runtime.messages.task(task, source='acquisition', category='acquisition')
-    except (AcquisitionError, SampleQueueError) as exc:
+    except (AcquisitionError, SampleQueueError, DeviceError) as exc:
         raise acquisition_error(exc) from exc
 
 
@@ -164,10 +176,15 @@ def preheat_acquisition_task(
     _: Session = Depends(require_permission("acquisition.write")),
     *, runtime: Runtime = Depends(get_runtime), turn_index: int | None = Query(default=None, ge=0),
 ) -> dict[str, Any]:
+    require_activation(runtime)
     try:
-        task = runtime.acquisition_service().preheat(task_id, session.user_id, turn_index=turn_index)
+        service = runtime.acquisition_service()
+        current = service.get_task(task_id)
+        if current['profile']['transport'] == 'serial':
+            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
+        task = service.preheat(task_id, session.user_id, turn_index=turn_index)
         return runtime.messages.task(task, source='acquisition', category='acquisition')
-    except (AcquisitionError, SampleQueueError) as exc:
+    except (AcquisitionError, SampleQueueError, DeviceError) as exc:
         raise acquisition_error(exc) from exc
 
 
@@ -241,6 +258,25 @@ def acquisition_frames(
             task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index, include_points=include_points, turn_index=turn_index
         )
     except (AcquisitionError, SampleQueueError) as exc:
+        raise acquisition_error(exc) from exc
+
+
+@router.get('/api/v1/acquisitions/tasks/{task_id}/measurement-frame', tags=['acquisition'])
+def acquisition_measurement_frame(
+    task_id: int,
+    repeat_index: int = Query(ge=0, le=10),
+    turn_index: int = Query(ge=0),
+    frame_index: int = Query(ge=0),
+    ccd: int = Query(ge=0, le=255),
+    session: Session = Depends(require_permission('acquisition.read')),
+    *, runtime: Runtime = Depends(get_runtime),
+) -> dict[str, Any]:
+    try:
+        return runtime.analysis_service().observe_acquisition_frame(
+            runtime.acquisition_service(), task_id, repeat_index, turn_index, frame_index, ccd,
+            can_analyze='analysis.read' in session.permissions,
+        )
+    except (AcquisitionError, AnalysisError, MethodDomainError) as exc:
         raise acquisition_error(exc) from exc
 
 

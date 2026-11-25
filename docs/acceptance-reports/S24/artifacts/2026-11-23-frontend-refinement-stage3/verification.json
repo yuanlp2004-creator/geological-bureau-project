@@ -1,0 +1,2118 @@
+{
+  "scope": "GeoSpectrum 3A–3E, S24",
+  "base_commit": "4281cd79000f00f46e674b823d5da5c292f9cb13",
+  "plan_sha256": "a2f5a57a70c8811c01531aaaf02a424c7a3a6eb080c229b9d941355d906b03c3",
+  "status": "scoped_software_checks_passed_pending_visual_acceptance",
+  "build": {
+    "baseline": "51a625f1729164c60f32171330ec91b1df434193e5813bd20b9f0da29f7d144e",
+    "production": "1781d42f965bd643c2db48f8b4d34f61539330464eb8408115890de87f7fe250",
+    "review": "a8ad985c0685efa8469f0c20892dd45e385bcabf14197e8a465ba05e965e6289",
+    "sidecar": "3649111dbe8290deb3a9e890b2263d151676471fdcd85d29565add188c6d4c2b",
+    "assets": [
+      "dist/assets/index-DrKQO6gh.js",
+      "dist/assets/index-lHTdyJJX.css"
+    ],
+    "backup": "app/.local/diagnostics/frontend-refinement-stage3-20261123/GeoSpectrum.exe.previous"
+  },
+  "checks": {
+    "npm.cmd --prefix app/frontend test": {
+      "exit_code": 0,
+      "passed": 22,
+      "failed": 0
+    },
+    "npm.cmd --prefix app/frontend run build": {
+      "exit_code": 0,
+      "warning": "Vite warns about a minified chunk over 500 kB"
+    },
+    "production_and_isolated_tauri_builds": {
+      "exit_code": 0,
+      "arguments": "--ci --no-bundle",
+      "matching_frontend_asset_names": true
+    },
+    "node --check": {
+      "exit_code": 0,
+      "scripts": [
+        "capture_task_pages_workflow.mjs",
+        "frontend_workspace_rebuild_checks.mjs",
+        "open_file_layout_workflow.mjs"
+      ]
+    },
+    "git diff --check": {
+      "exit_code": 0
+    },
+    "workspace_contract": {
+      "status": "passed",
+      "checks": [
+        "restored method, messages and side-column layout; original sample-queue and method entries navigate correctly",
+        "1060/1440/1920 viewports using the default light/comfortable appearance have no window overflow",
+        "diagnostics show the factual runtime environment and 1.5-second message refresh"
+      ]
+    },
+    "runtime_message_contract": {
+      "status": "failed",
+      "checks": [
+        "Original workbench method/messages and right-hand information cards restored; footer starts folded",
+        "Two legacy categories with detailed/default/brief display and text filtering; no request logging or extra actions",
+        "Pause freezes display and resumes pending messages; clearing one category preserves stored records and the other category",
+        "Actual simulator events reach communication records; actual analysis progress reaches general records",
+        "Real analysis messages change between default/brief/detailed; detailed shows actual task/source/code and category counts follow filtering"
+      ],
+      "failure": "Navigation waits for the former standalone 软件设置 menu item. The home DOM, message actions, severity selection and log levels passed. The actual review desktop passes the footer geometry and 16 px keyboard resize checks separately."
+    },
+    "page_layout_workflow": {
+      "status": "failed",
+      "checks": [],
+      "failure": "A navigation page has no visible .section-heading required by the full sweep. The updated workspace geometry, title and migration header buttons were checked in WebView2."
+    },
+    "s23_ui_regression": {
+      "status": "failed",
+      "checks": [],
+      "failure": "Stopped at a missing visible spectrum line with the isolated S23 seed. Workspace/header checks were exercised separately."
+    },
+    "frontend_contract_additions_browser --workspace": {
+      "status": "failed",
+      "failure": "The full contract stopped before the workspace branch at the old published-method-version select in sample capture. The unchanged workspace checks, with the authorized assertion corrections, passed in isolation."
+    },
+    "capture_task_pages_workflow": {
+      "status": "failed",
+      "checks": [],
+      "failure": "The full workflow stopped at the obsolete device-profile selector. Its new geometry assertion passed on the packaged desktop with and without delete permission, and in both tested window sizes."
+    },
+    "open_file_layout_workflow": {
+      "status": "failed",
+      "checks": [],
+      "failure": "The isolated workflow stopped while navigating to the spectrum viewer before the migration and report containers. Node syntax checks passed."
+    },
+    "line_turn_detection_workflow": {
+      "status": "failed",
+      "checks": [],
+      "failure": "The supplied clone does not contain published method 1 version 3. Packaged WebView2 verified a real detectable 17° binding, the hidden code, range error and recovery, and full precision."
+    },
+    "report_selection_workflow": {
+      "status": "failed",
+      "checks": [
+        "逐个选择并预览全部真实已有报告，含DAT空波长/无方法字段",
+        "慢加载清空旧报告并禁用输出，快速切换时旧响应不能覆盖新选择",
+        "详情失败保留工作区和选择、禁用输出，重试恢复",
+        "已有DAT与分析报告的Excel/PDF按钮均输出正确报告内容；保存边界隔离",
+        "切换报告取消过期预览，往返强度页保持当前报告"
+      ],
+      "selected_reports": [
+        {
+          "id": 4,
+          "number": "旧数据测试-DAT原值-单位未记录",
+          "rows": 270,
+          "kind": "legacy_dat"
+        },
+        {
+          "id": 3,
+          "number": "旧数据测试-04-CMT",
+          "rows": 9,
+          "kind": "analysis"
+        },
+        {
+          "id": 2,
+          "number": "旧数据测试-02-CMT",
+          "rows": 9,
+          "kind": "analysis"
+        },
+        {
+          "id": 1,
+          "number": "旧数据测试-01-CMT",
+          "rows": 9,
+          "kind": "analysis"
+        }
+      ],
+      "failure": "Five report checks passed, including genuine DAT and analysis PDF/Excel response content. The final branch stopped at an older analysis-run list selector."
+    },
+    "current_report_workflow": {
+      "status": "failed",
+      "checks": [
+        "报告页初始无自动来源、无候选和全选控件，未打开数据不能建立"
+      ],
+      "failure": "Stopped at an older analysis-run list selector after its empty-source check. Report form geometry was measured separately in packaged WebView2."
+    }
+  },
+  "desktop": {
+    "review": {
+      "pid": 29396,
+      "errors": [],
+      "checks": [
+        "login",
+        "workspace",
+        "taskList",
+        "icons",
+        "migration",
+        "evaporation",
+        "darkLogin",
+        "retained"
+      ],
+      "login": {
+        "w": 1440,
+        "h": 900,
+        "theme": "light",
+        "card": [
+          480,
+          493.78125
+        ],
+        "padding": "32px",
+        "shadow": "rgba(24, 44, 68, 0.08) 0px 8px 24px 0px",
+        "gradient": "linear-gradient(145deg, rgb(237, 243, 249), rgb(245, 247, 250))",
+        "inputColor": "rgb(251, 252, 253)",
+        "inputMin": "36px",
+        "text": "GeoSpectrum\n本地光谱分析工作台\n本机账户登录\n登录工作台\n\n使用本机账户进入分析工作台。\n\n用户名\n密码\n登录\n重新检查账户状态"
+      },
+      "workspace": {
+        "schema": 32,
+        "metrics": {
+          "width": 1440,
+          "height": 900,
+          "diagnostics": [
+            244,
+            163,
+            336,
+            40
+          ],
+          "protocol": [
+            580,
+            163,
+            817,
+            40
+          ],
+          "boxes": [
+            [
+              [
+                244,
+                163,
+                1153,
+                238.921875
+              ],
+              [
+                [
+                  244,
+                  163,
+                  336,
+                  40
+                ],
+                [
+                  580,
+                  163,
+                  817,
+                  40
+                ],
+                [
+                  244,
+                  215,
+                  1153,
+                  186.921875
+                ]
+              ]
+            ],
+            [
+              [
+                244,
+                413.921875,
+                1153,
+                522.59375
+              ],
+              [
+                [
+                  244,
+                  413.921875,
+                  1153,
+                  78.59375
+                ],
+                [
+                  244,
+                  504.515625,
+                  1153,
+                  432
+                ]
+              ]
+            ]
+          ],
+          "entries": [
+            "方法管理",
+            "预录样号",
+            "样品摄谱",
+            "样品分析",
+            "谱图查看",
+            "分析报告"
+          ],
+          "events": 500,
+          "list": [
+            320,
+            22000
+          ],
+          "row": 44,
+          "time": "04:25:32",
+          "dot": 0,
+          "gutter": "stable",
+          "overflow": 0,
+          "keyboardDelta": 16
+        },
+        "narrow": {
+          "width": 1060,
+          "height": 680,
+          "diagnostics": [
+            232,
+            163,
+            336,
+            40
+          ],
+          "protocol": [
+            568,
+            163,
+            461,
+            40
+          ],
+          "boxes": [
+            [
+              [
+                232,
+                163,
+                797,
+                238.921875
+              ],
+              [
+                [
+                  232,
+                  163,
+                  336,
+                  40
+                ],
+                [
+                  568,
+                  163,
+                  461,
+                  40
+                ],
+                [
+                  232,
+                  215,
+                  797,
+                  186.921875
+                ]
+              ]
+            ],
+            [
+              [
+                232,
+                413.921875,
+                797,
+                438.59375
+              ],
+              [
+                [
+                  232,
+                  413.921875,
+                  797,
+                  78.59375
+                ],
+                [
+                  232,
+                  504.515625,
+                  797,
+                  348
+                ]
+              ]
+            ]
+          ],
+          "entries": [
+            "方法管理",
+            "预录样号",
+            "样品摄谱",
+            "样品分析",
+            "谱图查看",
+            "分析报告"
+          ],
+          "events": 500,
+          "list": [
+            240,
+            19097
+          ],
+          "row": 38.1953125,
+          "time": "04:25:32",
+          "dot": 0,
+          "gutter": "stable",
+          "overflow": 0,
+          "keyboardDelta": 16
+        },
+        "limitedNames": [
+          "方法管理",
+          "样品摄谱",
+          "样品分析"
+        ],
+        "readOnlyGeometry": {
+          "heading": 1320,
+          "open": 1320,
+          "delete": null,
+          "secondTrack": null
+        },
+        "offlineRecovered": true,
+        "sampleInputFocused": true,
+        "reportTab": true
+      },
+      "taskList": {
+        "metrics": {
+          "heading": 1255,
+          "open": 1255,
+          "delete": 1331,
+          "secondTrack": 1331
+        },
+        "narrow": {
+          "heading": 893,
+          "open": 893,
+          "delete": 969,
+          "secondTrack": 969
+        },
+        "normal": {
+          "color": "rgb(83, 103, 125)",
+          "background": "rgb(255, 255, 255)",
+          "outline": "3px"
+        },
+        "focus": {
+          "color": "rgb(165, 54, 54)",
+          "background": "rgb(255, 242, 241)",
+          "outline": "2px"
+        },
+        "hover": {
+          "color": "rgb(165, 54, 54)",
+          "background": "rgb(255, 242, 241)",
+          "outline": "3px"
+        },
+        "states": [
+          "草稿:neutral",
+          "已停止:neutral",
+          "已完成:success"
+        ],
+        "deleteRequests": {
+          "cancel": 0,
+          "rejected": 1,
+          "retry": 1
+        }
+      },
+      "icons": {
+        "top": 8,
+        "flyout": 8,
+        "analysis": 27
+      },
+      "migration": {
+        "metrics": [
+          {
+            "tab": "方法与配置",
+            "w": 1440,
+            "tabWidth": 1153,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1440,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "谱图数据",
+            "w": 1440,
+            "tabWidth": 1153,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1440,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "分析结果",
+            "w": 1440,
+            "tabWidth": 1153,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1440,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "方法与配置",
+            "w": 1920,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1920,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "谱图数据",
+            "w": 1920,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1920,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "分析结果",
+            "w": 1920,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 244,
+            "doc": 1920,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "方法与配置",
+            "w": 3840,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 1163.5,
+            "doc": 3840,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "谱图数据",
+            "w": 3840,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 1171,
+            "doc": 3840,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "分析结果",
+            "w": 3840,
+            "tabWidth": 1440,
+            "max": "1440px",
+            "left": 1163.5,
+            "doc": 3840,
+            "paths": [
+              {
+                "width": 820,
+                "max": "820px"
+              },
+              {
+                "width": 820,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "方法与配置",
+            "w": 1060,
+            "tabWidth": 797,
+            "max": "1440px",
+            "left": 232,
+            "doc": 1060,
+            "paths": [
+              {
+                "width": 755,
+                "max": "820px"
+              },
+              {
+                "width": 755,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "谱图数据",
+            "w": 1060,
+            "tabWidth": 797,
+            "max": "1440px",
+            "left": 232,
+            "doc": 1060,
+            "paths": [
+              {
+                "width": 755,
+                "max": "820px"
+              },
+              {
+                "width": 755,
+                "max": "820px"
+              }
+            ]
+          },
+          {
+            "tab": "分析结果",
+            "w": 1060,
+            "tabWidth": 797,
+            "max": "1440px",
+            "left": 232,
+            "doc": 1060,
+            "paths": [
+              {
+                "width": 755,
+                "max": "820px"
+              },
+              {
+                "width": 755,
+                "max": "820px"
+              }
+            ]
+          }
+        ],
+        "narrowLongPath": true
+      },
+      "evaporation": {
+        "file": "20141029_测试.edt",
+        "sampleCount": 120,
+        "samples": [
+          {
+            "w": 1440,
+            "h": 900,
+            "colors": "light",
+            "view": [
+              178,
+              178,
+              471,
+              471
+            ],
+            "rows": [
+              {
+                "name": "第9次积分强度",
+                "value": "680",
+                "dt": [
+                  {
+                    "y": 469,
+                    "left": 1222,
+                    "right": 1301.0390625
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 469,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第10次积分强度",
+                "value": "599",
+                "dt": [
+                  {
+                    "y": 484,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 484,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第11次积分强度",
+                "value": "655",
+                "dt": [
+                  {
+                    "y": 499,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 499,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第12次积分强度",
+                "value": "739",
+                "dt": [
+                  {
+                    "y": 514,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 514,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第13次积分强度",
+                "value": "901",
+                "dt": [
+                  {
+                    "y": 529,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 529,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第14次积分强度",
+                "value": "696",
+                "dt": [
+                  {
+                    "y": 544,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 544,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第15次积分强度",
+                "value": "730",
+                "dt": [
+                  {
+                    "y": 559,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 559,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第16次积分强度",
+                "value": "665",
+                "dt": [
+                  {
+                    "y": 574,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 574,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第17次积分强度",
+                "value": "957",
+                "dt": [
+                  {
+                    "y": 589,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 589,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第18次积分强度",
+                "value": "689",
+                "dt": [
+                  {
+                    "y": 604,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 604,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              }
+            ],
+            "phases": [
+              "积分周期 2 秒积分次数 18",
+              "空白周期 2 秒积分次数 5"
+            ]
+          },
+          {
+            "w": 1440,
+            "h": 900,
+            "colors": "dark",
+            "view": [
+              178,
+              178,
+              471,
+              471
+            ],
+            "rows": [
+              {
+                "name": "第9次积分强度",
+                "value": "680",
+                "dt": [
+                  {
+                    "y": 469,
+                    "left": 1222,
+                    "right": 1301.0390625
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 469,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第10次积分强度",
+                "value": "599",
+                "dt": [
+                  {
+                    "y": 484,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 484,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第11次积分强度",
+                "value": "655",
+                "dt": [
+                  {
+                    "y": 499,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 499,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第12次积分强度",
+                "value": "739",
+                "dt": [
+                  {
+                    "y": 514,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 514,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第13次积分强度",
+                "value": "901",
+                "dt": [
+                  {
+                    "y": 529,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 529,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第14次积分强度",
+                "value": "696",
+                "dt": [
+                  {
+                    "y": 544,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 544,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第15次积分强度",
+                "value": "730",
+                "dt": [
+                  {
+                    "y": 559,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 559,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第16次积分强度",
+                "value": "665",
+                "dt": [
+                  {
+                    "y": 574,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 574,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第17次积分强度",
+                "value": "957",
+                "dt": [
+                  {
+                    "y": 589,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 589,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              },
+              {
+                "name": "第18次积分强度",
+                "value": "689",
+                "dt": [
+                  {
+                    "y": 604,
+                    "left": 1222,
+                    "right": 1308.078125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 604,
+                    "left": 1368.8828125,
+                    "right": 1390
+                  }
+                ]
+              }
+            ],
+            "phases": [
+              "积分周期 2 秒积分次数 18",
+              "空白周期 2 秒积分次数 5"
+            ]
+          },
+          {
+            "w": 1060,
+            "h": 680,
+            "colors": "light",
+            "view": [
+              149,
+              149,
+              389,
+              501
+            ],
+            "rows": [
+              {
+                "name": "第9次积分强度",
+                "value": "680",
+                "dt": [
+                  {
+                    "y": 484,
+                    "left": 868.40625,
+                    "right": 947.4453125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 484,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第10次积分强度",
+                "value": "599",
+                "dt": [
+                  {
+                    "y": 499,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 499,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第11次积分强度",
+                "value": "655",
+                "dt": [
+                  {
+                    "y": 514,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 514,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第12次积分强度",
+                "value": "739",
+                "dt": [
+                  {
+                    "y": 529,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 529,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第13次积分强度",
+                "value": "901",
+                "dt": [
+                  {
+                    "y": 544,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 544,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第14次积分强度",
+                "value": "696",
+                "dt": [
+                  {
+                    "y": 559,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 559,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第15次积分强度",
+                "value": "730",
+                "dt": [
+                  {
+                    "y": 574,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 574,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第16次积分强度",
+                "value": "665",
+                "dt": [
+                  {
+                    "y": 589,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 589,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第17次积分强度",
+                "value": "957",
+                "dt": [
+                  {
+                    "y": 604,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 604,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第18次积分强度",
+                "value": "689",
+                "dt": [
+                  {
+                    "y": 619,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 619,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              }
+            ],
+            "phases": [
+              "积分周期 2 秒积分次数 18",
+              "空白周期 2 秒积分次数 5"
+            ]
+          },
+          {
+            "w": 1060,
+            "h": 680,
+            "colors": "dark",
+            "view": [
+              149,
+              149,
+              389,
+              501
+            ],
+            "rows": [
+              {
+                "name": "第9次积分强度",
+                "value": "680",
+                "dt": [
+                  {
+                    "y": 484,
+                    "left": 868.40625,
+                    "right": 947.4453125
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 484,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第10次积分强度",
+                "value": "599",
+                "dt": [
+                  {
+                    "y": 499,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 499,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第11次积分强度",
+                "value": "655",
+                "dt": [
+                  {
+                    "y": 514,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 514,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第12次积分强度",
+                "value": "739",
+                "dt": [
+                  {
+                    "y": 529,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 529,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第13次积分强度",
+                "value": "901",
+                "dt": [
+                  {
+                    "y": 544,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 544,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第14次积分强度",
+                "value": "696",
+                "dt": [
+                  {
+                    "y": 559,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 559,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第15次积分强度",
+                "value": "730",
+                "dt": [
+                  {
+                    "y": 574,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 574,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第16次积分强度",
+                "value": "665",
+                "dt": [
+                  {
+                    "y": 589,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 589,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第17次积分强度",
+                "value": "957",
+                "dt": [
+                  {
+                    "y": 604,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 604,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              },
+              {
+                "name": "第18次积分强度",
+                "value": "689",
+                "dt": [
+                  {
+                    "y": 619,
+                    "left": 868.40625,
+                    "right": 954.484375
+                  }
+                ],
+                "dd": [
+                  {
+                    "y": 619,
+                    "left": 985.8828125,
+                    "right": 1007
+                  }
+                ]
+              }
+            ],
+            "phases": [
+              "积分周期 2 秒积分次数 18",
+              "空白周期 2 秒积分次数 5"
+            ]
+          }
+        ],
+        "followsPointer": true,
+        "locked": true,
+        "fiveDigitPresentation": {
+          "value": "65535",
+          "width": 35.1875,
+          "within": true,
+          "client": 149,
+          "scroll": 149
+        },
+        "copied": [
+          "vertical",
+          "horizontal"
+        ],
+        "close": true
+      },
+      "darkLogin": {
+        "w": 1060,
+        "h": 680,
+        "theme": "dark",
+        "card": [
+          480,
+          485.78125
+        ],
+        "padding": "32px",
+        "shadow": "rgba(0, 0, 0, 0.24) 0px 8px 24px 0px",
+        "gradient": "linear-gradient(145deg, rgb(16, 28, 41), rgb(23, 38, 56))",
+        "inputColor": "rgb(18, 34, 53)",
+        "inputMin": "36px",
+        "text": "GeoSpectrum\n本地光谱分析工作台\n本机账户登录\n登录工作台\n\n使用本机账户进入分析工作台。\n\n用户名\n密码\n登录\n重新检查账户状态"
+      },
+      "retained": {
+        "pid": 29396,
+        "theme": "light",
+        "width": 1440,
+        "height": 900,
+        "health": "ok",
+        "page": "工作台"
+      },
+      "status": "passed"
+    },
+    "two_turns": {
+      "pid": 30024,
+      "errors": [],
+      "checks": [
+        "reports",
+        "lines",
+        "toolbar"
+      ],
+      "reports": [
+        {
+          "width": 1440,
+          "theme": "light",
+          "dpr": 2,
+          "empty": [
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            },
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            }
+          ],
+          "fields": [
+            {
+              "x": 265,
+              "y": 394.78125,
+              "width": 339.6875,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 616.6875,
+              "y": 394.78125,
+              "width": 407.625,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 1036.3125,
+              "y": 394.78125,
+              "width": 339.6875,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 265,
+              "y": 471.375,
+              "width": 165.65625,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 434.65625,
+              "y": 471.375,
+              "width": 165.6640625,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 612.3203125,
+              "y": 471.375,
+              "width": 304.8359375,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 929.15625,
+              "y": 471.375,
+              "width": 304.84375,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 1246,
+              "y": 471.375,
+              "width": 130,
+              "height": 36,
+              "bottom": 507.375
+            }
+          ],
+          "formats": "339.688px 407.625px 339.688px",
+          "filters": "335.32px 304.836px 304.844px 130px",
+          "builder": {
+            "x": 244,
+            "y": 217,
+            "width": 1153,
+            "height": 311.375,
+            "bottom": 528.375
+          },
+          "printer": {
+            "x": 265,
+            "y": 749.453125,
+            "width": 576,
+            "height": 60.59375,
+            "bottom": 810.046875
+          },
+          "actions": {
+            "x": 853,
+            "y": 774.046875,
+            "width": 235.0390625,
+            "height": 36,
+            "bottom": 810.046875
+          },
+          "dock": 866
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "dpr": 2,
+          "empty": [
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            },
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            }
+          ],
+          "fields": [
+            {
+              "x": 265,
+              "y": 394.78125,
+              "width": 339.6875,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 616.6875,
+              "y": 394.78125,
+              "width": 407.625,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 1036.3125,
+              "y": 394.78125,
+              "width": 339.6875,
+              "height": 36,
+              "bottom": 430.78125
+            },
+            {
+              "x": 265,
+              "y": 471.375,
+              "width": 165.65625,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 434.65625,
+              "y": 471.375,
+              "width": 165.6640625,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 612.3203125,
+              "y": 471.375,
+              "width": 304.8359375,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 929.15625,
+              "y": 471.375,
+              "width": 304.84375,
+              "height": 36,
+              "bottom": 507.375
+            },
+            {
+              "x": 1246,
+              "y": 471.375,
+              "width": 130,
+              "height": 36,
+              "bottom": 507.375
+            }
+          ],
+          "formats": "339.688px 407.625px 339.688px",
+          "filters": "335.32px 304.836px 304.844px 130px",
+          "builder": {
+            "x": 244,
+            "y": 217,
+            "width": 1153,
+            "height": 311.375,
+            "bottom": 528.375
+          },
+          "printer": {
+            "x": 265,
+            "y": 749.453125,
+            "width": 576,
+            "height": 60.59375,
+            "bottom": 810.046875
+          },
+          "actions": {
+            "x": 853,
+            "y": 774.046875,
+            "width": 235.0390625,
+            "height": 36,
+            "bottom": 810.046875
+          },
+          "dock": 866
+        },
+        {
+          "width": 1060,
+          "theme": "dark",
+          "dpr": 2,
+          "empty": [
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            },
+            {
+              "height": 57.390625,
+              "minHeight": "56px",
+              "border": "dashed",
+              "icon": 20
+            }
+          ],
+          "fields": [
+            {
+              "x": 249,
+              "y": 390.78125,
+              "width": 230.9375,
+              "height": 32,
+              "bottom": 422.78125
+            },
+            {
+              "x": 491.9375,
+              "y": 390.78125,
+              "width": 277.125,
+              "height": 32,
+              "bottom": 422.78125
+            },
+            {
+              "x": 781.0625,
+              "y": 390.78125,
+              "width": 230.9375,
+              "height": 32,
+              "bottom": 422.78125
+            },
+            {
+              "x": 249,
+              "y": 463.375,
+              "width": 121.1640625,
+              "height": 32,
+              "bottom": 495.375
+            },
+            {
+              "x": 374.1640625,
+              "y": 463.375,
+              "width": 121.1640625,
+              "height": 32,
+              "bottom": 495.375
+            },
+            {
+              "x": 507.328125,
+              "y": 463.375,
+              "width": 246.3359375,
+              "height": 32,
+              "bottom": 495.375
+            },
+            {
+              "x": 765.6640625,
+              "y": 463.375,
+              "width": 246.328125,
+              "height": 32,
+              "bottom": 495.375
+            },
+            {
+              "x": 881.9921875,
+              "y": 503.375,
+              "width": 130,
+              "height": 32,
+              "bottom": 535.375
+            }
+          ],
+          "formats": "230.938px 277.125px 230.938px",
+          "filters": "246.328px 246.336px 246.328px",
+          "builder": {
+            "x": 232,
+            "y": 217,
+            "width": 797,
+            "height": 335.375,
+            "bottom": 552.375
+          },
+          "printer": {
+            "x": 249,
+            "y": 761.453125,
+            "width": 515.9609375,
+            "height": 56.59375,
+            "bottom": 818.046875
+          },
+          "actions": {
+            "x": 776.9609375,
+            "y": 786.046875,
+            "width": 235.0390625,
+            "height": 32,
+            "bottom": 818.046875
+          },
+          "dock": 646
+        }
+      ],
+      "lines": {
+        "light": [
+          {
+            "value": "1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 131.359375,
+            "disabled": true
+          },
+          {
+            "value": "2",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 131.359375,
+            "disabled": true
+          },
+          {
+            "value": "252.737748321013",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 401.5,
+            "disabled": false
+          },
+          {
+            "value": "252.737748321013",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 401.5,
+            "disabled": false
+          },
+          {
+            "value": "9",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": false
+          },
+          {
+            "value": "0",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": false
+          },
+          {
+            "value": "1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": true
+          },
+          {
+            "value": "",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": false
+          },
+          {
+            "value": "100",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": false
+          },
+          {
+            "value": "1.1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 263.6640625,
+            "disabled": false
+          }
+        ],
+        "dark": [
+          {
+            "value": "1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 131.359375,
+            "disabled": true
+          },
+          {
+            "value": "2",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 131.359375,
+            "disabled": true
+          },
+          {
+            "value": "252.737748321013",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "252.737748321013",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "9",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "0",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": true
+          },
+          {
+            "value": "",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "100",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          },
+          {
+            "value": "1.1",
+            "alignment": "start",
+            "nums": "tabular-nums",
+            "width": 243.5,
+            "disabled": false
+          }
+        ],
+        "visible": "当前条件可检测\nCCD 1 · 点位 600 · 角度位 1 (17°)",
+        "nativeHidden": true,
+        "rangeErrorAndRecovery": true
+      },
+      "toolbar": {
+        "light": [
+          {
+            "name": "录入样品编号",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          },
+          {
+            "name": "插入样品",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          },
+          {
+            "name": "清除待测样号",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          }
+        ],
+        "dark": [
+          {
+            "name": "录入样品编号",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          },
+          {
+            "name": "插入样品",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          },
+          {
+            "name": "清除待测样号",
+            "button": [
+              24,
+              24
+            ],
+            "svg": [
+              16,
+              16
+            ],
+            "stroke": "1.75",
+            "image": false,
+            "disabled": false
+          }
+        ],
+        "professional": 17,
+        "disabledFallback": 3
+      },
+      "status": "passed"
+    },
+    "first_run": {
+      "mismatchRejected": true,
+      "bootstrapAndLogin": true
+    },
+    "root_smoke": {
+      "pid": 31276,
+      "schema": 32,
+      "entries": [
+        "方法管理",
+        "预录样号",
+        "样品摄谱",
+        "样品分析",
+        "谱图查看",
+        "分析报告"
+      ]
+    }
+  },
+  "images": {
+    "capture-right-toolbar-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "2372bbb87e1e26db62afd80f041a5adfcfd45860da18d03953b0f6dc9770fe41"
+    },
+    "capture-tasks-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "4cbf5f09dfc4368708feacddd59ff7c4041c8a613616bf1aec57fd5ca3ad3f58"
+    },
+    "capture-turns-1060.png": {
+      "width": 1060,
+      "height": 680,
+      "sha256": "b6d3511aa37ea56cb6a12f61d9da0c69f588971902d5cd0807b44af2156e74df"
+    },
+    "evaporation-point-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "83cae9482bce6f23740317e1ed45395f9777bc5e7ebb522a2951d405bedc6c38"
+    },
+    "login-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "9b633ff51692b9ec23ddf426d5d387cd85cd0f32fde1a9a5e3139c2b43314b54"
+    },
+    "migration-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "0aeb725be526b41ca5c99935c235cdd74fb8322433ffaad21411bc3fa6d2f06e"
+    },
+    "reports-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "1803b8e4a0b69363c98bb363ca4f5b81a6c5c799f70cd9a87902761a015c6805"
+    },
+    "spectral-lines-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "e20f3995c59666aa53a0d8e8ef80760648e4d00376c0eab68fa5b948d1002418"
+    },
+    "workspace-1440-dark.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "79857d26386608377a7b25065f6ecf9ff0b38576b4455e3e29775411bd9f8174"
+    },
+    "workspace-1440.png": {
+      "width": 1440,
+      "height": 900,
+      "sha256": "7479346b1f56de23c0b1bbde717c1a288550b85eec0e3db825259cc61102f033"
+    }
+  },
+  "limitations": [
+    "Dark and compact visuals were exercised by changing the render attributes in the isolated WebView2, because the existing settings service fixes theme and density to light and comfortable.",
+    "Legacy workflows with incomplete runs are recorded above. Their unchanged neighboring modules were kept outside the source scope.",
+    "A simulated acquisition fixture was used. The evaporation screenshot uses a real archived EDT with 18 burn and five blank frames. The 65535 value was injected only into a narrow-window presentation check.",
+    "Native deployment was a Windows executable and the paired existing sidecar. Installer and hardware acceptance were outside this pass."
+  ],
+  "changed_files": [
+    "app/frontend/src/api/index.ts",
+    "app/frontend/src/api/system.ts",
+    "app/frontend/src/components/WorkspaceMessages.tsx",
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/spectrum-point-panel.css",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/SampleInputToolButton.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyTaskList.tsx",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/auth/AuthForm.tsx",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/methods/SpectralLineEditor.tsx",
+    "app/frontend/src/pages/methods/methods.css",
+    "app/frontend/src/pages/migration/migration.css",
+    "app/frontend/src/pages/postprocessing/data-processing.css",
+    "app/frontend/src/pages/reports/ReportBuilder.tsx",
+    "app/frontend/src/pages/reports/ReportOutput.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "app/frontend/src/styles/global.css",
+    "app/frontend/src/styles/remaining-pages.css",
+    "app/frontend/src/styles/visual-refinement.css",
+    "app/tests/capture_task_pages_workflow.mjs",
+    "app/tests/frontend_workspace_rebuild_checks.mjs",
+    "app/tests/open_file_layout_workflow.mjs"
+  ]
+}

@@ -47,6 +47,10 @@ class DeviceConnectRequest(BaseModel):
     profile_id: int = Field(ge=1)
 
 
+class DeviceDebugTurnRequest(DeviceConnectRequest):
+    angle_deg: float = Field(ge=0, le=360, allow_inf_nan=False)
+
+
 class DevicePortSelection(BaseModel):
     model_config = ConfigDict(extra="forbid")
     transport: Literal["simulator", "serial"]

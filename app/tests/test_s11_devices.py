@@ -145,3 +145,30 @@ def test_s11_api_debug_is_audited_and_does_not_create_records(device_client) -> 
     assert {"device.connect", "device.debug.start", "device.debug.step", "device.debug.stop"}.issubset(actions)
     assert stopped.json()["sample_records_created"] == 0
     assert stopped.json()["spectrum_records_created"] == 0
+
+
+def test_debug_angle_switch_before_and_during_observation(device_client, monkeypatch):
+    client, runtime, headers = device_client
+    from backend.modules.methods import MethodService
+    monkeypatch.setattr(MethodService, "current_working_angles", lambda self: [17, 4])
+    url = "/api/v1/devices/debug/turn"
+    profile = client.get("/api/v1/devices/profiles", headers=headers).json()[0]["id"]
+    def turn(angle):
+        return client.post(url, headers=headers, json={"profile_id": profile, "angle_deg": angle})
+    assert client.post(url, json={"profile_id": profile, "angle_deg": 17}).status_code == 401
+    assert turn(17).status_code == 409
+    assert client.post("/api/v1/devices/connect", headers=headers, json={"profile_id": profile}).is_success
+    assert turn(17).json()["current_angle_deg"] == 17
+    started = client.post("/api/v1/devices/debug/start", headers=headers, json={}).json()
+    assert started["event"]["details"]["angle_deg"] == 17
+    assert turn(4).json()["simulated"] is True
+    assert turn(5).status_code == 409
+    frame = client.post("/api/v1/devices/debug/step", headers=headers).json()
+    assert frame["session_id"] == started["session_id"]
+    assert frame["event"]["ccds"] and frame["event"]["details"]["angle_deg"] == 4
+    assert client.get(url, headers=headers).json()["current_angle_deg"] == 4
+    assert client.post("/api/v1/devices/disconnect", headers=headers).is_success
+    assert client.get(url, headers=headers).json()["current_angle_deg"] is None
+    with runtime.database.read() as db:
+        assert db.execute("SELECT COUNT(*) FROM audit_events WHERE action='device.debug.turn'").fetchone()[0] == 2
+        assert db.execute("SELECT COUNT(*) FROM spectrum_bands").fetchone()[0] == 0

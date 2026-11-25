@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "checks": [
+    "空色散工作台白底",
+    "空蒸发查看工作台白底",
+    "谱图查看 1440：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "谱图查看 1440：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "色散曲线 1440：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "色散曲线 1440：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "蒸发曲线 1440：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "蒸发曲线 1440：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "调试对中 1440：三路蓝色底板及青色峰值条恢复",
+    "谱图查看 1060：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "谱图查看 1060：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "色散曲线 1060：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "色散曲线 1060：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "蒸发曲线 1060：蓝色底板及青色标题恢复、曲线可见、缩放零写入",
+    "蒸发曲线 1060：横纵网格与两条坐标轴真实可见，缩放还原后仍保持",
+    "调试对中 1060：三路蓝色底板及青色峰值条恢复",
+    "样品摄谱参照工作台保持白底"
+  ],
+  "layouts": [
+    "谱图查看-1440",
+    "色散曲线-1440",
+    "蒸发曲线-1440",
+    "调试对中-1440",
+    "谱图查看-1060",
+    "色散曲线-1060",
+    "蒸发曲线-1060",
+    "调试对中-1060"
+  ],
+  "errors": [],
+  "plan_sha256": "1e332f8aa6d0aa4abc186cfe4f8bcd75975a6dd4860297bd8200bc16c2438a42",
+  "original_component_styles_match": true,
+  "restored_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/pages/devices/alignment-monitor.css"
+  ],
+  "grid_fix_preserved": true,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "0ad2277fa3c6289b5c3957e5473a8a04ef284d8c54d2b809719acfda0da91e01",
+      "after_sha256": "7ec750674b486a730ac77d365c067667bcb9d11478f90c6323fb3dc1cbd90e17"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626",
+      "after_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626"
+    }
+  },
+  "production_data_unchanged": true,
+  "sources_match": true,
+  "retained_review": {
+    "pid": 45144,
+    "cdp": "http://127.0.0.1:54156",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-06-workbench-blue\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\workbench-blue-review-20261106-r2",
+    "retained_for_review": true
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "主窗口图标 1440×1000",
+      "controls": 13,
+      "selected": 0,
+      "pickers": 0,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看 1440×1000",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中区域放大 1440×1000",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中滚动工具 1440×1000",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中十字线 1440×1000",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "样品分析 1440×1000",
+      "controls": 27,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发谱图 1440×1000",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发帧统计 1440×1000",
+      "controls": 10,
+      "selected": 1,
+      "pickers": 0,
+      "maxOffset": 0
+    },
+    {
+      "name": "样品摄谱 1440×1000",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发摄谱 1440×1000",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "色散摄谱 1440×1000",
+      "controls": 26,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "色散曲线 1440×1000",
+      "controls": 23,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "调试对中 1440×1000",
+      "controls": 14,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "主窗口图标 1060×680",
+      "controls": 13,
+      "selected": 0,
+      "pickers": 0,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看 1060×680",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中区域放大 1060×680",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中滚动工具 1060×680",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "谱图查看选中十字线 1060×680",
+      "controls": 18,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "样品分析 1060×680",
+      "controls": 27,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发谱图 1060×680",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发帧统计 1060×680",
+      "controls": 10,
+      "selected": 1,
+      "pickers": 0,
+      "maxOffset": 0
+    },
+    {
+      "name": "样品摄谱 1060×680",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "蒸发摄谱 1060×680",
+      "controls": 24,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "色散摄谱 1060×680",
+      "controls": 26,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "色散曲线 1060×680",
+      "controls": 23,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    },
+    {
+      "name": "调试对中 1060×680",
+      "controls": 14,
+      "selected": 1,
+      "pickers": 1,
+      "maxOffset": 0
+    }
+  ],
+  "errors": []
+}

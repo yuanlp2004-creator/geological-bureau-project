@@ -106,6 +106,8 @@
   background: #1744da;
 }
 .standard-curve-grid .standard-curve-dot[data-active="false"] { background: #929292; }
+.standard-curve-grid .standard-curve-dot[data-draggable="true"] { cursor: ns-resize; touch-action: none; }
+.standard-curve-drag-value { position: absolute; inset: 8px 8px auto auto; pointer-events: none; }
 .standard-curve-grid .standard-curve-dot[aria-pressed="true"] { background: #fff435; z-index: 2; }
 .standard-curve-grid .standard-curve-dot[data-active="false"][aria-pressed="true"] { background: #a552bb; }
 .standard-curve-grid > span { position: absolute; pointer-events: none; background: #fffe; }

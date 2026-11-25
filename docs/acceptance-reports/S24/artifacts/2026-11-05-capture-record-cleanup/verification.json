@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "e2cfe0dd4aacd512ba94236edb74e2c591f46c2e054e58be50cd0b495ea2c45c",
+  "initial_plan_sha256": "349e8419e63c49a0341ccba752e76922997e912378cf2d506cf6089967cc8c3c",
+  "product_files_changed": [
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionResults.tsx (deleted)",
+    "app/frontend/src/pages/acquisition/sample-acquisition.css",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/backend/modules/offline_help.py"
+  ],
+  "browser": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品沿用当前方法及只读条件，无手动条件／保存来源入口；无效重复次数零提交，取消／失败保留草稿，重试及正式采集正常",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "desktop": {
+    "checks": [
+      "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+      "色散第0点可选择并定位，无起点偏移",
+      "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+      "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+      "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+      "样品沿用当前方法及只读条件，无手动条件／保存来源入口；无效重复次数零提交，取消／失败保留草稿，重试及正式采集正常",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "样品与蒸发全部采集消息进入已有统一信息记录，完成消息可直接查看",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用",
+      "无额外即时测量请求"
+    ],
+    "layouts": 12,
+    "errors": []
+  },
+  "frontend_tests": 20,
+  "runtime_message_tests": 3,
+  "offline_help_topics_checked": 2,
+  "sources_match_between_builds": true,
+  "production_data_unchanged": true,
+  "root_and_app_entries_unchanged": true,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "6fd40c9ddae4a3e5e616f51d9022b9c81f7662739c6f928a77ae707f21843a33",
+      "after_sha256": "09d50c669de2d7dd12a6a5d29b39c8b807dd2759de9ac8baa16c39896f185543"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "6bcdfb5fb1d250c21c18d01073f01da08bdbc67b0f93be6b6cc66561c50beb87",
+      "after_sha256": "bf7a453798f86923850550c13313fffe1b84c04723f6807a9867299b08558d71"
+    }
+  },
+  "retained_review": {
+    "status": "passed",
+    "pages": [
+      {
+        "kind": "evaporation",
+        "task_id": 11,
+        "selected_record_details": 0,
+        "stored_spectrum_readable": true,
+        "completion_messages_visible": 4
+      },
+      {
+        "kind": "sample",
+        "task_id": 10,
+        "selected_record_details": 0,
+        "stored_spectrum_readable": true,
+        "completion_messages_visible": 4
+      }
+    ],
+    "device_disconnected": true,
+    "retained_for_review": true,
+    "mercury_safe": true
+  }
+}

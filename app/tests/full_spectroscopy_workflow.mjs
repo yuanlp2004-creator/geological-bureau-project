@@ -222,7 +222,7 @@ export async function checkFullSpectroscopy(page, result, output) {
   const processing = dh.getByRole('region', { name: '当前色散任务处理' })
   await processing.waitFor()
   assert.equal(await processing.getByRole('heading', { name: '谱线定位与位置' }).isVisible(), true)
-  const definitions = [['Fe', 250, 100], ['Mg', 260, 200], ['Ca', 270, 300]]
+  const definitions = [['Fe', 250, 100], ['Mg', 260, 200], ['Ca', 270, 300], ['Mn', 280, 400]]
   for (const [element, wavelength, position] of definitions) {
     await processing.getByLabel('元素', { exact: true }).fill(element)
     const input = processing.getByLabel('波长 (nm)', { exact: true })
@@ -242,8 +242,8 @@ export async function checkFullSpectroscopy(page, result, output) {
   const fitted = page.waitForResponse(response => response.url().endsWith(`/dispersion/tasks/${dispersion.task.id}/calibrations/fit`) && response.request().method() === 'POST')
   await processing.getByRole('button', { name: '二次拟合', exact: true }).click()
   const fitResponse = await fitted; assert.equal(fitResponse.status(), 201, await fitResponse.text())
-  const calibration = await fitResponse.json(); assert.equal(calibration.point_count, 3)
-  check('当前工作台完成三条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留')
+  const calibration = await fitResponse.json(); assert.equal(calibration.point_count, 4)
+  check('当前工作台完成四条谱线录入、零起点实际点位采用和真实二次拟合，发布门禁保留')
   check('色散已保存燃烧/暗帧可在当前任务观察，定位、拟合和保存面板在当前工作台展开')
   await dh.getByRole('button', { name: '关闭色散处理窗口', exact: true }).click()
   await dh.getByRole('button', { name: '结束', exact: true }).click()

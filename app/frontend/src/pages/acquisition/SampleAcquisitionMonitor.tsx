@@ -8,6 +8,8 @@ import { CaptureBandList } from './CaptureBandList'
 import { useSampleCaptureLines } from './CaptureLineBar'
 import { CaptureTurnPages } from './CaptureTurnPages'
 import { useFixedSpectrumView } from '../../components/useFixedSpectrumView'
+import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
+import { CaptureMeasurement, useCaptureMeasurement } from './CaptureMeasurement'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
@@ -66,6 +68,7 @@ export function SampleAcquisitionMonitor({
   const [preheatSpectrum, setPreheatSpectrum] = useState<{ key: string; points: number[]; sha256?: string } | null>(null)
   const [preheatError, setPreheatError] = useState<{ key: string; message: string } | null>(null)
   const [printing, setPrinting] = useState(false)
+  const [measurementOpen, setMeasurementOpen] = useState(false)
   const generation = useRef(0)
   const sampleTurns = formal?.turns
   const awaitingTurn = selected?.status === 'paused' && selected.turns?.awaiting_turn
@@ -105,8 +108,11 @@ export function SampleAcquisitionMonitor({
   const completed = formal?.samples.filter(sample => sample.sample_kind !== 'preheat' && sample.bands.length > 0
     && sample.finalized && !sample.discarded && sample.status === 'completed') ?? []
   const observedSample = isPreheat ? undefined : completed.find(sample => sample.id === sampleId)
+  const measurementTask = (!observedSample || measurementOpen) && !isPreheat && selected?.task_kind === 'sample' ? selected : undefined
+  const measuring = measurementOpen && Boolean(measurementTask)
+  const measurement = useCaptureMeasurement(token, measuring ? measurementTask : undefined, turnIndex, ccd)
   const observedSlot = observedSample?.bands.findIndex(item => item.ccd_index === ccd && (!selected?.turns || item.turn_index === turnIndex)) ?? -1
-  const pointDetails = canReadSpectra && observedSample?.storage_mode === 'full_interval' && observedSlot >= 0
+  const pointDetails = !measuring && canReadSpectra && observedSample?.storage_mode === 'full_interval' && observedSlot >= 0
     ? { token, recordId: `sample:${observedSample.id}`, ccd: observedSlot, onToast, canOutput: canExport } : undefined
   const observedKey = `${token}:${selected?.id}:${observedSample?.id}:${turnIndex}:${ccd}`
   const [turnPreview, setTurnPreview] = useState<{ key: string; points?: number[]; error?: string } | null>(null)
@@ -167,8 +173,10 @@ export function SampleAcquisitionMonitor({
   const observed = observedSample ? band?.key === observedKey ? band : null : null
   const preheat = preheatSpectrum?.key === preheatKey ? preheatSpectrum : null
   const preview = turnPreview?.key === previewKey ? turnPreview : null
-  const points = observedSample ? observed?.points ?? []
+  const points = measuring ? measurement.frame?.points ?? []
+    : observedSample ? observed?.points ?? []
     : preheatComplete ? preheat?.points ?? (selected?.dark_frames_captured === 0 ? livePoints : []) : previewKey ? preview?.points ?? [] : livePoints
+  const measurementMatchesPlot = !measuring || !measurement.scope || measurement.scope.ccd === ccd && measurement.scope.turn === turnIndex
   const displayError = preview?.error || (!observedSample && preheatComplete ? preheatError?.key === preheatKey ? preheatError.message : '' : error)
   const recordIndex = completed.findIndex(sample => sample.id === sampleId)
   const print = async (range: SpectrumViewRange) => {
@@ -192,6 +200,8 @@ export function SampleAcquisitionMonitor({
   }
   return (
     <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar} sampleInput={sampleInput}
+      topActions={measurementTask && <SpectroscopyToolButton icon="crosshair" label="测量观察" aria-pressed={measuring}
+        description="查看已入库的新帧和谱线诊断，可慢进逐帧复核" onClick={() => { measurement.reset(); setMeasurementOpen(value => !value) }} />}
       turnPages={turnPages}
       bandTitle={formal?.task_kind === 'evaporation' ? '蒸发数据' : formal?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
       showRepeats={selected?.task_kind !== 'evaporation'}
@@ -204,43 +214,49 @@ export function SampleAcquisitionMonitor({
       recordTitle={selected?.task_kind === 'evaporation' ? '蒸发谱带名' : '样品编号'}
       recordValue={String(selected?.id ?? '')} recordChoices={selected ? [{ value: String(selected.id), name: selected.sample_name || selected.name }] : []}
       repeats={selected?.repeat_count}
-      viewLabel={`${observedSample ? `已保存谱带 · ${observedSample.sample_name || '未命名'} / ${observedSample.repeat_index + 1}` : preheatComplete ? '预热燃烧谱图 · 仅观察' : '实时谱图'}${turn ? ` · ${turn.angle_deg}°` : ''}`}
+      viewLabel={`${measuring ? '原始燃烧帧' : observedSample ? `已保存谱带 · ${observedSample.sample_name || '未命名'} / ${observedSample.repeat_index + 1}` : preheatComplete ? '预热燃烧谱图 · 仅观察' : '实时谱图'}${turn ? ` · ${turn.angle_deg}°` : ''}`}
       records={<CaptureBandList title={formal?.task_kind === 'evaporation' ? '蒸发谱带' : formal?.storage_mode === 'full_interval' ? '全时样品' : '均值样品'}
         variant={selected?.task_kind === 'evaporation' ? 'band' : 'sample'}
         emptyText={isPreheat ? '尚无正式谱带。预热仅供观察，不生成正式谱带。' : '当前任务没有已保存的正式谱带。'}
         rows={completed.map(sample => ({ id: sample.id, name: sample.sample_name || '未命名', sequence: sample.repeat_index + 1, detail: `重复 ${sample.repeat_index + 1} · ${selected?.turns?.multiple ? `${selected.turns.plan.length} 转角 · ` : ''}${new Set(sample.bands.map(band => band.ccd_index)).size} CCD` }))}
-        selected={observedSample?.id ?? null} disabled={busy || acquiring || isPreheat} onChoose={setSampleId} />}
+        selected={measuring ? null : observedSample?.id ?? null} disabled={busy || acquiring || isPreheat} onChoose={id => {
+          setMeasurementOpen(false)
+          measurement.reset()
+          setSampleId(id)
+        }} />}
       finish={{ run: finish, enabled: canFinish }} name={formal?.name ?? selected?.name} status={selected?.status}
       statusLabel={awaitingTurn ? '等待下一转角' : selected ? stateLabel[selected.status] : undefined}
       start={{ run: () => apply('start', startAngle), enabled: enabled && canStart && readyAngle,
         disabledReason: formalEnded ? '正式任务已结束，请新建任务后再摄谱' : !readyAngle ? '请先从当前待采转角开始' : undefined }}
-      singleTurn={sampleTurns?.multiple ? { run: () => apply('start', startAngle, true), enabled: enabled && canStart && readyAngle,
+      singleTurn={sampleTurns?.multiple || formal?.capture_turn?.multiple ? { run: () => apply('start', startAngle, true), enabled: enabled && canStart && readyAngle,
         disabledReason: !readyAngle ? '请先从当前待采转角开始' : undefined } : undefined}
       preheat={{ run: () => apply('preheat', sampleTurns ? turnIndex : undefined), enabled: enabled && canPreheat }}
       pause={{ run: () => apply('pause'), enabled: enabled && running && selected?.status !== 'between_repeats' && selected?.profile.transport !== 'serial', disabledReason: selected?.profile.transport === 'serial' ? '旧设备协议未提供暂停命令，请使用停止' : undefined }}
       resume={{ run: () => apply('resume'), enabled: enabled && selected?.status === 'paused' && !awaitingTurn }}
-      stop={{ run: () => apply('stop'), enabled: enabled && ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping', 'between_repeats'].includes(selected?.status ?? '') }}
+      stop={{ run: () => apply('stop'), enabled: enabled && (selected?.active_capture_id !== undefined
+        || ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping', 'between_repeats'].includes(selected?.status ?? '')) }}
       progress={selected ? [
         { label: isPreheat ? '预热进度' : '总进度', value: progressLabel, current: selected.progress, maximum: 100 },
         { label: '当前阶段', value: selected.last_message || stateLabel[selected.status], title: selected.last_message || stateLabel[selected.status] },
         { label: '燃烧帧 / 暗帧', value: `${selected.burn_frames_captured}/${selected.burn_frame_count} · ${selected.dark_frames_captured}/${selected.dark_frame_count}` }
       ] : []}
       ccd={ccd} ccdIndices={selected?.ccd_indices ?? []} onCcdChange={setCcdIndex}
-      hash={observedSample ? observed?.sha256 : preheatComplete ? preheat?.sha256 : selected?.last_event?.details.sha256}>
+      hash={measuring ? measurement.frame?.frame_sha256 ?? undefined : observedSample ? observed?.sha256 : preheatComplete ? preheat?.sha256 : selected?.last_event?.details.sha256}>
       {detailDock => selected && <>
         {displayError && <p role="alert">{displayError}</p>}
+        {measuring && <CaptureMeasurement observation={measurement} />}
         <SpectrumInspector fitPlot iconToolbar classic captureView key={`${selected.id}:${turnIndex}:${ccd}:${observedSample?.id ?? 'live'}`} points={points}
-          markers={captureLines.markers} focusPoint={captureLines.focusPoint} focusRevision={captureLines.focusRevision}
+          markers={measurementMatchesPlot ? captureLines.markers : []} focusPoint={measurementMatchesPlot ? captureLines.focusPoint : null} focusRevision={captureLines.focusRevision}
           context={{ fixed, scope: `${selected.task_kind}:${selected.method_id}:${selected.method_version}:${turnIndex}:${ccd}`, pointDetails, detailDock,
             lineMenu: captureLines.lineMenu, chooseMarker: captureLines.chooseMarker }}
           ccdNavigation={{ current: ccd, indices: visibleCcds, choose: setCcdIndex }}
-          label={`CCD ${ccd + 1} ${previewKey ? '燃烧帧（本轮尚未完成）' : !observedSample && preheatComplete ? '预热燃烧谱图（仅观察）' : `${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}${angle === undefined ? '' : ` · ${angle}°`}`}
+          label={measuring ? `CCD ${(measurement.scope?.ccd ?? ccd) + 1} 原始燃烧帧` : `CCD ${ccd + 1} ${previewKey ? '燃烧帧（本轮尚未完成）' : !observedSample && preheatComplete ? '预热燃烧谱图（仅观察）' : `${selected.task_kind === 'evaporation' ? '蒸发' : '样品'}${observedSample ? '已保存均值谱带' : '采集曲线'}`}${angle === undefined ? '' : ` · ${angle}°`}`}
           physicalScale={{ pointWidthUm: selected.layout.point_width_um, screenWidthMm: selected.profile.screen_width_mm, screenResolutionPx: selected.profile.screen_resolution_px }}
           bandNavigation={{ previous: () => setSampleId(completed[recordIndex - 1]?.id ?? null), next: () => setSampleId(completed[recordIndex + 1]?.id ?? null),
-            canPrevious: !busy && !acquiring && recordIndex > 0, canNext: !busy && !acquiring && recordIndex < completed.length - 1 }}
-          onPrint={canExport ? range => void print(range) : undefined}
-          printDisabledReason={printing ? '正在生成谱图PDF' : busy || acquiring ? '采集操作完成后可打印' : !observedSample ? '选择左侧已保存谱带后可打印' : !observed ? '等待已保存谱带读取完成' : undefined}
-          emptyText={displayError || (observedSample ? '正在读取已保存谱带…' : preheatComplete || previewKey ? '正在读取燃烧帧…' : '开始采集后显示实时 CCD 曲线')} />
+            canPrevious: !measuring && !busy && !acquiring && recordIndex > 0, canNext: !measuring && !busy && !acquiring && recordIndex < completed.length - 1 }}
+          onPrint={canExport && !measuring ? range => void print(range) : undefined}
+          printDisabledReason={measuring ? '切回已保存谱带后可打印' : printing ? '正在生成谱图PDF' : busy || acquiring ? '采集操作完成后可打印' : !observedSample ? '选择左侧已保存谱带后可打印' : !observed ? '等待已保存谱带读取完成' : undefined}
+          emptyText={measurement.error || displayError || (measuring ? '等待已入库的原始燃烧帧…' : observedSample ? '正在读取已保存谱带…' : preheatComplete || previewKey ? '正在读取燃烧帧…' : '开始采集后显示实时 CCD 曲线')} />
       </>}
     </SpectroscopyConsole>
   )

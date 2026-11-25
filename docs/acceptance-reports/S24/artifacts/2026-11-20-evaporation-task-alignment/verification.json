@@ -1,0 +1,72 @@
+{
+  "defaultLayout": {
+    "viewport": 1320,
+    "density": "comfortable",
+    "headingCenter": 1143,
+    "overflow": 0,
+    "rows": [
+      {
+        "name": "进入摄谱",
+        "center": 1143,
+        "gap": null,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 1143,
+        "gap": 17,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 1143,
+        "gap": 17,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 1143,
+        "gap": 17,
+        "fits": true
+      }
+    ]
+  },
+  "compactLayout": {
+    "viewport": 1060,
+    "density": "compact",
+    "headingCenter": 887,
+    "overflow": 0,
+    "rows": [
+      {
+        "name": "进入摄谱",
+        "center": 887,
+        "gap": null,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 887,
+        "gap": 17,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 887,
+        "gap": 17,
+        "fits": true
+      },
+      {
+        "name": "查看谱图",
+        "center": 887,
+        "gap": 17,
+        "fits": true
+      }
+    ]
+  },
+  "verified": [
+    "进入摄谱",
+    "查看谱图",
+    "打开并取消删除"
+  ],
+  "errors": []
+}

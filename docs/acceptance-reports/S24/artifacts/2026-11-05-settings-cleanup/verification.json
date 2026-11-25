@@ -1,0 +1,121 @@
+{
+  "status": "passed",
+  "initial_plan_sha256": "95fb7d86c6d3ffeef98d7adc7af50772e235317b2017c41b9e069c3f4bccede4",
+  "execution_plan_sha256": "4f26db51b6dd5cf70643f457182f1106c637b8b3a4b1ddf82a4477ea10aa5fb3",
+  "changed_files": [
+    "PLAN.md",
+    "app/backend/modules/manifest.py",
+    "app/backend/modules/offline_help.py",
+    "app/backend/services.py",
+    "app/frontend/src/components/FunctionIcon.tsx",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/navigation.ts",
+    "app/frontend/src/pages/auth/PermissionPicker.tsx",
+    "app/frontend/src/pages/devices/SoftwareParameters.tsx",
+    "app/frontend/src/pages/maintenance/MaintenancePage.tsx",
+    "app/frontend/src/pages/maintenance/SystemDiagnostics.tsx",
+    "app/frontend/src/pages/settings/SettingsPage.tsx",
+    "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+    "app/frontend/src/styles/remaining-pages.css",
+    "app/manifest.generated.json",
+    "app/tests/frontend_pages_checks.mjs",
+    "app/tests/frontend_workspace_rebuild_checks.mjs",
+    "app/tests/settings_cleanup_workflow.mjs",
+    "app/tests/settings_header_workflow.mjs",
+    "app/tests/test_api.py",
+    "app/tests/test_architecture.py",
+    "app/tests/test_auth.py",
+    "app/tests/test_runtime_isolation.py",
+    "app/tests/test_s20_maintenance.py"
+  ],
+  "backend_tests": 30,
+  "frontend_tests": 20,
+  "navigation_tests": 1,
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "导航和工作台无软件设置入口；历史界面、日志和时区偏好不影响默认行为",
+      "备份页无诊断和日志设置；目录草稿在失败后保留，重试备份及校验成功且不改分析参数",
+      "四项分析参数保留；保存失败保留草稿，重试只提交分析参数且不覆盖其他设置",
+      "屏幕校准仍可保存；分析参数、备份目录与打印偏好保持",
+      "大小窗口无横向溢出，刷新后参数保持；全流程不请求系统诊断",
+      "无额外即时测量请求"
+    ],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "scroll": 1440
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "scroll": 1060
+      }
+    ],
+    "errors": []
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "导航和工作台无软件设置入口；历史界面、日志和时区偏好不影响默认行为",
+      "备份页无诊断和日志设置；目录草稿在失败后保留，重试备份及校验成功且不改分析参数",
+      "四项分析参数保留；保存失败保留草稿，重试只提交分析参数且不覆盖其他设置",
+      "屏幕校准仍可保存；分析参数、备份目录与打印偏好保持",
+      "大小窗口无横向溢出，刷新后参数保持；全流程不请求系统诊断",
+      "无额外即时测量请求"
+    ],
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "scroll": 1440
+      },
+      {
+        "width": 1060,
+        "height": 680,
+        "scroll": 1060
+      }
+    ],
+    "errors": []
+  },
+  "sources_match_between_builds": true,
+  "production_data_unchanged": true,
+  "production_tables_verified": [
+    "app_settings",
+    "methods",
+    "method_versions",
+    "sample_queues",
+    "sample_queue_items",
+    "device_profiles",
+    "acquisition_tasks",
+    "acquisition_samples",
+    "acquisition_sample_bands",
+    "dispersion_tasks",
+    "dispersion_task_frames",
+    "analysis_runs",
+    "reports"
+  ],
+  "root_and_app_entries_unchanged": true,
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "09d50c669de2d7dd12a6a5d29b39c8b807dd2759de9ac8baa16c39896f185543",
+      "after_sha256": "425dd81f1c80afe8c3b5a590d3916f8761f57d55acffbd4d598423a86f98ac28"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "bf7a453798f86923850550c13313fffe1b84c04723f6807a9867299b08558d71",
+      "after_sha256": "3234831be925743521ec6045ae6febe745d330920db7a94ba647bf11a26f370d"
+    }
+  },
+  "retained_review": {
+    "status": "passed",
+    "retained_for_review": true,
+    "page": "备份与维护",
+    "device_disconnected": true,
+    "mercury_safe": true,
+    "settings_entry_absent": true,
+    "native_menu_checked": true,
+    "diagnostics_absent": true
+  },
+  "existing_gates": "真实硬件、未知协议、签名及安装发布验收保持原门禁；本批不重建安装包。"
+}

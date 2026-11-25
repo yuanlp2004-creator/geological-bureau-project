@@ -231,6 +231,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             {page === 'migration' && <MigrationWorkspace token={token} currentUser={user} onToast={showToast} />}
             {page === 'spectra' && <SpectrumViewerPage key={JSON.stringify([target.spectrumFileGroup, target.spectrumRecordId])}
               token={token} initialFileGroup={target.spectrumFileGroup} initialRecordId={target.spectrumRecordId}
+              currentMethodVersionId={currentMethod?.referenced_version?.id}
               actionsTarget={pageActionsTarget} canExport={user.permissions.includes('spectra.export')} onToast={showToast} onClose={()=>handlePage('workspace')} />}
             {page === 'prepared-import' && <PreparedImportPage token={token} currentMethod={currentMethod}
               canWrite={user.permissions.includes('postprocessing.write')} onToast={showToast}
@@ -276,7 +277,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             )}
             {page === 'help' && <HelpPage token={token} onToast={showToast} />}
             {page === 'about' && (
-              <AboutPage about={about} />
+              <AboutPage about={about} token={token} permissions={user.permissions} />
             )}
             {page === 'users' && <UsersPage token={token} currentUser={user} onToast={showToast} />}
             {page === 'audit' && <AuditPage token={token} />}

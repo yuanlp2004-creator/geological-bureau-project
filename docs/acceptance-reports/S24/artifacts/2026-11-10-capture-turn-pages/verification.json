@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "plan_sha256_before": "f0a266237c915607383087145d7da1134cad7b0cf315864bd1215481a0aacd67",
+  "backend_tests_passed": 71,
+  "frontend_tests_passed": 20,
+  "builds": [
+    "typescript/vite",
+    "pyinstaller",
+    "tauri qa",
+    "tauri production"
+  ],
+  "frozen_sidecar": "health and simulated operation verified; clean shutdown; schema 30",
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "色散摄谱标题行切换到4°并完成摄谱，17°仍待采；切回已采角度显示自己的谱图与控制状态",
+      "蒸发摄谱标题行切换到4°并完成摄谱，17°仍待采；切回已采角度显示自己的谱图与控制状态",
+      "独立自动转角入口从正式导航清单移除，历史接口仍可读取",
+      "样品新建仅填写编号；全部转角、关键波段和顺序取确切发布方法",
+      "预热只在所选转角执行，不占用正式样号及重复次数",
+      "逐角摄谱可查看本轮已采帧；全部转角完成后才计一次重复",
+      "两次重复完整保存并回写原队列；查看转角仅观察，宽窄窗口可操作",
+      "谱图查看与分析快照保持转角、CCD、波长及原始帧的同一关联",
+      "采集故障保留已收帧并安全结束，不确认不完整重复"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "width": 1123,
+        "height": 1000,
+        "overflow": false,
+        "pickers": 2
+      },
+      {
+        "width": 798,
+        "height": 760,
+        "overflow": false,
+        "pickers": 2
+      }
+    ],
+    "sampleTaskId": 7,
+    "methodId": 1
+  },
+  "deployment": {
+    "files": {
+      "geospectrum-backend.exe": {
+        "before": "f63e2f4380c001b74975971950939b4772dbbf814b7df41c70521bd9be536d3c",
+        "after": "f296b40ca329e2d3b8c4e2e3ae207b98788badfd73585decd353f4f43dcb5b58"
+      },
+      "GeoSpectrum.exe": {
+        "before": "e9588311deb529611d3f5ee0d075ab05f5fdeb42fbc20f873350ce65b6408a71",
+        "after": "21a7264caa3932d5d91252668441a2067ae8484e9a2ee6cc9944b31b78cf1920"
+      }
+    },
+    "same_source_files": 465
+  },
+  "review": {
+    "status": "completed",
+    "angles": [
+      "17° 已采",
+      "4° 已采"
+    ],
+    "isolated": true,
+    "pid": 34660
+  },
+  "live_motor_and_ccd": "deferred_external"
+}

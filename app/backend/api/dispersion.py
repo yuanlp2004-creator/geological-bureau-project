@@ -18,8 +18,10 @@ from ..schemas.dispersion import (
 from ..auth import Session
 from ..schemas.system import PreliminaryConditions
 from ..modules.dispersion import DispersionError
+from ..modules.devices import DeviceError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
+from .deployment_access import require_activation
 
 router = APIRouter()
 
@@ -195,10 +197,18 @@ def start_dispersion_task(
     session: Session = Depends(require_permission("dispersion.execute")),
     *,
     runtime: Runtime = Depends(get_runtime),
+    continuous: bool = False,
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.dispersion_service().start_task(task_id, session.user_id), source='dispersion', category='acquisition')
-    except DispersionError as exc:
+        service = runtime.dispersion_service()
+        current = service.get_task(task_id)
+        require_activation(runtime, begins_new_work=lambda: current["status"] == "draft" or (
+            continuous and any(item["status"] == "draft" for item in current.get("capture_turns", []))))
+        if not current.get('active_capture_id') and current['profile']['transport'] == 'serial':
+            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
+        task = service.start_sequence(task_id, session.user_id) if continuous else service.start_task(task_id, session.user_id)
+        return runtime.messages.task(task, source='dispersion', category='acquisition')
+    except (DispersionError, DeviceError) as exc:
         raise dispersion_error(exc) from exc
 
 
@@ -209,9 +219,14 @@ def preheat_dispersion_task(
     _: Session = Depends(require_permission("dispersion.write")),
     *, runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
+    require_activation(runtime)
     try:
-        return runtime.messages.task(runtime.dispersion_service().preheat_task(task_id, session.user_id), source='dispersion', category='acquisition')
-    except DispersionError as exc:
+        service = runtime.dispersion_service()
+        current = service.get_task(task_id)
+        if current['profile']['transport'] == 'serial':
+            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
+        return runtime.messages.task(service.preheat_task(task_id, session.user_id), source='dispersion', category='acquisition')
+    except (DispersionError, DeviceError) as exc:
         raise dispersion_error(exc) from exc
 
 

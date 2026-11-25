@@ -1,0 +1,266 @@
+{
+  "status": "passed",
+  "date": "2026-11-03",
+  "scope": "S24 legacy device/software parameters",
+  "plan_sha256_before": "1bf99881f4e57065e6ecfac11e7596a78072ac33022278b15f7eed3de21ec5b0",
+  "plan_sha256_after_authorization_note": "9ddbbc0aaa4c254fdeb7298a3642eb99cdaa09951dafa14977e253408b39fc43",
+  "frontend_tests": {
+    "passed": 20
+  },
+  "desktop": {
+    "checks": [
+      "One device-debug menu entry contains all four permission-controlled tabs",
+      "Software and device parameter drafts survive tab changes",
+      "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+      "Device parameters persist through the existing API and reject duplicate CCD slots",
+      "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+      "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+      "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+      "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+      "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+      "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+      "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+      "Mercury-only read permission reaches the unified entry without requiring settings or device permissions",
+      "独立建立真实串口档案，原模拟档案逐字段保持；连接失败不允许开始且不回退模拟"
+    ],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / CCD设置"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / CCD设置"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / CCD设置"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / CCD设置"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": true
+      }
+    ],
+    "errors": []
+  },
+  "production_qa_source_snapshots_match": true,
+  "backend_bytes_unchanged": true,
+  "files": {
+    "GeoSpectrum.exe": "b8c65002491b8d6c9fdedf0241568314bc429d4d35174b009692b2726ac9edc7",
+    "geospectrum-backend.exe": "27218513473d132b25aacc9b76c7dde081841eefd06be2f5d6f624364df8d0a1"
+  },
+  "production_data_unchanged": true,
+  "production_metadata": {
+    "device_profiles": {
+      "count": 2,
+      "metadata_sha256": "d0bb8dce2f5d7bfa8a9a1c29bab30728bc1b3c7622ec5ef12cfc7673562052df"
+    },
+    "acquisition_tasks": {
+      "count": 22,
+      "metadata_sha256": "6164d3525e245383fe9b1cf10bd9b9dce94207a79b23030b398eb118cb7a1855"
+    },
+    "acquisition_samples": {
+      "count": 40,
+      "metadata_sha256": "3f258c03ebf343b2968028552448cd3baaf6f9ebf5f4a414e49f3545cfd6e9f5"
+    },
+    "acquisition_sample_bands": {
+      "count": 195,
+      "metadata_sha256": "3486d9d0f038091f7cf19c93016cd6bc036ed541e2f047e50cb735752e056e82"
+    },
+    "dispersion_tasks": {
+      "count": 11,
+      "metadata_sha256": "9f117f6a9b00c428af72921e348f1045f66431a77840da21d4a9a2c2073bb533"
+    },
+    "dispersion_task_frames": {
+      "count": 315,
+      "metadata_sha256": "9cf7a0af13ed63577d752b4562b3d5cd4bfa96e25f86d286b2357fb8504afd2e"
+    }
+  },
+  "retained": {
+    "retained": true,
+    "title": "GeoSpectrum 参数分类审阅",
+    "page": "设备参数 / CCD设置",
+    "device_connected": false,
+    "ccd": {
+      "CCD容量": "6",
+      "CCD点数": "2048",
+      "CCD点宽（μm）": "14.0",
+      "尾首间隔（μm）": "9809",
+      "安装插槽": "1, 2, 3, 5, 6",
+      "允许漂移（μm）": "300"
+    },
+    "backend_retained": true,
+    "physical_device_tested": false
+  },
+  "native_visual_review": [
+    "电脑设置",
+    "CCD设置",
+    "软件参数"
+  ],
+  "sources": [
+    "Spec Source/Source/Main/mmTool/FmOptHardWare.pas",
+    "Spec Source/Source/Main/mmTool/FmOptHardWare.dfm",
+    "Spec Source/Source/Main/mmTool/FmCfgSoftWare.pas",
+    "Spec Source/Source/Main/mmTool/FmCfgSoftWare.dfm",
+    "Spec Source/Source/Common/uOptions.pas"
+  ],
+  "external_gates_unchanged": [
+    "real hardware",
+    "turn/mercury protocol",
+    "code signing",
+    "installer/clean Windows",
+    "human acceptance"
+  ]
+}

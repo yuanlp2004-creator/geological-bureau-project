@@ -10,10 +10,12 @@ type Props = {
   onClose: () => void
 }
 
+const displayWavelength = (value: number) => value <= 0 ? '' : Number(value.toFixed(4)) === value ? value.toFixed(4) : String(value)
+
 /** FmWstc: compact toolbar, six-column editable wavelength grid, calculation results. */
 export function DispersionCurveDialog({ active, token, canWrite, busy, gapLimits, curves, change, onClose }: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
-  const [drafts, setDrafts] = useState<Record<number, string>>(() => Object.fromEntries(active.lines.map(line => [line.id, line.wavelength_nm > 0 ? line.wavelength_nm.toFixed(4) : ''])))
+  const [drafts, setDrafts] = useState<Record<number, string>>(() => Object.fromEntries(active.lines.map(line => [line.id, displayWavelength(line.wavelength_nm)])))
   const [gap, setGap] = useState(-1)
   const [increment, setIncrement] = useState(1)
   const [fittedId, setFittedId] = useState<number | null>(null)
@@ -33,10 +35,19 @@ export function DispersionCurveDialog({ active, token, canWrite, busy, gapLimits
   const gapValue = gap < 0 ? null : Math.round((active.layout.gap_points[gap] ?? 0) * active.layout.point_width_um)
   const enabled = canWrite && !busy
   const names = Array.from(new Set([...active.calibrations, ...curves].filter(curve=>curve.state === 'published' && !curve.archived).map(curve=>curve.name)))
-  const complete = rows.length >= 4 && active.lines.every(line => Number(drafts[line.id]) >= 160 && Number(drafts[line.id]) <= 800) && rows.every(row => row.measured_step !== null)
+  const located = rows.filter(row => row.measured_step != null)
+  const valid = located.filter(row => Number(drafts[row.line_id]) >= 160 && Number(drafts[row.line_id]) <= 800)
+  const wavelengths = valid.map(row => Number(drafts[row.line_id])).sort((a, b) => a - b)
+  const positions = valid.map(row => row.measured_step!).sort((a, b) => a - b)
+  const duplicate = wavelengths.some((value, index) => index > 0 && value - wavelengths[index - 1] <= 0.01)
+    || positions.some((value, index) => index > 0 && value - positions[index - 1] <= 1e-7)
+  const fitIssue = valid.length !== located.length ? '请填写已定位谱线的有效已知波长。'
+    : valid.length < 4 || valid.length > 8 ? `有效定位点 ${valid.length} 个，拟合需要 4–8 个，通常使用 6 个。`
+    : duplicate ? '有效定位点的波长与测量步数须各不相同。' : ''
   const persist = async () => {
     let task = active
     for (const line of active.lines) {
+      if (!located.some(row => row.line_id === line.id)) continue
       const value = Number(drafts[line.id])
       if (!Number.isFinite(value) || value < 160 || value > 800) { setError('请填写160–800 nm范围内的已知波长'); return }
       if (value !== line.wavelength_nm) {
@@ -50,22 +61,24 @@ export function DispersionCurveDialog({ active, token, canWrite, busy, gapLimits
   const commitOne = async (id: number) => {
     const line = active.lines.find(line => line.id === id), value = Number(drafts[id])
     if (!line || !enabled) return
-    if (value === line.wavelength_nm) {setDrafts(values=>({...values,[id]:value.toFixed(4)}));return}
+    if (value === line.wavelength_nm) { setDrafts(values => ({ ...values, [id]: displayWavelength(value) })); return }
     if (!Number.isFinite(value) || value < 160 || value > 800) {
       setError('请输入160–800 nm范围内的已知波长，已还原原值')
-      setDrafts(values=>({...values,[id]:line.wavelength_nm>0?line.wavelength_nm.toFixed(4):''}));return
+      setDrafts(values=>({...values,[id]:displayWavelength(line.wavelength_nm)}));return
     }
     const updated = await change(taskId => api.updateDispersionWavelength(token, taskId, id, value, true))
-    if (updated) {setError('');setDrafts(values=>Number(values[id])===value?({...values,[id]:value.toFixed(4)}):values)}
-    else setDrafts(values=>({...values,[id]:line.wavelength_nm>0?line.wavelength_nm.toFixed(4):''}))
+    if (updated) { setError(''); setDrafts(values => Number(values[id]) === value ? { ...values, [id]: displayWavelength(value) } : values) }
+    else setDrafts(values=>({...values,[id]:displayWavelength(line.wavelength_nm)}))
   }
   const calculate = async () => {
     setError('')
     if (!await persist()) return
     const updated = await change(id => api.fitDispersionCalibration(token, id, { degree: 2, use_legacy_limit: true }))
     if (updated) {
-      setFittedId(updated.calibrations[0].id)
-      if (!updated.calibrations[0].publishable) setError('步数误差达到或超过允许值，请检查输入数据后重新拟合。')
+      const nextFit = updated.calibrations.find(item => item.state === 'draft' && !active.calibrations.some(prior => prior.id === item.id))
+      if (!nextFit) return
+      setFittedId(nextFit.id)
+      if (!nextFit.publishable && nextFit.inputs_current !== false) setError('步数误差达到或超过允许值，请检查输入数据后重新拟合。')
     }
   }
   const save = async () => {
@@ -97,13 +110,13 @@ export function DispersionCurveDialog({ active, token, canWrite, busy, gapLimits
         </select><span className="dispersion-unit">μm</span></label>
         </div>
         <div className="dispersion-legacy-actions">
-        <button type="button" disabled={!enabled || !complete} onMouseDown={event => event.preventDefault()} onClick={() => void calculate()}>拟合曲线</button>
-        <button type="button" className="dispersion-save-button" disabled={!enabled || !current?.publishable || !results || active.lines.some(line => Number(drafts[line.id]) !== line.wavelength_nm)} onMouseDown={event => event.preventDefault()} onClick={() => setSaveOpen(true)}>保存曲线</button>
+        <button type="button" disabled={!enabled || Boolean(fitIssue)} title={fitIssue || '使用当前有效定位点拟合'} onMouseDown={event => event.preventDefault()} onClick={() => void calculate()}>拟合曲线</button>
+        <button type="button" className="dispersion-save-button" disabled={!enabled || Boolean(fitIssue) || !current?.publishable || !results || active.lines.some(line => located.some(row => row.line_id === line.id) && Number(drafts[line.id]) !== line.wavelength_nm)} onMouseDown={event => event.preventDefault()} onClick={() => setSaveOpen(true)}>保存曲线</button>
         <button type="button" disabled={busy} onClick={onClose}>退出</button>
         </div>
       </div>
       <div className="dispersion-legacy-body">
-        <section className="dispersion-legacy-lines"><h3>谱线列表<span>{rows.length} 条 · 波长 nm</span></h3>
+        <section className="dispersion-legacy-lines"><h3>谱线列表<span>{valid.length} 个有效定位点 / {rows.length} 条谱线 · 波长 nm</span></h3>
           <div className="dispersion-legacy-table"><table><thead><tr>
             {['序号','谱线波长','谱线位置','测量步数','校正步数','步数误差'].map(label => <th key={label}>{label}</th>)}
           </tr></thead><tbody>{rows.map((row, index) => {
@@ -125,6 +138,7 @@ export function DispersionCurveDialog({ active, token, canWrite, busy, gapLimits
         </dl></section>
       </div>
       {fit && !current && <p className="dispersion-legacy-note" role="status">谱线或CCD间隔已改变，请重新拟合。</p>}
+      {fitIssue && <p className="dispersion-legacy-note" role="status">{fitIssue}</p>}
       {error && <p className="dispersion-legacy-error" role="alert">{error}</p>}
     </dialog>
     <SpectroscopyTaskDialog open={saveOpen} title="保存色散曲线" busy={busy} onCancel={() => setSaveOpen(false)}

@@ -408,7 +408,12 @@ class AcquisitionRepository:
                 exposure_by_ccd = {}
                 turn_config = None
             if turn_config and turn_config['multiple'] and profile['transport'] == 'serial':
-                raise AcquisitionError('hardware_protocol_unavailable', '真实自动转角协议尚未确认，不能执行多转角样品摄谱', status_code=409)
+                from ..devices import DeviceError
+                from ..devices.motor_turn import prepare_motor_turn
+                try:
+                    prepare_motor_turn(self.database, profile, [turn['angle_deg'] for turn in turn_config['plan']], preflight=False)
+                except DeviceError as exc:
+                    raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
             if not 1 <= repeat_count <= 10:
                 raise AcquisitionError('repeat_invalid', '方法默认重复次数必须在 1 到 10 之间')
             # 时间参数需有限且在范围内；采样周期额外要求以 0.01 秒递增。
@@ -759,6 +764,7 @@ class AcquisitionRepository:
         ccd_index: int | None = None,
         include_points: bool = False,
         turn_index: int | None = None,
+        frame_index: int | None = None,
     ) -> list[dict[str, Any]]:
         task, _, _ = self._context(task_id)
         where = ["task_id=?"]
@@ -774,9 +780,13 @@ class AcquisitionRepository:
         if ccd_index is not None:
             where.append("ccd_index=?")
             args.append(int(ccd_index))
+        if frame_index is not None:
+            where.append("frame_index=?")
+            args.append(frame_index)
         with self.database.read() as db:
             from .turns import frames
-            turn_frames = frames(db, task_id, repeat_index, phase, ccd_index, include_points, turn_index=turn_index)
+            turn_frames = frames(db, task_id, repeat_index, phase, ccd_index, include_points,
+                                 turn_index=turn_index, frame_index=frame_index)
             if turn_frames is not None:
                 return turn_frames
             from .turns import context
@@ -797,6 +807,8 @@ class AcquisitionRepository:
                     item.update(turn_index=capture_turn['turn_index'], angle_deg=capture_turn['angle_deg'])
                 if include_points and row["points_blob"] is not None:
                     item["points"] = _unpack_uint16(row["points_blob"], int(row["points_count"]))
+                    if frame_index is not None and hashlib.sha256(row['points_blob']).hexdigest() != row['points_sha256']:
+                        raise AcquisitionError('acquisition_frame_integrity_failed', '采集原始帧校验失败')
                 item.pop("points_blob", None)
                 result.append(item)
             return result

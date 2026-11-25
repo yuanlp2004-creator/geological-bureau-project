@@ -1,0 +1,54 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "d4921c2ec7b908175dd5d260f91c0ae83bb776172f2a4e2f9e27cc3ce0ef3036",
+  "scope": "Remove record and exposure-enable checkboxes in existing spectrum/evaporation viewers",
+  "changed_product_sources": [
+    "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+  ],
+  "frontend_tests": 16,
+  "browser": {
+    "checks": 11,
+    "layouts": 6
+  },
+  "desktop": {
+    "checks": 11,
+    "layouts": 6
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-viewer-row-select\\qa\\GeoSpectrum.exe",
+    "pid": 30432,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_sources_and_executable_unchanged": true,
+  "legacy_sources_unchanged": true,
+  "original_files": {
+    "wdt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "records": 120
+    },
+    "cmt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+      "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "records": 960
+    },
+    "edt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120
+    }
+  },
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "564df61dd0cb68e5b1721d9d51365ff14a833c7b60f1b12918616b00d4bc73c7",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-row-select-20261026\\before",
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false
+}

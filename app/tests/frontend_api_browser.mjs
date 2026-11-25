@@ -184,6 +184,14 @@ try {
     await checkDeviceDebug(page, {}, result, output)
     await writeFile(path.join(output, 'device-debug.json'), JSON.stringify(result, null, 2))
   }
+  if (process.argv.includes('--continuous-capture') || process.argv.includes('--mercury-positioning')) {
+    const { checkPreliminaryContinuousCapture } = await import('./continuous_capture_workflow.mjs')
+    await checkPreliminaryContinuousCapture(page, checks)
+  }
+  if (process.argv.some(flag => ['--alignment-turn', '--alignment-positioning', '--mercury-positioning'].includes(flag))) {
+    const { checkAlignmentTurns } = await import('./alignment_turn_workflow.mjs')
+    await checkAlignmentTurns(page, checks, output)
+  }
   if (process.argv.includes('--pages')) {
     const { checkPages } = await import('./frontend_pages_checks.mjs')
     await checkPages(page, checks)

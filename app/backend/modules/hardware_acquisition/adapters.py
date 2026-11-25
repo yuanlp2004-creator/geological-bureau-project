@@ -36,12 +36,7 @@ class SimulatorTurnAdapter:
     def turn(self, *, angle_deg: float, correlation_id: str) -> dict[str, Any]:
         if self.acquisition.state.value != "debugging":
             raise HardwareError("hardware_session_not_running", "simulator session is not active", status_code=409)
-        return {
-            "event_type": "turn_complete",
-            "angle_deg": angle_deg,
-            "correlation_id": correlation_id,
-            "simulated": True,
-        }
+        return self.acquisition.position_angle(angle_deg, correlation_id)
 
     def capture(self, *, correlation_id: str, observation: dict[str, Any] | None = None,
                 anomalies: list[str] | None = None) -> dict[str, Any]:

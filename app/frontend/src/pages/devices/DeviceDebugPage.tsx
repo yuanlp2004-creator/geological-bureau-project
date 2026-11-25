@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api, type Settings, type DeviceProfile } from '../../api'
+import type { Settings, DeviceProfile } from '../../api'
 import { AcquisitionPage } from './AcquisitionPage'
 import { SoftwareParameters } from './SoftwareParameters'
 import { DeviceParameters } from './DeviceParameters'
 import { DeviceConnection } from './DeviceConnection'
-import { ensureCaptureConnection } from '../acquisition/captureConnection'
 import './device-debug.css'
 
 type Tab = 'software' | 'device' | 'alignment' | 'connection'
@@ -32,7 +31,6 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
   const [actionsTarget, setActionsTarget] = useState<HTMLDivElement | null>(null)
   const [revision, setRevision] = useState(0)
   const [profile, setProfile] = useState<DeviceProfile | null>(null)
-  const [checking, setChecking] = useState(false)
   const onDeviceSaved = useCallback(() => setRevision(value => value + 1), [])
   useEffect(() => {
     if (!tabs.some(item => item.id === requestedView && item.allowed)) return
@@ -40,20 +38,8 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
     setTab(next)
     setVisited(current => new Set([...current, next]))
   }, [requestedView])
-  const choose = async (next: Tab) => {
-    if (next === tab || checking) return
-    if (next === 'alignment') {
-      setChecking(true)
-      try {
-        const selected = await api.currentDeviceProfile(token)
-        setProfile(selected)
-        if (selected?.transport === 'serial') {
-          const current = await api.deviceDiagnostics(token)
-          if (!current.adapter.connected) await ensureCaptureConnection(token, selected.id, selected.transport, 'devices')
-        }
-      } catch (error) { onToast(error instanceof Error ? error.message : '仪器连接检查失败'); return }
-      finally { setChecking(false) }
-    }
+  const choose = (next: Tab) => {
+    if (next === tab) return
     setTab(next)
     setVisited(current => new Set([...current, next]))
     onViewChange(next)
@@ -63,7 +49,7 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
     <div className="device-debug-toolbar"><nav className="device-debug-tabs" role="tablist" aria-label="设备调试功能">
       {tabs.filter(item => item.allowed).map(item => <button key={item.id} type="button" role="tab"
         id={`device-tab-${item.id}`} aria-controls={`device-panel-${item.id}`} aria-selected={tab === item.id}
-        disabled={checking} className={tab === item.id ? 'active' : ''} onClick={() => void choose(item.id)}>{item.label}</button>)}
+        className={tab === item.id ? 'active' : ''} onClick={() => choose(item.id)}>{item.label}</button>)}
     </nav><div ref={setActionsTarget} className="device-debug-actions" /></div>
     {tabs.filter(item => item.allowed && visited.has(item.id)).map(item => <div className="device-debug-panel" key={item.id}
       id={`device-panel-${item.id}`} role="tabpanel" aria-labelledby={`device-tab-${item.id}`} hidden={tab !== item.id}>
@@ -73,9 +59,10 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
         canWriteScreen={permissions.includes('settings.write')} canReadLayouts={permissions.includes('methods.read')}
         settings={settings} onSettingsChange={onSettingsChange} revision={revision} onSaved={onDeviceSaved} onProfileChange={setProfile} onToast={onToast} actionsTarget={actionsTarget} active={tab === item.id} />}
       {item.id === 'connection' && <DeviceConnection token={token} canWrite={permissions.includes('devices.write')} canExecute={permissions.includes('devices.execute')}
-        active={tab === item.id} revision={revision} onSaved={onDeviceSaved} onProfileChange={setProfile} onConfigure={() => void choose('device')} onToast={onToast} />}
-      {item.id === 'alignment' && <AcquisitionPage embedded token={token} canWrite={permissions.includes('devices.write')}
-        canExecute={permissions.includes('devices.execute')} preferredProfileId={profile?.id} revision={revision} actionsTarget={actionsTarget} active={tab === item.id} onToast={onToast} />}
+        active={tab === item.id} revision={revision} onSaved={onDeviceSaved} onProfileChange={setProfile} onConfigure={() => choose('device')} onToast={onToast} />}
+      {item.id === 'alignment' && <AcquisitionPage token={token}
+        canExecute={permissions.includes('devices.execute')} preferredProfileId={profile?.id} revision={revision} actionsTarget={actionsTarget}
+        active={tab === item.id} onToast={onToast} />}
     </div>)}
   </div>
 }

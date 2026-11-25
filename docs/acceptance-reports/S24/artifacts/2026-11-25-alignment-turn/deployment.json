@@ -1,0 +1,96 @@
+{
+    "status":  "passed",
+    "deployedAt":  "2026-11-25T15:49:20.3897198+09:00",
+    "method":  "same-volume per-file replacement with pair rollback",
+    "planSha256":  "5e64553feba9e77cda004a9ba12fd187284334846a7c84d343455102b9d46426",
+    "productFingerprints":  {
+                                "desktop":  "f311f3b17addac56df2678f25eca3aecdaf9916dc277e92305b03d57a4af2aa0",
+                                "sidecar":  "6d9b40e49610398a8190c6743ab9b446faa9bbc4b2bfe4df04ca8a0a70d4693b",
+                                "manifest":  "8855b7895eaf77c212590ec44f1829a87c7f0d6b3627730fc96f385b5993ba9f"
+                            },
+    "formalDatabaseOpened":  false,
+    "rootPair":  [
+                     {
+                         "name":  "geospectrum-backend.exe",
+                         "previous":  "9A72A82C12B9D65B69AE633EBFF5B20056F964778D38C8442714F57B330E23AD",
+                         "root":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\geospectrum-backend.exe",
+                         "source":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\candidate-turn-final\\geospectrum-backend.exe",
+                         "backup":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\geospectrum-backend.exe",
+                         "pending":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\pending-geospectrum-backend.exe",
+                         "displaced":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\displaced-geospectrum-backend.exe",
+                         "next":  "F8FA1CC1FF62F35ED0F69B5675A16D5922EEBEDB791CFAC1E8A8E662FB27510A"
+                     },
+                     {
+                         "name":  "GeoSpectrum.exe",
+                         "previous":  "15D87DECBBFD63351A76F64515402FDFBBEEA07CC067F9811796118E7D9863C7",
+                         "root":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\GeoSpectrum.exe",
+                         "source":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\candidate-turn-final\\GeoSpectrum.exe",
+                         "backup":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\GeoSpectrum.exe",
+                         "pending":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\pending-GeoSpectrum.exe",
+                         "displaced":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final\\displaced-GeoSpectrum.exe",
+                         "next":  "2128151BC1E11CA2CE1A2A3A0648EC35A09ED84CD6DC52EC85FF334D318241BA"
+                     }
+                 ],
+    "originalBefore":  {
+                           "pid":  32284,
+                           "path":  "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+                           "startTime":  "2026-11-25T13:57:40.6646248+09:00",
+                           "windowHandle":  4526330,
+                           "title":  "GeoSpectrum",
+                           "responds":  true,
+                           "sidecars":  [
+                                            {
+                                                "pid":  3456,
+                                                "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\geospectrum-backend.exe",
+                                                "parent":  5624
+                                            },
+                                            {
+                                                "pid":  5624,
+                                                "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\geospectrum-backend.exe",
+                                                "parent":  32284
+                                            }
+                                        ]
+                       },
+    "originalAfter":  {
+                          "pid":  32284,
+                          "path":  "C:\\Users\\Leo\\Desktop\\地质局\\GeoSpectrum.exe",
+                          "startTime":  "2026-11-25T13:57:40.6646248+09:00",
+                          "windowHandle":  4526330,
+                          "title":  "GeoSpectrum",
+                          "responds":  true,
+                          "sidecars":  [
+                                           {
+                                               "pid":  3456,
+                                               "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\geospectrum-backend.exe",
+                                               "parent":  5624
+                                           },
+                                           {
+                                               "pid":  5624,
+                                               "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\geospectrum-backend.exe",
+                                               "parent":  32284
+                                           }
+                                       ]
+                      },
+    "isolatedReview":  {
+                           "pid":  36900,
+                           "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\review-turn-final\\GeoSpectrum.exe",
+                           "startTime":  "2026-11-25T15:47:24.6322471+09:00",
+                           "windowHandle":  331644,
+                           "title":  "GeoSpectrum 切角审阅",
+                           "responds":  true,
+                           "sidecars":  [
+                                            {
+                                                "pid":  5724,
+                                                "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\review-turn-final\\geospectrum-backend.exe",
+                                                "parent":  36900
+                                            },
+                                            {
+                                                "pid":  26868,
+                                                "path":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\review-turn-final\\geospectrum-backend.exe",
+                                                "parent":  5724
+                                            }
+                                        ]
+                       },
+    "isolatedReviewDesktopSha256":  "796AC72787ADA6DF882CDD1230F3AA814B1302AF06E8084D3122B26FA1D63601",
+    "rollback":  "C:\\Users\\Leo\\Documents\\Projects\\地质局\\app\\.local\\test-runs\\20261125-alignment-turn\\rollback-turn-final"
+}

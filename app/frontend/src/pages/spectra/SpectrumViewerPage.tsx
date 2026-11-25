@@ -25,7 +25,7 @@ const groupKey = (item: SpectrumRecordSummary) => item.file_group_key || (item.t
 const compareRecords = (a: SpectrumRecordSummary, b: SpectrumRecordSummary) =>
   (a.turn_index ?? 0) - (b.turn_index ?? 0) || (a.repeat_index ?? a.record_index) - (b.repeat_index ?? b.record_index)
 
-export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, viewing = 'spectra', initialFileGroup = '', initialRecordId, canExport = true }: { token: string; onToast: (message: string) => void; onClose?:()=>void; actionsTarget?: HTMLElement | null; viewing?:'spectra'|'evaporation'; initialFileGroup?:string; initialRecordId?:string; canExport?: boolean }) {
+export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, viewing = 'spectra', initialFileGroup = '', initialRecordId, canExport = true, currentMethodVersionId }: { token: string; onToast: (message: string) => void; onClose?:()=>void; actionsTarget?: HTMLElement | null; viewing?:'spectra'|'evaporation'; initialFileGroup?:string; initialRecordId?:string; canExport?: boolean; currentMethodVersionId?:number|null }) {
   const [showRecords,setShowRecords]=useState(true)
   const [fileGroup,setFileGroup]=useState(initialFileGroup)
   const [fileSources,setFileSources]=useState<SpectrumFileSummary[]>([])
@@ -237,7 +237,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
     let cancelled=false
     void api.currentMethod(token).then(current=>{if(!cancelled)setMethodLines(current.referenced_version?.lines??[])}).catch(()=>{})
     return ()=>{cancelled=true}
-  },[token,selected?.id])
+  },[token,selected?.id,currentMethodVersionId])
   const maxExposure = Math.max(1, Number(active?.ignition?.burn_count ?? selected?.burn_count ?? 1))
   const visibleFrame = frameVisible ? active?.frame_detail : null
   const availableFrames = Number(active?.ignition?.[framePhase === 'burn' ? 'burn_count' : 'dark_count'] ?? 0)
@@ -795,7 +795,7 @@ export function SpectrumViewerPage({ token, onToast, onClose, actionsTarget, vie
         {!raw&&active?.matrix_kind==='peak_back'&&<label>显示<select aria-label="结果数据显示" value={mode} onChange={event=>setMode(event.target.value as typeof mode)}><option value="peak">峰值</option><option value="back">背景</option></select></label>}
       </div>
       <div className={`legacy-view-body spectrum-viewer-layout${showRecords?'':' left-hidden'}`}>
-        {showRecords&&<SpectrumRecordList key={currentGroup} token={token} visibleRecords={visibleRecords} selectedId={selectedId} displayIds={displayIds} selectRecord={selectRecord} recordLocked={recordLocked}
+        {showRecords&&<SpectrumRecordList key={currentGroup} token={token} currentMethodVersionId={currentMethodVersionId} visibleRecords={visibleRecords} selectedId={selectedId} displayIds={displayIds} selectRecord={selectRecord} recordLocked={recordLocked}
           multiView={multiView} toggleMulti={()=>{setMultiMode(multiView?'single':'multi');setTool('crosshair')}} toggleLock={()=>setRecordLocked(value=>!value)} onHide={()=>setShowRecords(false)} onContextMenu={openFileMenu}/>}
         <section className="legacy-view-center spectrum-workbench">
           {detailError?<div className="auth-error" role="alert">{detailError}<button onClick={()=>void loadDetails()}>重试读取</button></div>:!active?<div className="method-empty"><Activity size={24}/><p>{busy?'正在读取谱图…':'选择一条谱图记录'}</p></div>:<>

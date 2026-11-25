@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "10d08f86d1eed6f24ca7bb63b2680f9e37e502fd2b0e720b346d8b6db64b833c",
+  "changed_product_files": [
+    "app/frontend/src/api/hardwareAcquisition.ts",
+    "app/frontend/src/layout/WorkspaceApp.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionDiagnostics.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionForm.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionMonitor.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPlan.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAnalysisSamplePanel.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/HardwareSpectrum.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardwareView.tsx"
+  ],
+  "backend_tests": 20,
+  "frontend_tests": 16,
+  "browser": {
+    "checks": 9,
+    "layouts": 3
+  },
+  "desktop": {
+    "checks": 9,
+    "layouts": 3
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "paired_executable_sha256": {
+    "GeoSpectrum.exe": "09c40426cf366ca7d5dd95486a31577c9c80e0830a47cb05c8a3800b5a6782bd",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "backend_source_and_binary_unchanged": true,
+  "tests_use_disposable_databases": true,
+  "user_database_replaced": false,
+  "root_app_inventory_unchanged": true,
+  "installer_rebuilt": false,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-auto-turn\\qa\\GeoSpectrum.exe",
+    "pid": 28996,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\auto-turn-20261027\\before",
+  "hardware_status": "deferred_external: confirmed serial protocol and real instrument acceptance still missing",
+  "old_failed_test_cache_cleanup": {
+    "status": "blocked_by_automatic_approval_policy",
+    "reason": "Tool returned blocked by policy without a more specific reason",
+    "path": "D:\\C_Drive_Caches\\Users\\Leo\\AppData\\Local\\Temp\\geospectrum-density-desktop-j7dqqgnx",
+    "impact": "Old disposable cache retained; final QA normal exit and package delivery unaffected"
+  }
+}

@@ -1,0 +1,217 @@
+{
+    "five_controls":  {
+                          "positions":  [
+                                            {
+                                                "command":  "start",
+                                                "label":  "试样摄谱",
+                                                "top":  467.6875,
+                                                "bottom":  495.6875,
+                                                "width":  148
+                                            },
+                                            {
+                                                "command":  "single-turn",
+                                                "label":  "仅摄本转角",
+                                                "top":  498.6875,
+                                                "bottom":  526.6875,
+                                                "width":  148
+                                            },
+                                            {
+                                                "command":  "preheat",
+                                                "label":  "预热摄谱",
+                                                "top":  529.6875,
+                                                "bottom":  557.6875,
+                                                "width":  148
+                                            },
+                                            {
+                                                "command":  "stop",
+                                                "label":  "停止摄谱",
+                                                "top":  560.6875,
+                                                "bottom":  588.6875,
+                                                "width":  148
+                                            },
+                                            {
+                                                "command":  "finish",
+                                                "label":  "结束",
+                                                "top":  593.6875,
+                                                "bottom":  621.6875,
+                                                "width":  148
+                                            }
+                                        ],
+                          "bottom":  628,
+                          "overflow":  -12
+                      },
+    "checked_date":  "2026-11-23",
+    "frontend_tests":  22,
+    "release":  {
+                    "previous_frontend_sha256":  "0c53fef08337f666da9b7e9616f77a37b40ef610420a28fd7a8118c68622b950",
+                    "frontend_sha256":  "20cbdcbeeede6bd8648170d00ffe804bc23ec655e9a2a0f688905c0e596e3741",
+                    "backend_sha256":  "3649111dbe8290deb3a9e890b2263d151676471fdcd85d29565add188c6d4c2b"
+                },
+    "webview_checks":  [
+                           {
+                               "label":  "七个侧栏入口有统一线框图标，键盘导航",
+                               "details":  [
+                                               "工作台",
+                                               "光谱方法",
+                                               "分析测试",
+                                               "数据处理",
+                                               "工具",
+                                               "系统管理",
+                                               "帮助"
+                                           ]
+                           },
+                           {
+                               "label":  "样品分析三种尺寸、明暗配色与 27 个重绘工具",
+                               "details":  [
+                                               {
+                                                   "w":  1440,
+                                                   "h":  900,
+                                                   "theme":  "light",
+                                                   "board":  "rgb(223, 233, 245)",
+                                                   "banner":  "rgb(237, 244, 252)",
+                                                   "text":  "rgb(41, 71, 97)",
+                                                   "plot":  "rgb(255, 255, 255)",
+                                                   "curve":  "rgb(195, 45, 53)",
+                                                   "grid":  "rgb(197, 209, 222)",
+                                                   "overflow":  0
+                                               },
+                                               {
+                                                   "w":  1060,
+                                                   "h":  680,
+                                                   "theme":  "dark",
+                                                   "board":  "rgb(37, 60, 84)",
+                                                   "banner":  "rgb(29, 48, 70)",
+                                                   "text":  "rgb(214, 229, 244)",
+                                                   "plot":  "rgb(23, 38, 56)",
+                                                   "curve":  "rgb(255, 134, 133)",
+                                                   "grid":  "rgb(65, 88, 113)",
+                                                   "overflow":  0
+                                               },
+                                               {
+                                                   "w":  1920,
+                                                   "h":  1080,
+                                                   "theme":  "light",
+                                                   "board":  "rgb(223, 233, 245)",
+                                                   "banner":  "rgb(237, 244, 252)",
+                                                   "text":  "rgb(41, 71, 97)",
+                                                   "plot":  "rgb(255, 255, 255)",
+                                                   "curve":  "rgb(195, 45, 53)",
+                                                   "grid":  "rgb(197, 209, 222)",
+                                                   "overflow":  0
+                                               }
+                                           ]
+                           },
+                           {
+                               "label":  "窄窗精确波长定位、同步读数、框选、滚动平移和谱图右键",
+                               "details":  {
+                                               "wave":  250.0355167145755,
+                                               "start":  2048
+                                           }
+                           },
+                           {
+                               "label":  "谱图查看三种尺寸、明暗配色、定位与曝光输入同宽",
+                               "details":  [
+                                               {
+                                                   "w":  1440,
+                                                   "h":  900,
+                                                   "theme":  "dark",
+                                                   "board":  "rgb(37, 60, 84)",
+                                                   "banner":  "rgb(29, 48, 70)",
+                                                   "text":  "rgb(214, 229, 244)",
+                                                   "plot":  "rgb(23, 38, 56)",
+                                                   "curve":  "rgb(255, 134, 133)",
+                                                   "grid":  "rgb(65, 88, 113)",
+                                                   "overflow":  0
+                                               },
+                                               {
+                                                   "w":  1060,
+                                                   "h":  680,
+                                                   "theme":  "light",
+                                                   "board":  "rgb(223, 233, 245)",
+                                                   "banner":  "rgb(237, 244, 252)",
+                                                   "text":  "rgb(41, 71, 97)",
+                                                   "plot":  "rgb(255, 255, 255)",
+                                                   "curve":  "rgb(195, 45, 53)",
+                                                   "grid":  "rgb(197, 209, 222)",
+                                                   "overflow":  0
+                                               },
+                                               {
+                                                   "w":  1920,
+                                                   "h":  1080,
+                                                   "theme":  "light",
+                                                   "board":  "rgb(223, 233, 245)",
+                                                   "banner":  "rgb(237, 244, 252)",
+                                                   "text":  "rgb(41, 71, 97)",
+                                                   "plot":  "rgb(255, 255, 255)",
+                                                   "curve":  "rgb(195, 45, 53)",
+                                                   "grid":  "rgb(197, 209, 222)",
+                                                   "overflow":  0
+                                               }
+                                           ]
+                           },
+                           {
+                               "label":  "曝光区间正常提交与倒序拒绝、浓度提示独占一行",
+                               "details":  "估算浓度 · AgBSn最大值-35S单线（版本 6）\nB\n249.7733 nm\n内标净强度不足，无法计算浓度\nSn\n283.9989 nm\n内标净强度不足，无法计算浓度\nAg\n328.0683 nm\n0.253 ug/g"
+                           },
+                           {
+                               "label":  "最小窗口内蒸发分时停靠和同步读数同时可见",
+                               "details":  {
+                                               "width":  163.59375
+                                           }
+                           },
+                           {
+                               "label":  "方法操作区与谱线编辑区的主次独立",
+                               "details":  null
+                           },
+                           {
+                               "label":  "独立样品队列的插入与清空用线框图标",
+                               "details":  null
+                           },
+                           {
+                               "label":  "模拟摄谱中启动与停止的颜色、停机结果及禁用状态",
+                               "details":  {
+                                               "states":  [
+                                                              {
+                                                                  "label":  "试样摄谱",
+                                                                  "kind":  "start",
+                                                                  "disabled":  false,
+                                                                  "top":  27,
+                                                                  "bottom":  57,
+                                                                  "width":  163
+                                                              },
+                                                              {
+                                                                  "label":  "预热摄谱",
+                                                                  "kind":  "preheat",
+                                                                  "disabled":  false,
+                                                                  "top":  61,
+                                                                  "bottom":  91,
+                                                                  "width":  163
+                                                              },
+                                                              {
+                                                                  "label":  "停止摄谱",
+                                                                  "kind":  "stop",
+                                                                  "disabled":  true,
+                                                                  "top":  95,
+                                                                  "bottom":  125,
+                                                                  "width":  163
+                                                              },
+                                                              {
+                                                                  "label":  "结束",
+                                                                  "kind":  "finish",
+                                                                  "disabled":  false,
+                                                                  "top":  131,
+                                                                  "bottom":  161,
+                                                                  "width":  163
+                                                              }
+                                                          ],
+                                               "stopStyle":  {
+                                                                 "color":  "rgb(165, 54, 54)",
+                                                                 "background":  "rgb(255, 242, 241)"
+                                                             }
+                                           }
+                           }
+                       ],
+    "page_errors":  [
+
+                    ]
+}

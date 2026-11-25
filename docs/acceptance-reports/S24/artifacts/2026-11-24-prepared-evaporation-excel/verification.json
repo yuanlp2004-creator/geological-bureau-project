@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-24",
+  "planSha256": "a2f5a57a70c8811c01531aaaf02a424c7a3a6eb080c229b9d941355d906b03c3",
+  "backend": {
+    "workingDirectory": "app",
+    "command": "python -X utf8 -m pytest -q tests/test_prepared_import.py tests/test_s18_postprocessing.py tests/test_sample_queues.py tests/test_sample_workbook.py tests/test_sample_current_context.py tests/test_analysis_spectrum_view.py tests/test_full_time_export.py tests/test_s19_reports.py tests/test_analysis_units.py",
+    "isolatedBaseTemp": "geospectrum-excel-close-545926de-c5f4-442c-9b73-b39199819378",
+    "exitCode": 0,
+    "passed": 80,
+    "preparedImportBaseline": "复现 11 个测试因夹具色散标定关联了默认 CCD 布局而中止。修正夹具并用正向 v27 升级过程验证 v28。原有 12 项与新增系统采集转换用例均通过。",
+    "nativeEvaporation": "通过模拟器完成采集。全时转换保留所选燃烧原始帧和全部暗帧，均值按源周期计算。测试核对谱图、时间、来源 ID 和 SHA-256，覆盖损坏帧拒绝及重复请求。",
+    "workbook": "核对新队列导入、重复导入幂等、前导零和空位、12/20 位规则与重复次数。文本 =A+1 保持文本。工作簿公式、非法样号分隔符、分数重复次数、损坏和越界文件被拒绝。",
+    "relatedExports": "核对旧 SAM 与当前全时 Excel、分析报告、强度导出及科学单位回归。"
+  },
+  "legacyEdt": {
+    "command": "python -X utf8 app/.local/test-runs/20261124-excel/legacy_probe.py",
+    "file": "Spec Source/Bin/DATA/20141029_测试.edt",
+    "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+    "openStatus": 200,
+    "optionsStatus": 200,
+    "records": 120,
+    "hashAndModifiedTimeUnchanged": true
+  },
+  "frontend": {
+    "testCommand": "npm.cmd --prefix app/frontend test",
+    "passed": 22,
+    "buildCommand": "npm.cmd --prefix app/frontend run build",
+    "buildExitCode": 0,
+    "browserCommand": "node app/.local/test-runs/20261124-excel/browser.mjs",
+    "browserExitCode": 0,
+    "browser": "通过 Edge、实际 FastAPI 和隔离 SQLite 验证追加后的编号、手填编号、拖选、复制粘贴、拖动填充、下载后重新导入、预录确认、系统蒸发转换及源谱图和输出谱图直达。",
+    "narrowLayout": { "viewportWidth": 1060, "pageScrollWidth": 1060, "recordPanelWidths": [327, 327] }
+  },
+  "architecture": {
+    "passed": 12,
+    "failed": 1,
+    "failure": "test_frontend_number_inputs_allow_an_empty_editing_state。HEAD 的 AnalysisSampleNamesDialog.tsx 第 225 行仍有 type=number，当前并行设备页面也含同类型输入。"
+  },
+  "analysisWorkbookFollowup": {
+    "backendCommand": "python -X utf8 -m pytest -q tests/test_analysis_spectrum_view.py tests/test_sample_workbook.py tests/test_sample_queues.py",
+    "isolatedBaseTemp": "geospectrum-analysis-workbook-44792c8e-e930-44e8-a5e0-0c308c22fe4f",
+    "backendPassed": 20,
+    "backendExitCode": 0,
+    "frontendPassed": 22,
+    "frontendBuildExitCode": 0,
+    "browserExitCode": 0,
+    "browserWorkflow": "预录窗口实际下载工作簿，样品分析打开后退出，核对无新增分析。再次打开后确认，只生成一个副本。四条源谱带按顺序分配，两条对应 0007，第三条为空样，第四条对应文本 =A+1。分析再次下载工作簿后，样号队列读回相同编号、空样和重复次数。",
+    "analysisRules": "分析按实际批次谱带限制校验。有效样号的重复次数须为 1 至 10，空样为 0。SAM 继续走原有自动编码与歧义确认入口。",
+    "files": {
+      "analysis-from-prerecord.xlsx": "273d18da3dda5c6ea492c73a6e7abf47edee519261a39329c1971a988444dbfc",
+      "analysis-to-prerecord.xlsx": "e5a547ca9047d1243821ad8bf71a47f7e7789ae42304637c2473d77ee97da957",
+      "analysis-sample-workbook.png": "aa38e2fc840f3eac30678a54f4243fc3706e1ef1d05ed06295559b98c8a4feac"
+    }
+  },
+  "fixtures": {
+    "sample-roundtrip.xlsx": "931c940c99958a1b43baae3e26201040735197d7e26d4596d82829b9758840d9",
+    "sample-invalid-formula.xlsx": "d44752257a1edb3e583069eba6a34e042eaca20d794ef92ed56ac2d6179a0469"
+  },
+  "desktopAndHardware": "本组使用 C 盘隔离测试环境。根目录配对程序、最终 WebView2 原生文件对话框和桌面联测由主对话统一安排。蒸发采集端使用模拟器。"
+}

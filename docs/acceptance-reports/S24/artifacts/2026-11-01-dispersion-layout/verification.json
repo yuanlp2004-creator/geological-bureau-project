@@ -1,0 +1,137 @@
+{
+  "status": "passed",
+  "date": "2026-11-01",
+  "execution_plan_sha256": "0f7716f7557fa6808c83de47eebf6c960aeea32b4630a7333a902d09c14511ab",
+  "scope": [
+    "DispersionCurveDialog.tsx presentation",
+    "dispersion-curve-dialog.css",
+    "existing UI workflow empty-value expectation"
+  ],
+  "frontend_build": "passed",
+  "production_build": "passed",
+  "qa_build": "passed",
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "主谱图选点＋增加谱线，保留CCD点位，波长在旧式网格中填写",
+      "六列表格与六项计算结果按旧版口径显示，跨CCD测量步数含间隔，二次拟合与每步波长正确",
+      "区间初始未选择、标尺调节、只重算步数不自动拟合；结果失效与保存取消保护正确",
+      "独立窗体顶部工具、左表右结果，普通／最小／超宽窗口及明暗主题无横向溢出",
+      "保存曲线弹出命名窗口，真实保存可选用版本并退出拟合窗口，取消草稿保留",
+      "谱线标记／列表右键菜单、Ctrl方向键微移、保存／还原全部位置接通；已保存曲线保持",
+      "保存后的曲线可在真实方法参数中选用并保存确切布局与系数，原方法保持",
+      "色散摄谱与色散曲线共用同一旧式独立窗口；重新打开不展示陈旧拟合结果"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680
+      },
+      {
+        "theme": "light",
+        "width": 2560,
+        "height": 1200
+      }
+    ],
+    "reviewTaskId": 2,
+    "savedCalibrationId": 6
+  },
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "主谱图选点＋增加谱线，保留CCD点位，波长在旧式网格中填写",
+      "六列表格与六项计算结果按旧版口径显示，跨CCD测量步数含间隔，二次拟合与每步波长正确",
+      "区间初始未选择、标尺调节、只重算步数不自动拟合；结果失效与保存取消保护正确",
+      "独立窗体顶部工具、左表右结果，普通／最小／超宽窗口及明暗主题无横向溢出",
+      "保存曲线弹出命名窗口，真实保存可选用版本并退出拟合窗口，取消草稿保留",
+      "谱线标记／列表右键菜单、Ctrl方向键微移、保存／还原全部位置接通；已保存曲线保持",
+      "保存后的曲线可在真实方法参数中选用并保存确切布局与系数，原方法保持",
+      "色散摄谱与色散曲线共用同一旧式独立窗口；重新打开不展示陈旧拟合结果"
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680
+      },
+      {
+        "theme": "light",
+        "width": 2560,
+        "height": 1200
+      }
+    ],
+    "reviewTaskId": 2,
+    "savedCalibrationId": 6
+  },
+  "geometry": {
+    "width": 900,
+    "height": 362,
+    "columns": 6,
+    "resultFields": 6,
+    "tableHeight": 163.5,
+    "resultsHeight": 203,
+    "dialogOverflow": false,
+    "tableOverflow": false,
+    "resultOverflow": false
+  },
+  "deployment": {
+    "status": "passed",
+    "frontend_sources_assets_identical": true,
+    "backend_unchanged": true,
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "abe4bd702306ae8c910fa994d4273640f70e8b5491f8656fbbbd168cbe5d923d",
+        "after": "0688182721d5ed5a3e85b19a7afc06cd08da562b5bca36f6c3ea8cc84a7eb312"
+      },
+      "geospectrum-backend.exe": {
+        "before": "c1c8035169345d0b4bfd4f648f7db77e5d6a77b75e973ed1627b2ab0ed504b7b",
+        "after": "c1c8035169345d0b4bfd4f648f7db77e5d6a77b75e973ed1627b2ab0ed504b7b"
+      }
+    }
+  },
+  "review": {
+    "window_retained": true,
+    "backend_retained": true,
+    "page": "色散摄谱 / 色散曲线",
+    "task": 2,
+    "savedCalibrationId": 6,
+    "device": {
+      "adapter": "acq-simulator",
+      "state": "idle",
+      "session_id": null,
+      "connected": false,
+      "contract": {
+        "frame_count": 3,
+        "ccds_per_frame": 2,
+        "points_per_ccd": 2048,
+        "frame_size": 8193,
+        "byte_length": 24579
+      }
+    },
+    "mercury": [],
+    "frozen_positive_peak": {
+      "position": 107,
+      "repeated": 3,
+      "unchanged": true
+    }
+  },
+  "backend_unchanged": true,
+  "schema_version": 26,
+  "user_database_modified": false,
+  "historical_sources_unchanged": true,
+  "root_and_app_top_level_unchanged": true,
+  "first_attempt": "Browser fit-response wait timed out during rapid input; unchanged behavior assertions passed on rerun and in frozen desktop; no calculation changes."
+}

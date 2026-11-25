@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "plan_sha256": "8bf8a96290964de31353ade9d0c737174965e57753619d80b192d3aea5c5b630",
+  "backend_tests": 50,
+  "frontend_tests": 20,
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "旧版单输入、重复摄谱、十列顺序表和计数齐全，超出当前谱带上限会被拦截",
+      "SAM 原格式读写；回车递增样号，按 2+1 连续分配三个源谱带，原分析批次完整保留",
+      "左侧入口复用样号表并恢复重复次数，最小窗口工具和底部计数可见"
+    ],
+    "errors": []
+  },
+  "schema_upgrade": "PASS isolated read-only source copy 30 -> 31, counts {'runs': 6, 'qc': 4, 'results': 57, 'decisions': 0}",
+  "sidecar": {
+    "sidecar_bytes": 56434990,
+    "health_status": "ok",
+    "schema_version": 31,
+    "running_before_stop": true,
+    "clean_exit": true,
+    "process_returncode": 1,
+    "remaining_sidecar_pids": [],
+    "business": {
+      "profile_connected": true,
+      "start_ccd_count": 5,
+      "step_frame_index": 1,
+      "source_sha256": "EF130DE0BDE91CDB084333002207493380AD4B776FC2CE1C6960D19E0E164C0C",
+      "stopped_state": "connected",
+      "legacy_reader_attempts": [
+        "windows-powershell-x86"
+      ]
+    },
+    "error": null
+  },
+  "deployment": {
+    "files": {
+      "geospectrum-backend.exe": {
+        "before": "694217bc892d647e5813014996bbc4bca4f7244b97c24f6b52ca3660e73e1ea6",
+        "after": "ccabb2172e4a3978da2a3eb9d92adec6b40ca724b1aadf817dab105a5dfc3794"
+      },
+      "GeoSpectrum.exe": {
+        "before": "b613a9af0775feb0a5988e0fa1ab30a4e7393ee766124e091a46c59c9cc151e2",
+        "after": "afdb1785d477e8086807d4a18adfe432a81d80f55895f2feddc01586aae0d2fa"
+      }
+    },
+    "same_source_files": 469
+  }
+}

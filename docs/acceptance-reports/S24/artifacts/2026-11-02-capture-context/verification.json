@@ -1,0 +1,120 @@
+{
+  "status": "passed",
+  "batch": "2026-11-02-capture-context",
+  "planSha256AtEntry": "556956c3647d7d5688092ca39dc5dcf11bedc97c949f3d4476868e88846c32e8",
+  "changedFiles": {
+    "app/frontend/src/pages/acquisition/AcquisitionWorkspace.tsx": "d542a9e1fe910400de70e546c5564640b7f637dad1aa7b315d7a8dbf366f9494",
+    "app/frontend/src/pages/acquisition/SampleAcquisitionMonitor.tsx": "136a9f77e15e4b37c714ce3efd70c45cee9acb1a8d7ee5e60f20cbfad63deb41",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx": "9de035f46b1f8c80613324d68507c6e1dfba2edc60a80b8aee9de78dec646e7f",
+    "app/frontend/src/pages/acquisition/CaptureBandList.tsx": "ae73847d6a05952662eabed42b3e95e1f1eb984b0c4d6c57633ae93d6579a3b6",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css": "315235f5adf41e1b7aeeb31a5e106735f281d91ee3b34c0dc55cc0dc04bc9490",
+    "app/frontend/src/pages/dispersion/DispersionPage.tsx": "c253a6b15f0f426742165dc8fc266cfdc92db77bac5162090e7eac1461b2c75d",
+    "app/frontend/src/pages/dispersion/DispersionMonitor.tsx": "1f575ec0d8d884717e9e964c74386c4ca060031e91e1266236a2a6bf5a3d99a5",
+    "app/tests/legacy_capture_controls.mjs": "4054b7ca625bdec691a867826a84ba01f4728b9308ff9f53ba247bc531b5f813"
+  },
+  "regressions": {
+    "browser": {
+      "status": "passed",
+      "checks": [
+        "预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持",
+        "每次点击只完成一次重复，等待时不自动激发；二次手动摄谱完成并关联队列，下一样品不自动启动",
+        "样品预热显示所属正式任务与已存谱带，可切换正式／预热曲线；重复间可继续，完成后说明原因并提供新建入口",
+        "预热完成、切换CCD、重新进入及再次预热均保留燃烧谱图；延迟响应不能覆盖其他任务，且不生成正式谱带",
+        "蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验",
+        "蒸发预热与正式记录共用明确上下文，已保存谱带可见且可查看；正式任务结束后可打开新任务窗口",
+        "重新进入时显示遗留预热任务，可停止并结束；已保存正式谱带哈希保持，随后可切换色散摄谱",
+        "色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集",
+        "色散预热期间禁止正式启动，预热上下文清晰且命名不叠加；完成后可新建或返回正式谱帧，原帧哈希与谱线操作保持",
+        "帧响应延迟时停止仍可收尾，原始帧保留，停止后没有自动继续"
+      ],
+      "layouts": 28
+    },
+    "desktop": {
+      "status": "passed",
+      "checks": [
+        "预热按钮自动完成独立摄谱，显示谱图，正式样品与重复计数保持",
+        "每次点击只完成一次重复，等待时不自动激发；二次手动摄谱完成并关联队列，下一样品不自动启动",
+        "样品预热显示所属正式任务与已存谱带，可切换正式／预热曲线；重复间可继续，完成后说明原因并提供新建入口",
+        "预热完成、切换CCD、重新进入及再次预热均保留燃烧谱图；延迟响应不能覆盖其他任务，且不生成正式谱带",
+        "蒸发预热不生成正式谱带，试样摄谱一次自动保存完整实验",
+        "蒸发预热与正式记录共用明确上下文，已保存谱带可见且可查看；正式任务结束后可打开新任务窗口",
+        "重新进入时显示遗留预热任务，可停止并结束；已保存正式谱带哈希保持，随后可切换色散摄谱",
+        "色散预热与正式摄谱分开，点击一次自动完成；三个入口均无单步和连续采集",
+        "色散预热期间禁止正式启动，预热上下文清晰且命名不叠加；完成后可新建或返回正式谱帧，原帧哈希与谱线操作保持",
+        "帧响应延迟时停止仍可收尾，原始帧保留，停止后没有自动继续"
+      ],
+      "layouts": 28
+    }
+  },
+  "beforeFailures": {
+    "regression-before": "AssertionError [ERR_ASSERTION]: 预热观察必须明确绑定正式任务，不能只显示独立预热任务名\n\nfalse !== true\n\n    at file:///D:/%E5%9C%B0%E8%B4%A8%E5%B1%80/app/tests/legacy_capture_controls.mjs:170:10",
+    "dispersion-before": "AssertionError [ERR_ASSERTION]: 色散预热尚未结束时不能启动正式摄谱\n\nfalse !== true\n\n    at file:///D:/%E5%9C%B0%E8%B4%A8%E5%B1%80/app/tests/legacy_capture_controls.mjs:331:10"
+  },
+  "frontendTests": {
+    "passed": 20,
+    "failed": 0
+  },
+  "builds": [
+    "TypeScript / Vite",
+    "production Tauri",
+    "QA Tauri"
+  ],
+  "delivery": {
+    "updated": true,
+    "previousExe": "29ef095b8e94cf3bc26c84fab14865438c00578dd96bba63adee91d78123615a",
+    "exeSha256": "417dbe8b337381f31f4795ea0e890047c16dc9cd7d10fada10b3538a8e27a58c",
+    "backendSha256": "c1c8035169345d0b4bfd4f648f7db77e5d6a77b75e973ed1627b2ab0ed504b7b",
+    "backendUnchanged": true,
+    "productionQaSourcesMatch": true,
+    "productionQaFrontendMatch": true,
+    "installerRebuilt": false
+  },
+  "review": {
+    "windowRetained": true,
+    "backendRetained": true,
+    "page": "样品摄谱 / 预热完成 / 正式任务等待第二次摄谱",
+    "formalTask": 15,
+    "preheatTask": 16,
+    "formalStatus": "between_repeats",
+    "completedRepeats": 1,
+    "repeatCount": 2,
+    "savedRows": 1,
+    "formalBandCount": 5,
+    "formalBandHashes": [
+      "3524b25fd10ef453b2d9d6e576bbe052b2291f7ba5173715c2527773b5340fae",
+      "ea62e6bdea2d94c300ba550473e684283be7b8c1ce400d0f844c7d7003ef9bc6",
+      "acc56ffbe27ae4bdcd12c1359a57a199aa748eccc31f14ba2b1ca6f2f213bfd9",
+      "b26b20b7aefa6e8aa72a45999a94c28feed9aa6ef7c562e375a25d6eeff1f098",
+      "33cc261e8303b6413fa688c2ba548cf45cb273188efde91dcfc5932f01d2ce8f"
+    ],
+    "preheatBandCount": 0,
+    "trialEnabled": true,
+    "finishEnabled": true,
+    "deviceConnected": false,
+    "mercurySafe": true
+  },
+  "productionData": {
+    "counts": {
+      "acquisition_tasks": 22,
+      "acquisition_samples": 40,
+      "acquisition_sample_bands": 195
+    },
+    "taskStateHash": "c8fb6958939209ae43cfd1781624bed11130c8da26fb34d089ec5b58502b92a9",
+    "activeAcquisitions": 0
+  },
+  "productionDataMatchesBeforeUpdate": true,
+  "nativeReviewVerified": true,
+  "rootAndAppNamesUnchanged": true,
+  "externalGatesUnchanged": [
+    "real hardware / missing protocol acceptance",
+    "signing / clean Windows / human acceptance"
+  ],
+  "artifacts": {
+    "browser-result.json": "b994126a08baa38a904b4cabfca75d91208bb5a1aabe14e19336e1385c8a31fb",
+    "desktop-result.json": "9c055fd56279a782ac83b6cdc86bda1b1166cb254b3097cea387f4e54d182574",
+    "已结束任务_小窗口深色.png": "123adca27f8349f6ec9dcc58cae68d16b060cd3cb5891175d5b9d0c7615694f4",
+    "样品_查看正式谱带.png": "7f2c69c16d1e818c7a84215900dfd8632f5c02fc6cddb1c1cf86051faaa8e64f",
+    "样品_预热后可继续.png": "d5c803d14d89393809a9fbfc67a4fc1e1f26e19f8af41735f10fc8e1b9b1164f",
+    "色散_返回正式记录.png": "5f56807e5325e12d2b81d6c13ade5b52e51f2f34795d82893d0f143eacecf21e"
+  }
+}

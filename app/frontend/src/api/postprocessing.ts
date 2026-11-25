@@ -22,18 +22,23 @@ export type PreparedTarget = {
   id: string; name: string; storage_mode: 'averaged' | 'full_interval'; method_version_id: number | null
   legacy_method_id: number | null; revision: number; updated_at: string
   records: Array<{ id: number; task_id: number; name: string; measure_time: string | null
-    source_record_id: string; start_frame: number; end_frame: number }>
+    source_record_id: string; start_frame: number; end_frame: number
+    source_task_id?: number; source_sha256?: string; source_viewer_group?: string }>
 }
 
 export type PreparedImportOptions = {
   method: { id: number | null; title: string | null; version_id: number | null }
   sources: Array<{ sha256: string; name: string; path: string | null; record_count: number }>
-  targets: PreparedTarget[]; records: PostProcessingRecord[]
+  acquisition_sources?: Array<{ task_id: number; name: string; record_count: number; angle_deg: number | null }>
+  targets: PreparedTarget[]
+  records: Array<PostProcessingRecord | (Omit<PostProcessingRecord, 'kind' | 'format'> & {
+    kind: 'sample'; format: 'acquisition'; viewer_group: string
+  })>
   saved_dispersion: { method_version_id: number; updated_at: string } | null
 }
 
 export type PreparedImportInput = {
-  request_id: string; source_sha256: string; record_ids: string[]; target_name: string
+  request_id: string; source_sha256?: string; source_task_id?: number; record_ids: string[]; target_name: string
   storage_mode: 'averaged' | 'full_interval'; start_frame: number; end_frame: number
   use_method_id: boolean; same_name_strategy: 'error' | 'replace' | 'append'
   expected_target_revision?: number; expected_method_version_id: number
@@ -121,7 +126,9 @@ export type PostProcessingExport = {
 
 export const postprocessingApi = {
   preparedImportOptions: (token: string, source?: string) => request<PreparedImportOptions>(
-    '/api/v1/postprocessing/prepared-import' + (source ? `?source_sha256=${encodeURIComponent(source)}` : ''),
+    '/api/v1/postprocessing/prepared-import' + (source?.startsWith('task:')
+      ? `?source_task_id=${encodeURIComponent(source.slice(5))}`
+      : source ? `?source_sha256=${encodeURIComponent(source)}` : ''),
     { headers: { Authorization: `Bearer ${token}` } }),
   importPreparedRecords: (token: string, payload: PreparedImportInput) => request<{ run_id: string; reused: boolean; target: PreparedTarget }>(
     '/api/v1/postprocessing/prepared-import', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),

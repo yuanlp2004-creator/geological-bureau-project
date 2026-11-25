@@ -70,6 +70,38 @@ npm.cmd exec -- tauri dev
 
 正式运行数据默认在 `%LOCALAPPDATA%\cn.geospectrum.desktop`；开发/测试显式指定隔离目录，避免改动现有用户数据库。
 
+## 软件激活与模块远程诊断
+
+### 软件激活
+
+既有部署默认沿用原授权策略。需要启用到期控制时，由部署方给启动 GeoSpectrum 的环境配置 `GEOSPECTRUM_ACTIVATION_PUBLIC_KEY`，值为 Ed25519 原始 32 字节公钥的 Base64。部署方在可信环境保管独立的私钥。配置后，管理员在「帮助 → 关于软件 → 软件激活」查看安装标识，并交给授权签发方。以下命令在签发环境的 `app` 目录执行，示例中的日期、标识及路径需替换为获准值。
+
+```powershell
+python tools/sign_activation.py --private-key 'D:\授权\issuer.pem' --installation-id '现场安装标识' --expires-at '2027-01-01T00:00:00+08:00' --output 'D:\授权\activation.json'
+```
+
+管理员在同一页面导入签名 JSON。续期使用同一安装标识及更晚的到期时间。验签、安装标识匹配和到期判断均在本机完成。受管部署到期后可查看历史资料、导入续期文件、继续或停止已开始的任务；新测量、摄谱和预热需有效授权。迁移受管部署前应妥善保管数据目录内的 `activation-installation.id` 和 `activation.json`，并保持受信任验签配置。离线到期判断依赖受管工作站的系统时钟与部署配置保护。
+
+### 跨机器读取诊断
+
+1. 现场管理员进入「帮助 → 关于软件 → 模块远程诊断」，选择时长并点击「开启诊断共享」。通过已批准的支持渠道向指定人员提供现场回环端口及临时访问令牌。
+2. 支持人员使用已有可信网络通道和经现场 IT 授权的 SSH 转发账号。SSH 服务应与 GeoSpectrum 运行在同一现场主机上，并将该账号的转发目标限定为本次诊断端口。若现场主机只能经内网访问，应先接入已有的受管 VPN 或跳板。下面以现场端口 `52525`、支持端口 `18787` 为例。
+
+```powershell
+ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18787:127.0.0.1:52525 tech@site-host
+```
+
+3. 支持人员在另一个 PowerShell 窗口输入临时令牌并读取快照。现场管理员可在同一授权期内点击「刷新共享快照」，支持人员重新执行读取即可获取新的自检结果和最多 40 条日志中的脱敏事件。快照中的 `checked_at` 标识本次采样时间。
+
+```powershell
+$supportToken = Read-Host '临时访问令牌'
+Invoke-RestMethod 'http://127.0.0.1:18787/api/v1/support/snapshot' -Headers @{Authorization = "Bearer $supportToken"} | ConvertTo-Json -Depth 8
+```
+
+4. 排查结束后，现场点击「结束诊断共享」，支持端按 Ctrl+C 关闭转发。会话到期、开启者退出登录、授权被撤销或程序退出时，临时令牌失效。业务 API 继续使用原有回环端口与桌面进程密钥。诊断端口只接受固定快照的授权读取。
+
+转发配置可参考 [OpenSSH 客户端手册](https://man.openbsd.org/ssh#L)和 [服务端 PermitOpen 说明](https://man.openbsd.org/sshd_config#PermitOpen)。
+
 ## 常用验证
 
 在 `app` 目录执行，按改动风险选择：

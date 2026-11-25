@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "checks": [
+    "空色散工作台白底",
+    "空蒸发查看工作台白底",
+    "谱图查看 1440：底板和标题白色、曲线可见、缩放零写入",
+    "色散曲线 1440：底板和标题白色、曲线可见、缩放零写入",
+    "蒸发曲线 1440：底板和标题白色、曲线可见、缩放零写入",
+    "调试对中 1440：三路图和最大峰值白底",
+    "谱图查看 1060：底板和标题白色、曲线可见、缩放零写入",
+    "色散曲线 1060：底板和标题白色、曲线可见、缩放零写入",
+    "蒸发曲线 1060：底板和标题白色、曲线可见、缩放零写入",
+    "调试对中 1060：三路图和最大峰值白底",
+    "样品摄谱参照工作台保持白底"
+  ],
+  "layouts": [
+    "谱图查看-1440",
+    "色散曲线-1440",
+    "蒸发曲线-1440",
+    "调试对中-1440",
+    "谱图查看-1060",
+    "色散曲线-1060",
+    "蒸发曲线-1060",
+    "调试对中-1060"
+  ],
+  "errors": [],
+  "plan_sha256": "230e102413b7afb7e457c04a3c2429d0d1b7c12e791bffe05d5de4dcb0c4de48",
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "5e813603d76dfa6adc513ba1be125af8c47bc91c51d1a6e19a592b692afee766",
+      "after_sha256": "3f46d820827422542699a9950ed9f458b1c9c6c2e3c990e352abdfffcaf5688a"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8",
+      "after_sha256": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8"
+    }
+  },
+  "production_data_unchanged": true,
+  "source_snapshot_match": true,
+  "retained_review": {
+    "pid": 34532,
+    "cdp": "http://127.0.0.1:54907",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-06-workbench-white\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\workbench-white-review-20261106-r2",
+    "retained_for_review": true
+  },
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/pages/devices/alignment-monitor.css"
+  ]
+}

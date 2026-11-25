@@ -1,0 +1,444 @@
+{
+  "stage": "S24 / front-end refinement 3.6",
+  "date": "2026-11-23",
+  "base_commit": "337c031",
+  "workspace_reference": "dabb0d7",
+  "plan_sha256": "a2f5a57a70c8811c01531aaaf02a424c7a3a6eb080c229b9d941355d906b03c3",
+  "status": "passed",
+  "visual_acceptance": "awaiting user review",
+  "source": {
+    "exactly_restored": [
+      "app/frontend/src/pages/workspace/WorkspacePage.tsx",
+      "app/frontend/src/components/WorkspaceMessages.tsx",
+      "app/frontend/src/api/system.ts",
+      "app/frontend/src/api/index.ts"
+    ],
+    "workspace_styles_compared_with": "dabb0d7"
+  },
+  "build": {
+    "npm.cmd --prefix app/frontend test": {
+      "exit_code": 0,
+      "passed": 22,
+      "failed": 0
+    },
+    "npm.cmd --prefix app/frontend run build": {
+      "exit_code": 0,
+      "warning": "Vite chunk > 500 kB"
+    },
+    "tauri build --ci --no-bundle": {
+      "exit_code": 0
+    },
+    "tauri build --ci --no-bundle --config <isolated review config>": {
+      "exit_code": 0
+    },
+    "previous": "69ac0b59a68c03554784736e802ca7905419303de6f93221b2f52a95db44da90",
+    "production": "23da44605f88ffd5d22cccf0ffd3f2c4be92d1cc3663a5913ad75251a99943be",
+    "review": "2f46bc88ee3f4bc479f594482723690019a3ac6ad91fc826401681b2b073a5ca",
+    "sidecar": "3649111dbe8290deb3a9e890b2263d151676471fdcd85d29565add188c6d4c2b",
+    "backup": "app/.local/backups/2026-11-23-frontend-refinement-stage3-6/GeoSpectrum.exe",
+    "assets": [
+      "dist/assets/index-B3VsL4Ox.css",
+      "dist/assets/index-C6UXOBmi.js"
+    ]
+  },
+  "contracts": {
+    "frontend_workspace_rebuild_checks.mjs": {
+      "status": "passed",
+      "checks": [
+        "original method, messages, four diagnostics and two workspace shortcuts; sample queue remains available in the top bar",
+        "1060/1440/1920 viewports using the default light/comfortable appearance have no window overflow",
+        "diagnostics show the factual runtime environment and 1.5-second message refresh"
+      ],
+      "layout_count": 0
+    },
+    "runtime_messages_workflow.mjs": {
+      "status": "passed",
+      "checks": [
+        "Original workbench method/messages and right-hand information cards restored; footer starts folded",
+        "Two legacy categories with detailed/default/brief display and text filtering; no request logging or extra actions",
+        "Pause freezes display and resumes pending messages; clearing one category preserves stored records and the other category",
+        "Actual simulator events reach communication records; actual analysis progress reaches general records",
+        "Real analysis messages change between default/brief/detailed; detailed shows actual task/source/code and category counts follow filtering",
+        "Global panel survives navigation, supports keyboard resizing and collapse, and remains outside the page scroll area",
+        "All 23 entries keep the footer visible in large/light and minimum/dark layouts without horizontal overflow"
+      ],
+      "layout_count": 46
+    },
+    "legacy_excitation_layout_workflow.mjs": {
+      "status": "passed",
+      "check": "checkExcitationControls",
+      "sample_viewports": [
+        [
+          1440,
+          900
+        ],
+        [
+          1060,
+          680
+        ]
+      ]
+    }
+  },
+  "desktop": {
+    "runtime": "packaged Tauri / WebView2",
+    "device_pixel_ratio": 2,
+    "data": "isolated simulator database",
+    "workspace": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 2,
+      "theme": "light",
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 216,
+        "height": 900,
+        "bottom": 900
+      },
+      "sidebarIcons": 7,
+      "topbar": {
+        "x": 216,
+        "y": 0,
+        "width": 1224,
+        "height": 46,
+        "bottom": 46
+      },
+      "quickBar": {
+        "x": 216,
+        "y": 46,
+        "width": 1224,
+        "height": 36,
+        "bottom": 82
+      },
+      "readiness": [
+        {
+          "x": 265,
+          "y": 264.6875,
+          "width": 364.5,
+          "height": 70,
+          "bottom": 334.6875
+        },
+        {
+          "x": 641.5,
+          "y": 264.6875,
+          "width": 364.5,
+          "height": 70,
+          "bottom": 334.6875
+        },
+        {
+          "x": 265,
+          "y": 346.6875,
+          "width": 364.5,
+          "height": 70,
+          "bottom": 416.6875
+        },
+        {
+          "x": 641.5,
+          "y": 346.6875,
+          "width": 364.5,
+          "height": 70,
+          "bottom": 416.6875
+        }
+      ],
+      "stats": [
+        {
+          "tone": "blue",
+          "x": 1047,
+          "y": 413.34375,
+          "width": 170,
+          "height": 102.1875,
+          "bottom": 515.53125
+        },
+        {
+          "tone": "green",
+          "x": 1227,
+          "y": 413.34375,
+          "width": 170,
+          "height": 102.1875,
+          "bottom": 515.53125
+        },
+        {
+          "tone": "amber",
+          "x": 1047,
+          "y": 525.53125,
+          "width": 170,
+          "height": 102.1875,
+          "bottom": 627.71875
+        },
+        {
+          "tone": "violet",
+          "x": 1227,
+          "y": 525.53125,
+          "width": 170,
+          "height": 102.1875,
+          "bottom": 627.71875
+        }
+      ],
+      "messages": {
+        "x": 244,
+        "y": 507.8828125,
+        "width": 783,
+        "height": 354.1796875,
+        "bottom": 862.0625
+      },
+      "service": {
+        "x": 1047,
+        "y": 647.71875,
+        "width": 350,
+        "height": 214.34375,
+        "bottom": 862.0625
+      }
+    },
+    "captures": {
+      "dispersion1440": {
+        "viewport": [
+          1440,
+          900
+        ],
+        "button_count": 4,
+        "bottom_edges_left_plot_fieldset": [
+          857,
+          857,
+          857
+        ],
+        "bottom_edge_spread": 0,
+        "button_step_px": [
+          92.672,
+          92.68,
+          92.68
+        ],
+        "fieldset_scroll_height": 426,
+        "fieldset_client_height": 445,
+        "title_heights": [
+          32,
+          32,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      },
+      "evaporation1440": {
+        "viewport": [
+          1440,
+          900
+        ],
+        "button_count": 4,
+        "bottom_edges_left_plot_fieldset": [
+          857,
+          857,
+          857
+        ],
+        "bottom_edge_spread": 0,
+        "button_step_px": [
+          92.672,
+          92.68,
+          92.68
+        ],
+        "fieldset_scroll_height": 426,
+        "fieldset_client_height": 445,
+        "title_heights": [
+          32,
+          32,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      },
+      "sample1440": {
+        "viewport": [
+          1440,
+          900
+        ],
+        "button_count": 5,
+        "bottom_edges_left_plot_fieldset": [
+          857,
+          857,
+          857
+        ],
+        "bottom_edge_spread": 0,
+        "button_step_px": [
+          73.344,
+          73.344,
+          73.344,
+          73.336
+        ],
+        "fieldset_scroll_height": 426,
+        "fieldset_client_height": 445,
+        "title_heights": [
+          32,
+          32,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      },
+      "sample1060": {
+        "viewport": [
+          1060,
+          680
+        ],
+        "button_count": 5,
+        "bottom_edges_left_plot_fieldset": [
+          637,
+          637,
+          632
+        ],
+        "bottom_edge_spread": 5,
+        "button_step_px": [
+          31.0,
+          31.0,
+          31.0,
+          31.0
+        ],
+        "fieldset_scroll_height": 229,
+        "fieldset_client_height": 244,
+        "title_heights": [
+          32,
+          53,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      },
+      "sample1920": {
+        "viewport": [
+          1920,
+          1080
+        ],
+        "button_count": 5,
+        "bottom_edges_left_plot_fieldset": [
+          1037,
+          1037,
+          1037
+        ],
+        "bottom_edge_spread": 0,
+        "button_step_px": [
+          109.344,
+          109.344,
+          109.344,
+          109.336
+        ],
+        "fieldset_scroll_height": 606,
+        "fieldset_client_height": 625,
+        "title_heights": [
+          32,
+          32,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      },
+      "sampleMaximized": {
+        "viewport": [
+          1920,
+          1010
+        ],
+        "button_count": 5,
+        "bottom_edges_left_plot_fieldset": [
+          967,
+          967,
+          967
+        ],
+        "bottom_edge_spread": 0,
+        "button_step_px": [
+          95.344,
+          95.344,
+          95.344,
+          95.336
+        ],
+        "fieldset_scroll_height": 536,
+        "fieldset_client_height": 555,
+        "title_heights": [
+          32,
+          32,
+          32
+        ],
+        "second_row_heights": [
+          25,
+          24,
+          25
+        ],
+        "toolbar_lucide_icons": 3,
+        "button_fill": "rgb(32, 95, 200)",
+        "finish_margin_top": "0px"
+      }
+    },
+    "compact_running": {
+      "state": "countdown",
+      "color": "rgb(165, 54, 54)",
+      "background": "rgb(255, 242, 241)",
+      "scrollHeight": 215,
+      "clientHeight": 230,
+      "visible": true
+    },
+    "final": {
+      "page": "工作台概览",
+      "isolated": true,
+      "health": "ok"
+    },
+    "pid": 24640,
+    "page_errors": []
+  },
+  "screenshots": {
+    "workspace-1440-restored.png": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "sha256": "c4a520019fade5e4213b075b4fc376e0adcb14f59b4db8ef18051692f58d20d3"
+    },
+    "dispersion-capture-1440.png": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "sha256": "dfac5af8115b6dda138abb04f59669735940bb1bf5c3924c8e5c8e34b2ccd426"
+    },
+    "sample-capture-1440.png": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "sha256": "b2b1babc4f54218ab0b570616e6c2f873f7b40ebdba713f10c5d52b6d1e8c950"
+    },
+    "sample-capture-1060.png": {
+      "viewport": [
+        1060,
+        680
+      ],
+      "sha256": "2f26ee05da4eb6ab2b188db5e1dac6d4d8af1a558811af3a2901acc77cb7d2f4"
+    }
+  }
+}

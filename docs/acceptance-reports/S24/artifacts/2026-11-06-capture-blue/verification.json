@@ -1,0 +1,130 @@
+{
+  "status": "passed",
+  "checks": [
+    "sample：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+    "sample 1440 light：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "sample 1060 dark：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "evaporation：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+    "evaporation 1440 light：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "evaporation 1060 dark：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "dispersion：无任务详情／读数按钮、弹窗及底栏；图内读数，顶部与标记跨CCD联动；样号输入符合旧版分类",
+    "色散第0点可选择并定位，无起点偏移",
+    "dispersion 1440 light：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "dispersion 1060 dark：蓝色底板、独立曲线底色、读数、横纵网格及轴线均正常",
+    "历史任务使用确切已发布谱线，观察操作保持正式谱带哈希",
+    "谱线读取失败时清空并禁用选择，已保存谱图仍可观察",
+    "返回任务列表后不再显示额外记录详情，历史任务与原始结果哈希保持",
+    "尚无采集帧时空谱图区也显示同一蓝底"
+  ],
+  "layouts": [
+    {
+      "kind": "sample",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "plot": {
+        "x": 471.171875,
+        "y": 257,
+        "width": 700.6328125,
+        "height": 679
+      }
+    },
+    {
+      "kind": "sample",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "plot": {
+        "x": 382,
+        "y": 257,
+        "width": 448,
+        "height": 379
+      }
+    },
+    {
+      "kind": "evaporation",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "plot": {
+        "x": 471.171875,
+        "y": 257,
+        "width": 700.6328125,
+        "height": 679
+      }
+    },
+    {
+      "kind": "evaporation",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "plot": {
+        "x": 382,
+        "y": 257,
+        "width": 448,
+        "height": 379
+      }
+    },
+    {
+      "kind": "dispersion",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "plot": {
+        "x": 471.171875,
+        "y": 257,
+        "width": 700.6328125,
+        "height": 679
+      }
+    },
+    {
+      "kind": "dispersion",
+      "width": 1060,
+      "height": 680,
+      "theme": "dark",
+      "plot": {
+        "x": 382,
+        "y": 257,
+        "width": 448,
+        "height": 379
+      }
+    }
+  ],
+  "errors": [],
+  "plan_sha256": "719fc26ea07fa69f50c9ec2b912d45b971f1156690613a11b037a765b8e2d085",
+  "changed_product_files": [
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css"
+  ],
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "7ec750674b486a730ac77d365c067667bcb9d11478f90c6323fb3dc1cbd90e17",
+      "after_sha256": "90fc8aec3f052445a8c2780345477c964f3c2aadf55bd4182ce4304802d2264e"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626",
+      "after_sha256": "3d55cd09e11025888b66c57384acf054e6e55784f21f9ff26efbd4a712000626"
+    }
+  },
+  "production_data_unchanged": true,
+  "sources_match": true,
+  "concurrent_source_changes": {
+    "excluded_current_sources": [
+      "app\\backend\\modules\\analysis\\inputs.py",
+      "app\\backend\\modules\\analysis\\service.py",
+      "app\\backend\\schemas\\analysis.py",
+      "app\\frontend\\src\\components\\SpectroscopyIcon.tsx",
+      "app\\frontend\\src\\pages\\analysis\\AnalysisPage.tsx"
+    ],
+    "delivery_changes_from_prior_root_package": [
+      "app/frontend/src/pages/acquisition/capture-operation-layout.css"
+    ],
+    "production_qa_sources_match": true
+  },
+  "retained_review": {
+    "pid": 40132,
+    "cdp": "http://127.0.0.1:57247",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-06-capture-blue\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\capture-blue-review-20261106-r2",
+    "retained_for_review": true
+  }
+}

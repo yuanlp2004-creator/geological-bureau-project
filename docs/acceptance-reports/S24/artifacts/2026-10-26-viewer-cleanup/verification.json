@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "cf44aea0c3e406d0b902cfa1f5347aecd049bbb87c2bae1c3e1dc6fd4eab1cd7",
+  "scope": "Remove duplicated viewer UI and retain unique operations in current buttons",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/SpectrumPointDetails.tsx",
+    "app/frontend/src/pages/acquisition/EvaporationCurvesPage.tsx",
+    "app/frontend/src/pages/spectra/SpectrumQueryToolbar.tsx",
+    "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+  ],
+  "added_product_files": [
+    "app/frontend/src/pages/acquisition/EvaporationFrameStatistics.tsx",
+    "app/frontend/src/pages/spectra/ViewerDialog.tsx"
+  ],
+  "frontend_tests": 16,
+  "browser": {
+    "checks": 16,
+    "layouts": 6
+  },
+  "desktop": {
+    "checks": 16,
+    "layouts": 6
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-viewer-cleanup\\qa\\GeoSpectrum.exe",
+    "pid": 34084,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_and_historical_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "old_files_integrity": {
+    "wdt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "records": 120
+    },
+    "cmt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+      "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "records": 960
+    },
+    "edt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120
+    }
+  },
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "00cc5ba5b086c292867ddd50f16d865c933338516168a81c8ecc825e0f65f439",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-cleanup-20261026\\before",
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false
+}

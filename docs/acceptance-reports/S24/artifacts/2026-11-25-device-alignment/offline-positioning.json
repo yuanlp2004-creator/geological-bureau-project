@@ -1,0 +1,14 @@
+{
+  "reference_source": "现场参考记录 HG-QA-01",
+  "reference_file": "reference.csv",
+  "observed_file": "observed.csv",
+  "reference_sha256": "4ec808939211f08fda133158d141f2271712de710c1a9d7ea6fd890e64af55e0",
+  "observed_sha256": "472ece601ede7fdab9e7db23cb9491ee366dadcdf2ded943f75f46f420ff3da5",
+  "ccd_index": 0,
+  "reference_angle_deg": 17,
+  "reference_peak": 2,
+  "observed_peak": 4,
+  "target_angle_deg": 18,
+  "peak_offset_points": 2,
+  "confirmed_at": "2026-11-25T05:57:00.942Z"
+}

@@ -33,11 +33,11 @@ def acquired_source(db, methods, version, sample_id):
     return locate, values_for
 
 
-def calculate_preview(db, version, locate, values_for):
+def calculate_preview(db, version, locate, values_for, *, observe_frame=False, require_peak=False):
     conditions = version.payload["conditions"]
     profile = calculation_profile(conditions)
     lines = _operational_lines(version.payload)
-    curves = published_line_curves(db, version.version_id, profile)
+    curves = {} if observe_frame else published_line_curves(db, version.version_id, profile)
     values_for = cache(values_for)
     locations = {}
     offsets, prior = {}, {}
@@ -54,7 +54,21 @@ def calculate_preview(db, version, locate, values_for):
         values = values_for(turn, ccd, interval)
         if not values:
             raise AnalysisError("analysis_band_missing", "该谱图没有此谱线的有效积分强度")
-        return calculate_candidate(line, lines, 0, position, ccd, expected, values, offsets, previous, profile, None)
+        def measure(target):
+            return calculate_candidate(target, lines, 0, position, ccd, expected, values, offsets, previous, profile, None)
+
+        try:
+            measured = measure(line)
+        except AnalysisError as exc:
+            if exc.code == 'analysis_internal_standard_missing':
+                measured = measure({**line, 'internal_standard_mode': 'none'})
+            elif exc.code == 'analysis_gaussian_fit_failed':
+                measured = measure({**line, 'peak_mode': 'max_single_point', 'internal_standard_mode': 'none'})
+            else:
+                raise
+            measured['calculation_error'] = exc
+        measured['raw_intensity'] = values[measured['peak_position']]
+        return measured
 
     rows = []
     for position, line in enumerate(lines):
@@ -63,18 +77,48 @@ def calculate_preview(db, version, locate, values_for):
         row = {"line_id": identifier, "element": line["element"], "wavelength_nm": line["wavelength_nm"],
                "concentration": None, "unit": line.get("unit") or conditions.get("analysis_unit", ""),
                "decimal_places": line.get("decimal_places", 2), "quantitative_signal": None,
-               "curve_source": None, "curve_snapshot_id": None, "message": None}
+               "curve_source": None, "curve_snapshot_id": None, "message": None, "code": None,
+               "ccd_index": None, "point_index": None, "expected_point_index": None,
+               "raw_intensity": None, "peak_found": None}
+        if quantitative:
+            rows.append(row)
         try:
             interval = exposure_interval(line, conditions)
+            row['exposure_interval'] = interval
             previous = prior
+            internal_error = None
             internal_id = str(line.get("internal_standard_line_id")) if line.get("internal_standard_mode") == "line" else None
             if interval and quantitative and internal_id in indexed_lines:
                 internal_position, internal = indexed_lines[internal_id]
-                previous = {**prior, internal_id: candidate(internal, internal_position, interval, prior)}
+                previous = {key: value for key, value in prior.items() if key != internal_id}
+                try:
+                    previous[internal_id] = candidate(internal, internal_position, interval, prior)
+                except (AnalysisError, AcquisitionError, MethodDomainError) as exc:
+                    internal_error = exc
             measured = candidate(line, position, interval, previous)
             prior[identifier] = measured
             offsets[identifier] = measured["peak_position"] - measured["corrected_expected_position"]
             if quantitative:
+                found = measured['intermediates']['search']['found']
+                row.update(ccd_index=measured['ccd_index'], point_index=measured['peak_position'],
+                           expected_point_index=measured['corrected_expected_position'],
+                           raw_intensity=measured['raw_intensity'], peak_found=found)
+                search = measured['intermediates']['search']
+                if observe_frame and any(point['value'] >= 65535 and search['window_start'] <= point['point_index'] <= search['window_end']
+                                         for point in measured['spectrum_window']):
+                    raise AnalysisError('analysis_frame_saturated', '峰位达到 ADC 上限，信号可能饱和')
+                if (observe_frame or require_peak) and not found:
+                    raise AnalysisError('analysis_frame_peak_missing', '扫描窗口内未找到满足方法阈值的峰')
+                if (observe_frame or require_peak) and internal_id in previous:
+                    if not previous[internal_id]['intermediates']['search']['found']:
+                        raise AnalysisError('analysis_frame_internal_peak_missing', '内标线未找到满足方法阈值的峰')
+                if calculation_error := measured.get('calculation_error'):
+                    if internal_error and calculation_error.code == 'analysis_internal_standard_missing' and not observe_frame:
+                        raise AnalysisError('analysis_internal_standard_missing', f'内标线不可用：{internal_error.message}')
+                    if calculation_error.code != 'analysis_internal_standard_missing' or not observe_frame:
+                        raise calculation_error
+                if observe_frame:
+                    continue
                 if internal_id is not None and profile == "legacy_2_0_2":
                     internal_signal = previous[internal_id]["peak_height"]
                     if line.get("background_offset_points"):
@@ -100,12 +144,13 @@ def calculate_preview(db, version, locate, values_for):
                 bounds = fit.get("x") or []
                 if bounds and (x < min(bounds) - 1e-6 or x > max(bounds) + 1e-6):
                     row["message"] = "强度超出标准曲线范围"
+                    row["code"] = "analysis_curve_out_of_range"
         except (AnalysisError, AcquisitionError, MethodDomainError) as exc:
+            row["code"] = exc.code
             row["message"] = ("缺少可用标准曲线，且有效的强度–浓度标准点不足"
                               if exc.code == "analysis_curve_points_insufficient" else exc.message)
         except ArithmeticError:
+            row["code"] = "analysis_curve_result_invalid"
             row["message"] = "拟合结果超出可显示范围"
-        if quantitative:
-            rows.append(row)
     return {"method_name": version.method.name, "method_version": version.version,
             "calculation_profile": profile, "rows": rows}

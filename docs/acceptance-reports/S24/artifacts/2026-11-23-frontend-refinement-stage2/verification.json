@@ -1,0 +1,1122 @@
+{
+  "scope": "GeoSpectrum S24 前端精修 2A–2E",
+  "base_commit": "72a38b1",
+  "plan_sha256": "a2f5a57a70c8811c01531aaaf02a424c7a3a6eb080c229b9d941355d906b03c3",
+  "status": "stage2_targeted_checks_passed_pending_visual_confirmation",
+  "units": "CSS px, native Windows WebView2 resized with 200% display scaling; screenshots at CSS resolution",
+  "build": {
+    "baseline": "20cbdcbeeede6bd8648170d00ffe804bc23ec655e9a2a0f688905c0e596e3741",
+    "production": "51a625f1729164c60f32171330ec91b1df434193e5813bd20b9f0da29f7d144e",
+    "review": "ca67c694f0a65dddb89a8d0c5f702a8e9a3d0ba7c8d8e856efe7f1998f393514",
+    "sidecar": "3649111dbe8290deb3a9e890b2263d151676471fdcd85d29565add188c6d4c2b",
+    "assets": [
+      "dist/assets/index-CgZ8n1Bm.js",
+      "dist/assets/index-oAn7oTXJ.css"
+    ],
+    "backup": "app/.local/diagnostics/frontend-refinement-stage2-20261123/GeoSpectrum.exe.previous"
+  },
+  "tests": {
+    "npm.cmd --prefix app/frontend test": {
+      "passed": 22,
+      "failed": 0
+    },
+    "npm.cmd --prefix app/frontend run build": {
+      "exit_code": 0,
+      "warning": "existing Vite chunk size warning"
+    },
+    "Tauri production and isolated review": {
+      "exit_code": 0,
+      "bundler": "--ci --no-bundle",
+      "identical_frontend_assets": true
+    },
+    "root_exe_smoke": {
+      "passed": true,
+      "pid": 34996,
+      "top": 46,
+      "quick": 36,
+      "title": 22,
+      "charts": 1
+    },
+    "updated_contracts_on_webview": [
+      "checkPageHeading",
+      "checkCaptureEmptySurface",
+      "checkExcitationControls (4 and 5 buttons)"
+    ],
+    "legacy_full_workflows": {
+      "page_layout_workflow": "Blocked by pre-existing .section-heading locator, reproduced on 72a38b1.",
+      "capture_operation_layout": "The original task-row locator was ambiguous on 72a38b1. The older follow-up expects a standalone 任务详情 button. Updated empty-surface assertions passed.",
+      "legacy_excitation_layout_workflow": "Shared full_spectroscopy task-row locator is ambiguous before excitation assertions, also on 72a38b1.",
+      "legacy_viewing_workflow": "The older row comparison expects sample sequence in the concentration column, also on 72a38b1.",
+      "runtime_messages_workflow": "Older home-page readiness expects the removed SQLite schema announcement, also on 72a38b1."
+    }
+  },
+  "analysis": [
+    {
+      "w": 1440,
+      "h": 900,
+      "dpr": 2,
+      "theme": "light",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 866,
+      "available": 784,
+      "scroll": 784,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "palette": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      }
+    },
+    {
+      "w": 1060,
+      "h": 680,
+      "dpr": 2,
+      "theme": "dark",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 646,
+      "available": 564,
+      "scroll": 564,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "palette": {
+        "board": "rgb(37, 60, 84)",
+        "banner": "rgb(29, 48, 70)",
+        "text": "rgb(214, 229, 244)",
+        "plot": "rgb(23, 38, 56)",
+        "curve": "rgb(255, 134, 133)",
+        "grid": "rgb(65, 88, 113)",
+        "overflow": 0
+      }
+    }
+  ],
+  "viewer": [
+    {
+      "w": 1440,
+      "h": 900,
+      "dpr": 2,
+      "theme": "dark",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 866,
+      "available": 784,
+      "scroll": 784,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "header": [
+        {
+          "name": "",
+          "width": 18,
+          "text": 0,
+          "needed": 2
+        },
+        {
+          "name": "记录号",
+          "width": 52,
+          "text": 36,
+          "needed": 46
+        },
+        {
+          "name": "样品编号",
+          "width": 101,
+          "text": 48,
+          "needed": 58
+        },
+        {
+          "name": "",
+          "width": 28,
+          "text": 0,
+          "needed": 2
+        }
+      ],
+      "rail": 216,
+      "records": [
+        589,
+        24026,
+        15
+      ],
+      "pointTable": 100,
+      "plot": 475,
+      "plotArea": 407,
+      "plotBottom": 796,
+      "selected": {
+        "bg": "rgb(48, 74, 99)",
+        "fg": "rgb(229, 241, 255)",
+        "mark": "rgb(145, 189, 229) 3px 0px 0px 0px inset"
+      },
+      "concentrations": 0,
+      "palette": {
+        "board": "rgb(37, 60, 84)",
+        "banner": "rgb(29, 48, 70)",
+        "text": "rgb(214, 229, 244)",
+        "plot": "rgb(23, 38, 56)",
+        "curve": "rgb(255, 134, 133)",
+        "grid": "rgb(65, 88, 113)",
+        "overflow": 0
+      }
+    },
+    {
+      "w": 1060,
+      "h": 680,
+      "dpr": 2,
+      "theme": "light",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 646,
+      "available": 564,
+      "scroll": 564,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "header": [
+        {
+          "name": "",
+          "width": 18,
+          "text": 0,
+          "needed": 2
+        },
+        {
+          "name": "记录号",
+          "width": 48,
+          "text": 36,
+          "needed": 46
+        },
+        {
+          "name": "样品编号",
+          "width": 81,
+          "text": 48,
+          "needed": 58
+        },
+        {
+          "name": "",
+          "width": 24,
+          "text": 0,
+          "needed": 2
+        }
+      ],
+      "rail": 188,
+      "records": [
+        369,
+        24026,
+        15
+      ],
+      "pointTable": 75,
+      "plot": 294,
+      "plotArea": 226,
+      "plotBottom": 582,
+      "selected": {
+        "bg": "rgb(225, 237, 247)",
+        "fg": "rgb(32, 62, 87)",
+        "mark": "rgb(65, 123, 165) 3px 0px 0px 0px inset"
+      },
+      "concentrations": 0,
+      "palette": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      }
+    },
+    {
+      "w": 1060,
+      "h": 680,
+      "dpr": 2,
+      "theme": "dark",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 646,
+      "available": 564,
+      "scroll": 564,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "header": [
+        {
+          "name": "",
+          "width": 18,
+          "text": 0,
+          "needed": 2
+        },
+        {
+          "name": "记录号",
+          "width": 48,
+          "text": 36,
+          "needed": 46
+        },
+        {
+          "name": "样品编号",
+          "width": 81,
+          "text": 48,
+          "needed": 58
+        },
+        {
+          "name": "",
+          "width": 24,
+          "text": 0,
+          "needed": 2
+        }
+      ],
+      "rail": 188,
+      "records": [
+        369,
+        24026,
+        15
+      ],
+      "pointTable": 75,
+      "plot": 294,
+      "plotArea": 226,
+      "plotBottom": 582,
+      "selected": {
+        "bg": "rgb(48, 74, 99)",
+        "fg": "rgb(229, 241, 255)",
+        "mark": "rgb(145, 189, 229) 3px 0px 0px 0px inset"
+      },
+      "concentrations": 0,
+      "palette": {
+        "board": "rgb(37, 60, 84)",
+        "banner": "rgb(29, 48, 70)",
+        "text": "rgb(214, 229, 244)",
+        "plot": "rgb(23, 38, 56)",
+        "curve": "rgb(255, 134, 133)",
+        "grid": "rgb(65, 88, 113)",
+        "overflow": 0
+      }
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "dpr": 2,
+      "theme": "light",
+      "density": "comfortable",
+      "sidebar": 216,
+      "topbar": 46,
+      "quick": 36,
+      "message": 34,
+      "messageTop": 866,
+      "available": 784,
+      "scroll": 784,
+      "docOverflow": 0,
+      "methodCopies": 1,
+      "headerIcon": 22,
+      "iconFrame": 36,
+      "activeShadow": "none",
+      "header": [
+        {
+          "name": "",
+          "width": 18,
+          "text": 0,
+          "needed": 2
+        },
+        {
+          "name": "记录号",
+          "width": 52,
+          "text": 36,
+          "needed": 46
+        },
+        {
+          "name": "样品编号",
+          "width": 101,
+          "text": 48,
+          "needed": 58
+        },
+        {
+          "name": "",
+          "width": 28,
+          "text": 0,
+          "needed": 2
+        }
+      ],
+      "rail": 216,
+      "records": [
+        589,
+        24026,
+        15
+      ],
+      "pointTable": 100,
+      "plot": 475,
+      "plotArea": 407,
+      "plotBottom": 796,
+      "selected": {
+        "bg": "rgb(225, 237, 247)",
+        "fg": "rgb(32, 62, 87)",
+        "mark": "rgb(65, 123, 165) 3px 0px 0px 0px inset"
+      },
+      "concentrations": 0,
+      "palette": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      }
+    }
+  ],
+  "viewer_narrow_expanded": {
+    "narrow": {
+      "header": [
+        {
+          "name": "",
+          "width": 18,
+          "text": 0,
+          "needed": 2
+        },
+        {
+          "name": "记录号",
+          "width": 48,
+          "text": 36,
+          "needed": 46
+        },
+        {
+          "name": "样品编号",
+          "width": 81,
+          "text": 48,
+          "needed": 58
+        },
+        {
+          "name": "",
+          "width": 24,
+          "text": 0,
+          "needed": 2
+        }
+      ],
+      "rail": 188,
+      "records": [
+        369,
+        24257,
+        15
+      ],
+      "pointTable": 75,
+      "plot": 294,
+      "plotArea": 226,
+      "plotBottom": 582,
+      "selected": {
+        "bg": "rgb(225, 237, 247)",
+        "fg": "rgb(32, 62, 87)",
+        "mark": "rgb(65, 123, 165) 3px 0px 0px 0px inset"
+      },
+      "concentrations": 4
+    },
+    "colors": [
+      "rgb(199, 91, 57)",
+      "rgb(195, 45, 53)"
+    ]
+  },
+  "spectrum_interactions": {
+    "shortcuts": {
+      "F5": 200,
+      "F6": 200
+    },
+    "expanded": {
+      "height": 184,
+      "bottom": 680,
+      "toolbarWidth": 844,
+      "toolbarScroll": 844,
+      "viewport": 680
+    }
+  },
+  "dispersion": {
+    "file": "20141029_测试.wdt",
+    "source_sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+    "band": "D13-9",
+    "markers_note": "参考位置由设备布局计算，定位点使用隔离审阅库内的人工示例点位。",
+    "geometry": {
+      "dispersionPalette": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      },
+      "markers": [
+        {
+          "kind": "expected",
+          "stroke": "rgb(36, 95, 147)",
+          "dashes": "4px, 3px"
+        },
+        {
+          "kind": "located",
+          "stroke": "rgb(35, 116, 83)",
+          "dashes": "none"
+        },
+        {
+          "kind": "expected",
+          "stroke": "rgb(36, 95, 147)",
+          "dashes": "4px, 3px"
+        },
+        {
+          "kind": "located",
+          "stroke": "rgb(35, 116, 83)",
+          "dashes": "none"
+        }
+      ]
+    }
+  },
+  "evaporation": {
+    "historical_data": {
+      "source": "20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120,
+      "palette": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      }
+    },
+    "time_statistics": {
+      "edtLayout": {
+        "board": "rgb(223, 233, 245)",
+        "banner": "rgb(237, 244, 252)",
+        "text": "rgb(41, 71, 97)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "grid": "rgb(197, 209, 222)",
+        "overflow": 0
+      },
+      "lightTime": {
+        "board": "rgb(223, 233, 245)",
+        "plot": "rgb(255, 255, 255)",
+        "curve": "rgb(195, 45, 53)",
+        "height": 166
+      },
+      "darkTime": {
+        "board": "rgb(37, 60, 84)",
+        "plot": "rgb(23, 38, 56)",
+        "curve": "rgb(255, 134, 133)",
+        "height": 166
+      }
+    },
+    "acquisition_read_only": {
+      "allowedBg": "rgb(23, 38, 56)"
+    }
+  },
+  "alignment": {
+    "empty": {
+      "bg": "rgb(237, 244, 252)",
+      "color": "rgb(41, 71, 97)",
+      "height": 22
+    },
+    "lightPeak": {
+      "bg": "rgb(255, 240, 219)",
+      "color": "rgb(139, 64, 26)",
+      "height": 22
+    },
+    "darkPeak": {
+      "bg": "rgb(73, 53, 33)",
+      "color": "rgb(255, 200, 138)",
+      "height": 22
+    },
+    "alignmentRows": [
+      {
+        "x": 323,
+        "width": 1049,
+        "height": 128,
+        "chosen": "false",
+        "font": "400",
+        "mark": "none",
+        "stroke": "rgb(195, 45, 53)"
+      },
+      {
+        "x": 323,
+        "width": 1049,
+        "height": 128,
+        "chosen": "true",
+        "font": "700",
+        "mark": "rgb(36, 95, 147) 2px 0px 0px 0px inset",
+        "stroke": "rgb(195, 45, 53)"
+      },
+      {
+        "x": 323,
+        "width": 1049,
+        "height": 128,
+        "chosen": "false",
+        "font": "400",
+        "mark": "none",
+        "stroke": "rgb(195, 45, 53)"
+      }
+    ],
+    "alignmentFit": {
+      "scrollTop": 10,
+      "deskBottom": 865.6953125,
+      "messageTop": 866
+    }
+  },
+  "shell_without_quick_access": {
+    "top": 46,
+    "quick": false,
+    "available": 600,
+    "message": 34,
+    "density": "compact"
+  },
+  "capture_four_button": [
+    {
+      "w": 1060,
+      "h": 680,
+      "theme": "dark",
+      "density": "compact",
+      "available": 564,
+      "scroll": 564,
+      "empty": {
+        "width": 393,
+        "height": 341,
+        "expectedColor": "rgb(37, 60, 84)",
+        "color": "rgb(37, 60, 84)",
+        "margins": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "borders": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "fieldLabelColor": "rgba(0, 0, 0, 0)"
+      },
+      "commands": [
+        "start",
+        "preheat",
+        "stop",
+        "finish"
+      ],
+      "commands_fit": true,
+      "toolbar_fits": true,
+      "ccd": {
+        "name": "选择CCD",
+        "option": "CCD 1",
+        "hitWidth": 36,
+        "hitHeight": 24,
+        "iconWidth": 16
+      }
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "theme": "light",
+      "density": "compact",
+      "available": 784,
+      "scroll": 784,
+      "empty": {
+        "width": 688.8046875,
+        "height": 582,
+        "expectedColor": "rgb(223, 233, 245)",
+        "color": "rgb(223, 233, 245)",
+        "margins": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "borders": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "fieldLabelColor": "rgba(0, 0, 0, 0)"
+      },
+      "commands": [
+        "start",
+        "preheat",
+        "stop",
+        "finish"
+      ],
+      "commands_fit": true,
+      "toolbar_fits": true,
+      "ccd": {
+        "name": "选择CCD",
+        "option": "CCD 1",
+        "hitWidth": 36,
+        "hitHeight": 24,
+        "iconWidth": 16
+      }
+    }
+  ],
+  "capture_empty_surface": {
+    "width": 393,
+    "height": 341,
+    "expectedColor": "rgb(223, 233, 245)",
+    "color": "rgb(223, 233, 245)",
+    "margins": [
+      "0px",
+      "0px",
+      "0px",
+      "0px"
+    ],
+    "borders": [
+      "0px",
+      "0px",
+      "0px",
+      "0px"
+    ],
+    "fieldLabelColor": "rgba(0, 0, 0, 0)"
+  },
+  "capture_five_button": {
+    "saved1060": {
+      "desk": {
+        "width": 797,
+        "height": 475,
+        "bottom": 638
+      },
+      "record_dock": 204,
+      "headers": [
+        {
+          "name": "",
+          "actual": 16,
+          "text": 0,
+          "minimum": 2,
+          "scroll": 15,
+          "client": 15
+        },
+        {
+          "name": "记录号",
+          "actual": 46,
+          "text": 36,
+          "minimum": 46,
+          "scroll": 45,
+          "client": 45
+        },
+        {
+          "name": "样品编号",
+          "actual": 65,
+          "text": 48,
+          "minimum": 58,
+          "scroll": 64,
+          "client": 64
+        },
+        {
+          "name": "样品序号",
+          "actual": 60,
+          "text": 48,
+          "minimum": 58,
+          "scroll": 59,
+          "client": 59
+        }
+      ],
+      "rows": 9,
+      "record_table": {
+        "client_height": 332,
+        "scroll_height": 611,
+        "scrollbar_width": 15
+      },
+      "toolbar": {
+        "width": 393,
+        "height": 53,
+        "rows": 2,
+        "client": 393,
+        "scroll": 393
+      },
+      "empty": null,
+      "plot_svg": {
+        "x": 437,
+        "y": 320,
+        "width": 393,
+        "height": 317,
+        "right": 830,
+        "bottom": 637
+      },
+      "plot_area": {
+        "x": 491,
+        "y": 362,
+        "width": 305,
+        "height": 225,
+        "right": 796,
+        "bottom": 587
+      },
+      "board": "rgb(223, 233, 245)",
+      "command_area": {
+        "height": 243.2578125,
+        "bottom": 632,
+        "client": 241,
+        "scroll": 226,
+        "scrollTop": 0
+      },
+      "command_buttons": [
+        {
+          "command": "start",
+          "width": 167,
+          "height": 28,
+          "y": 436.7421875,
+          "bottom": 464.7421875,
+          "svg": "lucide lucide-play capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "single-turn",
+          "width": 167,
+          "height": 28,
+          "y": 467.7421875,
+          "bottom": 495.7421875,
+          "svg": "lucide lucide-step-forward capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "preheat",
+          "width": 167,
+          "height": 28,
+          "y": 498.7421875,
+          "bottom": 526.7421875,
+          "svg": "lucide lucide-flame capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "stop",
+          "width": 167,
+          "height": 28,
+          "y": 529.7421875,
+          "bottom": 557.7421875,
+          "svg": "lucide lucide-square capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "finish",
+          "width": 167,
+          "height": 28,
+          "y": 560.7421875,
+          "bottom": 588.7421875,
+          "svg": "lucide lucide-log-out capture-command-icon",
+          "visible": true
+        }
+      ],
+      "page_height": {
+        "client": 564,
+        "scroll": 564
+      },
+      "messages": {
+        "x": 216,
+        "y": 646,
+        "width": 844,
+        "height": 34,
+        "right": 1060,
+        "bottom": 680
+      }
+    },
+    "saved1440": {
+      "desk": {
+        "width": 1153,
+        "height": 695,
+        "bottom": 858
+      },
+      "record_dock": 232,
+      "headers": [
+        {
+          "name": "",
+          "actual": 18,
+          "text": 0,
+          "minimum": 2,
+          "scroll": 17,
+          "client": 17
+        },
+        {
+          "name": "记录号",
+          "actual": 52,
+          "text": 36,
+          "minimum": 46,
+          "scroll": 51,
+          "client": 51
+        },
+        {
+          "name": "样品编号",
+          "actual": 96,
+          "text": 48,
+          "minimum": 58,
+          "scroll": 95,
+          "client": 95
+        },
+        {
+          "name": "样品序号",
+          "actual": 64,
+          "text": 48,
+          "minimum": 58,
+          "scroll": 63,
+          "client": 63
+        }
+      ],
+      "rows": 9,
+      "record_table": {
+        "client_height": 552,
+        "scroll_height": 552,
+        "scrollbar_width": 0
+      },
+      "toolbar": {
+        "width": 688.8046875,
+        "height": 32,
+        "rows": 1,
+        "client": 689,
+        "scroll": 689
+      },
+      "empty": null,
+      "plot_svg": {
+        "x": 477,
+        "y": 299,
+        "width": 688.8046875,
+        "height": 558,
+        "right": 1165.8046875,
+        "bottom": 857
+      },
+      "plot_area": {
+        "x": 531.00390625,
+        "y": 341,
+        "width": 600.796875,
+        "height": 466,
+        "right": 1131.80078125,
+        "bottom": 807
+      },
+      "board": "rgb(37, 60, 84)",
+      "command_area": {
+        "height": 436.2578125,
+        "bottom": 849,
+        "client": 434,
+        "scroll": 415,
+        "scrollTop": 0
+      },
+      "command_buttons": [
+        {
+          "command": "start",
+          "width": 195.1953125,
+          "height": 34,
+          "y": 456.2890625,
+          "bottom": 490.2890625,
+          "svg": "lucide lucide-play capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "single-turn",
+          "width": 195.1953125,
+          "height": 34,
+          "y": 496.2890625,
+          "bottom": 530.2890625,
+          "svg": "lucide lucide-step-forward capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "preheat",
+          "width": 195.1953125,
+          "height": 34,
+          "y": 536.2890625,
+          "bottom": 570.2890625,
+          "svg": "lucide lucide-flame capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "stop",
+          "width": 195.1953125,
+          "height": 34,
+          "y": 576.2890625,
+          "bottom": 610.2890625,
+          "svg": "lucide lucide-square capture-command-icon",
+          "visible": true
+        },
+        {
+          "command": "finish",
+          "width": 195.1953125,
+          "height": 34,
+          "y": 620.2890625,
+          "bottom": 654.2890625,
+          "svg": "lucide lucide-log-out capture-command-icon",
+          "visible": true
+        }
+      ],
+      "page_height": {
+        "client": 784,
+        "scroll": 784
+      },
+      "messages": {
+        "x": 216,
+        "y": 866,
+        "width": 1224,
+        "height": 34,
+        "right": 1440,
+        "bottom": 900
+      }
+    },
+    "other_states_1060": {
+      "draft": {
+        "desk_height": 475,
+        "commands": [
+          226,
+          241
+        ],
+        "page": [
+          564,
+          564
+        ],
+        "last_button_bottom": 588.7421875,
+        "message_top": 646
+      },
+      "preheat": {
+        "desk_height": 475,
+        "commands": [
+          226,
+          241
+        ],
+        "page": [
+          564,
+          564
+        ],
+        "last_button_bottom": 598.7421875,
+        "message_top": 646
+      },
+      "running": {
+        "desk_height": 461,
+        "commands": [
+          212,
+          227
+        ],
+        "page": [
+          564,
+          564
+        ],
+        "last_button_bottom": 604.7421875,
+        "message_top": 646
+      }
+    }
+  },
+  "method_status_and_rail_restore": {
+    "pausedMethodInHeader": true,
+    "viewerRecordRail": {
+      "visibleCenter": 607,
+      "hiddenCenter": 795,
+      "restoredCenter": 607
+    }
+  },
+  "images": {
+    "analysis-1440-light.png": {
+      "css_pixels": [
+        1440,
+        900
+      ],
+      "sha256": "5dfad8f1ab6963e7539a856b3967377279b9f2733a304c43d210f91907997039"
+    },
+    "viewer-1440-dark.png": {
+      "css_pixels": [
+        1440,
+        900
+      ],
+      "sha256": "2af513ae898591f80c2569197095df387896224071e9ebed0b2740a2cc95ef19"
+    },
+    "viewer-1060-narrow.png": {
+      "css_pixels": [
+        1060,
+        680
+      ],
+      "sha256": "aa5cc4b0ddd9f9d8f1d73cef3a5bf77c22399a0343a6e1865daf9e4d8056f189"
+    },
+    "capture-turns-1060.png": {
+      "css_pixels": [
+        1060,
+        680
+      ],
+      "sha256": "a93b867e2e0f64b44fd719244c463737b1dab184ac5927a7b00c1017ccc5b110"
+    },
+    "dispersion-curve-1440.png": {
+      "css_pixels": [
+        1440,
+        900
+      ],
+      "sha256": "002a2a37444759ffa90752a97695739a3884f17c9290fe9a043debee0b86dbdf"
+    },
+    "evaporation-curve-1440.png": {
+      "css_pixels": [
+        1440,
+        900
+      ],
+      "sha256": "0992a5bbbd3d81e89ed06fc73f83497110d8248471ed77d864ded8171c9a4764"
+    },
+    "alignment-1440.png": {
+      "css_pixels": [
+        1440,
+        900
+      ],
+      "sha256": "96782562a1849d9d8c83ce90c1c66fd3861ac63f411aa64c7f860d386dd4b650"
+    }
+  },
+  "retained_review": {
+    "pid": 36012,
+    "width": 1440,
+    "height": 900,
+    "theme": "light",
+    "heading": "样品分析",
+    "backendReachable": true,
+    "simulatorDisconnected": true
+  },
+  "limitations": [
+    "Hardware capture was tested with simulator only",
+    "F5/F6 application handlers verified using DOM key events on WebView2; real calibration endpoints returned HTTP 200."
+  ],
+  "changed_files": [
+    "app/frontend/src/components/LegacySpectrumSurface.tsx",
+    "app/frontend/src/components/PageHeading.tsx",
+    "app/frontend/src/components/SpectrumPlot.tsx",
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/components/message-panel.css",
+    "app/frontend/src/components/page-heading.css",
+    "app/frontend/src/components/row-selection-arrow.css",
+    "app/frontend/src/layout/Header.tsx",
+    "app/frontend/src/layout/Sidebar.tsx",
+    "app/frontend/src/layout/quick-access.css",
+    "app/frontend/src/pages/acquisition/EvaporationCurvePlot.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyConsole.tsx",
+    "app/frontend/src/pages/acquisition/SpectroscopyWorkbench.tsx",
+    "app/frontend/src/pages/acquisition/capture-operation-layout.css",
+    "app/frontend/src/pages/acquisition/spectroscopy-workbench.css",
+    "app/frontend/src/pages/analysis/AnalysisPage.tsx",
+    "app/frontend/src/pages/analysis/analysis-desk.css",
+    "app/frontend/src/pages/analysis/analysis-workspace.css",
+    "app/frontend/src/pages/devices/AlignmentMonitor.tsx",
+    "app/frontend/src/pages/devices/alignment-monitor.css",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css",
+    "app/frontend/src/pages/spectra/SpectrumRecordList.tsx",
+    "app/frontend/src/pages/spectra/spectrum-viewer.css",
+    "app/frontend/src/styles/global.css",
+    "app/tests/capture_operation_layout.mjs",
+    "app/tests/legacy_excitation_layout_workflow.mjs",
+    "app/tests/page_layout_workflow.mjs"
+  ]
+}

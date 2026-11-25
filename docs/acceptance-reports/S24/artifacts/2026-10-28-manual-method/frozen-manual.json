@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "binary_sha256": "4b67cea9078ce2d992cd609fc2ac004bd9fcff18b41d69d34f1e6ff0acf016e0",
+  "schema_version": 25,
+  "method_options": true,
+  "angle_mismatch_rejected": true,
+  "background_manual_completed": true,
+  "method_interval_preserved": true,
+  "analysis_sample_saved": true,
+  "user_database_touched": false
+}

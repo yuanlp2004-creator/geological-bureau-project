@@ -1,0 +1,131 @@
+{
+  "status": "passed",
+  "date": "2026-11-06",
+  "source_delivery": "2026-11-06-line-turn-detect",
+  "source_directory": "D:\\地质局",
+  "bundle": "D:\\地质局\\app\\.local\\releases\\GeoSpectrum_全流程演示_20261106",
+  "archive": "D:\\地质局\\app\\.local\\releases\\GeoSpectrum_全流程演示_20261106.zip",
+  "source_pair": {
+    "GeoSpectrum.exe": "e9588311deb529611d3f5ee0d075ab05f5fdeb42fbc20f873350ce65b6408a71",
+    "geospectrum-backend.exe": "f63e2f4380c001b74975971950939b4772dbbf814b7df41c70521bd9be536d3c"
+  },
+  "schema_version": 30,
+  "files": [
+    {
+      "path": "data/geospectrum.sqlite3",
+      "bytes": 130707456,
+      "sha256": "636fc606ef262d52907f5851f636219645a3ca351e191f72a646cb19f81aed66"
+    },
+    {
+      "path": "geospectrum-backend.exe",
+      "bytes": 56413067,
+      "sha256": "f63e2f4380c001b74975971950939b4772dbbf814b7df41c70521bd9be536d3c"
+    },
+    {
+      "path": "GeoSpectrum.exe",
+      "bytes": 15537664,
+      "sha256": "e9588311deb529611d3f5ee0d075ab05f5fdeb42fbc20f873350ce65b6408a71"
+    },
+    {
+      "path": "功能核对说明.txt",
+      "bytes": 5197,
+      "sha256": "a82c15aff59076167464a32e0d82e12154a2e8d91691ca63889b8ef29e6de334"
+    },
+    {
+      "path": "启动演示.cmd",
+      "bytes": 495,
+      "sha256": "7ec3e34a82b916ec3d43b6fba4690f5caff8ffca48d5ca65f33bead01fc5534b"
+    },
+    {
+      "path": "演示说明.txt",
+      "bytes": 5619,
+      "sha256": "7aa5da30a6b567d5a2971897cf2d69d1cc8995ff10ef3208a626c262b9d0180e"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.CFG",
+      "bytes": 144,
+      "sha256": "6adb3fe9901cc8e5454bee157b4c5c0ad4eda3ae46f40356138a90853d6f1236"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.MTD",
+      "bytes": 323584,
+      "sha256": "02377f3a6fbf313000b1a1952ec3336aa5bb86af4045679b0c31039363105685"
+    },
+    {
+      "path": "示例文件/方法/DIRECT.OPT",
+      "bytes": 379,
+      "sha256": "42d7258b5525dc7f4397a97aa229e488eecb149a4ef514c4fbd9876a70a09a79"
+    },
+    {
+      "path": "示例文件/样品编号/演示样品.sam",
+      "bytes": 36,
+      "sha256": "c9c0ea0b520aa0a9b593087d78f35b903e52f4a8ee0485b8fe6e0777ac6b7ddd"
+    },
+    {
+      "path": "示例文件/结果/测试15-5_20190421_1842.dat",
+      "bytes": 2105,
+      "sha256": "3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd"
+    },
+    {
+      "path": "示例文件/结果/测试15-5_20190421_1842.pdt",
+      "bytes": 11068,
+      "sha256": "d13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534"
+    },
+    {
+      "path": "示例文件/谱图/20141029_测试.edt",
+      "bytes": 57708544,
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+    },
+    {
+      "path": "示例文件/谱图/20141029_测试.wdt",
+      "bytes": 57708544,
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde"
+    },
+    {
+      "path": "示例文件/谱图/测试15-5_20170509_[2-16].cdt",
+      "bytes": 5578752,
+      "sha256": "517d126dcf95099c7d0fa6543eba1e8471b6e7d342fbfa86fbcbd857011ed756"
+    },
+    {
+      "path": "示例文件/谱图/测试15-5_20170509_[2-16].cmt",
+      "bytes": 50323456,
+      "sha256": "db09294199d9f49ee2dfb7e17e9dd58f35048b742c06cea2caf93f4f1329f3aa"
+    }
+  ],
+  "file_count": 16,
+  "bytes": 374326110,
+  "archive_bytes": 269518899,
+  "archive_sha256": "45ade95804a6128ce1bc58b3083b820e7c16ec3ddec8b826af840c99388e15da",
+  "database_sha256": "636fc606ef262d52907f5851f636219645a3ca351e191f72a646cb19f81aed66",
+  "database_and_examples_unchanged": true,
+  "protected_files": [
+    "启动演示.cmd",
+    "data/geospectrum.sqlite3",
+    "示例文件/方法/DIRECT.CFG",
+    "示例文件/方法/DIRECT.MTD",
+    "示例文件/方法/DIRECT.OPT",
+    "示例文件/样品编号/演示样品.sam",
+    "示例文件/结果/测试15-5_20190421_1842.dat",
+    "示例文件/结果/测试15-5_20190421_1842.pdt",
+    "示例文件/谱图/20141029_测试.edt",
+    "示例文件/谱图/20141029_测试.wdt",
+    "示例文件/谱图/测试15-5_20170509_[2-16].cdt",
+    "示例文件/谱图/测试15-5_20170509_[2-16].cmt"
+  ],
+  "checks": [
+    "latest_frozen_backend_login_schema30",
+    "existing_demo_method_queue_analysis_and_report_readable",
+    "new_line_id_detection_consumes_existing_multi_angle_method",
+    "existing_prepared_collections_and_raw_frames_readable",
+    "stored_raw_spectrum_and_pdf_export",
+    "invalid_line_identity_still_denied"
+  ],
+  "extracted_checks": [
+    "latest_frozen_backend_login_schema30",
+    "existing_demo_method_queue_analysis_and_report_readable",
+    "new_line_id_detection_consumes_existing_multi_angle_method",
+    "existing_prepared_collections_and_raw_frames_readable"
+  ],
+  "plan_sha256": "f0a266237c915607383087145d7da1134cad7b0cf315864bd1215481a0aacd67",
+  "previous_package": "D:\\地质局\\app\\.local\\diagnostics\\demo-exe-refresh-20261106\\before\\GeoSpectrum_全流程演示_20261106.zip"
+}

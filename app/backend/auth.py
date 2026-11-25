@@ -82,6 +82,8 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "maintenance.write",
             "help.read",
             "about.read",
+            "activation.manage",
+            "support.manage",
         ),
     ),
     (

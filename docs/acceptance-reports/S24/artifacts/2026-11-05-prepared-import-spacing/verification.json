@@ -1,0 +1,398 @@
+{
+  "status": "passed",
+  "date": "2026-11-05",
+  "plan_sha256": "bbf98a61ae3f83bab08cd407dadd5314ca0262a79d136a03aa2cbef38da67697",
+  "product_change": "prepared-import.css: maximum width and horizontal padding only",
+  "browser": {
+    "status": "passed",
+    "layouts": [
+      {
+        "requested_width": 1060,
+        "current": {
+          "heading": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "card": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "outer": {
+            "left": 215,
+            "right": 1060,
+            "maxWidth": "1840px",
+            "paddingLeft": 16,
+            "paddingRight": 16
+          },
+          "viewport": 1060,
+          "scroll": 1060
+        },
+        "reference": {
+          "heading": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "card": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "outer": {
+            "left": 215,
+            "right": 1060,
+            "maxWidth": "1840px",
+            "paddingLeft": 16,
+            "paddingRight": 16
+          },
+          "viewport": 1060,
+          "scroll": 1060
+        }
+      },
+      {
+        "requested_width": 1440,
+        "current": {
+          "heading": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "card": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "outer": {
+            "left": 246,
+            "right": 1440,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1440,
+          "scroll": 1440
+        },
+        "reference": {
+          "heading": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "card": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "outer": {
+            "left": 246,
+            "right": 1440,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1440,
+          "scroll": 1440
+        }
+      },
+      {
+        "requested_width": 1920,
+        "current": {
+          "heading": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "card": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "outer": {
+            "left": 246,
+            "right": 1920,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1920,
+          "scroll": 1920
+        },
+        "reference": {
+          "heading": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "card": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "outer": {
+            "left": 246,
+            "right": 1920,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1920,
+          "scroll": 1920
+        }
+      },
+      {
+        "requested_width": 2560,
+        "current": {
+          "heading": {
+            "left": 306,
+            "right": 2524,
+            "width": 2218
+          },
+          "card": {
+            "left": 531,
+            "right": 2299,
+            "width": 1768
+          },
+          "outer": {
+            "left": 495,
+            "right": 2335,
+            "maxWidth": "1840px",
+            "paddingLeft": 36,
+            "paddingRight": 36
+          },
+          "viewport": 2560,
+          "scroll": 2560
+        },
+        "reference": {
+          "heading": {
+            "left": 306,
+            "right": 2524,
+            "width": 2218
+          },
+          "card": {
+            "left": 531,
+            "right": 2299,
+            "width": 1768
+          },
+          "outer": {
+            "left": 495,
+            "right": 2335,
+            "maxWidth": "1840px",
+            "paddingLeft": 36,
+            "paddingRight": 36
+          },
+          "viewport": 2560,
+          "scroll": 2560
+        }
+      }
+    ],
+    "errors": []
+  },
+  "desktop": {
+    "status": "passed",
+    "layouts": [
+      {
+        "requested_width": 1060,
+        "current": {
+          "heading": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "card": {
+            "left": 231,
+            "right": 1044,
+            "width": 813
+          },
+          "outer": {
+            "left": 215,
+            "right": 1060,
+            "maxWidth": "1840px",
+            "paddingLeft": 16,
+            "paddingRight": 16
+          },
+          "viewport": 1060,
+          "scroll": 1060
+        },
+        "reference": {
+          "heading": {
+            "left": 231,
+            "right": 1029,
+            "width": 798
+          },
+          "card": {
+            "left": 231,
+            "right": 1029,
+            "width": 798
+          },
+          "outer": {
+            "left": 215,
+            "right": 1045,
+            "maxWidth": "1840px",
+            "paddingLeft": 16,
+            "paddingRight": 16
+          },
+          "viewport": 1060,
+          "scroll": 1060
+        }
+      },
+      {
+        "requested_width": 1440,
+        "current": {
+          "heading": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "card": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "outer": {
+            "left": 246,
+            "right": 1440,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1440,
+          "scroll": 1440
+        },
+        "reference": {
+          "heading": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "card": {
+            "left": 274,
+            "right": 1412,
+            "width": 1138
+          },
+          "outer": {
+            "left": 246,
+            "right": 1440,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1440,
+          "scroll": 1440
+        }
+      },
+      {
+        "requested_width": 1920,
+        "current": {
+          "heading": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "card": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "outer": {
+            "left": 246,
+            "right": 1920,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1920,
+          "scroll": 1920
+        },
+        "reference": {
+          "heading": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "card": {
+            "left": 274,
+            "right": 1892,
+            "width": 1618
+          },
+          "outer": {
+            "left": 246,
+            "right": 1920,
+            "maxWidth": "1840px",
+            "paddingLeft": 28,
+            "paddingRight": 28
+          },
+          "viewport": 1920,
+          "scroll": 1920
+        }
+      },
+      {
+        "requested_width": 2560,
+        "current": {
+          "heading": {
+            "left": 306,
+            "right": 2524,
+            "width": 2218
+          },
+          "card": {
+            "left": 531,
+            "right": 2299,
+            "width": 1768
+          },
+          "outer": {
+            "left": 495,
+            "right": 2335,
+            "maxWidth": "1840px",
+            "paddingLeft": 36,
+            "paddingRight": 36
+          },
+          "viewport": 2560,
+          "scroll": 2560
+        },
+        "reference": {
+          "heading": {
+            "left": 306,
+            "right": 2524,
+            "width": 2218
+          },
+          "card": {
+            "left": 531,
+            "right": 2299,
+            "width": 1768
+          },
+          "outer": {
+            "left": 495,
+            "right": 2335,
+            "maxWidth": "1840px",
+            "paddingLeft": 36,
+            "paddingRight": 36
+          },
+          "viewport": 2560,
+          "scroll": 2560
+        }
+      }
+    ],
+    "errors": []
+  },
+  "native_window_checked": true,
+  "production_qa_sources_identical": true,
+  "deployment": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "6be09303e15309d6dec9ebff4778860489f30ac48240cfc470b847aad2c705a0",
+      "after_sha256": "c37a570b1c22e9ccc89d49a253edd00900a2aa8566da793c4ad689e1a0813f12"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed",
+      "after_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed"
+    }
+  },
+  "review": {
+    "pid": 35992,
+    "cdp": "http://127.0.0.1:57415",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-05-prepared-import-spacing\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\prepared-import-spacing-review-20261105",
+    "retained_for_review": true
+  },
+  "backend_unchanged": true
+}

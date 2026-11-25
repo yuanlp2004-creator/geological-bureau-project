@@ -14,6 +14,13 @@ class LinePosition(NamedTuple):
     within_margin: bool
 
 
+def prepared_layout_geometry(layout: sqlite3.Row) -> dict:
+    return {key: layout[key] for key in ('frame_count', 'ccds_per_frame', 'points_per_ccd', 'point_width')} | {
+        'ccd_indices': json.loads(layout['ccd_indices_json']),
+        'gap_points': json.loads(layout['gap_points_json']),
+    }
+
+
 class MethodLineLocator:
     """方法模块公开的定位快照；调用方不接触布局表或数据库行。"""
 
@@ -28,9 +35,7 @@ class MethodLineLocator:
 
     def prepared_layout(self) -> dict:
         """Detached layout for EDT preparation; geometry comparisons exclude dispersion."""
-        return {key: self._layout[key] for key in ('frame_count', 'ccds_per_frame', 'points_per_ccd', 'point_width')} | {
-            'ccd_indices': json.loads(self._layout['ccd_indices_json']),
-            'gap_points': json.loads(self._layout['gap_points_json']),
+        return prepared_layout_geometry(self._layout) | {
             'ws_cof': json.loads(self._dispersion['coefficients_json']),
             'allow_gap_error_um': float(self._layout['allow_drift_um']),
         }

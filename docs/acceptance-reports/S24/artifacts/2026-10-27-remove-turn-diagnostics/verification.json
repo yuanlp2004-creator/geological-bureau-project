@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "04d2039b2f54d17fd8631ef69fadb7b0a7c58ee0d70deaadd1c4cdea5c5ff399",
+  "changed_product_files": [
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionPage.tsx",
+    "app/frontend/src/pages/hardwareAcquisition/hardware-acquisition.css"
+  ],
+  "deleted_product_files": [
+    "app/frontend/src/pages/hardwareAcquisition/HardwareAcquisitionDiagnostics.tsx"
+  ],
+  "frontend_tests": 16,
+  "desktop": {
+    "checks": 10,
+    "layouts": 3
+  },
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-27-remove-turn-diagnostics\\qa\\GeoSpectrum.exe",
+    "pid": 23492,
+    "loaded_pair_sha256": {
+      "GeoSpectrum.exe": "548e1499576db14eed66ff878a0a95ef9d7d88d3bf0efdc81a111cd31c3fc618",
+      "geospectrum-backend.exe": "1b40876e323312cdfac65c4a87f33383b695535cc15e326e6a77968e8c6b83aa"
+    },
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "backend_source_and_binary_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "3a92c9d79070eb3a68d32277e14a79fb65bc6ee94fc1217a485bb1ba1fffc4ec",
+    "geospectrum-backend.exe": "1b40876e323312cdfac65c4a87f33383b695535cc15e326e6a77968e8c6b83aa"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "stored_frames_decisions_and_sample_saving_preserved": true,
+  "installer_rebuilt": false,
+  "backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\remove-turn-diagnostics-20261027\\before"
+}

@@ -1,0 +1,98 @@
+{
+  "status": "passed",
+  "execution_plan_sha256": "f5a3af28842fb90c3c53880aec547e2fe40e9d3822de952f551d46b583a2867b",
+  "changed_product_files": [
+    "app/frontend/src/components/legacy-viewing.css",
+    "app/frontend/src/pages/spectra/SpectrumViewerPage.tsx"
+  ],
+  "scope": "Anchor the measurement time to the record rail bottom and remove the visible-range row in the shared spectrum/evaporation viewer",
+  "cause": "Legacy card list max-height 52vh / 165px persisted after the table conversion",
+  "browser": {
+    "checks": 5,
+    "layouts": 9
+  },
+  "desktop": {
+    "checks": 5,
+    "layouts": 9
+  },
+  "baseline_time_bottom_gap_css_px": {
+    "evaporation-many-normal-light": 135,
+    "spectra-one-normal-light": 109,
+    "spectra-many-normal-light": 135,
+    "evaporation-many-small-dark": 174,
+    "spectra-one-small-dark": 184,
+    "spectra-many-small-dark": 210,
+    "evaporation-many-wide-light": 227,
+    "spectra-one-wide-light": 201,
+    "spectra-many-wide-light": 227
+  },
+  "time_bottom_gap_css_px": {
+    "browser": {
+      "evaporation-many-normal-light": 0,
+      "spectra-one-normal-light": 0,
+      "spectra-many-normal-light": 0,
+      "evaporation-many-small-dark": 0,
+      "spectra-one-small-dark": 0,
+      "spectra-many-small-dark": 0,
+      "evaporation-many-wide-light": 0,
+      "spectra-one-wide-light": 0,
+      "spectra-many-wide-light": 0
+    },
+    "desktop": {
+      "evaporation-many-normal-light": 0,
+      "spectra-one-normal-light": 0,
+      "spectra-many-normal-light": 0,
+      "evaporation-many-small-dark": 0,
+      "spectra-one-small-dark": 0,
+      "spectra-many-small-dark": 0,
+      "evaporation-many-wide-light": 0,
+      "spectra-one-wide-light": 0,
+      "spectra-many-wide-light": 0
+    }
+  },
+  "gained_plot_height_css_px": {
+    "browser": {
+      "evaporation-many-normal-light": 21,
+      "spectra-one-normal-light": 21,
+      "spectra-many-normal-light": 21,
+      "evaporation-many-small-dark": 21,
+      "spectra-one-small-dark": 21,
+      "spectra-many-small-dark": 21,
+      "evaporation-many-wide-light": 21,
+      "spectra-one-wide-light": 21,
+      "spectra-many-wide-light": 21
+    },
+    "desktop": {
+      "evaporation-many-normal-light": 21,
+      "spectra-one-normal-light": 21,
+      "spectra-many-normal-light": 21,
+      "evaporation-many-small-dark": 21,
+      "spectra-one-small-dark": 21,
+      "spectra-many-small-dark": 21,
+      "evaporation-many-wide-light": 21,
+      "spectra-one-wide-light": 21,
+      "spectra-many-wide-light": 21
+    }
+  },
+  "long_single_empty_lists_and_zoom_verified": true,
+  "legacy_edt_hash_preserved": true,
+  "desktop_process": {
+    "status": "passed",
+    "exe": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\releases\\2026-10-26-viewer-footer\\qa\\GeoSpectrum.exe",
+    "pid": 20044,
+    "returncode": 0,
+    "closed_normally": true,
+    "remaining_owned_pids": []
+  },
+  "production_qa_sources_and_frontend_equal": true,
+  "all_other_product_and_legacy_sources_unchanged": true,
+  "backend_executable_unchanged": true,
+  "installed_pair_sha256": {
+    "GeoSpectrum.exe": "0f9f542f0789e2829c1107e52ac850f17b479d95583daecfea3583f767a2c5da",
+    "geospectrum-backend.exe": "ec130ebbc9e28c875d92565c39d12c4c29fb6d8a762a6f734dde71b216d8120f"
+  },
+  "root_app_inventory_unchanged": true,
+  "user_database_replaced": false,
+  "installer_rebuilt": false,
+  "previous_pair_backup": "C:\\Users\\Leo\\Desktop\\地质局\\app\\.local\\diagnostics\\viewer-footer-20261026\\before"
+}

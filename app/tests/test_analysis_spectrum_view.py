@@ -209,3 +209,48 @@ def test_analysis_numbering_assigns_consecutive_bands_and_round_trips_sam(method
     assert result.status_code == 201, result.text
     assert [item['acquisition_sample_id'] for item in result.json()['samples']] == samples[1:]
     assert result.json()['input_snapshot']['sample_numbering']['source_sample_ids'] == samples
+
+
+def test_analysis_numbering_workbook_round_trips_with_prerecord_queue(method_client):
+    client, runtime, headers = method_client
+    queues = '/api/v1/sample-queues'
+    files = '/api/v1/analyses/sample-numbers'
+    entries = [{'name': '0007', 'repeats': 2}, {'name': '', 'repeats': 0}, {'name': '=A+1', 'repeats': 1}]
+    queue = client.post(queues, headers=headers, json={'name': '互读样号', 'name_length': 20, 'items': [
+        {'pre_name': item['name'], 'repeats': item['repeats']} for item in entries
+    ]})
+    assert queue.status_code == 201, queue.text
+    queue_id = queue.json()['id']
+    prerecord = client.get(f'{queues}/{queue_id}/export?format=xlsx', headers=headers)
+    assert prerecord.is_success, prerecord.text
+
+    def read_workbook(content):
+        return client.post(files + '/read', headers=headers, json={
+            'format': 'xlsx', 'content_base64': base64.b64encode(content).decode('ascii'),
+        })
+
+    opened = read_workbook(prerecord.content)
+    assert opened.status_code == 200, opened.text
+    assert opened.json()['entries'] == entries
+    exported = client.post(files + '/write', headers=headers, json={'format': 'xlsx', 'entries': entries})
+    assert exported.is_success, exported.text
+    assert exported.headers['content-type'].endswith('spreadsheetml.sheet')
+    assert read_workbook(exported.content).json()['entries'] == entries
+    from_queue = client.post(queues + '/import', headers=headers, json={
+        'filename': '分析名单.xlsx', 'content_base64': base64.b64encode(exported.content).decode('ascii'),
+    })
+    assert from_queue.status_code == 201, from_queue.text
+    assert [(row['pre_name'], row['repeats']) for row in from_queue.json()['items']] == [
+        (item['name'], item['repeats']) for item in entries
+    ]
+
+    from backend.modules.sample_workbook import write_sample_workbook
+    bad = read_workbook(write_sample_workbook([{'name': '有效样号', 'repeats': 0}]))
+    assert bad.status_code == 422
+    assert bad.json()['detail']['code'] == 'analysis_sample_numbering_invalid'
+    assert bad.json()['detail']['details']['position'] == 1
+    named_standard = [{'name': 'SA', 'repeats': 1}]
+    exported_exact = client.post(files + '/write', headers=headers, json={'format': 'xlsx', 'entries': named_standard})
+    assert read_workbook(exported_exact.content).json()['entries'] == named_standard
+    with runtime.database.read() as db:
+        assert db.execute("SELECT COUNT(*) FROM audit_events WHERE action='analysis.sample_numbers.xlsx_export'").fetchone()[0] == 2

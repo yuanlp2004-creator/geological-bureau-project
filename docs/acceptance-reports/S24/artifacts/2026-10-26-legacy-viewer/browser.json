@@ -1,0 +1,291 @@
+{
+  "status": "passed",
+  "checks": [
+    "light: 真实WDT谱带表、常驻谱线栏、平方根灰度、峰形共用坐标、悬停尺寸稳定及观察零写入",
+    "light: 真实CMT按文件列全记录，三列表格与上方四列表格、同CCD同点原值联动及零写入",
+    "light: 单样品/多样品切换与CCD切换均由当前保存谱图驱动",
+    "light: 真实EDT保留谱带/灰度/峰形查看，原帧统计仍可展开",
+    "dark: 真实WDT谱带表、常驻谱线栏、平方根灰度、峰形共用坐标、悬停尺寸稳定及观察零写入",
+    "dark: 真实CMT按文件列全记录，三列表格与上方四列表格、同CCD同点原值联动及零写入",
+    "dark: 单样品/多样品切换与CCD切换均由当前保存谱图驱动",
+    "dark: 真实EDT保留谱带/灰度/峰形查看，原帧统计仍可展开",
+    "旧WDT查看按当前可见范围生成真实PDF，桌面取消保存不改变谱带",
+    "切CCD遇503立即清空旧灰度和峰形，重试恢复，避免旧数据冒充新CCD",
+    "三份旧文件原件SHA-256保持；全部导入和观察操作仅在隔离库内"
+  ],
+  "layouts": [
+    {
+      "name": "wdt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 290,
+          "y": 205,
+          "w": 1106,
+          "h": 722,
+          "right": 1396
+        },
+        {
+          "type": "legacy-view-rail dispersion-sidebar",
+          "x": 291,
+          "y": 247,
+          "w": 190,
+          "h": 679,
+          "right": 481
+        },
+        {
+          "type": "legacy-view-center dispersion-curve-monitor",
+          "x": 481,
+          "y": 247,
+          "w": 734,
+          "h": 679,
+          "right": 1215
+        },
+        {
+          "type": "dispersion-spectrum-view legacy-view-center",
+          "x": 481,
+          "y": 247,
+          "w": 734,
+          "h": 650,
+          "right": 1215
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 498,
+          "y": 463,
+          "w": 700,
+          "h": 423,
+          "right": 1198
+        },
+        {
+          "type": "legacy-view-rail right",
+          "x": 1215,
+          "y": 247,
+          "w": 180,
+          "h": 679,
+          "right": 1395
+        }
+      ]
+    },
+    {
+      "name": "cmt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 262,
+          "y": 181,
+          "w": 1162,
+          "h": 765,
+          "right": 1424
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 263,
+          "y": 219,
+          "w": 210,
+          "h": 726,
+          "right": 473
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 473,
+          "y": 219,
+          "w": 950,
+          "h": 726,
+          "right": 1423
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 490,
+          "y": 473,
+          "w": 916,
+          "h": 440,
+          "right": 1406
+        }
+      ]
+    },
+    {
+      "name": "edt-light",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 262,
+          "y": 181,
+          "w": 1162,
+          "h": 765,
+          "right": 1424
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 263,
+          "y": 219,
+          "w": 210,
+          "h": 726,
+          "right": 473
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 473,
+          "y": 219,
+          "w": 950,
+          "h": 726,
+          "right": 1423
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 490,
+          "y": 461,
+          "w": 916,
+          "h": 452,
+          "right": 1406
+        }
+      ]
+    },
+    {
+      "name": "wdt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 247,
+          "y": 205,
+          "w": 781,
+          "h": 442,
+          "right": 1028
+        },
+        {
+          "type": "legacy-view-rail dispersion-sidebar",
+          "x": 248,
+          "y": 247,
+          "w": 145,
+          "h": 399,
+          "right": 393
+        },
+        {
+          "type": "legacy-view-center dispersion-curve-monitor",
+          "x": 393,
+          "y": 247,
+          "w": 496,
+          "h": 399,
+          "right": 889
+        },
+        {
+          "type": "dispersion-spectrum-view legacy-view-center",
+          "x": 393,
+          "y": 247,
+          "w": 496,
+          "h": 370,
+          "right": 889
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 402,
+          "y": 415,
+          "w": 478,
+          "h": 197,
+          "right": 880
+        },
+        {
+          "type": "legacy-view-rail right",
+          "x": 889,
+          "y": 247,
+          "w": 138,
+          "h": 399,
+          "right": 1027
+        }
+      ]
+    },
+    {
+      "name": "cmt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 231,
+          "y": 181,
+          "w": 813,
+          "h": 485,
+          "right": 1044
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 232,
+          "y": 219,
+          "w": 154,
+          "h": 446,
+          "right": 386
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 386,
+          "y": 219,
+          "w": 657,
+          "h": 446,
+          "right": 1043
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 395,
+          "y": 413,
+          "w": 639,
+          "h": 226,
+          "right": 1034
+        }
+      ]
+    },
+    {
+      "name": "edt-dark",
+      "boxes": [
+        {
+          "type": "legacy-view-desk",
+          "x": 231,
+          "y": 181,
+          "w": 813,
+          "h": 485,
+          "right": 1044
+        },
+        {
+          "type": "legacy-view-rail spectrum-records",
+          "x": 232,
+          "y": 219,
+          "w": 154,
+          "h": 446,
+          "right": 386
+        },
+        {
+          "type": "legacy-view-center spectrum-workbench",
+          "x": 386,
+          "y": 219,
+          "w": 657,
+          "h": 446,
+          "right": 1043
+        },
+        {
+          "type": "spectrum-plot tool-crosshair",
+          "x": 395,
+          "y": 391,
+          "w": 639,
+          "h": 248,
+          "right": 1034
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "wdt_maximum": 14894.388671875,
+  "source_integrity": {
+    "wdt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.wdt",
+      "sha256": "1fe6c123c105f832cd8fb0f299bf6c2f19dff49cde81b7527a6885e14e8f5fde",
+      "records": 120
+    },
+    "cmt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\测试15-5_20170509_[1-18].cmt",
+      "sha256": "55553702185bfdb21007f8f94a15680a1147b1c318391adfb4736a6cbfd47270",
+      "records": 960
+    },
+    "edt": {
+      "path": "C:\\Users\\Leo\\Desktop\\地质局\\Spec Source\\Bin\\DATA\\20141029_测试.edt",
+      "sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+      "records": 120
+    }
+  }
+}

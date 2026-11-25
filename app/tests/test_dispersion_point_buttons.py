@@ -72,11 +72,17 @@ def test_v26_backfills_only_search_origin_and_rolls_back_on_failure(tmp_path, mo
         db.execute("INSERT INTO dispersion_task_lines(task_id,element,wavelength_nm,ccd_index,expected_position,located_position,saved_position,created_at,updated_at) VALUES(1,'Fe',250,0,100,110,105,'then','then')")
         before = dict(db.execute('SELECT * FROM dispersion_task_lines').fetchone())
         dump = list(db.iterdump())
+    migrate_v26 = next(migration for version, _, migration in MIGRATIONS if version == 26)
+
     def fail(db):
-        MIGRATIONS[-1][2](db)
+        migrate_v26(db)
         raise RuntimeError('injected anchor failure')
+
     with monkeypatch.context() as patch:
-        patch.setattr(database_module, 'MIGRATIONS', (*MIGRATIONS[:-1], (26, 'dispersion', fail)))
+        patch.setattr(database_module, 'MIGRATIONS', tuple(
+            (version, module, fail if version == 26 else migration)
+            for version, module, migration in MIGRATIONS
+        ))
         with pytest.raises(RuntimeError, match='injected anchor failure'): Database(path).initialize()
     with Database(path).read() as db: assert list(db.iterdump()) == dump
     Database(path).initialize(); Database(path).initialize()

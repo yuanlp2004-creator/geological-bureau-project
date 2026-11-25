@@ -1,10 +1,16 @@
 """Sample Queues API boundary; business services retain their existing behavior."""
 
 from __future__ import annotations
+
+import base64
+import binascii
 import json
 from pathlib import Path
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
+
 from ..db import utc_now
 from ..schemas.sample_queues import (
     SampleQueueCreate,
@@ -15,10 +21,9 @@ from ..schemas.sample_queues import (
 )
 from ..auth import Session
 from ..modules.sample_queues import SampleQueueError
+from ..modules.sample_workbook import MIME_TYPE as WORKBOOK_MIME_TYPE
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
-import base64
-import binascii
 
 router = APIRouter()
 
@@ -154,7 +159,15 @@ def import_sample_queue(
             )
         except (ValueError, binascii.Error) as exc:
             raise SampleQueueError("sam_payload_invalid", "文件字节编码无效") from exc
-        return runtime.sample_queue_service().import_bytes(
+        service = runtime.sample_queue_service()
+        if Path(payload.filename).suffix.lower() == '.xlsx':
+            if payload.content_base64 is None:
+                raise SampleQueueError('sample_workbook_invalid', 'Excel 导入需要原始工作簿文件')
+            return service.import_workbook(
+                raw, session.user_id, payload.queue_name or Path(payload.filename).stem,
+                payload.filename, payload.last_modified_ms,
+            )
+        return service.import_bytes(
             raw,
             session.user_id,
             payload.queue_name or Path(payload.filename).stem,
@@ -169,23 +182,26 @@ def import_sample_queue(
 @router.get("/api/v1/sample-queues/{queue_id}/export", tags=["sample-queues"])
 def export_sample_queue(
     queue_id: int,
+    format: Literal['sam', 'xlsx'] = 'sam',
     session: Session = Depends(require_permission("samples.write")),
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> Response:
     try:
-        content, digest = runtime.sample_queue_service().export_sam(queue_id)
+        service = runtime.sample_queue_service()
+        content, digest = service.export_workbook(queue_id) if format == 'xlsx' else service.export_sam(queue_id)
     except SampleQueueError as exc:
         raise sample_queue_error(exc) from exc
     with runtime.database.write() as db:
         db.execute(
             (
                 "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, "
-                "details_json, created_at) VALUES (?, 'sample_queue.sam_export', 'sample_queue', "
+                "details_json, created_at) VALUES (?, ?, 'sample_queue', "
                 "?, ?, ?)"
             ),
             (
                 session.user_id,
+                f'sample_queue.{format}_export',
                 queue_id,
                 json.dumps({"sha256": digest, "bytes": len(content)}, ensure_ascii=False),
                 utc_now(),
@@ -193,6 +209,6 @@ def export_sample_queue(
         )
     return Response(
         content=content,
-        media_type="text/plain",
-        headers={"Content-Disposition": f'attachment; filename="queue-{queue_id}.sam"', "X-Source-SHA256": digest},
+        media_type=WORKBOOK_MIME_TYPE if format == 'xlsx' else "text/plain",
+        headers={"Content-Disposition": f'attachment; filename="queue-{queue_id}.{format}"', "X-Source-SHA256": digest},
     )

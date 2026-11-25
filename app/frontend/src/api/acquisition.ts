@@ -66,6 +66,8 @@ export type CaptureTurn = { group?: string; turn_index: number; angle_deg: numbe
 export type CaptureTurnPage = { id: number; turn_index: number; angle_deg: number; status: string }
 
 export type AcquisitionTask = {
+  active_capture_id?: number
+  position_controlled?: boolean
   capture_turn?: CaptureTurn
   capture_turns?: CaptureTurnPage[]
   turns?: {
@@ -240,11 +242,18 @@ export const acquisitionApi = {
         headers: { Authorization: `Bearer ${token}` }
       }
     ),
-  startAcquisitionTask: (token: string, taskId: number, turnIndex?: number, singleTurn = false) =>
-    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start${turnIndex === undefined ? '' : `?turn_index=${turnIndex}&single_turn=${singleTurn}`}`, {
+  startAcquisitionTask: (token: string, taskId: number, turnIndex?: number, singleTurn = false, continuous = false) => {
+    const query = new URLSearchParams()
+    if (turnIndex !== undefined) {
+      query.set('turn_index', String(turnIndex))
+      query.set('single_turn', String(singleTurn))
+    }
+    if (continuous) query.set('continuous', 'true')
+    return request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/start${query.size ? `?${query}` : ''}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
-    }),
+    })
+  },
   stepAcquisitionTask: (token: string, taskId: number) =>
     request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/step?single_repeat=true`, {
       method: 'POST',
@@ -267,6 +276,7 @@ export const acquisitionApi = {
   stopAcquisitionTask: (token: string, taskId: number) =>
     request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/stop`, {
       method: 'POST',
+      timeoutMs: 70000,
       headers: { Authorization: `Bearer ${token}` }
     }),
   acquisitionFrames: (token: string, taskId: number, params = '') =>

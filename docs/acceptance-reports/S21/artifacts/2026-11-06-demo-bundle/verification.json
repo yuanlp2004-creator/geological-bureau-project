@@ -1,0 +1,110 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "check": "relocated_frozen_backend",
+      "status": "passed",
+      "schema_version": 29
+    },
+    {
+      "check": "unauthenticated_access_denied",
+      "status": "passed"
+    },
+    {
+      "check": "sample_preheat_completed",
+      "status": "passed",
+      "task_id": 9
+    },
+    {
+      "check": "two_repeats_capture",
+      "status": "passed",
+      "samples": [
+        15,
+        16
+      ]
+    },
+    {
+      "check": "quantitative_analysis",
+      "status": "passed",
+      "run_id": 2,
+      "line_results": 12
+    },
+    {
+      "check": "repeat_quality",
+      "status": "passed",
+      "run_id": 2
+    },
+    {
+      "check": "three_saved_standard_curves",
+      "status": "passed",
+      "elements": [
+        "Fe",
+        "Mn",
+        "Si"
+      ]
+    },
+    {
+      "check": "refit_publish_merge_and_confirm_report",
+      "status": "passed",
+      "report_id": 2
+    },
+    {
+      "check": "report_pdf",
+      "status": "passed",
+      "bytes": 3466
+    },
+    {
+      "check": "report_excel",
+      "status": "passed",
+      "bytes": 1931
+    },
+    {
+      "check": "legacy_mtd",
+      "status": "passed",
+      "summary": "{'format': 'mtd', 'run_id': '6b88bc0a-62ba-437f-8114-06ec9ef70f0e', 'reused': False, 'method_ids': [2, 3, 4, 5, 6, 7, 8, 9, 10], 'record_ids': [], 'source_sha256': '02377f3a6fbf313000b1a1952ec3336aa5bb86af4045679b0c31039363105685', 'issues': [{'code': 'legacy_reference_wavelength_defaulted', 'field': 'methods.8.conditions.actual_reference_wavelengt"
+    },
+    {
+      "check": "legacy_dat",
+      "status": "passed",
+      "summary": "{'format': 'dat', 'run_id': '245bd84b-bb48-4ff7-8f96-734eb23453c0', 'reused': False, 'method_ids': [], 'record_ids': [1], 'records': [{'id': 1, 'format': 'dat', 'record_index': 0}], 'source_sha256': '3ff051cb128730c24181119970f14cb8d96678c08cebcf732bc6ebab520af7fd', 'issues': []}"
+    },
+    {
+      "check": "legacy_pdt",
+      "status": "passed",
+      "summary": "{'format': 'pdt', 'run_id': '6f25d4e7-48df-40dd-bfc6-175a0dd145e2', 'reused': False, 'method_ids': [], 'record_ids': [2], 'records': [{'id': 2, 'format': 'pdt', 'record_index': 0}], 'source_sha256': 'd13b3d74821ea04425a6989f67fb08a324dc41f5deb7a80544b612c119f2a534', 'issues': []}"
+    },
+    {
+      "check": "legacy_edt",
+      "status": "passed",
+      "summary": "{'format': 'edt', 'run_id': '97d7983c-3db0-434d-92aa-b362d2964310', 'reused': False, 'method_ids': [], 'record_ids': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 6"
+    },
+    {
+      "check": "legacy_wdt",
+      "status": "passed",
+      "summary": "{'format': 'wdt', 'run_id': 'c3450d9c-c858-4060-8202-587a290059cb', 'reused': False, 'method_ids': [], 'record_ids': [121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 16"
+    },
+    {
+      "check": "legacy_cdt",
+      "status": "passed",
+      "summary": "{'format': 'cdt', 'run_id': 'b0ab5cfb-3b99-4dfd-8600-08537b8d5330', 'reused': False, 'method_ids': [], 'record_ids': [241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 28"
+    },
+    {
+      "check": "legacy_cmt",
+      "status": "passed",
+      "summary": "{'format': 'cmt', 'run_id': '6c6a442c-91d4-4a97-be7e-944d773a8220', 'reused': False, 'method_ids': [], 'record_ids': [361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 40"
+    },
+    {
+      "check": "simulator_disconnected",
+      "status": "passed"
+    },
+    {
+      "check": "database_integrity",
+      "status": "passed"
+    },
+    {
+      "check": "legacy_sam",
+      "status": "passed",
+      "items": 3
+    }
+  ]
+}

@@ -1,0 +1,435 @@
+{
+  "status": "passed",
+  "date": "2026-11-03",
+  "plan_sha256_before": "f394b9af1ed9078b5c2a22614a78d5d2580ad958a65051b1f6b2da104c48dd08",
+  "plan_sha256_authorization": "2d905c9c159457282c059e6876cf6766bac9811a2fc9922d224e97a271b285a6",
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "One device-debug menu entry contains all four permission-controlled tabs",
+      "Software and device parameter drafts survive tab changes",
+      "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+      "Device parameters persist through the existing API and reject duplicate CCD slots",
+      "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+      "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+      "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+      "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+      "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+      "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+      "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+      "Mercury-only read permission reaches the unified entry without requiring settings or device permissions",
+      "独立建立真实串口档案，原模拟档案逐字段保持；连接失败不允许开始且不回退模拟"
+    ],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": true
+      }
+    ],
+    "errors": [],
+    "profile": {
+      "id": 4,
+      "name": "真实光谱仪",
+      "transport": "serial",
+      "port": 4,
+      "baud_rate": 460800,
+      "mirror": false,
+      "frame_count": 3,
+      "ccds_per_frame": 2,
+      "points_per_ccd": 2048,
+      "point_width_um": 14,
+      "protection_time_ms": 200,
+      "screen_width_mm": 420,
+      "screen_resolution_px": 1440,
+      "enabled": true,
+      "created_at": "2026-11-02T17:49:45.794+00:00",
+      "updated_at": "2026-11-02T17:49:45.794+00:00",
+      "ccd_indices": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "screen_conversion": {
+        "pixels_per_mm": 3.4285714285714284,
+        "um_per_pixel": 291.6666666666667,
+        "point_width_px": 0.048
+      }
+    },
+    "retained": true
+  },
+  "browser": {
+    "checks": [
+      "real UI bootstrap, invalid password and successful login",
+      "real method create/list/PDF response; structured 422; browser directory fallback; WebSocket URL",
+      "real browser PDF and UTF-8 CSV downloads with byte verification",
+      "One device-debug menu entry contains all four permission-controlled tabs",
+      "Software and device parameter drafts survive tab changes",
+      "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+      "Device parameters persist through the existing API and reject duplicate CCD slots",
+      "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+      "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+      "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+      "Mercury draft, active session and calibration application/rollback survive unrestricted tab changes",
+      "All four tabs fit light/dark themes and both desktop window sizes; Mercury queue remains in the left sidebar and collapses/reopens",
+      "Both workbenches fill wide windows and follow information-panel expansion without leaving a bottom gap",
+      "A real read-only role can inspect all tabs without gaining parameter-write or device-execution rights",
+      "Mercury-only read permission reaches the unified entry without requiring settings or device permissions"
+    ],
+    "layouts": [
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "light",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "软件参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "设备参数 / 两框同时显示"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "调试对中"
+      },
+      {
+        "theme": "dark",
+        "width": 1060,
+        "height": 680,
+        "tab": "汞灯调试"
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 2560,
+        "height": 1200,
+        "tab": "汞灯调试",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "调试对中",
+        "expanded": true
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": false
+      },
+      {
+        "width": 1440,
+        "height": 1000,
+        "tab": "汞灯调试",
+        "expanded": true
+      }
+    ]
+  },
+  "files": {
+    "GeoSpectrum.exe": "e0bc77f64c5ae4c71cb6e54d4d8834539eb361631a9393aa8182fc54bc147a85",
+    "geospectrum-backend.exe": "27218513473d132b25aacc9b76c7dde081841eefd06be2f5d6f624364df8d0a1"
+  },
+  "production_qa_sources_match": true,
+  "production_core_metadata_unchanged": true,
+  "backend_bytes_unchanged": true,
+  "native_visual_review": true,
+  "retained": {
+    "retained": true,
+    "title": "GeoSpectrum 参数标题与对齐审阅",
+    "page": "设备参数 / 两框无重复标题",
+    "device_connected": false,
+    "backend_retained": true,
+    "physical_device_tested": false,
+    "profile_control_alignment": {
+      "top_delta": 0,
+      "height_delta": 0
+    }
+  }
+}

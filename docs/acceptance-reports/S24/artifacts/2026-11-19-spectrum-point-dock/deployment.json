@@ -1,0 +1,14 @@
+{
+  "before": {
+    "GeoSpectrum.exe": "effa24c3ef597bf4db4f364daf546e62c04b577b5f7eeccd7eeedc2893126d55",
+    "geospectrum-backend.exe": "955f1511d8f19e2b527faf9a0b817860f9ef700f7e67f6d9ff2ffe8254ab3601"
+  },
+  "after": {
+    "GeoSpectrum.exe": "10db6a32b58963dcc1feebc4a753cb3e7897e4cddac2f95338de3eeab2408709",
+    "geospectrum-backend.exe": "a83f7343b7be02d8c0c4d4361e36cd5924ca9bcd0944680f84c39ccaf02ecc9a"
+  },
+  "verified_web_assets": [
+    "dist/assets/index--oVk386W.js",
+    "dist/assets/index-CI13ZjEC.css"
+  ]
+}

@@ -12,6 +12,7 @@ from ..auth import Session
 from ..modules.hardware_acquisition import HardwareError
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
+from .deployment_access import require_activation
 
 router = APIRouter()
 
@@ -82,7 +83,9 @@ def start_hardware_acquisition_task(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().start(task_id, session.user_id), source='hardware', category='acquisition')
+        service = runtime.hardware_acquisition_service()
+        require_activation(runtime, begins_new_work=lambda: service.get_task(task_id)["status"] == "draft")
+        return runtime.messages.task(service.start(task_id, session.user_id), source='hardware', category='acquisition')
     except HardwareError as exc:
         raise hardware_error(exc) from exc
 

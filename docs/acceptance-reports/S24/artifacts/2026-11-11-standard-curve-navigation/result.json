@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "checks": [
+    "样品分析从谱图右键打开，双栏、九个标准点、相关系数及试样预览",
+    "标准曲线选点、强度还原、重新拟合和文本预览",
+    "1060宽窗口内顶栏可刷新、侧栏可直接切换工作台",
+    "复核页签和返回谱图可用，重新打开标准曲线后保留审阅窗口"
+  ],
+  "errors": [],
+  "analysisLayout": {
+    "executeVisible": true,
+    "width": 1440,
+    "tableWidth": 489.71875,
+    "chartWidth": 607.28125,
+    "chartHeight": 543.40625,
+    "sideBySide": true,
+    "toolbarAbove": true,
+    "overflow": 0
+  },
+  "narrowLayout": {
+    "executeVisible": true,
+    "width": 1060,
+    "tableWidth": 346.71875,
+    "chartWidth": 425.28125,
+    "chartHeight": 223.40625,
+    "sideBySide": true,
+    "toolbarAbove": true,
+    "overflow": 0
+  },
+  "deployment": {
+    "files": {
+      "GeoSpectrum.exe": {
+        "before": "bb3d0adca47add9fada57484a230e8efeab4af8aee0e32a589233e69e0e60aec",
+        "after": "d8b5063878995adb25b70fe54505034c8213b81ce82fa24d6d23f902118e4e24"
+      }
+    },
+    "same_source_files": 467
+  }
+}

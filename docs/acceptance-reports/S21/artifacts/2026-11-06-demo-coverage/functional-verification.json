@@ -1,0 +1,1311 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "18_registered_modules",
+      "status": "passed",
+      "modules": [
+        "core",
+        "about-diagnostics",
+        "auth",
+        "methods",
+        "legacy-migration",
+        "sample-queues",
+        "spectrum-migration",
+        "result-migration",
+        "spectrum-viewer",
+        "devices",
+        "dispersion",
+        "acquisition",
+        "hardware-acquisition",
+        "mercury-calibration",
+        "analysis",
+        "postprocessing",
+        "reports",
+        "maintenance"
+      ]
+    },
+    {
+      "name": "module_overviews_options_settings_status",
+      "status": "passed",
+      "endpoints": 62
+    },
+    {
+      "name": "all_seeded_methods_and_lines_readable",
+      "status": "passed",
+      "methods": 13
+    },
+    {
+      "name": "method_copy_rename_save_open_delete",
+      "status": "passed"
+    },
+    {
+      "name": "method_preview_pdf_text",
+      "status": "passed"
+    },
+    {
+      "name": "queue_create_export_import_and_selection",
+      "status": "passed"
+    },
+    {
+      "name": "mean_full_time_legacy_and_prepared_spectra",
+      "status": "passed"
+    },
+    {
+      "name": "stored_raw_interval_point_details_and_export",
+      "status": "passed"
+    },
+    {
+      "name": "dispersion_lines_position_restore_and_fit",
+      "status": "passed"
+    },
+    {
+      "name": "sample_preheat_pause_resume_and_two_separate_repeats",
+      "status": "passed"
+    },
+    {
+      "name": "two_angle_data_and_key_band_order",
+      "status": "passed"
+    },
+    {
+      "name": "simulated_mercury_frames_apply_rollback_and_safe_off",
+      "status": "passed"
+    },
+    {
+      "name": "edt_sources_mean_full_collections_and_recalculation",
+      "status": "passed"
+    },
+    {
+      "name": "linear_quadratic_cubic_spline_and_logarithmic_fits",
+      "status": "passed"
+    },
+    {
+      "name": "slow_analysis_and_manual_interventions",
+      "status": "passed"
+    },
+    {
+      "name": "repeat_quality_exclude_and_restore",
+      "status": "passed"
+    },
+    {
+      "name": "confirmed_report_txt_csv_excel_pdf_outputs",
+      "status": "passed"
+    },
+    {
+      "name": "backup_verify_restore_rehearsal_checkpoint_optimize",
+      "status": "passed"
+    },
+    {
+      "name": "all_bundled_help_topics",
+      "status": "passed",
+      "topics": 34
+    },
+    {
+      "name": "final_database_integrity",
+      "status": "passed"
+    }
+  ],
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/api/v1/capabilities",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/about",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/capabilities",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/diagnostics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/logs",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/status",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/roles",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/audit",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/current",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workspace/state",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectral-lines/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/method-print/settings",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/method-print/printers",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/legacy-migration/open-options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/legacy-migration/diagnostics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/legacy-migration/runs",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectrum-migration/evaporation-records",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectrum-migration/diagnostics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectrum-migration/runs",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/result-migration/diagnostics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/result-migration/runs",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/display-profiles",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/records",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/files",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sample-queues",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sample-queues/current",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/devices/ports",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/devices/bluetooth",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/devices/profiles",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/devices/current",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/devices/diagnostics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dispersion/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dispersion/tasks",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dispersion/bindings",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/acquisitions/sample-context",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/acquisitions/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/acquisitions/tasks",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hardware-acquisitions/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/hardware-acquisitions/tasks",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mercury-calibrations/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mercury-calibrations/sessions",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/maintenance/status",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/backups",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/prepared-import",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/edt-records",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/recalculation-options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/conversions",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/recalculations",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/exports",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/legacy-sources",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/templates",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/printers",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/printers",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/options",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/runs",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/7",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/3",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/4",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/5",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/6",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/8",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/11",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/12",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/1",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/13",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/9",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/10",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/methods/2",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/1/copy",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/14/save",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/14/open",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/1/open",
+      "status": "passed"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/methods/14",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/1/pdf",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/1/preview",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/methods/1/text",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sample-queues",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sample-queues/3/export",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sample-queues/import",
+      "status": "passed"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/sample-queues/current",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/sample:1",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/sample:21",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/raw:1",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/raw:121",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/sample:20",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/raw/raw:121/interval",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/raw:121/point-details",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spectra/raw:121/export",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/dispersion/tasks/1/lines/1/position/save",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/dispersion/tasks/1/lines/1/move",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/dispersion/tasks/1/lines/1/position/restore",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/dispersion/tasks/1/calibrations/fit",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dispersion/calibrations/20",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/preheat",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/18/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/start",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/pause",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/resume",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/start",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/acquisitions/tasks/8/step",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/acquisitions/tasks/17",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/acquisitions/samples/22/bands",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/mercury-calibrations/sessions/1",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/edt-records",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/prepared-import",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/postprocessing/recalculations",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/runs/1",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/runs/4",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/actions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/fit",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/actions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/fit",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/actions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/fit",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/actions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/fit",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/actions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/4/curves/3dfe879a10714220bf94d2f5bdb43cf5/fit",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analyses/runs/2",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/1/quality/decisions",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/analyses/runs/1/quality/decisions",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/1",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/1/exports",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/1/exports",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/1/exports",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/1/exports",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/backups",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/backups/11c8bb33-d4c6-4c4b-9195-3ca615e62b79/verify",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/backups/11c8bb33-d4c6-4c4b-9195-3ca615e62b79/restore-rehearsal",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/maintenance/checkpoint",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/maintenance/optimize",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/quickstart",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/preparation",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/dispersion",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/operation",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/precautions",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/errors",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/files",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/navigation",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/menus",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/new-method",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/open-method",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/save-as",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/printing",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/method-parameters",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/spectral-lines",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/dispersion-acquisition",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/evaporation-acquisition",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/sample-acquisition",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/dispersion-view",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/evaporation",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/spectra",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/samples",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/analysis",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/curves",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/postprocessing",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/prepared-import",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/reports",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/intensity-output",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/settings",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/devices",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/methods",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/maintenance",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/migration",
+      "status": "passed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/help/topics/about",
+      "status": "passed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/devices/disconnect",
+      "status": "passed"
+    }
+  ],
+  "unique_operations": 157
+}

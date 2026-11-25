@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "date": "2026-11-04",
+  "plan_sha256": "93d3a99ae140a71364ccbcf5237fb6a06fe0d967abe4df9146b20d8be9e42377",
+  "plan_before_sha256": "b723e7b60b4b667074dcacb92c34d4807b1e581ccc331a0f802ac68661266db7",
+  "legacy_sources": {
+    "sample": "Spec Source/Source/Main/FmMain.pas:908-991",
+    "preliminary": "Spec Source/Source/Main/FmMain.pas:994-1043",
+    "repeats": "Spec Source/Source/Main/mmAnalyze/FmSampInput.pas:283-307",
+    "preheat": "Spec Source/Source/Main/mmAnalyze/FmDockGuideIgnit.pas:198-263"
+  },
+  "backend_tests": 125,
+  "frontend_tests": 20,
+  "browser": {
+    "checks": [
+      "样品沿用当前方法及只读条件，无手动条件／保存来源入口；无效重复次数零提交，取消／失败保留草稿，重试及正式采集正常",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用"
+    ],
+    "layouts": 6
+  },
+  "frozen_desktop": {
+    "checks": [
+      "样品沿用当前方法及只读条件，无手动条件／保存来源入口；无效重复次数零提交，取消／失败保留草稿，重试及正式采集正常",
+      "建立摄谱保留三种切换，各自草稿保留，只有当前页面一组标题操作；蒸发新建后手动完成摄谱",
+      "色散新建与当前采集分离，手动采集正常；悬停图框及曲线路径保持，横向缩放有效",
+      "三种摄谱均验证列表／新建弹窗／当前采集三状态；明暗密度与大小窗口无横向溢出",
+      "色散曲线制作及打开旧文件入口保持独立可达",
+      "只读账户可查看已有任务与谱图，新建及所有激发／采集控制均禁用"
+    ],
+    "layouts": 6,
+    "native_visual_verified": true
+  },
+  "retained_review": {
+    "status": "passed",
+    "hardware_method_layout_locked": true,
+    "sample_method_layout_locked": true,
+    "method_id": 1,
+    "device_disconnected": true,
+    "mercury_safe": true,
+    "retained_for_review": true
+  },
+  "production_files": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "c42f80ac37777068296fd6a3ef4be9a2e404dd88d7c3bb1bbf30007f2e6cae7d",
+      "after_sha256": "b5562189f43d40247594d6ce53ef4465dc5b8239468f3a90849bd6574cf8e05d"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "76b004de0f7f3553fbd00b8da882298467801a4b76e919a1fb4c5158d7071bc9",
+      "after_sha256": "eb0d77acc6c4404836b19e31cec8c19061a0afd79108324d88669a31a70c6b6c"
+    }
+  },
+  "production_qa_sources_identical": true,
+  "schema_version": 26,
+  "production_capture_metadata_unchanged": true,
+  "installer_updated": false,
+  "external_open": [
+    "真实硬件与转角／汞灯协议",
+    "代码签名",
+    "干净Windows安装升级",
+    "人工验收"
+  ]
+}

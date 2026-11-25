@@ -8,7 +8,7 @@ import zlib
 from typing import Any
 from ...db import Database, utc_now
 from .codec import _pack_points, _unpack_points
-from .fitting import _calibration_position
+from .fitting import _calibration_position, validate_calibration_points
 from .values import DispersionError, DispersionState, _TaskContext, _json
 
 
@@ -41,9 +41,15 @@ class DispersionRepository:
         for field in ("coefficients_json", "residuals_json"):
             value = result.pop(field, "[]")
             result[field.removesuffix("_json")] = json.loads(value or "[]")
-        result["publishable"] = (
-            result["state"] == "published" or result["residual_max"] < result["residual_limit_points"]
-        )
+        result["publishable"] = result["state"] == "published"
+        if result["state"] == "draft" and result["residual_max"] < result["residual_limit_points"]:
+            try:
+                points = result["residuals"]
+                validate_calibration_points([point["wavelength_nm"] for point in points],
+                                            [point["measured_position"] for point in points])
+                result["publishable"] = len(points) == result["point_count"]
+            except DispersionError:
+                pass
         return result
 
     def _context(self, task_id: int, db: sqlite3.Connection | None = None) -> _TaskContext:
@@ -456,7 +462,8 @@ class DispersionRepository:
     def _calibration_view(self, db, row) -> dict[str, Any]:
         result = self._calibration_decode(row)
         result['inputs_current'] = self.calibration_inputs_current(db, row)
-        result['publishable'] = result['publishable'] and result['inputs_current']
+        if result['state'] == 'draft':
+            result['publishable'] = result['publishable'] and result['inputs_current']
         from .fitting import legacy_results
         result['legacy_results'] = legacy_results(result['coefficients'], result['residuals'])
         metadata = db.execute(
@@ -472,18 +479,25 @@ class DispersionRepository:
         context = self._context(row['source_task_id'], db)
         if context.layout['id'] != row['ccd_layout_id']:
             return False
-        current = {}
-        for line in db.execute('SELECT * FROM dispersion_task_lines WHERE task_id=?', (row['source_task_id'],)):
-            position = line['located_position'] if line['located_position'] is not None else line['saved_position']
-            if position is not None:
-                left, _ = self._geometry(context.layout, line['ccd_index'])
-                current[line['id']] = (line['wavelength_nm'], line['ccd_index'], left + position)
+        current = {line['id']: (wave, line['ccd_index'], step) for line, wave, step in self.calibration_inputs(db, context)}
         fitted = json.loads(row['residuals_json'])
         return len(current) == len(fitted) and all(
             point['line_id'] in current and current[point['line_id']][1] == point['ccd_index']
             and math.isclose(current[point['line_id']][0], point['wavelength_nm'], abs_tol=1e-9, rel_tol=0)
             and math.isclose(current[point['line_id']][2], point['measured_position'], abs_tol=1e-7, rel_tol=0)
             for point in fitted)
+
+    def calibration_inputs(self, db, context) -> list[tuple[sqlite3.Row, float, float]]:
+        values = []
+        rows = db.execute('SELECT * FROM dispersion_task_lines WHERE task_id=? ORDER BY wavelength_nm,id', (context.task['id'],))
+        for line in rows:
+            position = line['located_position'] if line['located_position'] is not None else line['saved_position']
+            if position is None:
+                continue
+            left, count = self._geometry(context.layout, line['ccd_index'])
+            if 0 <= position <= count - 1:
+                values.append((line, float(line['wavelength_nm']), left + position))
+        return values
 
     def _audit(
         self,

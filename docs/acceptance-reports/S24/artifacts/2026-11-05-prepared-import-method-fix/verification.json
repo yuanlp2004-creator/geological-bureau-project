@@ -1,0 +1,548 @@
+{
+  "status": "passed",
+  "plan_sha256_at_execution": "66a1c3feca5ac15633ccff7bf9f4131e5487403efb27c5265fab75db4f69743b",
+  "reproduction": {
+    "before": "",
+    "errors": [
+      {
+        "message": "Cannot read properties of undefined (reading 'map')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'map')\n    at Hv (http://tauri.localhost/assets/index-Cz5Jr9j_.js:370:2753)\n    at ao (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:48758)\n    at So (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:71628)\n    at Fh (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:82018)\n    at wm (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:117869)\n    at Jx (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:116909)\n    at Xo (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:116739)\n    at vm (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:113512)\n    at Um (http://tauri.localhost/assets/index-Cz5Jr9j_.js:48:125400)\n    at MessagePort.B (http://tauri.localhost/assets/index-Cz5Jr9j_.js:25:1607)"
+      }
+    ],
+    "after": ""
+  },
+  "tests": {
+    "backend_prepared_import": 12,
+    "frontend": 20,
+    "browser": {
+      "status": "passed",
+      "checks": [
+        "完整方法正常显示参数及转角配置",
+        "缺失angle_exposures时显示提示并保留导航，保存被阻止",
+        "缺失selected_ccds时显示提示并保留导航，保存被阻止",
+        "不完整记录恢复后重新读取正常，无需重启应用",
+        "导入页往返三个方法入口，应用和导航持续可用",
+        "导入页五个表单控件的字体、字号、高度及圆角与重新计算一致"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "current": {
+            "heading": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "card": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "outer": {
+              "left": 215,
+              "right": 1060,
+              "maxWidth": "1840px",
+              "paddingLeft": 16,
+              "paddingRight": 16
+            },
+            "viewport": 1060,
+            "scroll": 1060
+          },
+          "reference": {
+            "heading": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "card": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "outer": {
+              "left": 215,
+              "right": 1060,
+              "maxWidth": "1840px",
+              "paddingLeft": 16,
+              "paddingRight": 16
+            },
+            "viewport": 1060,
+            "scroll": 1060
+          }
+        },
+        {
+          "requested_width": 1440,
+          "current": {
+            "heading": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "card": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "outer": {
+              "left": 246,
+              "right": 1440,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1440,
+            "scroll": 1440
+          },
+          "reference": {
+            "heading": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "card": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "outer": {
+              "left": 246,
+              "right": 1440,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1440,
+            "scroll": 1440
+          }
+        },
+        {
+          "requested_width": 1920,
+          "current": {
+            "heading": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "card": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "outer": {
+              "left": 246,
+              "right": 1920,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1920,
+            "scroll": 1920
+          },
+          "reference": {
+            "heading": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "card": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "outer": {
+              "left": 246,
+              "right": 1920,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1920,
+            "scroll": 1920
+          }
+        },
+        {
+          "requested_width": 2560,
+          "current": {
+            "heading": {
+              "left": 306,
+              "right": 2524,
+              "width": 2218
+            },
+            "card": {
+              "left": 531,
+              "right": 2299,
+              "width": 1768
+            },
+            "outer": {
+              "left": 495,
+              "right": 2335,
+              "maxWidth": "1840px",
+              "paddingLeft": 36,
+              "paddingRight": 36
+            },
+            "viewport": 2560,
+            "scroll": 2560
+          },
+          "reference": {
+            "heading": {
+              "left": 306,
+              "right": 2524,
+              "width": 2218
+            },
+            "card": {
+              "left": 531,
+              "right": 2299,
+              "width": 1768
+            },
+            "outer": {
+              "left": 495,
+              "right": 2335,
+              "maxWidth": "1840px",
+              "paddingLeft": 36,
+              "paddingRight": 36
+            },
+            "viewport": 2560,
+            "scroll": 2560
+          }
+        }
+      ],
+      "errors": [],
+      "typography": {
+        "reference": {
+          "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+          "size": "14px",
+          "height": "36px",
+          "radius": "6px"
+        },
+        "controlStyles": [
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          }
+        ]
+      }
+    },
+    "desktop": {
+      "status": "passed",
+      "checks": [
+        "完整方法正常显示参数及转角配置",
+        "缺失angle_exposures时显示提示并保留导航，保存被阻止",
+        "缺失selected_ccds时显示提示并保留导航，保存被阻止",
+        "不完整记录恢复后重新读取正常，无需重启应用",
+        "导入页往返三个方法入口，应用和导航持续可用",
+        "导入页五个表单控件的字体、字号、高度及圆角与重新计算一致"
+      ],
+      "layouts": [
+        {
+          "requested_width": 1060,
+          "current": {
+            "heading": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "card": {
+              "left": 231,
+              "right": 1044,
+              "width": 813
+            },
+            "outer": {
+              "left": 215,
+              "right": 1060,
+              "maxWidth": "1840px",
+              "paddingLeft": 16,
+              "paddingRight": 16
+            },
+            "viewport": 1060,
+            "scroll": 1060
+          },
+          "reference": {
+            "heading": {
+              "left": 231,
+              "right": 1029,
+              "width": 798
+            },
+            "card": {
+              "left": 231,
+              "right": 1029,
+              "width": 798
+            },
+            "outer": {
+              "left": 215,
+              "right": 1045,
+              "maxWidth": "1840px",
+              "paddingLeft": 16,
+              "paddingRight": 16
+            },
+            "viewport": 1060,
+            "scroll": 1060
+          }
+        },
+        {
+          "requested_width": 1440,
+          "current": {
+            "heading": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "card": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "outer": {
+              "left": 246,
+              "right": 1440,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1440,
+            "scroll": 1440
+          },
+          "reference": {
+            "heading": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "card": {
+              "left": 274,
+              "right": 1412,
+              "width": 1138
+            },
+            "outer": {
+              "left": 246,
+              "right": 1440,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1440,
+            "scroll": 1440
+          }
+        },
+        {
+          "requested_width": 1920,
+          "current": {
+            "heading": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "card": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "outer": {
+              "left": 246,
+              "right": 1920,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1920,
+            "scroll": 1920
+          },
+          "reference": {
+            "heading": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "card": {
+              "left": 274,
+              "right": 1892,
+              "width": 1618
+            },
+            "outer": {
+              "left": 246,
+              "right": 1920,
+              "maxWidth": "1840px",
+              "paddingLeft": 28,
+              "paddingRight": 28
+            },
+            "viewport": 1920,
+            "scroll": 1920
+          }
+        },
+        {
+          "requested_width": 2560,
+          "current": {
+            "heading": {
+              "left": 306,
+              "right": 2524,
+              "width": 2218
+            },
+            "card": {
+              "left": 531,
+              "right": 2299,
+              "width": 1768
+            },
+            "outer": {
+              "left": 495,
+              "right": 2335,
+              "maxWidth": "1840px",
+              "paddingLeft": 36,
+              "paddingRight": 36
+            },
+            "viewport": 2560,
+            "scroll": 2560
+          },
+          "reference": {
+            "heading": {
+              "left": 306,
+              "right": 2524,
+              "width": 2218
+            },
+            "card": {
+              "left": 531,
+              "right": 2299,
+              "width": 1768
+            },
+            "outer": {
+              "left": 495,
+              "right": 2335,
+              "maxWidth": "1840px",
+              "paddingLeft": 36,
+              "paddingRight": 36
+            },
+            "viewport": 2560,
+            "scroll": 2560
+          }
+        }
+      ],
+      "errors": [],
+      "typography": {
+        "reference": {
+          "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+          "size": "14px",
+          "height": "36px",
+          "radius": "6px"
+        },
+        "controlStyles": [
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          },
+          {
+            "family": "\"Microsoft YaHei UI\", \"Segoe UI\", sans-serif",
+            "size": "14px",
+            "height": "36px",
+            "radius": "6px"
+          }
+        ]
+      }
+    }
+  },
+  "delivery": {
+    "GeoSpectrum.exe": {
+      "before_sha256": "c37a570b1c22e9ccc89d49a253edd00900a2aa8566da793c4ad689e1a0813f12",
+      "after_sha256": "deeeec199f178592af9cbce3b9d86dec540506df735ef64fcfdab6968e92870d"
+    },
+    "geospectrum-backend.exe": {
+      "before_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed",
+      "after_sha256": "5b857b010069379697e2d63879a26607de7af326fa3a09233f22c32bd486d7ed"
+    }
+  },
+  "tested_product_sources_match": true,
+  "production_qa_sources_match": true,
+  "root_pair_match_tested_package": true,
+  "backend_unchanged": true,
+  "production_metadata_unchanged": true,
+  "schema_changed_in_this_batch": false,
+  "review": {
+    "pid": 24148,
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-05-prepared-import-method-fix\\qa\\GeoSpectrum.exe",
+    "retained": true,
+    "page": "方法管理与参数"
+  },
+  "fixture_scope": "独立隔离的三点数学夹具，补齐MethodCondition结构；不改正式方法，不作为硬件或真实方法验收。",
+  "root_entries": [
+    ".git",
+    ".gitignore",
+    ".local",
+    ".obsidian",
+    "AGENTS.md",
+    "GeoSpectrum.exe",
+    "PLAN.md",
+    "README.md",
+    "Spec Source",
+    "Spec2.02功能研究",
+    "SpecFile",
+    "StandaloneMotorApi",
+    "app",
+    "docs",
+    "evidence",
+    "geospectrum-backend.exe",
+    "integration",
+    "python-deps",
+    "reports",
+    "tools",
+    "合同功能要求.png"
+  ],
+  "app_entries": [
+    ".gitignore",
+    ".local",
+    "README.md",
+    "backend",
+    "frontend",
+    "manifest.generated.json",
+    "node_modules",
+    "package-lock.json",
+    "package.json",
+    "pytest.ini",
+    "requirements.txt",
+    "src-tauri",
+    "tests",
+    "tools"
+  ]
+}

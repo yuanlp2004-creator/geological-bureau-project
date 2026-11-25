@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "date": "2026-11-03",
+  "plan_sha256_at_validation": "26a607c76ee38cad54d9440c58fab4ce0f393c1f5e3d50d324908aaf4cf188db",
+  "backend_core_tests": 37,
+  "frontend_tests": 20,
+  "desktop_checks": 18,
+  "desktop_layouts": 20,
+  "checks": [
+    "One device-debug menu entry contains the three permission-controlled tabs without Mercury",
+    "Software and device parameter drafts survive tab changes",
+    "Software parameters save through the real API; failure retains input and unrelated settings remain intact",
+    "Device parameters persist through the existing API and reject duplicate CCD slots",
+    "Legacy parameter groups, readonly CCD specifications, monitoring dependency, screen conversion/save retry and connection cleanup pass",
+    "Legacy alignment: three live CCDs, fixed first CCD, distinct secondary selections, raw readouts, background floor, independent zoom, pixel scales, box zoom and reset",
+    "Tabs switch freely during pending commands and live alignment; background frames and Stop remain available without creating sample records",
+    "All three tabs fit light/dark themes and both desktop window sizes",
+    "Alignment fills wide windows and follows information-panel expansion without leaving a bottom gap",
+    "A real read-only role can inspect all three tabs without gaining parameter-write or device-execution rights",
+    "Legacy Mercury-only permission no longer exposes an empty device-debug entry",
+    "通信异常后重新读取实际状态：端口已关闭时恢复连接按钮，不残留debugging或无效开始／断开按钮",
+    "串口可打开但无有效CCD响应时，设备参数测试失败，不能进入真实调试对中，原档案及参数保持",
+    "样品摄谱选择真实仪器无CCD响应：不创建任务、不进入摄谱、保留所选档案",
+    "蒸发摄谱选择真实仪器无CCD响应：不创建任务、不进入摄谱、保留所选档案",
+    "色散摄谱选择真实仪器无CCD响应：不创建任务、不进入摄谱、保留所选档案",
+    "自动转角采集选择真实仪器无CCD响应：不创建任务、不进入摄谱、保留所选档案",
+    "已有真实仪器草稿同样阻止进入；原任务及数据保持"
+  ],
+  "production_files": {
+    "GeoSpectrum.exe": "c42f80ac37777068296fd6a3ef4be9a2e404dd88d7c3bb1bbf30007f2e6cae7d",
+    "geospectrum-backend.exe": "76b004de0f7f3553fbd00b8da882298467801a4b76e919a1fb4c5158d7071bc9"
+  },
+  "production_qa_sources_match": true,
+  "production_metadata_unchanged": true,
+  "schema_version": 26,
+  "native_window_verified": true,
+  "retained_review": {
+    "window_retained": true,
+    "backend_retained": true,
+    "page": "设备调试 / 设备参数 / 电脑设置 / 连接测试",
+    "serial_profile_id": 4,
+    "device_connected": false,
+    "physical_instrument_tested": false,
+    "simulator_profiles": 1
+  },
+  "physical_instrument_tested": false,
+  "probe_protocol": "FmOptHardWare.BtnComTest -> FmDebug.Execute(False): pre=0, burn=1s, one CCD frame, no dark, close COM",
+  "scope": [
+    "DeviceParameters requires valid CCD frame for connection-test success",
+    "Real sample/evaporation/dispersion/turn creation and draft entry blocked on probe failure",
+    "Real alignment from device parameters checks connection",
+    "Serial disconnection idempotent after missing stop response",
+    "UI refreshes actual diagnostics on error",
+    "Profile switch clears previous curves"
+  ],
+  "validation_notes": [
+    "CCD success and no-response protocol paths use a serial Wire fixture, not a live instrument",
+    "Final desktop failure paths injected at HTTP boundary; safety interceptor recorded no unexpected real test calls",
+    "Earlier isolated QA iterations exposed missing create-branch gating and runner timing/selector issues; fixed before final build; no real sample data generated",
+    "Current source/build/root EXE hashes match; required final assertions all pass"
+  ],
+  "not_closed": [
+    "Real-instrument and physical-stop verification",
+    "Unknown turn/mercury commands",
+    "Signing, installer and manual acceptance"
+  ]
+}

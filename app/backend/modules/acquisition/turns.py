@@ -125,14 +125,14 @@ def store_frame(db, task, sample, phase, frame_index, event, virtual_time_ms, da
     return True
 
 
-def frames(db, task_id, repeat_index=None, phase=None, ccd_index=None, include_points=False, *, turn_index=None):
+def frames(db, task_id, repeat_index=None, phase=None, ccd_index=None, include_points=False, *, turn_index=None, frame_index=None):
     config, _ = context(db, task_id)
     if not config or not config['multiple']:
         return None
     result = []
     where = ['f.task_id=?']
     args = [task_id]
-    for column, value in [('repeat_index', repeat_index), ('phase', phase), ('ccd_index', ccd_index), ('turn_index', turn_index)]:
+    for column, value in [('repeat_index', repeat_index), ('phase', phase), ('ccd_index', ccd_index), ('turn_index', turn_index), ('frame_index', frame_index)]:
         if value is not None:
             where.append(f'f.{column}=?')
             args.append(value)

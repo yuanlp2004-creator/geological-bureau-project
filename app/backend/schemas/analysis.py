@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from .system import SettingsIntensityOutput
 
 
@@ -31,12 +31,20 @@ class AnalysisSampleNumber(BaseModel):
 
 
 class AnalysisSampleNumbersFile(BaseModel):
-    content_base64: str = Field(max_length=100_000)
+    content_base64: str = Field(max_length=7_000_000)
     encoding: Literal['gb18030', 'utf-8-sig'] | None = None
+    format: Literal['sam', 'xlsx'] = 'sam'
+
+    @model_validator(mode='after')
+    def validate_sam_size(self):
+        if self.format == 'sam' and len(self.content_base64) > 100_000:
+            raise ValueError('SAM 样号文件过大')
+        return self
 
 
 class AnalysisSampleNumbersExport(BaseModel):
     entries: list[AnalysisSampleNumber] = Field(min_length=1, max_length=200)
+    format: Literal['sam', 'xlsx'] = 'sam'
 
 
 class AnalysisRunCreate(BaseModel):

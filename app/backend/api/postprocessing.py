@@ -81,9 +81,10 @@ def export_full_time(payload: FullTimeExportRequest, session: Session = Depends(
 
 @router.get('/api/v1/postprocessing/prepared-import', tags=['postprocessing'])
 def prepared_import_options(source_sha256: str | None = Query(default=None, max_length=128),
+                            source_task_id: int | None = Query(default=None, ge=1, le=2**63-1),
                             _: Session = Depends(require_permission('postprocessing.read')),
                             runtime: Runtime = Depends(get_runtime)) -> dict:
-    return runtime.postprocessing_service().prepared.options(source_sha256)
+    return runtime.postprocessing_service().prepared.options(source_sha256, source_task_id)
 
 
 @router.post('/api/v1/postprocessing/prepared-import', tags=['postprocessing'])
@@ -91,7 +92,9 @@ def import_prepared_records(payload: PreparedImportRequest,
                             session: Session = Depends(require_permission('postprocessing.write')),
                             runtime: Runtime = Depends(get_runtime)) -> dict:
     try:
-        return runtime.postprocessing_service().prepared.import_records(payload.model_dump(), session.user_id)
+        source_field = 'source_sha256' if payload.source_task_id is not None else 'source_task_id'
+        return runtime.postprocessing_service().prepared.import_records(
+            payload.model_dump(exclude={source_field}), session.user_id)
     except PostProcessingError as exc:
         raise postprocessing_error(exc) from exc
 

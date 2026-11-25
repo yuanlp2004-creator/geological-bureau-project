@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "checks": [
+    "normal-light: 两条底栏已删除，回收高度全部用于谱图；页头和窗口无越界",
+    "small-dark: 两条底栏已删除，回收高度全部用于谱图；页头和窗口无越界",
+    "wide-light: 两条底栏已删除，回收高度全部用于谱图；页头和窗口无越界",
+    "处理设置内输入点位0、锁定与采用点位贯通真实服务；未选谱线时禁止写入",
+    "切CCD后清除锁定点与不匹配谱线，处理设置关闭后不占据谱图底部",
+    "旧WDT原件哈希保持，所有修改仅在隔离数据库"
+  ],
+  "layouts": [
+    {
+      "name": "normal-light",
+      "visualHeight": 640,
+      "peakHeight": 394,
+      "frameHeight": 681,
+      "footerCount": 0,
+      "footerHeight": 0,
+      "bottomGap": 6,
+      "headerTop": 18,
+      "overflow": false,
+      "gainedHeight": 53.046875
+    },
+    {
+      "name": "small-dark",
+      "visualHeight": 364,
+      "peakHeight": 190,
+      "frameHeight": 401,
+      "footerCount": 0,
+      "footerHeight": 0,
+      "bottomGap": 4,
+      "headerTop": 18,
+      "overflow": false,
+      "gainedHeight": 53.046875
+    },
+    {
+      "name": "wide-light",
+      "visualHeight": 832,
+      "peakHeight": 586,
+      "frameHeight": 873,
+      "footerCount": 0,
+      "footerHeight": 0,
+      "bottomGap": 6,
+      "headerTop": 18,
+      "overflow": false,
+      "gainedHeight": 53.046875
+    }
+  ],
+  "errors": []
+}

@@ -1,5 +1,5 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode } from 'react'
-import type { DeviceCcd, DeviceProfile } from '../../api'
+import type { DeviceEvent, DeviceProfile } from '../../api'
 import { LegacyCcdPicker } from '../../components/LegacyCcdPicker'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { clampSpectrumZoom, MAX_SPECTRUM_ZOOM, ZOOM_IN, ZOOM_OUT } from '../../components/spectrumZoom'
@@ -10,16 +10,18 @@ import './alignment-monitor.css'
 
 const EMPTY: number[] = []
 type Props = {
-  indices: number[]; ccds: DeviceCcd[]; profile: DeviceProfile | undefined; active: boolean
+  indices: number[]; frame: DeviceEvent | null; profile: DeviceProfile | undefined; active: boolean
   connection: ReactNode; footer: ReactNode; canFinish: boolean; finish: () => Promise<void>
+  turnControl?: ReactNode
 }
 
 /** FmDebug: one shared toolbar acts on the focused one of three CCD views. */
-export function AlignmentMonitor({ indices, ccds, profile, active, connection, footer, canFinish, finish }: Props) {
+export function AlignmentMonitor({ indices, frame, profile, active, connection, footer, canFinish, finish, turnControl }: Props) {
   const root = useRef<HTMLElement>(null)
   const clip = useId()
   const [views, setViews] = useState(() => initialAlignmentViews(indices))
   const [selected, setSelected] = useState(0)
+  const current = views[selected]
   const menu = useContextMenu<number>()
   const [subtractBackground, setSubtractBackground] = useState(true)
   const [plotWidth, setPlotWidth] = useState(513)
@@ -50,14 +52,14 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize', resize) }
   }, [active])
   const series = useMemo(() => views.map(view => {
-    const points = ccds.find(ccd => ccd.ccd_index === view.ccd)?.points ?? EMPTY
+    const points = frame?.ccds.find(ccd => ccd.ccd_index === view.ccd)?.points ?? EMPTY
     return { points, stats: alignmentStats(points), x: alignmentXRange(view, points.length, plotWidth, ratio, physicalPointPx, MAX_SPECTRUM_ZOOM),
       y: alignmentYRange(points, subtractBackground, view.zoomY) }
-  }), [views, ccds, plotWidth, ratio, physicalPointPx, subtractBackground])
+  }), [views, frame, plotWidth, ratio, physicalPointPx, subtractBackground])
   const peak = series.reduce<{ value: number; ccd: number; point: number } | null>((best, item, slot) =>
     item.stats && item.stats.max > 1000 && (!best || item.stats.max > best.value)
       ? { value: item.stats.max, ccd: views[slot].ccd!, point: item.stats.peakIndex + 1 } : best, null)
-  const current = views[selected], currentSeries = series[selected]
+  const currentSeries = series[selected]
   const hasPoints = currentSeries.points.length > 0
   const update = (slot: number, patch: Partial<AlignmentView>) => setViews(values => values.map((value, index) => index === slot ? { ...value, ...patch } : value))
   const resetAll = () => { setViews(values => values.map(value => resetAlignmentView(value.ccd))); setCursor(null); setDrag(null) }
@@ -79,11 +81,13 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
     const bounds = event.currentTarget.getBoundingClientRect()
     return { x: Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width)), y: Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height)) }
   }
+  const atPoint = (slot: number, fraction: number) =>
+    series[slot].x.min + Math.min(1, fraction * 513 / 512) * series[slot].x.span
   const move = (slot: number, event: PointerEvent<SVGSVGElement>) => {
     const point = position(event)
     if (drag?.slot === slot) { setDrag({ ...drag, ...point }); return }
     if (views[slot].tool !== 'crosshair' || !series[slot].points.length) return
-    setCursor({ slot, point: Math.max(0, Math.min(series[slot].points.length - 1, Math.round(series[slot].x.min + point.x * series[slot].x.span) - 1)) })
+    setCursor({ slot, point: Math.max(0, Math.min(series[slot].points.length - 1, Math.round(atPoint(slot, point.x)) - 1)) })
   }
   const endDrag = (slot: number, event: PointerEvent<SVGSVGElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
@@ -109,6 +113,7 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
     ]} />}
     <div className="alignment-connection-bar">{connection}</div>
     <div className="alignment-tools" role="toolbar" aria-label="调试对中查看工具">
+      {turnControl && <>{turnControl}<span className="alignment-tool-separator" /></>}
       <label className="alignment-background"><input type="checkbox" checked={subtractBackground} onChange={event => setSubtractBackground(event.target.checked)} />扣除背景</label>
       <LegacyCcdPicker aria-label="设定 CCD" title={selected === 0 ? '第一视图区的 CCD 固定' : '更换当前视图区的 CCD'} value={current.ccd ?? ''}
         disabled={selected === 0 || !indices.length} onChange={event => selectCcd(Number(event.target.value))}>
@@ -149,7 +154,7 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
             <button className="alignment-select-view" aria-label={`选择视图区 ${slot + 1}`} aria-pressed={selected === slot} onClick={() => setSelected(slot)}>{view.ccd === null ? '未安装' : `CCD${view.ccd + 1}`}</button>
             <span>{points.length ? y.min : '--'}</span></div>
           <div className="alignment-plot-column">
-            <svg className="alignment-plot" role="img" aria-label={`视图区 ${slot + 1} CCD ${view.ccd === null ? '未安装' : view.ccd + 1} 实时曲线`} viewBox="0 0 513 128" preserveAspectRatio="none" tabIndex={0}
+            <div className="alignment-plot-surface"><svg className="alignment-plot" role="img" aria-label={`视图区 ${slot + 1} CCD ${view.ccd === null ? '未安装' : view.ccd + 1} 实时曲线`} viewBox="0 0 513 128" preserveAspectRatio="none" tabIndex={0}
                onFocus={() => setSelected(slot)} onContextMenu={event => { setSelected(slot); menu.open(event, slot) }} onPointerDown={event => {
                  if (event.button !== 0) return
                 setSelected(slot); event.currentTarget.focus()
@@ -175,8 +180,9 @@ export function AlignmentMonitor({ indices, ccds, profile, active, connection, f
               <g clipPath={`url(#${clip}-${slot})`}><path className="alignment-curve" d={path}/>
                 {picked !== null && <g className="alignment-crosshair"><line x1={toX(picked + 1)} x2={toX(picked + 1)} y1="0" y2="128"/><line x1="0" x2="513" y1={Math.max(1, toY(points[picked]))} y2={Math.max(1, toY(points[picked]))}/></g>}
                 {drag?.slot === slot && <rect className="alignment-selection" x={Math.min(drag.x, drag.x0) * 513} y={Math.min(drag.y, drag.y0) * 128} width={Math.abs(drag.x - drag.x0) * 513} height={Math.abs(drag.y - drag.y0) * 128}/>}</g>
-              {!points.length && <text x="256" y="68" textAnchor="middle" className="alignment-empty">{view.ccd === null ? '未安装 CCD' : '等待调试数据'}</text>}
             </svg>
+            {!points.length && <span className="alignment-empty">{view.ccd === null ? '未安装 CCD' : '等待调试数据'}</span>}
+            </div>
             <div className="alignment-x-range"><span>{Math.ceil(x.min)}</span><span>{points.length ? Math.floor(x.max) : '--'}</span></div>
           </div>
         </div>

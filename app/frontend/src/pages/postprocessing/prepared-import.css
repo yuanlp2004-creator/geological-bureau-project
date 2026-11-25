@@ -27,6 +27,7 @@
 .prepared-record-scroll td:nth-last-child(2) { max-width:200px; overflow:hidden; text-overflow:ellipsis; }
 .prepared-record-scroll input { width:16px; height:16px; margin:0; vertical-align:middle; }
 .prepared-record-scroll tr[aria-selected=true] { background:#e9f2ff; }
+.prepared-source-link { padding:0; border:0; background:transparent; color:var(--ui-accent); text-decoration:underline; cursor:pointer; }
 .prepared-record-panel footer { font-size:12px; padding:7px 10px; border-top:1px solid var(--border-color,#e2e8f0); }
 .prepared-empty { text-align:center!important; color:var(--text-muted,#64748b); padding:28px 10px!important; }
 .prepared-operation-bar { display:flex; flex-direction:column; justify-content:center; gap:24px; }

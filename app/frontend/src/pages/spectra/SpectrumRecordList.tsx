@@ -8,6 +8,7 @@ import { RowSelectionArrow } from '../../components/RowSelectionArrow'
 
 type Props = {
  token: string
+ currentMethodVersionId?: number | null
  visibleRecords:SpectrumRecordSummary[]; selectedId:string|null; displayIds:string[]
  selectRecord:(record:SpectrumRecordSummary,additive?:boolean)=>void; recordLocked:boolean
  multiView:boolean; toggleMulti:()=>void; toggleLock:()=>void; onHide:()=>void
@@ -30,10 +31,14 @@ function RecordConcentrations({ token, recordId }: { token: string; recordId: st
  if (error) return <div role="alert">{error}</div>
  if (!preview) return <div role="status">正在计算浓度…</div>
  return <>
-   <div className="spectrum-concentration-method">估算浓度 · {preview.method_name}（版本 {preview.method_version}）</div>
+   <div className="spectrum-concentration-method">元素强度与参考含量 · {preview.method_name}（版本 {preview.method_version}）</div>
+   {preview.method_notice && <small className="spectrum-concentration-message" role="status">{preview.method_notice}</small>}
    {!preview.rows.length ? <div>该方法没有启用的分析谱线</div> :
      <ul aria-label="元素浓度">{preview.rows.map(row => <li key={row.line_id}>
        <span>{row.element} <small>{row.wavelength_nm.toFixed(4)} nm</small></span>
+       {row.raw_intensity !== null && <small className="spectrum-concentration-message">
+         {row.peak_found ? '峰位强度' : '预计点位强度'} {formatAnalysisValue(row.raw_intensity, 2)} (ADC)
+       </small>}
        {row.concentration !== null &&
          <span className="spectrum-concentration-value" title={row.curve_source === 'published' ? '已发布标准曲线' : '用方法中的标准点拟合'}>
            {formatAnalysisValue(row.concentration, row.decimal_places)} {row.unit}
@@ -82,7 +87,7 @@ export function SpectrumRecordList(p:Props) {
         }}><ChevronDown size={16} aria-hidden="true"/></button>}</td>}
    </tr>{expanded && <tr><td colSpan={4} className="spectrum-concentration-cell">
      <div id={panelId} className="spectrum-concentration-panel" role="region" aria-label={`记录 ${recordNumber} 的估算浓度`}>
-       <RecordConcentrations token={p.token} recordId={record.id}/>
+       <RecordConcentrations key={record.kind === 'raw' ? p.currentMethodVersionId ?? 'no-method' : record.id} token={p.token} recordId={record.id}/>
      </div>
    </td></tr>}</Fragment>
    })}</tbody></table></div>

@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "plan_sha256": "deb44f7c48405249217b6731d71f75beee687c9d2e9a562b71a712fe9f8eea44",
+  "frontend_tests": 20,
+  "method_save_tests": 6,
+  "desktop": {
+    "status": "passed",
+    "checks": [
+      "带旧方法来源的真实API记录正常显示参数，补全卡片、说明及按钮均不存在",
+      "旧方法编辑保存成功，参数与所有已有版本保持",
+      "普通方法切换与参数显示正常",
+      "不完整配置仍提示并阻止保存，重新读取可恢复"
+    ],
+    "layouts": [
+      {
+        "width": 1060,
+        "scroll": 1060,
+        "firstSection": "surface method-section method-identity"
+      },
+      {
+        "width": 1440,
+        "scroll": 1440,
+        "firstSection": "surface method-section method-identity"
+      }
+    ],
+    "errors": []
+  },
+  "production_files": {
+    "GeoSpectrum.exe": "5e813603d76dfa6adc513ba1be125af8c47bc91c51d1a6e19a592b692afee766",
+    "geospectrum-backend.exe": "b229ef541e5d7ebc4c068b980c47e1eee22edec06d21b2582679098be16d8ee8"
+  },
+  "product_sources_verified": 431,
+  "backend_unchanged": true,
+  "production_metadata_unchanged": true,
+  "production_tables": 14,
+  "review": {
+    "pid": 36948,
+    "cdp": "http://127.0.0.1:53374",
+    "exe": "D:\\地质局\\app\\.local\\releases\\2026-11-06-remove-legacy-completion\\qa\\GeoSpectrum.exe",
+    "data": "D:\\地质局\\app\\.local\\runtime\\remove-legacy-completion-review-20261106-r2",
+    "retained_for_review": true
+  }
+}

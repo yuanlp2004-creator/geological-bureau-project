@@ -10,6 +10,8 @@ import math
 import uuid
 
 from ...db import utc_now
+from ..acquisition.preparation import evaporation_records, evaporation_sources
+from ..methods import MethodDomainError
 from .errors import PostProcessingError
 from .serialization import _json, _sha
 
@@ -65,12 +67,15 @@ class PreparedImportService:
             _error('method_required', '当前方法版本不可用')
         if expected is not None and expected != version.version_id:
             _error('method_changed', '当前方法已改变，请刷新后重新确认导入', 409)
-        locator = self.methods.bind_geometry(db, version.payload['conditions'])
+        try:
+            locator = self.methods.bind_geometry(db, version.payload['conditions'])
+        except MethodDomainError as exc:
+            raise PostProcessingError(exc.code, exc.message, status_code=exc.status_code) from exc
         layout = locator.prepared_layout()
         layout['reference_wavelength_nm'] = version.payload['conditions'].get('reference_wavelength_nm')
         return version, locator.layout_id, layout
 
-    def options(self, source_sha256=None):
+    def options(self, source_sha256=None, source_task_id=None):
         current = self.methods.current()
         with self.database.read() as db:
             sources = []
@@ -83,10 +88,13 @@ class PreparedImportService:
             targets = [_target(row) for row in db.execute('SELECT * FROM postprocessing_prepared_targets ORDER BY updated_at DESC')]
             saved = db.execute('SELECT method_version_id, updated_at FROM postprocessing_prepared_dispersion WHERE source_sha256=?',
                                (source_sha256,)).fetchone() if source_sha256 else None
-        records = [record for record in self.repository.edt_records(None, source_sha256) if record['format'] == 'edt'] if source_sha256 else []
+            acquisitions = evaporation_sources(db)
+            records = evaporation_records(db, source_task_id, self.methods) if source_task_id else []
+        if source_sha256 and not source_task_id:
+            records = [record for record in self.repository.edt_records(None, source_sha256) if record['format'] == 'edt']
         return {'method': {'id': current['method_id'], 'title': current['title'],
                            'version_id': (current['referenced_version'] or {}).get('id')},
-                'sources': sources, 'targets': targets, 'records': records,
+                'sources': sources, 'acquisition_sources': acquisitions, 'targets': targets, 'records': records,
                 'saved_dispersion': dict(saved) if saved else None}
 
     def save_dispersion(self, source_sha256, expected, actor):
@@ -131,22 +139,39 @@ class PreparedImportService:
             identifiers = payload['record_ids']
             if len(set(identifiers)) != len(identifiers):
                 _error('selection_duplicate', '不能重复选择同一条源记录')
-            rows = [self.repository._raw(identifier, db) for identifier in identifiers]
-            if any(row['format'] != 'edt' or row['source_sha256'] != payload['source_sha256'] for row in rows):
-                _error('source_mismatch', '请仅选择当前蒸发文件中的记录')
-            if any(not _same_geometry(json.loads(row['layout_json']), layout) for row in rows):
-                _error('layout_mismatch', '蒸发文件的谱板参数与当前方法不一致')
+            task_id = payload.get('source_task_id')
+            if task_id is not None:
+                candidates = {row['id']: row for row in evaporation_records(db, task_id, self.methods)}
+                if not candidates:
+                    _error('source_missing', '蒸发摄谱任务没有可用的已完成记录', 404)
+                if any(identifier not in candidates for identifier in identifiers):
+                    _error('source_mismatch', '请仅选择当前蒸发任务中的记录')
+                rows = [candidates[identifier] for identifier in identifiers]
+                source_layouts = [row['layout'] for row in rows]
+                ignitions = [row['ignition'] for row in rows]
+            else:
+                rows = [self.repository._raw(identifier, db) for identifier in identifiers]
+                if any(row['format'] != 'edt' or row['source_sha256'] != payload['source_sha256'] for row in rows):
+                    _error('source_mismatch', '请仅选择当前蒸发文件中的记录')
+                source_layouts = [json.loads(row['layout_json']) for row in rows]
+                ignitions = [json.loads(row['ignition_json']) for row in rows]
+            if any(not _same_geometry(source, layout) for source in source_layouts):
+                _error('layout_mismatch', '蒸发记录的谱板参数与当前方法不一致')
+            if task_id is not None:
+                captured = rows[0]['ccd_indices']
+                if not captured or not set(captured) <= set(layout['ccd_indices']) or any(row['ccd_indices'] != captured for row in rows):
+                    _error('layout_mismatch', '蒸发记录采集的 CCD 不匹配')
+                layout = layout | {'ccd_indices': [ccd for ccd in layout['ccd_indices'] if ccd in captured]}
             start, end = payload['start_frame'], payload['end_frame']
-            ignition = json.loads(rows[0]['ignition_json'])
-            if not 1 <= start <= end or any(end > int(json.loads(row['ignition_json']).get('burn_count', 0)) for row in rows):
+            if not 1 <= start <= end or any(end > int(source.get('burn_count', 0)) for source in ignitions):
                 _error('interval_invalid', '导入区间必须在每条所选记录的燃烧帧范围内')
             storage = payload['storage_mode']
             if storage == 'full_interval' and end-start+1 < int(method.payload['conditions'].get('frame_count', 1)):
                 _error('interval_short', '蒸发文件取样区间小于当前方法采样次数')
-            ignition = {key: ignition.get(key, default) for key, default in
+            ignition = {key: ignitions[0].get(key, default) for key, default in
                         (('burn_cyc', 1), ('dark_cyc', 1), ('dark_count', 0))} | {'burn_count': end-start+1}
-            if storage == 'full_interval' and any(any(json.loads(row['ignition_json']).get(key, default) != ignition[key]
-                    for key, default in (('burn_cyc', 1), ('dark_cyc', 1), ('dark_count', 0))) for row in rows):
+            if storage == 'full_interval' and any(any(source.get(key, default) != ignition[key]
+                    for key, default in (('burn_cyc', 1), ('dark_cyc', 1), ('dark_count', 0))) for source in ignitions):
                 _error('ignition_mismatch', '全时样品的源激发条件不一致，请分别导入')
             existing = db.execute('SELECT * FROM postprocessing_prepared_targets WHERE name=? COLLATE NOCASE', (name,)).fetchone()
             if existing and payload['same_name_strategy'] == 'error':
@@ -154,7 +179,7 @@ class PreparedImportService:
             if existing and payload.get('expected_target_revision') != existing['revision']:
                 _error('target_changed', '输出样品集已更新，请刷新后重试', 409)
             append = existing is not None and payload['same_name_strategy'] == 'append'
-            original_layout = json.loads(rows[0]['layout_json'])
+            original_layout = source_layouts[0]
             # A legacy identifier is evidence, never a modern methods-table foreign key.
             legacy_id = original_layout.get('legacy_method_id')
             binding = method.version_id if payload['use_method_id'] else None
@@ -172,18 +197,23 @@ class PreparedImportService:
             target_id = existing['id'] if existing else 'prepared-' + uuid.uuid4().hex
             evidence = {'prepared_request_id': payload['request_id'], 'prepared_request_sha256': request_hash,
                         'target_id': target_id, 'strategy': payload['same_name_strategy']}
+            if task_id is not None:
+                evidence.update(source_task_id=task_id, source_record_ids=identifiers, start_frame=start, end_frame=end)
             result = self.conversion.convert_edt({
                 'record_ids': identifiers, 'start_frame': start, 'end_frame': end,
                 'storage_mode': storage, 'target_ccd_layout_id': layout_id,
                 'target_ccd_indices': layout['ccd_indices'], 'method_version_id': binding, 'name': name,
             }, actor, transaction=transaction,
                 fingerprint_context={'request_id': payload['request_id'], 'sha256': request_hash},
-                source_layout=layout, report_extra=evidence, prefer_band_name=True)
+                source_layout=layout, report_extra=evidence, prefer_band_name=True,
+                evaporation_records=rows if task_id is not None else None)
             output = json.loads(existing['records_json']) if append else []
-            output.extend({'id': sample_id, 'task_id': task_id, 'name': row['band_name'] or row['long_name'] or row['sample_name'] or '',
+            output.extend({'id': sample_id, 'task_id': output_task_id, 'name': row['band_name'] or row['long_name'] or row['sample_name'] or '',
                            'measure_time': row['measure_time'], 'source_record_id': identifier,
-                           'start_frame': start, 'end_frame': end}
-                          for row, identifier, task_id, sample_id in zip(rows, identifiers, result['task_ids'], result['sample_ids']))
+                           'start_frame': start, 'end_frame': end,
+                           **({'source_task_id': task_id, 'source_sha256': row['source_sha256'],
+                               'source_viewer_group': row['viewer_group']} if task_id is not None else {})}
+                          for row, identifier, output_task_id, sample_id in zip(rows, identifiers, result['task_ids'], result['sample_ids']))
             now = utc_now()
             if existing:
                 db.execute('UPDATE postprocessing_prepared_targets SET storage_mode=?,layout_json=?,ignition_json=?,method_version_id=?,'
@@ -194,6 +224,6 @@ class PreparedImportService:
                            '(id,name,storage_mode,layout_json,ignition_json,method_version_id,legacy_method_id,records_json,created_at,updated_at) '
                            'VALUES (?,?,?,?,?,?,?,?,?,?)',
                            (target_id, name, storage, _json(layout), _json(ignition), binding, legacy_id, _json(output), now, now))
-            self._audit(db, actor, 'postprocessing.prepared.import', result['report'])
+            self._audit(db, actor, 'postprocessing.prepared.import', result['report'] | {'run_id': result['id']})
             return {'run_id': result['id'], 'reused': False,
                     'target': _target(db.execute('SELECT * FROM postprocessing_prepared_targets WHERE id=?', (target_id,)).fetchone())}

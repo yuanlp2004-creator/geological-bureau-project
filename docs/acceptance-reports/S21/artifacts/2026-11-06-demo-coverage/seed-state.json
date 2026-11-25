@@ -1,0 +1,535 @@
+{
+  "settings": {
+    "saved": true
+  },
+  "users": [
+    {
+      "username": "demo_reader",
+      "id": 2,
+      "role_id": 4
+    },
+    {
+      "username": "demo_operator",
+      "id": 3,
+      "role_id": 3
+    }
+  ],
+  "debug": {
+    "frame_received": true,
+    "event_keys": [
+      "session_id",
+      "event",
+      "diagnostics",
+      "sample_records_created",
+      "spectrum_records_created"
+    ]
+  },
+  "dispersion": {
+    "task_id": 1,
+    "line_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "calibration_id": 12,
+    "binding_method_id": 2
+  },
+  "mercury": {
+    "session_id": 1,
+    "safe_off": true,
+    "simulation_only": true
+  },
+  "full_sample": {
+    "task_id": 9,
+    "sample_ids": [
+      15
+    ],
+    "raw_frames": 21,
+    "storage_mode": "averaged"
+  },
+  "evaporation": {
+    "task_id": 11,
+    "sample_ids": [
+      17
+    ],
+    "raw_frames": 4,
+    "storage_mode": "full_interval"
+  },
+  "legacy": {
+    "cdt": {
+      "record_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120
+      ],
+      "method_ids": [],
+      "run_id": "7878cb05-a7b0-45c2-918b-b23dcc6d71dc"
+    },
+    "pdt": {
+      "record_ids": [
+        1
+      ],
+      "method_ids": [],
+      "run_id": "e2675455-1fb7-43de-9814-b21c7816dfb8"
+    },
+    "dat": {
+      "record_ids": [
+        2
+      ],
+      "method_ids": [],
+      "run_id": "b6a1a11f-7264-401a-90ea-4715c9f6da85"
+    },
+    "mtd": {
+      "record_ids": [],
+      "method_ids": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "run_id": "524a2aee-499c-42e1-8768-f8caca496ade"
+    }
+  },
+  "legacy_edt": {
+    "record_ids": [
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240
+    ],
+    "source_sha256": "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0",
+    "run_id": "bc372e0e-b281-4df2-91b1-7678b82f96f7"
+  },
+  "slow_analysis": {
+    "run_id": 2,
+    "samples": 1,
+    "interventions": 6
+  },
+  "recalculation": {
+    "id": "s18-recalc-6ded25d3ed9a46c4a5abe73880aed437",
+    "status": "completed",
+    "input_sha256": "07aade51e369c480a34692c13588540c8439e657dc7b6d927525220b516d4018",
+    "result": {
+      "sources": [
+        {
+          "id": "sample:15",
+          "source_sha256": "8638728626bc0d27c0d40435f9a8c012e6cb68d65d62b451a73fb9f546567cca",
+          "analysis_run_id": 3,
+          "status": "recalculated",
+          "lines": [
+            {
+              "sample_index": 0,
+              "sample_name": "FULL-DEMO",
+              "repeat_index": 1,
+              "line_id": "3dfe879a10714220bf94d2f5bdb43cf5",
+              "element": "Fe",
+              "wavelength_nm": 255.0,
+              "quantitative_signal": 461.95001220703125,
+              "calculated_value": 74.64499344876822,
+              "unit": "ug/g",
+              "curve_snapshot_id": 1,
+              "calculation_profile": "modern_v1"
+            },
+            {
+              "sample_index": 0,
+              "sample_name": "FULL-DEMO",
+              "repeat_index": 1,
+              "line_id": "65542149456b4bfeb6c679e973d03677",
+              "element": "Mn",
+              "wavelength_nm": 257.0,
+              "quantitative_signal": 1e-05,
+              "calculated_value": -1.9272715868667885,
+              "unit": "ug/g",
+              "curve_snapshot_id": 2,
+              "calculation_profile": "modern_v1"
+            },
+            {
+              "sample_index": 0,
+              "sample_name": "FULL-DEMO",
+              "repeat_index": 1,
+              "line_id": "64271cea6d564bf4be62e1d0acb1faa8",
+              "element": "Si",
+              "wavelength_nm": 259.0,
+              "quantitative_signal": 3911.8002014160156,
+              "calculated_value": 144.4279438493813,
+              "unit": "ug/g",
+              "curve_snapshot_id": 3,
+              "calculation_profile": "modern_v1"
+            }
+          ],
+          "diagnostics": []
+        }
+      ],
+      "method_version_id": 8,
+      "calculation_profile": "modern_v1",
+      "curve_snapshot_ids": [
+        1,
+        2,
+        3
+      ],
+      "blocked": []
+    },
+    "report": {
+      "source_count": 1,
+      "completed_count": 1,
+      "blocked_count": 0,
+      "atomic_rollback": false,
+      "analysis_committed_separately": true,
+      "retained_analysis_run_ids": [],
+      "idempotent_input_sha256": "07aade51e369c480a34692c13588540c8439e657dc7b6d927525220b516d4018",
+      "allow_older_method": false,
+      "method_modified_at": null
+    }
+  },
+  "conversion": {
+    "id": "s18-conv-683109e2e0d74407902c6bccb16f303c",
+    "status": "converted",
+    "input_sha256": "88e8b0e96c1f0861e73ebdfd5371d152b5fdd6925ecf710c70934c877a3761be",
+    "source_record_ids": [
+      "raw:240"
+    ],
+    "source_hashes": [
+      "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+    ],
+    "sample_ids": [
+      18
+    ],
+    "task_ids": [
+      13
+    ],
+    "report": {
+      "source_count": 1,
+      "converted_count": 1,
+      "source_hashes": [
+        "00a10a003858697b964183a4be2ea6ca6ad770f77a9b8ca0586ac0162aff15d0"
+      ],
+      "target_ccd_layout_id": 1,
+      "storage_mode": "full_interval"
+    }
+  },
+  "full_method": {
+    "method_id": 12,
+    "method_version_id": 22,
+    "version": 3
+  },
+  "prepared_mean": {
+    "run_id": "s18-conv-f6d559669deb43ab87051ebb2e356a24",
+    "reused": false,
+    "target": {
+      "id": "prepared-924046b81ae0485fac2655f7a55074a4",
+      "name": "旧蒸发均值演示",
+      "storage_mode": "averaged",
+      "method_version_id": 22,
+      "legacy_method_id": null,
+      "revision": 1,
+      "records": [
+        {
+          "end_frame": 18,
+          "id": 19,
+          "measure_time": "2014-10-29T17:24:43.7960000",
+          "name": "D13-1",
+          "source_record_id": "raw:121",
+          "start_frame": 1,
+          "task_id": 14
+        }
+      ],
+      "updated_at": "2026-11-06T04:52:14.275+00:00"
+    }
+  },
+  "prepared_full": {
+    "run_id": "s18-conv-5dc8a3cff8fd4fe391b056a232ec1669",
+    "reused": false,
+    "target": {
+      "id": "prepared-d6775b07b75f41c19a5fb9873670930f",
+      "name": "旧蒸发全时演示",
+      "storage_mode": "full_interval",
+      "method_version_id": 22,
+      "legacy_method_id": null,
+      "revision": 1,
+      "records": [
+        {
+          "end_frame": 18,
+          "id": 20,
+          "measure_time": "2014-10-29T17:24:43.7960000",
+          "name": "D13-1",
+          "source_record_id": "raw:121",
+          "start_frame": 1,
+          "task_id": 15
+        }
+      ],
+      "updated_at": "2026-11-06T04:52:14.384+00:00"
+    }
+  },
+  "prepared_dispersion": {
+    "saved": true,
+    "version_id": 22
+  },
+  "full_interval_sample": {
+    "task_id": 16,
+    "sample_ids": [
+      21
+    ],
+    "storage_mode": "full_interval"
+  },
+  "multiple_turns": {
+    "method_id": 13,
+    "method_version_id": 25,
+    "task_id": 17,
+    "sample_ids": [
+      22
+    ],
+    "angles": [
+      17.0,
+      4.0
+    ]
+  },
+  "curve_practice": {
+    "run_id": 4,
+    "simulated_standard_intensities": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "source_run_id": 1
+  }
+}
