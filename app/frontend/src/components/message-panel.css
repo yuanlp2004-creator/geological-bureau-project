@@ -31,8 +31,63 @@
 .runtime-message-row.warning > span { color: #95600d; }
 .runtime-message-row.error > span { color: #b63e46; }
 .runtime-message-empty { min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: 'Microsoft YaHei UI', sans-serif; }
-.runtime-message-panel.is-collapsed .runtime-message-toolbar { box-sizing: border-box; height: 33px; min-height: 33px; padding: 3px 10px; border-bottom: 0; }
-.runtime-message-panel.is-collapsed :is(button, input, select) { height: 26px; min-height: 26px; padding-block: 2px; }
+.runtime-message-panel.is-collapsed { box-sizing: border-box; height: 28px; min-height: 28px; }
+.runtime-message-panel.is-collapsed .runtime-message-toolbar {
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  min-height: 0;
+  gap: 8px;
+  padding: 0 8px;
+  border: 0;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.runtime-message-status { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.runtime-service-status { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; }
+.runtime-service-status .status-dot { width: 6px; height: 6px; flex: 0 0 6px; }
+.runtime-device-status { overflow: hidden; text-overflow: ellipsis; padding-left: 9px; border-left: 1px solid var(--line); color: var(--muted); }
+.runtime-message-summary { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; text-align: right; color: var(--muted); }
+.runtime-message-panel.is-collapsed .runtime-message-actions { flex: 0 0 auto; margin-left: 0; }
+.runtime-message-panel.is-collapsed .runtime-message-collapse { width: 26px; height: 22px; min-height: 0; padding: 0; }
+.runtime-message-panel.is-collapsed button:focus-visible { outline-offset: -2px; }
+.runtime-message-panel.is-collapsed .runtime-unread-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 18px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 4px;
+  background: #f4d287;
+  color: #503100;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.runtime-message-panel.is-collapsed .runtime-unread-badge[data-severity='error'] { background: #a72d3d; color: #fff; }
+:root:not([data-theme='dark']) .runtime-message-panel.is-collapsed .runtime-unread-badge:hover { filter: brightness(.92); }
+:root[data-theme='dark'] .runtime-message-panel.is-collapsed .runtime-unread-badge {
+  height: 20px;
+  line-height: 1;
+  border-radius: 999px;
+}
+:root[data-theme='dark'] .runtime-message-panel.is-collapsed .runtime-unread-badge[data-severity='error'] {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  color: #fca5a5;
+}
+:root[data-theme='dark'] .runtime-message-panel.is-collapsed .runtime-unread-badge[data-severity='error']:hover {
+  background: rgba(239, 68, 68, 0.30);
+}
+:root[data-theme='dark'] .runtime-message-panel.is-collapsed .runtime-unread-badge[data-severity='warning'] {
+  background: rgba(245, 158, 11, 0.20);
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  color: #fcd34d;
+}
+:root[data-theme='dark'] .runtime-message-panel.is-collapsed .runtime-unread-badge[data-severity='warning']:hover {
+  background: rgba(245, 158, 11, 0.28);
+}
 :root[data-theme='dark'] .runtime-message-panel { background: #132235; color: #e2ebf5; border-color: #3d5168; --surface: #132235; --surface-soft: #1d344e; --line: #3d5168; --muted: #afbed0; --blue: #9ac2ff; --amber: #f0cc91; }
 :root[data-theme='dark'] .runtime-message-row.warning > span { color: #f0cc91; }
 :root[data-theme='dark'] .runtime-message-row.error > span { color: #ffb4b0; }
@@ -42,8 +97,7 @@
   .runtime-message-level { gap: 4px; }
 }
 @media(max-width: 900px) {
-  .runtime-message-toolbar { flex-wrap: wrap; }
-  .runtime-message-panel.is-collapsed .runtime-message-toolbar { height: auto; }
+  .runtime-message-panel:not(.is-collapsed) .runtime-message-toolbar { flex-wrap: wrap; }
   .runtime-message-tabs { margin-right: auto; }
   .runtime-message-filter { max-width: none; }
 }

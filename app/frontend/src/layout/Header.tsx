@@ -1,4 +1,4 @@
-import { ChevronRight, LogOut, Moon, RefreshCw, Sun } from 'lucide-react'
+import { ChevronDown, ChevronRight, LogOut, Maximize, Minimize, Moon, RefreshCw, Sun } from 'lucide-react'
 import { type AuthUser, type CurrentMethodState } from '../api'
 import { type NavigationEntry, type Page } from '../navigation'
 import type { MethodShortcutAction } from '../pages/methods/methodShortcuts'
@@ -14,10 +14,13 @@ export function Header({
   entries,
   onNavigateEntry,
   onMethodShortcut,
+  onSwitchMethod,
   user,
   currentMethod,
   theme,
   onToggleTheme,
+  focusMode,
+  onToggleFocusMode,
   onLogout
 }: {
   activeEntry?: NavigationEntry
@@ -28,15 +31,21 @@ export function Header({
   entries: NavigationEntry[]
   onNavigateEntry: (entry: NavigationEntry) => void
   onMethodShortcut: (action: MethodShortcutAction) => void
+  onSwitchMethod: () => void
   user: AuthUser
   currentMethod: CurrentMethodState | null
   theme: Theme
   onToggleTheme: () => void
+  focusMode: boolean
+  onToggleFocusMode: () => void
   onLogout: () => void
 }) {
   const title = activeEntry?.page === 'extension' ? (extensionTitle ?? '测试模块') : (activeEntry?.label ?? '工作台')
-  const paused = currentMethod?.method_id && currentMethod.status !== 'active'
-  const methodStatus = `当前方法 · ${currentMethod?.work_type || '未选择'}${paused ? ' · 已暂停' : ''}`
+  const canReadMethods = user.permissions.includes('methods.read')
+  const method = canReadMethods ? currentMethod : null
+  const paused = method?.method_id && method.status !== 'active'
+  const methodStatus = `当前方法 · ${method?.work_type || '未选择'}${paused ? ' · 已暂停' : ''}`
+  const methodTitle = canReadMethods ? method?.title || '请选择已发布方法' : '无方法读取权限'
   return (
     <>
     <header className="topbar">
@@ -46,17 +55,24 @@ export function Header({
         <strong>{title}</strong>
       </div>
       <div className="topbar-actions">
-        <button
-          className="workspace-method"
-          onClick={() => onNavigate('methods')}
-          disabled={!user.permissions.includes('methods.read')}
-          title={`${methodStatus} · ${currentMethod?.title || '请选择已发布方法'}`}
-        >
-          <span>{methodStatus}</span>
-          <strong>{currentMethod?.title || '请选择已发布方法'}</strong>
-        </button>
+        <div className="workspace-method-split">
+          <button type="button" className="workspace-method" onClick={() => onNavigate('methods')}
+            disabled={!canReadMethods} title={`${methodStatus} · ${methodTitle}`}>
+            <span>{methodStatus}</span>
+            <strong>{methodTitle}</strong>
+          </button>
+          <button type="button" className="workspace-method-switch" aria-label="切换当前方法" aria-haspopup="dialog"
+            title="快速打开并切换运行方法" onClick={onSwitchMethod} disabled={!user.permissions.includes('methods.write')}>
+            <ChevronDown size={15} aria-hidden="true" />
+          </button>
+        </div>
         <button className="icon-button" title="刷新服务状态" onClick={onRefresh} disabled={loading}>
           <RefreshCw size={17} className={loading ? 'spin' : ''} />
+        </button>
+        <button type="button" className="icon-button focus-mode-button" aria-label="切换专注模式"
+          aria-pressed={focusMode} aria-keyshortcuts="Control+Shift+F"
+          title={focusMode ? '退出专注模式 (Ctrl+Shift+F)' : '专注模式 (Ctrl+Shift+F)'} onClick={onToggleFocusMode}>
+          {focusMode ? <Minimize size={16} aria-hidden="true" /> : <Maximize size={16} aria-hidden="true" />}
         </button>
         <button
           type="button"

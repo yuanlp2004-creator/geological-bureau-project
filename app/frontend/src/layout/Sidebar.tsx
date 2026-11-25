@@ -5,6 +5,8 @@ import {
   ChevronRight,
   CircleHelp,
   LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings2,
   SlidersHorizontal,
   Wrench,
@@ -32,6 +34,9 @@ export function Sidebar({
   currentMethod,
   health,
   showStatusBar,
+  collapsed,
+  focusMode,
+  onToggleCollapsed,
   onToast
 }: {
   activeEntry?: NavigationEntry
@@ -40,6 +45,9 @@ export function Sidebar({
   currentMethod: CurrentMethodState | null
   health: 'online' | 'offline'
   showStatusBar: boolean
+  collapsed: boolean
+  focusMode: boolean
+  onToggleCollapsed: () => void
   onToast: (message: string) => void
 }) {
   const [hoveredGroup, setHoveredGroup] = useState<NavigationGroupId | null>(null)
@@ -69,7 +77,7 @@ export function Sidebar({
       observer.disconnect()
       window.removeEventListener('resize', keepInWindow)
     }
-  }, [opened?.id])
+  }, [opened?.id, collapsed])
 
   const clearTimers = useCallback(() => {
     if (openTimer.current !== null) window.clearTimeout(openTimer.current)
@@ -106,6 +114,7 @@ export function Sidebar({
     if (!pinnedGroup) setHoveredGroup(null)
   }
   const focusFirstEntry = (group: NavigationGroupId) => {
+    clearTimers()
     setPinnedGroup(group)
     setHoveredGroup(null)
     window.setTimeout(
@@ -144,7 +153,7 @@ export function Sidebar({
   }
 
   useEffect(() => {
-    if (openGroup === null) return
+    if (openGroup === null || focusMode) return
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       event.preventDefault()
@@ -157,7 +166,11 @@ export function Sidebar({
     }
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [openGroup, closeMenu])
+  }, [openGroup, closeMenu, focusMode])
+
+  useEffect(() => {
+    if (focusMode) closeMenu()
+  }, [focusMode, closeMenu])
 
   useEffect(() => {
     const outside = (event: PointerEvent) => {
@@ -170,8 +183,10 @@ export function Sidebar({
     }
   }, [clearTimers, closeMenu])
 
+  const serviceLabel = `本地服务 · ${health === 'online' ? '已连接' : '等待连接'}`
+  const toggleLabel = collapsed ? '展开导航栏' : '折叠导航栏'
   return (
-    <aside className="sidebar" ref={sidebarRef}>
+    <aside className={`sidebar${collapsed ? ' is-collapsed' : ''}`} data-collapsed={collapsed} ref={sidebarRef}>
       <div className="brand">
         <AppIcon className="brand-mark" />
         <div>
@@ -179,7 +194,13 @@ export function Sidebar({
           <span>地质光谱分析平台</span>
         </div>
       </div>
-      <div className="sidebar-section-label">功能导航</div>
+      <div className="sidebar-heading">
+        <div className="sidebar-section-label">功能导航</div>
+        <button type="button" className="sidebar-toggle" aria-label={toggleLabel} aria-expanded={!collapsed}
+          title={toggleLabel} onClick={() => { closeMenu(); onToggleCollapsed() }}>
+          {collapsed ? <PanelLeftOpen size={16} aria-hidden="true" /> : <PanelLeftClose size={16} aria-hidden="true" />}
+        </button>
+      </div>
       <div
         className="navigation-shell"
         onMouseEnter={() => {
@@ -199,14 +220,15 @@ export function Sidebar({
                   type="button"
                   data-navigation-group={group.id}
                   className={`nav-item navigation-group ${active ? 'active' : ''} ${openGroup === group.id ? 'open' : ''}`}
+                  aria-label={group.label}
                   aria-expanded={direct ? undefined : openGroup === group.id}
                   aria-controls={direct ? undefined : `navigation-panel-${group.id}`}
                   aria-current={direct && active ? 'page' : undefined}
                   onMouseEnter={() => scheduleOpen(group.id)}
                   onMouseDown={resetKeyboardFocusOnMouseDown}
                   onClick={() => (direct ? activate(direct) : toggleGroup(group.id))}
-                  onKeyDown={(event) => handleGroupKey(event, group.id)}
-                  title={group.description}
+                  onKeyDown={direct ? undefined : (event) => handleGroupKey(event, group.id)}
+                  title={`${group.label} · ${group.description}`}
                 >
                   <Icon size={16} strokeWidth={1.75} className="navigation-group-icon" aria-hidden="true" />
                   <span>{group.label}</span>
@@ -263,7 +285,8 @@ export function Sidebar({
       </div>
       <div className="sidebar-spacer" />
       {showStatusBar && (
-        <div className="side-status">
+        <div className="side-status" role={collapsed ? 'img' : undefined}
+          aria-label={collapsed ? serviceLabel : undefined} title={collapsed ? `${serviceLabel} · v0.1.0` : undefined}>
           <span className={`status-dot ${health}`} />
           <div>
             <span>本地服务</span>

@@ -34,7 +34,7 @@ import { MethodPrintPanel } from './MethodPrintPanel'
 import { MethodQuality } from './MethodQuality'
 import { SpectralLinesPanel } from './SpectralLinesPanel'
 import type { MethodShortcutRequest } from './methodShortcuts'
-import { OpenMethodDialog } from './OpenMethodDialog'
+import { OpenMethodDialog, openPublishedMethod } from './OpenMethodDialog'
 
 export function MethodsPage({
   token,
@@ -45,6 +45,7 @@ export function MethodsPage({
   onShortcutHandled,
   onViewChange,
   onCurrentMethodChange,
+  switchBlockedReason,
   onToast
 }: {
   token: string
@@ -55,6 +56,7 @@ export function MethodsPage({
   onShortcutHandled?: () => void
   onViewChange: (view: string) => void
   onCurrentMethodChange: (method: CurrentMethodState) => void
+  switchBlockedReason?: () => string | null
   onToast: (message: string) => void
 }) {
   const [methods, setMethods] = useState<MethodRecord[]>([])
@@ -84,12 +86,12 @@ export function MethodsPage({
     else setEditorSection('conditions')
   }, [initialSection])
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (opened?: CurrentMethodState) => {
     try {
       const [nextMethods, nextOptions, nextCurrent] = await Promise.all([
         api.methods(token),
         api.methodOptions(token),
-        api.currentMethod(token)
+        opened ?? api.currentMethod(token)
       ])
       setMethods(nextMethods)
       setOptions(nextOptions)
@@ -98,7 +100,7 @@ export function MethodsPage({
           ? previous
           : (nextCurrent.method_id ?? nextMethods[0]?.id ?? null)
       )
-      onCurrentMethodChange(nextCurrent)
+      if (!opened) onCurrentMethodChange(nextCurrent)
       setLoadError(null)
       return true
     } catch (error) {
@@ -181,17 +183,21 @@ export function MethodsPage({
   }
   const openSelectedMethod = async (id: number) => {
     if (!canWrite || actionPending.current || busy) return
+    const reportError = openingMethod ? setOpenError : onToast
+    const blocked = switchBlockedReason?.()
+    if (blocked) { reportError(blocked); return }
     actionPending.current = true
     setBusy(true)
     setOpenError(null)
     try {
-      await api.openMethod(token, id, true)
-      const refreshed = await load()
+      const opened = await openPublishedMethod(token, id)
+      onCurrentMethodChange(opened)
+      const refreshed = await load(opened)
       setSelectedId(id)
       setOpeningMethod(false)
       onToast(refreshed ? '当前方法已打开' : '方法已打开，状态刷新失败，请刷新页面')
     } catch (error) {
-      setOpenError(error instanceof Error ? error.message : '打开方法失败，请重试')
+      reportError(error instanceof Error ? error.message : '打开方法失败，请重试')
     } finally {
       actionPending.current = false
       setBusy(false)
@@ -292,7 +298,7 @@ export function MethodsPage({
       data-testid="methods-page"
       data-navigation-view={initialSection ?? 'lifecycle'}
     >
-      {openingMethod && <OpenMethodDialog token={token} methods={methods} selectedId={selectedId} busy={busy} error={openError}
+      {canWrite && openingMethod && <OpenMethodDialog token={token} methods={methods} selectedId={selectedId} busy={busy} error={openError}
         onOpen={id => void openSelectedMethod(id)} onCancel={() => setOpeningMethod(false)} onBusyChange={setBusy}
         onImported={async () => { await load(); onToast('方法已加入列表，请选择要打开的已保存方法') }} />}
       <section className="surface method-action-bar method-context-bar">
@@ -377,7 +383,7 @@ export function MethodsPage({
                 {selected.published_version && (!selected.is_current || selected.status === 'paused') && selected.status !== 'deleted' && (
                   <button
                     className="secondary-button"
-                    onClick={() => void runAction(() => api.openMethod(token, selected.id, true), '当前方法已打开')}
+                    onClick={() => void openSelectedMethod(selected.id)}
                     disabled={busy || unsaved || Boolean(conditionProblem)}
                     title={unsaved ? '请先保存修改，再打开方法' : undefined}
                   >

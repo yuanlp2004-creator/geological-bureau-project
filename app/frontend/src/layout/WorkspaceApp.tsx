@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Info, CircleX, X } from 'lucide-react'
 import {
   api,
@@ -26,12 +26,15 @@ import { PageHeading } from '../components/PageHeading'
 import { MessagePanel } from '../components/MessagePanel'
 import { RenderProfilerProbe } from '../components/RenderProfiler'
 import { runtimeEventsStore } from '../stores/runtimeEventsStore'
+import { deviceStatusStore } from '../stores/deviceStatusStore'
+import { shellLayoutStore, useShellLayout } from '../stores/shellLayoutStore'
 import { themeStore, useTheme } from '../stores/themeStore'
 import type { CSSProperties } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { Workspace } from '../pages/workspace/WorkspacePage'
 import { MethodsPage } from '../pages/methods/MethodsPage'
+import { WorkspaceOpenMethodDialog } from '../pages/methods/OpenMethodDialog'
 import type { MethodShortcutAction, MethodShortcutRequest } from '../pages/methods/methodShortcuts'
 import { MigrationWorkspace } from '../pages/migration/MigrationWorkspace'
 import { SpectrumViewerPage } from '../pages/spectra/SpectrumViewerPage'
@@ -49,15 +52,19 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     key: 'workspace.overview',
     view: null
   })
-  const [dockHeight, setDockHeight] = useState(184)
-  const [informationExpanded, setInformationExpanded] = useState<boolean>()
+  const [dockHeight, setDockHeight] = useState(28)
+  const { sidebarCollapsed, informationExpanded, focusMode } = useShellLayout(user.id)
   const canReadEvents = user.permissions.includes('runtime-events.read')
+  const canReadDevices = user.permissions.includes('devices.read')
+  const canWriteMethods = user.permissions.includes('methods.write')
   const [settings, setSettings] = useState<Settings | null>(null)
   const [pageActionsTarget, setPageActionsTarget] = useState<HTMLDivElement | null>(null)
   const [about, setAbout] = useState<About | null>(null)
   const [capabilities, setCapabilities] = useState<Capability[]>([])
   const [health, setHealth] = useState<'online' | 'offline'>('offline')
   const [currentMethod, setCurrentMethod] = useState<CurrentMethodState | null>(null)
+  const currentMethodRevision = useRef(0)
+  const [methodDialogToken, setMethodDialogToken] = useState<string | null>(null)
   const [reportSource, setReportSource] = useState<ReportSource | null>(null)
   const [methodShortcut, setMethodShortcut] = useState<MethodShortcutRequest | null>(null)
   const shortcutId = useRef(0)
@@ -76,10 +83,17 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   const page = target.page
   const spectroscopyLock = useRef<string | null>(null)
   const updateSpectroscopyLock = useCallback((reason: string | null) => { spectroscopyLock.current = reason }, [])
+  const switchBlockedReason = useCallback(() => spectroscopyLock.current, [])
+  const updateCurrentMethod = useCallback((method: CurrentMethodState) => {
+    currentMethodRevision.current++
+    setCurrentMethod(method)
+  }, [])
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (refreshDevices = false) => {
+    const methodRevision = currentMethodRevision.current
     setLoading(true)
     if (canReadEvents) void runtimeEventsStore.refresh()
+    if (refreshDevices && canReadDevices) void deviceStatusStore.refresh()
     try {
       const currentPromise = user.permissions.includes('methods.read')
         ? api.currentMethod(token)
@@ -97,21 +111,46 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       setSettings(nextSettings)
       setAbout(nextAbout)
       setCapabilities(nextCapabilities.capabilities)
-      setCurrentMethod(nextCurrentMethod)
+      if (methodRevision === currentMethodRevision.current) setCurrentMethod(nextCurrentMethod)
     } catch {
       setHealth('offline')
     } finally {
       setLoading(false)
     }
-  }, [token, user.permissions, canReadEvents])
+  }, [token, user.permissions, canReadEvents, canReadDevices])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    void deviceStatusStore.startSession({ token, userId: user.id, canRead: canReadDevices })
+    return () => deviceStatusStore.stopSession()
+  }, [token, user.id, canReadDevices])
+  useLayoutEffect(() => {
     runtimeEventsStore.startSession({ token, userId: user.id, canRead: canReadEvents })
     return () => runtimeEventsStore.stopSession()
   }, [token, user.id, canReadEvents])
+  useLayoutEffect(() => {
+    shellLayoutStore.startSession(user.id)
+    return () => shellLayoutStore.stopSession()
+  }, [user.id])
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!event.ctrlKey || event.altKey || event.metaKey) return
+      if (event.shiftKey && event.key.toLowerCase() === 'f') {
+        event.preventDefault()
+        if (!event.repeat) shellLayoutStore.toggleFocusMode()
+      } else if (canReadEvents && !event.shiftKey && event.key === '`') {
+        event.preventDefault()
+        if (!event.repeat) shellLayoutStore.setInformationExpanded(!shellLayoutStore.getSnapshot().view.informationExpanded)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [canReadEvents])
   useEffect(() => {
     void loadData()
   }, [loadData, user.id])
+  useEffect(() => {
+    setMethodDialogToken(null)
+  }, [token, canWriteMethods])
   useEffect(() => {
     const root = document.documentElement
     themeStore.setSettingsTheme(settings?.display.theme ?? null)
@@ -144,6 +183,13 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     const entry = entryForPage(entries, 'methods', 'conditions')
     if (entry && handleNavigation(entry)) setMethodShortcut({ id: ++shortcutId.current, action })
   }
+  const handleSwitchMethod = () => {
+    if (!canWriteMethods) return
+    const blocked = switchBlockedReason()
+    if (blocked) { showToast(blocked); return }
+    if (page === 'methods') setMethodShortcut({ id: ++shortcutId.current, action: 'open' })
+    else setMethodDialogToken(token)
+  }
   const handleQuickNavigation = (entry: NavigationEntry) => {
     if (handleNavigation(entry) && entry.page === 'samples') setSampleEntryRequest(request => request + 1)
   }
@@ -168,10 +214,11 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       data-testid="app-shell"
       data-theme={theme}
       data-density={settings?.display.density ?? 'comfortable'}
+      data-focus-mode={focusMode}
     >
       <RenderProfilerProbe id="WorkspaceApp" />
       {health === 'offline' && !loading && !about && !capabilities.length ? (
-        <ErrorPage onRetry={loadData} />
+        <ErrorPage onRetry={() => void loadData(true)} />
       ) : (
         <>
           <Sidebar
@@ -181,24 +228,39 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             currentMethod={currentMethod}
             health={health}
             showStatusBar={settings?.display.show_status_bar !== false}
+            collapsed={sidebarCollapsed}
+            focusMode={focusMode}
+            onToggleCollapsed={shellLayoutStore.toggleSidebar}
             onToast={showToast}
           />
           <main className="main-area">
             <Header
               activeEntry={activeEntry}
               extensionTitle={activeExtension?.title}
-              onRefresh={loadData}
+              onRefresh={() => void loadData(true)}
               loading={loading}
               onNavigate={handlePage}
               entries={entries}
               onNavigateEntry={handleQuickNavigation}
               onMethodShortcut={handleMethodShortcut}
+              onSwitchMethod={handleSwitchMethod}
               user={user}
               currentMethod={currentMethod}
               theme={theme}
               onToggleTheme={themeStore.toggleTheme}
+              focusMode={focusMode}
+              onToggleFocusMode={shellLayoutStore.toggleFocusMode}
               onLogout={onLogout}
             />
+            {canWriteMethods && methodDialogToken === token && (
+              <WorkspaceOpenMethodDialog token={token} selectedId={currentMethod?.method_id ?? null}
+                switchBlockedReason={switchBlockedReason} onCancel={() => setMethodDialogToken(null)}
+                onOpened={method => {
+                  updateCurrentMethod(method)
+                  setMethodDialogToken(null)
+                  showToast('当前方法已打开')
+                }} />
+            )}
             <div className="page-scroll-region">
             {activeEntry && !isSpectroscopyMode(page) && page !== 'analysis' && page !== 'extension' && <PageHeading entry={activeEntry} actionsRef={setPageActionsTarget} />}
             {page === 'workspace' && (
@@ -206,6 +268,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 token={token}
                 health={health}
                 canClearEvents={user.permissions.includes('runtime-events.write')}
+                canReadDevices={canReadDevices}
                 currentMethod={currentMethod}
                 capabilities={capabilities}
                 entries={entries}
@@ -222,7 +285,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 shortcut={methodShortcut}
                 onShortcutHandled={() => setMethodShortcut(null)}
                 onViewChange={(view) => handleInternalView('methods', view)}
-                onCurrentMethodChange={setCurrentMethod}
+                onCurrentMethodChange={updateCurrentMethod}
+                switchBlockedReason={switchBlockedReason}
                 onToast={showToast}
               />
             )}
@@ -263,7 +327,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 canCurve={user.permissions.includes('analysis.curve')}
                 canPrint={user.permissions.includes('analysis.print')}
                 canSaveMethod={user.permissions.includes('methods.write')}
-                information={canReadEvents ? { expanded: Boolean(informationExpanded), setExpanded: setInformationExpanded } : undefined}
+                information={canReadEvents ? { expanded: informationExpanded, setExpanded: shellLayoutStore.setInformationExpanded } : undefined}
                 onCurrentRunChange={rememberAnalysis}
                 onToast={showToast}
               />
@@ -286,7 +350,8 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             )}
             </div>
             {canReadEvents && <MessagePanel key={user.id} userId={user.id} onHeightChange={setDockHeight}
-              expanded={informationExpanded} onExpandedChange={setInformationExpanded} />}
+              health={health} canReadDevices={canReadDevices} expanded={informationExpanded}
+              onExpandedChange={shellLayoutStore.setInformationExpanded} />}
           </main>
         </>
       )}

@@ -1156,3 +1156,13 @@
 :root .app-shell .refined-page :is(.postprocessing-search, .search-field) > svg {
   flex-shrink: 0;
 }
+.topbar .focus-mode-button[aria-pressed='true'] {
+  color: #205fc8;
+  border-color: #8cafe4;
+  background: #edf4ff;
+}
+:root[data-theme='dark'] .topbar .focus-mode-button[aria-pressed='true'] {
+  color: #b8d6ff;
+  border-color: #5275a0;
+  background: #233d5b;
+}

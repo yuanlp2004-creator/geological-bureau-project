@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { saveFile, type Capability, type CurrentMethodState } from '../../api'
 import { runtimeEventsStore, useRuntimeEvents } from '../../stores/runtimeEventsStore'
+import { useDeviceStatus } from '../../stores/deviceStatusStore'
 import { type NavigationEntry, type Page } from '../../navigation'
 import { formatTime } from '../../components/dateFormat'
 import { categoryLabel } from '../../components/eventLabels'
@@ -27,6 +28,7 @@ export function Workspace({
   token,
   health,
   canClearEvents,
+  canReadDevices,
   currentMethod,
   capabilities,
   entries,
@@ -36,6 +38,7 @@ export function Workspace({
   token: string
   health: 'online' | 'offline'
   canClearEvents: boolean
+  canReadDevices: boolean
   currentMethod: CurrentMethodState | null
   capabilities: Capability[]
   entries: NavigationEntry[]
@@ -43,6 +46,7 @@ export function Workspace({
   onToast: (message: string) => void
 }) {
   const events = useRuntimeEvents()
+  const deviceStatus = useDeviceStatus()
   const [eventFilter, setEventFilter] = useState('all')
   const [selected, setSelected] = useState<number[]>([])
   const filteredEvents = useMemo(
@@ -54,6 +58,12 @@ export function Workspace({
   const hasPage = (page: Page) => entries.some((entry) => entry.page === page)
   const hasQuickAccess = hasPage('methods') || hasPage('about')
   const isDesktop = '__TAURI__' in window
+  const deviceReady = canReadDevices && deviceStatus.status === 'ready'
+  const deviceChannel = deviceReady && deviceStatus.transport === 'simulator' ? '模拟设备'
+    : deviceReady && deviceStatus.port != null ? `COM${deviceStatus.port}`
+    : deviceReady && deviceStatus.transport === 'serial' ? '串口' : '—'
+  const deviceState = canReadDevices ? deviceStatus.stateLabel : '未授权'
+  const deviceActive = deviceReady && (deviceStatus.connected || deviceStatus.activeCapturesCount > 0) && !deviceStatus.lastError
 
   const clearEvents = async () => {
     if (!canClearEvents) {
@@ -238,6 +248,12 @@ export function Workspace({
               <span>运行环境</span>
               <code>{isDesktop ? 'Tauri 2' : '浏览器'}</code>
               <span className="protocol-ok">{isDesktop ? '桌面程序' : '浏览器预览'}</span>
+            </div>
+            <div className="protocol-row">
+              <span>设备通道</span>
+              <code>{deviceChannel}</code>
+              <span className={deviceActive ? 'protocol-ok' : 'protocol-error'}
+                title={canReadDevices ? deviceStatus.lastError ?? undefined : undefined}>{deviceState}</span>
             </div>
           </section>
         </aside>

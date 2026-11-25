@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bluetooth, Cable, RefreshCw, Save, Unplug } from 'lucide-react'
 import { api, type BluetoothDevice, type DeviceDiagnostics, type DeviceProfile } from '../../api'
+import { deviceStatusStore } from '../../stores/deviceStatusStore'
 import { openBluetoothSettings } from '../../platform/bluetooth'
 import { BluetoothDevicePicker } from './BluetoothDevicePicker'
 import { MotorConnection } from './MotorConnection'
@@ -38,10 +39,12 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
   }
   const load = useCallback(async () => {
     if (refreshing.current) return
+    const generation = deviceStatusStore.getSessionGeneration(token)
     refreshing.current = true; setLoading(true)
     try {
       const [next, current, bluetooth, systemPorts] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token), api.bluetoothDevices(token),
         api.devicePorts(token)])
+      deviceStatusStore.publish(next.adapter, next.active_captures?.length ?? 0, generation)
       bluetooth.devices = bluetooth.devices.filter(item => !deleted.current.has(item.address))
       setDiagnostics(next.adapter); setCaptures(next.active_captures ?? []); setProfile(current); setDevices(bluetooth.devices)
       setWiredPorts(systemPorts.filter(item => !item.is_bluetooth).map(item => item.port))
@@ -92,6 +95,7 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
   })
   const connect = () => command(async () => {
     if (!canExecute || !profile || changed || !(bound || wiredCcd) || connected) return
+    const generation = deviceStatusStore.getSessionGeneration(token)
     if (wiredCcd) {
       const systemPorts = await api.devicePorts(token)
       if (!systemPorts.some(item => item.port === profile.port && !item.is_bluetooth))
@@ -102,11 +106,16 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
         throw new Error('Windows蓝牙端口映射已变化，请刷新后重新选择')
     }
     const result = await api.connectDevice(token, profile.id); setDiagnostics(result.diagnostics)
+    deviceStatusStore.publish(result.diagnostics, captures.length, generation)
     onToast('串口已打开，开始调试或摄谱后确认仪器响应')
   })
   const disconnect = () => command(async () => {
     if (!canExecute || running) return
-    const result = await api.disconnectDevice(token); setDiagnostics(result.diagnostics); onToast('设备已断开')
+    const generation = deviceStatusStore.getSessionGeneration(token)
+    const result = await api.disconnectDevice(token)
+    setDiagnostics(result.diagnostics)
+    deviceStatusStore.publish(result.diagnostics, captures.length, generation)
+    onToast('设备已断开')
   })
   const state = !diagnostics ? '状态未获取' : captures.length ? '摄谱正在使用串口' : diagnostics.state === 'error' ? '连接异常'
     : diagnostics.connected ? diagnostics.adapter === 'acq-simulator' ? '模拟设备已连接'

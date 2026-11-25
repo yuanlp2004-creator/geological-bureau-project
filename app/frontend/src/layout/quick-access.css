@@ -1,6 +1,6 @@
 /* The status row and shortcuts share the top of every embedded workspace. */
 :root .app-shell {
-  --workspace-topbar-height: 46px;
+  --workspace-topbar-height: 40px;
   --workspace-quick-height: 0px;
   --workspace-header-height: calc(var(--workspace-topbar-height) + var(--workspace-quick-height));
   --workspace-available-height: calc(100dvh - var(--workspace-header-height) - var(--runtime-dock-height, 0px));
@@ -11,14 +11,72 @@
 :root .app-shell .topbar {
   height: var(--workspace-topbar-height);
 }
-.app-shell .topbar .workspace-method {
-  min-width: 0;
-  max-width: clamp(160px, 23vw, 320px);
+.workspace-method-split,
+.workspace-method-split > :is(.workspace-method, .workspace-method-switch) {
+  box-sizing: border-box;
+  height: 32px;
+  min-height: 32px;
 }
-.app-shell .topbar .workspace-method strong {
+.workspace-method-split {
+  display: flex;
+  min-width: 0;
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.workspace-method-split :is(.workspace-method, .workspace-method-switch) {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+.workspace-method-split .workspace-method {
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  min-width: 0;
+  max-width: clamp(132px, 21vw, 320px);
+  padding: 1px 10px;
+  border-radius: 7px 0 0 7px;
+  text-align: right;
+}
+.workspace-method :is(span, strong) {
+  display: block;
+  margin: 0;
+  padding-block: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.workspace-method span {
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.12;
+}
+.workspace-method strong {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.workspace-method-split .workspace-method-switch {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  padding: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0 7px 7px 0;
+}
+.workspace-method-split button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
+  color: var(--blue);
+}
+.topbar .workspace-method-split button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+}
+.workspace-method-split button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
 }
 .quick-access-bar {
   display: flex;
@@ -26,7 +84,7 @@
   gap: 10px;
   box-sizing: border-box;
   height: var(--workspace-quick-height);
-  padding: 1px 26px 2px;
+  padding: 1px var(--page-heading-inline, 16px) 2px;
   border-bottom: 1px solid var(--line);
   background: var(--workspace-shortcut-bg);
   overflow-x: auto;
@@ -45,7 +103,7 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  width: 36px;
+  width: 34px;
   height: 32px;
   padding: 4px 5px;
   border: 1px solid transparent;
@@ -75,7 +133,7 @@
   cursor: not-allowed;
 }
 @media (max-width: 1150px) {
-  .quick-access-bar { padding-inline: 16px; gap: 6px; }
+  .quick-access-bar { gap: 6px; }
   .quick-access-group + .quick-access-group { padding-left: 6px; }
 }
 

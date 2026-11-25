@@ -1,8 +1,9 @@
 :root .app-shell {
-  --page-heading-content-gap: 16px;
-  --page-heading-top: 18px;
-  --page-heading-divider-gap: 10px;
+  --page-heading-content-gap: 10px;
+  --page-heading-top: 12px;
+  --page-heading-divider-gap: 7px;
   --page-heading-inline: 28px;
+  --page-heading-max: 1840px;
   --page-title-size: 22px;
   --page-title-weight: 700;
   --page-title-line-height: 1.35;
@@ -16,10 +17,17 @@
   --page-title-icon-border: #46607b;
   --page-title-icon-fg: #a9d2ff;
 }
-:root .app-shell .app-page-heading { max-width: 1840px; margin: 0 auto; padding: var(--page-heading-top) var(--page-heading-inline) 0; color: var(--ink); }
-:root .app-shell .app-page-heading-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding-bottom: var(--page-heading-divider-gap); border-bottom: 1px solid var(--line); }
-:root .app-shell .app-page-heading-title { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 240px; }
-:root .app-shell .app-page-heading-actions { min-width: 0; max-width: 100%; margin-left: auto; }
+:root .app-shell .app-page-heading { max-width: var(--page-heading-max); margin: 0 auto; padding: var(--page-heading-top) var(--page-heading-inline) 0; color: var(--ink); }
+:root .app-shell .app-page-heading-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding-bottom: var(--page-heading-divider-gap);
+  border-bottom: 1px solid var(--line);
+}
+:root .app-shell .app-page-heading-title { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 224px; }
+:root .app-shell .app-page-heading-actions { flex: 0 1 auto; min-width: 0; max-width: 100%; margin-left: auto; }
 :root .app-shell .app-page-heading-actions:empty { display: none; }
 :root .app-shell .app-page-heading-actions .file-actions { margin: 0; }
 :root .app-shell .app-page-heading-icon { display: grid; place-items: center; }
@@ -47,6 +55,9 @@
 }
 :root .app-shell .page-scroll-region :is(.app-page-heading-icon,.spectroscopy-icon,.analysis-title-icon) > svg.page-title-glyph { width:22px; height:22px; }
 /* Header spacing is shared by normal pages and both custom workbenches. */
+:root .app-shell .page-scroll-region:has(.legacy-viewing-page) {
+  --page-heading-max: var(--spectroscopy-page-max);
+}
 :root .app-shell .page-scroll-region > .app-page-heading {
   padding-top: var(--page-heading-top) !important;
   padding-inline: var(--page-heading-inline) !important;
@@ -60,7 +71,9 @@
 }
 :root .app-shell .page-scroll-region > .app-page-heading + .page-content,
 :root .app-shell .page-scroll-region > .app-page-heading + [data-testid='evaporation-curves-page'] .page-content {
+  max-width: var(--page-heading-max);
   padding-top: var(--page-heading-content-gap) !important;
+  padding-inline: var(--page-heading-inline) !important;
   margin-top: 0 !important;
 }
 :root .app-shell .page-scroll-region > :is(.spectroscopy-workbench,.analysis-workbench) {
@@ -76,8 +89,12 @@
 :root .app-shell .page-scroll-region .spectroscopy-modes button { height: 28px; min-height: 28px; padding: 3px 8px; }
 @media(max-width:1350px) { :root .app-shell { --page-heading-inline:20px; } }
 @media(max-width:1280px) { :root .app-shell { --page-heading-inline:16px; } }
+@media(max-width:1150px) {
+  :root .app-shell { --page-heading-top: 8px; --page-heading-divider-gap: 6px; --page-heading-content-gap: 8px; }
+}
 @media(min-width:2400px) {
-  :root .app-shell { --page-heading-inline:36px; }
-  :root .app-shell .app-page-heading { max-width:2300px; }
-  :root .app-shell .main-area:has(> .remaining-page) > .app-page-heading { max-width:1840px; }
+  :root .app-shell { --page-heading-inline:36px; --page-heading-max:2300px; }
+  :root .app-shell .page-scroll-region:has(> .app-page-heading + :is(.remaining-page, .prepared-import-page)) {
+    --page-heading-max: 1840px;
+  }
 }

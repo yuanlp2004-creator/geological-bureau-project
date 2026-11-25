@@ -5,6 +5,7 @@ import { api, type DeviceDiagnostics, type DeviceEvent } from '../../api'
 import type { DeviceDebugTurn } from '../../api/devices'
 import { NumericInput, reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
+import { deviceStatusStore } from '../../stores/deviceStatusStore'
 import { AlignmentMonitor } from './AlignmentMonitor'
 import { ensureCaptureConnection } from '../acquisition/captureConnection'
 
@@ -71,11 +72,13 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   }, [showTurn, token])
   const load = useCallback(async () => {
     const read = ++diagnosticRead.current
+    const generation = deviceStatusStore.getSessionGeneration(token)
     setLoading(true)
     try {
       const [next, currentProfile] = await Promise.all([api.deviceDiagnostics(token), api.currentDeviceProfile(token)])
       if (read !== diagnosticRead.current) return
       setDiagnostics(next)
+      deviceStatusStore.publish(next.adapter, next.active_captures?.length ?? 0, generation)
       const live = next.adapter.connected && next.adapter.state === 'debugging'
       setRunning(live); runningRef.current = live
       sessionRef.current = live ? next.adapter.session_id : null
@@ -186,6 +189,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
     if (!canExecute) return onToast('当前账户没有设备执行权限')
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
+    const generation = deviceStatusStore.getSessionGeneration(token)
     try {
       const profile = await api.currentDeviceProfile(token)
       profileRef.current = profile?.id ?? null
@@ -195,6 +199,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
       await ensureCaptureConnection(token, profile.id, profile.transport, 'devices')
       const result = await api.connectDevice(token, profile.id)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
+      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       remember(result.event, result.profile.id)
       await refreshTurn()
       onToast(profile.transport === 'serial' ? '串口已打开，开始调试后确认仪器响应' : '模拟设备已连接')
@@ -210,6 +215,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
     if (!reportInvalidNumericInput(debugParameters.current)) return onToast('请先修正调试参数')
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
+    const generation = deviceStatusStore.getSessionGeneration(token)
     try {
       const result = await api.startDeviceDebug(token, { sample, seed })
       setObserved(null)
@@ -218,6 +224,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
       runningRef.current = true
       setRunning(true)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
+      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       onToast('实时调试已开始，数据不会写入样品记录')
     } catch (error) {
       await load()
@@ -229,12 +236,14 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   const stop = async () => {
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
+    const generation = deviceStatusStore.getSessionGeneration(token)
     diagnosticRead.current++
     setLoading(false)
     if (turning) turnRevision.current++
     runningRef.current = false
     try {
       const result = await api.stopDeviceDebug(token)
+      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       setRunning(false)
       remember(result.event)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
@@ -250,12 +259,14 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   const disconnect = async () => {
     if (commandInFlight.current) return
     commandInFlight.current = true; setControlling(true)
+    const generation = deviceStatusStore.getSessionGeneration(token)
     diagnosticRead.current++
     setLoading(false)
     if (turning) turnRevision.current++
     runningRef.current = false
     try {
       const result = await api.disconnectDevice(token)
+      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       setRunning(false)
       remember(result.event)
       setDiagnostics((current) => (current ? { ...current, adapter: result.diagnostics } : current))
@@ -271,12 +282,14 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   const finish = async () => {
     if (!canExecute || commandInFlight.current) return
     commandInFlight.current = true; setControlling(true); runningRef.current = false
+    const generation = deviceStatusStore.getSessionGeneration(token)
     diagnosticRead.current++
     setLoading(false)
     if (turning) turnRevision.current++
     try {
       if (running || turning) { await api.stopDeviceDebug(token); setRunning(false) }
       const result = await api.disconnectDevice(token)
+      deviceStatusStore.publish(result.diagnostics, undefined, generation)
       remember(result.event)
       setDiagnostics(current => current ? { ...current, adapter: result.diagnostics } : current)
       await refreshTurn()
