@@ -12,7 +12,7 @@ from typing import Any
 
 
 BASELINE_DIR = Path(__file__).resolve().parents[1]
-PROJECT_DIR = Path(__file__).resolve().parents[3]
+PROJECT_DIR = Path(__file__).resolve().parents[5]
 GENERATED_DIR = BASELINE_DIR / "generated"
 GOLDEN_DIR = BASELINE_DIR / "golden"
 

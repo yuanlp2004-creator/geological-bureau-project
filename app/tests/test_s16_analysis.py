@@ -364,7 +364,7 @@ def test_s16_legacy_gaussian_golden_vectors() -> None:
     assert calculation_profile({"storage_profile": "legacy_specdirect_202"}) == "legacy_2_0_2"
     assert calculation_profile({}) == "modern_v1"
     golden = json.loads(
-        (APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-gaussian.json").read_text(encoding="utf-8")
+        (APP_ROOT.parent / "docs" / "acceptance-reports" / "S00" / "baseline" / "golden" / "legacy-gaussian.json").read_text(encoding="utf-8")
     )
     for case in golden["cases"]:
         actual = legacy_gaussian(case["input"])
@@ -410,7 +410,7 @@ def _independent_weighted_quadratic_gaussian(values: list[float]) -> tuple[float
 
 def test_s16_independent_gaussian_cross_check_and_legacy_peak_boundaries() -> None:
     golden = json.loads(
-        (APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-gaussian.json").read_text(encoding="utf-8")
+        (APP_ROOT.parent / "docs" / "acceptance-reports" / "S00" / "baseline" / "golden" / "legacy-gaussian.json").read_text(encoding="utf-8")
     )
     for case in golden["cases"]:
         if not case["expected"]["ok"]:
@@ -422,7 +422,7 @@ def test_s16_independent_gaussian_cross_check_and_legacy_peak_boundaries() -> No
         assert product["sigma"] == pytest.approx(sigma, abs=1e-9)
 
     vectors = json.loads(
-        (APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-signal-processing.json").read_text(
+        (APP_ROOT.parent / "docs" / "acceptance-reports" / "S00" / "baseline" / "golden" / "legacy-signal-processing.json").read_text(
             encoding="utf-8"
         )
     )["peak_search"]

@@ -13,7 +13,7 @@
 
 ## 旧版规则与格式依据
 
-- [S00 事实与黄金样本](../s00-baseline/README.md)：旧格式、算法、受控输入哈希与历史工具。
+- [S00 事实与黄金样本](../acceptance-reports/S00/baseline/README.md)：旧格式、算法、受控输入哈希与历史工具。
 - [旧版功能树](../../Spec2.02功能研究/01_功能树_源码整理版.md)：先定位旧功能，再回查 Delphi 源码及 `.dfm`。
 - [旧 Delphi 源码](../../Spec%20Source/)、[分类来源索引](../../SpecFile/README.md) 与 [文件来源清单](../../SpecFile/文件来源清单.csv)。
 - 现存运行原件另查 `Spec Source/Bin/`，归档夹具位于 `app/tests/fixtures/legacy_runtime/`，按各自源哈希区分；旧资料目录始终保持只读。
@@ -23,7 +23,7 @@
 
 - 当前入口文档（`docs/README.md`、`代码导读/`、`使用与说明/`）只保留仍成立的架构、能力、操作与最新交付结论。
 - 阶段结论、历史研究快照和过时演进记录统一沉淀到 `docs/归档/`，不在文档首页逐条堆积流水账。
-- 原始验收报告（`docs/acceptance-reports/`）和基准黄金样本（`docs/s00-baseline/`）路径保持不变，确保脚本与历史证据可追溯。
+- 原始验收报告（`docs/acceptance-reports/`，含归并后的 `S00/baseline/` 黄金样本）路径保持稳定，确保脚本与历史证据可追溯。
 - 临时输出、测试日志、排查截图与本地释放副本统一放入系统临时目录或 `app/.local/`，不留在 `docs/` 或项目根目录。
 
 ---

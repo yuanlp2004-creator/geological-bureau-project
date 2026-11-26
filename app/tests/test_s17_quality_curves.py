@@ -430,7 +430,7 @@ def test_s17_repeat_statistics_boundaries() -> None:
 
 def test_s17_four_fits_coordinates_and_failure_boundaries() -> None:
     golden = json.loads(
-        (APP_ROOT.parent / "docs" / "s00-baseline" / "golden" / "legacy-curve-fit.json").read_text(encoding="utf-8")
+        (APP_ROOT.parent / "docs" / "acceptance-reports" / "S00" / "baseline" / "golden" / "legacy-curve-fit.json").read_text(encoding="utf-8")
     )
     for case in golden["least_squares_cases"]:
         fit = fit_curve(case["x"], case["y"], case["mode"])

@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 
 BASELINE_DIR = Path(__file__).resolve().parents[1]
-PROJECT_DIR = Path(__file__).resolve().parents[3]
+PROJECT_DIR = Path(__file__).resolve().parents[5]
 GENERATED_DIR = BASELINE_DIR / "generated"
 GOLDEN_DIR = BASELINE_DIR / "golden"
 ACCESS_DIR = GENERATED_DIR / "access-probes"
