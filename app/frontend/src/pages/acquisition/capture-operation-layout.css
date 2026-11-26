@@ -30,7 +30,6 @@
   --capture-status-bg: var(--surface);
   display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex: 0 0 auto; min-height: 40px;
   padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--ui-soft); color: var(--ink);
-  box-shadow: inset 0 2px 0 var(--capture-status-fg);
 }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='ready'] { --capture-status-fg: var(--spec-located); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .legacy-window-caption[data-status-tone='running'] { --capture-status-fg: var(--ui-accent); --capture-status-bg: var(--ui-selected); }
