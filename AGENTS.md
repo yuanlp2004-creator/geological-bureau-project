@@ -90,7 +90,7 @@
   - Antigravity 担任总编排、方案/视觉审校与终审拍板入口；常规 Codex CLI 调度、一审全量代码/截图核查与返工闭环优先交由轻量级子代理（Hydrogen）执行，主控（Neon）聚焦架构决策、决策门禁收敛与每批 2–4 张代表图的最终审美签收，避免冗余上下文化开销。
   - GPT（通过 Codex CLI 调用）担任两类独立角色：规划/架构只读复审员（`gpt-6.2-astra`，`--effort xhigh --sandbox read-only`）与分批实现工程师（`gpt-6.2-sol`，`--effort xhigh`）。
 - **CLI 会话与工作目录纪律**：
-  - 统一使用 Codexd 管理的最新版本 `codex.exe`：优先从 `%USERPROFILE%\.clauded\codex-cli\metadata.json` 的 `path` 字段解析（当前为 `C:\Users\Leo\.clauded\codex-cli\0.172.0-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe`，随 Codexd 跟随最新升级同步切换），不得回落调用系统 `PATH` 上其他或旧版 `codex` 二进制。
+  - 统一直接拉起 Codexd 管理的原生最新版本 `codex.exe`（`<resolved>\codex.exe exec ...`）：优先从 `%USERPROFILE%\.clauded\codex-cli\metadata.json` 的 `path` 字段解析（当前为 `C:\Users\Leo\.clauded\codex-cli\0.172.0-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe`，随 Codexd 跟随最新升级同步切换）；禁止经由 `codexd.exe` 或其他中转封装/代理进程转调，禁止额外设置或注入任何网络代理环境变量（如 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY`），亦不得回落调用系统 `PATH` 上其他或旧版 `codex` 二进制。
   - 严禁在同一个 Codex CLI 会话中切换模型；每次评审、每个实施批次/子批或每次返工抛光均须新开独立的 `codex exec` 无状态会话，通过文件传递提示词与结果摘要。
   - 所有构建与 CLI `-C` 工作路径均须先解析为真实物理路径（避免 `Desktop` 目录联接导致 Rollup/Vite 相对路径异常）；禁止 `gpt-6.2-sol` 会话退出后遗留继承标准输出/错误的后台测试服务器、浏览器或悬浮窗口。
   - 编排脚本、提示词模板、会话日志与验收截图统一落盘至 `app/.local/`（严禁进入项目根目录或提交进 Git）。
