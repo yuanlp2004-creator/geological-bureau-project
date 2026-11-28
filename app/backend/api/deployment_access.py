@@ -10,12 +10,12 @@ from starlette.concurrency import run_in_threadpool
 
 from ..auth import Session
 from ..modules.activation import MAX_LICENSE_BYTES, ActivationError, ActivationStatus
-from ..modules.manifest import registered_manifests, validate_manifests
+from ..modules.manifest import registered_manifests
 from ..modules.support_diagnostics import SupportConflict, diagnostic_snapshot
 from ..runtime import Runtime
 from ..schemas.system import RuntimeEventCreate
 from .dependencies import get_runtime, require_permission
-from .module_diagnostics import inspect_modules
+from .module_diagnostics import database_tables, inspect_modules, summarize_modules
 
 router = APIRouter(prefix="/api/v1", tags=["deployment-access"])
 
@@ -48,12 +48,13 @@ def _audit(runtime: Runtime, session: Session, action: str, message: str) -> Non
 async def _support_snapshot(request: Request, runtime: Runtime) -> tuple[datetime, bytes]:
     checked_at = datetime.now(timezone.utc)
     manifests = registered_manifests()
-    manifest_error = None
-    try:
-        validate_manifests(manifests)
-    except ValueError as exc:
-        manifest_error = str(exc)
-    modules = await inspect_modules(request, runtime, manifests, manifest_error)
+
+    def read_tables() -> set[str]:
+        with runtime.database.read() as connection:
+            return database_tables(connection)
+
+    tables = await run_in_threadpool(read_tables)
+    modules = await inspect_modules(request, manifests, summarize_modules(manifests, tables))
     events = await run_in_threadpool(runtime.service.list_events, limit=40)
     return checked_at, diagnostic_snapshot(modules, events, checked_at)
 
@@ -107,6 +108,7 @@ async def open_support_session(
         result = await run_in_threadpool(
             runtime.support_diagnostics.open, snapshot, payload.minutes, operator_authorized,
             lambda: _audit(runtime, session, "support.open", f"已开启模块远程诊断，有效期 {payload.minutes} 分钟"),
+            operator_expires_at=session.expires_at,
         )
     except SupportConflict as exc:
         raise HTTPException(409, detail=str(exc)) from exc

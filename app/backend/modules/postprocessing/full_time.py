@@ -12,7 +12,7 @@ from ..legacy_migration import LegacyMigrationError
 from ..methods import MethodDomainError
 from ..spectrum_calibration import acquired_locations, legacy_location, locate_peaks
 from ..spectrum_migration import SpectrumMigrationService
-from ..spectrum_observation import acquired_exposure_frames, legacy_exposure_frames, LegacyObservationError
+from ..spectrum_observation import acquired_exposure_frames, legacy_exposure_source, LegacyObservationError
 from .errors import PostProcessingError
 from .serialization import _json
 
@@ -102,7 +102,7 @@ class FullTimeExport:
                     indices = layout.get('ccd_indices') or list(range(row['ccd_count']))
                     layout.update(ccd_count=row['ccd_count'], points_per_ccd=row['points_per_ccd'])
                     locate = lambda line: legacy_location(layout, line.get('actual_wavelength_nm') or line['wavelength_nm'])
-                    decode = lambda slot: legacy_exposure_frames(row, slot)
+                    decode = legacy_exposure_source(row)
                     band_label = lambda slot: (None, indices[slot])
                     group_for_slot = lambda slot: None
                     label = row['band_id'] if row['band_id'] is not None else number

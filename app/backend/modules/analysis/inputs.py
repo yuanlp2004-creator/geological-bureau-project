@@ -129,6 +129,8 @@ class AnalysisInputs:
             raise AnalysisError("analysis_sample_discarded", "已删除的异常样品不能用于新分析", status_code=409)
         # 数据库 IN 查询不保证顺序，必须按用户选择恢复样品顺序，再锁定同一已发布方法版本。
         ordered = [by_id[value] for value in sample_ids]
+        if any(row["sample_kind"] == "preheat" for row in ordered):
+            raise AnalysisError("analysis_sample_preheat", "预热记录仅供观察，请选择正式摄谱样品", status_code=409)
         names = payload.get('sample_names')
         numbering = payload.get("sample_numbering")
         if numbering is not None and names is not None:

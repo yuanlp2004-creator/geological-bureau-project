@@ -68,7 +68,7 @@ export async function checkPageLayout(page, result, output) {
           await checkPageHeading(page,entry.label)
         }
         if(['sample-acquisition','evaporation-acquisition'].includes(entry.page)) await page.getByRole('heading',{name:'摄谱工作台',exact:true}).waitFor()
-        const designedPages=['settings','users','audit','migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing','acquisition']
+        const designedPages=['settings','users','audit','migration','maintenance','help','evaporation-curves','samples','spectra','reports','postprocessing','acquisition']
         if(designedPages.includes(entry.page)) {
           await page.locator('.section-heading:visible').first().waitFor()
           const invalid=await page.locator('.section-heading:visible').evaluateAll(headings=>headings.filter(node=>!node.closest('.surface')||node.querySelector('svg,img')||!node.querySelector('h2')).length)
@@ -78,7 +78,7 @@ export async function checkPageLayout(page, result, output) {
         assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),theme)
         assert.ok(size.scroll<=size.width+1,`${entry.label}: horizontal overflow ${JSON.stringify(size)}`)
         assert.equal(await page.locator('.page-content .page-intro:visible, .page-content > .hero-row:visible').count(),0,`${entry.label}: old title gap`)
-        const reflowPages=['users','audit','about','migration','maintenance','help','hardware-acquisition','evaporation-curves','samples','spectra','reports','postprocessing']
+        const reflowPages=['users','audit','about','migration','maintenance','help','evaporation-curves','samples','spectra','reports','postprocessing']
         if(reflowPages.includes(entry.page)) {
           if(theme==='light') await page.waitForLoadState('networkidle')
           assert.equal(await page.locator('.main-area .page-content').first().locator(':scope > .page-action-toolbar:visible').count(),0,`${entry.label}: detached action row`)

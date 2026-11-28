@@ -24,8 +24,9 @@ from .v29_bluetooth_hidden import _migrate_v29
 from .v30_sample_turn_bands import _migrate_v30
 from .v31_analysis_numbering import _migrate_v31
 from .v32_capture_disposals import _migrate_v32
+from .v33_acquisition_monitoring import _migrate_v33
 
-SCHEMA_VERSION = 32
+SCHEMA_VERSION = 33
 SCHEMA_BASELINE_VERSION = 10
 
 MIGRATIONS = (
@@ -51,4 +52,5 @@ MIGRATIONS = (
     (30, "acquisition", _migrate_v30),
     (31, "analysis", _migrate_v31),
     (32, "capture_context", _migrate_v32),
+    (33, "acquisition", _migrate_v33),
 )

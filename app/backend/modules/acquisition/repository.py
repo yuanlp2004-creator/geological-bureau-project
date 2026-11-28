@@ -7,6 +7,15 @@ from typing import Any
 from ...db import Database, utc_now
 from ..sample_queues import SampleQueueError, SampleQueueService, normalize_name
 from .codec import _pack_float32, _pack_uint16, _unpack_float32, _unpack_uint16, average_points
+from .monitoring import normalize_monitoring_config
+from .monitoring_repository import (
+    attempt_key,
+    default_monitoring_state,
+    get_monitoring_state,
+    list_decisions,
+    monitoring_config,
+    save_monitoring_state,
+)
 from .values import AcquisitionError, AcquisitionState, _SAMPLE_KINDS, _STORAGE_MODES, _TASK_KINDS, _finite, _json, _sample_kind
 from ..methods import MethodService
 
@@ -100,6 +109,8 @@ class AcquisitionRepository:
         config, runtime = context(db, task_id)
         if config:
             result['turns'] = {**config, **runtime}
+            for turn in result['turns']['plan']:
+                turn.setdefault('monitoring', {}).setdefault('monitored', False)
             if config['multiple'] and result.get('last_event'):
                 indices = config['plan'][runtime['turn_index']]['ccd_indices']
                 result['last_event']['ccds'] = [ccd for ccd in result['last_event'].get('ccds', []) if ccd['ccd_index'] in indices]
@@ -158,6 +169,20 @@ class AcquisitionRepository:
                 (task_id,),
             ).fetchall()
         ]
+        monitoring_config = result["excitation_condition"].get("monitoring")
+        if monitoring_config is not None or result["task_kind"] == "sample":
+            mon_cfg = monitoring_config or normalize_monitoring_config({})
+            binding = (config['plan'][runtime['turn_index']]['monitoring'] if config
+                       else mon_cfg.get('binding', {}))
+            state = get_monitoring_state(db, task_id)
+            if state['status'] == 'pending' and not binding.get('monitored'):
+                state['status'] = 'unmonitored'
+            result["monitoring"] = {
+                **mon_cfg,
+                "monitored": bool(binding.get('monitored')),
+                "state": state,
+                "decisions": list_decisions(db, task_id),
+            }
         # 任务列表和普通控制响应只需摘要；实际曲线由页面按需读取，避免反复传输全部点值。
         if not include_points and result.get("last_event"):
             event = dict(result["last_event"])
@@ -434,6 +459,20 @@ class AcquisitionRepository:
             excitation.pop('capture_turn', None)
             if capture_turn:
                 excitation['capture_turn'] = capture_turn
+            excitation.pop('monitoring', None)
+            if task_kind == "sample" and sample_kind != "preheat" and source_task is None:
+                from ..methods.sample_plan import fixed_monitoring
+                monitoring_cfg = normalize_monitoring_config(payload)
+                if turn_config:
+                    monitored = any(turn['monitoring']['monitored'] for turn in turn_config['plan'])
+                else:
+                    binding = (fixed_monitoring(MethodService(self.database), db, snapshot, layout['id'], selected)
+                               if method_version_id is not None else {'monitored': False})
+                    monitoring_cfg['binding'] = binding
+                    monitored = binding['monitored']
+                monitoring_cfg['handle_faults'] = monitoring_cfg['anomaly_policy'] != 'warn' or monitoring_cfg['retry_limit'] > 0
+                monitoring_cfg['isolated'] = monitored or monitoring_cfg['handle_faults']
+                excitation["monitoring"] = monitoring_cfg
             evaporation = dict(payload.get("evaporation_conditions") or {})
             simulator = {
                 "sample": str(payload.get("simulator_sample", "280-288.acq")),
@@ -486,6 +525,8 @@ class AcquisitionRepository:
                 ),
             )
             task_id = int(cursor.lastrowid)
+            if excitation.get('monitoring', {}).get('isolated'):
+                save_monitoring_state(db, task_id, default_monitoring_state())
             if turn_config:
                 db.execute('INSERT INTO acquisition_turn_tasks VALUES (?,?,?)',
                     (task_id, _json(turn_config), _json({'turn_index': 0, 'completed_turns': 0, 'positioned': False})))
@@ -579,53 +620,128 @@ class AcquisitionRepository:
         damaged: bool = False,
         damage_code: str | None = None,
         damage_message: str | None = None,
+        attempt: int = 0,
+        monitoring: dict[str, Any] | None = None,
+        isolate_attempts: bool = False,
     ) -> None:
         from .turns import store_frame
-        if store_frame(db, task, sample, phase, frame_index, event, virtual_time_ms, damaged):
+        if store_frame(db, task, sample, phase, frame_index, event, virtual_time_ms, damaged,
+                       attempt=attempt, monitoring=monitoring):
             return
         selected = [int(value) for value in json.loads(task["ccd_indices_json"] or "[]")]
         by_index = {int(ccd["ccd_index"]): ccd for ccd in (event.ccds or [])}
         details = event.details or {}
         for ccd_index in selected:
             ccd = by_index.get(ccd_index)
-            points = [] if damaged or ccd is None else [int(value) for value in ccd.get("points", [])]
-            blob = None if damaged or ccd is None else _pack_uint16(points)
+            points = ccd.get('points', []) if ccd is not None and (isolate_attempts or not damaged) else []
+            blob = _pack_uint16(points) if points else None
             points_sha = hashlib.sha256(blob).hexdigest() if blob is not None else None
-            db.execute(
-                (
-                    "INSERT INTO acquisition_frames(task_id, sample_id, repeat_index, phase, "
-                    "frame_index, ccd_index, points_blob, points_count, points_sha256, "
-                    "raw_transfer_sha256, raw_byte_length, headers_json, virtual_time_ms, "
-                    "peak_value, peak_position, integral_value, damaged, damage_code, "
-                    "damage_message, captured_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                    "?, ?, ?, ?, ?, ?)"
-                ),
-                (
-                    task["id"],
-                    sample["id"],
-                    sample["repeat_index"],
-                    phase,
-                    frame_index,
-                    ccd_index,
-                    blob,
-                    len(points),
-                    points_sha,
-                    details.get("sha256"),
-                    int(details.get("byte_length", 0)),
-                    _json(details.get("headers", [])),
-                    virtual_time_ms,
-                    max(points) if points else None,
-                    points.index(max(points)) if points else None,
-                    float(sum(points)) if points else None,
-                    int(damaged or ccd is None),
-                    damage_code,
-                    damage_message,
-                    utc_now(),
-                ),
-            )
+            if isolate_attempts:
+                db.execute(
+                    (
+                        "INSERT INTO acquisition_attempt_frames(task_id, sample_id, repeat_index, attempt, phase, "
+                        "frame_index, ccd_index, points_blob, points_count, points_sha256, "
+                        "raw_transfer_sha256, raw_byte_length, headers_json, virtual_time_ms, "
+                        "peak_value, peak_position, integral_value, monitoring_json, damaged, damage_code, "
+                        "damage_message, captured_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "?, ?, ?, ?, ?, ?, ?)"
+                    ),
+                    (
+                        task["id"],
+                        sample["id"],
+                        sample["repeat_index"],
+                        int(attempt),
+                        phase,
+                        frame_index,
+                        ccd_index,
+                        blob,
+                        len(points),
+                        points_sha,
+                        details.get("sha256"),
+                        int(details.get("byte_length", 0)),
+                        _json(details.get("headers", [])),
+                        virtual_time_ms,
+                        max(points) if points else None,
+                        points.index(max(points)) if points else None,
+                        float(sum(points)) if points else None,
+                        _json(monitoring or {}),
+                        int(damaged or ccd is None),
+                        damage_code,
+                        damage_message,
+                        utc_now(),
+                    ),
+                )
+            else:
+                db.execute(
+                    (
+                        "INSERT INTO acquisition_frames(task_id, sample_id, repeat_index, phase, "
+                        "frame_index, ccd_index, points_blob, points_count, points_sha256, "
+                        "raw_transfer_sha256, raw_byte_length, headers_json, virtual_time_ms, "
+                        "peak_value, peak_position, integral_value, damaged, damage_code, "
+                        "damage_message, captured_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "?, ?, ?, ?, ?, ?)"
+                    ),
+                    (
+                        task["id"],
+                        sample["id"],
+                        sample["repeat_index"],
+                        phase,
+                        frame_index,
+                        ccd_index,
+                        blob,
+                        len(points),
+                        points_sha,
+                        details.get("sha256"),
+                        int(details.get("byte_length", 0)),
+                        _json(details.get("headers", [])),
+                        virtual_time_ms,
+                        max(points) if points else None,
+                        points.index(max(points)) if points else None,
+                        float(sum(points)) if points else None,
+                        int(damaged or ccd is None),
+                        damage_code,
+                        damage_message,
+                        utc_now(),
+                    ),
+                )
+
+    @staticmethod
+    def attempt_complete(db, task, sample, turn_index, attempt):
+        from .turns import context
+        config, _ = context(db, task['id'])
+        if config and config['multiple']:
+            turn = config['plan'][turn_index]
+            ccds = turn['ccd_indices']
+            count = turn['geometry']['points_per_ccd']
+            rows = db.execute('SELECT * FROM acquisition_turn_frames WHERE task_id=? AND repeat_index=? '
+                              'AND turn_index=? AND attempt=?', (task['id'], sample['repeat_index'], turn_index, attempt))
+        else:
+            ccds = json.loads(task['ccd_indices_json'])
+            count = db.execute('SELECT points_per_ccd FROM ccd_layouts WHERE id=?', (task['ccd_layout_id'],)).fetchone()[0]
+            rows = db.execute('SELECT * FROM acquisition_attempt_frames WHERE sample_id=? AND attempt=?', (sample['id'], attempt))
+        expected = {(phase, frame_index, ccd) for phase in ('burn', 'dark')
+                    for frame_index in range(task[f'{phase}_frame_count']) for ccd in ccds}
+        for row in rows:
+            key = (row['phase'], row['frame_index'], row['ccd_index'])
+            blob = row['points_blob'] or b''
+            if (key not in expected or row['damaged'] or row['points_count'] != count or
+                    len(blob) != count * 2 or hashlib.sha256(blob).hexdigest() != row['points_sha256']):
+                return False
+            expected.remove(key)
+        return not expected
 
     def _store_damaged(
-        self, db: sqlite3.Connection, task: sqlite3.Row, sample: sqlite3.Row, phase: str, frame_index: int, event: Any
+        self,
+        db: sqlite3.Connection,
+        task: sqlite3.Row,
+        sample: sqlite3.Row,
+        phase: str,
+        frame_index: int,
+        event: Any,
+        *,
+        attempt: int = 0,
+        monitoring: dict[str, Any] | None = None,
+        isolate_attempts: bool = False,
     ) -> None:
         details = event.details or {}
         self._store_event(
@@ -639,6 +755,9 @@ class AcquisitionRepository:
             damaged=True,
             damage_code=str(details.get("code", "device_fault")),
             damage_message=event.message or "CCD 帧损坏",
+            attempt=attempt,
+            monitoring=monitoring,
+            isolate_attempts=isolate_attempts,
         )
 
     @staticmethod
@@ -652,10 +771,16 @@ class AcquisitionRepository:
         return (offset + frame_index * float(task["sampling_period_seconds"])) * 1000
 
     def _finalize_sample(
-        self, db: sqlite3.Connection, task: sqlite3.Row, sample: sqlite3.Row, actor_user_id: int | None
+        self,
+        db: sqlite3.Connection,
+        task: sqlite3.Row,
+        sample: sqlite3.Row,
+        actor_user_id: int | None,
+        *,
+        accepted_attempts: dict[str, int] | None = None,
     ) -> tuple[bool, str]:
         from .turns import finalize
-        turn_hash = finalize(db, task, sample)
+        turn_hash = finalize(db, task, sample, accepted_attempts=accepted_attempts)
         if turn_hash is not None:
             db.execute("UPDATE acquisition_samples SET status='completed',finalized=1,result_sha256=?,completed_at=?,updated_at=? WHERE id=?",
                 (turn_hash, utc_now(), utc_now(), sample['id']))
@@ -663,6 +788,58 @@ class AcquisitionRepository:
         selected = [int(value) for value in json.loads(task["ccd_indices_json"] or "[]")]
         burn_expected = int(task["burn_frame_count"])
         dark_expected = int(task["dark_frame_count"])
+        has_attempts = db.execute(
+            "SELECT 1 FROM acquisition_attempt_frames WHERE sample_id=? LIMIT 1", (sample["id"],)
+        ).fetchone() is not None
+        if has_attempts:
+            winning_attempt = (accepted_attempts or {}).get(attempt_key(sample['repeat_index'], 0))
+            if winning_attempt is None:
+                raise AcquisitionError('acquisition_frames_incomplete', '当前重复没有确认的采集尝试')
+            attempt_frames = db.execute(
+                "SELECT * FROM acquisition_attempt_frames WHERE sample_id=? AND attempt=? ORDER BY phase, frame_index, ccd_index",
+                (sample["id"], winning_attempt),
+            ).fetchall()
+            if any(frame["damaged"] for frame in attempt_frames) or len(attempt_frames) != len(selected) * (
+                burn_expected + dark_expected
+            ):
+                raise AcquisitionError("acquisition_frames_incomplete", "当前重复存在损坏或不完整帧，不能完成收尾")
+            db.execute(
+                "UPDATE acquisition_attempt_frames SET accepted=1 WHERE task_id=? AND repeat_index=? AND attempt=? AND damaged=0",
+                (task["id"], sample["repeat_index"], winning_attempt),
+            )
+            for row in attempt_frames:
+                db.execute(
+                    (
+                        "INSERT INTO acquisition_frames(task_id, sample_id, repeat_index, phase, "
+                        "frame_index, ccd_index, points_blob, points_count, points_sha256, "
+                        "raw_transfer_sha256, raw_byte_length, headers_json, virtual_time_ms, "
+                        "peak_value, peak_position, integral_value, damaged, damage_code, "
+                        "damage_message, captured_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "?, ?, ?, ?, ?, ?)"
+                    ),
+                    (
+                        row["task_id"],
+                        row["sample_id"],
+                        row["repeat_index"],
+                        row["phase"],
+                        row["frame_index"],
+                        row["ccd_index"],
+                        row["points_blob"],
+                        row["points_count"],
+                        row["points_sha256"],
+                        row["raw_transfer_sha256"],
+                        row["raw_byte_length"],
+                        row["headers_json"],
+                        row["virtual_time_ms"],
+                        row["peak_value"],
+                        row["peak_position"],
+                        row["integral_value"],
+                        row["damaged"],
+                        row["damage_code"],
+                        row["damage_message"],
+                        row["captured_at"],
+                    ),
+                )
         frames = db.execute(
             "SELECT * FROM acquisition_frames WHERE sample_id=? ORDER BY phase, frame_index, ccd_index", (sample["id"],)
         ).fetchall()
@@ -755,6 +932,48 @@ class AcquisitionRepository:
         )
         return True, result_hash
 
+    def measurement_frames(self, db, task_id, repeat_index, turn_index, **filters):
+        """Read provisional frames exclusively for measurement observation in the caller's snapshot."""
+        from . import turns
+
+        task, _, _ = self._context(task_id, db)
+        sample = db.execute('SELECT status,finalized FROM acquisition_samples WHERE task_id=? AND repeat_index=?',
+                            (task_id, repeat_index)).fetchone()
+        if sample is None:
+            return [], False
+        config, runtime = turns.context(db, task_id)
+        multiple = bool(config and config['multiple'])
+        if sample['finalized'] or not monitoring_config(task).get('isolated'):
+            return self.frames(task_id, repeat_index=repeat_index, turn_index=turn_index, connection=db,
+                               verify_points=True, **filters), False
+        if (sample['status'] != 'collecting' or repeat_index != task['current_repeat_index']
+                or task['status'] not in {'burn', 'dark', 'pre_excitation', 'between_repeats', 'countdown'}):
+            return [], False
+
+        state = get_monitoring_state(db, task_id)
+        if state['awaiting_intervention']:
+            return [], False
+        current_turn = runtime['turn_index'] if multiple else 0
+        target_turn = turn_index if multiple else 0
+        attempt = state['accepted_attempts'].get(attempt_key(repeat_index, target_turn))
+        if attempt is None and target_turn == current_turn:
+            attempt = state['attempt']
+        if attempt is None:
+            return [], False
+
+        if multiple:
+            damaged = db.execute('SELECT 1 FROM acquisition_turn_frames WHERE task_id=? AND repeat_index=? '
+                                 'AND turn_index=? AND attempt=? AND damaged=1',
+                                 (task_id, repeat_index, turn_index, attempt)).fetchone()
+            rows = [] if damaged else turns.frames(db, task_id, repeat_index, turn_index=turn_index,
+                                                   attempt=attempt, **filters)
+        else:
+            damaged = db.execute('SELECT 1 FROM acquisition_attempt_frames WHERE task_id=? AND repeat_index=? '
+                                 'AND attempt=? AND damaged=1', (task_id, repeat_index, attempt)).fetchone()
+            rows = [] if damaged else self.frames(task_id, repeat_index=repeat_index, turn_index=turn_index,
+                                                  connection=db, verify_points=True, observation_attempt=attempt, **filters)
+        return rows, True
+
     def frames(
         self,
         task_id: int,
@@ -765,8 +984,11 @@ class AcquisitionRepository:
         include_points: bool = False,
         turn_index: int | None = None,
         frame_index: int | None = None,
+        verify_points: bool = False,
+        evidence: bool = False,
+        connection: sqlite3.Connection | None = None,
+        observation_attempt: int | None = None,
     ) -> list[dict[str, Any]]:
-        task, _, _ = self._context(task_id)
         where = ["task_id=?"]
         args: list[Any] = [task_id]
         if repeat_index is not None:
@@ -783,10 +1005,12 @@ class AcquisitionRepository:
         if frame_index is not None:
             where.append("frame_index=?")
             args.append(frame_index)
-        with self.database.read() as db:
+        with (self.database.read() if connection is None else nullcontext(connection)) as db:
+            task, _, _ = self._context(task_id, db)
             from .turns import frames
             turn_frames = frames(db, task_id, repeat_index, phase, ccd_index, include_points,
-                                 turn_index=turn_index, frame_index=frame_index)
+                                 turn_index=turn_index, frame_index=frame_index,
+                                 published_task=None if evidence else task)
             if turn_frames is not None:
                 return turn_frames
             from .turns import context
@@ -796,19 +1020,30 @@ class AcquisitionRepository:
                 capture_turn = {'turn_index': 0, 'angle_deg': config['plan'][0]['angle_deg']}
             if turn_index is not None and (not capture_turn or capture_turn['turn_index'] != turn_index):
                 return []
+            isolated = monitoring_config(task).get('isolated')
+            table = 'acquisition_attempt_frames' if isolated and (evidence or observation_attempt is not None) else 'acquisition_frames'
+            if observation_attempt is not None:
+                where.append('attempt=?')
+                args.append(observation_attempt)
             rows = db.execute(
-                f"SELECT * FROM acquisition_frames WHERE {' AND '.join(where)} ORDER BY repeat_index, phase, frame_index, ccd_index",
+                f"SELECT * FROM {table} WHERE {' AND '.join(where)} ORDER BY repeat_index, phase, frame_index, ccd_index",
                 args,
             ).fetchall()
             result = []
             for row in rows:
                 item = dict(row)
+                if table == 'acquisition_attempt_frames':
+                    item['monitoring'] = json.loads(item.pop('monitoring_json'))
                 if capture_turn:
                     item.update(turn_index=capture_turn['turn_index'], angle_deg=capture_turn['angle_deg'])
                 if include_points and row["points_blob"] is not None:
-                    item["points"] = _unpack_uint16(row["points_blob"], int(row["points_count"]))
-                    if frame_index is not None and hashlib.sha256(row['points_blob']).hexdigest() != row['points_sha256']:
+                    if (verify_points or frame_index is not None) and (
+                        row['dtype'] != 'uint16' or row['endianness'] != 'little'
+                        or row['points_count'] <= 0 or len(row['points_blob']) != row['points_count'] * 2
+                        or hashlib.sha256(row['points_blob']).hexdigest() != row['points_sha256']
+                    ):
                         raise AcquisitionError('acquisition_frame_integrity_failed', '采集原始帧校验失败')
+                    item["points"] = _unpack_uint16(row["points_blob"], int(row["points_count"]))
                 item.pop("points_blob", None)
                 result.append(item)
             return result
@@ -1036,28 +1271,27 @@ class AcquisitionRepository:
             from .turns import decoded_bands
             return [row for row in decoded_bands(db, sample_id, include_points) if ccd_index is None or row['ccd_index'] == ccd_index]
 
-    def spectrum_records(self) -> list[dict[str, Any]]:
-        """Public read-side metadata for completed, immutable acquisition samples."""
-        with self.database.read() as db:
-            return [
-                dict(row)
-                for row in db.execute(
-                    (
-                        "SELECT s.id, s.task_id, s.repeat_index, s.sample_name, s.result_sha256, s.completed_at, s.storage_mode,"
-                        " t.name AS task_name, t.task_kind, t.method_id, t.method_version,"
-                        " t.burn_frame_count, t.dark_frame_count, t.ccd_indices_json, t.simulator_json, l.points_per_ccd,"
-                        " CASE WHEN t.task_kind='evaporation' AND t.sample_kind!='preheat'"
-                        " AND json_extract(t.excitation_condition_json, '$.capture_turn.multiple')"
-                        " THEN json_extract(t.excitation_condition_json, '$.capture_turn') END AS capture_turn_json "
-                        "FROM acquisition_samples s JOIN acquisition_tasks t ON t.id=s.task_id "
-                        "JOIN ccd_layouts l ON l.id=t.ccd_layout_id "
-                        "WHERE s.finalized=1 AND s.status='completed' "
-                        "AND NOT EXISTS(SELECT 1 FROM acquisition_sample_disposals d WHERE d.sample_id=s.id) ORDER BY s.id DESC"
-                    )
-                )
-            ]
+    @staticmethod
+    def spectrum_index_sql() -> str:
+        """Composable metadata for completed, published samples."""
+        return """SELECT s.id, s.task_id, s.repeat_index, s.sample_name, s.result_sha256, s.completed_at, s.storage_mode,
+            t.name AS task_name, t.task_kind, t.method_id, t.method_version,
+            t.burn_frame_count, t.dark_frame_count, t.ccd_indices_json, t.simulator_json, l.points_per_ccd,
+            CASE WHEN json_type(t.simulator_json, '$.source_frame_count') IS NULL THEN t.burn_frame_count
+                ELSE json_extract(t.simulator_json, '$.source_frame_count') END AS frame_count,
+            CASE WHEN t.task_kind='evaporation' AND t.sample_kind!='preheat'
+                AND json_extract(t.excitation_condition_json, '$.capture_turn.multiple')
+                THEN json_extract(t.excitation_condition_json, '$.capture_turn') END AS capture_turn_json
+            FROM acquisition_samples s JOIN acquisition_tasks t ON t.id=s.task_id
+            JOIN ccd_layouts l ON l.id=t.ccd_layout_id
+            WHERE s.finalized=1 AND s.status='completed'
+                AND NOT EXISTS(SELECT 1 FROM acquisition_sample_disposals d WHERE d.sample_id=s.id)"""
 
-    def spectrum_snapshot(self, sample_id: int, *, include_frames: bool = False) -> dict[str, Any]:
+    def spectrum_records(self) -> list[dict[str, Any]]:
+        with self.database.read() as db:
+            return [dict(row) for row in db.execute(self.spectrum_index_sql() + " ORDER BY s.id DESC")]
+
+    def spectrum_snapshot(self, sample_id: int, *, include_frames: bool = False, band_position: int | None = None) -> dict[str, Any]:
         with self.database.read() as db:
             row = db.execute(
                 (
@@ -1073,12 +1307,19 @@ class AcquisitionRepository:
             sample = dict(row)
             from .turns import context
             config, _ = context(db, sample['task_id'])
+            from .turns import decoded_bands
+            bands = decoded_bands(db, sample_id, include_points=True, band_position=band_position)
+        frames = []
+        if include_frames and (band_position is None or 0 <= band_position < len(bands)):
+            selection = {} if band_position is None else {
+                'ccd_index': bands[band_position]['ccd_index'], 'turn_index': bands[band_position].get('turn_index')
+            }
+            frames = self.frames(sample['task_id'], repeat_index=sample['repeat_index'],
+                                 include_points=True, verify_points=True, **selection)
         return {
             "sample": sample,
-            "bands": self.band(sample_id, include_points=True),
-            "frames": self.frames(sample["task_id"], repeat_index=sample["repeat_index"], include_points=True)
-            if include_frames
-            else [],
+            "bands": bands,
+            "frames": frames,
             'turns': config,
         }
 

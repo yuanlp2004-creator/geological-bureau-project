@@ -1,13 +1,42 @@
 import {useEffect,useState} from 'react'
 import {request} from '../../api/client'
+import type { AnalysisOptions } from '../../api/analysis'
 import {saveFile} from '../../platform/files'
 import { Download, FileText, Printer } from 'lucide-react'
 
-type Options={save_intensity:boolean;print_intensity:boolean;print_to_text:boolean;save_positions:boolean}
+export type IntensityOutputOptions = NonNullable<AnalysisOptions['intensity_output_defaults']>
+export type IntensityOutputFile = { filename: string; content_base64: string; media_type: string }
+type IntensityOutputResult = {
+  files: IntensityOutputFile[]
+  method_draft?: { latest_version: number }
+  print_job?: { status: string }
+}
+
+export const initialIntensityOutputOptions: IntensityOutputOptions = {
+  save_intensity: true, print_intensity: false, print_to_text: false, save_positions: false,
+}
+
+export function requestIntensityOutput(token: string, runId: number, options: IntensityOutputOptions, timeoutMs?: number) {
+  return request<IntensityOutputResult>(`/api/v1/analyses/runs/${runId}/intensity-output`, {
+    method: 'POST', timeoutMs, headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(options),
+  })
+}
+
+export function saveIntensityFile(file: IntensityOutputFile) {
+  const bytes = Uint8Array.from(atob(file.content_base64), char => char.charCodeAt(0))
+  return saveFile(new Blob([bytes], { type: file.media_type }), file.filename)
+}
+
+export function saveIntensityDefaults(token: string, options: IntensityOutputOptions) {
+  return request<IntensityOutputOptions>('/api/v1/analyses/intensity-output/defaults', {
+    method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(options),
+  })
+}
+
 export function IntensityOutput({token,runId,defaults,canPrint,canSaveMethod,canExecute,allowPositionOutput=true,presentation='analysis',disabled=false,onBusyChange,onToast}: {
-  token:string;runId:number;defaults?:Options;canPrint:boolean;canSaveMethod:boolean;canExecute:boolean;allowPositionOutput?:boolean;presentation?:'analysis'|'report';disabled?:boolean;onBusyChange?:(busy:boolean)=>void;onToast:(text:string)=>void
+  token:string;runId:number;defaults?:IntensityOutputOptions;canPrint:boolean;canSaveMethod:boolean;canExecute:boolean;allowPositionOutput?:boolean;presentation?:'analysis'|'report';disabled?:boolean;onBusyChange?:(busy:boolean)=>void;onToast:(text:string)=>void
 }) {
-  const [options,setOptions]=useState<Options>({save_intensity:true,print_intensity:false,print_to_text:false,save_positions:false})
+  const [options,setOptions]=useState(initialIntensityOutputOptions)
   const [busy,setBusy]=useState(false)
   useEffect(() => {if(defaults)setOptions({...defaults,print_intensity:defaults.print_intensity&&canPrint,save_positions:defaults.save_positions&&canSaveMethod&&allowPositionOutput})},[defaults,canPrint,canSaveMethod,allowPositionOutput])
   useEffect(() => {onBusyChange?.(busy)},[busy,onBusyChange])
@@ -16,11 +45,9 @@ export function IntensityOutput({token,runId,defaults,canPrint,canSaveMethod,can
     if(busy||disabled)return
     setBusy(true)
     try {
-      const result=await request<{files:Array<{filename:string;content_base64:string;media_type:string}>;method_draft?:{latest_version:number};print_job?:{status:string}}>(`/api/v1/analyses/runs/${runId}/intensity-output`,{
-        method:'POST',headers:{Authorization:`Bearer ${token}`},body:JSON.stringify(selected)
-      })
+      const result=await requestIntensityOutput(token,runId,selected)
       let saved=0
-      for(const file of result.files)if(await saveFile(new Blob([Uint8Array.from(atob(file.content_base64),char=>char.charCodeAt(0))],{type:file.media_type}),file.filename))saved++
+      for(const file of result.files)if(await saveIntensityFile(file))saved++
       onToast(`强度输出完成，已保存 ${saved} 个文件${result.print_job?'；打印已提交':''}${result.method_draft?`；位置已保存为方法草稿 v${result.method_draft.latest_version}`:''}`)
     } catch(error){onToast(error instanceof Error?error.message:'强度输出失败')}finally{setBusy(false)}
   }
@@ -32,7 +59,7 @@ export function IntensityOutput({token,runId,defaults,canPrint,canSaveMethod,can
     <button className="secondary-button" disabled={busy || !canExecute} onClick={async()=>{
       if(busy)return
       setBusy(true)
-      try{await request('/api/v1/analyses/intensity-output/defaults',{method:'PUT',headers:{Authorization:`Bearer ${token}`},body:JSON.stringify(options)});onToast('强度输出默认选项已保存')}
+      try{await saveIntensityDefaults(token,options);onToast('强度输出默认选项已保存')}
       catch(error){onToast(error instanceof Error?error.message:'默认选项保存失败')}
       finally{setBusy(false)}
     }}>保存为默认</button></div><small>逐样品、逐重复的峰值/背景宽表；强度文件采用新版格式{allowPositionOutput?'，校正位置保存为待审核的方法草稿':''}。</small></>

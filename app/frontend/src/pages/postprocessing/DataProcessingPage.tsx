@@ -34,23 +34,24 @@ export function DataProcessingPage({
     { id: 'full-time', label: '全时数据', allowed: canReadProcessing }
   ]
   const [actionsTarget, setActionsTarget] = useState<HTMLDivElement | null>(null)
-  const [tab, setTab] = useState<OutputTab>('reports')
-  const outputTab = tabs.find((item) => item.id === tab && item.allowed)?.id ?? tabs.find((item) => item.allowed)?.id
-  useEffect(() => {
-    if (initialView === 'reports' || initialView === 'intensity' || initialView === 'full-time') setTab(initialView)
-  }, [initialView])
+  const outputTab = tabs.find((item) => item.id === initialView && item.allowed)?.id ?? tabs.find((item) => item.allowed)?.id
   const recalculate = page === 'postprocessing'
+  const reportsActive = !recalculate && outputTab === 'reports'
+  const [visitedReports, setVisitedReports] = useState(false)
+  useEffect(() => {
+    if (reportsActive) setVisitedReports(true)
+  }, [reportsActive])
 
   return <div className={`page-content data-processing-page refined-page remaining-page${recalculate ? ' data-processing-recalculate' : ''}`} data-testid="data-processing-page">
     {!recalculate && <div className="output-workspace-toolbar"><nav className="postprocessing-view-tabs" role="tablist" aria-label="打印与导出内容">
       {tabs.filter((item) => item.allowed).map((item) => <button key={item.id} id={`output-tab-${item.id}`}
         type="button" role="tab" aria-selected={outputTab === item.id} aria-controls={`output-panel-${item.id}`}
-        className={outputTab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); onViewChange(item.id) }}
+        className={outputTab === item.id ? 'active' : ''} onClick={() => onViewChange(item.id)}
       >{item.label}</button>)}
     </nav><div ref={setActionsTarget} className="page-file-actions-slot"/></div>}
-    {canReadReports && <div id="output-panel-reports" role="tabpanel" aria-labelledby="output-tab-reports"
-      style={!recalculate && outputTab === 'reports' ? undefined : { display: 'none' }}>
-      <ReportsPage embedded actionsTarget={actionsTarget} actionsActive={!recalculate && outputTab === 'reports'} token={token} canWrite={permissions.includes('reports.write')}
+    {canReadReports && (reportsActive || visitedReports) && <div id="output-panel-reports" role="tabpanel" aria-labelledby="output-tab-reports"
+      hidden={!reportsActive}>
+      <ReportsPage embedded actionsTarget={actionsTarget} actionsActive={reportsActive} token={token} canWrite={permissions.includes('reports.write')}
         source={reportSource} onSourceChange={onReportSourceChange}
         canExport={permissions.includes('reports.export')} canReadAnalysis={canReadAnalysis} onToast={onToast} />
     </div>}

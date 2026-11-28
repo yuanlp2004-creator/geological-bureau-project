@@ -39,10 +39,12 @@ def _target(row):
     }
 
 
-def prepared_collections(database):
-    """Public read boundary used by spectrum viewing, without loading CCD data."""
-    with database.read() as db:
-        return [_target(row) for row in db.execute('SELECT * FROM postprocessing_prepared_targets ORDER BY updated_at DESC')]
+def prepared_collection_index_sql():
+    """Find a sample's collection, preserving the last match of the old catalog order."""
+    return """SELECT json_object('id', target.id, 'name', target.name)
+        FROM postprocessing_prepared_targets target, json_each(target.records_json) record
+        WHERE json_extract(record.value, '$.id') = sample.id
+        ORDER BY target.updated_at, target.rowid DESC LIMIT 1"""
 
 
 def prepared_working_layout(database, source_sha256):

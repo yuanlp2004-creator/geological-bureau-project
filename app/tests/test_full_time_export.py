@@ -53,6 +53,10 @@ def test_calibration_and_full_time_export_keep_fixed_points_and_validate_source(
             interval_start=1, frame_count=2, bands=[ImportedBand(0, count, [first, second], [darks])],
             actor_user_id=None, created_at=utc_now(), burn_cycle_seconds=2, dark_cycle_seconds=4,
         ))
+        db.execute("""INSERT INTO postprocessing_prepared_targets(
+            id, name, storage_mode, layout_json, ignition_json, records_json, created_at, updated_at
+            ) VALUES ('batch', '预备摄谱', 'full_interval', '{}', '{}', ?, ?, ?)""",
+                   (json.dumps([{'id': sample_id}]), utc_now(), utc_now()))
     with TestClient(create_app(config)) as client:
         root = '/api/v1/postprocessing/full-time'
         assert client.get(root).status_code == 401
@@ -65,6 +69,13 @@ def test_calibration_and_full_time_export_keep_fixed_points_and_validate_source(
         records = {item['id']: item for item in client.get(root).json()['sources']}
         assert records[f'raw:{source}']['record_count'] == 2
         assert records[f'task:{task_id}']['record_count'] == 1
+        for group in ('prepared:batch', f'task:{task_id}'):
+            catalog = client.get('/api/v1/spectra/records', params={'group': group, 'limit': 1}).json()
+            assert [item['id'] for item in catalog] == [f'sample:{sample_id}']
+            assert catalog[0]['file_group_key'] == 'prepared:batch'
+        files = client.get('/api/v1/spectra/files', params={'kind': 'sample'}).json()
+        assert {item['key']: item['task_name'] for item in files}['prepared:batch'] == '预备摄谱'
+        assert not any(item['key'] == f'task:{task_id}' for item in files)
 
         for identifier in ('raw:1', f'sample:{sample_id}'):
             response = client.get(f'/api/v1/spectra/{identifier}/calibration?scope=reference&exposure_start=1&exposure_end=2')
@@ -95,6 +106,22 @@ def test_calibration_and_full_time_export_keep_fixed_points_and_validate_source(
             assert client.post(root + '/export', json=payload | {'end_frame': 3}).status_code == 422
         assert client.post(root + '/export', json={'source_id': f'raw:{source}', 'method_version_id': version_id + 1,
                                                   'start_frame': 1, 'end_frame': 2}).status_code == 409
+        point_url = f'/api/v1/spectra/sample:{sample_id}/point-details'
+        audited = client.get(point_url, params={'point': 502})
+        assert audited.is_success, audited.text
+        evidence = audited.json()
+        digest = evidence.pop('sha256')
+        assert digest == sha(json.dumps(evidence, sort_keys=True, ensure_ascii=False).encode('utf-8'))
+        with database.write() as db:
+            db.execute('DROP TRIGGER acquisition_frames_raw_immutable_update')
+            db.execute("UPDATE acquisition_frames SET points_blob=zeroblob(length(points_blob)) "
+                       "WHERE task_id=? AND phase='burn' AND frame_index=0", (task_id,))
+        corrupt = client.get(point_url, params={'point': 502})
+        assert corrupt.status_code == 409
+        assert corrupt.json()['detail']['code'] == 'spectrum_frame_integrity_failed'
+        assert client.post(root + '/export', json={
+            'source_id': f'task:{task_id}', 'method_version_id': version_id, 'start_frame': 1, 'end_frame': 2,
+        }).is_client_error
 
     with database.read() as db:
         assert tuple(db.execute('SELECT burn_adcs_blob, dark_adcs_blob FROM spectrum_bands WHERE id=1').fetchone()) == (burn, dark)

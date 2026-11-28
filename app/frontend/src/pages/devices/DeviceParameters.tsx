@@ -15,7 +15,7 @@ export function DeviceParameters({ token, canWrite, canExecute, canWriteScreen, 
   onSaved: () => void; onToast: (message: string) => void; actionsTarget?: HTMLElement | null; active?: boolean
   onProfileChange?: (profile: DeviceProfile) => void
   revision?: number
-  handoffPurpose?: 'acquisition' | 'dispersion' | 'hardware-acquisition'
+  handoffPurpose?: 'acquisition' | 'dispersion'
 }) {
   useHardwareOwner(token, owner, active)
   const [profiles, setProfiles] = useState<DeviceProfile[]>([])

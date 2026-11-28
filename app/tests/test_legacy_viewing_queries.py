@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import runpy
+import sqlite3
 import pytest
 from fastapi.testclient import TestClient
 from backend.config import AppConfig
@@ -43,6 +44,44 @@ def test_file_directory_and_scope_filter_precede_pagination(tmp_path):
 def test_file_directory_keeps_the_spectrum_read_permission(tmp_path):
     with TestClient(create_app(AppConfig(data_dir=tmp_path))) as client:
         assert client.get('/api/v1/spectra/files').status_code==401
+
+
+def test_catalog_preserves_same_id_order_and_projects_result_summaries_only(tmp_path, monkeypatch):
+    from backend.db import utc_now
+    from backend.modules.dispersion import DispersionService
+    from tests.test_s10_spectrum_viewer import seed_database
+
+    database = seed_database(tmp_path / 'catalog.sqlite3')
+    task = DispersionService(database).create_task({'name': 'Straße'})
+    with database.write() as db:
+        db.execute("UPDATE dispersion_tasks SET status='completed', completed_at=?, condition_json=? WHERE id=?",
+                   (utc_now(), json.dumps({'capture_turn': {'multiple': True, 'group': 'scan', 'angle_deg': 15, 'turn_index': 2}}), task['id']))
+        db.execute("""INSERT INTO dispersion_task_frames(task_id, phase, frame_index, ccd_index, points_blob,
+            points_count, points_sha256, raw_transfer_sha256, raw_byte_length, captured_at)
+            VALUES (?, 'burn', 0, 0, x'0100', 1, 'frame-digest', 'transfer-digest', 2, ?)""", (task['id'], utc_now()))
+        db.execute("""UPDATE result_matrices SET payload_json=json_set(payload_json,
+            '$.sample_names', json('["First","Straße"]'), '$.unused', ?)""", ('x' * 500_000,))
+    viewer = SpectrumViewerService(database)
+    expected = ['raw:1', f"dispersion:{task['id']}", 'result:1']
+    assert [viewer.list(limit=1, offset=offset)[0]['id'] for offset in range(3)] == expected
+    assert [item['id'] for item in viewer.list(angle_deg=15 + 5e-7)] == expected[:2]
+    matches = viewer.list(query='  STRASSE  ', limit=2)
+    assert [item['id'] for item in matches] == expected[1:]
+    assert matches[1]['sample_names'] == ['First', 'Straße']
+    assert 'unused' not in matches[1]
+    assert viewer.list(group='dispersion:scan', limit=1)[0]['turn_index'] == 2
+
+    connect = database.connect
+    excluded = {'payload_json', 'matrix_blob', 'mean_blob', 'burn_adcs_blob', 'dark_adcs_blob', 'points_blob'}
+
+    def light_connection():
+        db = connect()
+        db.set_authorizer(lambda action, table, column, *_:
+                          sqlite3.SQLITE_DENY if action == sqlite3.SQLITE_READ and column in excluded else sqlite3.SQLITE_OK)
+        return db
+
+    monkeypatch.setattr(database, 'connect', light_connection)
+    assert [item['id'] for item in viewer.files()] == expected
 
 
 def test_dispersion_page_offsets_keep_older_records(tmp_path):

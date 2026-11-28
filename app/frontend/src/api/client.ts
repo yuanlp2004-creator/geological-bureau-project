@@ -13,9 +13,69 @@ export class ApiError extends Error {
   }
 }
 
-export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?: number }): Promise<Response> {
+type TransportInit = RequestInit & { timeoutMs?: number }
+type Startup = { controller: AbortController; promise: Promise<Response>; waiters: number }
+let backend: { ready: boolean; startup?: Startup } = { ready: false }
+
+export function resetBackendReady() {
+  backend.startup?.controller.abort()
+  backend = { ready: false }
+}
+
+export async function ensureBackendReady(signal?: AbortSignal): Promise<void> {
   const runtime = await desktopRuntime()
-  const endpoint = runtime && path.startsWith('/') ? `${runtime.api_base}${path}` : path
+  signal?.throwIfAborted()
+  const state = backend
+  if (!runtime || state.ready) return
+
+  if (!state.startup) {
+    const controller = new AbortController()
+    state.startup = {
+      controller,
+      promise: sendRequest('/health', { signal: controller.signal }, true),
+      waiters: 0
+    }
+  }
+  const startup = state.startup
+  startup.waiters += 1
+  let abort: (() => void) | undefined
+  try {
+    await new Promise<void>((resolve, reject) => {
+      abort = () => reject(signal?.reason)
+      signal?.addEventListener('abort', abort, { once: true })
+      startup.promise.then(() => resolve(), reject)
+    })
+  } finally {
+    if (abort) signal?.removeEventListener('abort', abort)
+    startup.waiters -= 1
+    if (startup.waiters === 0) {
+      state.startup = undefined
+      startup.controller.abort()
+    }
+  }
+}
+
+function waitForStartupRetry(signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const done = () => {
+      window.clearTimeout(timer)
+      signal.removeEventListener('abort', done)
+      resolve()
+    }
+    const timer = window.setTimeout(done, 100)
+    signal.addEventListener('abort', done, { once: true })
+  })
+}
+
+export function requestRaw(path: string, init?: TransportInit): Promise<Response> {
+  return sendRequest(path, init)
+}
+
+async function sendRequest(path: string, init?: TransportInit, waitForStartup = false): Promise<Response> {
+  const state = backend
+  const runtime = await desktopRuntime()
+  const localBackend = runtime && path.startsWith('/')
+  const endpoint = localBackend ? `${runtime.api_base}${path}` : path
   const { timeoutMs = 8000, ...fetchInit } = init ?? {}
   const requestInit = {
     ...fetchInit,
@@ -25,29 +85,30 @@ export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?
       ...(init?.headers ?? {})
     }
   }
-  let response: Response | null = null
-  let lastError: unknown = null
+  let response: Response
   const readOnly = ['GET', 'HEAD'].includes((init?.method ?? 'GET').toUpperCase())
   // Only safe reads may wait for sidecar startup. A lost response must never
   // cause a command that may already have committed to be sent again.
-  const attempts = runtime && readOnly ? 80 : 1
+  const attempts = waitForStartup ? 80 : 1
   const controller = new AbortController()
   const abort = () => controller.abort(init?.signal?.reason)
   init?.signal?.addEventListener('abort', abort, { once: true })
   if (init?.signal?.aborted) abort()
   const timeout = window.setTimeout(() => controller.abort(new DOMException('请求超时', 'TimeoutError')), timeoutMs)
   try {
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
+    for (let attempt = 1; ; attempt += 1) {
       controller.signal.throwIfAborted()
       try {
         response = await fetch(endpoint, { ...requestInit, signal: controller.signal })
+        controller.signal.throwIfAborted()
+        if (localBackend) state.ready = true
         break
       } catch (error) {
-        lastError = error
         if (controller.signal.aborted) throw controller.signal.reason
         if (!readOnly)
           throw new ApiError('未能确认操作结果，请刷新查看当前状态后再决定是否重试', 0, 'request_outcome_unknown')
-        if (attempt + 1 < attempts) await new Promise((resolve) => window.setTimeout(resolve, 100))
+        if (state.ready || attempt === attempts) throw error
+        await waitForStartupRetry(controller.signal)
       }
     }
   } catch (error) {
@@ -59,7 +120,6 @@ export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?
     window.clearTimeout(timeout)
     init?.signal?.removeEventListener('abort', abort)
   }
-  if (!response) throw lastError instanceof Error ? lastError : new Error('本地服务启动超时')
   if (!response.ok) {
     const body = await response.text()
     try {
@@ -83,7 +143,7 @@ export async function requestRaw(path: string, init?: RequestInit & { timeoutMs?
   return response
 }
 
-export async function request<T>(path: string, init?: RequestInit & { timeoutMs?: number }): Promise<T> {
+export async function request<T>(path: string, init?: TransportInit): Promise<T> {
   const response = await requestRaw(path, init)
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>

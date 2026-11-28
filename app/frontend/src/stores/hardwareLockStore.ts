@@ -13,6 +13,11 @@ export function useHardwareLock() {
   return useSyncExternalStore(hardwareLockStore.subscribe, hardwareLockStore.getSnapshot)
 }
 
+export function useHardwareStopRetry(owner: string, taskId?: number) {
+  const { status } = useHardwareLock()
+  return status === 'stop_unconfirmed' && hardwareLockStore.canRetryStop(owner, taskId)
+}
+
 export function useHardwareOwner(token: string, owner: string, active: boolean, recovery?: CaptureRecovery) {
   useLayoutEffect(() => {
     if (active) return () => hardwareLockStore.abandonOwner(token, owner, recovery)

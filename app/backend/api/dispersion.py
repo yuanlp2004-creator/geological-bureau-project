@@ -93,11 +93,12 @@ def dispersion_error(exc: DispersionError) -> HTTPException:
 def dispersion_options(
     _: Session = Depends(require_permission("dispersion.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
-    analysis = runtime.service.get_settings()['analysis']
+    settings = runtime.service.get_settings()
+    analysis = settings['analysis']
     nominal, error = analysis['dispersion_nominal_gap_um'], analysis['dispersion_allow_gap_error_um']
     return {**runtime.dispersion_service().options(),
             'gap_limits_um': [max(0, nominal-error), min(10000, nominal+error)],
-            "preliminary_defaults": runtime.service.get_settings()["preliminary"]["dispersion"]}
+            "preliminary_defaults": settings["preliminary"]["dispersion"]}
 
 
 @router.put("/api/v1/dispersion/defaults", tags=["dispersion"])
@@ -204,8 +205,6 @@ def start_dispersion_task(
         current = service.get_task(task_id)
         require_activation(runtime, begins_new_work=lambda: current["status"] == "draft" or (
             continuous and any(item["status"] == "draft" for item in current.get("capture_turns", []))))
-        if not current.get('active_capture_id') and current['profile']['transport'] == 'serial':
-            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
         task = service.start_sequence(task_id, session.user_id) if continuous else service.start_task(task_id, session.user_id)
         return runtime.messages.task(task, source='dispersion', category='acquisition')
     except (DispersionError, DeviceError) as exc:
@@ -222,9 +221,6 @@ def preheat_dispersion_task(
     require_activation(runtime)
     try:
         service = runtime.dispersion_service()
-        current = service.get_task(task_id)
-        if current['profile']['transport'] == 'serial':
-            runtime.devices_service().release_for_capture(current['device_profile_id'], session.user_id)
         return runtime.messages.task(service.preheat_task(task_id, session.user_id), source='dispersion', category='acquisition')
     except (DispersionError, DeviceError) as exc:
         raise dispersion_error(exc) from exc

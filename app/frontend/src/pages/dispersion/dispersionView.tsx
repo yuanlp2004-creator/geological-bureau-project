@@ -23,25 +23,6 @@ export const statusLabels: Record<string, string> = {
   stopped: '已停止'
 }
 
-export type CurveGeometry = { path: string; minimum: number; maximum: number }
-
-export function curveGeometry(points: number[]): CurveGeometry {
-  if (!points.length) return { path: '', minimum: 0, maximum: 1 }
-  const stride = Math.max(1, Math.ceil(points.length / 800))
-  const visible = points.filter((_, index) => index % stride === 0)
-  const minimum = Math.min(...visible)
-  const maximum = Math.max(...visible)
-  const span = Math.max(maximum - minimum, 1)
-  const path = visible
-    .map((value, index) => {
-      const x = ((index * stride) / Math.max(points.length - 1, 1)) * 1000
-      const y = 248 - ((value - minimum) / span) * 224
-      return `${index ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`
-    })
-    .join(' ')
-  return { path, minimum, maximum }
-}
-
 export type PositionMarker = {
   key: string
   kind: 'expected' | 'located'

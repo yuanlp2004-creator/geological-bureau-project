@@ -1,4 +1,4 @@
-"""Read-only observation of a committed sample acquisition frame."""
+"""Read-only observation of a sample acquisition frame."""
 from functools import cache
 
 from ..acquisition import AcquisitionError
@@ -14,26 +14,28 @@ def observe_frame(database, methods, acquisition, task_id, repeat_index, turn_in
     turn = next((item for item in turns['plan'] if item['turn_index'] == turn_index), None) if turns else None
     if (turns and not turn) or (not turns and turn_index != 0):
         raise AcquisitionError('acquisition_measurement_turn_invalid', '所选转角不属于当前任务')
-    scope = {'repeat_index': repeat_index, 'turn_index': turn_index if turns else None, 'include_points': True}
-    frames = acquisition.frames(task_id, phase='burn', frame_index=frame_index, **scope)
-    selected = next((frame for frame in frames if frame['ccd_index'] == ccd), None)
-    if selected is None:
-        raise AcquisitionError('acquisition_measurement_frame_missing', '所选 CCD 的燃烧帧尚未保存', status_code=404)
-    result = {'frame_index': frame_index, 'repeat_index': repeat_index, 'turn_index': turn_index, 'ccd_index': ccd,
-              'points': selected.get('points') or [], 'frame_sha256': selected.get('points_sha256'),
-              'method_name': None, 'method_version': None, 'rows': [], 'message': None}
-    if selected['damaged'] or not result['points']:
-        return result | {'message': '该帧损坏或缺少完整原始点，无法估值'}
-    if not can_analyze:
-        return result | {'message': '需要分析读取权限才能查看谱线诊断和参考含量'}
-    if not task['method_version_id']:
-        return result | {'message': '该摄谱任务没有绑定已发布方法'}
-
-    raw = {row['ccd_index']: row['points'] for row in frames if not row['damaged'] and row.get('points')}
-    dark_count = int(task['dark_frame_count'])
-
     with database.read() as db:
         db.execute('BEGIN')
+        rows, _ = acquisition.measurement_frames(
+            db, task_id, repeat_index, turn_index if turns else None,
+            phase='burn', frame_index=frame_index, include_points=True,
+        )
+        selected = next((frame for frame in rows if frame['ccd_index'] == ccd), None)
+        if selected is None:
+            raise AcquisitionError('acquisition_measurement_frame_missing', '所选 CCD 的燃烧帧尚未保存', status_code=404)
+        result = {'frame_index': frame_index, 'repeat_index': repeat_index, 'turn_index': turn_index, 'ccd_index': ccd,
+                  'points': selected.get('points') or [], 'frame_sha256': selected.get('points_sha256'),
+                  'method_name': None, 'method_version': None, 'rows': [], 'message': None}
+        if selected['damaged'] or not result['points']:
+            return result | {'message': '该帧损坏或缺少完整原始点，无法估值'}
+        if not can_analyze:
+            return result | {'message': '需要分析读取权限才能查看谱线诊断和参考含量'}
+        if not task['method_version_id']:
+            return result | {'message': '该摄谱任务没有绑定已发布方法'}
+
+        raw = {row['ccd_index']: row['points'] for row in rows if not row['damaged'] and row.get('points')}
+        dark_count = int(task['dark_frame_count'])
+
         version = methods.bind_snapshots(db).by_id(task['method_version_id'], published_only=True)
         if version is None:
             return result | {'message': '摄谱任务绑定的方法版本不可用'}
@@ -54,10 +56,15 @@ def observe_frame(database, methods, acquisition, task_id, repeat_index, turn_in
             return raw.get(index)
 
         @cache
-        def frame_indices(line_turn, index, phase):
-            rows = acquisition.frames(task_id, phase=phase, repeat_index=repeat_index, ccd_index=index,
-                                      turn_index=line_turn if turns else None)
-            return {row['frame_index'] for row in rows if not row['damaged'] and row.get('points_sha256')}
+        def reference_frames(line_turn, index):
+            rows, provisional = acquisition.measurement_frames(
+                db, task_id, repeat_index, line_turn if turns else None, ccd_index=index, include_points=True,
+            )
+            by_phase = {'burn': {}, 'dark': {}}
+            for row in rows:
+                if not row['damaged'] and row.get('points'):
+                    by_phase[row['phase']][row['frame_index']] = row['points']
+            return by_phase, provisional
 
         def estimate_values(line_turn, index, interval):
             line_plan = turns['plan'][line_turn] if turns else None
@@ -65,10 +72,16 @@ def observe_frame(database, methods, acquisition, task_id, repeat_index, turn_in
             if line_turn == turn_index and frame_index + 1 < end:
                 raise AnalysisError('analysis_frame_exposure_incomplete',
                                     f'第 {frame_index + 1} 帧尚未覆盖方法曝光区间 {start}–{end}')
-            if not set(range(start - 1, end)) <= frame_indices(line_turn, index, 'burn'):
+            frames, provisional = reference_frames(line_turn, index)
+            burn_indices = range(start - 1, end)
+            if not set(burn_indices) <= frames['burn'].keys():
                 raise AnalysisError('analysis_frame_exposure_incomplete', f'方法曝光区间 {start}–{end} 的燃烧帧未收齐或有损坏')
-            if dark_count and not set(range(dark_count)) <= frame_indices(line_turn, index, 'dark'):
+            dark_indices = range(dark_count)
+            if not set(dark_indices) <= frames['dark'].keys():
                 raise AnalysisError('analysis_frame_dark_pending', '暗帧未收齐或有损坏，无法完成扣暗')
+            if provisional:
+                return acquisition.measurement_interval(task, [frames['burn'][i] for i in burn_indices],
+                                                        [frames['dark'][i] for i in dark_indices])
             return acquisition.interval_band(db, selected['sample_id'], index, (start, end),
                                              turn_index=line_turn if turns else None, allow_single_frame=True)['points']
 

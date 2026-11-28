@@ -8,6 +8,7 @@ import time
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
+from sqlite3 import Connection
 from typing import Any
 
 from pydantic import BaseModel, ValidationError
@@ -20,7 +21,6 @@ from .schemas.system import (
     SettingsLogging,
     SettingsPatch,
     SettingsPrinting,
-    SettingsResponse,
     SettingsTime,
     SettingsAnalysis,
     SettingsPreliminary,
@@ -89,37 +89,31 @@ class AppService:
         self._log_lock = threading.Lock()
         self.started_at = time.monotonic()
 
-    def get_settings(self) -> dict[str, dict[str, Any]]:
+    def get_settings(self, *, connection: Connection | None = None) -> dict[str, dict[str, Any]]:
         result = {group: values.copy() for group, values in DEFAULT_SETTINGS.items()}
-        with self.database.read() as connection:
-            rows = connection.execute("SELECT key, value_json FROM app_settings").fetchall()
-        invalid: list[tuple[str, str, str]] = []
+        with (self.database.read() if connection is None else nullcontext(connection)) as db:
+            rows = db.execute("SELECT key, value_json FROM app_settings").fetchall()
         for row in rows:
-            key = str(row["key"])
-            raw_value = str(row["value_json"])
-            try:
-                group, name = key.split(".", 1)
-            except ValueError:
-                invalid.append((key, raw_value, "invalid_key"))
-                continue
-            if group not in result or name not in DEFAULT_SETTINGS[group]:
-                invalid.append((key, raw_value, "unknown_setting"))
+            group, _, name = str(row["key"]).partition(".")
+            if name not in result.get(group, {}) or name in FIXED_SETTING_NAMES.get(group, ()):
                 continue
             try:
-                value = json.loads(raw_value)
-            except json.JSONDecodeError:
-                invalid.append((key, raw_value, "invalid_json"))
+                result[group][name] = json.loads(str(row["value_json"]))
+            except (ValueError, RecursionError):
                 continue
-            candidate = {**result[group], name: value}
+
+        for group, model in SETTING_MODELS.items():
+            values = result[group]
             try:
-                validated = SETTING_MODELS[group].model_validate(candidate).model_dump()
-                if name not in FIXED_SETTING_NAMES.get(group, ()):
-                    result[group] = validated
-            except ValidationError:
-                invalid.append((key, raw_value, "invalid_value"))
-        if invalid:
-            self._repair_invalid_settings(invalid)
-        return SettingsResponse.model_validate(result).model_dump()
+                validated = model.model_validate(values)
+            except ValidationError as exc:
+                for error in exc.errors(include_input=False):
+                    # Each row stores one group field, including nested objects.
+                    name = error["loc"][0]
+                    values[name] = DEFAULT_SETTINGS[group][name]
+                validated = model.model_validate(values)
+            result[group] = validated.model_dump()
+        return result
 
     def save_preliminary_conditions(self, kind: str, conditions: PreliminaryConditions, actor_user_id: int, *, connection=None) -> dict:
         """Public settings boundary used by each acquisition workflow with its own permission."""
@@ -129,35 +123,18 @@ class AppService:
             "preliminary": {kind: conditions.model_dump()}
         }), actor_user_id, connection=connection)["preliminary"][kind]
 
-    def _repair_invalid_settings(self, invalid: list[tuple[str, str, str]]) -> None:
-        """Remove only still-current invalid rows and leave an auditable repair record."""
-
-        repaired: list[dict[str, str]] = []
-        with self.database.write() as connection:
-            for key, raw_value, reason in invalid:
-                cursor = connection.execute(
-                    "DELETE FROM app_settings WHERE key=? AND value_json=?",
-                    (key, raw_value),
-                )
-                if cursor.rowcount:
-                    repaired.append({"key": key, "reason": reason})
-            if repaired:
-                connection.execute(
-                    "INSERT INTO audit_events(actor_user_id, action, target_type, target_id, details_json, created_at) "
-                    "VALUES (NULL, 'settings.invalid_value.repair', 'settings', NULL, ?, ?)",
-                    (json.dumps({"repaired": repaired}, ensure_ascii=False), utc_now()),
-                )
-
-    def update_settings(self, patch: SettingsPatch, actor_user_id: int | None = None, *, connection=None) -> dict[str, dict[str, Any]]:
+    def update_settings(
+        self, patch: SettingsPatch, actor_user_id: int | None = None, *, connection: Connection | None = None
+    ) -> dict[str, dict[str, Any]]:
         external_transaction = connection is not None
         update_data = patch.model_dump(exclude_none=True)
         unknown = set(update_data).difference(ALLOWED_SETTING_GROUPS)
         if unknown:
             raise ValueError(f"unknown settings group: {sorted(unknown)[0]}")
-        current = self.get_settings()
-        before = {group: values.copy() for group, values in current.items()}
-        now = utc_now()
         with (self.database.write() if connection is None else nullcontext(connection)) as connection:
+            current = self.get_settings(connection=connection)
+            before = {group: current[group].copy() for group in update_data}
+            now = utc_now()
             for group, values in update_data.items():
                 if not isinstance(values, dict):
                     raise ValueError(f"settings group must be an object: {group}")
@@ -181,7 +158,7 @@ class AppService:
                         self._redact(
                             {
                                 "changed_groups": sorted(update_data),
-                                "before": {group: before[group] for group in update_data},
+                                "before": before,
                                 "after": {group: current[group] for group in update_data},
                             }
                         ),
@@ -227,7 +204,7 @@ class AppService:
         return value
 
     def _append_file_log(self, event: dict[str, Any]) -> None:
-        settings = self.get_settings()["logging"]
+        settings = DEFAULT_SETTINGS["logging"]
         configured_level = str(settings.get("level", "info")).lower()
         threshold = LOG_LEVEL_PRIORITY.get(configured_level, LOG_LEVEL_PRIORITY["info"])
         event_level = LOG_LEVEL_PRIORITY.get(str(event.get("severity", "info")).lower(), LOG_LEVEL_PRIORITY["info"])

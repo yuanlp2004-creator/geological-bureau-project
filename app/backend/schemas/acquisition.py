@@ -4,7 +4,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class SampleSessionCreate(BaseModel):
+class AcquisitionMonitoringOptions(BaseModel):
+    anomaly_policy: Literal["warn", "stop", "manual"] = "warn"
+    retry_limit: int = Field(default=0, ge=0, le=5, strict=True)
+    thresholds: dict[str, float] | None = None
+    search_radius_points: int | None = Field(default=None, ge=1, le=1024, strict=True)
+
+
+class SampleSessionCreate(AcquisitionMonitoringOptions):
     model_config = ConfigDict(extra='forbid')
     name: str = Field(min_length=1, max_length=120)
 
@@ -17,7 +24,7 @@ class SampleSessionCreate(BaseModel):
         return value
 
 
-class AcquisitionTaskCreate(BaseModel):
+class AcquisitionTaskCreate(AcquisitionMonitoringOptions):
     # 旧客户端字段保留兼容；样品的已有方法条件始终优先，不再提供切换语义。
     use_method_conditions: bool = True
     use_method_intervals: bool = False
@@ -51,6 +58,62 @@ class AcquisitionTaskCreate(BaseModel):
     simulator_sample: str = Field(default="280-288.acq", min_length=1, max_length=100)
     seed: int = Field(default=0, ge=0, le=2_147_483_647)
     fault_frame: int | None = Field(default=None, ge=0, le=10_000)
+
+
+class AcquisitionIntervention(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["accept", "retry", "stop"]
+    reason: str = Field(min_length=1, max_length=200)
+
+    @field_validator('reason', mode='before')
+    @classmethod
+    def trim_reason(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
+class AcquisitionMonitoringState(BaseModel):
+    model_config = ConfigDict(extra='allow')
+
+    status: Literal['pending', 'unmonitored', 'normal', 'alert', 'retrying', 'manual', 'accepted',
+                    'safety_stopped', 'stop_unconfirmed']
+    attempt: int
+    retry_count: int
+    awaiting_intervention: bool
+    can_accept: bool
+    accept_blocked_reason: str | None
+    last_anomalies: list[str]
+    last_summary: str | None
+
+
+class AcquisitionMonitoringDecision(BaseModel):
+    model_config = ConfigDict(extra='allow')
+
+    id: int
+    repeat_index: int
+    turn_index: int
+    attempt: int
+    frame_index: int
+    anomaly_kinds: list[str]
+    decision: Literal['accept', 'warn', 'correct', 'retry', 'manual', 'stop']
+    correction_offset: float | None
+    reason: str
+
+
+class AcquisitionMonitoringSummary(AcquisitionMonitoringOptions):
+    model_config = ConfigDict(extra='allow')
+
+    monitored: bool
+    state: AcquisitionMonitoringState
+    decisions: list[AcquisitionMonitoringDecision]
+
+
+class AcquisitionInterventionResponse(BaseModel):
+    model_config = ConfigDict(extra='allow')
+
+    id: int
+    status: str
+    monitoring: AcquisitionMonitoringSummary
 
 
 class AcquisitionIntervalMark(BaseModel):

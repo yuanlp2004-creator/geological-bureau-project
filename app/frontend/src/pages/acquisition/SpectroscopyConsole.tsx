@@ -20,7 +20,7 @@ type Props = SpectroscopyStatusInput & {
   children: (detailDock: HTMLElement | null) => ReactNode
   bandTitle?: string; showRepeats?: boolean
   hideIdleTransport?: boolean
-  context?: ReactNode; turnPages?: ReactNode; singleTurn?: Command
+  context?: ReactNode; turnPages?: ReactNode; singleTurn?: Command; monitoring?: ReactNode
 }
 
 const commandIcons = {
@@ -86,6 +86,7 @@ export function SpectroscopyConsole(props: Props) {
         <SpectroscopyToolButton icon="close" label="关闭摄谱工作台" disabled={!finish.enabled} onClick={() => void finish.run()} />
       </div>
     </div>
+    {props.monitoring}
     <div className="legacy-dock-body">
       <div className="legacy-record-dock" hidden={!leftOpen}>
         <LegacyDeskDock.Provider value={{ closeRecords: () => setLeftOpen(false) }}>{props.records}</LegacyDeskDock.Provider>

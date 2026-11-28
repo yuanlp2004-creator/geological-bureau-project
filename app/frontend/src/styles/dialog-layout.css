@@ -119,6 +119,22 @@
 :root .app-shell :is(.analysis-preview-modal, .report-preview-modal) header strong { min-width: 0; overflow-wrap: anywhere; }
 :root .app-shell :is(.analysis-preview-modal, .report-preview-modal) header button { flex: 0 0 auto; }
 :root .app-shell :is(.analysis-preview-modal, .report-preview-modal) iframe { min-height: 0; min-width: 0; }
+:root .app-shell .report-preview-modal > .report-preview-ready { grid-template-rows: auto minmax(0, 1fr) auto; }
+.report-preview-output { border-top: 1px solid var(--line); padding: 8px 14px; }
+.report-preview-output .field-hint { margin: 0 0 6px; }
+.report-preview-tools, .report-preview-tools .report-export-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.report-preview-tools { justify-content: space-between; }
+.report-preview-tools .report-format-actions { margin: 0; }
+.report-preview-tools .field { min-width: 0; }
+.report-preview-tools select { max-width: min(300px, 65vw); }
+.report-technical-details { overflow-wrap: anywhere; }
 @media (max-width: 700px) {
   :root .app-shell dialog.legacy-task-details .spectroscopy-task-summary > div { grid-template-columns: 124px minmax(0, 1fr); gap: 8px; }
   :root .app-shell dialog.legacy-task-details .task-details-progress { grid-template-columns: minmax(0, 1fr); }

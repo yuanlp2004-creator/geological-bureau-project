@@ -14,6 +14,7 @@ import { PreviewFrame } from '../../components/PreviewFrame'
 import type { AnalysisSampleNumber } from '../../api/analysis'
 import { FormDisclosure } from '../../layout/TaskLayout'
 import { AnalysisCurves } from './AnalysisCurves'
+import { AnalysisCalculationDialog } from './AnalysisCalculationDialog'
 import { AnalysisIntervention } from './AnalysisIntervention'
 import { AnalysisQuality } from './AnalysisQuality'
 import { AnalysisRawResults } from './AnalysisRawResults'
@@ -69,6 +70,7 @@ export function AnalysisPage({
   const [preview, setPreview] = useState<{ title: string; html: string } | null>(null)
   const [railCollapsed, setRailCollapsed] = useState(false)
   const [manager, setManager] = useState<'setup' | 'review' | null>(null)
+  const [calculationRunId, setCalculationRunId] = useState<number | null>(null)
   const [paused, setPaused] = useState(false)
   const [spectrumRevision, setSpectrumRevision] = useState(0)
   const visit = useWorkbenchVisit('analysis', { userId, permissionsKey, methodVersionId }, token)
@@ -100,13 +102,7 @@ export function AnalysisPage({
     }
   }, [token, visit])
 
-  // Retain each batch's local view; the old quality deep-link opens the shared review area.
-  const priorStatus = useRef<Record<number, string>>({})
-
   const update = useCallback((next: AnalysisRun) => {
-    if (next.status === 'completed' && ['running', 'paused'].includes(priorStatus.current[next.id]))
-      setViewByRun((current) => ({ ...current, [next.id]: 'curve' }))
-    priorStatus.current[next.id] = next.status
     setSelected(next)
     setRuns((current) =>
       current.some((item) => item.id === next.id)
@@ -213,7 +209,7 @@ export function AnalysisPage({
       if (valid()) onToast(error instanceof Error ? error.message : '无法读取分析批次')
     }
   }
-  const mutate = async (operation: () => Promise<AnalysisRun>, success: string, continuous = false) => {
+  const mutate = async (operation: () => Promise<AnalysisRun>, success: string, measurement?: 'advance' | 'intervene') => {
     if (pending.current) {
       onToast('上一操作仍在完成，请稍后重试')
       return false
@@ -224,13 +220,17 @@ export function AnalysisPage({
       let next = await operation()
       if (!valid()) return false
       update(next)
-      while (continuous && !cancelIntent.current && !next.slow_mode && next.status === 'running' && valid()) {
+      while (measurement === 'advance' && !cancelIntent.current && !next.slow_mode && next.status === 'running' && valid()) {
         if (options?.preferences?.look_band && options.preferences.wait_time_ms>0)
           await new Promise(resolve => window.setTimeout(resolve,options.preferences!.wait_time_ms))
         if (!valid() || cancelIntent.current)break
         next = await api.stepAnalysisRun(token, next.id)
         if (!valid()) return false
         update(next)
+      }
+      if (valid() && measurement && next.status === 'completed') {
+        setManager(null)
+        setCalculationRunId(next.id)
       }
       if (valid() && next.status === 'completed' && !next.quality.latest_snapshot && canQuality) {
         next = await api.recalculateAnalysisQuality(token, next.id)
@@ -270,7 +270,7 @@ export function AnalysisPage({
     }
     cancelIntent.current = false
     setPaused(false)
-    await mutate(() => (action === 'start' ? api.startAnalysisRun : api.stepAnalysisRun)(token, id), '', true)
+    await mutate(() => (action === 'start' ? api.startAnalysisRun : api.stepAnalysisRun)(token, id), '', 'advance')
   }
   const intervene = async (action: 'accept' | 'discard') => {
     if (!selected || !canIntervene) return onToast('当前账户没有人工干预权限')
@@ -283,7 +283,8 @@ export function AnalysisPage({
           adjusted_position: action === 'accept' ? adjustedPosition : null,
           reason
         }),
-      '慢进检查点已处理'
+      '慢进检查点已处理',
+      'intervene'
     )
   }
 
@@ -788,6 +789,19 @@ export function AnalysisPage({
           </header>
           {managerContent}
         </section>
+      )}
+      {selected?.id === calculationRunId && selected.status === 'completed' && !busy && (
+        <AnalysisCalculationDialog
+          key={selected.id} token={token} runId={selected.id} runName={selected.name} defaults={options?.intensity_output_defaults}
+          canPrint={canPrint} canSaveMethod={canSaveMethod} canExecute={canExecute}
+          onClose={() => setCalculationRunId(null)}
+          onDefaultsSaved={defaults => setOptions(current => current && { ...current, intensity_output_defaults: defaults })}
+          onConfirm={() => {
+            setCalculationRunId(null)
+            changeView('curve')
+            setManager('review')
+          }}
+        />
       )}
       {preview && (
         <ViewerDialog title={preview.title} onClose={() => setPreview(null)}>

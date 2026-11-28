@@ -12,6 +12,8 @@ from starlette.websockets import WebSocketDisconnect
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 
+from tests.legacy_history_fixture import RETIRED_PERMISSIONS
+
 
 @pytest.fixture()
 def auth_client(tmp_path, monkeypatch):
@@ -88,13 +90,14 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
             for role in expected
         }
     assert actual == expected
-    assert {"acquisition.execute", "hardware-acquisition.execute", "mercury-calibration.execute"}.isdisjoint(
+    assert all(RETIRED_PERMISSIONS.isdisjoint(grants) for grants in actual.values())
+    assert {"acquisition.execute", "hardware-acquisition.execute"}.isdisjoint(
         expected["method_administrator"]
     )
     assert {"devices.write", "devices.execute"}.isdisjoint(expected["analyst"])
-    assert {"acquisition.execute", "hardware-acquisition.execute", "analysis.execute", "analysis.intervene"}.issubset(
-        expected["analyst"]
-    )
+    legacy_grants = {"hardware-acquisition.read", "hardware-acquisition.execute", "mercury-calibration.read"}
+    assert legacy_grants <= expected["analyst"] and legacy_grants <= expected["system_administrator"]
+    assert {"acquisition.execute", "analysis.execute", "analysis.intervene"} <= expected["analyst"]
 
     with runtime.database.write() as db:
         for role, permission in (("method_administrator", "acquisition.execute"), ("analyst", "devices.execute")):
@@ -120,12 +123,13 @@ def test_builtin_role_matrix_is_exact_and_stale_grants_are_revoked(auth_client) 
     assert {item["operation"] for item in changes} == {"revoke"}
 
 
-def test_existing_database_receives_about_permission_idempotently(auth_client) -> None:
+def test_existing_database_receives_about_permission_idempotently(auth_client, monkeypatch) -> None:
     client, runtime = auth_client
     assert (
         client.post("/api/v1/auth/bootstrap", json={"username": "operator", "password": "correct-horse"}).status_code
         == 201
     )
+    assert runtime.auth_service.synchronize_builtin_permissions() == 0
     with runtime.database.write() as db:
         db.execute(
             "DELETE FROM role_permissions WHERE role_id=(SELECT id FROM roles WHERE name='system_administrator') "
@@ -133,7 +137,19 @@ def test_existing_database_receives_about_permission_idempotently(auth_client) -
         )
 
     assert runtime.auth_service.synchronize_builtin_permissions() == 1
-    assert runtime.auth_service.synchronize_builtin_permissions() == 0
+    statements = []
+    connect = runtime.database.connect
+
+    def traced_connection():
+        connection = connect()
+        connection.set_trace_callback(statements.append)
+        return connection
+
+    with monkeypatch.context() as patch:
+        patch.setattr(runtime.database, "connect", traced_connection)
+        assert runtime.auth_service.synchronize_builtin_permissions() == 0
+    assert len(statements) <= 3
+    assert all(sql.startswith("SELECT") for sql in statements)
     with runtime.database.read() as db:
         restored = db.execute(
             "SELECT 1 FROM role_permissions rp JOIN roles r ON r.id=rp.role_id "
@@ -233,7 +249,7 @@ def test_software_about_and_administrator_diagnostics_permissions(auth_client) -
         diagnostics = client.get("/api/v1/diagnostics", headers=headers)
         if role["name"] == "system_administrator":
             assert diagnostics.status_code == 200
-            assert diagnostics.json()["sqlite_integrity"] == "ok"
+            assert diagnostics.json()["sqlite_integrity"] == "unchecked"
             assert about["database"] and about["build"]
         else:
             assert diagnostics.status_code == 403
@@ -251,13 +267,13 @@ def test_permission_changes_are_audited_and_disabled_users_cannot_login(auth_cli
     role = client.post(
         "/api/v1/roles",
         headers=headers,
-        json={"name": "qc_reviewer", "description": "QC", "permission_keys": ["results.read"]},
+        json={"name": "qc_reviewer", "description": "QC", "permission_keys": ["analysis.read"]},
     )
     assert role.status_code == 201
     role_id = role.json()["id"]
     assert (
         client.patch(
-            "/api/v1/roles/%s" % role_id, headers=headers, json={"permission_keys": ["results.read", "audit.read"]}
+            "/api/v1/roles/%s" % role_id, headers=headers, json={"permission_keys": ["analysis.read", "audit.read"]}
         ).status_code
         == 200
     )

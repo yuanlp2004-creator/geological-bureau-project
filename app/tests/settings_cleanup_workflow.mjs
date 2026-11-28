@@ -22,10 +22,21 @@ export async function checkSettingsCleanup(page, result, output) {
     check('导航和工作台无软件设置入口；历史界面、日志和时区偏好不影响默认行为')
 
     const openMaintenance = () => navigate(page, 'system', '备份与维护', '[data-testid="maintenance-page"]')
-    await openMaintenance()
     const host = page.getByTestId('maintenance-page')
-    await host.getByRole('button', { name: '创建备份', exact: true }).waitFor()
-    await page.waitForFunction(() => !document.querySelector('[data-testid="maintenance-page"] .primary-button')?.disabled)
+    const settingsReads = []
+    const captureSettingsRead = request => {
+      if (request.method() === 'GET' && new URL(request.url()).pathname === '/api/v1/settings') {
+        settingsReads.push(request.response().then(response => response?.finished()))
+      }
+    }
+    page.on('request', captureSettingsRead)
+    try {
+      await openMaintenance()
+      await host.getByRole('button', { name: '创建备份', exact: true }).waitFor()
+      await page.waitForFunction(() => !document.querySelector('[data-testid="maintenance-page"] .primary-button')?.disabled)
+      await Promise.all(settingsReads)
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    } finally { page.off('request', captureSettingsRead) }
     assert.equal(await host.getByText('系统诊断', { exact: true }).count(), 0)
     assert.equal(await host.getByText('保留天数', { exact: true }).count(), 0)
     const directory = host.getByLabel('备份目录', { exact: true })
@@ -74,6 +85,9 @@ export async function checkSettingsCleanup(page, result, output) {
     check('四项分析参数保留；保存失败保留草稿，重试只提交分析参数且不覆盖其他设置')
 
     await page.getByRole('tab', { name: '设备参数', exact: true }).click()
+    const simulator = page.getByRole('checkbox', { name: '模拟设备（用于测试）', exact: true })
+    if (!(await simulator.isChecked())) await simulator.click()
+    await page.getByText('当前使用模拟器，曲线为模拟数据，不连接真实仪器。', { exact: true }).waitFor()
     const screen = page.getByLabel('屏幕宽度（cm）', { exact: true })
     await screen.fill('51')
     await page.getByRole('button', { name: '保存设备参数', exact: true }).click()

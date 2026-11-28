@@ -36,6 +36,8 @@ def load_runtime_resources(*, verify_sources: bool = True) -> dict[str, Any]:
         packaged = RESOURCE_ROOT / relative
         _verify_file(packaged, item, label="packaged")
         if verify_sources:
+            # The PowerShell reader is maintained at item["source"]. Copy it to
+            # the packaged path and update the manifest size and hash together.
             source = REPO_ROOT / Path(str(item.get("source", "")))
             _verify_file(source, item, label="source")
     return payload

@@ -163,13 +163,20 @@ export async function checkLegacyAnalysisLayout(page,result,output){
  await page.route(stepPattern,async route=>{steps++;await new Promise(r=>setTimeout(r,300));await route.continue()})
  await top.getByRole('button',{name:'开始测量',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[aria-label="暂停测量"]').disabled);await top.getByRole('button',{name:'暂停测量',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[aria-label="继续测量"]')?.disabled)
  const pausedAt=steps;await page.waitForTimeout(500);assert.equal(steps,pausedAt);await top.getByRole('button',{name:'继续测量',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[aria-label="选择分析批次"]')?.selectedOptions[0]?.textContent.includes('已完成'));await page.unroute(stepPattern)
- assert.equal((await current()).status,'completed');await menu('曲线与分析结果');const review=page.locator('.analysis-inline-review')
+ assert.equal((await current()).status,'completed')
+ const calculation=page.getByRole('dialog',{name:'分析计算',exact:true}),review=page.locator('.analysis-inline-review')
+ await calculation.waitFor()
+ assert.equal(await review.isVisible(),false)
+ for (const output of await calculation.getByRole('group', { name: '强度输出' }).getByRole('checkbox').all()) {
+  if (await output.isChecked()) await output.uncheck()
+ }
+ await calculation.getByRole('button',{name:'确定',exact:true}).click()
  await review.getByRole('heading',{name:'标准曲线',exact:true}).waitFor()
  assert.equal(await page.locator('dialog[open]').count(),0)
  for(const label of ['曲线图','标准点','样品结果']){await review.getByRole('button',{name:label,exact:true}).click();assert.equal(await review.locator('.analysis-view-tabs .active').innerText(),label)}
  await review.getByRole('button',{name:'返回谱图',exact:true}).click()
  await host.locator('.analysis-desk-spectrum').waitFor()
- check('开始、暂停和继续可完成分析；原曲线、标准点和结果通过操作菜单可用')
+ check('暂停后继续测量可完成分析，自动弹出分析计算，确认后打开标准曲线、标准点和样品结果')
  result.layouts=[]
  for(const [width,height] of [[1440,1000],[1060,680]]){
   await page.evaluate(({width,height})=>window.__TAURI__.core.invoke('plugin:window|set_size',{value:{Logical:{width,height}}}),{width,height});await page.waitForTimeout(200)

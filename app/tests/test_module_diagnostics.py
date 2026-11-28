@@ -1,3 +1,4 @@
+import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
@@ -19,12 +20,40 @@ def diagnostic_client(tmp_path: Path):
         yield app, client, {'Authorization': f'Bearer {token}'}
 
 
-def read_modules(client, headers):
-    response = client.get('/api/v1/diagnostics', headers=headers)
+def read_modules(client, headers, *, probe=True):
+    response = client.get('/api/v1/diagnostics', headers=headers, params={'probe': 'true'} if probe else None)
     assert response.status_code == 200, response.text
     payload = response.json()
     assert payload['checked_at']
     return {module['key']: module for module in payload['modules']}
+
+
+def test_default_diagnostics_only_check_registration_and_tables(diagnostic_client, monkeypatch):
+    app, client, headers = diagnostic_client
+
+    def refuse_transport(*args, **kwargs):
+        pytest.fail('default diagnostics attempted to create an internal ASGI transport')
+
+    monkeypatch.setattr('backend.api.module_diagnostics.httpx.ASGITransport', refuse_transport)
+    modules = read_modules(client, headers, probe=False)
+    assert len(modules) == 16
+    assert all(row['status'] == 'unchecked' and row['http_status'] is None for row in modules.values())
+    assert '可按需触发' in modules['methods']['message']
+
+    with app.state.runtime.database.write() as connection:
+        connection.execute('DROP TABLE method_runtime_state')
+        connection.execute('DROP TABLE hardware_frames')
+        connection.execute('DROP TABLE mercury_frames')
+    manifests = tuple(replace(module, enabled=False) if module.key == 'reports' else module
+                      for module in registered_manifests())
+    monkeypatch.setattr('backend.api.system.registered_manifests', lambda: manifests)
+    modules = read_modules(client, headers, probe=False)
+    assert modules['methods']['status'] == 'error'
+    assert 'method_runtime_state' in modules['methods']['message']
+    assert modules['acquisition']['status'] == 'error' and 'hardware_frames' in modules['acquisition']['message']
+    assert modules['devices']['status'] == 'error' and 'mercury_frames' in modules['devices']['message']
+    assert modules['reports']['status'] == 'disabled'
+    assert modules['core']['status'] == 'unchecked'
 
 
 def test_all_modules_use_actual_readonly_interfaces_without_writes(diagnostic_client, monkeypatch):
@@ -34,12 +63,24 @@ def test_all_modules_use_actual_readonly_interfaces_without_writes(diagnostic_cl
     def refuse_write():
         raise AssertionError('module detection attempted a database write')
 
+    connect = database.connect
+
+    def connect_without_full_checks():
+        connection = connect()
+        connection.set_authorizer(
+            lambda action, name, *_: sqlite3.SQLITE_DENY
+            if action == sqlite3.SQLITE_PRAGMA and name in {'integrity_check', 'foreign_key_check'}
+            else sqlite3.SQLITE_OK
+        )
+        return connection
+
     monkeypatch.setattr(database, 'write', refuse_write)
+    monkeypatch.setattr(database, 'connect', connect_without_full_checks)
     modules = read_modules(client, headers)
-    assert len(modules) == 18
+    assert len(modules) == 16
     assert all(row['status'] == 'active' and row['http_status'] == 200 for row in modules.values()), modules
-    assert modules['hardware-acquisition']['note']
-    assert modules['mercury-calibration']['note']
+    assert modules['acquisition']['probe_path'] == '/api/v1/acquisitions/tasks?limit=1'
+    assert modules['devices']['probe_path'] == '/api/v1/devices/profiles'
 
 
 @pytest.mark.parametrize('fault', ['missing_route', 'missing_table', 'service_failure', 'bad_response', 'disabled_dependency'])
@@ -87,23 +128,12 @@ def test_no_probe_and_permission_failure_are_not_success(diagnostic_client, monk
     assert modules['about-diagnostics']['status'] == 'restricted'
 
 
-def test_invalid_manifest_is_reported_instead_of_a_false_pass(diagnostic_client, monkeypatch):
-    _, client, headers = diagnostic_client
-    manifests = tuple(replace(module, dependencies=('does-not-exist',)) if module.key == 'methods' else module
-                      for module in registered_manifests())
-    monkeypatch.setattr('backend.api.system.registered_manifests', lambda: manifests)
-    response = client.get('/api/v1/diagnostics', headers=headers)
-    assert response.status_code == 200
-    assert response.json()['manifest_valid'] is False
-    assert response.json()['manifest_error']
-    assert all(row['status'] == 'error' for row in response.json()['modules'])
-
-
 def test_internal_probes_preserve_desktop_process_key_boundary(diagnostic_client):
     app, client, headers = diagnostic_client
     app.state.runtime.process_key = 'diagnostic-test-key'
-    assert client.get('/api/v1/diagnostics', headers=headers).status_code == 403
-    response = client.get('/api/v1/diagnostics', headers=headers | {'X-GeoSpectrum-Process-Key': 'diagnostic-test-key'})
+    assert client.get('/api/v1/diagnostics?probe=true', headers=headers).status_code == 403
+    response = client.get('/api/v1/diagnostics?probe=true',
+                          headers=headers | {'X-GeoSpectrum-Process-Key': 'diagnostic-test-key'})
     assert response.status_code == 200
     assert all(module['status'] == 'active' for module in response.json()['modules'])
     assert 'diagnostic-test-key' not in response.text

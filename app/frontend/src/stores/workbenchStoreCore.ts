@@ -2,7 +2,7 @@ type UserId = number | string
 
 export type WorkbenchScope = {
   userId: UserId
-  permissionsHash: string
+  permissionsKey: string
   page: string
   methodVersionId?: number | null
 }
@@ -48,16 +48,16 @@ export type AnalysisPageSnapshot = {
   selectedRunId: number | null
   manager: 'setup' | 'review' | null
   railCollapsed: boolean
-  viewByRun: Record<number, 'raw' | 'quality' | 'curve' | 'standards' | 'samples'>
-  lineByRun: Record<number, string>
+  viewByRun: Readonly<Record<number, 'raw' | 'quality' | 'curve' | 'standards' | 'samples'>>
+  lineByRun: Readonly<Record<number, string>>
 }
 
 export type PostProcessingPageSnapshot = {
   methodVersionId?: number
   profile: 'legacy_2_0_2' | 'modern_v1'
-  selectedSources: string[]
+  selectedSources: readonly string[]
   sourceQuery: string
-  selectedCurves: number[]
+  selectedCurves: readonly number[]
   viewedCurveId?: number
   allowOlderMethod: boolean
   format: 'txt' | 'csv' | 'excel'
@@ -79,17 +79,23 @@ type SnapshotScope<View extends WorkbenchView> = WorkbenchIdentity & { view: Vie
 
 const sessionPrefix = (userId: UserId) => `${JSON.stringify(userId)}:`
 
-export function buildWorkbenchScopeKey({ userId, permissionsHash, page, methodVersionId }: WorkbenchScope): string {
-  return sessionPrefix(userId) + JSON.stringify([permissionsHash, page, methodVersionId ?? null])
+export function buildWorkbenchScopeKey({ userId, permissionsKey, page, methodVersionId }: WorkbenchScope): string {
+  return sessionPrefix(userId) + JSON.stringify([permissionsKey, page, methodVersionId ?? null])
 }
 
-export function hashPermissions(permissions: readonly string[]): string {
-  const canonical = JSON.stringify([...new Set(permissions)].sort())
-  let hash = 0x811c9dc5
-  for (let index = 0; index < canonical.length; index++) {
-    hash = Math.imul(hash ^ canonical.charCodeAt(index), 0x01000193)
+export function permissionScopeKey(permissions: readonly string[]): string {
+  return JSON.stringify([...new Set(permissions)].sort())
+}
+
+function copySnapshot(snapshot: Snapshots[WorkbenchView]): Readonly<Snapshots[WorkbenchView]> {
+  const copy: Snapshots[WorkbenchView] & Record<string, unknown> = { ...snapshot }
+  // Snapshot containers hold only scalar values. Copy each container once.
+  for (const key of Object.keys(copy)) {
+    const value = copy[key]
+    if (Array.isArray(value)) copy[key] = Object.freeze([...value])
+    else if (value && typeof value === 'object') copy[key] = Object.freeze({ ...value })
   }
-  return (hash >>> 0).toString(16).padStart(8, '0')
+  return Object.freeze(copy)
 }
 
 export function createWorkbenchStore() {
@@ -99,7 +105,7 @@ export function createWorkbenchStore() {
   let allRevision = 0
 
   const keyFor = ({ userId, permissionsKey, view, methodVersionId }: SnapshotScope<WorkbenchView>) =>
-    buildWorkbenchScopeKey({ userId, permissionsHash: permissionsKey, page: view, methodVersionId })
+    buildWorkbenchScopeKey({ userId, permissionsKey, page: view, methodVersionId })
   const getSnapshot = (key: string, consume = false) => {
     const snapshot = snapshots.get(key) ?? null
     if (consume) snapshots.delete(key)
@@ -108,7 +114,7 @@ export function createWorkbenchStore() {
 
   return {
     saveSpectrumSnapshot(scopeKey: string, snapshot: SpectrumViewerSnapshot) {
-      snapshots.set(scopeKey, Object.freeze({ ...snapshot, overlayIds: Object.freeze([...snapshot.overlayIds]) }))
+      snapshots.set(scopeKey, copySnapshot(snapshot))
     },
     peekSpectrumSnapshot(scopeKey: string) {
       return getSnapshot(scopeKey) as Readonly<SpectrumViewerSnapshot> | null
@@ -117,10 +123,7 @@ export function createWorkbenchStore() {
       return getSnapshot(scopeKey, true) as Readonly<SpectrumViewerSnapshot> | null
     },
     saveSnapshot<View extends WorkbenchView>(scope: SnapshotScope<View>, snapshot: Snapshots[NoInfer<View>]) {
-      const copy = Object.fromEntries(Object.entries(snapshot).map(([key, value]) => [
-        key, value && typeof value === 'object' ? Object.freeze(Array.isArray(value) ? [...value] : { ...value }) : value
-      ])) as Snapshots[View]
-      snapshots.set(keyFor(scope), Object.freeze(copy))
+      snapshots.set(keyFor(scope), copySnapshot(snapshot))
     },
     peekSnapshot<View extends WorkbenchView>(scope: SnapshotScope<View>) {
       return getSnapshot(keyFor(scope)) as Readonly<Snapshots[View]> | null

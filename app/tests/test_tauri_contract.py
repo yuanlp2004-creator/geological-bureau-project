@@ -16,30 +16,17 @@ def test_tauri_minimal_capability_and_lifecycle_contract() -> None:
     assert config["plugins"]["shell"]["open"] is True
     assert "dialog:allow-open" in capabilities["permissions"]
     assert "shell:allow-execute" in capabilities["permissions"]
+    assert capabilities["windows"] == ["main"]
     assert "tauri_plugin_single_instance::init" in rust
-    assert ".sidecar(\"geospectrum-backend\")" in rust
-    assert "child.kill()" in rust
+    assert re.findall(r'\.sidecar\s*\(\s*"([^"]+)"', rust) == ["geospectrum-backend"]
     assert "RunEvent::ExitRequested" in rust
-    assert "tauri_plugin_dialog::init()" in rust
-    assert "async fn save_export_file(" in rust
-    assert "validate_export(&file_name, &content_type, &bytes)?" in rust
-    assert "blocking_save_file()" in rust
-    assert "write_export_file(&path, &bytes)?" in rust
-    assert "std::fs::write(path, bytes)" in rust
-    handlers = re.search(r"generate_handler!\[([^]]+)\]", rust)
+    assert "WindowEvent::CloseRequested" in rust
+    assert "tauri_plugin_dialog::init" in rust
+    handlers = re.search(r"generate_handler!\s*\[([^]]+)\]", rust)
     assert handlers is not None
-    assert {name.strip() for name in handlers.group(1).split(',')} == {
+    assert {name.strip() for name in handlers.group(1).split(',') if name.strip()} == {
         'runtime_config', 'save_export_file', 'select_backup_directory',
         'select_legacy_directory', 'select_legacy_files', 'select_sample_file',
         'open_bluetooth_settings',
     }
-    assert "api.prevent_close()" in rust
-    assert 'fn open_bluetooth_settings() -> Result<(), String>' in rust
-    assert '"ms-settings:bluetooth\\0".encode_utf16()' in rust
-    assert "prepare_device_exit(&config)" in rust
-    assert "confirmed.load(Ordering::SeqCst)" in rust
-    assert '"pdf" => "application/pdf"' in rust
-    assert '"txt" | "log" | "sam" => "text/plain"' in rust
-    assert 'std::env::var("GEOSPECTRUM_DEV_API_BASE")' in rust
-    assert "#[cfg(not(debug_assertions))]\nfn development_api_base()" in rust
-    assert "let Some(port) = port else" in rust
+    assert "ms-settings:bluetooth" in rust

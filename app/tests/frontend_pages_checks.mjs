@@ -19,6 +19,7 @@ export async function checkPages(page, checks) {
       await button.click()
       await page.keyboard.press('Escape')
     }
+    await page.locator('.breadcrumbs').getByText(entry.label, { exact: true }).waitFor()
     await page.waitForFunction(() => !!document.querySelector('.page-content'))
     return true
   }
@@ -68,34 +69,26 @@ export async function checkPages(page, checks) {
 
   const visited = [],
     gated = []
-  for (const name of [
-    'migration',
-    'spectra',
-    'samples',
-    'settings',
-    'about',
-    'users',
-    'audit',
-    'maintenance',
-    'help',
-    'acquisition',
-    'dispersion',
-    'sample-acquisition',
-    'hardware-acquisition',
-    'mercury-calibration',
-    'analysis',
-    'postprocessing',
-    'reports'
-  ]) {
-    const entry = entries.find((e) => e.page === name)
-    if (!entry) continue
+  for (const entry of entries.filter((candidate) => candidate.page !== 'methods')) {
     if (await navigate(entry)) {
-      visited.push(name)
+      visited.push(entry.key)
       assert.equal(await page.locator('.error-page').count(), 0)
       await page.locator('.page-content').first().waitFor()
-    } else gated.push(name)
+      if (entry.page === 'acquisition' && entry.view) {
+        await page.locator(`#device-tab-${entry.view}[aria-selected="true"]`).waitFor()
+      }
+      if (entry.page === 'dispersion' && entry.view) {
+        await page.locator(`[data-testid="spectroscopy-workbench"][data-mode="dispersion"][data-view="${entry.view}"]`).waitFor()
+      }
+      if (entry.page === 'postprocessing' && entry.view) {
+        await page.locator(`[data-testid="postprocessing-page"][data-navigation-view="${entry.view}"]`).waitFor()
+      }
+    } else {
+      assert.ok(entry.required_context === 'current_method' || entry.required_context === 'current_method_exp_seg', entry.key)
+      gated.push(entry.key)
+    }
   }
-  for (const expected of ['migration', 'about'])
+  for (const expected of ['tools.legacy-migration', 'help.about'])
     assert.ok(visited.includes(expected), expected)
   checks.push(
     `R5: page navigation mounted ${visited.join(', ')}; prerequisite gates retained for ${gated.join(', ') || 'none'}`

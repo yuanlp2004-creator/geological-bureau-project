@@ -71,3 +71,25 @@ def test_logging_failure_does_not_fail_or_repeat_a_device_command(device_client,
         connected = client.post('/api/v1/devices/connect', headers=headers, json={'profile_id': profile['id']})
         assert connected.status_code == 200
         assert connected.json()['diagnostics']['connected'] is True
+
+
+def test_runtime_message_keys_are_bounded_fifo_and_duplicate_reads_do_not_refresh_them():
+    from types import SimpleNamespace
+
+    keys = []
+    service = SimpleNamespace(list_events=lambda **_: [], append_event=lambda entry: keys.append(entry.details['source_key']))
+    messages = RuntimeMessages(service)
+    try:
+        def log(key):
+            messages._write(key, 'analysis', 'general', 'info', '运行信息')
+
+        for number in range(4096):
+            log(str(number))
+        log('0')
+        log('4096')
+        log('1')
+        log('0')
+        assert keys == [str(number) for number in range(4097)] + ['0']
+        assert len(messages._seen) == 4096
+    finally:
+        messages.close()

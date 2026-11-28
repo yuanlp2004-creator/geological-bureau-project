@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import secrets
 from dataclasses import dataclass
@@ -60,11 +61,8 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "acquisition.write",
             "acquisition.execute",
             "hardware-acquisition.read",
-            "hardware-acquisition.write",
             "hardware-acquisition.execute",
             "mercury-calibration.read",
-            "mercury-calibration.write",
-            "mercury-calibration.execute",
             "analysis.read",
             "analysis.execute",
             "analysis.intervene",
@@ -122,7 +120,6 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "acquisition.write",
             "acquisition.execute",
             "hardware-acquisition.read",
-            "hardware-acquisition.write",
             "hardware-acquisition.execute",
             "mercury-calibration.read",
             "analysis.read",
@@ -149,8 +146,6 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "settings.read",
             "runtime-events.read",
             "audit.read",
-            "results.read",
-            "results.export",
             "spectra.read",
             "spectra.export",
             "devices.read",
@@ -169,20 +164,6 @@ BUILTIN_ROLES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
         ),
     ),
 )
-
-
-def _role_permissions(role_name: str, permission_keys: tuple[str, ...]) -> tuple[str, ...]:
-    if role_name != "system_administrator":
-        return permission_keys
-    from .modules.manifest import registered_manifests
-
-    extension_permissions = {
-        permission
-        for manifest in registered_manifests()
-        if manifest.key.startswith("s21-")
-        for permission in manifest.permissions
-    }
-    return tuple(sorted(set(permission_keys).union(extension_permissions)))
 
 
 def hash_password(password: str) -> str:
@@ -219,6 +200,8 @@ class AuthError(Exception):
 
 
 class AuthService:
+    builtin_roles = BUILTIN_ROLES
+
     def __init__(self, database: Database):
         self.database = database
         # Tokens are intentionally process-memory only. Tauri must not persist
@@ -229,15 +212,44 @@ class AuthService:
         with self.database.read() as db:
             return db.execute("SELECT 1 FROM users LIMIT 1").fetchone() is not None
 
-    def synchronize_builtin_permissions(self) -> int:
-        """Make persisted built-in roles exactly match the locked role matrix."""
+    def _builtin_roles_fingerprint(self) -> str:
+        return hashlib.sha256(json.dumps(self.builtin_roles, ensure_ascii=False).encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def _store_builtin_roles_fingerprint(db, fingerprint: str, now: str) -> None:
+        db.execute(
+            "INSERT INTO app_metadata(key, value, updated_at) VALUES ('builtin_roles_sha256', ?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at "
+            "WHERE app_metadata.value IS NOT excluded.value",
+            (fingerprint, now),
+        )
+
+    def synchronize_builtin_permissions(self) -> int:
+        """Sync built-in grants while preserving permission keys and custom grants."""
+
+        fingerprint = self._builtin_roles_fingerprint()
         with self.database.write() as db:
             if db.execute("SELECT 1 FROM users LIMIT 1").fetchone() is None:
                 return 0
+            stored = db.execute("SELECT value FROM app_metadata WHERE key='builtin_roles_sha256'").fetchone()
+            if stored is not None and stored[0] == fingerprint:
+                names = tuple(name for name, _, _ in self.builtin_roles)
+                placeholders = ",".join("?" for _ in names)
+                actual = {
+                    tuple(row)
+                    for row in db.execute(
+                        "SELECT r.name, p.key FROM roles r LEFT JOIN role_permissions rp ON rp.role_id=r.id "
+                        f"LEFT JOIN permissions p ON p.id=rp.permission_id WHERE r.name IN ({placeholders})",
+                        names,
+                    )
+                }
+                expected = {(name, key) for name, _, keys in self.builtin_roles for key in keys or (None,)}
+                if actual == expected:
+                    return 0
+
+            db.execute("BEGIN IMMEDIATE")
             changes: list[dict[str, str]] = []
-            for role_name, description, permission_keys in BUILTIN_ROLES:
-                permission_keys = _role_permissions(role_name, permission_keys)
+            for role_name, description, permission_keys in self.builtin_roles:
                 db.execute(
                     "INSERT OR IGNORE INTO roles(name, description) VALUES (?, ?)",
                     (role_name, description),
@@ -257,7 +269,7 @@ class AuthService:
                         (role_id, permission_key),
                     )
                     changes.append({"operation": "revoke", "role": role_name, "permission": permission_key})
-                for permission_key in permission_keys:
+                for permission_key in (key for key in permission_keys if key not in current):
                     db.execute(
                         "INSERT OR IGNORE INTO permissions(key, description) VALUES (?, ?)",
                         (permission_key, permission_key),
@@ -277,6 +289,7 @@ class AuthService:
                     "VALUES (NULL, 'role.permission.migrate', 'role', NULL, ?, ?)",
                     (json.dumps({"changes": changes}, ensure_ascii=False), utc_now()),
                 )
+            self._store_builtin_roles_fingerprint(db, fingerprint, utc_now())
             return len(changes)
 
     def bootstrap(self, username: str, password: str) -> dict:
@@ -295,8 +308,7 @@ class AuthService:
             )
             user_id = cur.lastrowid
             role_ids: dict[str, int] = {}
-            for role_name, description, permission_keys in BUILTIN_ROLES:
-                permission_keys = _role_permissions(role_name, permission_keys)
+            for role_name, description, permission_keys in self.builtin_roles:
                 role_cursor = db.execute(
                     "INSERT INTO roles(name, description) VALUES (?, ?)",
                     (role_name, description),
@@ -327,8 +339,8 @@ class AuthService:
                     json.dumps(
                         {
                             "roles": [
-                                {"name": role[0], "permission_keys": list(_role_permissions(role[0], role[2]))}
-                                for role in BUILTIN_ROLES
+                                {"name": name, "permission_keys": list(permission_keys)}
+                                for name, _, permission_keys in self.builtin_roles
                             ],
                             "password_scheme": "argon2id",
                         },
@@ -337,6 +349,7 @@ class AuthService:
                     now,
                 ),
             )
+            self._store_builtin_roles_fingerprint(db, self._builtin_roles_fingerprint(), now)
         return {"username": username, "created": True}
 
     def login(self, username: str, password: str) -> tuple[str, Session] | None:
@@ -413,7 +426,7 @@ class AuthService:
                         (row["id"],),
                     ).fetchall()
                 ]
-                item["built_in"] = row["name"] in {role[0] for role in BUILTIN_ROLES}
+                item["built_in"] = row["name"] in {role[0] for role in self.builtin_roles}
                 result.append(item)
             return result
 

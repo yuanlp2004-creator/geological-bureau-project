@@ -8,7 +8,7 @@ type PanelProps = {
   selected: AnalysisRun
   busy: boolean
   canQuality: boolean
-  mutate: (operation: () => Promise<AnalysisRun>, success: string, continuous?: boolean) => Promise<boolean>
+  mutate: (operation: () => Promise<AnalysisRun>, success: string) => Promise<boolean>
   token: string
   qcGroups: AnalysisQcGroup[]
   qualityDecision: (group: NonNullable<AnalysisRun["quality"]["latest_snapshot"]>["groups"][number], action: "accept" | "exclude" | "restore", lineResultId: number | null, reason: string) => void

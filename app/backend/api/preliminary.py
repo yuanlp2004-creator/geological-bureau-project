@@ -10,7 +10,8 @@ from ..schemas.system import PreliminaryConditions
 
 
 def create_preliminary_session(kind, payload: PreliminaryCaptureCreate, runtime, session):
-    profile = runtime.devices_service().current_profile()
+    devices = runtime.devices_service()
+    profile = devices.current_profile()
     if not profile:
         raise HTTPException(422, detail={'code': 'current_device_required', 'message': '请先在设备参数选择并保存当前设备'})
     methods = runtime.methods_service()
@@ -27,13 +28,7 @@ def create_preliminary_session(kind, payload: PreliminaryCaptureCreate, runtime,
         permission = 'dispersion.execute' if kind == 'dispersion' else 'acquisition.execute'
         if permission not in session.permissions:
             raise HTTPException(403, detail='permission denied')
-        try:
-            if requires_motor(runtime.database, profile, multiple=multiple):
-                prepare_motor_turn(runtime.database, profile, [angle['angle_deg'] for angle in plan['angles']])
-            else:
-                runtime.devices_service().test_connection(profile['id'], actor_user_id=session.user_id)
-        except DeviceError as exc:
-            raise HTTPException(exc.status_code, detail=exc.detail()) from exc
+    position_controlled = requires_motor(runtime.database, profile, multiple=multiple)
     conditions = {key: value for key, value in payload.model_dump().items() if key not in {'name', 'save_conditions'}}
     common = {**conditions, 'name': payload.name, 'device_profile_id': profile['id'],
               'method_id': method['method_id'], 'method_version': method['version'], 'ccd_layout_id': plan['layout_id']}
@@ -54,20 +49,27 @@ def create_preliminary_session(kind, payload: PreliminaryCaptureCreate, runtime,
             or abs(layout['point_width'] - profile['point_width_um']) >= 1e-6):
         raise HTTPException(422, detail={'code': 'device_layout_missing', 'message': '当前设备与方法的CCD布局不匹配，请先核对设备参数'})
     group = uuid4().hex
-    with runtime.database.write() as connection:
-        first_id = None
-        for index, angle in enumerate(plan['angles']):
-            indices = angle.get('ccd_indices') or default_ccds
-            if not set(indices) <= set(profile['ccd_indices']):
-                raise HTTPException(422, detail={'code': 'ccd_profile_selection_invalid', 'message': '方法转角选择了当前设备未安装的CCD'})
-            turn = {'group': group, 'turn_index': index, 'angle_deg': angle['angle_deg'], 'multiple': multiple,
-                    'method_content_sha256': plan['method_content_sha256']}
-            if kind == 'dispersion':
-                turn['reference_coefficients'] = angle.get('reference_coefficients', layout['ws_cof'])
-            task = service.create_task({**values, 'ccd_indices': indices}, session.user_id, connection=connection, capture_turn=turn)
-            if first_id is None:
-                first_id = task['id']
-        if payload.save_conditions:
-            runtime.service.save_preliminary_conditions(kind, PreliminaryConditions.model_validate(conditions),
-                                                        session.user_id, connection=connection)
+    owner = 'dispersion' if kind == 'dispersion' else 'evaporation-acquisition'
+    try:
+        with devices.capture_session(owner, profile['id'], session.user_id, position_controlled=position_controlled):
+            if position_controlled:
+                prepare_motor_turn(runtime.database, profile, [angle['angle_deg'] for angle in plan['angles']])
+            with runtime.database.write() as connection:
+                first_id = None
+                for index, angle in enumerate(plan['angles']):
+                    indices = angle.get('ccd_indices') or default_ccds
+                    if not set(indices) <= set(profile['ccd_indices']):
+                        raise HTTPException(422, detail={'code': 'ccd_profile_selection_invalid', 'message': '方法转角选择了当前设备未安装的CCD'})
+                    turn = {'group': group, 'turn_index': index, 'angle_deg': angle['angle_deg'], 'multiple': multiple,
+                            'method_content_sha256': plan['method_content_sha256']}
+                    if kind == 'dispersion':
+                        turn['reference_coefficients'] = angle.get('reference_coefficients', layout['ws_cof'])
+                    task = service.create_task({**values, 'ccd_indices': indices}, session.user_id, connection=connection, capture_turn=turn)
+                    if first_id is None:
+                        first_id = task['id']
+                if payload.save_conditions:
+                    runtime.service.save_preliminary_conditions(kind, PreliminaryConditions.model_validate(conditions),
+                                                                session.user_id, connection=connection)
+    except DeviceError as exc:
+        raise HTTPException(exc.status_code, detail=exc.detail()) from exc
     return runtime.messages.task(service.get_task(first_id), source=source, category='acquisition')

@@ -4,6 +4,7 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from threading import Event
 from uuid import uuid4
 
 import httpx
@@ -15,6 +16,7 @@ from fastapi.testclient import TestClient
 from backend.config import AppConfig
 from backend.main import create_app
 from backend.modules.activation import ActivationClaims, encode_signed_activation
+from backend.modules.support_diagnostics import SupportSession
 from backend.schemas.system import RuntimeEventCreate
 from tests.test_s16_analysis import _seed as seed_analysis
 
@@ -195,7 +197,7 @@ def test_two_http_clients_diagnostics_refresh_revocation_expiry_and_redaction(tm
         expect(operator.post(SUPPORT, headers=admin, json={"minutes": 5}), 409)
         assert "access_token" not in expect(operator.get(SUPPORT, headers=admin), 200)
         old = expect(support.get(url, headers=ticket), 200)
-        assert len(old["modules"]) == 18 and all(module["status"] == "active" for module in old["modules"])
+        assert len(old["modules"]) == 16 and all(module["status"] == "active" for module in old["modules"])
         expect(other.get(url), 401)
         expect(other.get(url, headers=admin), 401)
         expect(other.get(url, headers=ticket | {"Origin": "https://some-site.invalid"}), 401)
@@ -206,14 +208,25 @@ def test_two_http_clients_diagnostics_refresh_revocation_expiry_and_redaction(tm
 
         runtime.service.append_event(RuntimeEventCreate(
             category="acquisition", severity="error", message="PRIVATE-SAMPLE-PATH",
-            correlation_id="PRIVATE-TRACE", details={"path": "PRIVATE-FILE", "source": "devices", "event_type": "fault"},
+            correlation_id="PRIVATE-TRACE", details={
+                "path": "PRIVATE-FILE", "sample_name": "PRIVATE-SAMPLE", "token": "PRIVATE-TOKEN",
+                "source": "devices", "event_type": "fault", "code": "CCD-transfer.timeout",
+                "stage": "turn", "phase": "pre_excitation",
+            },
+        ))
+        runtime.service.append_event(RuntimeEventCreate(
+            category="acquisition", severity="error", message="PRIVATE-DETAILS",
+            details={"code": r"C:\PRIVATE\FILES", "stage": "PRIVATE-SAMPLE", "phase": "PRIVATE-FREE-TEXT"},
         ))
         assert expect(support.get(url, headers=ticket), 200) == old
         refreshed = expect(operator.post(f"{SUPPORT}/refresh", headers=admin), 200)
         newer = support.get(url, headers=ticket)
         snapshot = expect(newer, 200)
         assert snapshot["checked_at"] != old["checked_at"] and refreshed["port"] == int(url.split(":")[2].split("/")[0])
-        assert any(event.get("source") == "devices" and event.get("event_type") == "fault" for event in snapshot["logs"])
+        fault = next(event for event in snapshot["logs"] if event.get("source") == "devices")
+        assert {key: fault[key] for key in ("event_type", "code", "stage", "phase")} == {
+            "event_type": "fault", "code": "CCD-transfer.timeout", "stage": "turn", "phase": "pre_excitation",
+        }
         assert "PRIVATE" not in newer.text and runtime.process_key not in newer.text
         expect(operator.delete(SUPPORT, headers=admin), 204)
         with pytest.raises(httpx.TransportError):
@@ -232,8 +245,43 @@ def test_two_http_clients_diagnostics_refresh_revocation_expiry_and_redaction(tm
             pass
 
         logout_url, logout_ticket = open_session()
+        another_login = login(operator, "isolated_admin")
+        expect(operator.post("/api/v1/auth/logout", headers=another_login), 204)
+        expect(support.get(logout_url, headers=logout_ticket), 200)
         expect(operator.post("/api/v1/auth/logout", headers=admin), 204)
-        try:
-            assert support.get(logout_url, headers=logout_ticket).status_code == 410
-        except httpx.TransportError:
-            pass
+        with pytest.raises(httpx.TransportError):
+            support.get(logout_url, headers=logout_ticket)
+
+
+def test_support_listener_checks_authorization_on_request_and_exits_on_revocation():
+    checked = Event()
+
+    def unauthorized():
+        checked.set()
+        return False
+
+    now = datetime.now(timezone.utc)
+    session = SupportSession((now, b"{}"), 1, unauthorized)
+    session.start()
+    try:
+        assert not checked.wait(0.4), "idle listener checked operator authorization"
+        url = f"http://127.0.0.1:{session.port}/api/v1/support/snapshot"
+        with httpx.Client(trust_env=False, timeout=2) as client:
+            expect(client.get(url, headers={"Authorization": f"Bearer {session.token}"}), 410)
+        assert checked.is_set()
+        session._thread.join(timeout=2)
+        assert not session._thread.is_alive()
+    finally:
+        session.close()
+
+
+def test_support_listener_closes_at_deadline_without_a_request():
+    now = datetime.now(timezone.utc)
+    session = SupportSession((now, b"{}"), 1, lambda: True, operator_expires_at=now + timedelta(milliseconds=200))
+    session.start()
+    try:
+        session._thread.join(timeout=2)
+        assert not session.active()
+        assert not session._thread.is_alive()
+    finally:
+        session.close()

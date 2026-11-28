@@ -7,6 +7,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from backend.db import SCHEMA_VERSION
 
 
@@ -44,7 +46,6 @@ def verify(database_path: Path, manifest_path: Path, dist_dir: Path) -> dict:
             "manifest_sha256": sha256(manifest_path),
             "frontend_asset_count": len(assets),
             "frontend_asset_bytes": sum(path.stat().st_size for path in assets),
-            "frontend_assets_have_sha256": all(len(sha256(path)) == 64 for path in assets),
         }
     )
     return result
@@ -65,7 +66,6 @@ def main() -> int:
         result["schema_version"] == SCHEMA_VERSION,
         result["required_tables"],
         result["frontend_asset_count"] > 0,
-        result["frontend_assets_have_sha256"],
     ]
     return 0 if all(checks) else 1
 

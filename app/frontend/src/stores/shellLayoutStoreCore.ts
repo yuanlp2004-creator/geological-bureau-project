@@ -64,10 +64,6 @@ export function createShellLayoutStore(storage?: Pick<Storage, 'getItem' | 'setI
       if (snapshot.userId === userId) return
       beforeFocus = null
       const saved = read(layoutKey(userId)) as Partial<Layout> | null
-      // Accounts upgraded from the previous panel keep their explicit drawer preference.
-      const legacyPanel = typeof saved?.informationExpanded !== 'boolean'
-        ? read(`geospectrum:information-panel:${userId}`) as { layoutVersion?: number; collapsed?: boolean } | null
-        : null
       const seen = read(seenKey(userId))
       publish({
         ...initialShellLayout,
@@ -75,8 +71,7 @@ export function createShellLayoutStore(storage?: Pick<Storage, 'getItem' | 'setI
         view: {
           focusMode: false,
           sidebarCollapsed: saved?.sidebarCollapsed === true,
-          informationExpanded: typeof saved?.informationExpanded === 'boolean' ? saved.informationExpanded
-            : legacyPanel?.layoutVersion === 2 && legacyPanel.collapsed === false
+          informationExpanded: saved?.informationExpanded === true
         },
         lastSeenEventId: typeof seen === 'number' && Number.isSafeInteger(seen) && seen > 0 ? seen : 0
       })
@@ -108,11 +103,8 @@ export function createShellLayoutStore(storage?: Pick<Storage, 'getItem' | 'setI
     },
     markEventsSeen(userId: number, maxEventId: number) {
       if (snapshot.userId !== userId || !Number.isSafeInteger(maxEventId) || maxEventId <= snapshot.lastSeenEventId) return
-      // Another window for this account may have read ahead of this session.
-      const saved = read(seenKey(userId))
-      const lastSeenEventId = typeof saved === 'number' && Number.isSafeInteger(saved) ? Math.max(saved, maxEventId) : maxEventId
-      write(seenKey(userId), lastSeenEventId)
-      publish({ ...snapshot, lastSeenEventId })
+      write(seenKey(userId), maxEventId)
+      publish({ ...snapshot, lastSeenEventId: maxEventId })
     }
   }
 }

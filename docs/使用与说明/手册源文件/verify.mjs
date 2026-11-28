@@ -38,6 +38,17 @@ try{
   assert.deepEqual(badLinks,[],r.id);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,r.id);
  }
+ const contents = [];
+ for (const id of ['settings','devices','mercury','interval','maintenance']) {
+  await page.goto(url+'#'+id);
+  contents.push(await page.locator('.article-body').innerText());
+ }
+ for (const label of ['切换明暗主题','工具 → 设备调试','切换转角','全时数据','清理记录文件']) {
+  assert.ok(contents.some(content=>content.includes(label)), label);
+ }
+ for (const removed of ['系统管理 → 软件设置','备份与维护 → 系统诊断','工具 → 汞灯与光学校准','分析测试 → 自动转角采集']) {
+  assert.ok(contents.every(content=>!content.includes(removed)), removed);
+ }
  // 正文跳转、页内跳转与阅读历史。
  await page.goto(url);
  await page.locator('.article-body a[href="#first-run"]').first().click();
@@ -100,5 +111,5 @@ try{
  await page.keyboard.press('Escape');
  assert.equal(await page.locator('#sidebar').isVisible(),false);
  assert.deepEqual(errors,[]);assert.deepEqual(externalRequests,[]);
- console.log(JSON.stringify({status:'passed',topics:routes.length,checks:['55 routes and body links','tree nesting and selected topic','body and section jumps','back and forward','next page','full text search and empty result','input escaping','deep link reload','invalid route fallback','font size','print media','mobile navigation','keyboard search','zero external requests','zero page errors'],screenshots:output},null,2));
+ console.log(JSON.stringify({status:'passed',topics:routes.length,checks:['topic routes and body links','current menu and removed-label checks','tree nesting and selected topic','body and section jumps','back and forward','next page','full text search and empty result','input escaping','deep link reload','invalid route fallback','font size','print media','mobile navigation','keyboard search','zero external requests','zero page errors'],screenshots:output},null,2));
 }finally{await browser.close()}

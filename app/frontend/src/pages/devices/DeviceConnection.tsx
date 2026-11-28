@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bluetooth, Cable, RefreshCw, Save, Unplug } from 'lucide-react'
 import { api, type BluetoothDevice, type DeviceDiagnostics, type DeviceProfile } from '../../api'
-import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner } from '../../stores/hardwareLockStore'
+import { acquireHardwareOperation, hardwareLockStore, useHardwareOwner, useHardwareStopRetry } from '../../stores/hardwareLockStore'
 import type { HardwareOperation, OperationToken } from '../../stores/hardwareLockStoreCore'
 import { openBluetoothSettings } from '../../platform/bluetooth'
 import { BluetoothDevicePicker } from './BluetoothDevicePicker'
@@ -37,6 +37,7 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
   const changed = !wiredCcd && (profile?.transport !== 'serial' || port !== `COM${profile.port}`)
   const connected = Boolean(diagnostics?.connected || captures.length)
   const running = Boolean(captures.length || diagnostics?.connected && !['connected', 'error'].includes(diagnostics.state))
+  const retryStop = useHardwareStopRetry(owner)
   const choose = (nextAddress: string, nextPort: string) => {
     selection.current = { address: nextAddress, port: nextPort }; setAddress(nextAddress); setPort(nextPort)
   }
@@ -132,7 +133,7 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
     })
   }
   const disconnect = () => {
-    if (!canExecute || running) return
+    if (!canExecute || running && !retryStop) return
     return command('disconnect', async operation => {
       const result = await api.disconnectDevice(token)
       if (result.diagnostics.connected || result.diagnostics.turning) throw new Error('设备断开结果尚未确认')
@@ -167,7 +168,7 @@ export function DeviceConnection({ token, canWrite, canExecute, active, revision
       {device && !ports.length && <p className="field-hint">Windows尚未给此设备分配传出COM口，或此设备不提供串口服务。请在Windows蓝牙设置的“更多蓝牙设置 → COM端口”中添加，再回到这里刷新。</p>}
       <div className="connection-actions"><button type="button" className="secondary-button" disabled={!canWrite || !bound || !changed || busy || loading || connected} onClick={() => void save()}><Save size={16} />保存绑定</button>
         <button type="button" className="primary-button" disabled={!canExecute || !profile?.enabled || changed || !(bound || wiredCcd) || !diagnostics || busy || loading || connected} onClick={() => void connect()}><Cable size={16} />连接设备</button>
-        <button type="button" className="secondary-button" disabled={!canExecute || busy || !connected || running} onClick={() => void disconnect()}><Unplug size={16} />断开设备</button>
+        <button type="button" className="secondary-button" disabled={!canExecute || busy || (!connected || running) && !retryStop} onClick={() => void disconnect()}><Unplug size={16} />断开设备</button>
         <button type="button" className="secondary-button" disabled={busy} onClick={onConfigure}>更多设备参数</button></div>
       {bound && changed && <p className="field-hint">请先保存绑定，再连接设备。</p>}
       {wiredCcd && <p className="field-hint">当前 CCD 采集口为有线 COM{profile.port}。</p>}

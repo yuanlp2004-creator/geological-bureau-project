@@ -82,13 +82,13 @@ Authorization: Bearer <token>
 
 ## 6. Schema 版本
 
-当前 `SCHEMA_VERSION = 23`，S10 以前由基线结构表示，v11–v23 通过 `MIGRATIONS` 顺序登记。
+S10 及以前由基线结构表示。v11 起通过 `MIGRATIONS` 顺序登记，最新版本由 `SCHEMA_VERSION` 定义。 [迁移入口](../../app/backend/migrations/__init__.py)
 
 阅读迁移时按以下顺序：
 
 1. `Database.initialize()` 开启原有事务，调用 `migrations/baseline.py` 的 `create_baseline()`。
 2. db.py 中历史开发标记和旧 JSON 帧的兼容分支。
-3. 按 `migrations/__init__.py` 顺序执行 `v11_devices.py` 至 `v23_contract_closure.py`，每步写入 schema_migrations。
+3. 按 `migrations/__init__.py` 顺序执行 从 `v11_devices.py` 开始，每步写入 schema_migrations。
 4. 原测试扩展迁移。
 5. `migrations/defaults.py` 写入默认数据和触发器，db.py 最后更新元数据；全部处于同一事务内。
 
@@ -113,7 +113,7 @@ Authorization: Bearer <token>
 
 - 身份表由 `auth` 拥有。
 - 方法和版本由 `methods` 拥有。
-- 采集表由 `acquisition`、`dispersion`、`hardware-acquisition` 等各自拥有。
+- `acquisition` 拥有样品摄谱和历史转角表，`dispersion` 拥有色散采集表，`devices` 读取历史汞灯表。
 - 分析快照由 `analysis` 拥有。
 
 跨模块服务可以调用公开服务或使用版本化结果，不应随意查询其他模块内部表。当前少量集中服务已有直接联表查询，新增依赖前要评估是否应改为公开应用服务。

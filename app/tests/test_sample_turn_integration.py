@@ -14,7 +14,7 @@ from backend.db import Database, utc_now
 from backend.modules.acquisition import AcquisitionService, AcquisitionError
 from backend.modules.analysis import AnalysisService
 from backend.modules.methods import MethodService
-from backend.modules.hardware_acquisition.adapters import SimulatorTurnAdapter
+from backend.modules.devices import AcqSimulatorAdapter, DeviceError, confirm_simulated_turn
 
 
 def seed(tmp_path, *, multiple=True, mapping=True):
@@ -104,11 +104,11 @@ def test_sample_turns_complete_whole_plan_then_wait_for_next_repeat(tmp_path, mo
     assert plan[0]['angle_deg'] == 17 and plan[0]['key_band'] and plan[0]['priority'] == 7
     assert plan[1]['angle_deg'] == 4 and not plan[1]['key_band']
     positions = []
-    original = SimulatorTurnAdapter.turn
-    def turn(self, **kwargs):
-        positions.append(kwargs['angle_deg'])
-        return original(self, **kwargs)
-    monkeypatch.setattr(SimulatorTurnAdapter, 'turn', turn)
+    original = AcqSimulatorAdapter.position_angle
+    def turn(self, angle, correlation_id):
+        positions.append(angle)
+        return original(self, angle, correlation_id)
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', turn)
     warmup = service.preheat(task['id'])
     service.stop(warmup['id'])
     assert not positions and not warmup.get('turns')
@@ -166,7 +166,7 @@ def test_missing_mapping_blocks_without_creating_task_and_fixed_angle_has_no_mot
 def test_fixed_angle_and_failed_turn_never_fabricate_or_confirm_data(tmp_path, monkeypatch):
     database, method = seed(tmp_path, multiple=False)
     service = AcquisitionService(database)
-    monkeypatch.setattr(SimulatorTurnAdapter, 'turn', lambda *a, **k: pytest.fail('fixed angle must not move'))
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', lambda *a, **k: pytest.fail('fixed angle must not move'))
     task = service.create_task(dict(method_id=method, repeat_count=1))
     done = finish_repeat(service, task['id'])
     assert done['status'] == 'completed'
@@ -180,13 +180,13 @@ def test_stop_and_restart_during_partial_plan_keeps_evidence(tmp_path, monkeypat
     service.start(task['id'])
     service.step(task['id'], single_repeat=True)
     service.pause(task['id'])
-    before = service.frames(task['id'], include_points=True)
+    before = service.frames(task['id'], include_points=True, evidence=True)
     assert before
     service.resume(task['id'])
     stopped = service.stop(task['id'])
     assert stopped['status'] == 'stopped' and stopped['completed_repeats'] == 0
     assert not stopped['samples'][0]['finalized'] and not stopped['samples'][0]['bands']
-    assert service.frames(task['id'], include_points=True) == before
+    assert service.frames(task['id'], include_points=True, evidence=True) == before
     assert not service._adapters
 
 
@@ -195,7 +195,7 @@ def test_failed_position_closes_adapter_and_keeps_unconfirmed_repeat(tmp_path, m
     service = AcquisitionService(database)
     task = service.create_task(dict(method_id=method, repeat_count=1))
     service.start(task['id'])
-    monkeypatch.setattr(SimulatorTurnAdapter, 'turn', lambda *a, **k: {'event_type': 'timeout'})
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', lambda *a, **k: {'event_type': 'timeout'})
     with pytest.raises(AcquisitionError): service.step(task['id'], single_repeat=True)
     failed = service.get_task(task['id'])
     assert failed['status'] == 'failed' and not failed['samples'][0]['finalized'] and not service._adapters
@@ -272,11 +272,11 @@ def test_restart_loses_active_session_without_confirming_partial_turn(tmp_path):
     service = AcquisitionService(database)
     task = service.create_task(dict(method_id=method, repeat_count=1))
     service.start(task['id']); service.step(task['id'], single_repeat=True)
-    before = service.frames(task['id'], include_points=True)
+    before = service.frames(task['id'], include_points=True, evidence=True)
     restarted = AcquisitionService(database)
     with pytest.raises(AcquisitionError): restarted.step(task['id'], single_repeat=True)
     assert restarted.get_task(task['id'])['status'] == 'failed'
-    assert restarted.frames(task['id'], include_points=True) == before
+    assert restarted.frames(task['id'], include_points=True, evidence=True) == before
     service._close_adapter(task['id'])
 
 
@@ -354,3 +354,35 @@ def test_each_angle_uses_its_own_calibration_and_line_positions(tmp_path):
     assert al['point'] == pytest.approx(500)
     assert spectrum['bands'][0]['wavelengths_nm'][500] == pytest.approx(al['wavelength_nm'])
     assert spectrum['bands'][0]['wavelengths_nm'] != spectrum['bands'][1]['wavelengths_nm']
+
+
+def test_confirm_simulated_turn_requires_debugging_and_exact_receipt(monkeypatch):
+    adapter = AcqSimulatorAdapter()
+    adapter.connect({'name': 'sim', 'transport': 'simulator'}, correlation_id='turn-guard-connect')
+    called = False
+
+    def spy_position(self, angle, correlation_id):
+        nonlocal called
+        called = True
+        return {'event_type': 'turn_complete', 'angle_deg': angle, 'correlation_id': correlation_id}
+
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', spy_position)
+    with pytest.raises(DeviceError) as not_debugging:
+        confirm_simulated_turn(adapter, 17.0, 'turn-guard-connected')
+    assert not_debugging.value.code == 'hardware_session_not_running' and not_debugging.value.status_code == 409
+    assert not called
+
+    adapter.start_debug(sample='280-288.acq', seed=1, fault_frame=None, correlation_id='turn-guard-debug')
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', lambda self, angle, correlation_id: {'event_type': 'turn_complete', 'angle_deg': angle + 1})
+    with pytest.raises(DeviceError) as wrong_angle:
+        confirm_simulated_turn(adapter, 17.0, 'turn-guard-wrong-angle')
+    assert wrong_angle.value.code == 'sample_turn_unconfirmed' and wrong_angle.value.status_code == 409
+
+    monkeypatch.setattr(AcqSimulatorAdapter, 'position_angle', lambda self, angle, correlation_id: {'event_type': 'timeout', 'angle_deg': angle})
+    with pytest.raises(DeviceError) as wrong_event:
+        confirm_simulated_turn(adapter, 17.0, 'turn-guard-wrong-event')
+    assert wrong_event.value.code == 'sample_turn_unconfirmed' and wrong_event.value.status_code == 409
+
+    monkeypatch.undo()
+    receipt = confirm_simulated_turn(adapter, 17.0, 'turn-guard-ok')
+    assert receipt['event_type'] == 'turn_complete' and receipt['angle_deg'] == 17.0

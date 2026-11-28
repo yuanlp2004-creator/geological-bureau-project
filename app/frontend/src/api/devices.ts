@@ -57,6 +57,17 @@ export type DeviceEvent = {
   }
 }
 
+export type DeviceOwner = 'alignment' | 'sample-acquisition' | 'evaporation-acquisition' | 'dispersion'
+export type DeviceOccupancy = {
+  owner: DeviceOwner
+  task_id: number | null
+  profile_id?: number | null
+  transport?: string
+  port: string | null
+  state: string
+  last_error?: { code: string; message: string } | null
+}
+
 export type DeviceDiagnostics = {
   adapter: {
     adapter: string
@@ -72,7 +83,8 @@ export type DeviceDiagnostics = {
     contract: Record<string, number>
   }
   profiles: DeviceProfile[]
-  active_captures?: Array<{ task_id: number; owner: string; port: string; state: string; profile_id?: number | null }>
+  ownership?: DeviceOccupancy | null
+  active_captures?: DeviceOccupancy[]
 }
 
 export type DevicePort = { device: string; port: number; description: string; is_bluetooth: boolean

@@ -33,6 +33,19 @@
 :root .app-shell .analysis-desk-error { padding:5px 8px; color:#b42318; background:#fff4f2; font-size:12px; }
 :root .app-shell .analysis-desk-error button { margin-left:12px; }
 :root .app-shell .analysis-legacy-page > .viewer-operation-dialog:has(.analysis-manager) { width:min(1320px,calc(100vw - 48px)); height:min(820px,calc(100dvh - 48px)); max-height:calc(100dvh - 48px); padding:16px; }
+:root .app-shell .analysis-legacy-page > .viewer-operation-dialog:has(.analysis-calculation-confirmation) { width:min(420px,calc(100vw - 32px)); }
+.analysis-calculation-options {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 16px;
+  min-width:0;
+  margin:12px 0 16px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:6px;
+}
+.analysis-calculation-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.analysis-calculation-footer .viewer-dialog-actions { justify-content:flex-end; }
 :root .app-shell .analysis-manager { height:calc(100% - 48px); min-height:300px; }
 :root .app-shell .analysis-manager .analysis-layout { height:100%; min-height:0; }
 :root .app-shell .analysis-manager[data-mode='setup'] .analysis-detail { display:none; }

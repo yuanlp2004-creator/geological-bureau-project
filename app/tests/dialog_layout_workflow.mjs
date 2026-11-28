@@ -131,38 +131,6 @@ export async function checkDialogLayouts(page, fixture, result, output) {
     }
   }
 
-  host = await go('hardware-acquisition', null, '[data-testid="hardware-acquisition-page"]')
-  await button(page, '新建任务').click()
-  dialog = page.getByRole('dialog', { name: '新建自动转角任务' })
-  await audit(dialog, 'turn-automatic')
-  await button(dialog, '手动').click(); await button(dialog, '新增转角').click()
-  await audit(dialog, 'turn-manual'); await dismiss(dialog)
-
-  host = await go('acquisition', null, '.device-debug-page')
-  await page.getByRole('tab', { name: '汞灯调试', exact: true }).click()
-  await button(page, '建立校准会话').click()
-  dialog = page.getByRole('dialog', { name: '建立汞灯校准会话' })
-  await audit(dialog, 'mercury-create')
-  await dialog.getByLabel('会话名称', { exact: true }).fill('弹窗汞灯模拟会话')
-  const creatingMercury = page.waitForResponse(r => r.url().endsWith('/mercury-calibrations/sessions') && r.request().method() === 'POST')
-  await button(dialog, '建立校准会话').click(); await dialog.waitFor({ state: 'hidden' })
-  const session = await (await creatingMercury).json()
-  await button(page, '启动').click()
-  for (let i = 0; i < 8; i++) {
-    const state = await call(page, `/api/v1/mercury-calibrations/sessions/${session.id}`)
-    if (state.status === 'ready') break
-    const stepped = page.waitForResponse(r => r.url().endsWith(`/sessions/${session.id}/step`))
-    await button(page, '单步').click(); await stepped
-  }
-  await button(page, '谱图读数').click()
-  dialog = page.getByRole('dialog', { name: '谱图点位与视野' })
-  await audit(dialog, 'mercury-readout'); await dismiss(dialog)
-  await button(page, '校准结果与轨迹').click()
-  dialog = page.getByRole('dialog', { name: '汞灯校准结果与轨迹' })
-  await audit(dialog, 'mercury-evidence'); await dismiss(dialog)
-  await page.getByTitle('安全停止', { exact: true }).click()
-  assert.ok((await call(page, `/api/v1/mercury-calibrations/sessions/${session.id}`)).safe_off)
-
   host = await go('spectra', null, '[data-testid="spectrum-viewer-page"]')
   dialog = await openViewerFiles(host)
   await audit(dialog, 'viewer-files'); await dismiss(dialog)
@@ -191,8 +159,7 @@ export async function checkDialogLayouts(page, fixture, result, output) {
   await call(page, `/api/v1/analyses/runs/${fixture.run_id}/results/merge`, { reason: 'dialog QA' })
   await navigate(page, 'data', '打印与导出', '[data-testid="data-processing-page"]')
   const report = page.getByTestId('reports-page')
-  await button(report, '建立报告版本').click()
-  await button(report, '预览').click()
+  await button(report, '预览报告').click()
   dialog = page.locator('.report-preview-modal')
   await dialog.locator('iframe').waitFor()
   await audit(dialog, 'report-preview'); await dismiss(dialog)

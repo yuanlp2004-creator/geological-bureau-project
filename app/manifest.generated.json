@@ -544,7 +544,8 @@
       "permissions": [
         "devices.read",
         "devices.write",
-        "devices.execute"
+        "devices.execute",
+        "mercury-calibration.read"
       ],
       "audit_actions": [
         "device_profile.create",
@@ -617,7 +618,10 @@
       "diagnostic_tables": [
         "device_profiles",
         "device_runtime_state",
-        "device_bluetooth_hidden"
+        "device_bluetooth_hidden",
+        "mercury_sessions",
+        "mercury_frames",
+        "mercury_alignment_versions"
       ],
       "diagnostic_response": "list",
       "diagnostic_note": "只检测设备管理软件；设备连接和通信需另行验证。"
@@ -729,7 +733,9 @@
       "permissions": [
         "acquisition.read",
         "acquisition.write",
-        "acquisition.execute"
+        "acquisition.execute",
+        "hardware-acquisition.read",
+        "hardware-acquisition.execute"
       ],
       "audit_actions": [
         "acquisition.task.create",
@@ -745,7 +751,15 @@
         "acquisition.interval.mark",
         "acquisition.sample.rename",
         "acquisition.sample.discard",
-        "acquisition.turn.position"
+        "acquisition.turn.position",
+        "acquisition.anomaly.detected",
+        "acquisition.decision.correct",
+        "acquisition.decision.retry",
+        "acquisition.decision.manual",
+        "acquisition.decision.accept",
+        "acquisition.decision.stop",
+        "acquisition.task.safety_stop",
+        "hardware.sample.save"
       ],
       "dependencies": [
         "core",
@@ -764,7 +778,9 @@
         "post-acquisition-rename",
         "realtime-measurements",
         "sample-discard",
-        "method-owned-sample-turns"
+        "method-owned-sample-turns",
+        "arc-peak-monitoring",
+        "confirmed-turn-analysis-sample"
       ],
       "navigation_entries": [
         {
@@ -817,118 +833,13 @@
       "diagnostic_tables": [
         "acquisition_tasks",
         "acquisition_samples",
-        "acquisition_frames"
-      ],
-      "diagnostic_response": "list",
-      "diagnostic_note": ""
-    },
-    {
-      "key": "hardware-acquisition",
-      "version": "0.1.0",
-      "title": "真实设备与自动转角",
-      "api_prefix": "/api/v1",
-      "route": "/hardware-acquisition",
-      "enabled": true,
-      "permissions": [
-        "hardware-acquisition.read",
-        "hardware-acquisition.write",
-        "hardware-acquisition.execute"
-      ],
-      "audit_actions": [
-        "hardware.task.create",
-        "hardware.task.start",
-        "hardware.task.deferred",
-        "hardware.turn.request",
-        "hardware.turn.response",
-        "hardware.frame.capture",
-        "hardware.anomaly.detected",
-        "hardware.decision.retry",
-        "hardware.decision.correct",
-        "hardware.decision.manual",
-        "hardware.decision.accept",
-        "hardware.task.pause",
-        "hardware.task.resume",
-        "hardware.task.stop",
-        "hardware.task.safety_stop",
-        "hardware.task.completed",
-        "hardware.sample.save"
-      ],
-      "dependencies": [
-        "core",
-        "auth",
-        "methods",
-        "devices",
-        "acquisition"
-      ],
-      "capabilities": [
-        "turn-plan-short-to-long",
-        "key-band-priority",
-        "hardware-trace",
-        "arc-baseline-anomaly",
-        "finite-retry",
-        "manual-takeover",
-        "safe-stop",
-        "serial-protocol-gate",
-        "confirmed-turn-analysis-sample"
-      ],
-      "navigation_entries": [],
-      "diagnostic_path": "/api/v1/hardware-acquisitions/tasks?limit=1",
-      "diagnostic_tables": [
+        "acquisition_frames",
         "hardware_tasks",
         "hardware_plan_steps",
         "hardware_frames"
       ],
       "diagnostic_response": "list",
-      "diagnostic_note": "只检测软件接口；真实转角协议与硬件仍待验收。"
-    },
-    {
-      "key": "mercury-calibration",
-      "version": "0.1.0",
-      "title": "汞灯调试与光学校准",
-      "api_prefix": "/api/v1",
-      "route": "/mercury-calibration",
-      "enabled": true,
-      "permissions": [
-        "mercury-calibration.read",
-        "mercury-calibration.write",
-        "mercury-calibration.execute"
-      ],
-      "audit_actions": [
-        "mercury.session.create",
-        "mercury.session.start",
-        "mercury.session.deferred",
-        "mercury.frame.capture",
-        "mercury.calibration.suggest",
-        "mercury.calibration.apply",
-        "mercury.calibration.rollback",
-        "mercury.session.stop",
-        "mercury.session.safe_off"
-      ],
-      "dependencies": [
-        "core",
-        "auth",
-        "devices",
-        "dispersion"
-      ],
-      "capabilities": [
-        "curated-mercury-lines",
-        "synthetic-spectrum",
-        "peak-offset",
-        "optical-correction-suggestion",
-        "immutable-alignment-version",
-        "rollback",
-        "safe-off",
-        "serial-protocol-gate"
-      ],
-      "navigation_entries": [],
-      "diagnostic_path": "/api/v1/mercury-calibrations/sessions?limit=1",
-      "diagnostic_tables": [
-        "mercury_sessions",
-        "mercury_frames",
-        "mercury_alignment_versions"
-      ],
-      "diagnostic_response": "list",
-      "diagnostic_note": "只检测软件接口；汞灯与光学系统仍需实机验证。"
+      "diagnostic_note": ""
     },
     {
       "key": "analysis",

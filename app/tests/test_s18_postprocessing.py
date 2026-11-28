@@ -389,6 +389,76 @@ def test_export_formats_have_stable_columns_and_atomic_same_name(tmp_path: Path)
     assert Path(excel_export["path"]).name == "matrix.xls"
 
 
+@pytest.mark.parametrize("strategy", ["error", "suffix", "overwrite"])
+def test_export_again_applies_same_name_strategy_to_modified_output(tmp_path: Path, strategy: str) -> None:
+    _, service = _fixture(tmp_path)
+    payload = dict(record_ids=["raw:1"], kind="raw_intensity", format="csv",
+                   output_directory=str(tmp_path / "exports"), filename="matrix", same_name_strategy=strategy)
+    first = service.export(payload)
+    original = Path(first["path"])
+    content = original.read_bytes()
+    original.write_bytes(b"edited by operator")
+
+    if strategy == "error":
+        with pytest.raises(PostProcessingError) as error:
+            service.export(payload)
+        assert error.value.code == "postprocessing_export_exists"
+        assert service.exports() == [first]
+    else:
+        second = service.export(payload)
+        assert second["id"] != first["id"]
+        assert second["input_sha256"] != first["input_sha256"]
+        assert second["content_sha256"] == first["content_sha256"]
+        assert Path(second["path"]).read_bytes() == content
+        assert Path(second["path"]).name == ("matrix (2).csv" if strategy == "suffix" else "matrix.csv")
+        assert {row["id"] for row in service.exports()} == {first["id"], second["id"]}
+    assert original.read_bytes() == (content if strategy == "overwrite" else b"edited by operator")
+
+
+def test_export_after_deletion_creates_a_new_record(tmp_path: Path) -> None:
+    _, service = _fixture(tmp_path)
+    payload = dict(record_ids=["raw:1"], kind="raw_intensity", format="csv",
+                   output_directory=str(tmp_path / "exports"), same_name_strategy="error")
+    first = service.export(payload)
+    Path(first["path"]).unlink()
+    second = service.export(payload)
+    assert second["path"] == first["path"]
+    assert second["id"] != first["id"]
+    assert Path(second["path"]).is_file()
+    assert len(service.exports()) == 2
+
+
+def test_export_explicit_key_replays_receipt_without_writing_or_hashing_again(tmp_path: Path, monkeypatch) -> None:
+    from backend.modules.postprocessing import exporting
+    from backend.schemas.postprocessing import PostProcessingExportRequest
+
+    _, service = _fixture(tmp_path)
+    payload = PostProcessingExportRequest(record_ids=["raw:1"], kind="raw_intensity", format="csv",
+        output_directory=str(tmp_path / "exports"), idempotency_key="retry-1").model_dump()
+    original_sha = exporting._sha
+    content_hashes = []
+
+    def counted_sha(value):
+        if isinstance(value, bytes):
+            content_hashes.append(value)
+        return original_sha(value)
+
+    monkeypatch.setattr(exporting, "_sha", counted_sha)
+    first = service.export(payload)
+    output = Path(first["path"])
+    output.write_bytes(b"edited after export")
+    assert service.export(payload) == first
+    assert output.read_bytes() == b"edited after export"
+    output.unlink()
+    assert service.export(payload) == first
+    assert len(content_hashes) == 1
+    assert not list(output.parent.iterdir())
+    assert service.exports() == [first]
+    with pytest.raises(PostProcessingError) as error:
+        service.export(payload | {"filename": "another-name"})
+    assert error.value.code == "postprocessing_export_key_conflict"
+
+
 def test_recalculation_blocks_exact_method_mismatch_without_mutating_result(tmp_path: Path) -> None:
     database, service = _fixture(tmp_path)
     _, method_version_id, curve_id = _seed_method_curve(database)

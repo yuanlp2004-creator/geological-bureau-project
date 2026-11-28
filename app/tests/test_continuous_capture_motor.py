@@ -17,7 +17,9 @@ Wire, serial_profile, transfer, wait_for, wire_factory = (_serial_tests[key] for
     ('Wire', 'serial_profile', 'transfer', 'wait_for', 'wire_factory'))
 seed = runpy.run_path(str(Path(__file__).with_name('test_sample_turn_integration.py')))['seed']
 from backend.db import utc_now
-from backend.modules.acquisition import AcquisitionService
+from backend.config import AppConfig
+from backend.runtime import Runtime
+from backend.modules.acquisition import AcquisitionError, AcquisitionService
 from backend.modules.devices import DeviceError
 from backend.modules.devices import motor_turn
 from backend.modules.devices.service import DeviceService
@@ -31,8 +33,9 @@ def add_operator(database):
                    (utc_now(), utc_now()))
 
 
-def preliminary(database, kind, profile_id=1, *, group=None, angles=(17, 4)):
-    service = DispersionService(database) if kind == 'dispersion' else AcquisitionService(database)
+def preliminary(database, kind, profile_id=1, *, group=None, angles=(17, 4), service=None):
+    if service is None:
+        service = DispersionService(database) if kind == 'dispersion' else AcquisitionService(database)
     group = group or uuid.uuid4().hex
     tasks = []
     for index, angle in enumerate(angles):
@@ -328,4 +331,49 @@ def test_stop_or_disconnect_never_starts_next_angle(tmp_path, motor_server, wire
     assert not first['result_sha256']
     if fault == 'stop_unconfirmed':
         assert first['failure_code'] == 'motor_stop_unconfirmed'
+        wait_for(lambda: service._sequence.current() is None)
+        with pytest.raises(AcquisitionError) as blocked:
+            service.start(ids[1], 1)
+        assert blocked.value.code == 'device_busy'
+        assert service._hardware.current().task_id == ids[0]
+        motor.stop_confirmed = True
+        assert service.stop(ids[0], 1)['stop_confirmed'] is True
+        assert service._hardware.current() is None
     assert wire.writes == [] if fault.startswith('stop') else wire.writes[0][0] == 0xF0
+
+
+def test_continuous_capture_waits_for_previous_port_close_and_keeps_ownership(tmp_path, motor_server, wire_factory):
+    database, _ = seed(tmp_path)
+    profile = serial_profile(database)
+    motor = bind(database, profile, motor_server)
+    runtime = Runtime(AppConfig(data_dir=tmp_path), database=database)
+    service, ids = preliminary(database, 'dispersion', profile['id'], service=runtime.dispersion_service())
+    closing, proceed = threading.Event(), threading.Event()
+
+    class ClosingWire(CheckedWire):
+        def close(self):
+            closing.set()
+            assert proceed.wait(8)
+            super().close()
+
+    first = ClosingWire(motor, capture_payloads())
+    second = CheckedWire(motor, capture_payloads())
+    wire_factory[0].extend((first, second))
+    motor.allow_arrival.set()
+    service.start_sequence(ids[0], 1)
+    try:
+        assert closing.wait(6)
+        assert service.get_task(ids[0])['status'] == 'completed'
+        assert service.get_task(ids[1])['status'] == 'draft'
+        assert runtime.active_serial_captures()[0]['task_id'] == ids[0]
+        with pytest.raises(DeviceError) as rejected:
+            runtime.devices_service().connect(profile['id'])
+        assert rejected.value.status_code == 409 and rejected.value.code == 'device_busy'
+        assert wire_factory[1] == [first]
+    finally:
+        proceed.set()
+        try:
+            wait_for(lambda: second.closed and runtime.device_ownership.snapshot() is None)
+        finally:
+            runtime.shutdown()
+    assert service.get_task(ids[1])['status'] == 'completed'

@@ -79,6 +79,7 @@ def test_document_geometry_and_pagination_accept_internal_settings():
 
 def test_calculation_modules_do_not_import_storage_requests_or_renderers():
     root = Path(__file__).resolve().parents[1] / "backend/modules"
+    forbidden = {"sqlite3", "db", "schemas", "fastapi", "reportlab", "subprocess", "pathlib"}
     for relative in (
         "postprocessing/legacy_calculation.py",
         "method_printing/document.py",
@@ -87,13 +88,9 @@ def test_calculation_modules_do_not_import_storage_requests_or_renderers():
         tree = ast.parse((root / relative).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
-                modules = [item.name for item in node.names] if isinstance(node, ast.Import) else [node.module or ""]
-                assert all(
-                    not any(
-                        part in name.split(".")
-                        for part in ("sqlite3", "db", "schemas", "fastapi", "reportlab", "subprocess", "pathlib")
-                    )
-                    for name in modules
-                ), relative
+                names = [alias.name for alias in node.names]
+                if isinstance(node, ast.ImportFrom) and node.module:
+                    names.append(node.module)
+                assert all(not forbidden.intersection(name.split(".")) for name in names), relative
             elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 assert node.func.id not in {"open", "Database"}, relative

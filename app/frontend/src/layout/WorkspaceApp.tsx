@@ -41,12 +41,11 @@ import { WorkspaceOpenMethodDialog } from '../pages/methods/OpenMethodDialog'
 import type { MethodShortcutAction, MethodShortcutRequest } from '../pages/methods/methodShortcuts'
 import { MigrationWorkspace } from '../pages/migration/MigrationWorkspace'
 import { SpectrumViewerPage } from '../pages/spectra/SpectrumViewerPage'
-import { hashPermissions } from '../stores/workbenchStore'
+import { permissionScopeKey } from '../stores/workbenchStore'
 import { SampleQueuePage } from '../pages/sampleQueues/SampleQueuePage'
 import { AboutPage } from '../pages/about/AboutPage'
 import { UsersPage } from '../pages/auth/UsersPage'
 import { AuditPage } from '../pages/auth/AuditPage'
-import { ExtensionPage } from '../pages/extensions/ExtensionPage'
 
 export function WorkspaceApp({ token, user, onLogout }: { token: string; user: AuthUser; onLogout: () => void }) {
   const theme = useTheme()
@@ -83,10 +82,9 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
   }), [])
   const [toast, setToast] = useState<ToastNotice | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeExtension, setActiveExtension] = useState<Capability | null>(null)
   const showToast = useCallback((message: string) => setToast({ message, tone: feedbackToneFor(message) }), [])
   const entries = useMemo(() => navigationEntries(capabilities, user.permissions), [capabilities, user.permissions])
-  const permissionsKey = useMemo(() => hashPermissions(user.permissions), [user.permissions])
+  const permissionsKey = useMemo(() => permissionScopeKey(user.permissions), [user.permissions])
   const methodVersionId = currentMethod?.referenced_version?.id ?? null
   const workbenchIdentity = { userId: user.id, permissionsKey, methodVersionId }
   const workbenchKey = JSON.stringify([user.id, permissionsKey, methodVersionId])
@@ -133,30 +131,23 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
     setLoading(true)
     if (canReadEvents) void runtimeEventsStore.refresh()
     if (refreshDevices && canReadDevices) void hardwareLockStore.reconcile(token)
-    try {
-      const currentPromise = user.permissions.includes('methods.read')
-        ? api.currentMethod(token)
-        : Promise.resolve(null)
-      const aboutPromise = user.permissions.includes('about.read') ? api.about(token) : Promise.resolve(null)
-      const [nextHealth, nextSettings, nextAbout, nextCapabilities, nextCurrentMethod] =
-        await Promise.all([
-          api.health(),
-          user.permissions.includes('settings.read') ? api.settings(token) : Promise.resolve(null),
-          aboutPromise,
-          api.capabilities(),
-          currentPromise
-        ])
-      if (!isCurrent()) return
-      setHealth(nextHealth.status === 'ok' ? 'online' : 'offline')
-      setSettings(nextSettings)
-      setAbout(nextAbout)
-      setCapabilities(nextCapabilities.capabilities)
-      if (methodRevision === currentMethodRevision.current) setCurrentMethod(nextCurrentMethod)
-    } catch {
-      if (isCurrent()) setHealth('offline')
-    } finally {
-      if (isCurrent()) setLoading(false)
-    }
+    const healthCheck = api.health().then(
+      (status) => { if (isCurrent()) setHealth(status.status === 'ok' ? 'online' : 'offline') },
+      () => { if (isCurrent()) setHealth('offline') },
+    )
+    const optional = <T,>(request: Promise<T>, apply: (value: T) => void) => request.then((value) => {
+      if (isCurrent()) apply(value)
+    }, () => undefined)
+    await Promise.all([
+      healthCheck,
+      user.permissions.includes('settings.read') && optional(api.settings(token), setSettings),
+      user.permissions.includes('about.read') && optional(api.about(token), setAbout),
+      optional(api.capabilities(), (manifest) => setCapabilities(manifest.capabilities)),
+      user.permissions.includes('methods.read') && optional(api.currentMethod(token), (method) => {
+        if (methodRevision === currentMethodRevision.current) setCurrentMethod(method)
+      }),
+    ])
+    if (isCurrent()) setLoading(false)
   }, [token, user.permissions, canReadEvents, canReadDevices])
 
   useLayoutEffect(() => {
@@ -223,7 +214,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
       const explicitView = entry.page === 'methods'
         ? Boolean(methodAction || explicitMethodView || entry.view === 'lines' || entry.view?.startsWith('print-') || page === 'methods')
         : entry.page === 'analysis' && Boolean(entry.view && entry.view !== 'raw')
-      if (entry.extension) setActiveExtension(entry.extension)
       setMethodShortcut(methodAction ? { id: ++shortcutId.current, action: methodAction } : null)
       setTarget(current => ({
         page: entry.page, key: entry.key, view: entry.view, entryView: entry.view, explicitView,
@@ -302,7 +292,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
           <main className="main-area">
             <Header
               activeEntry={activeEntry}
-              extensionTitle={activeExtension?.title}
               onRefresh={() => void loadData(true)}
               loading={loading}
               onNavigate={handlePage}
@@ -333,7 +322,7 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
                 }} />
             )}
             <div className="page-scroll-region">
-            {activeEntry && !isSpectroscopyMode(page) && page !== 'analysis' && page !== 'extension' && <PageHeading entry={activeEntry} actionsRef={setPageActionsTarget} />}
+            {activeEntry && !isSpectroscopyMode(page) && page !== 'analysis' && <PageHeading entry={activeEntry} actionsRef={setPageActionsTarget} />}
             {page === 'workspace' && (
               <Workspace
                 token={token}
@@ -426,9 +415,6 @@ export function WorkspaceApp({ token, user, onLogout }: { token: string; user: A
             )}
             {page === 'users' && <UsersPage token={token} currentUser={user} onToast={showToast} />}
             {page === 'audit' && <AuditPage token={token} />}
-            {page === 'extension' && activeExtension && (
-              <ExtensionPage token={token} extension={activeExtension} onToast={showToast} />
-            )}
             </div>
             {canReadEvents && <MessagePanel key={user.id} userId={user.id} onHeightChange={setDockHeight}
               health={health} canReadDevices={canReadDevices} expanded={informationExpanded}

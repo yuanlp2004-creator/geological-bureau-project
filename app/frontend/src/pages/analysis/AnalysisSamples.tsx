@@ -10,7 +10,7 @@ type PanelProps = {
   busy: boolean
   canCurve: boolean
   selected: AnalysisRun
-  mutate: (operation: () => Promise<AnalysisRun>, success: string, continuous?: boolean) => Promise<boolean>
+  mutate: (operation: () => Promise<AnalysisRun>, success: string) => Promise<boolean>
   token: string
   curveLine: AnalysisCurveLine
 }

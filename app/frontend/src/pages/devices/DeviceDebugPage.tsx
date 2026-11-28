@@ -60,8 +60,7 @@ export function DeviceDebugPage({ token, permissions, settings, initialView, onS
         onSettingsChange={onSettingsChange} onToast={onToast} actionsTarget={actionsTarget} active={tab === item.id} />}
       {item.id === 'device' && <DeviceParameters token={token} canWrite={permissions.includes('devices.write')} canExecute={permissions.includes('devices.execute')}
         handoffPurpose={permissions.includes('acquisition.execute') ? 'acquisition'
-          : permissions.includes('dispersion.execute') ? 'dispersion'
-          : permissions.includes('hardware-acquisition.execute') ? 'hardware-acquisition' : undefined}
+          : permissions.includes('dispersion.execute') ? 'dispersion' : undefined}
         canWriteScreen={permissions.includes('settings.write')} canReadLayouts={permissions.includes('methods.read')}
         settings={settings} onSettingsChange={onSettingsChange} revision={revision} onSaved={onDeviceSaved} onProfileChange={setProfile} onToast={onToast} actionsTarget={actionsTarget} active={tab === item.id} />}
       {item.id === 'connection' && <DeviceConnection token={token} canWrite={permissions.includes('devices.write')} canExecute={permissions.includes('devices.execute')}

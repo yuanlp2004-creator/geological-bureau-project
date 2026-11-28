@@ -47,8 +47,6 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
             "devices",
             "dispersion",
             "acquisition",
-            "hardware-acquisition",
-            "mercury-calibration",
             "analysis",
             "postprocessing",
             "reports",
@@ -61,8 +59,18 @@ def test_s01_api_contract(tmp_path, monkeypatch) -> None:
         assert all(entry["key"] != "analysis-tests.hardware" for entry in navigation)
         diagnostics = client.get("/api/v1/diagnostics", headers=headers)
         assert diagnostics.status_code == 200
-        assert diagnostics.json()["sqlite_integrity"] == "ok"
+        assert diagnostics.json()["sqlite_integrity"] == "unchecked"
         assert diagnostics.json()["journal_mode"].lower() == "wal"
+        assert diagnostics.json()["foreign_keys"] == 1
+        assert diagnostics.json()["schema_version"] > 0
+        assert diagnostics.json()["event_count"] >= 0
+        maintenance = client.get("/api/v1/maintenance/status", headers=headers)
+        assert maintenance.status_code == 200
+        assert maintenance.json()["integrity"] == "unchecked"
+        assert maintenance.json()["foreign_key_errors"] is None
+        backups = client.get("/api/v1/backups", headers=headers)
+        assert backups.status_code == 200
+        assert backups.json() == maintenance.json()["backups"] == []
         settings = client.get("/api/v1/settings", headers=headers)
         assert settings.status_code == 200
         assert settings.json()["directories"]["data"] == "data"

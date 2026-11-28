@@ -34,18 +34,16 @@ test('sidebar starts expanded and each account remembers its own manual layout',
   assert.deepEqual(reopened.getSnapshot().view, { ...expandedSidebar, informationExpanded: true })
 })
 
-test('existing explicit drawer preference survives an upgrade and new choices take precedence', () => {
+test('the current layout key is the source of the saved drawer preference', () => {
   const { store, entries } = setup()
   entries.set('geospectrum:information-panel:1', JSON.stringify({ layoutVersion: 2, collapsed: false, height: 230 }))
-  entries.set('geospectrum:information-panel:2', JSON.stringify({ collapsed: false }))
-
   store.startSession(1)
-  assert.equal(store.getSnapshot().view.informationExpanded, true)
-  store.setInformationExpanded(false)
+  assert.equal(store.getSnapshot().view.informationExpanded, false)
+  store.setInformationExpanded(true)
   store.startSession(2)
   assert.equal(store.getSnapshot().view.informationExpanded, false)
   store.startSession(1)
-  assert.equal(store.getSnapshot().view.informationExpanded, false)
+  assert.equal(store.getSnapshot().view.informationExpanded, true)
 })
 
 test('storage failures and corrupt preferences leave usable session state', () => {

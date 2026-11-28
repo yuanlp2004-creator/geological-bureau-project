@@ -1,6 +1,6 @@
 import { PageFileActions } from '../../components/PageFileActions'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { ReportBuilder, type ReportDraft, type ReportSource } from './ReportBuilder'
 import type { ReportSummary } from '../../api/reports'
@@ -9,6 +9,7 @@ import { ReportOutput, ReportPreview, type ReportPreviewState } from './ReportOu
 import { api, type PrinterOption, type Report, type ReportTemplate } from '../../api'
 
 type Props = { source: ReportSource | null; onSourceChange: (source: ReportSource) => void; actionsTarget?: HTMLElement | null; actionsActive?: boolean; embedded?: boolean; canReadAnalysis?: boolean; token: string; canWrite: boolean; canExport: boolean; onToast: (message: string) => void }
+type SelectedPreview = ReportPreviewState & { reportId: number; requestId: number; selectionId: number }
 
 export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActive = true, embedded = false, canReadAnalysis = true, token, canWrite, canExport, onToast }: Props) {
   const currentSource = source?.kind === 'analysis' && !canReadAnalysis ? null : source
@@ -21,19 +22,24 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
   const [detailError, setDetailError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [outputBusy, setOutputBusy] = useState(false)
-  const [previewState, setPreviewState] = useState<ReportPreviewState | null>(null)
+  const [previewState, setPreviewState] = useState<SelectedPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState<Report | null>(null)
 
+  const actionsActiveRef = useRef(actionsActive)
   const detailRequest = useRef(0)
   const previewRequest = useRef(0)
-  const confirming = useRef(false)
-  useEffect(() => () => { detailRequest.current++; previewRequest.current++ }, [token])
+  const listRequest = useRef(0)
+  const resourcesRequest = useRef(0)
+  const creating = useRef(false)
+  const outputLock = useRef(false)
+  useLayoutEffect(() => () => { listRequest.current++; resourcesRequest.current++ }, [token])
+  useLayoutEffect(() => () => { detailRequest.current++; previewRequest.current++ }, [token])
   const closePreview = () => {
     previewRequest.current++
     setPreviewState(null)
     setPreviewLoading(null)
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     detailRequest.current++
     closePreview()
     setActive(null)
@@ -42,19 +48,37 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
     setDetailError(null)
   }, [currentSource?.kind, currentSource?.id])
 
-  const load = async () => {
+  useLayoutEffect(() => {
+    actionsActiveRef.current = actionsActive
+    if (!actionsActive) closePreview()
+  }, [actionsActive])
+
+  const loadReports = useCallback(async () => {
+    const request = ++listRequest.current
     try {
-      const [nextReports, nextTemplates, nextPrinters] = await Promise.all([
-        api.reports(token), api.reportTemplates(token), api.reportPrinters(token),
-      ])
-      setReports(nextReports)
-      setTemplates(nextTemplates)
-      setPrinters(nextPrinters.printers)
+      const next = await api.reports(token)
+      if (request === listRequest.current) setReports(next)
     } catch (error) {
-      onToast(error instanceof Error ? error.message : '无法加载报告数据')
+      if (request === listRequest.current) onToast(error instanceof Error ? error.message : '无法加载报告列表')
     }
-  }
-  useEffect(() => { void load() }, [token, canReadAnalysis])
+  }, [token, onToast])
+  const load = useCallback(async () => {
+    const request = ++resourcesRequest.current
+    await Promise.all([
+      loadReports(),
+      api.reportTemplates(token).then((next) => {
+        if (request === resourcesRequest.current) setTemplates(next)
+      }, (error: unknown) => {
+        if (request === resourcesRequest.current) onToast(error instanceof Error ? error.message : '无法加载报告模板')
+      }),
+      api.reportPrinters(token).then((next) => {
+        if (request === resourcesRequest.current) setPrinters(next.printers)
+      }, () => {
+        if (request === resourcesRequest.current) setPrinters([])
+      }),
+    ])
+  }, [loadReports, token, onToast])
+  useEffect(() => { void load() }, [load])
   const selectReport = async (report: ReportSummary) => {
     const requestId = ++detailRequest.current
     closePreview()
@@ -77,6 +101,8 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
   }
   const create = async (input: ReportDraft) => {
     if (!currentSource) return onToast('请先打开要建立报告的数据')
+    if (!canWrite || busy || creating.current || !actionsActiveRef.current) return
+    creating.current = true
     setBusy(true)
     const requestId = ++detailRequest.current
     closePreview()
@@ -84,19 +110,22 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
     setDetailError(null)
     try {
       const next = await api.createReport(token, input)
+      setReports((current) => [next, ...current.filter((item) => item.id !== next.id)])
+      void loadReports()
       if (requestId === detailRequest.current) {
         setSelected(next)
         setActive(next)
+        await preview(next)
       }
-      setReports((current) => [next, ...current])
-      onToast(`报告 ${next.report_number} v${next.version} 已建立`)
     } catch (error) {
-      onToast(error instanceof Error ? error.message : '报告建立失败')
+      if (requestId === detailRequest.current) onToast(error instanceof Error ? error.message : '报告建立失败')
     } finally {
+      creating.current = false
       setBusy(false)
     }
   }
   const preview = async (report: Report) => {
+    if (!actionsActiveRef.current) return
     const requestId = ++previewRequest.current
     const selectionId = detailRequest.current
     const isCurrent = () => requestId === previewRequest.current && selectionId === detailRequest.current
@@ -104,26 +133,24 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
     setPreviewLoading(report)
     try {
       const markup = await api.reportPreview(token, report.id)
-      if (isCurrent()) setPreviewState({ title: `${report.report_number} v${report.version} · 报告预览`, html: markup })
+      if (isCurrent()) setPreviewState({ title: `${report.report_number} v${report.version} · 报告预览`,
+        html: markup, reportId: report.id, requestId, selectionId })
     } catch (error) {
       if (isCurrent()) onToast(error instanceof Error ? error.message : '预览失败')
     } finally {
       if (isCurrent()) setPreviewLoading(null)
     }
   }
-  const confirm = async () => {
-    if (!active || !canWrite) return onToast('请选择报告并确认写入权限')
-    if (confirming.current || busy || outputBusy) return
-    confirming.current = true
-    setBusy(true)
+  const runOutput = async (action: () => Promise<void>) => {
+    if (outputLock.current) return
+    outputLock.current = true
+    setOutputBusy(true)
     try {
-      const next = await api.confirmReport(token, active.id)
-      setActive((current) => current?.id === next.id ? next : current)
-      setReports((current) => current.map((item) => item.id === next.id ? next : item))
-      onToast('报告已确认，可导出或打印')
-    } catch (error) {
-      onToast(error instanceof Error ? error.message : '报告确认失败')
-    } finally {confirming.current=false;setBusy(false)}
+      await action()
+    } finally {
+      outputLock.current = false
+      setOutputBusy(false)
+    }
   }
   return <div className="page-content reports-page refined-page remaining-page" data-testid="reports-page">
     <section className="page-action-toolbar" style={embedded ? {display: 'contents'} : undefined}>
@@ -132,7 +159,6 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
         if (result.record_ids.length !== 1) throw new Error('每次请选择一个 DAT 报告文件')
         const opened = (await api.legacyReportSources(token)).find(item => item.id === result.record_ids[0])
         if (!opened) throw new Error('无法读取已打开的 DAT 数据，请重试')
-        await load()
         onSourceChange({ kind: 'dat', id: opened.id, name: path.split(/[\\/]/).pop() || path, sampleCount: opened.sample_names.length })
       }}/>
       <button className="secondary-button" disabled={outputBusy} onClick={() => void load()}>
@@ -144,10 +170,20 @@ export function ReportsPage({ source, onSourceChange, actionsTarget, actionsActi
         canWrite={canWrite} busy={busy || outputBusy} onCreate={create} onToast={onToast} />
       <ReportOutput reports={reports} active={active} selectedId={selected?.id}
         loading={detailLoading} error={detailError} retry={() => selected ? selectReport(selected) : Promise.resolve()}
-        canWrite={canWrite} disabled={busy || outputBusy}
-        selectReport={selectReport} preview={preview} confirm={confirm} />
+        disabled={busy}
+        selectReport={selectReport} preview={preview} />
     </div>
-    <ReportExportPanel token={token} active={active} printers={printers} canExport={canExport} onBusyChange={setOutputBusy} onToast={onToast} />
-    <ReportPreview previewLoading={previewLoading} previewState={previewState} closePreview={closePreview} />
+    <ReportPreview previewLoading={previewLoading} previewState={previewState} closePreview={closePreview}>
+      {active && previewState?.reportId === active.id && <ReportExportPanel token={token} report={active}
+        printers={printers} canWrite={canWrite} canExport={canExport} pending={outputBusy} onToast={onToast}
+        isCurrent={() => actionsActiveRef.current && previewState.requestId === previewRequest.current &&
+          previewState.selectionId === detailRequest.current} run={runOutput}
+        onConfirmed={(report) => {
+          if (previewState.selectionId !== detailRequest.current) return
+          setActive(report)
+          setReports((current) => current.map((item) => item.id === report.id ? report : item))
+          void loadReports()
+        }} />}
+    </ReportPreview>
   </div>
 }

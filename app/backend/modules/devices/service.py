@@ -4,6 +4,7 @@ import uuid
 import threading
 import time
 import re
+from contextlib import contextmanager
 from functools import wraps
 from typing import Any
 from ...db import Database, utc_now
@@ -11,6 +12,7 @@ from .profiles import screen_conversion, validate_profile
 from .simulator import AcqSimulatorAdapter
 from .factory import create_device_adapter
 from .motor_turn import motor_binding, prepare_motor_turn, save_motor_binding
+from .ownership import DeviceOwnership
 from .values import DeviceError, DeviceEvent
 from .ports import bluetooth_connections as system_bluetooth_connections
 
@@ -24,7 +26,7 @@ def device_command(method):
 
 
 class DeviceService:
-    def __init__(self, database: Database, *, exit_gate=None, on_serial_notice=None):
+    def __init__(self, database: Database, *, exit_gate=None, on_serial_notice=None, ownership=None):
         self.database = database
         self.adapter = AcqSimulatorAdapter()
         self._control = threading.RLock()
@@ -36,6 +38,9 @@ class DeviceService:
         self._settled_at: float | None = None
         self._exit_gate = exit_gate
         self._on_serial_notice = on_serial_notice
+        self._ownership = ownership or DeviceOwnership(exit_gate)
+        self._alignment = None
+        self._connection_test = None
 
     def bluetooth_devices(self) -> dict[str, Any]:
         result = system_bluetooth_connections()
@@ -247,6 +252,7 @@ class DeviceService:
         return self.profile(profile_id)
 
     def connect(self, profile_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+        self._ownership.check_alignment(self._alignment)
         with self._control:
             return self._connect(profile_id, actor_user_id)
 
@@ -254,18 +260,36 @@ class DeviceService:
         self._assert_turn_idle()
         profile = self.profile(profile_id)
         correlation_id = str(uuid.uuid4())
+        use = None
+        previous = self._alignment
         try:
-            if self.adapter.diagnostics()["connected"] and (
-                profile["transport"] == "serial" or self.adapter.diagnostics()["adapter"] != "acq-simulator"
+            diagnostics = self.adapter.diagnostics()
+            if diagnostics["connected"] and (
+                profile["transport"] == "serial" or diagnostics["adapter"] != "acq-simulator"
             ):
                 raise DeviceError("device_busy", "请先停止并断开当前设备再切换档案", status_code=409)
+            if previous is not None:
+                self._ownership.begin_alignment(previous, 'connecting')
+                use = previous
+            else:
+                use, _ = self._ownership.reserve('alignment', profile, 'connecting')
+            self._alignment = use
             if not (profile["transport"] == "simulator" and isinstance(self.adapter, AcqSimulatorAdapter)):
                 self.adapter = create_device_adapter(
                     profile, exit_gate=self._exit_gate, on_serial_notice=self._on_serial_notice,
                 )
             event = self.adapter.connect(profile, correlation_id=correlation_id)
+            self._ownership.update(use, 'connected', profile_id=profile_id)
             self._angle = self._settled_at = None
         except DeviceError as exc:
+            if use is not None:
+                if exc.code == 'serial_stop_unconfirmed':
+                    self._ownership.update(use, 'stop_unconfirmed', error=exc.detail())
+                elif use is previous:
+                    self._update_alignment()
+                else:
+                    self._ownership.release(use)
+                    self._alignment = None
             exc.details.setdefault("correlation_id", correlation_id)
             self._audit(
                 actor_user_id, "device.connect.failed", profile_id, {**exc.detail(), "correlation_id": correlation_id}
@@ -280,11 +304,10 @@ class DeviceService:
         return {"profile": profile, "diagnostics": self.diagnostics(), "event": event.to_dict()}
 
     def shutdown(self) -> list[dict[str, Any]]:
-        with self._control:
-            try:
-                self.disconnect()
-            except DeviceError as exc:
-                return [exc.detail()]
+        try:
+            self.disconnect()
+        except DeviceError as exc:
+            return [exc.detail()]
         return []
 
     @device_command
@@ -294,23 +317,55 @@ class DeviceService:
             return
         if self.adapter.state.value != "connected" or self.adapter.profile.get("id") != profile_id:
             raise DeviceError("device_busy", "请先停止并断开当前调试，再开始摄谱", status_code=409)
-        self.disconnect(actor_user_id=actor_user_id)
+        self._disconnect_alignment(actor_user_id)
 
-    @device_command
-    def test_connection(self, profile_id: int, actor_user_id: int | None = None, *, handoff: bool = False) -> dict[str, Any]:
-        """Old FmOptHardWare test: one CCD frame, no sample records, then close."""
-        self._assert_turn_idle()
+    @contextmanager
+    def capture_session(self, owner, profile_id, actor_user_id, *, position_controlled=False):
         profile = self.profile(profile_id)
-        if self.adapter.diagnostics()["connected"]:
-            # Capture owns its own adapter. Release only this same, idle port
-            # before the existing finite CCD check; never interrupt a task.
-            if (handoff and self.adapter.state.value == 'connected'
-                    and self.adapter.profile.get('id') == profile_id):
-                self.disconnect(actor_user_id=actor_user_id)
+        if profile['transport'] != 'serial':
+            yield
+            return
+        with self._connection_reservation(owner, profile, actor_user_id, handoff=True,
+                                          position_controlled=position_controlled) as use:
+            if not position_controlled:
+                self.test_connection(profile_id, actor_user_id=actor_user_id, reservation=use)
+            if use.cancel.is_set():
+                raise DeviceError('device_operation_cancelled', '设备操作已停止', status_code=409)
+            yield
+
+    @contextmanager
+    def _connection_reservation(self, owner, profile, actor, *, handoff, position_controlled=False):
+        transfer = None
+        if handoff:
+            if position_controlled:
+                transfer = lambda _: None
             else:
-                raise DeviceError("device_busy", "请先停止并断开当前调试，再进行连接测试", status_code=409)
+                transfer = lambda profile_id: self.release_for_capture(profile_id, actor)
+        use, _ = self._ownership.reserve(owner, profile, 'reserved' if position_controlled else 'testing',
+                                         handoff=transfer)
+        with self._control:
+            try:
+                if use.cancel.is_set() or self._exit_gate is not None and self._exit_gate.is_set():
+                    raise DeviceError('device_operation_cancelled', '设备操作已停止', status_code=409)
+                yield use
+            finally:
+                if use.state != 'stop_unconfirmed':
+                    self._ownership.release(use, restore=self._alignment if position_controlled else None)
+
+    def test_connection(self, profile_id: int, actor_user_id: int | None = None, *, handoff: bool = False,
+                        owner='alignment', reservation=None) -> dict[str, Any]:
+        profile = self.profile(profile_id)
+        if reservation is not None:
+            return self._test_connection(profile, actor_user_id, reservation)
+        with self._connection_reservation(owner, profile, actor_user_id, handoff=handoff) as use:
+            return self._test_connection(profile, actor_user_id, use)
+
+    def _test_connection(self, profile, actor_user_id, use) -> dict[str, Any]:
+        """Old FmOptHardWare test: one CCD frame, no sample records, then close."""
+        profile_id = profile['id']
         correlation_id = str(uuid.uuid4())
         adapter = create_device_adapter(profile, exit_gate=self._exit_gate, on_serial_notice=self._on_serial_notice)
+        self._connection_test = (use, adapter)
         frame = None
         failure = None
         try:
@@ -318,9 +373,13 @@ class DeviceService:
             if profile["transport"] == "serial":
                 adapter.prepare_capture(pre_seconds=0, burn_seconds=1, burn_count=1,
                                         dark_seconds=0, dark_count=0, correlation_id=correlation_id)
+                if use.cancel.is_set():
+                    raise DeviceError('device_operation_cancelled', '连接测试已停止', status_code=409)
                 adapter.begin_capture()
                 deadline = time.monotonic() + 10
                 while time.monotonic() < deadline:
+                    if use.cancel.is_set():
+                        raise DeviceError('device_operation_cancelled', '连接测试已停止', status_code=409)
                     event = adapter.next_capture_event()
                     if event is not None:
                         frame = event
@@ -337,9 +396,13 @@ class DeviceService:
             try:
                 adapter.disconnect(correlation_id=correlation_id)
             except DeviceError as exc:
-                failure = failure or exc
+                failure = exc
+                self._ownership.update(use, 'stop_unconfirmed', error=exc.detail())
+            else:
+                self._connection_test = None
+        diagnostics = adapter.diagnostics()
         details = {"profile_id": profile_id, "transport": profile["transport"],
-                   "correlation_id": correlation_id, "connected": adapter.diagnostics()["connected"]}
+                   "correlation_id": correlation_id, "connected": diagnostics["connected"]}
         if failure:
             self._audit(actor_user_id, "device.connection_test.failed", profile_id, {**details, **failure.detail()})
             raise DeviceError("device_connection_test_failed",
@@ -347,24 +410,61 @@ class DeviceService:
                               details={**details, "reason": failure.code}, status_code=409) from failure
         result = {**details, "passed": True, "instrument_responded": frame is not None,
                   "frame_sha256": frame.details.get("sha256") if frame else None,
-                  "diagnostics": adapter.diagnostics()}
+                  "diagnostics": diagnostics}
         self._audit(actor_user_id, "device.connection_test", profile_id, result)
         return result
 
-    @device_command
+    def _cancel_connection_test(self):
+        test = self._connection_test
+        if test is not None:
+            use, adapter = test
+            use.cancel.set()
+            if hasattr(adapter, 'request_stop'):
+                adapter.request_stop()
+
+    def _confirm_connection_test_stop(self):
+        if self._connection_test is not None:
+            use, adapter = self._connection_test
+            correlation_id = 'connection-test-stop'
+            adapter.confirm_stop(correlation_id=correlation_id)
+            adapter.disconnect(correlation_id=correlation_id)
+            self._connection_test = None
+            self._ownership.release(use)
+
     def disconnect(self, actor_user_id: int | None = None) -> dict[str, Any]:
+        self._cancel_connection_test()
+        with self._control:
+            self._confirm_connection_test_stop()
+            return self._disconnect_alignment(actor_user_id)
+
+    def _disconnect_alignment(self, actor_user_id):
         correlation_id = str(uuid.uuid4())
-        self._cancel_turn_and_wait(correlation_id)
-        event = self.adapter.disconnect(correlation_id=correlation_id)
+        use = self._alignment
+        self._ownership.update(use, 'stopping')
+        try:
+            self._cancel_turn_and_wait(correlation_id)
+            if hasattr(self.adapter, 'confirm_stop'):
+                self.adapter.confirm_stop(correlation_id=correlation_id)
+            event = self.adapter.disconnect(correlation_id=correlation_id)
+        except DeviceError as exc:
+            self._ownership.update(use, 'stop_unconfirmed', error=exc.detail())
+            raise
+        self._ownership.release(use)
+        self._alignment = None
         self._angle = self._settled_at = None
         self._audit(
             actor_user_id, "device.disconnect", None, {"state": event.state.value, "correlation_id": correlation_id}
         )
         return {"diagnostics": self.diagnostics(), "event": event.to_dict()}
 
-    @device_command
     def start_debug(self, payload: dict[str, Any], actor_user_id: int | None = None) -> dict[str, Any]:
+        self._ownership.check_alignment(self._alignment)
+        with self._control:
+            return self._start_debug(payload, actor_user_id)
+
+    def _start_debug(self, payload, actor_user_id):
         self._assert_turn_idle()
+        self._ownership.begin_alignment(self._alignment, 'debugging')
         correlation_id = str(uuid.uuid4())
         try:
             event = self.adapter.start_debug(
@@ -374,6 +474,7 @@ class DeviceService:
                 correlation_id=correlation_id,
             )
         except DeviceError as exc:
+            self._update_alignment()
             exc.details.setdefault("correlation_id", correlation_id)
             self._audit(actor_user_id, "device.debug.failed", None, {**exc.detail(), "correlation_id": correlation_id})
             raise
@@ -401,6 +502,7 @@ class DeviceService:
 
     @device_command
     def step_debug(self, actor_user_id: int | None = None) -> dict[str, Any]:
+        self._ownership.check_alignment(self._alignment)
         correlation_id = str(uuid.uuid4())
         try:
             event = self.adapter.step_debug(correlation_id=correlation_id)
@@ -434,11 +536,26 @@ class DeviceService:
             "spectrum_records_created": 0,
         }
 
-    @device_command
     def stop_debug(self, actor_user_id: int | None = None) -> dict[str, Any]:
+        self._cancel_connection_test()
+        with self._control:
+            self._confirm_connection_test_stop()
+            return self._stop_debug(actor_user_id)
+
+    def _stop_debug(self, actor_user_id):
         correlation_id = str(uuid.uuid4())
-        self._cancel_turn_and_wait(correlation_id)
-        event = self.adapter.stop_debug(correlation_id=correlation_id)
+        self._ownership.update(self._alignment, 'stopping')
+        try:
+            self._cancel_turn_and_wait(correlation_id)
+            if hasattr(self.adapter, 'confirm_stop'):
+                self.adapter.confirm_stop(correlation_id=correlation_id)
+            event = self.adapter.stop_debug(correlation_id=correlation_id)
+        except DeviceError as exc:
+            self._ownership.update(self._alignment, 'stop_unconfirmed', error=exc.detail())
+            raise
+        if self._alignment is not None:
+            self._alignment.cancel.clear()
+        self._update_alignment()
         self._audit(
             actor_user_id, "device.debug.stop", None, {"state": event.state.value, "correlation_id": correlation_id}
         )
@@ -449,9 +566,15 @@ class DeviceService:
             "spectrum_records_created": 0,
         }
 
-    @device_command
+    def _update_alignment(self):
+        self._ownership.update(self._alignment, self.adapter.state.value)
+
     def diagnostics(self) -> dict:
-        return {**self.adapter.diagnostics(), "angle_deg": self._angle, "turning": self._turn_cancel is not None}
+        result = self.adapter.diagnostics()
+        alignment = self._alignment
+        if alignment is not None and alignment.error:
+            result['last_error'] = alignment.error
+        return {**result, "angle_deg": self._angle, "turning": self._turn_cancel is not None}
 
     def _assert_turn_idle(self) -> None:
         if self._turn_cancel is not None or self._turn_stoppers:
@@ -501,6 +624,7 @@ class DeviceService:
                 "current_angle_deg": self._angle if connected else None, "moving": self._turn_cancel is not None}
 
     def switch_debug_angle(self, profile_id: int, angle: float, method_angles: list[float], actor: int) -> dict:
+        self._ownership.check_alignment(self._alignment)
         with self._control:
             self._assert_turn_idle()
             if self._exit_gate is not None and self._exit_gate.is_set():
@@ -512,6 +636,7 @@ class DeviceService:
                 raise DeviceError("device_angle_unavailable", "该转角不在当前可选范围内", status_code=409)
             motor = None if options["simulated"] else prepare_motor_turn(
                 self.database, self.adapter.profile, [angle], preflight=False)
+            self._ownership.begin_alignment(self._alignment, 'turning')
             correlation_id = str(uuid.uuid4())
             cancel = self._turn_cancel = threading.Event()
             self._angle = self._settled_at = None
@@ -535,11 +660,14 @@ class DeviceService:
             if exc.code == "motor_stop_unconfirmed":
                 with self._control:
                     self._unconfirmed_motor = motor
+                    self._ownership.update(self._alignment, 'stop_unconfirmed', error=exc.detail())
             self._audit(actor, "device.debug.failed", profile_id, {**exc.detail(), "angle_deg": angle,
                                                                   "correlation_id": correlation_id})
             raise
         finally:
             with self._turn_changed:
+                if self._alignment is not None and self._alignment.state == 'turning':
+                    self._update_alignment()
                 self._turn_cancel = None
                 self._turn_changed.notify_all()
 

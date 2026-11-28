@@ -22,12 +22,13 @@ const exportContentType = (fileName: string): string => {
   return 'text/plain'
 }
 
-export async function saveFile(blob: Blob, fileName: string): Promise<string | null> {
+export async function saveFile(blob: Blob, fileName: string, isCurrent?: () => boolean): Promise<string | null> {
   // 桌面写盘必须经过 Rust 校验边界；只有浏览器开发模式使用对象 URL 下载。
   // 各功能页面不得另行实现第三套保存路径。
   const invoke = window.__TAURI__?.core?.invoke
   if (invoke) {
     const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()))
+    if (isCurrent && !isCurrent()) return null
     return invoke<string | null>('save_export_file', { fileName, contentType: exportContentType(fileName), bytes })
   }
   const url = URL.createObjectURL(blob)

@@ -58,6 +58,14 @@ async function ready(url, child) {
   throw new Error(`Test server timed out: ${url}`)
 }
 
+async function logIn(page, username, password) {
+  await page.getByRole('heading', { name: '登录工作台' }).waitFor()
+  await page.getByLabel('用户名', { exact: true }).fill(username)
+  await page.getByLabel('密码', { exact: true }).fill(password)
+  await page.getByRole('button', { name: '登录', exact: true }).click()
+  await page.waitForFunction(() => !!sessionStorage.getItem('geospectrum.token') && !document.querySelector('.auth-form'))
+}
+
 try {
   if (process.argv.includes('--analysis-units')) {
     const seeded = spawnSync(process.env.GEOSPECTRUM_PYTHON || 'python', [path.join(app, 'tests/seed_analysis_units.py'), data],
@@ -80,6 +88,8 @@ try {
     process.execPath,
     [
       path.join(app, 'frontend/node_modules/vite/bin/vite.js'),
+      '--configLoader',
+      'runner',
       '--host',
       '127.0.0.1',
       '--port',
@@ -107,12 +117,20 @@ try {
   await page.getByLabel('密码', { exact: true }).fill('wrong-password')
   await page.getByRole('button', { name: '登录', exact: true }).click()
   await page.getByText('用户名或密码错误', { exact: true }).waitFor()
-  await page.getByLabel('密码', { exact: true }).fill('r4-test-password')
-  await page.getByRole('button', { name: '登录', exact: true }).click()
-  await page.waitForFunction(
-    () => !!sessionStorage.getItem('geospectrum.token') && !document.querySelector('.auth-form')
-  )
+  await logIn(page, 'r4-admin', 'r4-test-password')
   checks.push('real UI bootstrap, invalid password and successful login')
+
+  const history = await page.evaluate(async () => {
+    const headers = { Authorization: `Bearer ${sessionStorage.getItem('geospectrum.token')}` }
+    const paths = ['/api/v1/hardware-acquisitions/tasks', '/api/v1/mercury-calibrations/sessions']
+    return Promise.all(paths.map(async (path) => {
+      const read = await fetch(path, { headers })
+      const write = await fetch(path, { method: 'POST', headers })
+      return { status: read.status, rows: await read.json(), retired: write.status }
+    }))
+  })
+  assert.deepEqual(history, Array(2).fill({ status: 200, rows: [], retired: 405 }))
+  checks.push('legacy task and session collections remain readable; creation is retired')
 
   const business = await page.evaluate(async () => {
     const boundary = await import('/src/api/index.ts')
@@ -183,6 +201,8 @@ try {
     const result = { checks, layouts: [] }
     await checkDeviceDebug(page, {}, result, output)
     await writeFile(path.join(output, 'device-debug.json'), JSON.stringify(result, null, 2))
+    await page.getByRole('button', { name: '退出登录', exact: true }).click()
+    await logIn(page, 'r4-admin', 'r4-test-password')
   }
   if (process.argv.includes('--continuous-capture') || process.argv.includes('--mercury-positioning')) {
     const { checkPreliminaryContinuousCapture } = await import('./continuous_capture_workflow.mjs')
@@ -192,9 +212,11 @@ try {
     const { checkAlignmentTurns } = await import('./alignment_turn_workflow.mjs')
     await checkAlignmentTurns(page, checks, output)
   }
-  if (process.argv.includes('--pages')) {
+  if (process.argv.includes('--pages') || process.argv.includes('--navigation')) {
     const { checkPages } = await import('./frontend_pages_checks.mjs')
     await checkPages(page, checks)
+  }
+  if (process.argv.includes('--pages')) {
     const { checkRequestRaces } = await import('./frontend_request_races.mjs')
     await checkRequestRaces(page, checks)
     const { checkPostprocessing } = await import('./frontend_postprocessing_checks.mjs')
@@ -270,6 +292,7 @@ try {
   await nativePage.getByRole('heading', { name: '登录工作台' }).waitFor()
   const result = await nativePage.evaluate(async () => {
     const boundary = await import('/src/api/index.ts')
+    const { ensureBackendReady, resetBackendReady } = await import('/src/api/client.ts')
     const nativeFetch = window.fetch
     let retries = 0,
       header
@@ -279,7 +302,8 @@ try {
       return nativeFetch(input, init)
     }
     try {
-      await boundary.api.health()
+      resetBackendReady()
+      await Promise.all([ensureBackendReady(), ensureBackendReady()])
     } finally {
       window.fetch = nativeFetch
     }
@@ -330,7 +354,7 @@ try {
     if (child.exitCode !== null || !child.pid) continue
     if (process.platform === 'win32')
       spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' })
-    else child.kill('SIGTERM')
+    child.kill('SIGTERM')
   }
   logs.forEach((log) => log.end())
   assert.equal(path.dirname(path.resolve(data)), path.resolve(tmpdir()))

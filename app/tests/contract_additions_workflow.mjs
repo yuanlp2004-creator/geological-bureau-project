@@ -117,9 +117,9 @@ async function checkContractClosure(page, output) {
   await call(page, `/api/v1/methods/${method.id}/lines`, line)
   await call(page, `/api/v1/methods/${method.id}`, { conditions: { frame_count: 4, dark_frame_count: 0,
     angle_exposures: [
-      { angle_deg: 10, start_frame: 2, end_frame: 3, storage_mode: 'averaged' },
-      { angle_deg: 20, start_frame: 3, end_frame: 4, storage_mode: 'full_interval' },
-      { angle_deg: 30, start_frame: 1, end_frame: 2, storage_mode: 'averaged' }
+      { angle_deg: 10, ccd_indices: [0, 1], dispersion_calibration_id: 'default', start_frame: 2, end_frame: 3, storage_mode: 'averaged' },
+      { angle_deg: 20, ccd_indices: [2], dispersion_calibration_id: 'default', start_frame: 3, end_frame: 4, storage_mode: 'full_interval' },
+      { angle_deg: 30, ccd_indices: [4, 5], dispersion_calibration_id: 'default', start_frame: 1, end_frame: 2, storage_mode: 'averaged' }
     ] } }, 'PATCH')
   const published = await call(page, `/api/v1/methods/${method.id}/publish`, {})
   const ids = []
@@ -186,12 +186,5 @@ async function checkContractClosure(page, output) {
   const management = run.curves.results.find(/* 查询新曲线上的管理样浓度。 */ item => item.sample_name === '管理样' && item.curve_snapshot_id === snapshot.id)
   assert.ok(Math.abs(management.calculated_value - 2.5) < 0.0001)
   checks.push('管理样采集、质控、页面适配、留存修正及新曲线发布回算')
-  let turns = await call(page, '/api/v1/hardware-acquisitions/tasks', { method_id: method.id, method_version: published.current_version })
-  turns = await call(page, `/api/v1/hardware-acquisitions/tasks/${turns.id}/start`, {})
-  for (let step = 0; step < 50 && turns.status !== 'completed'; step++)
-    turns = await call(page, `/api/v1/hardware-acquisitions/tasks/${turns.id}/step`, {})
-  assert.equal(turns.status, 'completed')
-  assert.equal(turns.exposures.filter(/* 只统计已确认结果。 */ item => item.confirmed).length, 5)
-  checks.push('自动转角完整方法计划与逐帧区间结果确认')
   return checks
 }

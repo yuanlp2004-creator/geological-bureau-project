@@ -222,9 +222,10 @@ class DispersionRepository:
             ]
             return [self._task_dict(task_id, db) for task_id in ids]
 
-    def spectrum_records(self, task_id: int | None = None) -> list[dict[str, Any]]:
-        with self.database.read() as db:
-            rows = db.execute("""SELECT t.id, t.name, t.completed_at, t.ccd_indices_json, t.condition_json,
+    @staticmethod
+    def spectrum_index_sql() -> str:
+        """Published dispersion metadata and ordered frame digests without CCD payloads."""
+        return """SELECT t.id, t.name, t.completed_at, t.ccd_indices_json, t.condition_json,
                 t.frame_count, t.dark_frame_count, t.pre_excitation_seconds, t.sampling_period_seconds,
                 l.points_per_ccd, (SELECT group_concat(points_sha256, '') FROM (
                     SELECT points_sha256 FROM dispersion_task_frames WHERE task_id=t.id
@@ -234,7 +235,12 @@ class DispersionRepository:
                   AND json_extract(t.condition_json, '$.source_record_id') IS NULL
                   AND (coalesce(json_extract(t.condition_json, '$.preheat'), 0)=0
                        OR json_extract(t.condition_json, '$.capture_turn.group') IS NULL)
-                  AND (? IS NULL OR t.id=?)""", (task_id, task_id))
+                  AND EXISTS (SELECT 1 FROM dispersion_task_frames WHERE task_id=t.id)"""
+
+    def spectrum_records(self, task_id: int | None = None) -> list[dict[str, Any]]:
+        sql = self.spectrum_index_sql()
+        with self.database.read() as db:
+            rows = db.execute(sql) if task_id is None else db.execute(sql + " AND t.id=?", (task_id,))
             result = []
             for row in rows:
                 if row["frame_hashes"]:

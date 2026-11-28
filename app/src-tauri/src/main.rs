@@ -7,11 +7,10 @@
 use std::net::TcpListener;
 use std::path::Path;
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::io::{Read, Write};
 use std::time::Duration;
 use tauri::{Manager, RunEvent};
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind, MessageDialogResult};
 use tauri_plugin_shell::{process::CommandChild, ShellExt};
 use uuid::Uuid;
 mod open_location;
@@ -20,7 +19,24 @@ use open_location::OpenLocation;
 struct SidecarState(Mutex<Option<CommandChild>>);
 struct OpenLocationState(Mutex<OpenLocation>);
 #[derive(Default)]
-struct ExitState { pending: AtomicBool, confirmed: AtomicBool }
+enum ExitState {
+    #[default]
+    Idle,
+    Checking,
+    Authorized(ExitAuthorization),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ExitAuthorization {
+    NoOwnedSidecar,
+    DeviceStopConfirmed,
+    ForcedByOperator,
+}
+
+enum ExitDecision {
+    Exit(ExitAuthorization),
+    CheckInstrument(String),
+}
 
 #[derive(Clone, serde::Serialize)]
 struct RuntimeConfig {
@@ -61,7 +77,7 @@ fn write_export_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
     std::fs::write(path, bytes).map_err(|error| format!("无法保存文件：{error}"))
 }
 
-fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<String, String> {
+fn validate_export(file_name: &str, _content_type: &str, bytes: &[u8]) -> Result<String, String> {
     // 显示原生对话框前先校验调用方可控的元数据。
     // 目录由用户选择，WebView 只能提供安全的叶子文件名。
     let trimmed = file_name.trim();
@@ -81,40 +97,14 @@ fn validate_export(file_name: &str, content_type: &str, bytes: &[u8]) -> Result<
         .and_then(|value| value.to_str())
         .unwrap_or_default()
         .to_ascii_lowercase();
-    let expected_type = match extension.as_str() {
-        "pdf" => "application/pdf",
-        "csv" => "text/csv",
-        "json" => "application/json",
-        "xls" => "application/vnd.ms-excel",
-        "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "txt" | "log" | "sam" => "text/plain",
-        _ => return Err("只允许保存 PDF、CSV、TXT、LOG、SAM、JSON、XLS 或 XLSX 文件".to_string()),
-    };
-    if content_type != expected_type {
-        return Err("文件扩展名与内容类型不匹配".to_string());
+    if !matches!(extension.as_str(), "pdf" | "csv" | "json" | "xls" | "xlsx" | "txt" | "log" | "sam") {
+        return Err("只允许保存 PDF、CSV、TXT、LOG、SAM、JSON、XLS 或 XLSX 文件".to_string());
     }
     if bytes.is_empty() || bytes.len() > MAX_EXPORT_BYTES {
         return Err("文件内容为空或超过 64 MiB 限制".to_string());
     }
     if extension == "pdf" && !bytes.starts_with(b"%PDF-") {
         return Err("PDF 文件头无效".to_string());
-    }
-    if !matches!(extension.as_str(), "pdf" | "xlsx") && bytes.contains(&0) {
-        return Err("文本导出包含不允许的 NUL 字节".to_string());
-    }
-    if extension == "json" && serde_json::from_slice::<serde_json::Value>(bytes).is_err() {
-        return Err("JSON 文件内容无效".to_string());
-    }
-    if extension == "xls" && (!bytes.starts_with(b"<?xml") || !bytes.windows(8).any(|part| part == b"Workbook")) {
-        return Err("XLS 文件必须是有效的 SpreadsheetML 输出".to_string());
-    }
-    if extension == "xlsx"
-        && (!bytes.starts_with(b"PK\x03\x04")
-            || !bytes.windows(19).any(|part| part == b"[Content_Types].xml")
-            || !bytes.windows(15).any(|part| part == b"xl/workbook.xml")
-            || !bytes.windows(4).any(|part| part == b"PK\x05\x06"))
-    {
-        return Err("XLSX 文件缺少工作簿结构".to_string());
     }
     Ok(extension)
 }
@@ -251,22 +241,56 @@ fn development_api_base() -> Result<Option<String>, String> {
 }
 
 fn stop_response(response: &str) -> Result<(), String> {
+    #[derive(serde::Deserialize)]
+    struct StopResponse {
+        safe_to_exit: bool,
+        #[serde(default)]
+        errors: Vec<serde_json::Value>,
+    }
+
     let (headers, body) = response.split_once("\r\n\r\n").ok_or("设备停止响应不完整")?;
-    let status = headers.lines().next().unwrap_or("");
-    if !status.starts_with("HTTP/1.1 200 ") && !status.starts_with("HTTP/1.0 200 ") {
+    let mut lines = headers.lines();
+    let mut status = lines.next().unwrap_or("").split_ascii_whitespace();
+    if !matches!(status.next(), Some("HTTP/1.1" | "HTTP/1.0")) || status.next() != Some("200") {
         return Err("本地服务未确认设备停止".into());
     }
-    let result: serde_json::Value = serde_json::from_str(body).map_err(|_| "设备停止响应无效")?;
-    if result.get("safe_to_exit").and_then(|value| value.as_bool()) == Some(true) {
+    for (key, value) in lines.filter_map(|line| line.split_once(':')) {
+        if key.eq_ignore_ascii_case("content-length") && value.trim().parse::<usize>() != Ok(body.len()) {
+            return Err("设备停止响应不完整".into());
+        }
+    }
+    let result: StopResponse = serde_json::from_str(body).map_err(|_| "设备停止响应无效")?;
+    if result.safe_to_exit && result.errors.is_empty() {
         Ok(())
     } else {
-        Err(format!("设备停止未确认：{}", result.get("errors").unwrap_or(&serde_json::Value::Null)))
+        Err(format!("设备停止未确认：{}", serde_json::Value::Array(result.errors)))
+    }
+}
+
+fn decide_exit(config: &RuntimeConfig, has_child: bool, prepare: impl FnOnce() -> Result<(), String>) -> ExitDecision {
+    if config.process_key.is_empty() {
+        return if has_child {
+            ExitDecision::CheckInstrument("无法验证配对后端的停机回执".into())
+        } else {
+            ExitDecision::Exit(ExitAuthorization::NoOwnedSidecar)
+        };
+    }
+    match prepare() {
+        Ok(()) => ExitDecision::Exit(ExitAuthorization::DeviceStopConfirmed),
+        Err(error) => ExitDecision::CheckInstrument(error),
+    }
+}
+
+const FORCE_EXIT_BUTTON: &str = "仍要强制退出";
+
+fn operator_exit(result: MessageDialogResult) -> Option<ExitAuthorization> {
+    match result {
+        MessageDialogResult::Custom(label) if label == FORCE_EXIT_BUTTON => Some(ExitAuthorization::ForcedByOperator),
+        _ => None,
     }
 }
 
 fn prepare_device_exit(config: &RuntimeConfig) -> Result<(), String> {
-    // An external development backend is not owned or terminated by this app.
-    if config.process_key.is_empty() { return Ok(()); }
     let address = config.api_base.strip_prefix("http://").ok_or("本地服务地址无效")?
         .parse::<std::net::SocketAddr>().map_err(|_| "本地服务地址无效")?;
     if !address.ip().is_loopback() { return Err("本地服务地址必须为回环地址".into()); }
@@ -276,27 +300,51 @@ fn prepare_device_exit(config: &RuntimeConfig) -> Result<(), String> {
     stream.set_write_timeout(Some(Duration::from_secs(2))).map_err(|error| error.to_string())?;
     write!(stream, "POST /api/v1/devices/prepare-exit HTTP/1.1\r\nHost: {}\r\nX-GeoSpectrum-Process-Key: {}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", address, config.process_key)
         .map_err(|error| error.to_string())?;
+    const MAX_RESPONSE: usize = 65536;
     let mut response = String::new();
-    stream.take(65536).read_to_string(&mut response).map_err(|_| "等待设备停止响应超时")?;
+    stream.take((MAX_RESPONSE + 1) as u64).read_to_string(&mut response)
+        .map_err(|_| "无法读取设备停止回执或等待超时")?;
+    if response.len() > MAX_RESPONSE {
+        return Err("设备停止响应超出长度限制".into());
+    }
     stop_response(&response)
 }
 
 fn request_safe_exit(app: &tauri::AppHandle) {
-    let state = app.state::<ExitState>();
-    if state.pending.swap(true, Ordering::SeqCst) { return; }
+    {
+        let state = app.state::<Mutex<ExitState>>();
+        let mut state = state.lock().unwrap();
+        if !matches!(*state, ExitState::Idle) {
+            return;
+        }
+        *state = ExitState::Checking;
+    }
     let handle = app.clone();
     let config = app.state::<RuntimeConfig>().inner().clone();
+    let has_child = app.state::<SidecarState>().0.lock().unwrap().is_some();
     std::thread::spawn(move || {
-        match prepare_device_exit(&config) {
-            Ok(()) => {
-                handle.state::<ExitState>().confirmed.store(true, Ordering::SeqCst);
-                handle.exit(0);
+        let authorization = match decide_exit(&config, has_child, || prepare_device_exit(&config)) {
+            ExitDecision::Exit(authorization) => Some(authorization),
+            ExitDecision::CheckInstrument(error) => {
+                let mut dialog = handle.dialog()
+                    .message(format!("{error}\n请先在现场独立确认仪器已停机，再选择是否强制退出。"))
+                    .title("无法确认设备已停止")
+                    .kind(MessageDialogKind::Warning)
+                    .buttons(MessageDialogButtons::YesNoCancelCustom(
+                        "返回检查（默认）".into(), FORCE_EXIT_BUTTON.into(), "取消关闭".into(),
+                    ));
+                if let Some(window) = handle.get_webview_window("main") {
+                    dialog = dialog.parent(&window);
+                }
+                operator_exit(dialog.blocking_show_with_result())
             }
-            Err(error) => {
-                handle.dialog().message(format!("{error}\n窗口已保留，请检查仪器状态后重试。"))
-                    .title("无法确认设备已停止").blocking_show();
-                handle.state::<ExitState>().pending.store(false, Ordering::SeqCst);
-            }
+        };
+        let state = handle.state::<Mutex<ExitState>>();
+        if let Some(authorization) = authorization {
+            *state.lock().unwrap() = ExitState::Authorized(authorization);
+            handle.exit(0);
+        } else {
+            *state.lock().unwrap() = ExitState::Idle;
         }
     });
 }
@@ -351,7 +399,7 @@ fn main() {
     };
     tauri::Builder::default()
         .manage(SidecarState(Mutex::new(None)))
-        .manage(ExitState::default())
+        .manage(Mutex::new(ExitState::default()))
         .manage(runtime)
         .invoke_handler(tauri::generate_handler![runtime_config, save_export_file, select_backup_directory, select_legacy_directory, select_legacy_files, select_sample_file, open_bluetooth_settings])
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
@@ -413,11 +461,18 @@ fn main() {
                 }
             }
             RunEvent::ExitRequested { api, .. } => {
-                if app.state::<ExitState>().confirmed.load(Ordering::SeqCst) {
-                    stop_sidecar(app);
-                } else {
-                    api.prevent_exit();
-                    request_safe_exit(app);
+                let state = app.state::<Mutex<ExitState>>();
+                let authorization = match *state.lock().unwrap() {
+                    ExitState::Authorized(authorization) => Some(authorization),
+                    _ => None,
+                };
+                match authorization {
+                    Some(ExitAuthorization::DeviceStopConfirmed | ExitAuthorization::ForcedByOperator) => stop_sidecar(app),
+                    Some(ExitAuthorization::NoOwnedSidecar) => {}
+                    None => {
+                        api.prevent_exit();
+                        request_safe_exit(app);
+                    }
                 }
             }
             RunEvent::Exit => stop_sidecar(app),
@@ -427,7 +482,10 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_development_api_base, validate_export, write_export_file, read_sample_file, stop_response, MAX_EXPORT_BYTES};
+    use super::{decide_exit, operator_exit, parse_development_api_base, read_sample_file, stop_response,
+                validate_export, write_export_file, ExitAuthorization, ExitDecision, RuntimeConfig,
+                FORCE_EXIT_BUTTON, MAX_EXPORT_BYTES};
+    use tauri_plugin_dialog::MessageDialogResult;
     use uuid::Uuid;
 
     #[test]
@@ -449,26 +507,56 @@ mod tests {
         assert!(stop_response("HTTP/1.1 403 Forbidden\r\n\r\n{\"safe_to_exit\":true}").is_err());
         assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{}").is_err());
         assert!(stop_response("HTTP/1.1 200 OK\r\n\r\npartial").is_err());
+        assert!(stop_response("HTTP/1.1 200\r\n\r\n{\"safe_to_exit\":true}").is_ok());
+        assert!(stop_response("HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\n{\"safe_to_exit\":true}").is_err());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{\"safe_to_exit\":\"true\"}").is_err());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{\"safe_to_exit\":true,\"errors\":[{}]}").is_err());
+        assert!(stop_response("HTTP/1.1 200 OK\r\n\r\n{\"safe_to_exit\":false,\"safe_to_exit\":true}").is_err());
     }
 
     #[test]
-    fn export_rejects_paths_mismatched_types_and_invalid_content() {
+    fn native_exit_distinguishes_external_safe_and_operator_forced_exit() {
+        let mut config = RuntimeConfig { api_base: String::new(), process_key: String::new() };
+        assert!(matches!(decide_exit(&config, false, || panic!("external backend called")),
+                         ExitDecision::Exit(ExitAuthorization::NoOwnedSidecar)));
+        assert!(matches!(decide_exit(&config, true, || panic!("missing process key")),
+                         ExitDecision::CheckInstrument(_)));
+        config.process_key = "owned".into();
+        assert!(matches!(decide_exit(&config, true, || Ok(())),
+                         ExitDecision::Exit(ExitAuthorization::DeviceStopConfirmed)));
+        assert!(matches!(decide_exit(&config, true, || Err("timeout".into())),
+                         ExitDecision::CheckInstrument(error) if error == "timeout"));
+        for response in [MessageDialogResult::Cancel, MessageDialogResult::No,
+                         MessageDialogResult::Custom("返回检查（默认）".into())] {
+            assert_eq!(operator_exit(response), None);
+        }
+        assert_eq!(operator_exit(MessageDialogResult::Custom(FORCE_EXIT_BUTTON.into())),
+                   Some(ExitAuthorization::ForcedByOperator));
+    }
+
+    #[test]
+    fn export_validates_leaf_name_extension_size_and_pdf_header() {
         assert!(validate_export("curve.pdf", "application/pdf", b"%PDF-1.4\ncontent").is_ok());
-        assert!(validate_export("values.csv", "text/csv", b"x,y\n1,2\n").is_ok());
-        assert!(validate_export("queue.sam", "text/plain", b"sample\r\n").is_ok());
-        assert!(validate_export("../curve.pdf", "application/pdf", b"%PDF-1.4\ncontent").is_err());
-        assert!(validate_export("curve.txt", "application/pdf", b"%PDF-1.4\ncontent").is_err());
+        for name in ["", ".", "..", "../curve.pdf", "folder\\curve.pdf", "bad:name.pdf"] {
+            assert!(validate_export(name, "application/pdf", b"%PDF-1.4\ncontent").is_err(), "{name:?}");
+        }
         assert!(validate_export("curve.pdf", "application/pdf", b"not a pdf").is_err());
         assert!(validate_export("data.exe", "text/plain", b"data").is_err());
         assert!(validate_export("empty.csv", "text/csv", b"").is_err());
-        assert!(validate_export("intensity.json", "application/json", br#"{"format":"geospectrum-intensity-v1"}"#).is_ok());
-        assert!(validate_export("intensity.json", "application/json", b"broken").is_err());
-        assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"<?xml version=\"1.0\"?><Workbook/>").is_ok());
-        assert!(validate_export("intensity.xls", "application/vnd.ms-excel", b"binary executable").is_err());
-        let xlsx_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        let workbook = b"PK\x03\x04\0[Content_Types].xml\0xl/workbook.xml\0PK\x05\x06";
-        assert!(validate_export("full-time.xlsx", xlsx_type, workbook).is_ok());
-        assert!(validate_export("full-time.xlsx", xlsx_type, b"PK\x03\x04other.zip").is_err());
+        let bytes = vec![0; MAX_EXPORT_BYTES + 1];
+        assert!(validate_export("limit.csv", "text/csv", &bytes[..MAX_EXPORT_BYTES]).is_ok());
+        assert!(validate_export("oversize.csv", "text/csv", &bytes).is_err());
+    }
+
+    #[test]
+    fn non_pdf_exports_accept_payloads_without_inspecting_content() {
+        for extension in ["csv", "json", "xls", "xlsx", "txt", "log", "sam"] {
+            let file_name = format!("export.{}", extension.to_ascii_uppercase());
+            assert_eq!(
+                validate_export(&file_name, "application/octet-stream", b"export\0bytes").unwrap(),
+                extension
+            );
+        }
     }
 
     #[test]
@@ -478,6 +566,7 @@ mod tests {
             Uuid::new_v4().as_simple()
         ));
         let content = b"GeoSpectrum export\r\n";
+        validate_export("export.txt", "text/plain", content).unwrap();
         write_export_file(&path, content).unwrap();
         assert_eq!(std::fs::read(&path).unwrap(), content);
         std::fs::remove_file(path).unwrap();

@@ -15,7 +15,7 @@ import { formatTime } from './dateFormat'
   setSelectAll: () => void
   filter: string
   setFilter: (filter: string) => void
-  onClear: () => void
+  onClear?: () => void
   onCopy: () => void
   onSave: () => void
 }) {
@@ -45,9 +45,9 @@ import { formatTime } from './dateFormat'
           <button className="icon-button compact" title="复制选中消息" onClick={onCopy}>
             <Copy size={15} />
           </button>
-          <button className="icon-button compact danger" title="清空消息" onClick={onClear}>
-            <Trash2 size={15} />
-          </button>
+          {onClear && <button className="secondary-button danger" title="清除服务器保存的运行日志" onClick={onClear}>
+            <Trash2 size={15} />清除运行记录
+          </button>}
         </div>
       </div>
       <div className="message-toolbar">

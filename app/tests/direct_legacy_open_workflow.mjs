@@ -108,7 +108,7 @@ export async function checkDirectOpen(page, fixture, result, output) {
   await navigate(page,'data','打印与导出','[data-testid="data-processing-page"]')
   await open('reports',paths.dat,'打开报告文件')
   assert.equal(await page.getByLabel('旧结果单位').count(),0)
-  assert.equal(await page.getByRole('button',{name:'建立报告版本',exact:true}).isEnabled(),true)
+  assert.equal(await page.getByRole('button',{name:'预览报告',exact:true}).isEnabled(),true)
   mark('报告页直接打开DAT绑定当前文件，无需填写单位即可建立')
   await page.getByRole('tab',{name:'强度数据',exact:true}).click()
   await open('intensity',paths.pdt,'打开强度文件')

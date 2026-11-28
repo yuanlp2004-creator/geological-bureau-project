@@ -1,4 +1,4 @@
-import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection, prepareCaptureHandoff } from '../acquisition/captureConnection'
+import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection } from '../acquisition/captureConnection'
 import { PageFileActions } from '../../components/PageFileActions'
 import { RowSelectionArrow } from '../../components/RowSelectionArrow'
 import { OpenLegacyFile } from '../../components/OpenLegacyFile'
@@ -310,8 +310,6 @@ export function DispersionPage({ token, canWrite, canExecute, canReadMethods = t
     const created = await perform(async hardware => {
       try {
         if (!hardware) return
-        await prepareCaptureHandoff(token, hardware, 'dispersion', canReadMethods)
-        if (!hardwareLockStore.owns(hardware)) return
         return await api.createDispersionSession(token, { name: curveName, frame_count: frameCount,
         dark_frame_count: darkFrameCount, pre_excitation_seconds: preSeconds,
         sampling_period_seconds: samplingPeriod, save_conditions: saveExcitation })

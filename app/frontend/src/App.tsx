@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppIcon } from './components/AppIcon'
 import { api, ApiError, type AuthUser } from './api'
+import { ensureBackendReady, resetBackendReady } from './api/client'
 import { AuthForm } from './pages/auth/AuthForm'
 import { WorkspaceApp } from './layout/WorkspaceApp'
 import { themeStore } from './stores/themeStore'
@@ -11,6 +12,7 @@ function App() {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<AuthUser | null>(null)
   const [authError, setAuthError] = useState<string | null>(null)
+  const authAttempt = useRef<AbortController | null>(null)
 
   const showAuthScreen = useCallback((nextMode: 'loading' | 'bootstrap' | 'login') => {
     themeStore.deactivate()
@@ -18,10 +20,17 @@ function App() {
   }, [])
 
   const startAuth = useCallback(async () => {
+    authAttempt.current?.abort()
+    const controller = new AbortController()
+    authAttempt.current = controller
+    const { signal } = controller
     showAuthScreen('loading')
     setAuthError(null)
     try {
+      await ensureBackendReady(signal)
+      if (signal.aborted) return
       const status = await api.authStatus()
+      if (signal.aborted) return
       if (!status.bootstrapped) {
         showAuthScreen('bootstrap')
         return
@@ -30,25 +39,36 @@ function App() {
       if (savedToken) {
         try {
           const savedUser = await api.me(savedToken)
+          if (signal.aborted) return
           themeStore.activateUser(savedUser.id)
           setToken(savedToken)
           setUser(savedUser)
           setMode('authenticated')
           return
         } catch {
+          if (signal.aborted) return
           window.sessionStorage.removeItem('geospectrum.token')
         }
       }
       showAuthScreen('login')
     } catch (error) {
+      if (signal.aborted) return
       setAuthError(error instanceof Error ? error.message : '无法读取本地账户状态')
       showAuthScreen('login')
+    } finally {
+      if (authAttempt.current === controller) authAttempt.current = null
     }
   }, [showAuthScreen])
 
   useEffect(() => {
     void startAuth()
+    return () => authAttempt.current?.abort()
   }, [startAuth])
+
+  const retryConnection = () => {
+    resetBackendReady()
+    void startAuth()
+  }
 
   const handleLogin = async (username: string, password: string) => {
     setAuthError(null)
@@ -98,7 +118,7 @@ function App() {
       </div>
     )
   if (mode === 'bootstrap') return <AuthForm mode="bootstrap" error={authError} onSubmit={handleBootstrap} />
-  if (mode === 'login') return <AuthForm mode="login" error={authError} onSubmit={handleLogin} onRetry={startAuth} />
+  if (mode === 'login') return <AuthForm mode="login" error={authError} onSubmit={handleLogin} onRetry={retryConnection} />
   return token && user ? <WorkspaceApp key={user.id} token={token} user={user} onLogout={handleLogout} /> : null
 }
 

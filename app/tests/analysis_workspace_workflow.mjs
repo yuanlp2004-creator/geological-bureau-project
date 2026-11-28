@@ -214,9 +214,16 @@ export async function checkAnalysisWorkspace(page, fixture, result, output) {
     else await clickSave(host.getByRole('button', { name: '推进一条谱线', exact: true }), `/runs/${slow.id}/step`)
   }
   assert.equal((await call(page, `/api/v1/analyses/runs/${slow.id}`)).status, 'completed')
+  const calculation = page.getByRole('dialog', { name: '分析计算', exact: true })
+  await calculation.waitFor()
+  assert.equal(await host.getByRole('heading', { name: '标准曲线', exact: true }).isVisible(), false)
+  for (const output of await calculation.getByRole('group', { name: '强度输出' }).getByRole('checkbox').all()) {
+    if (await output.isChecked()) await output.uncheck()
+  }
+  await calculation.getByRole('button', { name: '确定', exact: true }).click()
   await page.waitForFunction(() => document.querySelector('.analysis-page')?.dataset.navigationView === 'curve')
   await qc.getByLabel('重复性检查样品').waitFor()
-  check('真实存储谱图的慢进启动、峰位接受及完成后自动进入同一工作区复核')
+  check('真实存储谱图的慢进启动、峰位接受、分析计算自动弹出及确认后进入标准曲线')
   await host.getByRole('button', { name: '谱图与测量', exact: true }).click()
   const spectrum = host.locator('.analysis-spectrum')
   await waitForSpectrumInk(spectrum)

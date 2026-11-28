@@ -41,6 +41,10 @@
 }
 .app-shell .maintenance-backup-directory {
   max-width: 680px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
 }
 .app-shell .maintenance-task > button {
   min-width: 116px;

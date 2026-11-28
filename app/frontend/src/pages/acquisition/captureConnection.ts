@@ -22,38 +22,19 @@ export function activeCaptureTask<T extends CaptureTask>(tasks: T[]) {
   return tasks.find(task => task.active_capture_id === task.id) ?? tasks.find(task => captureActivity(task) !== null)
 }
 
-export function checkCaptureShutdown(task: CaptureTask & { failure_code: string | null; failure_message: string | null }) {
-  if (task.status === 'failed') {
+export function checkCaptureShutdown(task: CaptureTask & { failure_code: string | null; failure_message: string | null; stop_confirmed?: boolean }) {
+  if (task.status === 'failed' && task.stop_confirmed !== true) {
     throw new ApiError(task.failure_message || '摄谱停机结果尚未确认', 409, task.failure_code ?? undefined)
   }
 }
 
 /** One finite legacy CCD check before opening a real capture workspace. */
 export async function ensureCaptureConnection(token: string, profileId: number | null, transport: string | undefined,
-  purpose: 'devices' | 'acquisition' | 'dispersion' | 'hardware-acquisition', operation?: OperationToken) {
+  purpose: 'devices' | 'acquisition' | 'dispersion', operation?: OperationToken) {
   if (transport !== 'serial') return
   if (profileId == null) throw new Error('请选择设备参数中的真实串口档案')
   const result = await api.testDeviceConnection(token, profileId, purpose)
   if (operation && !result.connected) hardwareLockStore.recordPortReleased(operation, profileId)
   if (!result.passed || !result.instrument_responded || result.connected)
     throw new Error('未收到有效CCD响应，请在设备参数中完成连接测试后再进入摄谱')
-}
-
-/** Session creation performs its own check. Release a known idle serial adapter through the existing handoff route first. */
-export async function prepareCaptureHandoff(token: string, operation: OperationToken, purpose: 'acquisition' | 'dispersion',
-  canReadMethods: boolean) {
-  const { status, transport } = hardwareLockStore.getSnapshot()
-  if (status !== 'connected_idle' || transport !== 'serial') return
-  const sample = operation.owner === 'sample-acquisition' ? await api.sampleContext(token) : null
-  const profile = sample?.profile ?? await api.currentDeviceProfile(token)
-  if (!hardwareLockStore.owns(operation)) return
-  if (!profile) throw new ApiError('请先选择当前设备档案', 422)
-  if (profile.transport !== 'serial' || sample?.position_controlled) return
-  if (!sample) {
-    const [binding, method] = await Promise.all([api.motorBinding(token, profile.id), canReadMethods ? api.currentMethod(token) : null])
-    if (!hardwareLockStore.owns(operation) || binding) return
-    const angles = method?.referenced_version?.conditions.angle_exposures
-    if (angles && angles.length !== 1) return
-  }
-  await ensureCaptureConnection(token, profile.id, profile.transport, purpose, operation)
 }

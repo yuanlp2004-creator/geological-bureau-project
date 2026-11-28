@@ -3,6 +3,7 @@ import { useCallback, useEffect, useId, useState, type FormEvent } from 'react'
 import { Check, LogOut, RefreshCw, ShieldCheck, UserCog, UserPlus } from 'lucide-react'
 import { api, type AuthUser, type Capability, type ManagedRole, type ManagedUser } from '../../api'
 import { PermissionPicker, permissionGroupLabel, permissionLabel } from './PermissionPicker'
+import { isAvailablePermission } from './permissionChoices'
 
 const builtinLabels: Record<string, { name: string; purpose: string }> = {
   system_administrator: { name: '系统管理员', purpose: '管理账户、系统设置、设备与全部业务功能。' },
@@ -39,7 +40,8 @@ export function UsersPage({
   const [rolePermissions, setRolePermissions] = useState<string[]>([])
   const [capabilities, setCapabilities] = useState<Capability[]>([])
   const permissionKeys = [...new Set([...capabilities.flatMap((item) => item.permissions),
-    ...roles.flatMap((role) => role.permission_keys), ...currentUser.permissions])].sort()
+    ...roles.flatMap((role) => role.permission_keys), ...currentUser.permissions])].filter(isAvailablePermission).sort()
+  const selectedTemplate = roles.find((role) => String(role.id) === templateId)
   const canWriteUsers = currentUser.permissions.includes('users.write')
   const canWriteRoles = currentUser.permissions.includes('roles.write')
 
@@ -88,7 +90,9 @@ export function UsersPage({
   }
   const chooseTemplate = (value: string) => {
     setTemplateId(value)
-    setRolePermissions([...new Set(roles.find((role) => String(role.id) === value)?.permission_keys ?? [])].sort())
+    const template = roles.find((role) => String(role.id) === value)
+    const keys = template?.permission_keys ?? []
+    setRolePermissions([...new Set(template?.built_in ? keys.filter(isAvailablePermission) : keys)].sort())
   }
   const toggleRoleForm = () => {
     if (!showRoleForm && !roleDraftInitialized) {
@@ -264,6 +268,7 @@ export function UsersPage({
               </div>
               <p className="field-hint">模板复制当前权限。更换模板会替换下方选择；收起表单会保留草稿。</p>
               <PermissionPicker keys={permissionKeys} selected={rolePermissions} onChange={setRolePermissions}
+                retainedKeys={selectedTemplate?.built_in === false ? selectedTemplate.permission_keys : undefined}
                 capabilities={capabilities} disabled={loading || creatingRole} />
               <button className="primary-button" type="submit" disabled={loading || creatingRole}>
                 <ShieldCheck size={15} />{creatingRole ? '创建中…' : '创建角色'}

@@ -17,7 +17,7 @@ from backend.runtime import Runtime
 from backend.config import AppConfig
 from backend.db import Database, utc_now
 from backend.modules.acquisition import AcquisitionError, AcquisitionService, average_points
-from backend.modules.analysis import AnalysisService
+from backend.modules.analysis import AnalysisError, AnalysisService
 
 
 def test_s13_task_kind_query_filters_before_limit_and_preserves_existing_records(tmp_path: Path) -> None:
@@ -329,16 +329,23 @@ def test_s13_published_method_binding_makes_completed_sample_available_to_s16(tm
     service.start(task["id"])
     completed = service.step(task["id"])
     assert completed["status"] == "completed"
-    analysis_sample = next(
-        item
-        for item in Runtime(AppConfig(data_dir=database.path.parent), database=database)
-        .analysis_service()
-        .options()["samples"]
-        if item["acquisition_task_id"] == task["id"]
-    )
+    warmup = service.preheat(task["id"])
+    warmup = service.step(warmup["id"])
+    assert warmup["status"] == "completed"
+    warmup_sample = warmup["samples"][0]
+    assert warmup_sample["finalized"] and not warmup_sample["bands"]
+    assert service.frames(warmup["id"], phase="burn")
+
+    analysis = Runtime(AppConfig(data_dir=database.path.parent), database=database).analysis_service()
+    candidates = analysis.options()["samples"]
+    assert [item["id"] for item in candidates] == [completed["samples"][0]["id"]]
+    analysis_sample = candidates[0]
     assert analysis_sample["method_version_id"] == method_version_id
     assert analysis_sample["method_id"] == method_id
     assert analysis_sample["method_version"] == 3
+    with pytest.raises(AnalysisError) as rejected:
+        analysis.create_run({"acquisition_sample_ids": [analysis_sample["id"], warmup_sample["id"]]})
+    assert rejected.value.code == "analysis_sample_preheat"
 
 
 def test_s13_api_permissions_and_damaged_frame_is_marked_not_replaced(

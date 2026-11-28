@@ -14,6 +14,53 @@ async function call(page,url,body,method=body===undefined?'GET':'POST'){
   }
 }
 
+export async function checkBackupDirectory(page) {
+  const host = page.getByTestId('maintenance-page')
+  const directory = host.getByRole('textbox', { name: '备份目录' })
+  const picker = host.getByRole('button', { name: '选择目录', exact: true })
+  const initial = (await call(page, '/api/v1/settings')).directories.backups
+  await page.waitForFunction((value) => document.querySelector('.maintenance-backup-directory input')?.value === value, initial)
+  const typed = 'C:\\按钮验证\\输入草稿'
+  const chosen = 'C:\\按钮验证\\归档\\备份'
+  const choose = async (value) => {
+    if (process.env.QA_CDP) {
+      await page.evaluate((value) => {
+        const bridge = window.chrome.webview
+        const post = bridge.postMessage
+        window.__directoryOriginal = post
+        bridge.postMessage = function(message) {
+          const command = typeof message === 'string' ? JSON.parse(message) : message
+          if (command.cmd === 'select_backup_directory') {
+            queueMicrotask(() => window.__TAURI_INTERNALS__.runCallback(command.callback, value))
+          } else {
+            return post.call(bridge, message)
+          }
+        }
+      }, value)
+      try {
+        await picker.click()
+        await picker.waitFor()
+        await page.waitForFunction(() => !document.querySelector('button[title="选择目录"]')?.disabled)
+      } finally {
+        await page.evaluate(() => { window.chrome.webview.postMessage = window.__directoryOriginal })
+      }
+    } else {
+      const handled = page.waitForEvent('dialog').then(dialog => value === null ? dialog.dismiss() : dialog.accept(value))
+      await Promise.all([picker.click(), handled])
+    }
+  }
+  await directory.fill(typed)
+  await choose(null)
+  assert.equal(await directory.inputValue(), typed)
+  await choose(chosen)
+  assert.equal(await directory.inputValue(), chosen)
+  await host.getByRole('button', { name: '刷新', exact: true }).click()
+  await page.waitForFunction(() => !document.querySelector('.maintenance-summary button')?.disabled)
+  assert.equal(await directory.inputValue(), chosen)
+  assert.equal((await call(page, '/api/v1/settings')).directories.backups, initial)
+  await directory.fill(initial)
+}
+
 export async function checkOtherPageButtons(page,fixture,result,output){
   const check=text=>{result.checks.push(text);console.log(`PASS: ${text}`)}
   const entries=(await call(page,'/api/v1/capabilities')).capabilities.flatMap(item=>item.navigation_entries)
@@ -47,38 +94,9 @@ export async function checkOtherPageButtons(page,fixture,result,output){
   result.pages=visited
   check(`${visited.length}个已注册入口逐页打开；按钮声明与页面/后端调用链对应归档`)
 
-  await go('settings',null,'[data-testid="settings"]')
-  const settings=page.getByTestId('settings'),directory=settings.getByLabel('备份目录',{exact:true})
-  const initial=await directory.inputValue(),chosen='C:\\按钮验证\\归档\\备份'
-  if(process.env.QA_CDP){
-    await page.evaluate(value=>{
-      const bridge=window.chrome.webview,original=bridge.postMessage
-      window.__directoryOriginal=original
-      bridge.postMessage=function(message){const command=typeof message==='string'?JSON.parse(message):message
-        if(command.cmd==='select_backup_directory'){queueMicrotask(()=>window.__TAURI_INTERNALS__.runCallback(command.callback,value));return}
-        return original.call(bridge,message)}
-    },chosen)
-  }else page.once('dialog',dialog=>dialog.accept(chosen))
-  await settings.getByTitle('选择目录',{exact:true}).click()
-  await page.waitForFunction(value=>document.querySelector('[data-testid="settings"] input')?.value===value,chosen)
-  assert.equal(await directory.inputValue(),chosen)
-  await page.getByRole('button',{name:'刷新服务状态',exact:true}).click()
-  await page.waitForFunction(()=>!document.querySelector('.topbar .spin'))
-  assert.equal(await directory.inputValue(),chosen)
-  await page.screenshot({path:path.join(output,'settings-directory-draft.png'),fullPage:true})
-  if(process.env.QA_CDP)await page.evaluate(()=>{const bridge=window.chrome.webview;bridge.postMessage=window.__directoryOriginal})
-  else page.once('dialog',dialog=>dialog.dismiss())
-  // A cancelled native selection is checked with the same bridge; no OS picker is opened in QA.
-  if(process.env.QA_CDP)await page.evaluate(()=>{const bridge=window.chrome.webview,original=bridge.postMessage
-    bridge.postMessage=function(message){const command=typeof message==='string'?JSON.parse(message):message
-      if(command.cmd==='select_backup_directory'){queueMicrotask(()=>window.__TAURI_INTERNALS__.runCallback(command.callback,null));return}
-      return original.call(bridge,message)}})
-  await settings.getByTitle('选择目录',{exact:true}).click()
-  await page.waitForFunction(()=>!document.querySelector('button[title="选择目录"]')?.disabled)
-  assert.equal(await directory.inputValue(),chosen)
-  if(process.env.QA_CDP)await page.evaluate(()=>{window.chrome.webview.postMessage=window.__directoryOriginal})
-  assert.equal((await call(page,'/api/v1/settings')).directories.backups,initial)
-  check('备份目录选择保留完整含中文路径；取消保持草稿；选择动作不自动保存')
+  await go('maintenance',null,'[data-testid="maintenance-page"]')
+  await checkBackupDirectory(page)
+  check('维护页备份目录支持输入和选择；刷新与取消选择均保留草稿')
 
   await go('samples',null,'.sample-queue-page')
   let host=page.locator('.sample-queue-page')
@@ -125,12 +143,15 @@ export async function checkOtherPageButtons(page,fixture,result,output){
 
   await go('postprocessing','recalculate','[data-testid="postprocessing-page"]')
   host=page.getByTestId('postprocessing-page')
-  let section=host.locator('.postprocessing-recalculation-surface .postprocessing-list-section').first()
+  await host.getByRole('button',{name:/^重算设置/}).click()
+  const setup=host.getByRole('dialog',{name:'重算设置',exact:true})
+  const section=setup.locator('.postprocessing-list-section').first()
   const countSelected=section.locator('input[type="checkbox"]:checked')
   await section.locator('input[type="checkbox"]').first().waitFor()
   await section.getByRole('button',{name:'全选',exact:true}).click();const selectedCount=await countSelected.count();assert.ok(selectedCount>0)
   await section.getByRole('button',{name:'全选',exact:true}).click();assert.equal(await countSelected.count(),selectedCount)
   await section.getByRole('button',{name:'反选',exact:true}).click();assert.equal(await countSelected.count(),0)
+  await setup.getByRole('button',{name:'关闭重算设置',exact:true}).click()
   assert.equal(await host.getByText('旧记录区间查看与 EDT 转换',{exact:true}).count(),0)
   await go('prepared-import',null,'[data-testid="prepared-import-page"]')
   host=page.getByTestId('prepared-import-page')

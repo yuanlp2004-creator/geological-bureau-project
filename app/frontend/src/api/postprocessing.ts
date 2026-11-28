@@ -218,6 +218,7 @@ export const postprocessingApi = {
       output_directory: string
       filename: string
       same_name_strategy: 'suffix' | 'error' | 'overwrite'
+      idempotency_key?: string
     }
   ) =>
     request<PostProcessingExport>('/api/v1/postprocessing/exports', {

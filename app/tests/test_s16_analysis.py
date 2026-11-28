@@ -618,6 +618,42 @@ def test_s16_failure_has_stable_code_intermediates_and_immutable_results(tmp_pat
             db.execute("UPDATE analysis_line_results SET peak_height=0 WHERE run_id=?", (failed["id"],))
 
 
+def test_intensity_pdf_export_and_print_share_one_render(tmp_path, monkeypatch):
+    import base64
+    from importlib import import_module
+
+    from tests.test_spec_gap_closure import _sample_chain
+
+    _, runtime, _, _, _, _, run = _sample_chain(tmp_path)
+    output = import_module('backend.modules.analysis.intensity_output')
+    calls = []
+    pdf = b'%PDF-shared'
+    job = {'status': 'submitted'}
+
+    def settings(_service):
+        calls.append('settings')
+        return {'printing': {'default_printer': 'chosen'}}
+
+    def render(*args):
+        calls.append('render')
+        return pdf
+
+    def dispatch(content, _directory, printer):
+        assert content is pdf
+        assert printer == 'chosen'
+        calls.append('print')
+        return job
+
+    monkeypatch.setattr(output.AppService, 'get_settings', settings)
+    monkeypatch.setattr(output, 'table_pdf', render)
+    monkeypatch.setattr(output, 'dispatch_table', dispatch)
+    result = runtime.analysis_service().intensity_output(run['id'], {'export_format': 'pdf', 'print_intensity': True}, 1)
+    assert calls == ['settings', 'render', 'print']
+    assert result['print_job'] == job
+    assert [entry['filename'] for entry in result['files']] == [f"analysis-{run['id']}-intensity.pdf"]
+    assert base64.b64decode(result['files'][0]['content_base64']) == pdf
+
+
 def test_s16_api_permissions_and_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
     import backend.config as config_module

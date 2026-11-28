@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo } from 'react'
 import { createWorkbenchStore, createWorkbenchVisit, type WorkbenchIdentity, type WorkbenchView } from './workbenchStoreCore.ts'
 
 export {
-  buildWorkbenchScopeKey, hashPermissions, type SpectrumViewerSnapshot, type EvaporationCurvesSnapshot,
+  buildWorkbenchScopeKey, permissionScopeKey, type SpectrumViewerSnapshot, type EvaporationCurvesSnapshot,
   type MethodsPageSnapshot, type AnalysisPageSnapshot, type PostProcessingPageSnapshot,
   type WorkbenchIdentity, type WorkbenchView
 } from './workbenchStoreCore.ts'

@@ -59,7 +59,7 @@ class DiagnosticsResponse(BaseModel):
     database_path: str
     runtime_log_path: str
     schema_version: int
-    sqlite_integrity: str
+    sqlite_integrity: str = Field(description="Routine diagnostics report 'unchecked' for database integrity.")
     journal_mode: str
     foreign_keys: int
     event_count: int

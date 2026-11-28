@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import tempfile
 import uuid
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -123,13 +124,14 @@ class MaintenanceService:
         if not path.exists() or not path.is_file():
             raise MaintenanceError("MAINTENANCE_BACKUP_PATH", "备份文件不存在", 404, {"path": str(path)})
         try:
-            connection = sqlite3.connect(path)
-            connection.row_factory = sqlite3.Row
-            connection.execute("PRAGMA foreign_keys = ON")
-            integrity = str(connection.execute("PRAGMA integrity_check").fetchone()[0])
-            foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
-            snapshot = self._snapshot(connection)
-            connection.close()
+            # Online backups are standalone snapshots. Verify the same bytes
+            # covered by the file hash, even if a WAL sidecar is present.
+            with closing(sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro&immutable=1", uri=True)) as connection:
+                connection.row_factory = sqlite3.Row
+                connection.execute("PRAGMA foreign_keys = ON")
+                integrity = str(connection.execute("PRAGMA integrity_check").fetchone()[0])
+                foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
+                snapshot = self._snapshot(connection)
         except (OSError, sqlite3.DatabaseError) as exc:
             raise MaintenanceError("MAINTENANCE_BACKUP_VERIFY", "备份校验失败", 422, {"reason": str(exc)}) from exc
         if integrity != "ok" or foreign_keys:
@@ -152,6 +154,22 @@ class MaintenanceService:
                 )
         return {"integrity": integrity, "foreign_keys": 1, **snapshot}
 
+    def _verify_backup_hash(self, path: Path, expected: str) -> str:
+        try:
+            actual = self._sha256(path)
+        except FileNotFoundError as exc:
+            raise MaintenanceError("MAINTENANCE_BACKUP_PATH", "备份文件不存在", 404, {"path": str(path)}) from exc
+        except OSError as exc:
+            raise MaintenanceError("MAINTENANCE_BACKUP_VERIFY", "备份校验失败", 422, {"reason": str(exc)}) from exc
+        if actual != expected:
+            raise MaintenanceError(
+                "MAINTENANCE_BACKUP_VERIFY",
+                "备份文件 SHA-256 与记录不一致",
+                422,
+                {"expected_sha256": expected, "actual_sha256": actual},
+            )
+        return actual
+
     def _record_operation(
         self, operation: str, status: str, details: dict[str, Any], actor_user_id: int | None = None
     ) -> str:
@@ -167,39 +185,40 @@ class MaintenanceService:
         return operation_id
 
     def status(self) -> dict[str, Any]:
+        wal = self.database.path.with_name(self.database.path.name + "-wal")
         with self.database.read() as connection:
-            integrity = str(connection.execute("PRAGMA integrity_check").fetchone()[0])
-            foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
-            wal = self.database.path.with_name(self.database.path.name + "-wal")
-            backups = [
-                dict(row)
-                for row in connection.execute(
-                    "SELECT * FROM maintenance_backups ORDER BY created_at DESC LIMIT 20"
-                ).fetchall()
-            ]
+            backups = self._list_backups(connection)
             operations = [
                 dict(row)
                 for row in connection.execute(
                     "SELECT * FROM maintenance_operations ORDER BY created_at DESC LIMIT 20"
                 ).fetchall()
             ]
-        for row in backups:
-            for key in ("entity_counts_json", "blob_samples_json"):
-                row[key[:-5]] = json.loads(row.pop(key))
         for row in operations:
             row["details"] = json.loads(row.pop("details_json"))
         return {
             "database_path": str(self.database.path),
             "database_bytes": self.database.path.stat().st_size if self.database.path.exists() else 0,
             "wal_bytes": wal.stat().st_size if wal.exists() else 0,
-            "integrity": integrity,
-            "foreign_key_errors": len(foreign_keys),
+            "integrity": "unchecked",
+            "foreign_key_errors": None,
             "backups": backups,
             "operations": operations,
         }
 
     def list_backups(self) -> list[dict[str, Any]]:
-        return self.status()["backups"]
+        with self.database.read() as connection:
+            return self._list_backups(connection)
+
+    @staticmethod
+    def _list_backups(connection: sqlite3.Connection) -> list[dict[str, Any]]:
+        backups = []
+        for row in connection.execute("SELECT * FROM maintenance_backups ORDER BY created_at DESC LIMIT 20"):
+            backup = dict(row)
+            for key in ("entity_counts_json", "blob_samples_json"):
+                backup[key[:-5]] = json.loads(backup.pop(key))
+            backups.append(backup)
+        return backups
 
     def backup(
         self,
@@ -242,7 +261,6 @@ class MaintenanceService:
                     replica.close()
             os.replace(temporary, target)
             verification = self._verify_path(target, source_snapshot)
-            source_hash = self._sha256(self.database.path)
             backup_hash = self._sha256(target)
             created = utc_now()
             expires = (self._now() + timedelta(days=retention_days)).isoformat(timespec="milliseconds")
@@ -260,7 +278,7 @@ class MaintenanceService:
                         backup_id,
                         str(self.database.path),
                         str(target),
-                        source_hash,
+                        "",  # Historical column. The live main file omits committed WAL data.
                         backup_hash,
                         target.stat().st_size,
                         verification["integrity"],
@@ -302,8 +320,10 @@ class MaintenanceService:
             row = connection.execute("SELECT * FROM maintenance_backups WHERE id=?", (backup_id,)).fetchone()
         if row is None:
             raise MaintenanceError("MAINTENANCE_BACKUP_PATH", "未找到备份记录", 404, {"id": backup_id})
+        source = Path(row["backup_path"])
+        backup_hash = self._verify_backup_hash(source, row["backup_sha256"])
         verification = self._verify_path(
-            Path(row["backup_path"]),
+            source,
             {
                 "entity_counts": json.loads(row["entity_counts_json"]),
                 "blob_samples": json.loads(row["blob_samples_json"]),
@@ -313,7 +333,7 @@ class MaintenanceService:
             "id": backup_id,
             "backup_path": row["backup_path"],
             "verification": verification,
-            "backup_sha256": self._sha256(Path(row["backup_path"])),
+            "backup_sha256": backup_hash,
         }
 
     def restore_rehearsal(self, backup_id: str, actor_user_id: int | None = None) -> dict[str, Any]:
@@ -326,14 +346,21 @@ class MaintenanceService:
         os.close(fd)
         isolated = Path(isolated_name)
         try:
+            self._verify_backup_hash(source, row["backup_sha256"])
             shutil.copy2(source, isolated)
-            verification = self._verify_path(
-                isolated,
-                {
-                    "entity_counts": json.loads(row["entity_counts_json"]),
-                    "blob_samples": json.loads(row["blob_samples_json"]),
-                },
-            )
+            self._verify_backup_hash(isolated, row["backup_sha256"])
+            try:
+                verification = self._verify_path(
+                    isolated,
+                    {
+                        "entity_counts": json.loads(row["entity_counts_json"]),
+                        "blob_samples": json.loads(row["blob_samples_json"]),
+                    },
+                )
+            except MaintenanceError as exc:
+                raise MaintenanceError(
+                    "MAINTENANCE_RESTORE_VERIFY", "恢复演练校验失败，当前数据库未切换", 422, {"cause": exc.detail()}
+                ) from exc
             operation_id = self._record_operation(
                 "restore_rehearsal", "completed", {"backup_id": backup_id, "verification": verification}, actor_user_id
             )
@@ -350,9 +377,7 @@ class MaintenanceService:
                 {"backup_id": backup_id, "code": exc.code, "message": exc.message},
                 actor_user_id,
             )
-            raise MaintenanceError(
-                "MAINTENANCE_RESTORE_VERIFY", "恢复演练校验失败，当前数据库未切换", 422, {"cause": exc.detail()}
-            ) from exc
+            raise
         finally:
             isolated.unlink(missing_ok=True)
 

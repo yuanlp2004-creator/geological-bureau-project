@@ -76,6 +76,43 @@
 :root .app-shell .legacy-capture-desk .spectroscopy-input-toolbar .inspector-icon-button > svg { width: 16px; height: 16px; flex: none; }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-input-toolbar { flex: 0 0 25px; padding-block: 0; }
 :root .app-shell .legacy-capture-desk .legacy-dock-body { display: grid; grid-template-columns: var(--capture-left) minmax(0, 1fr) var(--capture-right); flex: 1; min-height: 0; min-width: 0; }
+
+.legacy-capture-desk .capture-monitoring {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+}
+.capture-monitoring-summary,
+.capture-monitoring-actions,
+.capture-monitoring-actions [role='group'] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.capture-monitoring-detail { min-width: 0; overflow-wrap: anywhere; }
+.capture-monitoring[data-monitoring-state='alert'] strong,
+.capture-monitoring[data-monitoring-state='manual'] strong,
+.capture-monitoring-actions [role='alert'] { color: var(--ui-warning, var(--amber)); }
+.capture-monitoring[data-monitoring-state='safety_stopped'] strong,
+.capture-monitoring[data-monitoring-state='stop_unconfirmed'] strong { color: var(--capture-stop-fg); }
+.capture-monitoring-actions { margin-top: 4px; }
+.capture-monitoring-actions label { display: flex; align-items: center; gap: 6px; }
+.capture-monitoring-actions :is(input, button) {
+  min-height: 26px;
+  border: 1px solid var(--ui-control-border, var(--line));
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--capture-command-fg);
+}
+.capture-monitoring-actions input { width: min(170px, 30vw); min-width: 0; padding: 2px 5px; }
+.capture-monitoring-actions button { padding: 2px 8px; }
+.capture-monitoring-actions button[value='stop']:enabled { color: var(--capture-stop-fg); background: var(--capture-stop-bg); }
+.capture-monitoring-actions button:enabled:hover { border-color: var(--action-blue); }
+.capture-monitoring-actions button:disabled { opacity: .6; cursor: default; }
 :root .app-shell .legacy-capture-desk .legacy-record-dock { min-width: 0; min-height: 0; border-right: 1px solid var(--line); }
 :root .app-shell .spectroscopy-workbench[data-stage='capture'][data-mode] .legacy-capture-desk .spectroscopy-records { display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; border: 0; background: var(--surface); }
 :root .app-shell .legacy-capture-desk .legacy-dock-caption { display: flex; align-items: center; justify-content: space-between; flex: 0 0 32px; min-height: 32px; padding: 3px 8px; border-bottom: 1px solid var(--line); background: var(--ui-soft); }

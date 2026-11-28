@@ -11,14 +11,26 @@ from ..devices import (AcqSimulatorAdapter, SerialAcqAdapter, create_device_adap
                        AcquisitionState as DeviceAcquisitionState, DeviceError, DeviceEvent)
 from ..devices.motor_turn import prepare_motor_turn, requires_motor
 from ..devices.capture_sequence import CaptureSequence
+from ..devices.ownership import CaptureDevice
 from ..sample_queues import SampleQueueService
+from .monitoring import (
+    evaluate_event_monitoring,
+    format_anomaly_summary,
+)
+from .monitoring_repository import (
+    attempt_key,
+    get_monitoring_state,
+    monitoring_config,
+    record_decision,
+    save_monitoring_state,
+)
 from .repository import AcquisitionRepository
 from .simulation import _seeded_acquisition_event
 from .values import AcquisitionError, AcquisitionState, _json
 
 
 class AcquisitionService:
-    def current_sample_context(self) -> dict[str, Any]:
+    def current_sample_context(self, *, preflight=True) -> dict[str, Any]:
         from ..methods import MethodService
         from ..devices.service import DeviceService
         method = MethodService(self.database).current()
@@ -40,14 +52,16 @@ class AcquisitionService:
             except MethodDomainError as exc:
                 raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
         position_controlled = requires_motor(self.database, profile, multiple=plan['multiple'])
-        if position_controlled:
+        angles = [turn['angle_deg'] for turn in plan['plan']]
+        if position_controlled and preflight:
             try:
-                prepare_motor_turn(self.database, profile, [turn['angle_deg'] for turn in plan['plan']])
+                prepare_motor_turn(self.database, profile, angles)
             except DeviceError as exc:
                 raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
         return {'method': {'id': method['method_id'], 'version': method['version'], 'name': method['title']},
                 'profile': {'id': profile['id'], 'name': profile['name'], 'transport': profile['transport']},
                 'position_controlled': position_controlled,
+                **({'position_angles': angles} if not preflight else {}),
                 'queue': {'id': queue['id'], 'name': queue['name'], 'name_length': queue['name_length']},
                 'item': {'id': item['id'], 'name': item['post_name'] or item['pre_name'], 'repeats': item['repeats']}}
 
@@ -115,7 +129,8 @@ class AcquisitionService:
                 burn_cycle_seconds=row['burn_cycle_seconds'], dark_cycle_seconds=row['dark_cycle_seconds'])
         return {'points': _unpack_float32(mean, count), 'mean_sha256': row['mean_sha256'], 'interval': interval}
 
-    def __init__(self, database: Database, *, exit_gate=None, on_frame_saved=None, on_serial_notice=None):
+    def __init__(self, database: Database, *, exit_gate=None, on_frame_saved=None, on_serial_notice=None,
+                 ownership=None, handoff=None):
         self.database = database
         self.sample_queues = SampleQueueService(database)
         self._adapters: dict[int, AcqSimulatorAdapter | SerialAcqAdapter] = {}
@@ -125,8 +140,9 @@ class AcquisitionService:
         self._exit_gate = exit_gate
         self._on_frame_saved = on_frame_saved
         self._on_serial_notice = on_serial_notice
-        self._start_lock = threading.Lock()
         self._sequence = CaptureSequence(AcquisitionError, exit_gate)
+        self._hardware = CaptureDevice("acquisition", ("sample-acquisition", "evaporation-acquisition"),
+                                       self._adapters, self._task_locks, ownership, handoff, exit_gate, AcquisitionError)
 
     @contextmanager
     def _control_scope(self, task_id: int):
@@ -152,20 +168,21 @@ class AcquisitionService:
         return adapter
 
     def active_serial_connections(self) -> list[dict[str, Any]]:
-        result = [{"task_id": task_id, **adapter.diagnostics()} for task_id, adapter in list(self._adapters.items())
-                  if isinstance(adapter, SerialAcqAdapter) and adapter.diagnostics()['connected']]
-        current = self._sequence.current()
-        if current is not None and not any(item['task_id'] == current for item in result):
-            _, _, profile = self.repository._context(current)
-            if profile['transport'] == 'serial':
-                result.append({'task_id': current, 'port': f"COM{profile['port']}", 'state': 'reserved'})
+        result = []
+        for task_id, adapter in list(self._adapters.items()):
+            if isinstance(adapter, SerialAcqAdapter):
+                diagnostics = adapter.diagnostics()
+                if diagnostics['connected']:
+                    result.append({'task_id': task_id, **diagnostics})
         return result
 
     def _start_adapter(self, task_id: int, task: sqlite3.Row, profile: sqlite3.Row, *,
                        next_repeat=False, continuation=False) -> tuple[AcqSimulatorAdapter | SerialAcqAdapter, Any]:
+        self._hardware.starting(task_id)
         from .turns import context
         with self.database.read() as db:
             config, state = context(db, task_id)
+            attempt = get_monitoring_state(db, task_id)['attempt']
         turn = json.loads(task['excitation_condition_json'] or '{}').get('capture_turn')
         simulator = json.loads(task["simulator_json"] or "{}")
         try:
@@ -192,11 +209,11 @@ class AcquisitionService:
                 )
                 return adapter, event
             args = {'sample': str(simulator.get('sample', '280-288.acq')),
-                    'seed': int(simulator.get('seed', 0)) + int(task['current_repeat_index']),
+                    'seed': int(simulator.get('seed', 0)) + int(task['current_repeat_index']) + attempt * 65537,
                     'fault_frame': simulator.get('fault_frame'), 'correlation_id': f'acquisition-{task_id}'}
             event = adapter.start_debug(**args)
             if turn and turn['multiple']:
-                from ..hardware_acquisition import confirm_simulated_turn
+                from ..devices import confirm_simulated_turn
                 position = confirm_simulated_turn(adapter, turn['angle_deg'], args['correlation_id'])
                 event = adapter.start_debug(**{**args, 'seed': args['seed'] + turn['turn_index'] * 1009})
                 with self.database.write() as db:
@@ -219,44 +236,49 @@ class AcquisitionService:
     def _run_serial(self, task_id: int, adapter: Any, actor_user_id: int | None, *, monitor=True) -> None:
         if isinstance(adapter, SerialAcqAdapter):
             try:
-                if self._sequence.cancelled(task_id):
+                use = self._hardware.for_task(task_id)
+                if self._sequence.cancelled(task_id) or use is not None and use.cancel.is_set():
                     adapter.request_stop()
                 adapter.begin_capture()
             except DeviceError as exc:
                 self._fail_task(task_id, exc.code, exc.message, actor_user_id)
                 raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=exc.status_code) from exc
             if monitor:
-                monitor_capture(adapter, lambda: self.step(task_id, actor_user_id, single_repeat=True),
-                                lambda message: self._fail_task(task_id, "serial_capture_failed", message, actor_user_id))
+                monitor_capture(adapter, lambda: self.step(task_id, actor_user_id, single_repeat=True, _serial_adapter=adapter),
+                                lambda message: self._fail_task(task_id, "serial_capture_failed", message, actor_user_id)
+                                if self._adapters.get(task_id) is adapter else None)
 
     def shutdown(self) -> list[dict[str, Any]]:
+        use = self._hardware.current()
+        if use is not None:
+            self._hardware.request_stop(use.task_id)
         errors = self._sequence.shutdown()
-        for task_id in list(self._adapters):
-            adapter = self._adapters.get(task_id)
-            if isinstance(adapter, SerialAcqAdapter):
-                # Signal the physical stop before waiting for a database/control
-                # lock held by the background saver.
-                try:
-                    adapter.disconnect(correlation_id="application-shutdown")
-                except DeviceError as exc:
-                    errors.append({"task_id": task_id, **exc.detail()})
-                try:
-                    with self._task_locks[task_id]:
-                        self._stop(task_id)
-                except Exception as exc:
-                    errors.append({"task_id": task_id, "message": str(exc)})
-                    import logging
-                    logging.getLogger(__name__).exception("Serial acquisition shutdown was not confirmed")
+        use = self._hardware.current()
+        if use is not None:
+            try:
+                self._stop_control(use.task_id)
+            except Exception as exc:
+                detail = exc.detail() if hasattr(exc, 'detail') else {"message": str(exc)}
+                errors.append({"task_id": use.task_id, **detail})
         return errors
 
     def start(self, task_id: int, actor_user_id: int | None = None, *, turn_index: int | None = None,
               single_turn: bool = False, _sequence=False) -> dict[str, Any]:
-        with self._control_scope(task_id), self._start_lock:
+        with self._control_scope(task_id):
             if not _sequence and self._sequence.current(task_id) is not None:
                 raise AcquisitionError('capture_sequence_busy', '当前任务正在执行连续摄谱', status_code=409)
             if _sequence and self._sequence.cancelled(task_id):
                 raise AcquisitionError('capture_sequence_cancelled', '连续摄谱已停止', status_code=409)
-            return self._start(task_id, actor_user_id, turn_index=turn_index, single_turn=single_turn)
+            task, _, profile = self.repository._context(task_id)
+            acquired = False
+            if not _sequence:
+                _, acquired = self._hardware.reserve(f"{task['task_kind']}-acquisition", profile, task_id, actor_user_id)
+            try:
+                return self._start(task_id, actor_user_id, turn_index=turn_index, single_turn=single_turn)
+            except Exception:
+                if acquired or _sequence:
+                    self._close_adapter(task_id)
+                raise
 
     def start_sequence(self, task_id: int, actor_user_id: int, *, turn_index: int | None = None):
         task = self.get_task(task_id)
@@ -272,10 +294,12 @@ class AcquisitionService:
             return self.start(task_id, actor_user_id, turn_index=turn_index)
         if not pending:
             raise AcquisitionError('acquisition_task_not_startable', '全部转角已完成', status_code=409)
-        return self._sequence.start(pending, all_members=[item['id'] for item in members] if members else None,
+        return self._hardware.sequence(self._sequence, pending, owner=f"{task['task_kind']}-acquisition",
+                                    profile=self.repository._context(task_id)[2], actor=actor_user_id,
+                                    all_members=[item['id'] for item in members] if members else None,
                                     start=lambda i: self.start(i, actor_user_id, turn_index=turn_index, _sequence=True),
                                     step=lambda i: self.step(i, actor_user_id, single_repeat=True),
-                                    get_task=self.get_task, stop=lambda i: self._stop_control(i, actor_user_id),
+                                    get_task=self.get_task, stop=lambda i: self._stop_control(i, actor_user_id, retry=False),
                                     fail=lambda i, code, message: self._fail_task(i, code, message, actor_user_id))
 
     def _start(self, task_id: int, actor_user_id: int | None = None, *, turn_index: int | None = None,
@@ -385,6 +409,7 @@ class AcquisitionService:
         task: sqlite3.Row,
         sample: sqlite3.Row,
         actor_user_id: int | None,
+        *, accepted_attempts=None,
     ) -> str:
         """在调用方事务内固化本次重复，并决定等待下一次还是完成任务。"""
         from .turns import context, runtime
@@ -400,7 +425,7 @@ class AcquisitionService:
                     (status, None if waiting else task['adapter_session_id'],
                      '本转角完成，请开始下一转角摄谱' if waiting else '本转角完成，继续本次重复的下一转角', utc_now(), task['id']))
                 return status
-        self.repository._finalize_sample(db, task, sample, actor_user_id)
+        self.repository._finalize_sample(db, task, sample, actor_user_id, accepted_attempts=accepted_attempts)
         task_id = int(task["id"])
         completed_repeats = int(task["completed_repeats"]) + 1
         if completed_repeats < int(task["repeat_count"]):
@@ -459,16 +484,8 @@ class AcquisitionService:
         )
         self.repository._audit(db, actor_user_id, "acquisition.task.completed", task_id, {"repeat_count": completed_repeats})
 
-    def _close_adapter(self, task_id: int, *, strict: bool = False) -> None:
-        adapter = self._adapters.pop(task_id, None)
-        if adapter is not None:
-            try:
-                if not isinstance(adapter, SerialAcqAdapter):
-                    adapter.stop_debug(correlation_id=f"acquisition-{task_id}")
-                adapter.disconnect(correlation_id=f"acquisition-{task_id}")
-            except DeviceError:
-                if strict and isinstance(adapter, SerialAcqAdapter):
-                    raise
+    def _close_adapter(self, task_id: int, *, strict=False, retain=False, retry=False) -> None:
+        self._hardware.close(task_id, strict=strict, retain=retain, retry=retry)
 
     def _begin_next_repeat(self, task_id: int, actor_user_id: int | None = None, *, single_turn: bool = False) -> None:
         task, _, profile = self.repository._context(task_id)
@@ -539,14 +556,198 @@ class AcquisitionService:
             self.repository._audit(db, actor_user_id, "acquisition.task.failed", task_id, {"code": code, "message": message})
         self._close_adapter(task_id)
 
-    def step(self, task_id: int, actor_user_id: int | None = None, *, single_repeat: bool = False) -> dict[str, Any]:
+    def step(self, task_id: int, actor_user_id: int | None = None, *, single_repeat: bool = False,
+             _serial_adapter=None) -> dict[str, Any]:
         with self._control_scope(task_id):
+            if _serial_adapter is not None and self._adapters.get(task_id) is not _serial_adapter:
+                return {'status': 'stopped'}
             try:
-                return self._step(task_id, actor_user_id, single_repeat=single_repeat)
+                result = self._step(task_id, actor_user_id, single_repeat=single_repeat)
+                if _serial_adapter is not None and result['status'] == 'paused':
+                    return {'status': 'stopped'}
+                return result
             except AcquisitionError as exc:
                 if self.repository._context(task_id)[0]['status'] in {'countdown', 'pre_excitation', 'burn', 'dark'}:
                     self._fail_task(task_id, exc.code, exc.message, actor_user_id)
                 raise
+
+    @staticmethod
+    def _monitor_context(db, task):
+        from .turns import context
+        config, runtime = context(db, task['id'])
+        turn_index = runtime['turn_index'] if runtime else 0
+        turn = config['plan'][turn_index] if config else None
+        settings = monitoring_config(task)
+        binding = turn.get('monitoring', {}) if turn else settings.get('binding', {})
+        if config and config['multiple']:
+            ccds, points = turn['ccd_indices'], turn['geometry']['points_per_ccd']
+        else:
+            ccds = json.loads(task['ccd_indices_json'])
+            points = db.execute('SELECT points_per_ccd FROM ccd_layouts WHERE id=?', (task['ccd_layout_id'],)).fetchone()[0]
+        return settings, binding, turn_index, ccds, points
+
+    def _monitor_decision(self, db, task, turn_index, state, action, summary, actor):
+        task_id = task['id']
+        repeat = task['current_repeat_index']
+        detected = state.get('attempt_anomalies', [])
+        observation = state.get('observation', {})
+        offset = observation.get('correction_offset')
+        decision_id = record_decision(db, task_id=task_id, repeat_index=repeat, turn_index=turn_index,
+            attempt=state['attempt'], frame_index=observation.get('frame_index', 0), anomaly_kinds=detected,
+            decision=action, correction_offset=offset, observed=observation, reason=summary, actor_user_id=actor)
+        details = {'decision_id': decision_id, 'repeat_index': repeat, 'turn_index': turn_index,
+                   'attempt': state['attempt'], 'retry_count': state['retry_count'], 'anomaly_kinds': detected,
+                   'correction_offset': offset, 'reason': summary}
+        if action != 'warn':
+            self.repository._audit(db, actor, f'acquisition.decision.{action}', task_id, details)
+        self.repository._message(db, task_id, 'error' if action == 'stop' else 'warning' if detected else 'info',
+                                 f'monitoring.{action}', summary, details)
+
+    def _record_observation(self, db, task, state, result, frame_index, phase, turn_index, actor):
+        detected = result['detected']
+        if detected:
+            summary = format_anomaly_summary(detected, result['observations'])
+            affected = state.get('attempt_anomalies', [])
+            state.update(status='alert', last_summary=summary, last_anomalies=list(dict.fromkeys(affected + detected)),
+                         observation={**result, 'frame_index': frame_index, 'phase': phase})
+            state['attempt_anomalies'] = state['last_anomalies']
+            details = {'repeat_index': task['current_repeat_index'], 'turn_index': turn_index,
+                       'attempt': state['attempt'], 'phase': phase, 'frame_index': frame_index,
+                       'anomaly_kinds': detected, 'observations': result['observations']}
+            self.repository._message(db, task['id'], 'warning', 'monitoring.anomaly', summary, details)
+            self.repository._audit(db, actor, 'acquisition.anomaly.detected', task['id'], details)
+        elif not state.get('attempt_anomalies'):
+            state['status'] = 'normal' if result['monitored'] else 'unmonitored'
+            state['observation'] = {**result, 'frame_index': frame_index, 'phase': phase}
+
+    def _restart_attempt(self, task_id, actor):
+        task, _, profile = self.repository._context(task_id)
+        adapter, event = self._start_adapter(task_id, task, profile, continuation=True)
+        with self.database.write() as db:
+            db.execute('UPDATE acquisition_tasks SET adapter_session_id=?,last_event_json=?,updated_at=? WHERE id=?',
+                       (adapter.session_id, _json(event.to_dict()), utc_now(), task_id))
+        self._run_serial(task_id, adapter, actor)
+
+    @staticmethod
+    def _reset_attempt(state):
+        state.update(attempt=0, retry_count=0, awaiting_intervention=False, can_accept=False,
+                     accept_blocked_reason=None, attempt_anomalies=[], observation={})
+
+    def _advance_attempt(self, db, task, state):
+        from .turns import runtime
+        attempt, retries = state['attempt'] + 1, state['retry_count'] + 1
+        self._reset_attempt(state)
+        state.update(attempt=attempt, retry_count=retries, status='retrying')
+        runtime(db, task['id'], positioned=False)
+        db.execute("UPDATE acquisition_tasks SET status='pre_excitation',paused_from=NULL,adapter_session_id=NULL,"
+                   'burn_frames_captured=0,dark_frames_captured=0,last_event_json=NULL,last_message=?,updated_at=? WHERE id=?',
+                   (state['last_summary'], utc_now(), task['id']))
+
+    def _safety_stop(self, db, task, state, actor, summary, *, status='stopped'):
+        from .turns import runtime
+        prefix = f"{task['current_repeat_index']}:"
+        state['accepted_attempts'] = {key: value for key, value in state['accepted_attempts'].items() if not key.startswith(prefix)}
+        state.update(status='safety_stopped', awaiting_intervention=False, can_accept=False, last_summary=summary)
+        runtime(db, task['id'], completed_turns=0, awaiting_turn=False)
+        db.execute("UPDATE acquisition_samples SET status=?,failure_code='acquisition_safety_stop',"
+                   "failure_message=?,updated_at=? WHERE task_id=? AND status='collecting'",
+                   (status, summary, utc_now(), task['id']))
+        db.execute("UPDATE acquisition_tasks SET status=?,paused_from=NULL,adapter_session_id=NULL,"
+                   "burn_frames_captured=0,dark_frames_captured=0,last_event_json=NULL,failure_code='acquisition_safety_stop',"
+                   'failure_message=?,last_message=?,completed_at=?,updated_at=? WHERE id=?',
+                   (status, summary, summary, utc_now(), utc_now(), task['id']))
+        self.repository._audit(db, actor, 'acquisition.task.safety_stop', task['id'], {'reason': summary})
+
+    def _resolve_attempt(self, task, sample, settings, turn_index, actor, *, damaged=False, allow_restart=True):
+        task_id = task['id']
+        with self.database.read() as db:
+            state = get_monitoring_state(db, task_id)
+            complete = not damaged and self.repository.attempt_complete(db, task, sample, turn_index, state['attempt'])
+        if not complete and not damaged:
+            state.update(attempt_anomalies=[*state.get('attempt_anomalies', []), 'frame_fault'],
+                         last_summary='监测异常：采集区间缺帧或原始帧校验失败')
+            state['last_anomalies'] = state['attempt_anomalies']
+        anomalies = state.get('attempt_anomalies', [])
+        limit = settings['retry_limit']
+        policy = settings['anomaly_policy']
+        if complete and (not anomalies or policy == 'warn' and limit == 0):
+            with self.database.write() as db:
+                decision = 'warn' if anomalies else 'accept'
+                summary = state['last_summary'] if anomalies else (
+                    '标定窗口监测正常，完整采集尝试已确认' if state['status'] == 'normal'
+                    else '当前转角未监测，完整采集尝试已确认')
+                self._monitor_decision(db, task, turn_index, state, decision, summary, actor)
+                return self._finish_monitored(db, task, sample, turn_index, state, actor)
+
+        use = self._hardware.for_task(task_id)
+        allow_restart = allow_restart and not self._sequence.cancelled(task_id) and (use is None or not use.cancel.is_set())
+        retry = allow_restart and state['retry_count'] < limit
+        manual = allow_restart and not retry and policy == 'manual'
+        try:
+            self._close_adapter(task_id, strict=True, retain=retry or manual)
+        except DeviceError as exc:
+            summary = f"{state['last_summary']}。仪器停止未确认：{exc.message}"
+            with self.database.write() as db:
+                state.update(status='stop_unconfirmed', last_summary=summary)
+                self._monitor_decision(db, task, turn_index, state, 'stop', summary, actor)
+                save_monitoring_state(db, task_id, state)
+            self._fail_task(task_id, exc.code, summary, actor)
+            return 'failed'
+
+        with self.database.write() as db:
+            if retry:
+                if state.get('observation', {}).get('correction_offset') is not None:
+                    self._monitor_decision(db, task, turn_index, state, 'correct', '已记录峰位偏移量供诊断', actor)
+                summary = f"{state['last_summary']}。开始第 {state['retry_count'] + 1}/{limit} 次自动重采"
+                self._monitor_decision(db, task, turn_index, state, 'retry', summary, actor)
+                state['last_summary'] = summary
+                self._advance_attempt(db, task, state)
+                status = 'pre_excitation'
+            elif manual:
+                reason = None if complete else '当前尝试含损坏帧或缺少完整采集区间，只能重采或安全停机'
+                summary = f"{state['last_summary']}。等待人工接管"
+                state.update(status='manual', awaiting_intervention=True, can_accept=complete,
+                             accept_blocked_reason=reason, last_summary=summary)
+                self._monitor_decision(db, task, turn_index, state, 'manual', summary, actor)
+                db.execute("UPDATE acquisition_tasks SET status='paused',paused_from=NULL,adapter_session_id=NULL,"
+                           'last_message=?,updated_at=? WHERE id=?', (summary, utc_now(), task_id))
+                status = 'paused'
+            else:
+                summary = f"{state['last_summary']}。{'自动重采次数已耗尽，' if limit and allow_restart else ''}已安全停机"
+                self._monitor_decision(db, task, turn_index, state, 'stop', summary, actor)
+                status = 'failed' if damaged and policy == 'warn' and limit == 0 else 'stopped'
+                self._safety_stop(db, task, state, actor, summary, status=status)
+            save_monitoring_state(db, task_id, state)
+        if retry:
+            self._restart_attempt(task_id, actor)
+        return status
+
+    def _finish_monitored(self, db, task, sample, turn_index, state, actor):
+        state['accepted_attempts'][attempt_key(sample['repeat_index'], turn_index)] = state['attempt']
+        status = self._finish_repeat(db, task, sample, actor, accepted_attempts=state['accepted_attempts'])
+        if status != 'completed':
+            self._reset_attempt(state)
+            state['status'] = 'pending'
+        else:
+            state.update(awaiting_intervention=False, can_accept=False, accept_blocked_reason=None)
+        save_monitoring_state(db, task['id'], state)
+        return status
+
+    def _monitor_fault(self, task, sample, settings, binding, turn_index, ccds, phase, frame_index, event, actor, *, allow_restart):
+        code = event.details.get('code', 'frame_fault')
+        kind = 'turn_timeout' if code in {'turn_timeout', 'motor_position_timeout', 'sample_turn_unconfirmed'} else 'frame_fault'
+        result = evaluate_event_monitoring(event.ccds, binding, settings['thresholds'], damaged=True,
+                                           fault_kind=kind, selected_ccds=ccds)
+        task_id = task['id']
+        with self.database.write() as db:
+            state = get_monitoring_state(db, task_id)
+            self._record_observation(db, task, state, result, frame_index, phase, turn_index, actor)
+            state['last_summary'] += f"（{event.message}）" if event.message else ''
+            self.repository._store_damaged(db, task, sample, phase, frame_index, event, attempt=state['attempt'],
+                                           monitoring=result, isolate_attempts=True)
+            save_monitoring_state(db, task_id, state)
+        self._resolve_attempt(task, sample, settings, turn_index, actor, damaged=True, allow_restart=allow_restart)
+        return self.repository._task_dict(task_id, include_points=True)
 
     def _step(self, task_id: int, actor_user_id: int | None = None, *, single_repeat: bool = False,
               continue_turn: bool = True) -> dict[str, Any]:
@@ -555,6 +756,10 @@ class AcquisitionService:
             raise AcquisitionError("acquisition_task_discarded", "该摄谱任务已删除", status_code=409)
         status = str(task["status"])
         adapter = self._adapters.get(task_id)
+        if status == 'paused':
+            with self.database.read() as db:
+                if get_monitoring_state(db, task_id)['awaiting_intervention']:
+                    raise AcquisitionError('acquisition_intervention_required', '请先处理等待人工接管的采集尝试', status_code=409)
         real = isinstance(adapter, SerialAcqAdapter) or profile["transport"] == "serial"
         if real and adapter is None and status in {"countdown", "pre_excitation", "burn", "dark", "paused"}:
             self._fail_task(task_id, "acquisition_session_lost", "真实采集会话已丢失，已收帧保留，请检查仪器后新建任务", actor_user_id)
@@ -588,18 +793,30 @@ class AcquisitionService:
             raise AcquisitionError(
                 "acquisition_task_not_running", "当前任务未处于可采集状态", details={"status": status}, status_code=409
             )
-        task, _, profile = self.repository._context(task_id)
+        with self.database.read() as db:
+            sample = self.repository._current_sample(db, task_id, task['current_repeat_index'])
+            settings, binding, turn_index, ccds, point_count = self._monitor_context(db, task)
+        isolated = settings.get('isolated', False)
+        handle_faults = isolated and (settings.get('handle_faults') or binding.get('monitored'))
+        phase = 'dark' if status == 'dark' else 'burn'
+        frame_index = task[f'{phase}_frames_captured']
         if not real:
             try:
                 self._position_sample_turn(task, actor_user_id)
             except Exception as exc:
+                if handle_faults and isinstance(exc, AcquisitionError):
+                    event = DeviceEvent('fault', DeviceAcquisitionState.ERROR, correlation_id=f'acquisition-{task_id}',
+                                        message=exc.message, details=exc.detail())
+                    result = self._monitor_fault(task, sample, settings, binding, turn_index, ccds, phase, frame_index,
+                                                 event, actor_user_id, allow_restart=continue_turn)
+                    if result['status'] == 'failed':
+                        raise
+                    return result
                 self._fail_task(task_id, getattr(exc, 'code', 'sample_turn_failed'), str(exc), actor_user_id)
                 if isinstance(exc, AcquisitionError):
                     raise
                 raise AcquisitionError('sample_turn_failed', '转角执行失败，已停止采集') from exc
             task, _, profile = self.repository._context(task_id)
-        with self.database.read() as db:
-            sample = self.repository._current_sample(db, task_id, int(task["current_repeat_index"]))
         adapter = self._adapters.get(task_id)
         if not real and status == AcquisitionState.PRE_EXCITATION.value and float(task["pre_excitation_seconds"]) > 0:
             with self.database.write() as db:
@@ -635,16 +852,12 @@ class AcquisitionService:
                         with self.database.write() as db:
                             db.execute("UPDATE acquisition_tasks SET status='pre_excitation',countdown_remaining=0 WHERE id=?", (task_id,))
                     return self.repository._task_dict(task_id)
-                phase = str(event.details["phase"])
-                frame_index = int(event.details["phase_index"])
-                expected = int(task["burn_frames_captured"] if phase == "burn" else task["dark_frames_captured"])
-                if frame_index != expected:
+                if event.details.get('phase') != phase or event.details.get('phase_index') != frame_index:
                     raise DeviceError("serial_frame_sequence_invalid", "真实CCD帧序异常，已中止保存")
-                stored = event
             elif status == AcquisitionState.PRE_EXCITATION.value:
                 event = json.loads(task["last_event_json"] or "{}")
                 phase, frame_index = "burn", 0
-                stored = _seeded_acquisition_event(
+                event = _seeded_acquisition_event(
                     DeviceEvent(
                         event_type=str(event.get("event_type", "frame")),
                         state=DeviceAcquisitionState(str(event.get("state", DeviceAcquisitionState.DEBUGGING.value))),
@@ -667,7 +880,7 @@ class AcquisitionService:
                         "acquisition_session_lost", "采集会话已丢失，已收帧不会被替换", status_code=409
                     )
                 event = adapter.step_debug(correlation_id=f"acquisition-{task_id}")
-                if event.event_type == "fault":
+                if event.event_type == "fault" and not isolated:
                     with self.database.write() as db:
                         live = self.repository._context(task_id, db)[0]
                         current_sample = self.repository._current_sample(db, task_id, int(live["current_repeat_index"]))
@@ -694,29 +907,39 @@ class AcquisitionService:
                     sample_kind=str(task["sample_kind"]),
                 )
         except DeviceError as exc:
-            self._fail_task(task_id, exc.code, exc.message, actor_user_id,
-                            event=DeviceEvent("fault", DeviceAcquisitionState.ERROR,
-                                correlation_id=f"acquisition-{task_id}", details={**exc.detail(), **(adapter.diagnostics() if real else {})}))
+            fault = DeviceEvent("fault", DeviceAcquisitionState.ERROR, correlation_id=f"acquisition-{task_id}",
+                message=exc.message, details={**exc.detail(), **(adapter.diagnostics() if real else {})})
+            if handle_faults:
+                return self._monitor_fault(task, sample, settings, binding, turn_index, ccds, phase, frame_index,
+                                           fault, actor_user_id, allow_restart=continue_turn)
+            self._fail_task(task_id, exc.code, exc.message, actor_user_id, event=fault)
             raise AcquisitionError(
                 "acquisition_frame_failed", exc.message, details=exc.detail(), status_code=exc.status_code
             ) from exc
         except AcquisitionError as exc:
             self._fail_task(task_id, exc.code, exc.message, actor_user_id)
             raise
-        frame = stored if status == "pre_excitation" else event
+        frame = event
+        if isolated:
+            lengths = {ccd['ccd_index']: len(ccd.get('points', [])) for ccd in frame.ccds or []}
+            if frame.event_type == 'fault' or any(lengths.get(ccd) != point_count for ccd in ccds):
+                return self._monitor_fault(task, sample, settings, binding, turn_index, ccds, phase, frame_index,
+                                           frame, actor_user_id, allow_restart=continue_turn)
         next_state = status
-        advance_real_turn = False
         with self.database.write() as db:
             live = self.repository._context(task_id, db)[0]
             current_sample = self.repository._current_sample(db, task_id, int(live["current_repeat_index"]))
+            state = get_monitoring_state(db, task_id) if isolated else None
+            observation = None
+            if isolated and phase == 'burn':
+                observation = evaluate_event_monitoring(frame.ccds, binding, settings['thresholds'],
+                    radius_override=settings['search_radius_points'], selected_ccds=ccds)
+                self._record_observation(db, live, state, observation, frame_index, phase, turn_index, actor_user_id)
+                save_monitoring_state(db, task_id, state)
             self.repository._store_event(
-                db,
-                live,
-                current_sample,
-                phase,
-                frame_index,
-                frame,
+                db, live, current_sample, phase, frame_index, frame,
                 event.details["elapsed_ms"] if real else self.repository._virtual_time(live, int(current_sample["repeat_index"]), phase, frame_index),
+                attempt=state['attempt'] if state else 0, monitoring=observation, isolate_attempts=isolated,
             )
             burn_captured = int(live["burn_frames_captured"]) + (1 if phase == "burn" else 0)
             dark_captured = int(live["dark_frames_captured"]) + (1 if phase == "dark" else 0)
@@ -733,7 +956,7 @@ class AcquisitionService:
                     "id=?"
                 ),
                 (
-                    next_state,
+                    phase if isolated and next_state == 'completed' else next_state,
                     burn_captured,
                     dark_captured,
                     _json(frame.to_dict()),
@@ -764,13 +987,17 @@ class AcquisitionService:
                         "turn_position": event.details.get("turn_position")} if real else {}),
                 },
             )
-            if next_state == "completed":
+            turn_finished = next_state == 'completed'
+            if turn_finished and not isolated:
                 next_state = self._finish_repeat(db, live, current_sample, actor_user_id)
-                advance_real_turn = real and next_state == "burn" and bool(frame.details.get("turn_position"))
         if self._on_frame_saved is not None:
             self._on_frame_saved(task_id, phase, frame_index, frame.details, current_sample["repeat_index"])
+        if turn_finished and isolated:
+            next_state = self._resolve_attempt(live, current_sample, settings, turn_index, actor_user_id,
+                                               allow_restart=continue_turn)
         if next_state in {"between_repeats", "completed", "paused"}:
-            self._close_adapter(task_id)
+            self._close_adapter(task_id, retain=next_state == "paused")
+        advance_real_turn = real and turn_finished and next_state == 'burn' and bool(frame.details.get('turn_position'))
         if advance_real_turn and continue_turn and not adapter.stop_requested and not self._sequence.cancelled(task_id):
             try:
                 adapter.wait_for_capture_end()
@@ -786,9 +1013,10 @@ class AcquisitionService:
 
     def _position_sample_turn(self, task, actor):
         from .turns import context, runtime
-        from ..hardware_acquisition import confirm_simulated_turn
+        from ..devices import confirm_simulated_turn
         with self.database.read() as db:
             config, state = context(db, task['id'])
+            attempt = get_monitoring_state(db, task['id'])['attempt']
         if not config or not config['multiple'] or state['positioned']:
             return
         adapter = self._adapters.get(task['id'])
@@ -801,7 +1029,7 @@ class AcquisitionService:
             raise AcquisitionError(exc.code, exc.message, status_code=exc.status_code) from exc
         # Distinct deterministic signals per physical position; these remain simulation evidence.
         source = json.loads(task['simulator_json'])
-        event = adapter.start_debug(sample=source['sample'], seed=int(source['seed']) + task['current_repeat_index'] + turn['source_index'] * 1009,
+        event = adapter.start_debug(sample=source['sample'], seed=int(source['seed']) + task['current_repeat_index'] + turn['source_index'] * 1009 + attempt * 65537,
             fault_frame=source.get('fault_frame'), correlation_id=f"acquisition-{task['id']}")
         event = _seeded_acquisition_event(event, repeat_index=task['current_repeat_index'], phase='burn', frame_index=0, sample_kind=task['sample_kind'])
         with self.database.write() as db:
@@ -862,6 +1090,8 @@ class AcquisitionService:
             )
         with self.database.read() as db:
             _, state = context(db, task_id)
+            if get_monitoring_state(db, task_id)['awaiting_intervention']:
+                raise AcquisitionError('acquisition_intervention_required', '请先处理等待人工接管的采集尝试', status_code=409)
         if state and state.get('awaiting_turn'):
             raise AcquisitionError('sample_turn_start_required', '请在下一转角控制页开始摄谱', status_code=409)
         target = task["paused_from"] or "burn"
@@ -874,25 +1104,99 @@ class AcquisitionService:
             self.repository._audit(db, actor_user_id, "acquisition.task.resume", task_id, {"to": target})
         return self.repository._task_dict(task_id)
 
+    def intervene(self, task_id: int, action: str, reason: str, actor_user_id: int | None = None) -> dict[str, Any]:
+        reason = reason.strip()
+        if action not in {'retry', 'accept', 'stop'} or not 1 <= len(reason) <= 200:
+            raise AcquisitionError('acquisition_intervention_invalid', '请选择人工接管操作并填写 1–200 字的原因')
+        with self._control_scope(task_id):
+            return self._intervene(task_id, action, reason, actor_user_id)
+
+    def _intervene(self, task_id, action, reason, actor):
+        task, _, profile = self.repository._context(task_id)
+        with self.database.read() as db:
+            state = get_monitoring_state(db, task_id)
+            if task['status'] != 'paused' or not state['awaiting_intervention'] or task['discarded_at']:
+                raise AcquisitionError('acquisition_intervention_not_required', '当前任务未等待人工接管', status_code=409)
+            _, _, turn_index, _, _ = self._monitor_context(db, task)
+            sample = self.repository._current_sample(db, task_id, task['current_repeat_index'])
+        if action == 'stop':
+            self._close_adapter(task_id, strict=True)
+        elif action == 'retry' and self._hardware.for_task(task_id) is None:
+            self._hardware.reserve('sample-acquisition', profile, task_id, actor)
+
+        with self.database.write() as db:
+            if action == 'accept' and (not state['can_accept'] or not self.repository.attempt_complete(
+                    db, task, sample, turn_index, state['attempt'])):
+                raise AcquisitionError('acquisition_intervention_frame_incomplete',
+                                       '当前尝试含损坏帧或缺少完整采集区间，不能接受', status_code=409)
+            label = {'retry': '人工继续重采', 'accept': '人工接受当前完整尝试', 'stop': '人工安全停机'}[action]
+            summary = f"{label}：{reason}"
+            self._monitor_decision(db, task, turn_index, state, action, summary, actor)
+            if action == 'stop':
+                summary = f"{state['last_summary']}。{summary}"
+                self._safety_stop(db, task, state, actor, summary)
+                status = 'stopped'
+            elif action == 'retry':
+                state['last_summary'] = summary
+                self._advance_attempt(db, task, state)
+                status = 'pre_excitation'
+            else:
+                state.update(status='accepted', last_summary=summary)
+                status = self._finish_monitored(db, task, sample, turn_index, state, actor)
+            save_monitoring_state(db, task_id, state)
+
+        if status in {'pre_excitation', 'burn'}:
+            try:
+                if status == 'burn':
+                    if self._hardware.for_task(task_id) is None:
+                        self._hardware.reserve('sample-acquisition', profile, task_id, actor)
+                    with self.database.write() as db:
+                        db.execute("UPDATE acquisition_tasks SET status='pre_excitation' WHERE id=?", (task_id,))
+                self._restart_attempt(task_id, actor)
+            except AcquisitionError as exc:
+                self._fail_task(task_id, exc.code, exc.message, actor)
+                raise
+        elif status != 'paused':
+            self._close_adapter(task_id)
+        return self.repository._task_dict(task_id)
+
     def stop(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         current = self._sequence.cancel(task_id)
         if current is not None:
-            adapter = self._adapters.get(current)
-            if isinstance(adapter, SerialAcqAdapter):
-                adapter.request_stop()
+            self._hardware.request_stop(current)
             return self.get_task(current)
         return self._stop_control(task_id, actor_user_id)
 
-    def _stop_control(self, task_id: int, actor_user_id: int | None) -> dict[str, Any]:
+    def _stop_control(self, task_id: int, actor_user_id: int | None = None, *, retry=True) -> dict[str, Any]:
+        if self._hardware.request_stop(task_id):
+            with self._task_locks_guard:
+                lock = self._task_locks.setdefault(task_id, threading.Lock())
+            with lock:
+                return self._stop(task_id, actor_user_id, retry=retry)
         with self._control_scope(task_id):
-            return self._stop(task_id, actor_user_id)
+            return self._stop(task_id, actor_user_id, retry=retry)
 
-    def _stop(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def _stop(self, task_id: int, actor_user_id: int | None = None, *, retry=True) -> dict[str, Any]:
         task, _, profile = self.repository._context(task_id)
         status = str(task["status"])
+        if status == 'paused':
+            with self.database.read() as db:
+                pending = get_monitoring_state(db, task_id)['awaiting_intervention']
+            if pending:
+                return self._intervene(task_id, 'stop', '用户停止采集', actor_user_id)
+        use = self._hardware.for_task(task_id)
         if status in {"completed", "failed", "stopped"}:
+            needs_confirmation = use is not None and use.state == 'stop_unconfirmed'
+            if use is not None:
+                try:
+                    self._close_adapter(task_id, strict=True, retry=retry and needs_confirmation)
+                except DeviceError as exc:
+                    raise AcquisitionError(exc.code, exc.message, details=exc.details, status_code=409) from exc
+            if needs_confirmation:
+                self._hardware.ownership.release(use)
+                return {**self.repository._task_dict(task_id), 'stop_confirmed': True}
             return self.repository._task_dict(task_id)
-        if profile["transport"] == "serial" and task_id not in self._adapters and status in {"countdown", "pre_excitation", "burn", "dark", "paused"}:
+        if profile["transport"] == "serial" and task_id not in self._adapters and (use is None or use.state != "reserved") and status in {"countdown", "pre_excitation", "burn", "dark", "paused"}:
             self._fail_task(task_id, "acquisition_session_lost", "真实采集会话已丢失，无法发送结束指令，请检查仪器状态", actor_user_id)
             raise AcquisitionError("acquisition_session_lost", "无法确认仪器已停止，请检查仪器状态", status_code=409)
         try:
@@ -996,9 +1300,22 @@ class AcquisitionService:
         include_points: bool = False,
         turn_index: int | None = None,
         frame_index: int | None = None,
+        evidence: bool = False,
     ) -> list[dict[str, Any]]:
-        return self.repository.frames(task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index,
+        return self.repository.frames(task_id, repeat_index=repeat_index, phase=phase, ccd_index=ccd_index, evidence=evidence,
                                       include_points=include_points, turn_index=turn_index, frame_index=frame_index)
+
+    def measurement_frames(self, db, task_id, repeat_index, turn_index, **filters):
+        return self.repository.measurement_frames(db, task_id, repeat_index, turn_index, **filters)
+
+    @staticmethod
+    def measurement_interval(task, burns, darks):
+        from .codec import _pack_uint16, _unpack_float32, average_points
+
+        count = len(burns[0])
+        mean = average_points([_pack_uint16(points) for points in burns], [_pack_uint16(points) for points in darks],
+                              count, burn_cycle_seconds=task['burn_cycle_seconds'], dark_cycle_seconds=task['dark_cycle_seconds'])
+        return _unpack_float32(mean, count)
 
     def analysis(self, task_id: int, repeat_index: int | None = None) -> dict[str, Any]:
         return self.repository.analysis(task_id, repeat_index)
@@ -1016,6 +1333,8 @@ class AcquisitionService:
     def band(self, sample_id: int, ccd_index: int | None = None, include_points: bool = False) -> list[dict[str, Any]]:
         return self.repository.band(sample_id, ccd_index, include_points)
 
+    spectrum_index_sql = staticmethod(AcquisitionRepository.spectrum_index_sql)
+
     def spectrum_records(self) -> list[dict[str, Any]]:
         return self.repository.spectrum_records()
 
@@ -1026,9 +1345,9 @@ class AcquisitionService:
                 raise AcquisitionError('acquisition_sample_not_found','采集样品不存在',status_code=404)
             return dict(row)
 
-    def spectrum_snapshot(self, sample_id: int, *, include_frames: bool = False) -> dict[str, Any]:
+    def spectrum_snapshot(self, sample_id: int, *, include_frames: bool = False, band_position: int | None = None) -> dict[str, Any]:
         from ..devices import DeviceService
-        snapshot = self.repository.spectrum_snapshot(sample_id, include_frames=include_frames)
+        snapshot = self.repository.spectrum_snapshot(sample_id, include_frames=include_frames, band_position=band_position)
         source_layout = json.loads(snapshot['sample']['simulator_json'] or '{}').get('source_layout') or {}
         snapshot['point_width_um'] = source_layout.get('point_width') or DeviceService(self.database).profile(snapshot['sample']['device_profile_id'])['point_width_um']
         return snapshot

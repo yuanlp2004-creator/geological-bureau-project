@@ -1,103 +1,40 @@
 """合同四处软件缺口：真实点值、区间执行、管理样适配和输入追溯。"""
 
 import copy
-import hashlib
-import json
 import sqlite3
-import struct
 import pytest
 from backend.db import Database
 from backend.modules.acquisition import AcquisitionService
 from backend.modules.analysis import AnalysisService, AnalysisError, fit_curve, evaluate_curve
 from backend.modules.analysis.control_adaptation import adapt_control, signal_for_value
-from backend.modules.hardware_acquisition import HardwareAcquisitionService, HardwareError
-from backend.modules.hardware_acquisition.rules import _metrics, _thresholds
 from backend.modules.methods import MethodService
 from tests.test_methods import method_client, _create, _publish
 from tests.test_contract_additions import complete
-from tests.test_s14_hardware_acquisition import _advance
 from tests.test_s16_analysis import _seed
 from tests.test_s17_quality_curves import _seed_completed_run
 from tests.contract_sync_support import checkpoint
 
 
-# 基线和定位峰必须来自各自窗口，远处大峰和理想位置不能替代实测值。
-def test_metrics_use_actual_windows_without_script():
-    points = [0] * 2048
-    points[256] = 800
-    points[1060] = 3000
-    points[1800] = 65000
-    plan = {'order_index': 0, 'expected_peak_position': 1024, 'expected_baseline_position': 256}
-    task = {'plan_json': json.dumps([plan]), 'thresholds_json': json.dumps(_thresholds({}))}
-    _, observed, abnormal = _metrics(task, plan, {'points': points}, [])
-    assert abnormal and observed['detected'] == ['peak_shift']
-    assert observed['baseline_intensity'] == 800 and observed['baseline_position'] == 256
-    assert observed['peak_position'] == 1060 and observed['raw_peak_value'] == 3000
-    # 故障诊断字段不得伪造或改写点值观测。
-    assert _metrics(task, plan, {'points': points}, ['baseline_high'])[1]['baseline_intensity'] == 800
-    plan |= {'baseline_ccd_index': 0, 'peak_ccd_index': 1}
-    task['plan_json'] = json.dumps([plan])
-    _, observed, abnormal = _metrics(task, plan, {'ccd_index': 0, 'points': points}, [])
-    assert not abnormal and not observed['peak_monitored']
-
-
-# 区间外帧不能污染平均，保存模式只影响正式逐帧结果，不丢失原始证据。
-@pytest.mark.parametrize('mode', ['averaged', 'full_interval'])
-def test_turn_interval_uses_only_selected_frames(tmp_path, mode):
-    database = Database(tmp_path / 'turn.sqlite3')
-    database.initialize()
-    service = HardwareAcquisitionService(database)
-    task = service.create_task({'ccd_indices': [0], 'turns': [{'angle_deg': 10, 'wavelength_nm': 280,
-        'start_frame': 2, 'end_frame': 3, 'storage_mode': mode}]})
-    service.start(task['id'])
-    service.step(task['id'])
-    service.step(task['id'])
-    adapter = service._adapters[task['id']]
-    counter = 0
-    # 提供真实 uint16 窗口峰，首帧干扰和后两帧不同，验证边界及小数均值。
-    def capture(**kwargs):
-        nonlocal counter
-        counter += 1
-        points = [0] * 2048
-        points[256], points[1024] = 1000, [8000, 3000, 3001][counter - 1]
-        return {'event_type': 'frame', 'ccds': [{'ccd_index': 0, 'points': points}], 'details': {}}
-    adapter.capture = capture
-    service.step(task['id'])
-    paused = service.pause(task['id'])
-    assert paused['status'] == 'paused'
-    service.resume(task['id'])
-    assert service.step(task['id'])['status'] == 'collecting'
-    assert service.step(task['id'])['status'] == 'completed'
-    result = service.get_task(task['id'], include_points=True)['exposures'][0]
-    assert result['confirmed'] and result['mean_points'][1024] == 3000.5
-    assert result['start_frame'] == 2 and result['end_frame'] == 3
-    assert len(result['frames']) == (2 if mode == 'full_interval' else 0)
-    with database.read() as db:
-        assert db.execute('SELECT COUNT(*) FROM hardware_exposure_frames').fetchone()[0] == 3
-    with database.write() as db, pytest.raises(sqlite3.IntegrityError):
-        db.execute('DELETE FROM hardware_exposure_results')
-
-
-# 从方法生成完整有序转角计划，样品正式谱带也执行同一分角度区间。
+# 从方法生成完整有序转角计划，正式谱带执行对应的分角度区间。
 def test_method_intervals_feed_turn_and_sample_chains(method_client):
     client, runtime, headers = method_client
     method = _create(client, headers)
     conditions = {'frame_count': 4, 'dark_frame_count': 0, 'angle_exposures': [
-        {'angle_deg': 10, 'start_frame': 2, 'end_frame': 3, 'storage_mode': 'averaged'},
-        {'angle_deg': 20, 'start_frame': 3, 'end_frame': 4, 'storage_mode': 'full_interval'},
-        {'angle_deg': 30, 'start_frame': 1, 'end_frame': 2, 'storage_mode': 'averaged'}]}
+        {'angle_deg': 10, 'start_frame': 2, 'end_frame': 3, 'storage_mode': 'averaged', 'ccd_indices': [0, 1]},
+        {'angle_deg': 20, 'start_frame': 3, 'end_frame': 4, 'storage_mode': 'full_interval', 'ccd_indices': [2]},
+        {'angle_deg': 30, 'start_frame': 1, 'end_frame': 2, 'storage_mode': 'averaged', 'ccd_indices': [4, 5]}]}
+    for turn in conditions['angle_exposures']:
+        turn['dispersion_calibration_id'] = 'default'
     assert client.patch(f"/api/v1/methods/{method['id']}", headers=headers,
                         json={'conditions': conditions}).status_code == 200
     method = _publish(client, headers, method['id'])
-    hardware = runtime.hardware_acquisition_service()
-    turns = hardware.create_task({'method_id': method['id'], 'method_version': method['current_version']})
-    assert [(item['start_frame'], item['end_frame']) for item in turns['steps']] == [(2, 3), (3, 4), (1, 2)]
-    hardware.start(turns['id'])
-    assert _advance(hardware, turns['id'])['status'] == 'completed'
-    assert {item['method_id'] for item in hardware.options()['methods']} == {method['id']}
     acquisition = runtime.acquisition_service()
-    task = complete(acquisition, acquisition.create_task({'method_id': method['id'], 'use_method_intervals': True,
-        'management_sample': True, 'sample_kind': 'test', 'sample_name': 'M1'}))
+    task = complete(acquisition, acquisition.create_task({'method_id': method['id'],
+        'management_sample': True, 'sample_kind': 'test', 'sample_name': 'M1', 'repeat_count': 1}))
+    plan = task['turns']['plan']
+    assert [(turn['angle_deg'], turn['start_frame'], turn['end_frame']) for turn in plan] == [
+        (10, 2, 3), (20, 3, 4), (30, 1, 2),
+    ]
     sample = task['samples'][0]
     bands = acquisition.band(sample['id'], include_points=True)
     assert {item['ccd_index']: item['storage_mode'] for item in bands} == {0:'averaged', 1:'averaged', 2:'full_interval', 4:'averaged', 5:'averaged'}
@@ -105,7 +42,8 @@ def test_method_intervals_feed_turn_and_sample_chains(method_client):
     frames = acquisition.frames(task['id'], include_points=True)
     for band in bands:
         exposure = conditions['angle_exposures'][band['ccd_index'] // 2]
-        selected = [row for row in frames if row['ccd_index'] == band['ccd_index'] and row['phase'] == 'burn'
+        selected = [row for row in frames if row['turn_index'] == band['turn_index']
+                    and row['ccd_index'] == band['ccd_index'] and row['phase'] == 'burn'
                     and exposure['start_frame'] - 1 <= row['frame_index'] < exposure['end_frame']]
         expected = sum(row['points'][100] for row in selected) / 2
         assert band['mean_points'][100] == expected
@@ -206,56 +144,6 @@ def test_v23_upgrade_failure_rolls_back(tmp_path, monkeypatch):
     with database.read() as db:
         assert int(db.execute("SELECT value FROM app_metadata WHERE key='schema_version'").fetchone()[0]) == SCHEMA_VERSION
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []
-
-
-# 区间中真实异常应立即重试，失败尝试的前缀不得混入新尝试均值。
-def test_exposure_retry_restarts_interval_and_preserves_rejected_prefix(tmp_path):
-    database = Database(tmp_path / 'retry.sqlite3')
-    database.initialize()
-    service = HardwareAcquisitionService(database)
-    task = service.create_task({'ccd_indices': [0], 'retry_limit': 1, 'turns': [
-        {'angle_deg': 10, 'wavelength_nm': 280, 'start_frame': 2, 'end_frame': 3}]})
-    service.start(task['id'])
-    service.step(task['id'])
-    service.step(task['id'])
-    counter = 0
-    # 首次给出真实偏移，后续完整重采，检测过程没有脚本指标注入。
-    def capture(**kwargs):
-        nonlocal counter
-        counter += 1
-        points = [0] * 2048
-        points[256] = 1000
-        points[1060 if counter == 1 else 1024] = 3000
-        return {'event_type': 'frame', 'ccds': [{'ccd_index': 0, 'points': points}]}
-    service._adapters[task['id']].capture = capture
-    retry = service.step(task['id'])
-    assert retry['status'] == 'turning' and retry['steps'][0]['correction_offset'] == -36
-    done = _advance(service, task['id'])
-    assert done['status'] == 'completed'
-    with database.read() as db:
-        assert [(row[0], row[1]) for row in db.execute('SELECT attempt,COUNT(*) FROM hardware_exposure_frames GROUP BY attempt')] == [(0,1),(1,3)]
-    assert len(done['exposures']) == 1 and done['exposures'][0]['attempt'] == 1
-
-
-# 真实缺失或长度错误的帧必须保持损坏状态，人工接受也不能绕过完整区间。
-def test_invalid_frame_and_partial_exposure_cannot_be_manually_accepted(tmp_path):
-    database = Database(tmp_path / 'missing.sqlite3')
-    database.initialize()
-    service = HardwareAcquisitionService(database)
-    task = service.create_task({'ccd_indices': [0], 'anomaly_policy': 'manual', 'retry_limit': 0, 'turns': [
-        {'angle_deg': 10, 'wavelength_nm': 280, 'start_frame': 2, 'end_frame': 3}]})
-    service.start(task['id'])
-    service.step(task['id'])
-    service.step(task['id'])
-    # 在适配器边界提供错误长度，保持服务正常执行失败路径。
-    def capture(**kwargs):
-        return {'event_type': 'frame', 'ccds': [{'ccd_index': 0, 'points': [1,2,3]}]}
-    service._adapters[task['id']].capture = capture
-    failed = service.step(task['id'])
-    assert failed['status'] == 'manual_intervention'
-    assert all(frame['damaged'] for frame in failed['frames'])
-    with pytest.raises(HardwareError): service.intervene(task['id'], 'accept', '人工不能放行损坏帧')
-    assert service.stop(task['id'])['status'] == 'stopped'
 
 
 # 完整谱图接口遵守读取权限，管理样标记拒绝标准样而非静默改类。

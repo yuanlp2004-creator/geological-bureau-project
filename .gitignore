@@ -58,3 +58,6 @@ obj/
 
 # Keep release documentation, but not the portable demo's runtime data.
 /docs/releases/**/demo-data/
+
+# Preserve the original local-only scope after moving reference artifacts.
+/docs/归档/本机资料/

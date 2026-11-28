@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import ast
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
+from threading import Barrier
+import time
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +14,34 @@ from starlette.websockets import WebSocketDisconnect
 from backend.config import AppConfig
 from backend.main import create_app
 from backend.runtime import Runtime
+from backend import runtime as runtime_module
+
+
+@pytest.mark.parametrize(('accessor', 'factory'), [
+    ('devices_service', 'DeviceService'),
+    ('acquisition_service', 'AcquisitionService'),
+    ('dispersion_service', 'DispersionService'),
+])
+def test_parallel_first_access_creates_one_stateful_service(tmp_path, monkeypatch, accessor, factory):
+    runtime = Runtime(AppConfig(data_dir=tmp_path))
+    original = getattr(runtime_module, factory)
+    waiting = Barrier(4)
+    constructions = []
+
+    def slow_factory(*args, **kwargs):
+        constructions.append(factory)
+        time.sleep(.04)
+        return original(*args, **kwargs)
+
+    def get_service(_):
+        waiting.wait(timeout=5)
+        return getattr(runtime, accessor)()
+
+    monkeypatch.setattr(runtime_module, factory, slow_factory)
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        instances = list(pool.map(get_service, range(4)))
+    assert constructions == [factory]
+    assert all(instance is instances[0] for instance in instances)
 
 
 def test_two_apps_keep_database_sessions_keys_and_events_separate(tmp_path: Path) -> None:
@@ -89,7 +120,8 @@ def test_api_and_auth_do_not_import_entrypoint_or_construct_shared_runtime() -> 
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):
                 assert node.module not in {"main", "backend.main"}, path
-                assert not any(alias.name == "main" for alias in node.names), path
+                if node.module == "backend" or (node.module is None and node.level):
+                    assert all(alias.name != "main" for alias in node.names), path
             elif isinstance(node, ast.Import):
                 assert not any(alias.name == "backend.main" for alias in node.names), path
         for node in tree.body:

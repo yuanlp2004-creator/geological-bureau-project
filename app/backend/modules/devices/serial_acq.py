@@ -88,8 +88,12 @@ class SerialAcqAdapter:
                 self._port.reset_output_buffer()
                 time.sleep(.1)  # uSioLink.Open
             except (OSError, ValueError, serial.SerialException) as exc:
-                self._close_port()
                 self.state = AcquisitionState.ERROR
+                try:
+                    self._close_port()
+                except (OSError, serial.SerialException) as close_error:
+                    raise DeviceError("serial_stop_unconfirmed", "无法确认串口已关闭，请检查设备状态",
+                                      status_code=409) from close_error
                 raise DeviceError("serial_open_failed", f"无法打开COM{normalized['port']}，请检查蓝牙设备是否已配对并开机、端口是否正确或被其他程序占用",
                                   details={"port": f"COM{normalized['port']}", "reason": str(exc)}, status_code=409) from exc
             self.state = AcquisitionState.CONNECTED
@@ -384,6 +388,34 @@ class SerialAcqAdapter:
     def request_stop(self) -> None:
         self._cancel.set()
 
+    def confirm_stop(self, *, correlation_id: str) -> None:
+        """Retain a failed shutdown until a fresh stop can be confirmed."""
+        with self._control:
+            error = self._stop_error or self._error
+            if error is None or error.code not in {"motor_stop_unconfirmed", "serial_stop_unconfirmed"}:
+                return
+            if self._worker and self._worker.is_alive():
+                try:
+                    self.stop_debug(correlation_id=correlation_id)
+                    return
+                except DeviceError as exc:
+                    if self._worker.is_alive():
+                        raise
+                    error = exc
+            if error.code == "motor_stop_unconfirmed":
+                motor, _ = self._settings["motor_turn"]
+                motor.stop()
+                if self._command_sent and not self._stop_confirmed:
+                    raise DeviceError("serial_stop_unconfirmed", "未收到串口结束响应，请检查仪器状态",
+                                      status_code=409)
+                self._stop_error = None
+                if self._error is error:
+                    self._error = None
+            elif not self._stop_confirmed:
+                raise error
+            else:
+                self._stop_error = None
+
     def step_debug(self, *, correlation_id: str) -> DeviceEvent:
         event = self.next_capture_event()
         return event or DeviceEvent("waiting", self.state, correlation_id=correlation_id,
@@ -411,10 +443,8 @@ class SerialAcqAdapter:
 
     def _close_port(self) -> None:
         if self._port is not None:
-            try:
-                self._port.close()
-            finally:
-                self._port = None
+            self._port.close()
+            self._port = None
 
     def disconnect(self, *, correlation_id: str) -> DeviceEvent:
         if self._port is None and not (self._worker and self._worker.is_alive()):
@@ -426,9 +456,14 @@ class SerialAcqAdapter:
         try:
             event = self.stop_debug(correlation_id=correlation_id)
         finally:
-            self._close_port()
-            self.state = AcquisitionState.IDLE
-            self.session_id = None
+            try:
+                self._close_port()
+            except (OSError, serial.SerialException) as exc:
+                raise DeviceError("serial_stop_unconfirmed", "无法确认串口已关闭，请检查设备状态",
+                                  status_code=409) from exc
+            finally:
+                self.state = AcquisitionState.IDLE if self._port is None else AcquisitionState.ERROR
+                self.session_id = None
         return DeviceEvent("disconnected", self.state, correlation_id=correlation_id, message="串口已关闭", details=event.details)
 
     def diagnostics(self) -> dict[str, Any]:

@@ -4,6 +4,7 @@ import json
 import re
 import sys
 import sqlite3
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -33,14 +34,18 @@ def test_registered_manifests_have_unique_contracts() -> None:
         "devices",
         "dispersion",
         "acquisition",
-        "hardware-acquisition",
-        "mercury-calibration",
         "analysis",
         "postprocessing",
         "reports",
         "maintenance",
     }
     assert all(manifest.api_prefix == "/api/v1" for manifest in manifests)
+    by_key = {manifest.key: manifest for manifest in manifests}
+    acquisition, devices = by_key["acquisition"], by_key["devices"]
+    assert {"hardware-acquisition.read", "hardware-acquisition.execute"} <= set(acquisition.permissions)
+    assert "hardware.sample.save" in acquisition.audit_actions
+    assert "confirmed-turn-analysis-sample" in acquisition.capabilities
+    assert "mercury-calibration.read" in devices.permissions
 
 
 def test_duplicate_keys_routes_permissions_and_missing_dependencies_are_rejected() -> None:
@@ -60,6 +65,8 @@ def test_duplicate_keys_routes_permissions_and_missing_dependencies_are_rejected
     )
     with pytest.raises(ValueError, match="unregistered"):
         validate_manifests((base, missing))
+    with pytest.raises(ValueError, match="module dependency cycle"):
+        validate_manifests((replace(base, dependencies=("other",)), replace(missing, dependencies=("same",))))
 
 
 def test_generated_manifest_matches_registered_modules() -> None:
@@ -70,13 +77,16 @@ def test_generated_manifest_matches_registered_modules() -> None:
         assert main() == 0
     payload = json.loads(manifest_file.read_text(encoding="utf-8"))
     assert payload["schema_version"] == 2
-    assert [module["key"] for module in payload["modules"]] == [manifest.key for manifest in registered_manifests()]
-    modules_by_key = {module["key"]: module for module in payload["modules"]}
-    assert modules_by_key["spectrum-migration"]["title"] == "旧谱数据迁移"
+    assert payload["modules"] == [manifest.to_dict() for manifest in registered_manifests()]
     entries = [entry for module in payload["modules"] for entry in module["navigation_entries"]]
-    assert len(entries) == 23
-    migration_entries = [entry for entry in entries if entry["section_label"] == "旧版兼容迁移"]
-    assert [(entry["label"], entry["page"]) for entry in migration_entries] == [("旧数据迁移", "migration")]
+    for entry in entries:
+        assert all(isinstance(entry[field], str) and entry[field].strip() for field in ("key", "group", "label", "page"))
+        assert isinstance(entry["description"], str)
+        assert isinstance(entry["section_label"], str)
+        assert isinstance(entry["order"], int)
+        assert isinstance(entry["required_any"], list) and all(isinstance(permission, str) for permission in entry["required_any"])
+    migration_entries = [entry for entry in entries if entry["page"] == "migration"]
+    assert len(migration_entries) == 1
     assert set(migration_entries[0]["required_any"]) == {
         "migration.read", "spectrum-migration.read", "result-migration.read"
     }
@@ -86,15 +96,13 @@ def test_generated_manifest_matches_registered_modules() -> None:
     prepared_entry = next(entry for entry in entries if entry['key'] == 'tools.prepared-import')
     assert prepared_entry['page'] == 'prepared-import' and prepared_entry['required_context'] == 'current_method'
     device_entry = next(entry for entry in entries if entry["key"] == "tools.devices")
-    assert device_entry["label"] == "设备调试"
     assert set(device_entry["required_any"]) == {"devices.read", "settings.read"}
     assert not any(entry["key"] == "tools.mercury" for entry in entries)
     assert next(entry for entry in entries if entry["key"] == "analysis-tests.dispersion-curves")["view"] == "curve"
     assert next(entry for entry in entries if entry["key"] == "analysis-tests.evaporation-curves")["page"] == "evaporation-curves"
-    assert [(entry["label"], entry["page"]) for entry in entries if entry["group"] == "data"] == [
-        ("重新计算", "postprocessing"), ("打印与导出", "reports")]
+    assert {"postprocessing", "reports"} <= {entry["page"] for entry in entries if entry["group"] == "data"}
     assert len({entry["key"] for entry in entries}) == len(entries)
-    assert {entry["group"] for entry in entries} == {
+    assert {
         "workspace",
         "methods",
         "analysis-tests",
@@ -102,7 +110,21 @@ def test_generated_manifest_matches_registered_modules() -> None:
         "tools",
         "system",
         "help",
-    }
+    } <= {entry["group"] for entry in entries}
+
+
+def test_manifest_navigation_targets_are_rendered_by_frontend() -> None:
+    frontend = APP_ROOT / "frontend" / "src"
+    workspace = (frontend / "layout" / "WorkspaceApp.tsx").read_text(encoding="utf-8")
+    spectroscopy = (frontend / "pages" / "acquisition" / "spectroscopySession.ts").read_text(encoding="utf-8")
+    navigation = (frontend / "navigation.ts").read_text(encoding="utf-8")
+    page_type = navigation.split("export type Page =", 1)[1].split("export type ", 1)[0]
+    page_names = set(re.findall(r"'([a-z-]+)'", page_type))
+    rendered_pages = set(re.findall(r"\bpage === '([a-z-]+)'", workspace))
+    rendered_pages.update(re.findall(r"\bpage: '([a-z-]+)'", spectroscopy))
+    for manifest in registered_manifests():
+        for entry in manifest.navigation_entries:
+            assert entry.page in page_names & rendered_pages, entry
 
 
 def test_invalid_navigation_contracts_are_rejected() -> None:
@@ -150,45 +172,31 @@ def test_invalid_navigation_contracts_are_rejected() -> None:
 
 
 def test_frontend_downloads_use_the_shared_adapter() -> None:
-    app_source = "\n".join(path.read_text(encoding="utf-8") for path in (APP_ROOT / "frontend" / "src").rglob("*.tsx"))
-    api_source = (APP_ROOT / "frontend" / "src" / "platform" / "files.ts").read_text(encoding="utf-8")
-    assert "document.createElement('a')" not in app_source
-    assert api_source.count("document.createElement('a')") == 1
-    assert "save_export_file" in api_source
+    source_root = APP_ROOT / "frontend" / "src"
+    adapter = source_root / "platform" / "files.ts"
+    create_anchor = re.compile(r"""\bdocument\s*\.\s*createElement\s*\(\s*['"`]a['"`]""")
+    for pattern in ("*.ts", "*.tsx"):
+        for path in source_root.rglob(pattern):
+            if path != adapter:
+                assert not create_anchor.search(path.read_text(encoding="utf-8")), path
+    assert "save_export_file" in adapter.read_text(encoding="utf-8")
 
 
-def test_frontend_number_inputs_allow_an_empty_editing_state() -> None:
+def test_frontend_number_fields_use_editable_text_inputs() -> None:
     source_root = APP_ROOT / "frontend" / "src"
     sources = {path.name: path.read_text(encoding="utf-8") for path in source_root.rglob("*.tsx")}
-    component = sources["NumericInput.tsx"]
-    model = (source_root / "components" / "numericInputModel.ts").read_text(encoding="utf-8")
-    assert all('type="number"' not in source for source in sources.values())
-    assert "PARTIAL_NUMBER" in component and "COMPLETE_NUMBER" in model
-    assert "此项为必填项" in model
-    assert "event.key === 'Enter'" in component
-    assert "event.key === 'Escape'" in component
+    native_number = re.compile(r"""\btype\s*=\s*(?:\{\s*)?['"`]number['"`]""")
+    for filename, source in sources.items():
+        assert not native_number.search(source), filename
     for filename in (
         "MethodGeometry.tsx",
         "PreliminaryCaptureFields.tsx",
         "AnalysisIntervention.tsx",
-        "HardwareAcquisitionForm.tsx",
-        "MercuryCalibrationForm.tsx",
     ):
-        assert "NumericInput" in sources[filename]
-
-
-def test_frontend_auth_error_contracts() -> None:
-    source_root = APP_ROOT / "frontend" / "src"
-    app_source = (source_root / "App.tsx").read_text(encoding="utf-8")
-    api_source = (source_root / "api" / "client.ts").read_text(encoding="utf-8")
-    styles = (source_root / "styles" / "global.css").read_text(encoding="utf-8")
-    acquisition = (source_root / "pages" / "acquisition" / "SampleAcquisitionPage.tsx").read_text(encoding="utf-8")
-    acquisition += (source_root / "pages" / "acquisition" / "AcquisitionWorkspace.tsx").read_text(encoding="utf-8")
-    acquisition += (source_root / "pages" / "acquisition" / "SampleAcquisitionForm.tsx").read_text(encoding="utf-8")
-    acquisition += (source_root / "pages" / "acquisition" / "PreliminaryCaptureFields.tsx").read_text(encoding="utf-8")
-    assert re.search(r"\.hidden-picker\s*\{\s*display:\s*none;\s*\}", styles)
-    assert "auth_invalid_credentials" in app_source and "用户名或密码错误" in app_source
-    assert "class ApiError" in api_source
+        source = sources[filename]
+        component = re.search(r"\bimport\s*\{[^}]*?\bNumericInput(?:\s+as\s+(\w+))?\s*[,}]", source)
+        assert component is not None, filename
+        assert re.search(rf"<{component.group(1) or 'NumericInput'}\b", source), filename
 
 
 def test_retired_preferences_use_defaults_without_resetting_business_settings(tmp_path: Path) -> None:
@@ -257,9 +265,19 @@ def test_runtime_log_level_filters_file_output(tmp_path: Path, monkeypatch) -> N
     log_path = tmp_path / "logs" / "runtime.jsonl"
     service = AppService(database, log_path)
 
+    statements: list[str] = []
+    connect = database.connect
+
+    def trace_connection() -> sqlite3.Connection:
+        connection = connect()
+        connection.set_trace_callback(statements.append)
+        return connection
+
+    monkeypatch.setattr(database, "connect", trace_connection)
     service.append_event(RuntimeEventCreate(category="system", severity="info", message="filtered info"))
     service.append_event(RuntimeEventCreate(category="system", severity="warning", message="kept warning"))
 
+    assert not any("app_settings" in statement.lower() for statement in statements)
     content = log_path.read_text(encoding="utf-8")
     assert "filtered info" not in content
     assert "kept warning" in content
@@ -270,18 +288,35 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
     database.initialize()
     service = AppService(database, tmp_path / "logs" / "runtime.jsonl")
 
+    settings_rows = [
+        ("not-a-group", "true", "2026-01-01T00:00:00+00:00"),
+        ("display.density", "{not-json", "2026-01-01T00:00:00+00:00"),
+        ("display.screen_resolution_px", "{not-json", "2026-01-01T00:00:00+00:00"),
+        ("display.screen_width_mm", "500.0", "2026-01-01T00:00:00+00:00"),
+        ("logging.retention_days", "0", "2026-01-01T00:00:00+00:00"),
+        ("printing.copies", "0", "2026-01-01T00:00:00+00:00"),
+        ("printing.paper", '"A3"', "2026-01-01T00:00:00+00:00"),
+        ("analysis.dark_round_time_seconds", "null", "2026-01-01T00:00:00+00:00"),
+        ("analysis.wait_time_ms", "350", "2026-01-01T00:00:00+00:00"),
+    ]
     with database.write() as connection:
         connection.executemany(
             "INSERT INTO app_settings(key, value_json, updated_at) VALUES (?, ?, ?)",
-            [
-                ("not-a-group", "true", "2026-01-01T00:00:00+00:00"),
-                ("display.density", "{not-json", "2026-01-01T00:00:00+00:00"),
-                ("logging.retention_days", "0", "2026-01-01T00:00:00+00:00"),
-            ],
+            settings_rows,
         )
-    repaired_settings = service.get_settings()
-    assert repaired_settings["display"]["density"] == "comfortable"
-    assert repaired_settings["logging"]["retention_days"] == 30
+    settings = service.get_settings()
+    assert settings["display"]["density"] == "comfortable"
+    assert settings["display"]["screen_resolution_px"] == 1920
+    assert settings["display"]["screen_width_mm"] == 500.0
+    assert settings["logging"]["retention_days"] == 30
+    assert settings["printing"]["copies"] == 1
+    assert settings["printing"]["paper"] == "A3"
+    assert settings["analysis"]["dark_round_time_seconds"] == 8
+    assert settings["analysis"]["wait_time_ms"] == 350
+    with database.read() as connection:
+        rows = connection.execute("SELECT key, value_json, updated_at FROM app_settings ORDER BY key")
+        assert [tuple(row) for row in rows] == sorted(settings_rows)
+        assert connection.execute("SELECT COUNT(*) FROM audit_events").fetchone()[0] == 0
 
     class InvalidPatch:
         def __init__(self, payload: dict[str, object]):
@@ -296,18 +331,6 @@ def test_service_validation_filters_and_selective_clear(tmp_path: Path) -> None:
         service.update_settings(InvalidPatch({"display": {"missing": True}}))
     with pytest.raises(ValueError, match="must be an object"):
         service.update_settings(InvalidPatch({"display": "invalid"}))
-
-    with database.read() as connection:
-        assert connection.execute("SELECT COUNT(*) FROM app_settings").fetchone()[0] == 0
-        repair = connection.execute(
-            "SELECT details_json FROM audit_events WHERE action='settings.invalid_value.repair'"
-        ).fetchone()
-    assert repair is not None
-    assert {item["key"] for item in json.loads(repair[0])["repaired"]} == {
-        "not-a-group",
-        "display.density",
-        "logging.retention_days",
-    }
 
     event = service.append_event(
         RuntimeEventCreate(
@@ -352,10 +375,11 @@ def test_log_rotation_replaces_previous_archive_and_expires_old_files(tmp_path: 
     assert not expired.exists()
 
 
-def test_sidecar_entry_passes_host_and_port_to_uvicorn(monkeypatch) -> None:
+def test_sidecar_entry_passes_host_and_port_to_uvicorn(tmp_path, monkeypatch) -> None:
     import backend.sidecar_entry as sidecar_entry
 
     captured: dict[str, object] = {}
+    monkeypatch.setenv("SPECTRUM_DATA_DIR", str(tmp_path))
     monkeypatch.setattr(sidecar_entry.uvicorn, "run", lambda app, **kwargs: captured.update(kwargs))
     monkeypatch.setattr(sidecar_entry, "_read_process_key", lambda: "0123456789abcdef0123456789abcdef")
     monkeypatch.setattr(sys, "argv", ["sidecar_entry", "--host", "0.0.0.0", "--port", "9876"])

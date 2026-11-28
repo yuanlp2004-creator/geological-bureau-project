@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import struct
 import sys
 import zlib
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -16,7 +18,58 @@ sys.path.insert(0, str(APP_ROOT))
 from backend.db import Database
 from backend import db as database_module
 from backend.migrations import MIGRATIONS, SCHEMA_VERSION
-from backend.upgrade import prepare_database_upgrade
+from backend.upgrade import UpgradeError, prepare_database_upgrade
+
+
+def test_current_initialization_keeps_all_trigger_contracts_without_replaying_ddl(tmp_path, monkeypatch):
+    database = Database(tmp_path / "current.sqlite3")
+    database.initialize()
+    connect = database.connect
+    statements = []
+
+    def traced_connection():
+        connection = connect()
+        connection.set_trace_callback(statements.append)
+        return connection
+
+    monkeypatch.setattr(database, "connect", traced_connection)
+    database.initialize()
+    assert not any(sql.upper().startswith(("CREATE", "INSERT", "UPDATE", "DELETE", "BEGIN")) for sql in statements)
+    with database.write() as connection:
+        definitions = [
+            re.sub(r"\s+", " ", row[0])
+            for row in connection.execute("SELECT sql FROM sqlite_master WHERE type='trigger' ORDER BY name")
+        ]
+        assert len(definitions) == 90
+        monitoring_triggers = ('acquisition_monitoring_decisions_immutable_update',
+                               'acquisition_monitoring_decisions_immutable_delete',
+                               'acquisition_attempt_frames_immutable', 'acquisition_attempt_frames_no_delete',
+                               'acquisition_attempt_accept_monotonic')
+        for trigger in monitoring_triggers:
+            assert any(f'TRIGGER {trigger} ' in sql for sql in definitions)
+        published = [sql for sql in definitions if not any(f'TRIGGER {name} ' in sql for name in monitoring_triggers)]
+        # The pre-compression definitions, including names, conditions and messages.
+        assert hashlib.sha256("\n".join(published).encode()).hexdigest() == (
+            "be74a1c4dd9159398554088bb3e0f3319a7488f7acd80677f7fc7f754b56f968"
+        )
+        connection.execute("UPDATE mercury_reference_lines SET enabled=0 WHERE wavelength_nm=253.6517")
+        assert connection.execute("SELECT enabled FROM mercury_reference_lines WHERE wavelength_nm=253.6517").fetchone()[0] == 0
+        with pytest.raises(sqlite3.IntegrityError, match="mercury reference line facts are immutable"):
+            connection.execute("UPDATE mercury_reference_lines SET label='changed' WHERE wavelength_nm=253.6517")
+
+
+def test_unknown_migration_gap_keeps_existing_history(tmp_path):
+    database = Database(tmp_path / "gap.sqlite3")
+    database.initialize()
+    with database.write() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE version=12")
+        expected = list(connection.execute("SELECT * FROM schema_migrations ORDER BY version"))
+    with pytest.raises(sqlite3.OperationalError, match="unexpected schema_migrations history"):
+        database.initialize()
+    with pytest.raises(UpgradeError, match="unexpected schema_migrations history"):
+        prepare_database_upgrade(database.path)
+    with database.read() as connection:
+        assert list(connection.execute("SELECT * FROM schema_migrations ORDER BY version")) == expected
 
 
 def test_v25_nullable_wavelength_preserves_turn_evidence_and_rollback(tmp_path, monkeypatch):
@@ -54,7 +107,7 @@ def test_v25_nullable_wavelength_preserves_turn_evidence_and_rollback(tmp_path, 
 
 
 def _legacy_v10_database(path: Path, points_json: str) -> None:
-    with sqlite3.connect(path) as db:
+    with closing(sqlite3.connect(path)) as db, db:
         db.executescript(
             """
             CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
@@ -234,3 +287,49 @@ def test_failed_staged_conversion_keeps_original_bytes(tmp_path):
     with pytest.raises(sqlite3.IntegrityError, match="cannot be migrated"):
         prepare_database_upgrade(path)
     assert path.read_bytes() == before
+
+
+def test_staged_upgrade_repairs_known_monolithic_marker(tmp_path):
+    path = tmp_path / "monolithic.sqlite3"
+    _legacy_v10_database(path, "[1,2,65535]")
+    database = Database(path)
+    with database.write() as connection:
+        connection.execute("INSERT INTO schema_migrations VALUES (16, 'monolithic')")
+    with pytest.raises(sqlite3.OperationalError, match="unexpected schema_migrations history"):
+        database.initialize()
+    result = prepare_database_upgrade(path)
+    assert result["from_schema_version"] == 16
+    with database.read() as connection:
+        assert [row[0] for row in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(
+            range(10, SCHEMA_VERSION + 1)
+        )
+        frame = connection.execute("SELECT points_blob FROM dispersion_task_frames").fetchone()
+        assert zlib.decompress(frame[0]) == struct.pack("<3H", 1, 2, 65535)
+
+
+def test_staged_legacy_frame_conversion_keeps_complete_history(tmp_path):
+    legacy = tmp_path / "legacy.sqlite3"
+    _legacy_v10_database(legacy, "[1,2,65535]")
+    database = Database(tmp_path / "geospectrum.sqlite3")
+    database.initialize()
+    with database.write() as connection:
+        connection.execute("ATTACH DATABASE ? AS legacy", (str(legacy),))
+        connection.execute("DROP TABLE dispersion_task_frames")
+        old_schema = connection.execute(
+            "SELECT sql FROM legacy.sqlite_master WHERE type='table' AND name='dispersion_task_frames'"
+        ).fetchone()[0]
+        connection.execute(old_schema)
+        connection.execute("INSERT INTO dispersion_task_frames SELECT * FROM legacy.dispersion_task_frames")
+        connection.execute("ALTER TABLE dispersion_task_frames ADD COLUMN virtual_time_ms REAL NOT NULL DEFAULT 0")
+        connection.execute(
+            "CREATE TRIGGER dispersion_task_frames_immutable_update BEFORE UPDATE ON dispersion_task_frames "
+            "BEGIN SELECT RAISE(ABORT, 'dispersion frames are immutable'); END"
+        )
+        history = list(connection.execute("SELECT * FROM schema_migrations ORDER BY version"))
+    assert prepare_database_upgrade(database.path)["status"] == "upgraded"
+    with database.read() as connection:
+        assert list(connection.execute("SELECT * FROM schema_migrations ORDER BY version")) == history
+        frame = connection.execute("SELECT points_blob FROM dispersion_task_frames").fetchone()
+        assert zlib.decompress(frame[0]) == struct.pack("<3H", 1, 2, 65535)
+        with pytest.raises(sqlite3.IntegrityError, match="dispersion frames are immutable"):
+            connection.execute("UPDATE dispersion_task_frames SET points_count=3")

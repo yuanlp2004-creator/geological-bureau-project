@@ -1,21 +1,17 @@
-"""Mercury Calibration API boundary; business services retain their existing behavior."""
+"""Read-only access to historical mercury calibration sessions."""
 
 from __future__ import annotations
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
-from ..schemas.mercury_calibration import (
-    MercurySessionCreate,
-)
 from ..auth import Session
-from ..modules.mercury_calibration import MercuryError
+from ..modules.devices import DeviceError, LegacyMercuryService
 from ..runtime import Runtime
 from .dependencies import get_runtime, require_permission
-from .deployment_access import require_activation
 
 router = APIRouter()
 
 
-def mercury_error(exc: MercuryError) -> HTTPException:
+def mercury_error(exc: DeviceError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
@@ -23,7 +19,7 @@ def mercury_error(exc: MercuryError) -> HTTPException:
 def mercury_calibration_options(
     _: Session = Depends(require_permission("mercury-calibration.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
-    return runtime.mercury_calibration_service().options()
+    return LegacyMercuryService(runtime.database).options()
 
 
 @router.get("/api/v1/mercury-calibrations/sessions", tags=["mercury-calibration"])
@@ -33,20 +29,7 @@ def list_mercury_calibration_sessions(
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
-    return runtime.mercury_calibration_service().list_sessions(limit)
-
-
-@router.post("/api/v1/mercury-calibrations/sessions", status_code=201, tags=["mercury-calibration"])
-def create_mercury_calibration_session(
-    payload: MercurySessionCreate,
-    session: Session = Depends(require_permission("mercury-calibration.write")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.mercury_calibration_service().create_session(payload.model_dump(mode="json"), session.user_id), source='mercury', category='acquisition')
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
+    return LegacyMercuryService(runtime.database).list_sessions(limit)
 
 
 @router.get("/api/v1/mercury-calibrations/sessions/{session_id}", tags=["mercury-calibration"])
@@ -58,73 +41,6 @@ def get_mercury_calibration_session(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        return runtime.mercury_calibration_service().session(session_id, include_points=include_points)
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
-
-
-@router.post("/api/v1/mercury-calibrations/sessions/{session_id}/start", tags=["mercury-calibration"])
-def start_mercury_calibration_session(
-    session_id: int,
-    session: Session = Depends(require_permission("mercury-calibration.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        service = runtime.mercury_calibration_service()
-        require_activation(runtime, begins_new_work=lambda: service.session(session_id)["status"] == "draft")
-        return runtime.messages.task(service.start(session_id, session.user_id), source='mercury', category='acquisition')
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
-
-
-@router.post("/api/v1/mercury-calibrations/sessions/{session_id}/step", tags=["mercury-calibration"])
-def step_mercury_calibration_session(
-    session_id: int,
-    session: Session = Depends(require_permission("mercury-calibration.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.mercury_calibration_service().step(session_id, session.user_id), source='mercury', category='acquisition')
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
-
-
-@router.post("/api/v1/mercury-calibrations/sessions/{session_id}/apply", tags=["mercury-calibration"])
-def apply_mercury_calibration_session(
-    session_id: int,
-    session: Session = Depends(require_permission("mercury-calibration.write")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.mercury_calibration_service().apply(session_id, session.user_id)
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
-
-
-@router.post("/api/v1/mercury-calibrations/sessions/{session_id}/rollback", tags=["mercury-calibration"])
-def rollback_mercury_calibration_session(
-    session_id: int,
-    session: Session = Depends(require_permission("mercury-calibration.write")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.mercury_calibration_service().rollback(session_id, session.user_id)
-    except MercuryError as exc:
-        raise mercury_error(exc) from exc
-
-
-@router.post("/api/v1/mercury-calibrations/sessions/{session_id}/stop", tags=["mercury-calibration"])
-def stop_mercury_calibration_session(
-    session_id: int,
-    session: Session = Depends(require_permission("mercury-calibration.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.mercury_calibration_service().stop(session_id, session.user_id), source='mercury', category='acquisition')
-    except MercuryError as exc:
+        return LegacyMercuryService(runtime.database).session(session_id, include_points=include_points)
+    except DeviceError as exc:
         raise mercury_error(exc) from exc

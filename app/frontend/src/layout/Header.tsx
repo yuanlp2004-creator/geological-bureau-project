@@ -8,7 +8,6 @@ import { hardwareLockStore, useHardwareLock } from '../stores/hardwareLockStore'
 
 export function Header({
   activeEntry,
-  extensionTitle,
   onRefresh,
   loading,
   onNavigate,
@@ -25,7 +24,6 @@ export function Header({
   onLogout
 }: {
   activeEntry?: NavigationEntry
-  extensionTitle?: string
   onRefresh: () => void
   loading: boolean
   onNavigate: (page: Page) => void | Promise<boolean>
@@ -41,7 +39,7 @@ export function Header({
   onToggleFocusMode: () => void
   onLogout: () => void
 }) {
-  const title = activeEntry?.page === 'extension' ? (extensionTitle ?? '测试模块') : (activeEntry?.label ?? '工作台')
+  const title = activeEntry?.label ?? '工作台'
   const canReadMethods = user.permissions.includes('methods.read')
   const method = canReadMethods ? currentMethod : null
   const paused = method?.method_id && method.status !== 'active'

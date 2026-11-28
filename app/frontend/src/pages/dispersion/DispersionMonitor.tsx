@@ -1,3 +1,4 @@
+import { useHardwareStopRetry } from '../../stores/hardwareLockStore'
 import { api, type DispersionFrame, type DispersionTask } from '../../api'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { DeviceCcd } from '../../api/devices'
@@ -79,6 +80,7 @@ export function DispersionMonitor({
 }: PanelProps) {
   const fixed = useFixedSpectrumView()
   const running = Boolean(active && runningStates.has(active.status))
+  const retryStop = useHardwareStopRetry('dispersion', active?.active_capture_id ?? active?.id)
   const isPreheat = Boolean(active?.condition.preheat)
   const formal = isPreheat ? formalTask : active
   const formalName = recordChoices?.find(item => item.value === String(formal?.id))?.name ?? formal?.name ?? active?.name
@@ -153,7 +155,7 @@ export function DispersionMonitor({
       pause={{ run: pause, enabled: Boolean(active && canExecute && running && active.profile.transport !== 'serial'), disabledReason: active?.profile.transport === 'serial' ? '旧设备协议未提供暂停命令，请使用停止' : undefined }}
       resume={{ run: resume, enabled: enabled && active?.status === 'paused' }}
       stop={{ run: stop, enabled: Boolean(active && canExecute
-        && (active.active_capture_id !== undefined || running || active.status === 'paused' || active.status === 'stopping')) }}
+        && (retryStop || active.active_capture_id !== undefined || running || active.status === 'paused' || active.status === 'stopping')) }}
       progress={active ? [
         { label: '总进度', value: `${total ? (captured / total * 100).toFixed(1) : '0.0'}%`, current: captured, maximum: total },
         { label: '当前阶段', value: active.positioning ? '正在定位转角' : statusLabels[active.status] },

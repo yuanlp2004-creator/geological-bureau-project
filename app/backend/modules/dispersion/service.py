@@ -9,6 +9,7 @@ from typing import Any
 from ...db import Database, utc_now
 from ..devices import AcqSimulatorAdapter, SerialAcqAdapter, create_device_adapter, monitor_capture, AcquisitionState, DeviceError
 from ..devices.capture_sequence import CaptureSequence
+from ..devices.ownership import CaptureDevice
 from ..devices.motor_turn import prepare_motor_turn, requires_motor
 from .calibration import CalibrationService
 from .repository import DispersionRepository
@@ -20,11 +21,11 @@ class DispersionService:
         from .legacy_open import open_record
         return open_record(self, identifier, actor_user_id)
 
-    def __init__(self, database: Database, *, exit_gate=None, on_frame_saved=None, on_serial_notice=None):
+    def __init__(self, database: Database, *, exit_gate=None, on_frame_saved=None, on_serial_notice=None,
+                 ownership=None, handoff=None):
         self.database = database
         self._locks: dict[int, threading.Lock] = {}
         self._locks_guard = threading.Lock()
-        self._start_lock = threading.Lock()
         self._adapters: dict[int, AcqSimulatorAdapter | SerialAcqAdapter] = {}
         self.repository = DispersionRepository(database)
         self.calibrations = CalibrationService(database)
@@ -32,6 +33,8 @@ class DispersionService:
         self._on_frame_saved = on_frame_saved
         self._on_serial_notice = on_serial_notice
         self._sequence = CaptureSequence(DispersionError, exit_gate)
+        self._hardware = CaptureDevice("dispersion", ("dispersion",), self._adapters, self._locks,
+                                       ownership, handoff, exit_gate, DispersionError)
 
     def create_task(self, payload: dict[str, Any], actor_user_id: int | None = None, *, connection=None, capture_turn=None) -> dict[str, Any]:
         with (self.database.write() if connection is None else nullcontext(connection)) as db:
@@ -181,23 +184,30 @@ class DispersionService:
         return adapter
 
     def active_serial_connections(self) -> list[dict[str, Any]]:
-        result = [{"task_id": task_id, **adapter.diagnostics()} for task_id, adapter in list(self._adapters.items())
-                  if isinstance(adapter, SerialAcqAdapter) and adapter.diagnostics()['connected']]
-        current = self._sequence.current()
-        if current is not None and not any(item['task_id'] == current for item in result):
-            profile = self.repository._context(current).profile
-            if profile['transport'] == 'serial':
-                result.append({'task_id': current, 'port': f"COM{profile['port']}", 'state': 'reserved'})
+        result = []
+        for task_id, adapter in list(self._adapters.items()):
+            if isinstance(adapter, SerialAcqAdapter):
+                diagnostics = adapter.diagnostics()
+                if diagnostics['connected']:
+                    result.append({'task_id': task_id, **diagnostics})
         return result
 
     @_task_command
     def start_task(self, task_id: int, actor_user_id: int | None = None, *, _sequence=False) -> dict[str, Any]:
-        with self._start_lock:
-            if not _sequence and self._sequence.current(task_id) is not None:
-                raise DispersionError('capture_sequence_busy', '当前任务正在执行连续摄谱', status_code=409)
-            if _sequence and self._sequence.cancelled(task_id):
-                raise DispersionError('capture_sequence_cancelled', '连续摄谱已停止', status_code=409)
+        if not _sequence and self._sequence.current(task_id) is not None:
+            raise DispersionError('capture_sequence_busy', '当前任务正在执行连续摄谱', status_code=409)
+        if _sequence and self._sequence.cancelled(task_id):
+            raise DispersionError('capture_sequence_cancelled', '连续摄谱已停止', status_code=409)
+        acquired = False
+        if not _sequence:
+            profile = self.repository._context(task_id).profile
+            _, acquired = self._hardware.reserve('dispersion', profile, task_id, actor_user_id)
+        try:
             return self._start_task(task_id, actor_user_id)
+        except Exception:
+            if acquired or _sequence:
+                self._close_adapter(task_id)
+            raise
 
     def start_sequence(self, task_id: int, actor_user_id: int):
         task = self.get_task(task_id)
@@ -210,10 +220,12 @@ class DispersionService:
         pending = [item['id'] for item in members if item['status'] == 'draft']
         if not pending:
             raise DispersionError('dispersion_task_not_startable', '全部转角已完成', status_code=409)
-        return self._sequence.start(pending, all_members=[item['id'] for item in members],
+        return self._hardware.sequence(self._sequence, pending, owner='dispersion',
+                                    profile=self.repository._context(task_id).profile, actor=actor_user_id,
+                                    all_members=[item['id'] for item in members],
                                     start=lambda i: self.start_task(i, actor_user_id, _sequence=True),
                                     step=lambda i: self.step_task(i, actor_user_id), get_task=self.get_task,
-                                    stop=lambda i: self._stop_control(i, actor_user_id),
+                                    stop=lambda i: self._stop_control(i, actor_user_id, retry=False),
                                     fail=lambda i, code, message: self._fail_task(i, code, message, actor_user_id))
 
     def _start_task(self, task_id: int, actor_user_id: int | None) -> dict[str, Any]:
@@ -234,6 +246,7 @@ class DispersionService:
             )
         condition = json.loads(context.task['condition_json'] or '{}')
         turn = condition.get('capture_turn')
+        self._hardware.starting(task_id)
         position = None
         if turn:
             with self.database.read() as db:
@@ -257,7 +270,7 @@ class DispersionService:
                         'fault_frame': None, 'correlation_id': correlation_id}
                 event = adapter.start_debug(**args)
                 if turn and turn['multiple']:
-                    from ..hardware_acquisition import confirm_simulated_turn
+                    from ..devices import confirm_simulated_turn
                     position = confirm_simulated_turn(adapter, turn['angle_deg'], correlation_id)
                     event = adapter.start_debug(**{**args, 'seed': args['seed'] + turn['turn_index'] * 1009})
         except DeviceError as exc:
@@ -285,7 +298,8 @@ class DispersionService:
             )
         if isinstance(adapter, SerialAcqAdapter):
             try:
-                if self._sequence.cancelled(task_id):
+                use = self._hardware.for_task(task_id)
+                if self._sequence.cancelled(task_id) or use is not None and use.cancel.is_set():
                     adapter.request_stop()
                 adapter.begin_capture()
             except DeviceError as exc:
@@ -475,52 +489,53 @@ class DispersionService:
             self.repository._audit(db, actor_user_id, "dispersion.task.resume", task_id, {"to": target})
         return self.repository._task_dict(task_id)
 
-    def _close_adapter(self, task_id: int, *, strict: bool = False) -> None:
-        adapter = self._adapters.pop(task_id, None)
-        if adapter is not None:
-            try:
-                if not isinstance(adapter, SerialAcqAdapter):
-                    adapter.stop_debug(correlation_id=f"dispersion-{task_id}")
-                adapter.disconnect(correlation_id=f"dispersion-{task_id}")
-            except DeviceError:
-                if strict and isinstance(adapter, SerialAcqAdapter):
-                    raise
+    def _close_adapter(self, task_id: int, *, strict=False, retain=False, retry=False) -> None:
+        self._hardware.close(task_id, strict=strict, retain=retain, retry=retry)
 
     def shutdown(self) -> list[dict[str, Any]]:
+        use = self._hardware.current()
+        if use is not None:
+            self._hardware.request_stop(use.task_id)
         errors = self._sequence.shutdown()
-        for task_id in list(self._adapters):
-            adapter = self._adapters.get(task_id)
-            if isinstance(adapter, SerialAcqAdapter):
-                try:
-                    adapter.disconnect(correlation_id="application-shutdown")
-                except DeviceError as exc:
-                    errors.append({"task_id": task_id, **exc.detail()})
-                try:
-                    with self._locks[task_id]:
-                        self._stop_task(task_id)
-                except Exception as exc:
-                    errors.append({"task_id": task_id, "message": str(exc)})
-                    import logging
-                    logging.getLogger(__name__).exception("Serial dispersion shutdown was not confirmed")
+        use = self._hardware.current()
+        if use is not None:
+            try:
+                self._stop_control(use.task_id)
+            except Exception as exc:
+                detail = exc.detail() if hasattr(exc, 'detail') else {"message": str(exc)}
+                errors.append({"task_id": use.task_id, **detail})
         return errors
 
     def stop_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
         current = self._sequence.cancel(task_id)
         if current is not None:
-            adapter = self._adapters.get(current)
-            if isinstance(adapter, SerialAcqAdapter):
-                adapter.request_stop()
+            self._hardware.request_stop(current)
             return self.get_task(current)
         return self._stop_control(task_id, actor_user_id)
 
-    @_task_command
-    def _stop_control(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
-        return self._stop_task(task_id, actor_user_id)
+    def _stop_control(self, task_id: int, actor_user_id: int | None = None, *, retry=True) -> dict[str, Any]:
+        if self._hardware.request_stop(task_id):
+            with self._locks_guard:
+                lock = self._locks.setdefault(task_id, threading.Lock())
+            with lock:
+                return self._stop_task(task_id, actor_user_id, retry=retry)
+        with _task_scope(self, task_id):
+            return self._stop_task(task_id, actor_user_id, retry=retry)
 
-    def _stop_task(self, task_id: int, actor_user_id: int | None = None) -> dict[str, Any]:
+    def _stop_task(self, task_id: int, actor_user_id: int | None = None, *, retry=True) -> dict[str, Any]:
         context = self.repository._context(task_id)
         status = str(context.task["status"])
+        use = self._hardware.for_task(task_id)
         if status in {DispersionState.COMPLETED.value, DispersionState.FAILED.value, DispersionState.STOPPED.value}:
+            needs_confirmation = use is not None and use.state == 'stop_unconfirmed'
+            if use is not None:
+                try:
+                    self._close_adapter(task_id, strict=True, retry=retry and needs_confirmation)
+                except DeviceError as exc:
+                    raise DispersionError(exc.code, exc.message, details=exc.details, status_code=409) from exc
+            if needs_confirmation:
+                self._hardware.ownership.release(use)
+                return {**self.repository._task_dict(task_id), 'stop_confirmed': True}
             return self.repository._task_dict(task_id)
         if context.profile["transport"] == "serial" and task_id not in self._adapters and status in {"pre_excitation", "burn", "dark", "paused"}:
             self._fail_task(task_id, "dispersion_session_lost", "真实采集会话已丢失，无法发送结束指令，请检查仪器状态", actor_user_id)
@@ -612,6 +627,8 @@ class DispersionService:
     def frames(self, task_id: int, *, phase: str | None = None, ccd_index: int | None = None) -> list[dict[str, Any]]:
         return self.repository.frames(task_id, phase=phase, ccd_index=ccd_index)
 
+    spectrum_index_sql = staticmethod(DispersionRepository.spectrum_index_sql)
+
     def spectrum_records(self) -> list[dict[str, Any]]:
         return self.repository.spectrum_records()
 
@@ -630,15 +647,21 @@ class DispersionService:
                         "ws_cof": self.repository._reference_coefficients(db, layout)}
         return {"record": record, "layout": geometry, "frames": self.frames(task_id, ccd_index=indices[ccd])}
 
-    def point_details(self, task_id: int, ccd: int, point: int | None) -> dict[str, Any]:
+    def point_details(self, task_id: int, ccd: int, point: int | None, *, snapshot: dict | None = None) -> dict[str, Any]:
         from base64 import b64encode
         from struct import pack
 
-        task = self.get_task(task_id)
+        if snapshot is None:
+            task = self.get_task(task_id)
+            frames = None
+        else:
+            task = snapshot['record'] | {'layout': snapshot['layout'], 'status': 'completed'}
+            frames = snapshot['frames']
         points_per_ccd = task['layout']['points_per_ccd']
         if ccd not in task['ccd_indices'] or (point is not None and not 0 <= point < points_per_ccd):
             raise DispersionError('dispersion_point_invalid', '点位超出当前 CCD')
-        frames = self.frames(task_id, ccd_index=ccd)
+        if frames is None:
+            frames = self.frames(task_id, ccd_index=ccd)
         rows = []
         frame_data = bytearray()
         phase_counts = {}

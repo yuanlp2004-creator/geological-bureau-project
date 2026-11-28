@@ -19,11 +19,9 @@ from .postprocessing import router as postprocessing_router
 from .reports import router as reports_router
 from .analysis import router as analysis_router
 from .events import router as events_router
-from .extensions import register_extensions
 
 
 def register_api(app: FastAPI) -> None:
-    register_extensions(app)
     for router in (
         system_router,
         deployment_access_router,

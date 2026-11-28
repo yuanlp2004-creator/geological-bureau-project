@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { DatabaseBackup, RefreshCw } from 'lucide-react'
+import { DatabaseBackup, FolderOpen, RefreshCw } from 'lucide-react'
 import { api, type MaintenanceStatus } from '../../api'
 import { formatTime } from '../../components/dateFormat'
+import { selectBackupDirectory } from '../../platform/files'
 
 export function MaintenancePage({ token, canWrite, onToast }: {
   token: string
@@ -12,7 +13,9 @@ export function MaintenancePage({ token, canWrite, onToast }: {
   const [directory, setDirectory] = useState('backups')
   const [busy, setBusy] = useState(false)
   const [refreshing, setRefreshing] = useState(true)
+  const [choosingDirectory, setChoosingDirectory] = useState(false)
   const running = useRef(false)
+  const directoryEdited = useRef(false)
   const load = async () => {
     setRefreshing(true)
     try {
@@ -26,10 +29,28 @@ export function MaintenancePage({ token, canWrite, onToast }: {
   }
   useEffect(() => {
     void load()
+    let current = true
+    directoryEdited.current = false
     void api.settings(token)
-      .then(settings => setDirectory(settings.directories.backups))
-      .catch(error => onToast(error instanceof Error ? error.message : '无法读取备份目录设置'))
+      .then(settings => { if (current && !directoryEdited.current) setDirectory(settings.directories.backups) })
+      .catch(error => { if (current) onToast(error instanceof Error ? error.message : '无法读取备份目录设置') })
+    return () => { current = false }
   }, [token])
+  const updateDirectory = (path: string) => {
+    directoryEdited.current = true
+    setDirectory(path)
+  }
+  const chooseDirectory = async () => {
+    setChoosingDirectory(true)
+    try {
+      const path = await selectBackupDirectory(directory)
+      if (path !== null) updateDirectory(path)
+    } catch (error) {
+      onToast(error instanceof Error ? error.message : '无法打开目录选择')
+    } finally {
+      setChoosingDirectory(false)
+    }
+  }
   const run = async (action: () => Promise<unknown>, message: string) => {
     if (!canWrite || running.current) return
     running.current = true
@@ -46,15 +67,16 @@ export function MaintenancePage({ token, canWrite, onToast }: {
     }
   }
   const healthy = status?.integrity === 'ok' && status.foreign_key_errors === 0
+  const unchecked = status?.integrity === 'unchecked'
   return (
     <div className="page-content maintenance-page maintenance-simple refined-page remaining-page" data-testid="maintenance-page">
       <section className="surface maintenance-basic">
         <div className="surface-heading">
           <h2>数据库维护</h2>
           <div className="maintenance-summary">
-            <span className={`maintenance-health ${healthy ? 'ok' : status ? 'error' : 'pending'}`}>
+            <span className={`maintenance-health ${healthy ? 'ok' : status && !unchecked ? 'error' : 'pending'}`}>
               <span className="maintenance-health-dot" />
-              {healthy ? '数据库正常' : status ? '需要检查' : refreshing ? '读取中' : '状态未知'}
+              {healthy ? '数据库正常' : unchecked ? '完整性未检查' : status ? '需要检查' : refreshing ? '读取中' : '状态未知'}
             </span>
             <button className="secondary-button" disabled={busy || refreshing} onClick={() => void load()}>
               <RefreshCw size={15} />刷新
@@ -65,12 +87,17 @@ export function MaintenancePage({ token, canWrite, onToast }: {
           <div className="maintenance-task-content">
             <h3>备份数据库</h3>
             <p>保存当前数据库的完整副本，完成后自动校验。</p>
-            <label className="field maintenance-backup-directory">
-              <span>备份目录</span>
-              <input value={directory} disabled={!canWrite || busy} onChange={event => setDirectory(event.target.value)} placeholder="例如 C:\GeoSpectrum\backups" />
-            </label>
+            <div className="maintenance-backup-directory">
+              <label className="field">
+                <span>备份目录</span>
+                <input value={directory} disabled={!canWrite || busy || choosingDirectory}
+                  onChange={event => updateDirectory(event.target.value)} placeholder="例如 C:\GeoSpectrum\backups" />
+              </label>
+              <button className="icon-button" type="button" title="选择目录" aria-label="选择目录"
+                disabled={!canWrite || busy || choosingDirectory} onClick={() => void chooseDirectory()}><FolderOpen size={16} /></button>
+            </div>
           </div>
-          <button className="primary-button" disabled={!canWrite || busy || refreshing}
+          <button className="primary-button" disabled={!canWrite || busy || refreshing || choosingDirectory}
             onClick={() => void run(() => api.createBackup(token, { output_directory: directory, retention_days: 30 }), '数据库备份及校验已完成')}>
             <DatabaseBackup size={15} />创建备份
           </button>

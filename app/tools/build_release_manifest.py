@@ -96,9 +96,10 @@ def authenticode(path: Path) -> dict[str, str]:
 def acceptance_statuses() -> dict[str, str]:
     index = (REPO_ROOT / "docs" / "acceptance-reports" / "README.md").read_text(encoding="utf-8")
     statuses = {
-        step: status
-        for step, status in re.findall(
-            r"^\|\s*(S\d{2})\s*\|\s*`?([a-z_]+)`?\s*\|",
+        (linked_step or plain_step): status
+        for linked_step, plain_step, status in re.findall(
+            r"^\|[ \t]*(?:\[(S\d{2})\]\([^|\r\n]+\)|(S\d{2}))[ \t]*"
+            r"\|[ \t]*`?([a-z_]+)`?[ \t]*\|",
             index,
             re.MULTILINE,
         )
@@ -147,6 +148,17 @@ def validate_sidecar_build(sidecar: Path, sidecar_metadata: Path) -> dict[str, A
     return sidecar_build
 
 
+def formal_module_keys(manifest_path: Path) -> list[str]:
+    modules = json.loads(manifest_path.read_text(encoding="utf-8"))["modules"]
+    if any(
+        module["key"].startswith("s21-")
+        or any(entry.get("status") == "test_only" for entry in module.get("navigation_entries", ()))
+        for module in modules
+    ):
+        raise RuntimeError("test-only extension leaked into the formal module manifest")
+    return [module["key"] for module in modules]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate the auditable internal-test release manifest")
     parser.add_argument("--allow-missing-installer", action="store_true")
@@ -180,10 +192,7 @@ def main() -> int:
         record = artifact(path)
         record["authenticode"] = authenticode(path)
         installer_records.append(record)
-    module_manifest = json.loads(generated_manifest.read_text(encoding="utf-8"))
-    module_keys = [item["key"] for item in module_manifest["modules"]]
-    if any(key.startswith("s21-") for key in module_keys):
-        raise RuntimeError("test-only extension leaked into the formal module manifest")
+    module_keys = formal_module_keys(generated_manifest)
     software_acceptance = acceptance_statuses()
     gates = {
         "clean_windows_10_vm": "pending_external",

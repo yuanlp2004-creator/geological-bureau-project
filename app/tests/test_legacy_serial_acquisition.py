@@ -477,10 +477,14 @@ def test_connection_test_requires_a_valid_ccd_frame_and_closes_every_attempt(dat
         device.test_connection(profile['id'])
     assert rejected.value.code == 'device_connection_test_failed'
     assert silent.closed and rejected.value.details['connected'] is False
-    assert rejected.value.details['reason'] == 'serial_frame_incomplete'
+    assert rejected.value.details['reason'] == 'serial_stop_unconfirmed'
+    with pytest.raises(DeviceError) as blocked:
+        device.test_connection(profile['id'])
+    assert blocked.value.code == 'device_busy'
+    assert device.shutdown()[0]['code'] == 'serial_stop_unconfirmed'
     valid = Wire([transfer(1500)])
     wire_factory[0].append(valid)
-    result = device.test_connection(profile['id'])
+    result = DeviceService(database).test_connection(profile['id'])
     assert result['passed'] and result['instrument_responded']
     assert result['connected'] is False and valid.closed
     assert valid.writes == [bytes([0xF0, 0, 4, 2, 0xF0]), b'\x00']

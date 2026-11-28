@@ -163,4 +163,5 @@ def render_html(report: dict[str, Any]) -> str:
     return f"""<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><title>{_xml(report['report_number'])}</title>
 <style>@page{{size:{paper_css(printing.get('paper','A4'), printing.get('orientation','portrait'))};margin:{margins}}}
 body{{font-family:'Microsoft YaHei',sans-serif;color:#263d4d;font-size:{font}pt}}table{{width:100%;border-collapse:collapse;table-layout:fixed}}th,td{{border-bottom:1px solid #dfe7eb;padding:5px;overflow-wrap:anywhere}}th{{background:#eaf1f3}}thead{{display:table-header-group}}section+section{{break-before:page}}</style></head>
-<body><h1>分析报告 {_xml(report['report_number'])} v{report['version']}</h1><p>{_xml(_report_time(report))}</p><small>SHA-256 {_xml(report['model_sha256'])}</small><p>{provenance}</p>{''.join(tables)}{runs}{'<h2>旧 DAT 来源</h2><ul>'+sources+'</ul>' if sources else ''}</body></html>"""
+<body><h1>分析报告 {_xml(report['report_number'])} v{report['version']}</h1><p>{_xml(_report_time(report))}</p><p>{provenance}</p>{''.join(tables)}{runs}
+<details><summary>版本与来源详情</summary><small>SHA-256 {_xml(report['model_sha256'])}</small>{'<h2>旧 DAT 来源</h2><ul>'+sources+'</ul>' if sources else ''}</details></body></html>"""

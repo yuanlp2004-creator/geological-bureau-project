@@ -1,4 +1,4 @@
-import ast
+import re
 from pathlib import Path
 
 import pytest
@@ -52,9 +52,8 @@ def test_analysis_geometry_error_contract(tmp_path, conditions, code):
     assert caught.value.details['line_id'] == 'probe'
 
 
-# 防止分析服务重新依赖方法模块私有的存储或几何入口。
-def test_analysis_uses_public_geometry_boundary():
-    source = Path(__file__).resolve().parents[1] / 'backend/modules/analysis/service.py'
-    attributes = [node.attr for node in ast.walk(ast.parse(source.read_text(encoding='utf-8-sig')))
-                  if isinstance(node, ast.Attribute)]
-    assert not {'_layout', '_dispersion', '_reference_position'}.intersection(attributes)
+def test_analysis_does_not_read_geometry_tables_directly():
+    analysis = Path(__file__).resolve().parents[1] / 'backend/modules/analysis'
+    geometry_query = re.compile(r'\b(?:FROM|JOIN)\s+(?:ccd_layouts|dispersion_calibrations)\b', re.I)
+    for path in analysis.rglob('*.py'):
+        assert not geometry_query.search(path.read_text(encoding='utf-8-sig')), path

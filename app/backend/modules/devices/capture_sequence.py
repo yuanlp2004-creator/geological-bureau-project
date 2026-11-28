@@ -30,7 +30,7 @@ class CaptureSequence:
         with self._lock:
             return self._run is not None and task_id in self._run.members and self._cancelled(self._run)
 
-    def start(self, members, *, start, step, get_task, stop, fail, all_members=None):
+    def start(self, members, *, start, step, get_task, stop, fail, all_members=None, ready=None, finish=None):
         run = _Run(tuple(all_members or members), members[0])
         with self._lock:
             if self._run is not None or self._exit_gate is not None and self._exit_gate.is_set():
@@ -47,6 +47,8 @@ class CaptureSequence:
                 result = first
                 for index, task_id in enumerate(members):
                     if index:
+                        if ready is not None:
+                            ready()
                         with self._lock:
                             if self._cancelled(run):
                                 return
@@ -85,7 +87,15 @@ class CaptureSequence:
                     fail(run.current, getattr(exc, "code", "capture_sequence_failed"), str(exc))
                     logging.getLogger(__name__).exception("Capture sequence did not finish")
             finally:
-                self._release(run)
+                try:
+                    if finish is not None:
+                        finish()
+                except Exception as exc:
+                    run.error = {"task_id": run.current, "code": getattr(exc, "code", "capture_stop_failed"),
+                                 "message": str(exc)}
+                    logging.getLogger(__name__).exception("Capture sequence cleanup did not confirm shutdown")
+                finally:
+                    self._release(run)
 
         threading.Thread(target=work, name="capture-angle-sequence", daemon=True).start()
         return {**first, "active_capture_id": run.current}

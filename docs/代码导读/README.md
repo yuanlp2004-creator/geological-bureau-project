@@ -1,10 +1,10 @@
 # GeoSpectrum 代码导读索引
 
-更新日期：2026-10-16。当前18个模块、七组导航、27个正式入口，schema23；近期操作补齐见 [最新实施清单](../acceptance-reports/S24/artifacts/2026-10-16-legacy-ten-completion/实施清单.md)。本目录只描述现存代码入口、实现分工和当前行为。
+工程版本和最新交付见 [文档索引](../README.md)。
 
 本目录用于帮助开发者从“知道文件在哪”进一步走到“理解模块为什么这样工作”。文档全部依据当前 `app/` 实现编写，描述实际代码，不把规划目标误写成已经存在的物理分层。
 
-执行修改前仍须先读项目根目录的 [`AGENTS.md`](../../AGENTS.md)、[`PLAN.md`](../../PLAN.md) 和 [`项目阅读指南.md`](../项目阅读指南.md)。本目录是代码导读，不替代事实来源、步骤门禁或验收报告。
+执行修改前仍须先读项目根目录的 [`AGENTS.md`](../../AGENTS.md)、[`PLAN.md`](../../PLAN.md) 和 [`项目阅读指南.md`](项目阅读指南.md)。本目录是代码导读，不替代事实来源、步骤门禁或验收报告。
 
 ## 推荐使用方式
 
@@ -29,7 +29,7 @@
 - [`20_数据库与API装配.md`](20_数据库与API装配.md)：FastAPI 组合根、Pydantic 契约、SQLite 迁移、事务和错误边界。
 - [`21_Tauri与发布链.md`](21_Tauri与发布链.md)：桌面启动、进程密钥、sidecar、数据库升级、文件保存和发布构建。
 
-## 18 个正式模块
+## 16 个正式模块
 
 | 序号 | 清单键 | 导读 | 主要步骤 |
 |---|---|---|---|
@@ -42,11 +42,9 @@
 | 07 | `spectrum-migration` | [`07_旧光谱迁移_spectrum-migration.md`](07_旧光谱迁移_spectrum-migration.md) | S08 |
 | 08 | `result-migration` | [`08_旧结果迁移_result-migration.md`](08_旧结果迁移_result-migration.md) | S09 |
 | 09 | `spectrum-viewer` | [`09_光谱查看_spectrum-viewer.md`](09_光谱查看_spectrum-viewer.md) | S10 |
-| 10 | `devices` | [`10_设备配置与模拟器_devices.md`](10_设备配置与模拟器_devices.md) | S11 |
+| 10 | `devices` | [设备配置与模拟器](10_设备配置与模拟器_devices.md)、[历史汞灯会话](14_汞灯校准_mercury-calibration.md) | S11、S15 |
 | 11 | `dispersion` | [`11_色散校准_dispersion.md`](11_色散校准_dispersion.md) | S12 |
-| 12 | `acquisition` | [蒸发与样品摄谱](12_样品采集_acquisition.md) | S13 |
-| 13 | `hardware-acquisition` | [`13_硬件转角采集_hardware-acquisition.md`](13_硬件转角采集_hardware-acquisition.md) | S14 |
-| 14 | `mercury-calibration` | [`14_汞灯校准_mercury-calibration.md`](14_汞灯校准_mercury-calibration.md) | S15 |
+| 12 | `acquisition` | [蒸发与样品摄谱](12_样品采集_acquisition.md)、[历史转角记录与转存](13_硬件转角采集_hardware-acquisition.md) | S13–S14 |
 | 15 | `analysis` | [`15_分析与标准曲线_analysis.md`](15_分析与标准曲线_analysis.md) | S16–S17 |
 | 16 | `postprocessing` | [`16_后处理_postprocessing.md`](16_后处理_postprocessing.md) | S18 |
 | 17 | `reports` | [`17_报告_reports.md`](17_报告_reports.md) | S19 |
@@ -60,7 +58,7 @@
 - 请求和响应模型按业务位于 `backend/schemas/`，包入口只做显式兼容导出。
 - 数据库网关在 `backend/db.py`，结构、历史迁移和默认数据在 `backend/migrations/`。
 - 前端类型与请求位于 `frontend/src/api/` 各业务文件，index.ts 仅组合兼容导出。
-- 认证状态在 `frontend/src/App.tsx`，跨页状态在 `layout/WorkspaceApp.tsx`，页面在 `pages/`。
+- 认证状态在 `frontend/src/App.tsx`，导航和页面分派在 `layout/WorkspaceApp.tsx`，消息、主题及工作台快照的订阅在 `stores/`。
 
 因此模块导读会区分“模块拥有的业务含义”和“当前集中装配的位置”。新增代码应保持模块边界，但不能假设现有代码已经完全拆成独立包。
 

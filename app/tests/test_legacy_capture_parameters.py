@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from backend.db import Database, utc_now
 from backend.modules.acquisition import AcquisitionError, AcquisitionService
 from backend.modules.dispersion import DispersionService
-from backend.modules.hardware_acquisition import HardwareAcquisitionService
 
 
 def seed(tmp_path, mode='simple_mean'):
@@ -95,7 +94,7 @@ def test_evaporation_uses_method_layout_but_independent_conditions_and_dispersio
 
 def test_method_bound_turns_use_method_layout_and_clock(tmp_path):
     database, method_id, conditions = seed(tmp_path)
-    service = HardwareAcquisitionService(database)
+    service = AcquisitionService(database)
     task = service.create_task(dict(method_id=method_id, ccd_layout_id='invalid', ccd_indices=[250],
         pre_excitation_seconds=42, sampling_period_seconds=.02))
     assert task['ccd_layout_id'] == conditions['ccd_layout_id'] and task['ccd_indices'] == [0]

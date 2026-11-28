@@ -8,7 +8,8 @@ export async function checkSampleTurnIntegration(page, result, output) {
   const caps = await call(page, '/api/v1/capabilities')
   assert.ok(!caps.capabilities.flatMap(module => module.navigation_entries ?? []).some(entry => entry.page === 'hardware-acquisition'))
   check('独立自动转角入口从正式导航清单移除，历史接口仍可读取')
-  await call(page, '/api/v1/hardware-acquisitions/tasks')
+  assert.ok(Array.isArray(await call(page, '/api/v1/hardware-acquisitions/tasks')))
+  assert.ok(Array.isArray(await call(page, '/api/v1/mercury-calibrations/sessions')))
   const reviewQueue = await call(page, '/api/v1/sample-queues', { name: `转角核对-${Date.now().toString(36)}`,
     name_length: 20, items: [{ pre_name: 'TURN001', repeats: 2 }, { pre_name: 'TURN002', repeats: 1 }] })
   await call(page, '/api/v1/sample-queues/current', { queue_id: reviewQueue.id }, 'PUT')

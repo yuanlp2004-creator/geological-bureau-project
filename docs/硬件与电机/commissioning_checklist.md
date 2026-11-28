@@ -68,5 +68,4 @@
 
 ## 实施顺序
 
-先用模拟器验证软件调用，再用现场有效配置只读发现，核对角度换算和参考位置后开展受控定位测试，最后与采集、电弧控制联合验证。独立 API 的具体参数模板和动作准入要求以 [启动与接入说明](../StandaloneMotorApi/startup_and_integration.md) 为准。
-
+先用模拟器验证软件调用，再用现场有效配置只读发现，核对角度换算和参考位置后开展受控定位测试，最后与采集、电弧控制联合验证。独立 API 参数模板可查本机归档中的 `StandaloneMotorApi/startup_and_integration.md`。GeoSpectrum 当前接入与证据见 [硬件与电机索引](README.md)。

@@ -4,7 +4,7 @@ import {call,navigate} from './contract_browser_support.mjs'
 
 export async function checkCurrentReport(page,result,output){
   const host=page.getByTestId('reports-page'),source=host.getByTestId('report-current-source')
-  const create=host.getByRole('button',{name:'建立报告版本',exact:true})
+  const create=host.getByRole('button',{name:'预览报告',exact:true})
   const native=!!process.env.QA_CDP
   const paths=['测试15-5_20190421_1842.dat','测试15-5_20260529_0805.dat'].map(name=>path.join(process.cwd(),'..','Spec Source','Bin','DATA',name))
   async function open(file,{cancel=false,fail=false}={}){
@@ -65,10 +65,12 @@ export async function checkCurrentReport(page,result,output){
     assert.equal(response.status(),201,await response.text())
     const detail=await response.json()
     await host.locator('.report-summary').getByText(`${detail.report_number} v${detail.version}`,{exact:true}).waitFor()
+    await host.getByRole('dialog').locator('iframe').waitFor()
     return {detail,payload:response.request().postDataJSON()}
   }
   const analysis=await build('QA-CURRENT-ANALYSIS')
   assert.deepEqual(analysis.payload.analysis_run_ids,[run.id]);assert.ok(!analysis.payload.legacy_result_ids)
+  await host.getByRole('dialog').getByRole('button',{name:'关闭',exact:true}).click()
   await host.screenshot({path:path.join(output,'current-analysis.png')})
   result.checks.push('样品分析打开的批次自动带入，建立请求仅含该运行一个ID')
 
@@ -84,11 +86,12 @@ export async function checkCurrentReport(page,result,output){
   assert.ok(!('legacy_unit' in dat.payload))
   assert.ok(dat.detail.model.rows.every(row=>row.unit===''))
   assert.ok(dat.detail.model.provenance_note.includes('原文件未记录单位'))
-  await host.getByRole('button',{name:'预览',exact:true}).click()
   await host.getByRole('dialog').locator('iframe').contentFrame().getByText('原文件未记录单位',{exact:false}).first().waitFor()
+  const exporting=page.waitForResponse(r=>r.url().endsWith(`/reports/${dat.detail.id}/exports`)&&r.request().method()==='POST')
+  await host.getByRole('dialog').getByRole('button',{name:'确认并导出',exact:true}).click()
+  assert.equal((await exporting).status(),200)
   await host.getByRole('dialog').getByRole('button',{name:'关闭',exact:true}).click()
-  await host.getByRole('button',{name:'确认报告',exact:true}).click()
-  await page.waitForFunction(()=>document.querySelector('.report-output .state-chip')?.textContent.includes('confirmed'))
+  await host.locator('.report-output .state-chip').filter({hasText:'已确认'}).waitFor()
   result.checks.push('打开DAT无单位填写框可直接建立，270行原值保持空单位且预览如实说明')
   await host.screenshot({path:path.join(output,'current-dat.png')})
 

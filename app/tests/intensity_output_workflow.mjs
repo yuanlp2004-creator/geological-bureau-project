@@ -7,9 +7,9 @@ export async function checkDataOutput(page, fixture, result, output) {
   const mark = (id,message) => { result.checks.push({id,message}); console.log(`PASS ${id}: ${message}`) }
   await navigate(page,'data','打印与导出','[data-testid="data-processing-page"]')
   const host=page.getByTestId('data-processing-page'),report=host.getByTestId('reports-page')
-  assert.deepEqual(await host.getByRole('tab').allTextContents(),['分析报告','强度数据'])
+  assert.deepEqual(await host.getByRole('tab').allTextContents(),['分析报告','强度数据','全时数据'])
   assert.equal(await host.getByRole('button',{name:'重算与已迁移结果导出',exact:true}).count(),0)
-  mark(1,'两个输出页签保留，已移除重算与迁移结果导出入口')
+  mark(1,'报告、强度、全时数据页签保留，重算入口独立')
   await call(page,`/api/v1/analyses/runs/${fixture.run_id}/results/merge`,{reason:'output windows QA'})
   await host.getByRole('button',{name:'刷新',exact:true}).click()
   const run=await call(page,`/api/v1/analyses/runs/${fixture.run_id}`)
@@ -24,12 +24,10 @@ export async function checkDataOutput(page, fixture, result, output) {
   await host.getByRole('tab',{name:'分析报告',exact:true}).click()
   assert.equal(await report.getByLabel('报告编号（可选）').inputValue(),'WINDOWS-OUTPUT-QA')
   const creating=page.waitForResponse(r=>/\/api\/v1\/reports$/.test(r.url()) && r.request().method()==='POST')
-  await report.getByRole('button',{name:'建立报告版本',exact:true}).click()
+  await report.getByRole('button',{name:'预览报告',exact:true}).click()
   fixture.report_id=(await (await creating).json()).id
-  await report.getByRole('button',{name:'预览',exact:true}).click()
-  await report.getByRole('dialog').getByRole('button',{name:'关闭',exact:true}).click()
-  await report.getByRole('button',{name:'确认报告',exact:true}).click()
-  await report.getByRole('button',{name:'PDF',exact:true}).waitFor()
+  const preview=report.getByRole('dialog')
+  await preview.locator('iframe').waitFor()
   // Only the main automated workflow intercepts the Save As boundary. The native
   // desktop suite reloads the page and exercises actual Windows dialogs separately.
   await page.evaluate(()=>{
@@ -50,14 +48,17 @@ export async function checkDataOutput(page, fixture, result, output) {
     }
   })
   for(const format of ['Excel','PDF']){
+    await preview.getByLabel('导出格式',{exact:true}).selectOption({label:format})
     const response=page.waitForResponse(r=>r.url().endsWith('/exports') && r.request().method()==='POST')
-    await report.getByRole('button',{name:format,exact:true}).click()
+    await preview.getByRole('button',{name:/^(确认并)?导出$/}).click()
     const res=await response;assert.equal(res.status(),200,await res.text())
     assert.equal(res.request().postDataJSON().download,true)
     const file=await res.json(),bytes=Buffer.from(file.content_base64,'base64')
     assert.equal(file.status,'prepared');assert.equal(file.path,null)
     assert.ok(format==='PDF'?bytes.subarray(0,4).toString()==='%PDF':bytes.toString().includes('Workbook'))
+    await page.waitForFunction(()=>document.querySelector('.report-preview-tools')?.getAttribute('aria-busy')==='false')
   }
+  await preview.getByRole('button',{name:'关闭',exact:true}).click()
   await page.waitForFunction(()=>window.__outputFiles.length>=2)
   assert.equal(await report.getByRole('button',{name:'文本',exact:true}).count(),0)
   assert.equal(await report.getByRole('button',{name:'CSV',exact:true}).count(),0)

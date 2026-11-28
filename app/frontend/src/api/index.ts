@@ -13,8 +13,6 @@ import { maintenanceApi } from './maintenance'
 import { devicesApi } from './devices'
 import { dispersionApi } from './dispersion'
 import { acquisitionApi } from './acquisition'
-import { hardwareAcquisitionApi } from './hardwareAcquisition'
-import { mercuryCalibrationApi } from './mercuryCalibration'
 import { analysisApi } from './analysis'
 import { reportsApi } from './reports'
 
@@ -63,14 +61,6 @@ export type {
   AcquisitionOptions,
   AcquisitionAnalysis
 } from './acquisition'
-export type { HardwareTaskState, HardwarePlanStep, HardwareTask, HardwareOptions } from './hardwareAcquisition'
-export type {
-  MercuryReferenceLine,
-  MercuryAlignmentVersion,
-  MercurySessionLine,
-  MercurySession,
-  MercuryOptions
-} from './mercuryCalibration'
 export type {
   AnalysisStatus,
   AnalysisSampleOption,
@@ -115,8 +105,6 @@ export const api = {
   ...devicesApi,
   ...dispersionApi,
   ...acquisitionApi,
-  ...hardwareAcquisitionApi,
-  ...mercuryCalibrationApi,
   ...analysisApi,
   ...reportsApi
 }

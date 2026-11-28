@@ -24,7 +24,7 @@ export type MaintenanceStatus = {
   database_bytes: number
   wal_bytes: number
   integrity: string
-  foreign_key_errors: number
+  foreign_key_errors: number | null
   backups: BackupRecord[]
   operations: Array<{
     id: string

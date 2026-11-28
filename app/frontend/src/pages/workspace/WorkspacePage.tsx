@@ -73,9 +73,9 @@ export function Workspace({
     try {
       await runtimeEventsStore.clearServerEvents(token)
       setSelected([])
-      onToast('运行消息已清空')
+      onToast('运行记录已清除')
     } catch {
-      onToast('清空消息失败')
+      onToast('清除运行记录失败')
     }
   }
   const copyEvents = async () => {
@@ -147,7 +147,7 @@ export function Workspace({
             </div>
             <div className="surface-note">
               <Info size={16} />
-              <span>当前运行使用已发布版本。修改条件时保存草稿，验证并发布后再切换。</span>
+              <span>当前运行使用已保存版本。修改条件并保存后自动留存历史版本，已有任务与结果继续引用原版本。</span>
             </div>
           </section>
           <WorkspaceMessages
@@ -159,7 +159,7 @@ export function Workspace({
             setSelectAll={() => setSelected(selectAll ? [] : filteredEvents.map((event) => event.id))}
             filter={eventFilter}
             setFilter={setEventFilter}
-            onClear={clearEvents}
+            onClear={canClearEvents ? clearEvents : undefined}
             onCopy={copyEvents}
             onSave={saveEvents}
           />

@@ -4,7 +4,7 @@
 
 **阅读边界：**SpecSource 是旧光谱采集与分析软件，RtuMotor 是独立单轴电机调试程序。以下对旧程序的描述来自源码和离线核查，不能证明它已在交付仪器运行。表中的软件默认值不能代替现场有效配置；新 API 字段和默认限制来自此前实现，实际使用以选定版本的 schema 为准。
 
-开发入口见 [研究目录首页](../README.md)；独立服务使用方式见 [启动与接入说明](../StandaloneMotorApi/startup_and_integration.md)；GeoSpectrum 已有接口及 S14 接入现状见 [集成说明](../integration/README.md)；现场问题集中在 [现场核对清单](commissioning_checklist.md)。本篇不重复维护两套 HTTP 接口契约。
+现行 GeoSpectrum 接入见 [硬件与电机索引](README.md)，现场待办见 [核对清单](commissioning_checklist.md)。文中的源码和证据路径相对于原研究工作区 `E:/Bocchi/Codes/Code_Lab/地质局项目/`。
 
 ## RtuMotor 的功能边界
 
@@ -35,7 +35,7 @@ PCOMM.DLL → 串口连接 → 电机驱动器 → 电机及机械机构
 
 已对 SpecDirect 的 **64 个 Pascal 单元、42 个 DFM 窗体、1 个 DPR、1 个 DPROJ，共 108 个当前源码/资源文件、37,989 行**建立全量检索索引；另包含 RtuMotor 当前源码及测试和 192 份历史源码备份，总计 316 个条目。索引记录编码、行数、SHA-256 和相关命中。
 
-这指全量文件检索、依赖和通信调用链核查，不表示对 37,989 行做了逐行正确性证明，也没有反编译 EXE/DCU。电机相关通信、配置、运动控制分支已详细阅读；其余分析、绘图、打印模块用于确认功能边界。完整覆盖表见 [source_coverage_index.md](../evidence/source_coverage_index.md)，机器可读证据见 [source_scan_index.json](../evidence/source_scan_index.json)。
+这指全量文件检索、依赖和通信调用链核查，不表示对 37,989 行做了逐行正确性证明，也没有反编译 EXE/DCU。电机相关通信、配置、运动控制分支已详细阅读；其余分析、绘图、打印模块用于确认功能边界。原研究工程的覆盖表与机器可读证据位于 `evidence/source_coverage_index.md` 和 `evidence/source_scan_index.json`。
 
 已提取旧 CHM 中全部 **42 个 HTML 帮助主题**，并读取 3 份原协议/格式 Word 文档。旧帮助“色散摄谱”说明：同一仪器采用不同光栅转角时要制作不同色散曲线；它没有给出计算机驱动光栅的协议。
 
@@ -80,17 +80,17 @@ flowchart TD
 
 | 文件 | 分工 |
 |---|---|
-| [RtuMotor.dpr](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/RtuMotor.dpr:1) | 创建 VCL 窗口、引用各单元 |
-| [FmRtuMotorMain.pas](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.pas:1) | 主控制流程，绝大多数操作语义和运动算法在这里 |
-| [FmRtuMotorMain.dfm](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.dfm:1) | 控件、初始状态、输入限制及事件绑定 |
-| [uRtuMotor.pas](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/uRtuMotor.pas:1) | TRtuAgeMotion，协议与寄存器访问 |
-| [uSioLinkRtu.pas](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/uSioLinkRtu.pas:1) | 串口抽象、PCOMM 调用和串口错误处理 |
-| [PCOMM.PAS](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/PCOMM.PAS:1) | 第三方串口 DLL 的常量和外部函数声明 |
-| [uRtuOptions.pas](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/uRtuOptions.pas:1) | 读取 EXE 同目录的配置文件及默认常量 |
-| [RtuMotor.Opt](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Bin/RtuMotor.Opt:1) | 随附配置：COM3，Motor 节为空 |
+| RtuMotor.dpr（`Reference/RtuMotor/Source/RtuMotor.dpr:1`） | 创建 VCL 窗口、引用各单元 |
+| FmRtuMotorMain.pas（`Reference/RtuMotor/Source/FmRtuMotorMain.pas:1`） | 主控制流程，绝大多数操作语义和运动算法在这里 |
+| FmRtuMotorMain.dfm（`Reference/RtuMotor/Source/FmRtuMotorMain.dfm:1`） | 控件、初始状态、输入限制及事件绑定 |
+| uRtuMotor.pas（`Reference/RtuMotor/Source/Common/uRtuMotor.pas:1`） | TRtuAgeMotion，协议与寄存器访问 |
+| uSioLinkRtu.pas（`Reference/RtuMotor/Source/Common/uSioLinkRtu.pas:1`） | 串口抽象、PCOMM 调用和串口错误处理 |
+| PCOMM.PAS（`Reference/RtuMotor/Source/Common/PCOMM.PAS:1`） | 第三方串口 DLL 的常量和外部函数声明 |
+| uRtuOptions.pas（`Reference/RtuMotor/Source/Common/uRtuOptions.pas:1`） | 读取 EXE 同目录的配置文件及默认常量 |
+| RtuMotor.Opt（`Reference/RtuMotor/Bin/RtuMotor.Opt:1`） | 随附配置：COM3，Motor 节为空 |
 | TestCrc、RtuEndian | 分别测试 CRC 和字节序，不控制电机 |
 
-完整函数与事件对应关系见 [源码与事件索引](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/rtumotor_source_and_event_index.md:1)。索引中的 160 项含 PCOMM 外部导入声明，不能理解为 160 个电机功能；DFM 共登记 37 个事件绑定。
+完整函数与事件对应关系见 源码与事件索引（`MotorApiResearch/evidence/rtumotor_source_and_event_index.md:1`）。索引中的 160 项含 PCOMM 外部导入声明，不能理解为 160 个电机功能；DFM 共登记 37 个事件绑定。
 
 
 ## 电机连接参数：已知值和确认等级
@@ -187,11 +187,11 @@ PulseLength = TResolution × motor_teeth / P
 
 ### 调试参数默认锁住
 
-DFM 将四个参数输入框初始设为不可编辑。[Ctrl+Alt+W](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.pas:352) 会解锁并显示重启按钮。这是调试快捷键，不是正式的用户权限系统。
+DFM 将四个参数输入框初始设为不可编辑。Ctrl+Alt+W（`Reference/RtuMotor/Source/FmRtuMotorMain.pas:352`） 会解锁并显示重启按钮。这是调试快捷键，不是正式的用户权限系统。
 
 修改参数并离开输入框后，检查界面范围，再写对应寄存器。写入成功后更新对象缓存；没有独立读取同一参数再次核对。
 
-手册中运行速度换算涉及 KV、每齿分辨率和电机齿数。源码注释的“640 对应 100 rpm”依赖其假定条件，不能不加条件地用于其他驱动器配置。实时速度字段也只是直接显示寄存器整数。协议原文见 [速度参数说明](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:2150)。
+手册中运行速度换算涉及 KV、每齿分辨率和电机齿数。源码注释的“640 对应 100 rpm”依赖其假定条件，不能不加条件地用于其他驱动器配置。实时速度字段也只是直接显示寄存器整数。协议原文见 速度参数说明（`MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:2150`）。
 
 
 ## 完整协议参数与寄存器
@@ -272,7 +272,7 @@ ErrorCode常见值：0201欠压、0202过压、0203低温报警、0204高温、0
 
 ### 打开程序不会立即打开串口
 
-[FormCreate](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.pas:323) 的工作是：
+FormCreate（`Reference/RtuMotor/Source/FmRtuMotorMain.pas:323`） 的工作是：
 
 1. 读取配置，列出 COM1～COM16，按配置选择串口。
 2. 初始化界面和反向间隙值 0。
@@ -283,9 +283,9 @@ ErrorCode常见值：0201欠压、0202过压、0203低温报警、0204高温、0
 
 ### 选择串口才开始通信
 
-[CobPortClick](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.pas:236) 依次执行：关闭轮询定时器 → 关闭旧端口 → 设置所选 COM → 打开与清理缓冲 → 等待 → 读错误码 → 读设置参数 → 读实时状态 → 读两套位置 → 启用界面与轮询。
+CobPortClick（`Reference/RtuMotor/Source/FmRtuMotorMain.pas:236`） 依次执行：关闭轮询定时器 → 关闭旧端口 → 设置所选 COM → 打开与清理缓冲 → 等待 → 读错误码 → 读设置参数 → 读实时状态 → 读两套位置 → 启用界面与轮询。
 
-串口实现见 [TSioLinkCom.Open](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/uSioLinkRtu.pas:140)。代码只体现 COM 串口，不足以判断现场采用原生串口、USB 转串口还是 USB 转 RS485，也不提供现场接线图。
+串口实现见 TSioLinkCom.Open（`Reference/RtuMotor/Source/Common/uSioLinkRtu.pas:140`）。代码只体现 COM 串口，不足以判断现场采用原生串口、USB 转串口还是 USB 转 RS485，也不提供现场接线图。
 
 连接时会读取电流设定、降流比例、运行速度、启动速度、PulseLength、错误码、实时电流、实时速度、脉冲当前位置/目标位置及 64 位当前位置/目标位置。正常路径为 13 笔读交易。**这说明旧程序的重要做法是读取驱动器已有设置，启动时并不把所有软件默认值写进去。**
 
@@ -316,7 +316,7 @@ ErrorCode常见值：0201欠压、0202过压、0203低温报警、0204高温、0
 
 ## 真正的运动循环
 
-核心是 [GotoPulsePos](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/FmRtuMotorMain.pas:408)，其流程可以整理为：
+核心是 GotoPulsePos（`Reference/RtuMotor/Source/FmRtuMotorMain.pas:408`），其流程可以整理为：
 
 ```text
 显示目标
@@ -356,12 +356,12 @@ ErrorCode常见值：0201欠压、0202过压、0203低温报警、0204高温、0
 
 正常运动只判断驱动器的 `Position == PositionSet`，没有另外要求速度为零、保持稳定一段时间、光学信号稳定或达到光栅编码器角度。并且比较的是驱动器读回的目标，没有再核对它是否对应本次请求的期望目标。
 
-手册说明开环位置是模拟/推算位置，闭环位置来自反馈。因此这个比较能作为旧程序的运动结束判据，但不能单独证明没有失步、没有机械松动或光栅实际定位精度已达标。参见 [位置定义](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:1794)。
+手册说明开环位置是模拟/推算位置，闭环位置来自反馈。因此这个比较能作为旧程序的运动结束判据，但不能单独证明没有失步、没有机械松动或光栅实际定位精度已达标。参见 位置定义（`MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:1794`）。
 
 
 ## 停止、暂停、释放、设零不是同一个操作
 
-所有下列命令都通过 0x0000 控制寄存器发送，原类封装了七种方法：[控制方法](E:/Bocchi/Codes/Code_Lab/地质局项目/Reference/RtuMotor/Source/Common/uRtuMotor.pas:157)。
+所有下列命令都通过 0x0000 控制寄存器发送，原类封装了七种方法：控制方法（`Reference/RtuMotor/Source/Common/uRtuMotor.pas:157`）。
 
 | 方法 | 写入值 | 语义及本程序用法 |
 |---|---:|---|
@@ -375,7 +375,7 @@ ErrorCode常见值：0201欠压、0202过压、0203低温报警、0204高温、0
 
 暂停保留目标，停止不等同于保留原任务等待恢复，释放则涉及电机输出。不能把代码名字 `BbtPause` 直接翻译成产品“暂停/继续”API。
 
-“位置置零”也不是寻找原点传感器。手册举例：运动中目标 150、当前 90，执行 OffsetToZero 后变为目标 0、当前 -60，原运动不因此停止。只有已经停稳且当前位置等于目标时，两者一起变成 0。参见 [OffsetToZero 原文](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:913)。
+“位置置零”也不是寻找原点传感器。手册举例：运动中目标 150、当前 90，执行 OffsetToZero 后变为目标 0、当前 -60，原运动不因此停止。只有已经停稳且当前位置等于目标时，两者一起变成 0。参见 OffsetToZero 原文（`MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:913`）。
 
 编辑“当前位置”的另一条路径是 `Pause → 写当前位置 → 写相同目标位置 → Enable`，用于重新定义坐标，也没有寻找机械或光学原点。
 
@@ -427,7 +427,7 @@ CRC 有显式运行时校验，但站号、功能码、读取字节数、写响�
 
 通信异常经外层 ProcessError 显示并禁用界面，运动主体没有统一的 finally 清理和确定的停止确认。退出窗口的析构只释放对象，没有先发 Stop 并确认，也没有在串口类析构中显式 Close 的实现。
 
-不能用“关闭软件/停止轮询”替代明确停止。手册规定，总线看门狗只有配置为启用才会因通信中断自动暂停，并且收到总线指令又可恢复；旧程序不读取或配置该参数。参见 [BusWDT](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:2428)。
+不能用“关闭软件/停止轮询”替代明确停止。手册规定，总线看门狗只有配置为启用才会因通信中断自动暂停，并且收到总线指令又可恢复；旧程序不读取或配置该参数。参见 BusWDT（`MotorApiResearch/evidence/ExtractedText/CtrlAndCom_CHN.txt:2428`）。
 
 
 ## 静态检查发现的具体问题
@@ -473,7 +473,7 @@ CRC 测试仍引用旧的 `uRtuAgeMotion` 名称及对应全局对象，而当�
 
 ## 本次离线验证及复核方法
 
-新增 [audit_rtumotor.py](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/tools/audit_rtumotor.py:1) 只读取原文件、做离线计算并生成研究资料，不打开串口或加载驱动 DLL。
+新增 audit_rtumotor.py（`MotorApiResearch/tools/audit_rtumotor.py:1`） 只读取原文件、做离线计算并生成研究资料，不打开串口或加载驱动 DLL。
 
 - 从 Pascal 源码实际提取两张 CRC 表，与附带 C 参考表核对一致；将其算法与独立位运算实现进行 **1258 组输入交叉检查**，包括空输入、标准字符串、全部单字节及固定种子的随机输入。
 - 核对 **5 个已知完整报文**，另计算默认 45° 目标报文；标准字符串 `123456789` 的 CRC 为 0x4B37。
@@ -481,6 +481,6 @@ CRC 测试仍引用旧的 `uRtuAgeMotion` 名称及对应全局对象，而当�
 - 离线重现负角度取整、补偿路径越界的反例；用忠实于原分支顺序的模型演示补偿段间停止标记仍可能导致第二次目标写入。
 - 生成文件摘要、函数/事件索引、工程失效引用和最近备份差异。
 
-结果见 [核查证据 JSON](E:/Bocchi/Codes/Code_Lab/地质局项目/MotorApiResearch/evidence/rtumotor_audit_evidence.json:1)。这些是源码算法的交叉核验，不是 Delphi 编译测试、EXE 运行测试或真机验收。
+结果见 核查证据 JSON（`MotorApiResearch/evidence/rtumotor_audit_evidence.json:1`）。这些是源码算法的交叉核验，不是 Delphi 编译测试、EXE 运行测试或真机验收。
 
 可在项目根目录用 Python 标准库运行 `python MotorApiResearch/tools/audit_rtumotor.py` 重建证据及索引。本次没有修改原 RtuMotor 源码、配置、EXE 或正式项目业务代码。

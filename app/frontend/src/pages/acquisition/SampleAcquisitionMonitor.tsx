@@ -1,3 +1,4 @@
+import { useHardwareStopRetry } from '../../stores/hardwareLockStore'
 import { api, saveFile, type AcquisitionTask } from '../../api'
 import type { DeviceCcd } from '../../api/devices'
 import { SpectrumInspector, type SpectrumViewRange } from '../../components/SpectrumInspector'
@@ -11,6 +12,8 @@ import { CaptureTurnPages } from './CaptureTurnPages'
 import { useFixedSpectrumView } from '../../components/useFixedSpectrumView'
 import { SpectroscopyToolButton } from '../../components/SpectroscopyToolButton'
 import { CaptureMeasurement, useCaptureMeasurement } from './CaptureMeasurement'
+import { AcquisitionMonitoring } from './AcquisitionMonitoring'
+import type { AcquisitionIntervention } from '../../api/acquisition'
 
 // 父页面统一持有草稿、选中项和请求状态。
 type PanelProps = {
@@ -28,6 +31,7 @@ type PanelProps = {
   onShowFormalTask: () => void
   onChooseTurnTask: (id: number) => void
   apply: (action: "start" | "preheat" | "pause" | "resume" | "stop", turnIndex?: number, singleTurn?: boolean) => Promise<void>
+  intervene: (decision: AcquisitionIntervention) => Promise<void>
   busy: boolean
   canExecute: boolean
   canStart: boolean
@@ -45,7 +49,7 @@ export function SampleAcquisitionMonitor({
   formalTask,
   onShowFormalTask,
   onChooseTurnTask,
-  apply,
+  apply, intervene,
   busy,
   canExecute,
   canStart,
@@ -57,6 +61,8 @@ export function SampleAcquisitionMonitor({
   selectedPoints,
 }: PanelProps) {
   const fixed = useFixedSpectrumView()
+  const retryStop = useHardwareStopRetry(selected?.task_kind === 'evaporation' ? 'evaporation-acquisition' : 'sample-acquisition',
+    selected?.active_capture_id ?? selected?.id)
   const running = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark', 'between_repeats'].includes(selected.status))
   const acquiring = Boolean(selected && ['countdown', 'pre_excitation', 'burn', 'dark', 'stopping'].includes(selected.status))
   const enabled = Boolean(selected && !busy && canExecute)
@@ -201,6 +207,8 @@ export function SampleAcquisitionMonitor({
   }
   return (
     <SpectroscopyConsole className="acquisition-monitor" inputToolbar={inputToolbar} sampleInput={sampleInput}
+      monitoring={selected?.task_kind === 'sample' && !isPreheat && selected.monitoring &&
+        <AcquisitionMonitoring key={selected.id} monitoring={selected.monitoring} enabled={enabled} intervene={intervene} />}
       topActions={measurementTask && <SpectroscopyToolButton icon="crosshair" label="测量观察" aria-pressed={measuring}
         description="查看已入库的新帧和谱线诊断，可慢进逐帧复核" onClick={() => { measurement.reset(); setMeasurementOpen(value => !value) }} />}
       turnPages={turnPages}
@@ -232,9 +240,11 @@ export function SampleAcquisitionMonitor({
         disabledReason: !readyAngle ? '请先从当前待采转角开始' : undefined } : undefined}
       preheat={{ run: () => apply('preheat', sampleTurns ? turnIndex : undefined), enabled: enabled && canPreheat }}
       pause={{ run: () => apply('pause'), enabled: enabled && running && selected?.status !== 'between_repeats' && selected?.profile.transport !== 'serial', disabledReason: selected?.profile.transport === 'serial' ? '旧设备协议未提供暂停命令，请使用停止' : undefined }}
-      resume={{ run: () => apply('resume'), enabled: enabled && selected?.status === 'paused' && !awaitingTurn }}
-      stop={{ run: () => apply('stop'), enabled: enabled && (selected?.active_capture_id !== undefined
-        || ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping', 'between_repeats'].includes(selected?.status ?? '')) }}
+      resume={{ run: () => apply('resume'), enabled: enabled && selected?.status === 'paused' && !awaitingTurn
+        && !selected.monitoring?.state.awaiting_intervention }}
+      stop={{ run: () => apply('stop'), enabled: enabled && (retryStop || selected?.active_capture_id !== undefined
+        || ['countdown', 'pre_excitation', 'burn', 'dark', 'paused', 'stopping', 'between_repeats'].includes(selected?.status ?? ''))
+        && !selected?.monitoring?.state.awaiting_intervention }}
       progress={selected ? [
         { label: isPreheat ? '预热进度' : '总进度', value: progressLabel, current: selected.progress, maximum: 100 },
         { label: '当前阶段', value: selected.last_message || stateLabel[selected.status], title: selected.last_message || stateLabel[selected.status] },

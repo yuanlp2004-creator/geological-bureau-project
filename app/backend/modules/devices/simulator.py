@@ -167,3 +167,13 @@ class AcqSimulatorAdapter:
                 "byte_length": ACQ_BYTES,
             },
         }
+
+
+def confirm_simulated_turn(adapter: AcqSimulatorAdapter, angle_deg: float, correlation_id: str) -> dict[str, Any]:
+    """Require an active simulator debug session and confirm the exact simulated turn receipt."""
+    if adapter.state != AcquisitionState.DEBUGGING:
+        raise DeviceError("hardware_session_not_running", "simulator session is not active", status_code=409)
+    response = adapter.position_angle(angle_deg, correlation_id)
+    if response.get("event_type") != "turn_complete" or response.get("angle_deg") != angle_deg:
+        raise DeviceError("sample_turn_unconfirmed", "转角到位未确认，已停止采集", status_code=409)
+    return response

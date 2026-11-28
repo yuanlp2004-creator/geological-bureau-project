@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { buildWorkbenchScopeKey, createWorkbenchStore, hashPermissions } from '../frontend/src/stores/workbenchStoreCore.ts'
+import { buildWorkbenchScopeKey, createWorkbenchStore, permissionScopeKey } from '../frontend/src/stores/workbenchStoreCore.ts'
 import { captureStatusInput, captureTaskPresentation, resolveSpectroscopyStatus } from '../frontend/src/pages/acquisition/spectroscopyStatus.ts'
 
 const snapshot = {
@@ -10,19 +10,19 @@ const snapshot = {
   manualZoomX: 4, zoomY: 2, panX: 0.5, panY: -0.5, tool: 'box', pixelMode: null,
   pointCoordinates: true, fixedView: true, followPoint: false, viewLine: 'Ni-1', locateValue: '2,123'
 }
-const scope = { userId: 1, permissionsHash: hashPermissions(['spectra.read']), page: 'spectra', methodVersionId: 3 }
+const scope = { userId: 1, permissionsKey: permissionScopeKey(['spectra.read']), page: 'spectra', methodVersionId: 3 }
 const keyFor = (changes = {}) => buildWorkbenchScopeKey({ ...scope, ...changes })
 
-test('permission fingerprints ignore order and duplicates and separate permission sets', () => {
-  assert.equal(hashPermissions(['spectra.read', 'spectra.export', 'spectra.read']), hashPermissions(['spectra.export', 'spectra.read']))
-  assert.notEqual(hashPermissions(['spectra.read']), hashPermissions(['spectra.read', 'spectra.export']))
-  assert.notEqual(hashPermissions(['a,b']), hashPermissions(['a', 'b']))
+test('permission keys encode sorted unique permission strings without delimiter collisions', () => {
+  assert.equal(permissionScopeKey(['spectra.read', 'spectra.export', 'spectra.read']), '["spectra.export","spectra.read"]')
+  assert.notEqual(permissionScopeKey(['spectra.read']), permissionScopeKey(['spectra.read', 'spectra.export']))
+  assert.notEqual(permissionScopeKey(['a|b']), permissionScopeKey(['a', 'b']))
 })
 
 test('snapshots are isolated by user, permissions, viewer, and method version', () => {
   const store = createWorkbenchStore()
   const scopes = [
-    keyFor(), keyFor({ userId: 2 }), keyFor({ permissionsHash: hashPermissions(['spectra.read', 'spectra.export']) }),
+    keyFor(), keyFor({ userId: 2 }), keyFor({ permissionsKey: permissionScopeKey(['spectra.read', 'spectra.export']) }),
     keyFor({ page: 'evaporation' }), keyFor({ methodVersionId: 4 })
   ]
   assert.equal(new Set(scopes).size, scopes.length)
@@ -36,6 +36,7 @@ test('peek preserves a snapshot and consume returns it only once', () => {
   const overlayIds = [...snapshot.overlayIds]
   store.saveSpectrumSnapshot(key, { ...snapshot, overlayIds })
   overlayIds.push('sample:3')
+  assert.throws(() => store.peekSpectrumSnapshot(key).overlayIds.push('sample:4'), TypeError)
   assert.deepEqual(store.peekSpectrumSnapshot(key), snapshot)
   assert.deepEqual(store.consumeSpectrumSnapshot(key), snapshot)
   assert.equal(store.consumeSpectrumSnapshot(key), null)

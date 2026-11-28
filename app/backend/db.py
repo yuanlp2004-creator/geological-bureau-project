@@ -11,13 +11,40 @@ from typing import Iterator
 
 from .migrations import MIGRATIONS, SCHEMA_BASELINE_VERSION, SCHEMA_VERSION
 from .migrations.baseline import create_baseline
-from .migrations.defaults import initialize_defaults
-from .migrations.sql import _columns
-from .modules.extensions import apply_test_extension_migrations
+from .migrations.defaults import initialize_defaults, install_triggers
 
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+
+def read_schema_versions(connection: sqlite3.Connection) -> set[int]:
+    return {int(row[0]) for row in connection.execute("SELECT version FROM schema_migrations")}
+
+
+def contiguous_schema_history(versions: set[int]) -> bool:
+    return not versions or (
+        min(versions) == SCHEMA_BASELINE_VERSION and len(versions) == max(versions) - SCHEMA_BASELINE_VERSION + 1
+    )
+
+
+def has_legacy_dispersion_frames(connection: sqlite3.Connection) -> bool:
+    return any(row[1] == "points_json" for row in connection.execute("PRAGMA table_info(dispersion_task_frames)"))
+
+
+def _initialization_versions(connection: sqlite3.Connection) -> set[int]:
+    has_history = connection.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'"
+    ).fetchone()
+    versions = read_schema_versions(connection) if has_history else set()
+    current = max(versions, default=0)
+    if current > SCHEMA_VERSION:
+        raise sqlite3.OperationalError(f"database schema v{current} is newer than application schema v{SCHEMA_VERSION}")
+    if not contiguous_schema_history(versions):
+        raise sqlite3.OperationalError(f"unexpected schema_migrations history: {sorted(versions)}")
+    if 12 in versions and has_legacy_dispersion_frames(connection):
+        raise sqlite3.OperationalError("legacy dispersion frames require a staged database upgrade")
+    return versions
 
 
 class Database:
@@ -38,55 +65,49 @@ class Database:
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._write_lock, closing(self.connect()) as connection, connection:
-            has_history = connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone()
-            recorded = {row[0] for row in connection.execute('SELECT version FROM schema_migrations')} if has_history else set()
-            rebuild = any(version not in recorded and getattr(migration, 'requires_foreign_keys_off', False)
-                          for version, _, migration in MIGRATIONS)
+            versions = _initialization_versions(connection)
+            if SCHEMA_VERSION in versions:
+                initialize_defaults(connection, utc_now())
+                return
+
+            rebuild = any(
+                version not in versions and getattr(migration, "requires_foreign_keys_off", False)
+                for version, _, migration in MIGRATIONS
+            )
             if rebuild:
-                connection.execute('PRAGMA foreign_keys = OFF')
+                connection.execute("PRAGMA foreign_keys = OFF")
             connection.execute("BEGIN IMMEDIATE")
+            versions = _initialization_versions(connection)
+            if SCHEMA_VERSION in versions:
+                connection.rollback()
+                if rebuild:
+                    connection.execute("PRAGMA foreign_keys = ON")
+                initialize_defaults(connection, utc_now())
+                return
+
             create_baseline(connection)
-            applied_versions = {
-                int(row[0])
-                for row in connection.execute("SELECT version FROM schema_migrations ORDER BY version").fetchall()
-            }
-            recorded_steps = {version for version in applied_versions if version >= 11}
-            if recorded_steps and recorded_steps != set(range(11, max(recorded_steps) + 1)):
-                # Development builds before the S11-S16 gate wrote only the latest
-                # monolithic marker. Rebase that unaccepted marker onto the S10
-                # baseline, then execute the ordered migrations below.
-                connection.execute("DELETE FROM schema_migrations WHERE version >= 11")
-                applied_versions = {version for version in applied_versions if version < 11}
-            if "points_json" in _columns(connection, "dispersion_task_frames") and 12 in applied_versions:
-                # The earlier unaccepted S12 implementation stored ADC arrays as
-                # JSON. Re-run v12 and all dependent migrations to convert it.
-                connection.execute("DELETE FROM schema_migrations WHERE version >= 12")
-                applied_versions = {version for version in applied_versions if version < 12}
-            if SCHEMA_BASELINE_VERSION not in applied_versions:
-                connection.execute(
-                    "INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)",
-                    (SCHEMA_BASELINE_VERSION, utc_now()),
-                )
-                applied_versions.add(SCHEMA_BASELINE_VERSION)
-            for version, _module_key, migration in MIGRATIONS:
-                if version in applied_versions:
-                    continue
-                migration(connection)
-                connection.execute(
-                    "INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)",
-                    (version, utc_now()),
-                )
-                applied_versions.add(version)
-            apply_test_extension_migrations(connection)
             now = utc_now()
-            initialize_defaults(connection, now)
+            if SCHEMA_BASELINE_VERSION not in versions:
+                connection.execute(
+                    "INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)",
+                    (SCHEMA_BASELINE_VERSION, now),
+                )
+            for version, _module_key, migration in MIGRATIONS:
+                if version not in versions:
+                    migration(connection)
+                    connection.execute(
+                        "INSERT INTO schema_migrations(version, applied_at) VALUES (?, ?)", (version, now)
+                    )
+            initialize_defaults(connection, now, force=True)
+            install_triggers(connection)
             connection.executemany(
                 "INSERT INTO app_metadata(key, value, updated_at) VALUES (?, ?, ?) "
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
                 [("schema_version", str(SCHEMA_VERSION), now), ("app_name", "GeoSpectrum", now)],
             )
-            if rebuild and connection.execute('PRAGMA foreign_key_check').fetchone():
-                raise sqlite3.IntegrityError('migration left invalid foreign key references')
+            connection.execute("DELETE FROM app_metadata WHERE key='builtin_roles_sha256'")
+            if rebuild and connection.execute("PRAGMA foreign_key_check").fetchone():
+                raise sqlite3.IntegrityError("migration left invalid foreign key references")
 
     @contextmanager
     def read(self) -> Iterator[sqlite3.Connection]:

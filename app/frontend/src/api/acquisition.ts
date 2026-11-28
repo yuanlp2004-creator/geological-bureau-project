@@ -66,9 +66,37 @@ export type AcquisitionMessage = {
 export type CaptureTurn = { group?: string; turn_index: number; angle_deg: number; multiple: boolean }
 export type CaptureTurnPage = { id: number; turn_index: number; angle_deg: number; status: string }
 
+export type AcquisitionIntervention = { action: 'retry' | 'accept' | 'stop'; reason: string }
+export type AcquisitionMonitoringOptions = {
+  anomaly_policy?: 'warn' | 'stop' | 'manual'
+  retry_limit?: number
+  thresholds?: Record<string, number> | null
+  search_radius_points?: number | null
+}
+export type AcquisitionMonitoring = AcquisitionMonitoringOptions & {
+  monitored: boolean
+  retry_limit: number
+  state: {
+    status: 'pending' | 'unmonitored' | 'normal' | 'alert' | 'retrying' | 'manual' | 'accepted' | 'safety_stopped' | 'stop_unconfirmed'
+    attempt: number
+    retry_count: number
+    awaiting_intervention: boolean
+    can_accept: boolean
+    accept_blocked_reason: string | null
+    last_anomalies: string[]
+    last_summary: string | null
+  }
+  decisions: Array<{
+    id: number; repeat_index: number; turn_index: number; attempt: number; frame_index: number
+    decision: 'accept' | 'warn' | 'correct' | 'retry' | 'manual' | 'stop'
+    anomaly_kinds: string[]; correction_offset: number | null; reason: string; created_at: string
+  }>
+}
+
 export type AcquisitionTask = {
   active_capture_id?: number
   position_controlled?: boolean
+  monitoring?: AcquisitionMonitoring
   capture_turn?: CaptureTurn
   capture_turns?: CaptureTurnPage[]
   turns?: {
@@ -197,8 +225,9 @@ export const acquisitionApi = {
   createEvaporationSession: (token: string, payload: PreliminaryCaptureCreate) => request<AcquisitionTask>('/api/v1/acquisitions/evaporation-sessions', {
     method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   sampleContext: (token: string) => request<SampleAcquisitionContext>('/api/v1/acquisitions/sample-context', { headers: { Authorization: `Bearer ${token}` } }),
-  createSampleSession: (token: string, name: string) => request<AcquisitionTask>('/api/v1/acquisitions/sample-sessions', {
-    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ name }) }),
+  createSampleSession: (token: string, name: string, monitoring?: AcquisitionMonitoringOptions) =>
+    request<AcquisitionTask>('/api/v1/acquisitions/sample-sessions', {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ name, ...monitoring }) }),
   saveEvaporationDefaults: (token: string, payload: import('./system').PreliminaryConditions) =>
     request<import('./system').PreliminaryConditions>('/api/v1/acquisitions/defaults', {
       method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
@@ -279,6 +308,11 @@ export const acquisitionApi = {
       method: 'POST',
       timeoutMs: 70000,
       headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  interveneAcquisitionTask: (token: string, taskId: number, payload: AcquisitionIntervention) =>
+    request<AcquisitionTask>(`/api/v1/acquisitions/tasks/${taskId}/intervene`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload)
     }),
   acquisitionFrames: (token: string, taskId: number, params = '') =>
     request<AcquisitionFrame[]>(`/api/v1/acquisitions/tasks/${taskId}/frames${params}`, {

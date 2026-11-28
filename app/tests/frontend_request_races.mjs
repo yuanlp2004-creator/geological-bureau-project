@@ -38,8 +38,9 @@ export async function checkRequestRaces(page, checks) {
     })
     const token = sessionStorage.getItem('geospectrum.token')
     const props = { token, canWrite: true, canExecute: true, canExport: true, onToast: () => {} }
-    window.__race = { api, originals, pending, defer, reports, root, host, React, props }
-    root.render(React.createElement(ReportsPage, props))
+    const mountReports = (source) => root.render(React.createElement(ReportsPage, { ...props, source, onSourceChange: () => {} }))
+    window.__race = { api, originals, pending, defer, reports, root, host, React, props, mountReports }
+    mountReports(null)
   })
   const host = page.locator('#reliability-test')
   const selector = host.locator('.report-version-selector select')
@@ -57,6 +58,7 @@ export async function checkRequestRaces(page, checks) {
   })
   await page.waitForTimeout(50)
   assert.equal(await selector.inputValue(), '2')
+  assert.equal(await host.getByText('RACE-1 v1', { exact: true }).count(), 0)
   await host.getByRole('button', { name: '预览', exact: true }).click()
   await page.waitForFunction(() => !!window.__race.pending['preview-2'])
   await selector.selectOption('1')
@@ -66,14 +68,17 @@ export async function checkRequestRaces(page, checks) {
   assert.equal(await selector.inputValue(), '1')
   checks.push('report detail and preview ignore responses from an earlier selection')
 
-  // 拆分报告区域后，继续从真实控件核对建立、确认、导出与打印的请求契约。
+  assert.equal(await host.getByRole('button', { name: '预览报告', exact: true }).isDisabled(), true)
   await page.evaluate(() => {
     const r = window.__race
     r.reportCalls = []
     Object.assign(r.api, {
-      analysisRuns: async () => [{ id: 11, status: 'completed', name: 'REPORT-RUN', samples: [] }],
-      reportTemplates: async () => [{ id: 1, key: 'test-template', name: '测试模板', version: 1 }],
+      reportTemplates: async () => [
+        { id: 1, key: 'default-template', name: '默认模板', version: 1 },
+        { id: 2, key: 'test-template', name: '测试模板', version: 1 }
+      ],
       reportPrinters: async () => ({ printers: [{ name: 'printer-test', display_name: '测试打印机', virtual: true }] }),
+      reportPreview: async () => '<p>report preview</p>',
       createReport: async (_token, payload) => {
         r.reportCalls.push({ action: 'create', payload })
         return { ...r.reports[0], id: 3, report_number: 'CREATED', status: 'draft' }
@@ -84,30 +89,27 @@ export async function checkRequestRaces(page, checks) {
       },
       exportReport: async (_token, id, payload) => {
         r.reportCalls.push({ action: 'export', id, payload })
-        return { path: 'test-output' }
+        return payload.format === 'pdf'
+          ? { filename: 'result.pdf', content_base64: 'JVBERi10ZXN0', media_type: 'application/pdf' }
+          : {}
       }
     })
+    r.mountReports({ kind: 'analysis', id: 11, status: 'completed', name: 'REPORT-RUN', sampleCount: 1 })
   })
   await host.getByRole('button', { name: '刷新', exact: true }).click()
-  await host.getByRole('button', { name: '选择来源并建立报告', exact: true }).click()
-  await host.getByRole('checkbox', { name: /REPORT-RUN/ }).check()
+  await host.getByTestId('report-current-source').getByText('REPORT-RUN', { exact: true }).waitFor()
+  await host.locator('select').filter({ has: page.locator('option[value="test-template"]') }).selectOption('test-template')
   await host.getByLabel('报告编号（可选）', { exact: true }).fill('ORDER-9')
   await host.getByRole('button', { name: '交换排列', exact: true }).click()
   await host.getByLabel('样品筛选', { exact: true }).fill('S1')
   await host.getByLabel('元素筛选', { exact: true }).fill('Cu')
-  await host.getByRole('button', { name: '建立报告版本', exact: true }).click()
-  await host.getByRole('button', { name: '确认报告', exact: true }).click()
-  await page.waitForFunction(() => window.__race.reportCalls.some((call) => call.action === 'confirm'))
-  await host.getByRole('button', { name: 'CSV', exact: true }).click()
-  assert.equal(
-    await page.evaluate(() => window.__race.reportCalls.filter((call) => call.action === 'export').length),
-    0
-  )
-  await host.getByLabel('输出目录', { exact: true }).fill('C:\\Exports')
-  await host.getByLabel('文件名', { exact: true }).fill('result')
-  await host.getByRole('button', { name: 'CSV', exact: true }).click()
-  await page.waitForFunction(() => window.__race.reportCalls.some((call) => call.action === 'export'))
-  await host.getByLabel('输出目录', { exact: true }).fill('')
+  await host.getByRole('button', { name: '预览报告', exact: true }).click()
+  const exportPdf = host.getByRole('button', { name: '确认并导出', exact: true })
+  await exportPdf.waitFor()
+  const download = page.waitForEvent('download')
+  await exportPdf.click()
+  assert.equal((await download).suggestedFilename(), 'result.pdf')
+  await host.getByLabel('Windows 打印机', { exact: true }).selectOption('printer-test')
   await host.getByRole('button', { name: '打印', exact: true }).click()
   await page.waitForFunction(() => window.__race.reportCalls.filter((call) => call.action === 'export').length === 2)
   const reportCalls = await page.evaluate(() => window.__race.reportCalls)
@@ -119,17 +121,18 @@ export async function checkRequestRaces(page, checks) {
     table_layout: 'legacy_matrix',
     filters: { sample_name: 'S1', element: 'Cu' }
   })
+  assert.deepEqual(reportCalls[1], { action: 'confirm', id: 3 })
   assert.equal(reportCalls[2].id, 3)
   assert.deepEqual(reportCalls[2].payload, {
-    format: 'csv',
-    output_directory: 'C:\\Exports',
-    filename: 'result',
+    format: 'pdf',
+    download: true,
     printer_name: undefined,
     same_name_strategy: 'suffix'
   })
   assert.equal(reportCalls[3].payload.printer_name, 'printer-test')
   assert.equal(reportCalls[3].payload.format, 'print')
-  checks.push('report panels preserve create/confirm/export payloads, missing-directory guard and printer selection')
+  assert.equal(reportCalls[3].payload.download, false)
+  checks.push('report panels require a source and confirmation, then download PDF and print to the selected printer')
 
   await page.evaluate(async () => {
     const r = window.__race
@@ -167,7 +170,7 @@ export async function checkRequestRaces(page, checks) {
   await page.evaluate(async () => {
     const r = window.__race
     Object.assign(r.api, r.originals)
-    const { EvaporationAcquisitionPage } = await import('/src/pages/acquisition/EvaporationAcquisitionPage.tsx')
+    const { SpectroscopyWorkbench } = await import('/src/pages/acquisition/SpectroscopyWorkbench.tsx')
     const a = await r.api.createAcquisitionTask(r.props.token, {
       task_kind: 'evaporation',
       name: 'RACE-TASK-A',
@@ -180,31 +183,49 @@ export async function checkRequestRaces(page, checks) {
       burn_frame_count: 3,
       pre_excitation_seconds: 0
     })
-    r.startedA = await r.api.startAcquisitionTask(r.props.token, a.id)
     r.taskA = a
-    r.taskB = b
-    r.api.acquisitionTasks = async () => [r.taskA, r.taskB]
-    r.api.acquisitionTask = async (_token, id) => id === r.taskA.id ? r.taskA : r.taskB
-    r.api.startAcquisitionTask = async () => r.startedA
+    r.api.acquisitionTasks = async () => [r.taskA, b]
+    r.api.acquisitionTask = async (_token, id) => id === a.id ? r.taskA : b
+    r.api.startAcquisitionTask = async (_token, id) => {
+      if (id !== a.id) throw new Error('Expected to start the selected task')
+      r.taskA = { ...r.taskA, status: 'burn' }
+      return r.taskA
+    }
     r.api.stepAcquisitionTask = (_token, id) => r.defer(`step-${id}`)
-    r.root.render(r.React.createElement(EvaporationAcquisitionPage, r.props))
+    r.root.render(r.React.createElement(SpectroscopyWorkbench, {
+      mode: 'evaporation-acquisition',
+      token: r.props.token,
+      permissions: ['acquisition.read', 'acquisition.write', 'acquisition.execute'],
+      entries: [],
+      currentMethod: null,
+      onNavigate: () => {},
+      onViewSpectra: () => {},
+      onLockChange: () => {},
+      onToast: r.props.onToast
+    }))
   })
-  await host.getByRole('button', { name: /RACE-TASK-B/ }).waitFor()
-  // The current workbench keeps the running task selected until its command settles.
-  await host.getByRole('button', { name: '试样摄谱', exact: true }).click()
+  const taskRow = (name) => host.getByRole('row').filter({ hasText: name })
+  const enterTask = (name) => taskRow(name).getByRole('button', { name: '进入摄谱', exact: true })
+  const console = host.getByTestId('spectroscopy-console')
+  const returnToTasks = host.getByRole('button', { name: '返回任务列表', exact: true })
+  await enterTask('RACE-TASK-A').click()
+  await console.getByText('RACE-TASK-A', { exact: true }).waitFor()
+  await console.getByRole('button', { name: '试样摄谱', exact: true }).click()
   await page.waitForFunction(() => !!window.__race.pending[`step-${window.__race.taskA.id}`])
-  assert.equal(await host.getByRole('button', { name: /RACE-TASK-B/ }).isDisabled(), true)
+  assert.equal(await returnToTasks.isDisabled(), true)
+  assert.equal(await console.getByRole('button', { name: '关闭摄谱工作台', exact: true }).isDisabled(), true)
+  assert.equal(await taskRow('RACE-TASK-B').count(), 0)
+  for (const label of ['单步', '连续采集', '停止连续'])
+    assert.equal(await host.getByRole('button', { name: label, exact: true }).count(), 0)
   await page.evaluate(() => {
     const r = window.__race
     r.taskA = { ...r.taskA, status: 'completed', completed_repeats: 1 }
     r.pending[`step-${r.taskA.id}`](r.taskA)
   })
-  await host.getByRole('button', { name: /RACE-TASK-B/ }).click()
-  assert.match(await host.locator('button.active').filter({ hasText: 'RACE-TASK-B' }).innerText(), /RACE-TASK-B/)
-  assert.equal(await host.locator('button.active').filter({ hasText: 'RACE-TASK-B' }).count(), 1)
-  for (const label of ['单步', '连续采集', '停止连续'])
-    assert.equal(await host.getByRole('button', { name: label, exact: true }).count(), 0)
-  checks.push('one-click acquisition locks selection until completion, stops its timer and allows the next task')
+  await returnToTasks.click()
+  await enterTask('RACE-TASK-B').click()
+  await console.getByText('RACE-TASK-B', { exact: true }).waitFor()
+  checks.push('one-click acquisition locks task switching until completion and allows entry to the next task')
   await page.evaluate(() => {
     const r = window.__race
     r.root.unmount()

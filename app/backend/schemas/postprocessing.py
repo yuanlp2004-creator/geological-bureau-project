@@ -102,3 +102,4 @@ class PostProcessingExportRequest(BaseModel):
     output_directory: str = Field(min_length=1, max_length=2048)
     filename: str = Field(default="s18-export", min_length=1, max_length=255)
     same_name_strategy: Literal["suffix", "error", "overwrite"] = "suffix"
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128)

@@ -33,7 +33,7 @@ export function ReportBuilder({ source, templates, canWrite, busy, onCreate, onT
   const [templateKey, setTemplateKey] = useState('analysis-standard')
   const [reportNumber, setReportNumber] = useState('')
   useEffect(() => {
-    if (templates[0]) setTemplateKey(templates[0].key)
+    if (templates[0]) setTemplateKey((key) => templates.some((item) => item.key === key) ? key : templates[0].key)
   }, [templates])
   const create = () => {
     if (!source) return onToast('请先打开要建立报告的数据')
@@ -51,7 +51,7 @@ export function ReportBuilder({ source, templates, canWrite, busy, onCreate, onT
   }
   return (
     <section className="surface report-builder">
-      <div className="surface-heading"><SectionHeading title="建立报告" /></div>
+      <div className="surface-heading"><SectionHeading title="报告设置" /></div>
       {source ? <div className="report-current-source" data-testid="report-current-source">
         <strong title={source.name}>{source.name}</strong>
         <span>{source.kind === 'dat' ? 'DAT 结果' : '分析批次'} · {source.sampleCount} 个样品</span>
@@ -75,7 +75,7 @@ export function ReportBuilder({ source, templates, canWrite, busy, onCreate, onT
               <select value={templateKey} onChange={(event) => setTemplateKey(event.target.value)}>
                 {templates.map((template) => (
                   <option key={template.key} value={template.key}>
-                    {template.name} v{template.version}
+                    {template.name}
                   </option>
                 ))}
               </select>
@@ -118,7 +118,7 @@ export function ReportBuilder({ source, templates, canWrite, busy, onCreate, onT
             </label>
             <button className="primary-button report-create-button" disabled={!canWrite || busy || !source || (source.kind === 'analysis' && source.status !== 'completed')} onClick={() => void create()}>
               <FileBarChart size={16} />
-              建立报告版本
+              预览报告
             </button>
           </div>
         </div>

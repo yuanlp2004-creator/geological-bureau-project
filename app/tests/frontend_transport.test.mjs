@@ -37,26 +37,95 @@ test('a command whose response is lost is sent only once', async () => {
   assert.equal(writes, 1)
 })
 
-test('safe desktop reads can recover while sidecar starts', async () => {
+test('desktop startup callers share one probe and retry while sidecar starts', async () => {
   let calls = 0
-  const { requestRaw } = transport(async () => {
+  const { ensureBackendReady } = transport(async (url) => {
+    assert.equal(url, 'http://localhost/health')
     if (++calls === 1) throw new TypeError('not ready')
     return { ok: true }
   })
-  assert.equal((await requestRaw('/health')).ok, true)
+  await Promise.all([ensureBackendReady(), ensureBackendReady()])
+  assert.equal(calls, 2)
+  await ensureBackendReady()
   assert.equal(calls, 2)
 })
 
 test('cancellation stops retries and an already cancelled command is never sent', async () => {
   const controller = new AbortController()
-  let calls = 0
-  const { requestRaw } = transport(async () => {
-    calls++
-    controller.abort()
-    throw new TypeError('closed')
+  const sent = []
+  const { ensureBackendReady, requestRaw } = transport(async (_url, { signal }) => {
+    sent.push(signal)
+    throw new TypeError('offline')
+  }, {
+    onTimer: ms => {
+      if (ms === 100) queueMicrotask(() => controller.abort())
+    }
   })
-  await assert.rejects(requestRaw('/health', { signal: controller.signal }), { name: 'AbortError' })
+  await assert.rejects(ensureBackendReady(controller.signal), { name: 'AbortError' })
   await assert.rejects(requestRaw('/create', { method: 'POST', signal: controller.signal }), { name: 'AbortError' })
+  assert.equal(sent.length, 1)
+  assert.equal(sent[0].aborted, true)
+})
+
+test('cancelling one startup caller leaves the shared probe running for the other', async () => {
+  const controller = new AbortController()
+  let calls = 0
+  const { ensureBackendReady } = transport(async (_url, { signal }) => {
+    if (++calls === 1) {
+      controller.abort()
+      throw new TypeError('not ready')
+    }
+    assert.equal(signal.aborted, false)
+    return { ok: true }
+  })
+  const cancelled = ensureBackendReady(controller.signal)
+  const waiting = ensureBackendReady()
+  await assert.rejects(cancelled, { name: 'AbortError' })
+  await waiting
+  assert.equal(calls, 2)
+})
+
+test('desktop reads fail once on network loss and only explicit reconnection restarts the wait', async () => {
+  let online = false
+  const sent = [], timers = []
+  const { ensureBackendReady, requestRaw, resetBackendReady } = transport(async (url, { method = 'GET' }) => {
+    sent.push([url, method])
+    if (!online) throw new TypeError('offline')
+    return { ok: true }
+  }, {
+    onTimer: ms => {
+      timers.push(ms)
+      if (ms === 100) online = true
+    }
+  })
+  await assert.rejects(requestRaw('/data'), { message: 'offline' })
+  assert.deepEqual(timers, [8000])
+  await ensureBackendReady()
+  online = false
+  sent.length = 0
+  timers.length = 0
+  await assert.rejects(requestRaw('/data'), { message: 'offline' })
+  await assert.rejects(requestRaw('/health', { method: 'HEAD' }), { message: 'offline' })
+  await ensureBackendReady()
+  assert.deepEqual(sent, [['http://localhost/data', 'GET'], ['http://localhost/health', 'HEAD']])
+  assert.deepEqual(timers, [8000, 8000])
+
+  resetBackendReady()
+  await ensureBackendReady()
+  assert.deepEqual(sent.slice(2), [['http://localhost/health', 'GET'], ['http://localhost/health', 'GET']])
+  assert.deepEqual(timers.slice(2), [8000, 100])
+})
+
+test('a desktop HTTP error establishes connectivity and browser startup does not probe', async () => {
+  let calls = 0
+  const desktop = transport(async () => {
+    calls++
+    return { ok: false, status: 401, text: async () => '{"detail":"unauthorized"}' }
+  })
+  await assert.rejects(desktop.requestRaw('/auth/me'), { status: 401 })
+  await desktop.ensureBackendReady()
+  const browser = transport(async () => { calls++ }, { desktop: false })
+  await browser.ensureBackendReady()
   assert.equal(calls, 1)
 })
 

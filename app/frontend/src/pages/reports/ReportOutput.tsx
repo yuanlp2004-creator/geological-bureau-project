@@ -2,6 +2,8 @@ import { Eye, Files } from 'lucide-react'
 import type { Report } from '../../api'
 import type { ReportSummary } from '../../api/reports'
 import { PreviewFrame } from '../../components/PreviewFrame'
+import type { ReactNode } from 'react'
+import { reportSourceLabel, reportStatusLabel } from './reportPreviewActions'
 
 type Props = {
   reports: ReportSummary[]
@@ -10,15 +12,12 @@ type Props = {
   loading: boolean
   error: string | null
   retry: () => Promise<void>
-  canWrite: boolean
   disabled?: boolean
   selectReport: (report: ReportSummary) => Promise<void>
   preview: (report: Report) => Promise<void>
-  confirm: () => Promise<void>
 }
 
-// 版本列表只展示父页面确认过的当前报告，选择和确认仍交给父页面协调。
-export function ReportOutput({ reports, active, selectedId, loading, error, retry, canWrite, disabled, selectReport, preview, confirm }: Props) {
+export function ReportOutput({ reports, active, selectedId, loading, error, retry, disabled, selectReport, preview }: Props) {
   return (
     <section className="surface report-output">
       <div className="surface-heading">
@@ -27,7 +26,7 @@ export function ReportOutput({ reports, active, selectedId, loading, error, retr
         </div>
         {active && (
           <span className={`state-chip ${active.status}`}>
-            v{active.version} · {active.status}
+            v{active.version} · {reportStatusLabel(active.status)}
           </span>
         )}
       </div>
@@ -52,7 +51,7 @@ export function ReportOutput({ reports, active, selectedId, loading, error, retr
             </option>
             {reports.map((report) => (
               <option key={report.id} value={report.id}>
-                {report.report_number} v{report.version} · {report.status} · {report.source_run_ids.length} 个运行
+                {report.report_number} v{report.version} · {reportStatusLabel(report.status)} · {reportSourceLabel(report)}
               </option>
             ))}
           </select>
@@ -69,22 +68,18 @@ export function ReportOutput({ reports, active, selectedId, loading, error, retr
             <strong>
               {active.report_number} v{active.version}
             </strong>
-            <span>
-              {active.model.rows.length} 行 · SHA-256 {active.model_sha256.slice(0, 16)}...
-            </span>
-            <span>{active.model.source_kind === 'legacy_dat' ? active.model.provenance_note : '方法/计算模式与质控状态已随模型保存'}</span>
+            <span>{reportSourceLabel(active)} · {active.model.rows.length} 行</span>
+            {active.model.provenance_note && <span>{active.model.provenance_note}</span>}
+            <details className="report-technical-details">
+              <summary>版本详情</summary>
+              {active.template_name && <div>{active.template_name} · 模板版本 {active.template_version}</div>}
+              <div>SHA-256 <code>{active.model_sha256}</code></div>
+            </details>
           </div>
           <div className="report-format-actions">
             <button className="secondary-button" disabled={disabled} onClick={() => void preview(active)}>
               <Eye size={16} />
               预览
-            </button>
-            <button
-              className="primary-button"
-              disabled={disabled || active.status !== 'draft' || !canWrite}
-              onClick={() => void confirm()}
-            >
-              确认报告
             </button>
           </div>
         </>
@@ -99,11 +94,13 @@ export type ReportPreviewState = { title: string; html: string }
 export function ReportPreview({
   previewLoading,
   previewState,
-  closePreview
+  closePreview,
+  children,
 }: {
   previewLoading: Report | null
   previewState: ReportPreviewState | null
   closePreview: () => void
+  children?: ReactNode
 }) {
   return (
     <>
@@ -114,7 +111,7 @@ export function ReportPreview({
           aria-modal="true"
           aria-label={previewState?.title ?? '正在生成报告预览'}
         >
-          <div>
+          <div className={previewState && children ? 'report-preview-ready' : undefined}>
             {previewState ? (
               <>
                 <header>
@@ -124,9 +121,12 @@ export function ReportPreview({
                   </button>
                 </header>
                 <PreviewFrame title={previewState.title} srcDoc={previewState.html} />
+                {children}
               </>
             ) : (
-              <div className="report-preview-loading">正在生成报告预览...</div>
+              <header><span role="status">正在生成报告预览...</span>
+                <button className="secondary-button" onClick={closePreview}>关闭</button>
+              </header>
             )}
           </div>
         </div>

@@ -6,13 +6,19 @@ from pathlib import Path
 
 def test_printing_adapter_has_only_technical_dependencies():
     backend = Path(__file__).resolve().parents[1] / "backend"
-    allowed = {"__future__", "json", "os", "subprocess", "pathlib", "typing", "win32print", "win32api", "win32con", "win32gui", "win32ui", "ctypes", "contextlib", "pypdfium2", "PIL", "re"}
+    forbidden = {"api", "backend", "db", "fastapi", "modules", "sqlite3"}
     for path in (backend / "printing").rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Import):
-                assert all(alias.name.split(".")[0] in allowed for alias in node.names), path
+                assert not forbidden.intersection(alias.name.split(".")[0] for alias in node.names), path
             elif isinstance(node, ast.ImportFrom):
-                assert (node.level == 1 and node.module in {None, "paper", "windows"}) or (node.level == 0 and node.module.split(".")[0] in allowed), path
-    report_source = (backend / "modules/reports/service.py").read_text(encoding="utf-8")
-    assert "method_printing" not in report_source
-    assert "MethodPrintService" not in report_source
+                assert node.level <= 1, path
+                assert (node.module or "").split(".")[0] not in forbidden, path
+
+    reports = backend / "modules/reports/service.py"
+    for node in ast.walk(ast.parse(reports.read_text(encoding="utf-8"))):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            names = [alias.name for alias in node.names]
+            if isinstance(node, ast.ImportFrom) and node.module:
+                names.append(node.module)
+            assert all("method_printing" not in name.split(".") for name in names), reports

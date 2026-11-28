@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs ../tests/frontend_alignment_view.test.mjs ../tests/frontend_spectrum_zoom.test.mjs ../tests/frontend_runtime_events_store.test.mjs ../tests/frontend_theme_resolver.test.mjs ../tests/frontend_workbench_store.test.mjs ../tests/frontend_sample_grid_and_semantics.test.mjs ../tests/frontend_spectrum_canvas_bench.test.mjs ../tests/frontend_device_status_store.test.mjs ../tests/frontend_shell_layout_store.test.mjs ../tests/frontend_workbench_p23b_snapshot.test.mjs ../tests/frontend_hardware_lock_store.test.mjs ../tests/frontend_standard_curve_enhancements.test.mjs ../tests/frontend_spectral_lines_p33a.test.mjs",
+    "build": "tsc && vite build --configLoader runner",
+    "test": "node --experimental-strip-types --test ../tests/frontend_numeric_input.test.mjs ../tests/frontend_transport.test.mjs ../tests/frontend_analysis_units.test.mjs ../tests/frontend_legacy_observation.test.mjs ../tests/frontend_alignment_view.test.mjs ../tests/frontend_spectrum_zoom.test.mjs ../tests/frontend_runtime_events_store.test.mjs ../tests/frontend_theme_resolver.test.mjs ../tests/frontend_workbench_store.test.mjs ../tests/frontend_sample_grid_and_semantics.test.mjs ../tests/frontend_spectrum_canvas_bench.test.mjs ../tests/frontend_device_status_store.test.mjs ../tests/frontend_shell_layout_store.test.mjs ../tests/frontend_workbench_p23b_snapshot.test.mjs ../tests/frontend_hardware_lock_store.test.mjs ../tests/frontend_standard_curve_enhancements.test.mjs ../tests/frontend_spectral_lines_p33a.test.mjs tests/acquisitionMonitoring.test.mjs tests/reportPreviewActions.test.mjs",
     "test:api": "node ../tests/frontend_api_browser.mjs",
     "test:pages": "node ../tests/frontend_api_browser.mjs --pages",
     "preview": "vite preview"

@@ -23,11 +23,10 @@ export type Page =
   | 'about'
   | 'users'
   | 'audit'
-  | 'extension'
 
 export type NavigationGroupId = 'workspace' | 'methods' | 'analysis-tests' | 'data' | 'tools' | 'system' | 'help'
 export type NavigationContext = 'none' | 'current_method' | 'current_method_exp_seg' | 'page_scoped'
-export type NavigationStatus = 'normal' | 'deferred_external' | 'test_only'
+export type NavigationStatus = 'normal' | 'deferred_external'
 
 export type NavigationEntry = {
   key: string
@@ -41,7 +40,6 @@ export type NavigationEntry = {
   order: number
   status: NavigationStatus
   required_context: NavigationContext
-  extension?: Capability
 }
 
 export type NavigationGroup = {
@@ -81,27 +79,6 @@ export function navigationEntries(capabilities: Capability[], permissions: strin
       keys.add(raw.key)
       entries.push({ ...raw, page: raw.page as Page })
     }
-    if (
-      capability.key.startsWith('s21-') &&
-      capability.permissions.every((permission) => permissions.includes(permission))
-    ) {
-      const key = `system.extension.${capability.key}`
-      keys.add(key)
-      entries.push({
-        key,
-        group: 'system',
-        section_label: '扩展',
-        label: capability.title,
-        description: '仅测试构建启用的模块清单扩展',
-        page: 'extension',
-        view: null,
-        required_any: capability.permissions,
-        order: 90,
-        status: 'test_only',
-        required_context: 'none',
-        extension: capability
-      })
-    }
   }
   return entries.sort((left, right) => left.order - right.order || left.key.localeCompare(right.key))
 }
@@ -114,7 +91,7 @@ function currentMethodUsesFullInterval(currentMethod: CurrentMethodState | null)
 function currentMethodUnavailableReason(currentMethod: CurrentMethodState | null): string | null {
   if (currentMethod?.method_id == null) return '请先选择已发布的当前方法'
   if (currentMethod.status !== 'active' || currentMethod.action_state !== 'idle') {
-    return '当前方法已暂停，请先恢复或选择其他已发布方法'
+    return '当前方法已停用，请先重新打开或选择其他已发布方法'
   }
   return null
 }

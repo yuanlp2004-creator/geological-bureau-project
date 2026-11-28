@@ -28,9 +28,7 @@ def prepare_device_exit(*, runtime: Runtime = Depends(get_runtime)) -> dict[str,
     # owning desktop process; browser/development APIs cannot invoke it.
     if not runtime.process_key:
         raise HTTPException(status_code=403, detail="仅允许配对桌面进程停止设备后退出")
-    errors = runtime.shutdown()
-    if errors:
-        runtime.device_exit_gate.clear()
+    errors = runtime.shutdown(resume_on_failure=True)
     return {"safe_to_exit": not errors, "errors": errors}
 
 
@@ -70,15 +68,14 @@ def test_device_connection(profile_id: int, purpose: str = "devices",
                            session: Session = Depends(require_session), *,
                            runtime: Runtime = Depends(get_runtime)) -> dict[str, Any]:
     permissions = {"devices": "devices.execute", "acquisition": "acquisition.execute",
-                   "dispersion": "dispersion.execute", "hardware-acquisition": "hardware-acquisition.execute"}
+                   "dispersion": "dispersion.execute"}
     if purpose not in permissions or permissions[purpose] not in session.permissions:
         raise HTTPException(status_code=403, detail="permission denied")
     try:
-        if runtime.active_serial_captures():
-            raise DeviceError("device_busy", "请先停止当前摄谱，再测试串口", status_code=409)
         if purpose == 'devices':
             return runtime.devices_service().test_connection(profile_id, actor_user_id=session.user_id)
-        return runtime.devices_service().test_connection(profile_id, actor_user_id=session.user_id, handoff=True)
+        owner = {'acquisition': 'sample-acquisition', 'dispersion': 'dispersion'}[purpose]
+        return runtime.devices_service().test_connection(profile_id, session.user_id, handoff=True, owner=owner)
     except DeviceError as exc:
         raise device_error(exc) from exc
 
@@ -189,8 +186,9 @@ def device_diagnostics(
     _: Session = Depends(require_permission("devices.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
     current = runtime.devices_service()
+    ownership = runtime.device_ownership.snapshot()
     return {"profiles": current.profiles(), "adapter": current.diagnostics(),
-            "active_captures": runtime.active_serial_captures()}
+            "ownership": ownership, "active_captures": runtime.active_serial_captures(ownership=ownership)}
 
 
 @router.get("/api/v1/devices/debug/turn", tags=["devices"])
@@ -206,8 +204,6 @@ def debug_turn_state(_: Session = Depends(require_permission("devices.read")), *
 def switch_debug_angle(payload: DeviceDebugTurnRequest, session: Session = Depends(require_permission("devices.execute")), *,
                        runtime: Runtime = Depends(get_runtime)) -> dict:
     try:
-        if runtime.active_serial_captures():
-            raise DeviceError("device_busy", "请先停止当前摄谱，再切换调试转角", status_code=409)
         return runtime.devices_service().switch_debug_angle(payload.profile_id, payload.angle_deg,
                                                              runtime.methods_service().current_working_angles(), session.user_id)
     except (DeviceError, MethodDomainError) as exc:
@@ -222,8 +218,6 @@ def connect_device(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        if runtime.active_serial_captures():
-            raise DeviceError("device_busy", "请先停止当前摄谱，再连接调试设备", status_code=409)
         return runtime.messages.device(runtime.devices_service().connect(payload.profile_id, actor_user_id=session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc
@@ -234,9 +228,7 @@ def disconnect_device(
     session: Session = Depends(require_permission("devices.execute")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
     try:
-        if runtime.active_serial_captures():
-            raise DeviceError("device_busy", "请先停止当前摄谱，再断开设备", status_code=409)
-        return runtime.messages.device(runtime.devices_service().disconnect(actor_user_id=session.user_id))
+        return runtime.messages.device(runtime.disconnect_devices(session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc
 
@@ -249,8 +241,6 @@ def start_device_debug(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        if runtime.active_serial_captures():
-            raise DeviceError("device_busy", "请先停止当前摄谱，再开始设备调试", status_code=409)
         return runtime.messages.device(runtime.devices_service().start_debug(payload.model_dump(), actor_user_id=session.user_id))
     except DeviceError as exc:
         raise device_error(exc) from exc

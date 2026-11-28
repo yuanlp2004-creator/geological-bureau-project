@@ -43,20 +43,22 @@ def intensity_output(service,run_id: int,options: dict,actor: int) -> dict:
     if fmt == 'excel':
         data = table_excel(table, 'Intensity')
         files.append({'filename':f'analysis-{run_id}-intensity.xls','content_base64':base64.b64encode(data).decode(),'media_type':'application/vnd.ms-excel'})
-    if fmt == 'pdf':
-        printing=AppService(service.database).get_settings()['printing']
-        data=table_pdf(table,'分析强度表',printing,f"{run['calculation_profile']} · SHA-256 {digest}")
-        files.append({'filename':f'analysis-{run_id}-intensity.pdf','content_base64':base64.b64encode(data).decode(),'media_type':'application/pdf'})
+    pdf = None
+    print_intensity = options.get('print_intensity')
+    if fmt == 'pdf' or print_intensity:
+        printing = AppService(service.database).get_settings()['printing']
+        pdf = table_pdf(table, '分析强度表', printing, f"{run['calculation_profile']} · SHA-256 {digest}")
+        if fmt == 'pdf':
+            files.append({'filename':f'analysis-{run_id}-intensity.pdf','content_base64':base64.b64encode(pdf).decode(),'media_type':'application/pdf'})
     if options.get('save_intensity'):files.append({'filename':f'analysis-{run_id}-intensity.json','content_base64':base64.b64encode(content).decode(),'media_type':'application/json'})
     if options.get('print_to_text'):
         stream=io.StringIO(newline='');csv.writer(stream,delimiter='\t',lineterminator='\r\n').writerows(table)
         files.append({'filename':f'analysis-{run_id}-intensity.txt','content_base64':base64.b64encode(('\ufeff'+stream.getvalue()).encode('utf-8')).decode(),'media_type':'text/plain'})
     job=None
-    if options.get('print_intensity'):
-        printing=AppService(service.database).get_settings()['printing']
-        pdf=table_pdf(table,'分析强度表',printing,f"{run['calculation_profile']} · SHA-256 {digest}")
+    if print_intensity:
         job=dispatch_table(pdf,service.database.path.parent,options.get('printer_name') or printing['default_printer'])
-        files.append({'filename':f'analysis-{run_id}-intensity.pdf','content_base64':base64.b64encode(pdf).decode(),'media_type':'application/pdf'})
+        if fmt != 'pdf':
+            files.append({'filename':f'analysis-{run_id}-intensity.pdf','content_base64':base64.b64encode(pdf).decode(),'media_type':'application/pdf'})
     method=None
     if preview is not None:method=service.save_calibration(run_id,samples[-1]['position'],actor,mode='measured',scope='all')
     with service.database.write() as db:

@@ -2,9 +2,9 @@
 
 ## 1. 模块定位
 
-本模块管理设备配置，并提供基于捆绑 `.acq` 样本的确定性 CCD 调试模拟器。当前 `DeviceService` 使用的是 `AcqSimulatorAdapter`；配置里出现串口字段不代表这里已经实现真实串口采集。
+本模块管理设备配置，并提供基于捆绑 `.acq` 样本的确定性 CCD 调试模拟器。`DeviceService` 处理设备配置、连接和模拟调试，真实采集与对中的实际串口实现查 `backend/modules/devices/`。现场验证范围见 [验收索引](../acceptance-reports/README.md)。
 
-真实转角协议在 `hardware-acquisition` 中仍受协议门禁约束，真实汞灯控制则属于 `mercury-calibration`。
+现行转角由设备模块的电机适配器处理。历史汞灯会话也由设备模块读取，现场观察从「调试对中」进入。 [历史汞灯会话](14_汞灯校准_mercury-calibration.md)
 
 ## 2. 代码入口
 

@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import json
+import re
 import secrets
+import socket
 import time
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
@@ -10,6 +12,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Event, Lock, Thread
 
 from ..schemas.system import ModuleDiagnostic
+
+_EVENT_CODE = re.compile(r"[A-Za-z0-9_.-]{1,64}")
+_CAPTURE_STAGES = {"turn", "countdown", "pre_excitation", "burn", "transition", "dark"}
 
 
 def diagnostic_snapshot(modules: list[ModuleDiagnostic], events: list[dict], checked_at: datetime) -> bytes:
@@ -28,10 +33,15 @@ def diagnostic_snapshot(modules: list[ModuleDiagnostic], events: list[dict], che
         row = {"created_at": event["created_at"], "category": category, "severity": severity, "message": categories[category]}
         details = event.get("details")
         if isinstance(details, dict):
-            for key, permitted in (("source", sources), ("event_type", signals)):
+            for key, permitted in (
+                ("source", sources), ("event_type", signals), ("stage", _CAPTURE_STAGES), ("phase", _CAPTURE_STAGES),
+            ):
                 value = details.get(key)
                 if isinstance(value, str) and value in permitted:
                     row[key] = value
+            code = details.get("code")
+            if isinstance(code, str) and _EVENT_CODE.fullmatch(code):
+                row["code"] = code
         logs.append(row)
     return json.dumps({
         "version": 1,
@@ -52,10 +62,16 @@ class SupportConflict(ValueError):
 
 
 class SupportSession:
-    def __init__(self, snapshot: tuple[datetime, bytes], minutes: int, operator_authorized: Callable[[], bool]):
+    def __init__(
+        self, snapshot: tuple[datetime, bytes], minutes: int, operator_authorized: Callable[[], bool], *,
+        operator_expires_at: datetime | None = None,
+    ):
         self.token = secrets.token_urlsafe(32)
-        self.expires_at = datetime.now(timezone.utc) + timedelta(minutes=minutes)
-        self._deadline = time.monotonic() + minutes * 60
+        now = datetime.now(timezone.utc)
+        self.expires_at = now + timedelta(minutes=minutes)
+        if operator_expires_at is not None:
+            self.expires_at = min(self.expires_at, operator_expires_at)
+        self._deadline = time.monotonic() + (self.expires_at - now).total_seconds()
         self._stop = Event()
         self.snapshot = snapshot
         self._operator_authorized = operator_authorized
@@ -89,6 +105,7 @@ class SupportSession:
                     self._reply(401, b'{"code":"support_unauthorized"}')
                     return
                 if not session.active():
+                    session._stop.set()
                     self._reply(410, b'{"code":"support_closed"}')
                     return
                 self._reply(200, session.snapshot[1])
@@ -99,7 +116,6 @@ class SupportSession:
             do_DELETE = do_PATCH = do_PUT = do_HEAD = do_OPTIONS = do_POST
 
         self._server = HTTPServer(("127.0.0.1", 0), Handler)
-        self._server.timeout = 0.15
         self._thread = Thread(target=self._serve, name="support-diagnostics", daemon=True)
 
     @property
@@ -111,7 +127,11 @@ class SupportSession:
 
     def _serve(self) -> None:
         try:
-            while self.active():
+            while not self._stop.is_set():
+                remaining = self._deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self._server.timeout = remaining
                 self._server.handle_request()
         finally:
             self._server.server_close()
@@ -123,7 +143,14 @@ class SupportSession:
         self._stop.set()
         if self._thread.ident is None:
             self._server.server_close()
-        else:
+        elif self._thread.is_alive():
+            # Wake a listener blocked until expiry. The empty connection
+            # sends no request and is closed before waiting for the thread.
+            try:
+                with socket.create_connection(("127.0.0.1", self.port), timeout=0.2):
+                    pass
+            except OSError:
+                pass
             self._thread.join(timeout=1.5)
 
 
@@ -134,9 +161,13 @@ class SupportDiagnostics:
 
     def active_session(self) -> SupportSession | None:
         with self._lock:
-            if self._session and self._session.active():
-                return self._session
-            return None
+            return self._active_session()
+
+    def _active_session(self) -> SupportSession | None:
+        if self._session and not self._session.active():
+            self._session.close()
+            self._session = None
+        return self._session
 
     def status(self) -> dict:
         session = self.active_session()
@@ -146,13 +177,13 @@ class SupportDiagnostics:
         return {"active": False, "port": None, "expires_at": None, "checked_at": None}
 
     def open(self, snapshot: tuple[datetime, bytes], minutes: int, operator_authorized: Callable[[], bool],
-             audit: Callable[[], None]) -> dict:
+             audit: Callable[[], None], *, operator_expires_at: datetime | None = None) -> dict:
         with self._lock:
-            if self._session and self._session.active():
+            if self._active_session():
                 raise SupportConflict("已有远程诊断会话，请先结束")
             if not operator_authorized():
                 raise SupportConflict("当前操作员会话已结束，请重新登录")
-            session = SupportSession(snapshot, minutes, operator_authorized)
+            session = SupportSession(snapshot, minutes, operator_authorized, operator_expires_at=operator_expires_at)
             try:
                 audit()
                 session.start()
@@ -165,7 +196,7 @@ class SupportDiagnostics:
 
     def refresh(self, expected: SupportSession, snapshot: tuple[datetime, bytes], audit: Callable[[], None]) -> dict:
         with self._lock:
-            if self._session is not expected or not expected.active():
+            if self._active_session() is not expected:
                 raise SupportConflict("诊断会话已结束，请重新开启")
             audit()
             if snapshot[0] > expected.snapshot[0]:

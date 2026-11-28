@@ -9,6 +9,7 @@ if (!markedModule) throw new Error('请指定 marked 模块入口路径');
 const { marked } = await import(pathToFileURL(path.resolve(markedModule)).href);
 const original = fs.readFileSync(path.join(root, '../GeoSpectrum_使用说明.md'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, '../../../app/manifest.generated.json'), 'utf8'));
+const { version } = JSON.parse(fs.readFileSync(path.join(root, '../../../app/package.json'), 'utf8'));
 const sections = original.split('\n');
 function take(title) {
   const index = sections.findIndex(line => /^#+ /.test(line) && line.replace(/^#+ /, '').trim() === title);
@@ -38,7 +39,7 @@ function add(id, group, title, body, options = {}) {
 }
 
 add('welcome','start','手册首页',`
-这份手册面向 GeoSpectrum 0.1.0 Windows 桌面版，帮助您从启动软件走到采集、分析、质控和报告输出。
+这份手册面向 GeoSpectrum Windows 桌面版，帮助您从启动软件走到采集、分析、质控和报告输出。
 
 ## 从这里开始
 
@@ -55,7 +56,7 @@ add('welcome','start','手册首页',`
 
 ## 适用范围
 
-按 2026-10-16 当前源码、功能清单和最新配对程序的验证记录校订。本次同步更新操作内容，没有重做产品硬件或正式验收。当前版本为内部测试版，真实转角与汞灯协议、现场硬件和正式发布验证仍有外部依赖。相关章节会明确说明模拟操作的范围。
+适用于当前 GeoSpectrum Windows 内部测试版。各主题说明软件操作。真实转角、汞灯光谱与整机联动仍需现场验证。
 
 本手册是独立的离线 HTML 文件，双击后在浏览器中阅读；不需要登录软件、启动服务或联网。它借鉴旧 DIRECT.CHM 的层级目录与主题跳转形式，内容按当前软件重新组织。
 `, {lead:'按任务学习，按菜单查阅。', related:['first-run','daily','navigation','files']});
@@ -68,7 +69,7 @@ add('first-run','start','首次使用路线',`
 ## 1. 建立本机环境
 
 1. [启动软件并登录](#login)。
-2. [设置目录、显示和日志](#settings)。
+2. [设置主题、分析参数和备份目录](#settings)。
 3. [检查本地服务与数据库](#overview)。
 4. 有旧数据时，执行[旧方法与配置迁移](#migrate-methods)；没有旧数据可直接新建方法。
 
@@ -96,23 +97,23 @@ add('first-run','start','首次使用路线',`
 
 **完成标志：**报告来源可追溯到方法版本、采集数据与曲线快照，输出文件可打开，备份校验通过。单独完成“分析运行”还不等于已经得到可输出的最终报告。
 `,{related:['daily','standard-names','faq-report']});
-add('daily','start','日常分析流程',take('四、日常分析的最短操作顺序')+'\n\n## 开始前核对\n\n- 当前方法名称与版本正确，方法未暂停。\n- 标准样与未知样的类型、名称和重复次数正确。\n- 本轮使用的数据、曲线和报告来源对应同一套方法口径。\n\n## 流程跳转\n\n[样品队列](#queue) → [创建采集](#capture-create) → [执行采集](#capture-run) → [分析](#analysis) → [质控](#quality) → [曲线](#curves) → [合并结果](#results) → [报告](#reports) → [备份](#backup)。',{related:['first-run','capture-run','reports']});
+add('daily','start','日常分析流程',take('四、日常分析的最短操作顺序')+'\n\n## 开始前核对\n\n- 核对当前方法名称与版本。\n- 标准样与未知样的类型、名称和重复次数正确。\n- 本轮使用的数据、曲线和报告来源对应同一套方法口径。\n\n## 流程跳转\n\n[样品队列](#queue) → [创建采集](#capture-create) → [执行采集](#capture-run) → [分析](#analysis) → [质控](#quality) → [曲线](#curves) → [合并结果](#results) → [报告](#reports) → [备份](#backup)。',{related:['first-run','capture-run','reports']});
 
 add('navigation','workspace','认识界面与菜单',`
 ## 界面分区
 
 - **左侧导航：**工作台、光谱方法、分析测试、数据处理、工具、系统管理、帮助。
-- **顶部：**当前方法、刷新服务状态、退出登录及账户入口。
+- **顶部：**当前方法、切换明暗主题、专注模式及账户入口。可按 Ctrl+Shift+F 切换专注模式。
 - **中央工作区：**所选功能的列表、参数、曲线或结果。
 - **运行消息：**记录操作结果、告警与错误，排查问题时优先保留原始提示。
 
 ## 使用层级菜单
 
-将鼠标移到左侧分组可展开右侧子菜单；点击分组可固定展开。选择子项进入对应页面或内部视图，按 Esc 或点击外部区域收起。长菜单可滚动，键盘方向键可辅助切换焦点。
+侧栏可展开或收合为图标。选择对应分组可打开子菜单。选择子项进入对应页面或内部视图，按 Esc 或点击外部区域收起。长菜单可滚动，键盘方向键可辅助切换焦点。
 
 ## 为什么入口不同
 
-**入口不显示：**当前账户没有所需权限。**入口显示但不可用：**通常尚未选择当前方法、方法已暂停，或页面内还缺少必要输入。先查看禁用原因，不要反复点击。
+**入口不显示：**当前账户没有所需权限。**入口显示但不可用：**通常尚未选择当前方法，或页面内还缺少必要输入。先查看禁用原因，不要反复点击。
 
 “方法管理与参数”用于选择、新建或编辑方法；“分析谱线”“预览与打印”直达所选方法的对应视图。编辑所选草稿不要求先设为当前，摄谱和分析仍检查已发布当前方法。后处理和报告页允许先进入，再在页面内选取来源记录。
 `,{entry:'左侧导航与顶部工具栏',related:['faq-menu','method-publish','users']});
@@ -140,31 +141,18 @@ add('messages','workspace','阅读与保存运行消息',`
 先确认任务是否已安全停止，再根据提示修正输入、恢复任务或重新建立任务。不要只截取“失败”二字，也不要反复提交同一个无效输入。报告问题时可使用[故障信息清单](#faq-evidence)。
 `,{entry:'工作台 → 工作台概览；各任务的运行消息区域',related:['capture-run','faq-evidence','exports']});
 
-add('method-create','methods','新建与复制方法',take('6.1 新建方法')+`
+add('method-create','methods','新建与另存方法',take('6.1 新建方法')+`
 
 ## 复制已有方法
 
-在方法列表中选择参考方法，点击“复制”，输入新名称并确认。复制后先检查新方法的参数、谱线和标准点，再保存与发布。不要仅改名称就假定它适合另一类样品。
+打开参考方法并保存已完成的编辑，点击「另存为」并输入新名称。核对新方法的参数、谱线和标准点，再用于采集。
 
 ## 下一步
 
-依次完成[方法参数](#conditions)、[分析谱线](#lines)、[预览与发布](#method-publish)。新建草稿不会自动成为当前运行方法。
+依次完成[方法参数](#conditions)、[分析谱线](#lines)、[预览、保存并使用](#method-publish)。新建草稿不会自动成为当前运行方法。
 `,{entry:'光谱方法 → 方法管理与参数',related:['conditions','lines','method-publish']});
-add('method-publish','methods','发布、切换与暂停方法',take('6.4 预览、发布并设为当前方法')+`
+add('method-publish','methods','预览、保存并使用方法',take('6.4 预览、保存并使用方法'),{entry:'光谱方法 → 方法管理与参数',related:['method-create','preview','faq-menu']});
 
-## 暂停、恢复与删除
-
-选择方法后，通过“暂停方法”或“恢复方法”图标改变启用状态。暂停当前方法后，依赖它的入口会变为不可用。软删除会要求确认，历史版本仍保留以支持已有数据追溯。
-
-## 容易混淆的状态
-
-- **列表选中：**正在查看或编辑这条方法。
-- **保存草稿：**保存编辑内容，不等于发布。
-- **发布版本：**产生不可变版本。
-- **设为当前：**指定后续相关操作使用的运行方法。
-
-顶部当前方法与列表选中项不一定相同，采集前务必核对。
-`,{entry:'光谱方法 → 方法管理与参数',related:['method-create','preview','faq-menu']});
 add('print-settings','methods','页面与打印机设置',`
 ## 操作步骤
 
@@ -183,7 +171,7 @@ add('conditions','methods','设置方法参数',take('6.2 配置方法条件')+`
 
 输入框可以暂时清空以便重新填写；提交时仍需满足有效范围。出现字段错误时按提示修正，不能把空值当作零值或已保存。采样周期、帧数、重复次数和保存区间会影响采集内容，应在发布前统一核对。
 
-入口为“方法管理与参数”，方法参数和谱线各自保存草稿。只改草稿不改变已发布版本。
+在「方法管理与参数」完成编辑后点击「保存」，生成可使用的版本。已有采集仍引用当时的方法版本。
 `,{entry:'光谱方法 → 方法管理与参数',related:['lines','method-publish','interval']});
 add('lines','methods','配置分析谱线',take('6.3 配置分析谱线和标准点')+`
 
@@ -212,7 +200,7 @@ add('standard-names','methods','标准点与标准样名称对应',`
 5. 再拟合并发布标准曲线。
 
 示例名称只用于说明对应规则，不提供通用标准浓度。实际标准值应来自您采用的标准样资料。
-`,{entry:'光谱方法 → 分析谱线；分析测试 → 标准曲线与样品结果',related:['queue','capture-create','curves','faq-curves']});
+`,{entry:'光谱方法 → 分析谱线；分析测试 → 样品分析 → 标准曲线',related:['queue','capture-create','curves','faq-curves']});
 add('preview','methods','参数预览与打印',`
 ## 操作步骤
 
@@ -228,69 +216,26 @@ add('preview','methods','参数预览与打印',`
 `,{entry:'光谱方法 → 预览与打印',related:['method-publish','print-settings','exports']});
 
 add('queue','analysis','样号与样品队列',take('第 7 步：建立样品队列'),{section:'准备与采集',entry:'分析测试 → 样号与样品队列',related:['standard-names','capture-create','formats']});
-add('dispersion','analysis','色散摄谱与校准',take('第 5 步：需要时建立色散校准'),{section:'准备与采集',entry:'分析测试 → 色散摄谱与校准',related:['devices','conditions','mercury']});
-add('capture-create','analysis','创建样品摄谱任务',take('8.1 建立任务')+'\n\n## 创建后检查\n\n任务列表出现新任务，方法版本、样品类型、保存模式与重复次数正确。创建任务不等于已经采集，下一步选中任务并启动。',{section:'准备与采集',entry:'分析测试 → 样品摄谱',related:['capture-run','queue','standard-names']});
+add('dispersion','analysis','色散摄谱与校准',take('第 5 步：需要时建立色散校准'),{section:'准备与采集',entry:'分析测试 → 色散摄谱',related:['devices','conditions','mercury']});
+add('capture-create','analysis','创建样品摄谱任务',take('8.1 建立样品摄谱')+'\n\n## 创建后检查\n\n任务列表出现新任务，方法版本、样品类型、保存模式与重复次数正确。创建任务不等于已经采集，下一步选中任务并启动。',{section:'准备与采集',entry:'分析测试 → 样品摄谱',related:['capture-run','queue','standard-names']});
 add('evaporation','analysis','蒸发摄谱实验',take('8.3 蒸发摄谱实验'),{section:'准备与采集',entry:'分析测试 → 蒸发摄谱',related:['capture-create','dispersion','interval']});
 add('capture-run','analysis','执行、暂停与停止采集',take('8.2 执行任务'),{section:'准备与采集',entry:'分析测试 → 样品摄谱',related:['spectra','analysis','messages']});
-add('hardware','analysis','自动转角采集与异常处置',`
-## 当前可用范围
+add('hardware','analysis','摄谱中的转角执行',take('8.4 摄谱中的转角执行'),{section:'准备与采集',entry:'分析测试 → 色散摄谱／蒸发摄谱／样品摄谱',related:['devices','capture-run','hardware-limit']});
 
-该页面提供转角计划和异常处置的软件流程。真实转角协议与现场证据尚缺，真实串口档案启动会记录延后状态，不发送猜测命令。以下用于模拟检查，不作为真实设备操作规程。
-
-## 模拟操作步骤
-
-1. 选择已发布当前方法，进入“自动转角采集”。
-2. 填写任务名称，选择模拟设备档案和 CCD 布局。
-3. 按本次模拟方案选择“短波 → 长波”或“关键波段优先”，设置异常策略及有限重试上限。
-4. 核对页面中的转角计划与波段内容，点击“创建任务”。计划输入需要符合界面和方法约束；不要把测试脚本当作真实串口命令。
-5. 选中任务，点击“启动”，通过“单步”检查进度、当前计划步、原始帧和轨迹。
-6. 发生人工接管时，先检查当前帧和失败原因，再选择接受、重试、恢复或停止；损坏帧不能被接受。
-7. 结束后检查处置决定、结果和安全收尾记录。
-
-## 真实设备前置条件
-
-必须先取得已确认的现场协议和硬件验收条件，再安排真实采集；不能通过修改异常策略绕过缺失条件。
-`,{section:'准备与采集',entry:'分析测试 → 自动转角采集',related:['devices','capture-run','hardware-limit']});
 add('spectra','analysis','谱图查看、叠加与定位',take('第 9 步：查看采集谱图'),{section:'查看与分析',entry:'分析测试 → 谱图查看',related:['capture-run','analysis','exports','interval']});
-add('analysis','analysis','定量分析与逐谱线慢进',take('第 10 步：执行定量分析和慢进复核'),{section:'查看与分析',entry:'分析测试 → 定量分析与慢进',related:['profiles','quality','faq-analysis']});
-add('quality','analysis','重复性质控',take('11.1 重复质控')+'\n\n## 完成后检查\n\n确认有效重复次数、提示接受与剔除决定正确，再重新统计形成可用快照。不要为了让曲线可发布而无依据地剔除数据。',{section:'质控、曲线与结果',entry:'分析测试 → 重复性质控',related:['analysis','curves','results']});
-add('curves','analysis','拟合并发布标准曲线',take('11.2 标准点和曲线'),{section:'质控、曲线与结果',entry:'分析测试 → 标准曲线与样品结果',related:['standard-names','quality','results','faq-curves']});
-add('results','analysis','合并并保存样品结果',take('11.3 合并样品结果')+'\n\n## 为什么还要合并\n\n分析运行中的原始结果、曲线拟合结果和最终报告来源是不同阶段。只有完成相应质控与曲线发布，再“合并并保存”，报告才有可追溯的最终结果可用。',{section:'质控、曲线与结果',entry:'分析测试 → 标准曲线与样品结果 → 样品结果',related:['curves','reports','faq-report']});
+add('analysis','analysis','定量分析与逐谱线慢进',take('第 10 步：执行定量分析和慢进复核'),{section:'查看与分析',entry:'分析测试 → 样品分析',related:['profiles','quality','faq-analysis']});
+add('quality','analysis','重复性质控',take('11.1 重复质控')+'\n\n## 完成后检查\n\n确认有效重复次数、提示接受与剔除决定正确，再重新统计形成可用快照。不要为了让曲线可发布而无依据地剔除数据。',{section:'质控、曲线与结果',entry:'分析测试 → 样品分析 → 重复性检查',related:['analysis','curves','results']});
+add('curves','analysis','拟合并发布标准曲线',take('11.2 标准点和曲线'),{section:'质控、曲线与结果',entry:'分析测试 → 样品分析 → 标准曲线',related:['standard-names','quality','results','faq-curves']});
+add('results','analysis','合并并保存样品结果',take('11.3 合并样品结果')+'\n\n## 为什么还要合并\n\n分析运行中的原始结果、曲线拟合结果和最终报告来源是不同阶段。只有完成相应质控与曲线发布，再“合并并保存”，报告才有可追溯的最终结果可用。',{section:'质控、曲线与结果',entry:'分析测试 → 样品分析 → 标准曲线 → 样品结果',related:['curves','reports','faq-report']});
 
-add('interval','data','全时区间处理',`
-## 开始前
+add('interval','data','全时数据与预备摄谱转换',`
+在「数据处理 → 打印与导出 → 全时数据」选择 CMT 或支持的样品摄谱批次，核对当前方法与燃烧帧区间，再保存 XLSX。只有平均谱的记录无法还原每一帧。
 
-选择确实保存了全时帧的记录。只有平均谱的记录不能凭空恢复每一帧。采集时是否保存全时数据，参见[方法参数](#conditions)和[采集任务](#capture-create)。
+需要转换旧 EDT 或蒸发记录的部分帧时，进入「工具 → 导入预备摄谱文件」，选择源记录、帧区间、保存方式与输出目标。选择追加或替换时，先核对目标。原始文件按只读方式处理。
+`,{entry:'数据处理 → 打印与导出 → 全时数据',related:['spectra','recalculate','formats']});
+add('recalculate','data','重新计算与强度输出',take('第 12 步：重新计算、输出强度或全时数据'),{entry:'数据处理 → 重新计算',related:['profiles','curves','migrate-results','exports']});
 
-## 操作步骤
-
-1. 进入“全时区间处理”，选择 EDT/CMT 或支持的全时采集记录。
-2. 核对 CCD，设置起始帧和结束帧后读取区间。
-3. 检查所选区间的曲线、来源与范围。
-4. 需要进行 EDT 转换时，明确选择记录、目标 CCD 布局和方法版本，再执行转换。
-5. 核对处理记录和结果信息；原件保持只读。
-
-## 常见限制
-
-缺少原始帧、区间越界或布局不匹配时应修正选择，不要通过改文件扩展名绕过校验。
-`,{entry:'数据处理 → 全时区间处理',related:['spectra','recalculate','formats']});
-add('recalculate','data','结果重算与矩阵导出',`
-## 明确输入
-
-精确重算需要源记录、确切方法版本、计算档案和已发布曲线快照。先确定这些绑定，再执行；同名方法不能代替版本一致性。
-
-## 操作步骤
-
-1. 进入“结果重算与矩阵导出”，选择来源记录。
-2. 选择目标方法版本、计算档案和适用的已发布曲线快照。
-3. 执行重算，检查处理状态和结果；任一来源失败时，先修正阻断原因再重试整批。
-4. 选择要输出的原始强度、处理强度或结果矩阵。
-5. 选择 TXT、CSV 或 Excel 格式，填写已存在且可写的输出目录与文件名。
-6. 导出后按界面返回的最终路径检查文件。
-
-旧结果只读迁移与精确重算是两个步骤。导入成功不代表已经具备所有重算条件。
-`,{entry:'数据处理 → 结果重算与矩阵导出',related:['profiles','curves','migrate-results','exports']});
-add('reports','data','建立、确认与输出分析报告',take('第 13 步：建立、预览、确认和导出报告'),{entry:'数据处理 → 分析报告',related:['results','exports','faq-report']});
+add('reports','data','建立、确认与输出分析报告',take('第 13 步：建立、预览、确认和导出报告'),{entry:'数据处理 → 打印与导出 → 分析报告',related:['results','exports','faq-report']});
 add('exports','data','文件保存、导出与打印',`
 ## 两种保存方式
 
@@ -318,26 +263,10 @@ add('exports','data','文件保存、导出与打印',`
 实体打印还需选择可用 Windows 打印机并检查打印队列。不要把生成 PDF 与纸张已打印混为一谈。
 `,{entry:'各页面的保存、导出或打印入口',related:['reports','print-settings','spectra','queue']});
 
-add('devices','tools','设备参数与实时调试',take('第 4 步：连接模拟设备并做实时诊断'),{entry:'工具 → 设备参数与实时调试',related:['dispersion','capture-create','hardware-limit']});
-add('mercury','tools','汞灯与光学校准',`
-## 与色散校准的区别
+add('devices','tools','设备调试与实时观察',take('第 4 步：连接模拟设备并做实时诊断'),{entry:'工具 → 设备调试',related:['dispersion','capture-create','hardware-limit']});
+add('mercury','tools','调试对中切换转角',take('在调试对中切换转角'),{entry:'工具 → 设备调试 → 调试对中',related:['dispersion','devices','hardware-limit']});
 
-汞灯页面比较汞线的期望位置与实测峰位，生成光学偏移建议及版本记录；结果独立于色散方法版本。不要把“应用建议”当作重新发布色散曲线。
-
-## 模拟检查步骤
-
-1. 进入“汞灯与光学校准”，输入会话名称。
-2. 选择模拟设备档案、CCD 布局及汞线，核对稳定帧数与模拟峰偏移；正常流程的故障脚本选“无”。
-3. 点击“建立校准会话”，选中会话后“启动”，通过“单步”推进到稳定采集阶段。
-4. 查看实时汞谱、期望位置、实测位置、校正前后偏移和残差 RMS。
-5. 仅在状态允许且结果经复核后使用“应用建议”；需要撤销时按页面提供的“回滚”恢复版本。
-6. 结束后确认安全态及调试轨迹；异常安全关闭的会话不应作为已应用校准。
-
-## 当前限制
-
-真实汞灯协议、抓包与现场硬件仍缺失。选择真实档案可能进入延后状态，不会发送猜测的控制字节。本节是软件模拟流程，真实汞灯的开关、预热和保护时间必须以设备确认资料为依据。
-`,{entry:'工具 → 汞灯与光学校准',related:['dispersion','devices','hardware-limit']});
-add('migrate-methods','tools','旧方法与配置迁移',take('3.1 迁移旧方法和配置')+'\n\n## 数据保护\n\n原始 MTD、CFG、OPT 保持只读。先检查暂存报告再提交，读取器失败时保存诊断，不通过修改历史原件解决。迁移后检查方法草稿与已发布状态，再选择适合的当前方法。',{section:'旧版数据迁移',entry:'工具 → 旧方法与配置迁移',related:['method-publish','formats','migrate-spectra']});
+add('migrate-methods','tools','旧方法与配置迁移',take('3.1 迁移旧方法和配置')+'\n\n## 数据保护\n\n原始 MTD、CFG、OPT 保持只读。先检查暂存报告再提交，读取器失败时保存诊断，不通过修改历史原件解决。迁移后检查方法草稿与已发布状态，再选择适合的当前方法。',{section:'旧版数据迁移',entry:'工具 → 旧数据迁移 → 方法与配置',related:['method-publish','formats','migrate-spectra']});
 add('migrate-spectra','tools','旧谱数据迁移',`
 ## 支持的文件
 
@@ -351,7 +280,7 @@ add('migrate-spectra','tools','旧谱数据迁移',`
 4. 到[谱图查看](#spectra)核对样品和曲线；全时数据需要时进入[全时区间处理](#interval)。
 
 解析在临时副本中进行，原件不回写。遇到未知格式、截断或损坏数据，应保留原件和报告，不更改扩展名来尝试导入。
-`,{section:'旧版数据迁移',entry:'工具 → 旧谱数据迁移',related:['formats','spectra','interval']});
+`,{section:'旧版数据迁移',entry:'工具 → 旧数据迁移 → 谱图数据',related:['formats','spectra','interval']});
 add('migrate-results','tools','旧结果迁移',`
 ## 操作步骤
 
@@ -365,9 +294,10 @@ add('migrate-results','tools','旧结果迁移',`
 无法匹配方法的结果应保留其来源和诊断，不要随意套用同名方法。精确重算还需指定确切方法版本、计算档案和已发布曲线快照，详见[重算与矩阵导出](#recalculate)。
 
 只读迁移不会覆盖旧 DAT/PDT，也不会把重新计算的结果写回旧格式。
-`,{section:'旧版数据迁移',entry:'工具 → 旧结果迁移',related:['formats','recalculate','migrate-methods']});
+`,{section:'旧版数据迁移',entry:'工具 → 旧数据迁移 → 分析结果',related:['formats','recalculate','migrate-methods']});
 
-add('settings','system','软件设置',take('第 2 步：设置目录、显示、日志和打印默认值')+'\n\n## 目录含义\n\n当前只编辑备份目录，其他未接入默认目录不提供入口。修改备份目录不会搬迁数据库；管理员可在“备份与维护 → 系统诊断”查看实际数据库路径。保存后重新检查设置值，错误提示未消失前不要认为已经生效。',{entry:'系统管理 → 软件设置',related:['files','backup','exports']});
+add('settings','system','主题、分析参数和备份目录',take('第 2 步：设置主题、分析参数和备份目录'),{related:['files','backup','devices']});
+
 add('users','system','用户与权限',`
 ## 账户和角色
 
@@ -412,11 +342,8 @@ add('maintenance','system','数据库整理与日志清理',`
 
 ## 清理记录文件
 
-填写保留天数，再点击“清理记录文件”。只清理过期历史日志，当前日志、审计记录及临时文件保持。
+点击「清理记录文件」可清理 30 天前的历史日志。当前日志和审计记录保留。
 
-## 系统诊断
-
-管理员需要排查问题时展开默认收起的“系统诊断”，再刷新查看状态和路径。普通查看维护页不会运行完整诊断。模块清单检测数据结构、依赖和查询接口，分别显示软件可用、异常、未启用、无检测权限或未检测；真实硬件仍需单独验证。
 `,{entry:'系统管理 → 备份与维护',related:['backup','audit','files']});
 
 add('builtin-help','help','软件内的离线帮助',`
@@ -433,7 +360,7 @@ add('builtin-help','help','软件内的离线帮助',`
 add('about','help','关于软件',`
 ## 查看内容
 
-“帮助 → 关于软件”只显示软件名称、版本和版权。版权依据开发合同第8.1条归湖北华祥地质环境检测科技有限公司。管理员在“系统管理 → 备份与维护 → 系统诊断”刷新查看服务、数据库路径、模块检测结果；普通账号不显示或请求系统诊断。
+「帮助 → 关于软件」可查看软件名称、版本和版权。管理员可按权限访问软件激活与模块远程诊断。
 
 ## 出现问题时记录
 
@@ -449,7 +376,7 @@ for (const [id,title,source,related] of [
   ['faq-report','报告为空或不能输出','5. 报告列表为空或不能输出',['results','reports','exports']],
   ['faq-password','忘记密码怎么办','6. 忘记管理员密码',['users','backup']],
 ]) add(id,'help',title,take(source),{section:'常见问题',related});
-topics.find(t=>t.id==='faq-service').body += '\n\n## 重新启动后检查\n\n等待本地服务显示“已连接”，管理员再进入“备份与维护 → 系统诊断”刷新。工作台的事件流和桌面壳固定状态文字不作为故障判断依据。若仍无法连接，保留版本、时间和错误提示后联系维护人员，不通过删除数据库重试。';
+topics.find(t=>t.id==='faq-service').body += '\n\n## 重新启动后检查\n\n等待本地服务连接后查看工作台的最新消息和实际操作状态。若仍无法连接，保留版本、时间和错误提示后联系维护人员，不通过删除数据库重试。';
 // 现有桌面没有既有用户角色编辑与密码重置表单，避免旧说明让读者寻找不存在的入口。
 topics.find(t=>t.id==='faq-menu').body = topics.find(t=>t.id==='faq-menu').body.replace('请让管理员在“用户与权限”中授予所需最小角色或权限。','请让管理员核对账户与角色权限；当前界面的角色修改能力有限，必要时联系维护人员处理。');
 topics.find(t=>t.id==='faq-password').body = '软件没有通用默认密码。当前桌面没有可直接操作的密码重置表单，请联系维护人员制定恢复方案。不要删除 `%LOCALAPPDATA%\\cn.geospectrum.desktop` 来重新初始化，这会使本机业务数据丢失。先保留现有数据与已验证备份。';
@@ -460,7 +387,7 @@ add('faq-analysis','help','分析没有完成或表单报错',`
 4. 慢进状态需要处理检查点并推进，不是等待一段时间就一定会自动完成。
 5. 失败时保留错误说明和运行编号，再决定修正输入、重新采集或建立新运行。
 
-不要将旧包的现象直接当作当前包的结论。报告问题时附上“关于软件”的版本；管理员可从“备份与维护 → 系统诊断”补充模块检测结果。
+不要将旧包的现象直接当作当前包的结论。报告问题时附上“关于软件”的版本；管理员可按权限在「关于软件」使用模块远程诊断。
 `,{section:'常见问题',related:['analysis','quality','faq-evidence']});
 add('hardware-limit','help','真实设备与模拟器的区别',take('7. 真实转角或汞灯功能')+'\n\n## 模拟器可以验证什么\n\n可用于熟悉界面、验证状态推进、样品数据处理和错误反馈。模拟帧与随机种子可支持重复验证，但不会证明真实串口连接、光学条件、仪器保护或测量性能已通过现场验收。',{section:'常见问题',related:['devices','hardware','mercury']});
 add('faq-evidence','help','如何记录和反馈故障',`
@@ -485,7 +412,7 @@ add('files','reference','程序、数据库与备份在哪里',`
 | 直接启动的主程序 | 项目主文件夹中的 GeoSpectrum.exe |
 | 配套后端 | 与主程序同目录的 geospectrum-backend.exe，由主程序启动 |
 | 本机构建安装包 | app/.local/releases/0.1.0/ |
-| 正常运行数据库及相关数据 | %LOCALAPPDATA%\\cn.geospectrum.desktop；管理员在备份与维护的系统诊断中确认实际路径 |
+| 正常运行数据库及相关数据 | %LOCALAPPDATA%\\cn.geospectrum.desktop |
 | 报告与矩阵导出 | 对应页面指定的输出目录 |
 | 在线备份 | 备份与维护页面实际使用的目录 |
 | 本手册 | docs/使用与说明/GeoSpectrum_使用手册.html |
@@ -546,17 +473,19 @@ for (const topic of topics) {
   delete topic.body;
 }
 const entryToTopic = {
-  '工作台概览':'overview','软件设置':'settings','关于软件':'about','用户与权限':'users','审计记录':'audit',
+  '工作台概览':'overview','关于软件':'about','用户与权限':'users','审计记录':'audit',
   '方法管理与参数':'method-create','分析谱线':'lines','预览与打印':'preview',
-  '旧方法与配置迁移':'migrate-methods','样号与样品队列':'queue','旧谱数据迁移':'migrate-spectra','旧结果迁移':'migrate-results','谱图查看':'spectra',
-  '设备参数与实时调试':'devices','色散摄谱与校准':'dispersion','蒸发摄谱':'evaporation','样品摄谱':'capture-create','自动转角采集':'hardware',
-  '汞灯与光学校准':'mercury','定量分析与慢进':'analysis','重复性质控':'quality','标准曲线与样品结果':'curves',
-  '全时区间处理':'interval','结果重算与矩阵导出':'recalculate','分析报告':'reports','备份与维护':'backup','离线帮助':'builtin-help',
+  '旧数据迁移':'migrate-methods','样号与样品队列':'queue','谱图查看':'spectra',
+  '设备调试':'devices','设备连接':'devices','色散摄谱':'dispersion','色散曲线':'dispersion',
+  '蒸发摄谱':'evaporation','蒸发曲线':'evaporation','样品摄谱':'capture-create','样品分析':'analysis',
+  '重新计算':'recalculate','打印与导出':'reports','导入预备摄谱文件':'interval',
+  '备份与维护':'backup','离线帮助':'builtin-help',
 };
+
 const entries=manifest.modules.flatMap(m=>m.navigation_entries||[]);
 for(const entry of entries) if(!ids.has(entryToTopic[entry.label])) throw new Error(`未覆盖菜单：${entry.label}`);
-const data = JSON.stringify({groups,topics,version:'0.1.0',date:'2026-10-16'}).replace(/</g,'\\u003c');
+const data = JSON.stringify({groups,topics}).replace(/</g,'\\u003c');
 const template = fs.readFileSync(path.join(root,'template.html'),'utf8');
 const destination = path.join(root,'../GeoSpectrum_使用手册.html');
-fs.writeFileSync(destination,template.replace('/*__MANUAL_DATA__*/',data),'utf8');
+fs.writeFileSync(destination,template.replaceAll('__APP_VERSION__', version).replace('/*__MANUAL_DATA__*/',data),'utf8');
 console.log(JSON.stringify({file:destination,groups:groups.length,topics:topics.length,menuEntries:entries.length,bytes:fs.statSync(destination).size}));

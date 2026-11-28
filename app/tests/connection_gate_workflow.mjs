@@ -24,21 +24,18 @@ export async function checkCaptureConnectionGate(page, serial, result, output) {
     } else await route.continue()
   })
   const writes=[]
-  const observe=request=>{if(request.method()==='POST'&&/\/(acquisitions|dispersion|hardware-acquisitions)\/tasks$/.test(new URL(request.url()).pathname))writes.push(request.url())}
+  const observe=request=>{if(request.method()==='POST'&&/\/(acquisitions|dispersion)\/tasks$/.test(new URL(request.url()).pathname))writes.push(request.url())}
   page.on('request',observe)
   for (const [label,selector,dialogName,submit] of [
     ['样品摄谱','[data-testid="sample-acquisition-page"]','建立样品摄谱任务','创建任务'],
     ['蒸发摄谱','[data-testid="evaporation-acquisition-page"]','建立蒸发摄谱任务','创建任务'],
     ['色散摄谱','[data-testid="dispersion-page"][data-view="capture"]','建立色散摄谱任务','新建任务'],
-    ['自动转角采集','[data-testid="hardware-acquisition-page"]','新建自动转角任务','建立任务']
   ]) {
     await navigate(page,'analysis-tests',label,selector)
-    if (label !== '自动转角采集') {
-      const mode = {'样品摄谱':'sample-acquisition','蒸发摄谱':'evaporation-acquisition','色散摄谱':'dispersion'}[label]
-      if (await page.getByTestId('spectroscopy-workbench').getAttribute('data-mode') !== mode)
-        await page.locator('.spectroscopy-modes').getByRole('button',{name:label,exact:true}).click()
-      await page.waitForFunction(mode=>document.querySelector('[data-testid="spectroscopy-workbench"]')?.getAttribute('data-mode')===mode,mode)
-    }
+    const mode = {'样品摄谱':'sample-acquisition','蒸发摄谱':'evaporation-acquisition','色散摄谱':'dispersion'}[label]
+    if (await page.getByTestId('spectroscopy-workbench').getAttribute('data-mode') !== mode)
+      await page.locator('.spectroscopy-modes').getByRole('button',{name:label,exact:true}).click()
+    await page.waitForFunction(mode=>document.querySelector('[data-testid="spectroscopy-workbench"]')?.getAttribute('data-mode')===mode,mode)
     const host=page.locator(selector)
     await page.getByRole('button',{name:'新建任务',exact:true}).click()
     const dialog=page.getByRole('dialog',{name:dialogName,exact:true})

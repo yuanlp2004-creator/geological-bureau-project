@@ -1,7 +1,7 @@
 """Project public business/device events into the existing operator message log."""
 from __future__ import annotations
 
-from collections import OrderedDict, deque
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import threading
@@ -16,8 +16,7 @@ class RuntimeMessages:
     def __init__(self, service: AppService):
         self.service = service
         self._lock = threading.RLock()
-        self._seen: set[str] = set()
-        self._order: deque[str] = deque()
+        self._seen: OrderedDict[str, None] = OrderedDict()
         self._task_heads: OrderedDict[tuple[str, int], int] = OrderedDict()
         self._loaded = False
         self._serial_events = ThreadPoolExecutor(max_workers=1, thread_name_prefix='ccd-log')
@@ -47,12 +46,11 @@ class RuntimeMessages:
         try:
             with self._lock:
                 if not self._loaded:
-                    for event in self.service.list_events(limit=500):
+                    for event in reversed(self.service.list_events(limit=500)):
                         previous_details = event.get('details') or {}
                         previous = previous_details.get('source_key')
                         if previous:
-                            self._seen.add(previous)
-                            self._order.append(previous)
+                            self._seen[previous] = None
                         if previous_details.get('message_id') is not None:
                             task_key = (previous_details['source'], previous_details['task_id'])
                             self._task_heads[task_key] = max(self._task_heads.get(task_key, 0), previous_details['message_id'])
@@ -67,15 +65,14 @@ class RuntimeMessages:
                     category=category, severity=severity, message=message[:500],
                     details={'channel': channel, 'source_key': key, **details},
                 ))
-                self._seen.add(key)
-                self._order.append(key)
+                self._seen[key] = None
                 if message_id is not None:
                     self._task_heads[task_key] = message_id
                     self._task_heads.move_to_end(task_key)
                     while len(self._task_heads) > 1024:
                         self._task_heads.popitem(last=False)
-                while len(self._order) > 4096:
-                    self._seen.discard(self._order.popleft())
+                if len(self._seen) > 4096:
+                    self._seen.popitem(last=False)
         except Exception:
             logging.getLogger(__name__).exception('Unable to record operator information')
 

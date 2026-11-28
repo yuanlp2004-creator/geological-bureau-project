@@ -8,7 +8,7 @@ const idle = { adapter: 'acq-simulator', state: 'idle', connected: false, sessio
 const connected = { ...idle, adapter: 'legacy-ccd-serial', state: 'connected', connected: true, profile_id: 7, port: 'COM12' }
 const debugging = { ...connected, state: 'debugging' }
 const turning = { ...debugging, turning: true }
-const serialCapture = { task_id: 21, owner: '色散摄谱', profile_id: 7, port: 'COM12', state: 'burn' }
+const serialCapture = { task_id: 21, owner: 'dispersion', profile_id: 7, transport: 'serial', port: 'COM12', state: 'burn' }
 
 function diagnostics(adapter = idle, active_captures = []) {
   return { adapter, active_captures, profiles: [] }
@@ -75,14 +75,13 @@ test('takes the UI operation synchronously before the first await across hardwar
   assert.equal(store.blockedReason(), null)
 })
 
-test('requires the current ID and generation and discards a read started before an operation receipt', async () => {
+test('requires the current operation token and discards a read started before a receipt', async () => {
   const { store, reads, published } = setup()
   await answer(reads, store.startSession(alice))
   const staleRead = store.reconcile(alice.token)
   await Promise.resolve()
   const token = acquire(store, 'alignment', 'connect')
-  assert.equal(store.completeOperation({ ...token, id: token.id + 1 }), false)
-  assert.equal(store.completeOperation({ ...token, generation: token.generation - 1 }), false)
+  assert.equal(store.completeOperation({ ...token }), false)
   assert.equal(store.getSnapshot().operation, token)
   assert.equal(store.completeOperation(token, { adapter: connected }), true)
   assert.equal(await answer(reads, staleRead, diagnostics(debugging)), null)
@@ -224,11 +223,46 @@ test('idle diagnostics alone cannot confirm a reported motor stop failure, but a
   const stop = acquire(store, 'alignment', 'debug_stop')
   store.failOperation(stop, Object.assign(new Error('电机未确认停止'), { status: 409, code: 'motor_stop_unconfirmed' }))
   await answer(reads, store.reconcile(alice.token), diagnostics(connected))
-  assert.equal(store.getSnapshot().status, 'unknown')
+  assert.equal(store.getSnapshot().status, 'stop_unconfirmed')
   reject(store, 'dispersion', 'capture_start')
   reject(store, 'device-parameters', 'test')
   store.completeOperation(acquire(store, 'alignment', 'debug_stop'), { adapter: connected })
   assert.equal(store.getSnapshot().status, 'connected_idle')
+})
+
+test('capture stop recovery is isolated by owner and task ID even when diagnostics look idle', async () => {
+  const { store, reads } = setup()
+  await answer(reads, store.startSession(alice), { ...diagnostics(), ownership: serialCapture })
+  const staleObservation = store.observation(alice.token)
+  const observation = store.observation(alice.token)
+  store.observeCapture(observation, 'dispersion', null, 22)
+  assert.equal(store.getSnapshot().status, 'capturing')
+  const stop = acquire(store, 'dispersion', 'capture_stop', 7, 21)
+  store.failOperation(stop, Object.assign(new Error('停止回执未确认'), { status: 409, code: 'serial_stop_unconfirmed' }))
+  await answer(reads, store.reconcile(alice.token))
+  store.observeCapture(staleObservation, 'dispersion', null, 21)
+  assert.equal(store.getSnapshot().status, 'stop_unconfirmed')
+  reject(store, 'dispersion', 'capture_stop', 7, 22)
+  reject(store, 'sample-acquisition', 'capture_stop', 7, 21)
+  reject(store, 'alignment', 'debug_stop')
+  const retry = acquire(store, 'dispersion', 'capture_stop', 7, 21)
+  assert.equal(store.completeOperation(stop, { capture: null }), false)
+  assert.equal(store.getSnapshot().operation, retry)
+  assert.equal(store.completeOperation(retry, { capture: null }), true)
+  assert.equal(store.getSnapshot().status, 'idle')
+})
+
+test('a stable backend owner reserves an angle gap and exposes testing before a port opens', async () => {
+  const { store, reads } = setup()
+  await answer(reads, store.startSession(alice), { ...diagnostics(), ownership: { ...serialCapture, state: 'reserved' } })
+  assert.equal(store.getSnapshot().activeOwner, 'dispersion')
+  reject(store, 'sample-acquisition', 'capture_start', 7, 21)
+  reject(store, 'dispersion', 'capture_start', 7, 22)
+  await answer(reads, store.reconcile(alice.token), { ...diagnostics(), ownership: {
+    ...serialCapture, task_id: null, owner: 'alignment', state: 'testing'
+  } })
+  assert.equal(store.getSnapshot().status, 'testing')
+  reject(store, 'dispersion', 'capture_start', 7, 21)
 })
 
 test('logout and account changes isolate diagnostics, operations and late receipts', async () => {

@@ -26,7 +26,7 @@
 代码读取时要区分两类设置：
 
 - 启动期环境配置：由 `config.py` 决定，例如数据库实际位置。
-- 用户软件设置：由 `AppService` 存入 `app_settings`，例如界面主题、日志级别和打印参数。
+- 用户软件设置：由 `AppService` 存入 `app_settings`，例如备份目录、日志默认值和打印参数。界面主题由前端 `themeStore` 按账户记录。
 
 修改用户设置不会重新定位已经打开的数据库。
 
@@ -66,7 +66,7 @@
 
 ## 8. 推荐阅读顺序
 
-`DEFAULT_SETTINGS` → `get_settings()` → `update_settings()` → `_redact()` → `append_event()` → `health()` → `api/system.py` 对应路由 → 前端设置页和消息面板。
+`DEFAULT_SETTINGS` → `get_settings()` → `update_settings()` → `_redact()` → `append_event()` → `health()` → `api/system.py` 对应路由 → 前端参数页、维护页和消息面板。
 
 ## 9. 修改检查
 

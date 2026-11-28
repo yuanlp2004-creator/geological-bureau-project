@@ -205,6 +205,7 @@ class AnalysisService:
                     " t.method_id, t.method_version FROM acquisition_samples s "
                     "JOIN acquisition_tasks t ON t.id=s.task_id "
                     "WHERE s.status='completed' AND s.finalized=1 AND t.method_version_id IS NOT NULL "
+                    "AND s.sample_kind<>'preheat' "
                     "AND NOT EXISTS(SELECT 1 FROM acquisition_sample_disposals d WHERE d.sample_id=s.id) "
                     "ORDER BY t.id DESC, s.repeat_index"
                 ).fetchall()

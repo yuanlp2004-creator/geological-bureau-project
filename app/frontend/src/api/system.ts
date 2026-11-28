@@ -51,7 +51,7 @@ export type Capability = {
     view: string | null
     required_any: string[]
     order: number
-    status: 'normal' | 'deferred_external' | 'test_only'
+    status: 'normal' | 'deferred_external'
     required_context: 'none' | 'current_method' | 'current_method_exp_seg' | 'page_scoped'
   }>
 }
@@ -103,8 +103,10 @@ export const systemApi = {
   health: () => request<{ status: string; version: string; uptime_seconds: number }>('/health'),
   about: (token: string) => request<About>('/about', { headers: { Authorization: `Bearer ${token}` } }),
   capabilities: () => request<{ capabilities: Capability[] }>('/api/v1/capabilities'),
-  diagnostics: (token: string) =>
-    request<Diagnostics>('/api/v1/diagnostics', { headers: { Authorization: `Bearer ${token}` } }),
+  diagnostics: (token: string, probe = false) =>
+    request<Diagnostics>(probe ? '/api/v1/diagnostics?probe=true' : '/api/v1/diagnostics', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
   settings: (token: string) => request<Settings>('/api/v1/settings', { headers: { Authorization: `Bearer ${token}` } }),
   saveSettings: (token: string, settings: Partial<Settings>) =>
     request<Settings>('/api/v1/settings', {
@@ -118,11 +120,6 @@ export const systemApi = {
     request<RuntimeEvent[]>(`/api/v1/logs${params}`, { headers: { Authorization: `Bearer ${token}` } }),
   clearLogs: (token: string) =>
     request<{ deleted: number }>('/api/v1/logs', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
-  executeExtension: (token: string, key: string) =>
-    request<Record<string, unknown>>(`/api/v1/extensions/${encodeURIComponent(key)}/execute`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    }),
   appendLog: (token: string, event: Pick<RuntimeEvent, 'category' | 'severity' | 'message'>) =>
     request<RuntimeEvent>('/api/v1/logs', {
       method: 'POST',

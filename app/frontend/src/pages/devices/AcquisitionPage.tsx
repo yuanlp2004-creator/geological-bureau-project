@@ -22,7 +22,7 @@ export function AcquisitionPage({ token, canExecute, onToast, revision = 0, acti
   preferredProfileId }: AcquisitionPageProps) {
   useHardwareOwner(token, owner, active)
   const hardware = useHardwareLock()
-  const stopUnconfirmed = hardware.status === 'unknown' && hardwareLockStore.canRetryStop(owner)
+  const stopUnconfirmed = hardware.status === 'stop_unconfirmed' && hardwareLockStore.canRetryStop(owner)
   const [diagnostics, setDiagnostics] = useState<DeviceDiagnostics | null>(null)
   const [selectedProfile, setSelectedProfile] = useState<number | null>(null)
   const [event, setEvent] = useState<DeviceEvent | null>(null)

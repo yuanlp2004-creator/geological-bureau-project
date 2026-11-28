@@ -1,17 +1,16 @@
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 APP_ROOT = Path(__file__).resolve().parents[1]
-PROJECT_ROOT = APP_ROOT.parent
 sys.path.insert(0, str(APP_ROOT))
 
 from backend.runtime import Runtime
 from backend.config import AppConfig
 from backend.db import Database
-from backend.modules.method_printing import MethodPrintService
 from backend.modules.methods import MethodDomainError, MethodService
 from backend.modules.spectral_lines import SpectralLineService
 from backend.schemas import MethodCreate, MethodPrintSettings, SpectralLineInput
@@ -32,10 +31,10 @@ def line(element: str, wavelength_nm: float) -> SpectralLineInput:
         internal_standard_line_id=None,
         scan_width_points=11,
         background_offset_points=0,
-        peak_mode="maximum",
+        peak_mode="max_single_point",
         peak_width_points=1,
         fit_mode="linear",
-        coordinate_type="linear",
+        coordinate_type="normal",
         unit="ug/g",
         value_kind="content",
         decimal_places=3,
@@ -51,7 +50,9 @@ def line(element: str, wavelength_nm: float) -> SpectralLineInput:
 
 
 def main() -> int:
-    output = PROJECT_ROOT / "docs" / "acceptance-reports" / "S05" / "artifacts" / "S05-方法参数预览.pdf"
+    parser = argparse.ArgumentParser(description="Generate an S05 method preview PDF.")
+    parser.add_argument("--output", type=Path, default=APP_ROOT / ".local" / "tmp" / "S05-方法参数预览.pdf")
+    output = parser.parse_args().output
     output.parent.mkdir(parents=True, exist_ok=True)
 
     with TemporaryDirectory(prefix="geospectrum-s05-") as temp:

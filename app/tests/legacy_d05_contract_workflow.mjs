@@ -7,28 +7,19 @@ export async function checkD05Contract(page, fixture, result, output) {
   const entries = (await call(page,'/api/v1/capabilities')).capabilities.flatMap(c=>c.navigation_entries||[])
   async function go(key, selector) { const entry=entries.find(e=>e.page===key);assert.ok(entry,key);await navigate(page,entry.group,entry.label,selector) }
   const checked = message => { result.checks.push(message); console.log(`PASS: ${message}`) }
-  await go('hardware-acquisition','.hardware-page')
-  await page.locator('.hardware-task-rows button').filter({hasText:'T1'}).count().then(async count=>{
-    // The task title is independent of sample identity; select its stable id via the API-backed list order.
-    if(count)await page.locator('.hardware-task-rows button').filter({hasText:'T1'}).first().click()
-  })
   const source=await call(page,`/api/v1/hardware-acquisitions/tasks/${fixture.hardware_task_id}`)
   const tasks=await call(page,'/api/v1/hardware-acquisitions/tasks')
-  const index=tasks.findIndex(task=>task.id===source.id)
-  await page.locator('.hardware-task-rows button').nth(index).click()
-  const panel=page.getByRole('region',{name:'转角结果保存为分析样品'})
-  await panel.getByLabel('正式样号',{exact:true}).fill('T1')
-  const saving=page.waitForResponse(r=>r.url().endsWith(`/${source.id}/analysis-sample`)&&r.request().method()==='POST')
-  await panel.getByRole('button',{name:'保存为分析样品',exact:true}).click()
-  const response=await saving;assert.equal(response.status(),200)
-  const saved=await response.json()
-  await panel.getByRole('status').filter({hasText:'已保存：T1'}).waitFor()
+  assert.ok(tasks.some(task => task.id === source.id))
+  assert.equal(source.status, 'completed')
+  const sampleUrl = `/api/v1/hardware-acquisitions/tasks/${source.id}/analysis-sample`
+  const payload = {sample_name: 'T1', sample_kind: 'test', name_length: 12}
+  const saved = await call(page, sampleUrl, payload)
+  assert.deepEqual(await call(page, sampleUrl, payload), {...saved, already_saved: true})
   const options=await call(page,'/api/v1/analyses/options')
   assert.ok(options.samples.some(s=>s.id===saved.acquisition_sample_id))
   const formal=await call(page,`/api/v1/acquisitions/samples/${saved.acquisition_sample_id}/bands?include_points=true`)
   assert.deepEqual(formal.map(b=>[b.ccd_index,b.mean_sha256]).sort(),source.exposures.filter(e=>e.confirmed).map(e=>[e.ccd_index,e.mean_sha256]).sort())
-  await page.screenshot({path:path.join(output,'turn-saved.png'),fullPage:true})
-  checked('真实页面保存转角结果为分析样品；分析来源可选且刷新后保持')
+  checked('历史转角 GET 与转存 API 通过，分析样品沿用已确认谱带及哈希')
 
   let run=await call(page,'/api/v1/analyses/runs',{acquisition_sample_ids:[...fixture.standard_sample_ids,saved.acquisition_sample_id]})
   run=await call(page,`/api/v1/analyses/runs/${run.id}/start`,{})

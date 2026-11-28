@@ -97,8 +97,6 @@ try {
     ['postprocessing', 'recalculate'],
     ['reports'],
     ['dispersion'],
-    ['hardware-acquisition'],
-    ['mercury-calibration'],
     ['migration'],
     ['settings'],
     ['users'],
@@ -288,53 +286,6 @@ try {
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-')
   console.log('PASS: analysis, quality/curve context and axes, report creation, preview and PDF output')
   // Calibration and device safety use the existing deterministic adapters only.
-  const hardware = await call('/hardware-acquisitions/tasks', {
-    name: 'UI转角安全回归',
-    turns: [{ angle_deg: 10, wavelength_nm: 280, priority: 1, key_band: true }]
-  })
-  await navigate('hardware-acquisition')
-  await page.getByRole('button', { name: '启动', exact: true }).click()
-  await page.getByRole('button', { name: '收起列表', exact: true }).click()
-  await capture('hardware-running-collapsed')
-  const [stopResponse] = await Promise.all([
-    page.waitForResponse(
-      (r) => r.url().endsWith(`/hardware-acquisitions/tasks/${hardware.id}/stop`) && r.request().method() === 'POST'
-    ),
-    page.getByRole('button', { name: '安全停止', exact: true }).click()
-  ])
-  const stopped = await stopResponse.json()
-  assert.ok(['stopped', 'safety_stopped'].includes(stopped.status), JSON.stringify(stopped))
-  const mercuryOptions = await call('/mercury-calibrations/options', undefined, 'GET')
-  const session = await call('/mercury-calibrations/sessions', {
-    name: 'UI汞灯校准回归',
-    line_ids: mercuryOptions.reference_lines.slice(0, 4).map((x) => x.id),
-    stabilization_frames: 2,
-    simulator_offset_points: 6
-  })
-  await navigate('mercury-calibration')
-  const [mercuryStarted] = await Promise.all([
-    page.waitForResponse(
-      (r) => r.url().endsWith(`/mercury-calibrations/sessions/${session.id}/start`) && r.request().method() === 'POST'
-    ),
-    page.getByRole('button', { name: '启动', exact: true }).click()
-  ])
-  let mercuryState = await mercuryStarted.json()
-  for (let i = 0; i < 20 && ['stabilizing', 'acquiring'].includes(mercuryState.status); i++) {
-    const [stepped] = await Promise.all([
-      page.waitForResponse(
-        (r) => r.url().endsWith(`/mercury-calibrations/sessions/${session.id}/step`) && r.request().method() === 'POST'
-      ),
-      page.getByRole('button', { name: '单步', exact: true }).click()
-    ])
-    mercuryState = await stepped.json()
-  }
-  assert.equal(mercuryState.status, 'ready')
-  await page.getByRole('button', { name: '应用建议', exact: true }).click()
-  await page.getByRole('button', { name: '回滚', exact: true }).click()
-  await page.waitForLoadState('networkidle')
-  await capture('mercury-applied-rollback')
-  if (await page.getByRole('button', { name: '安全停止', exact: true }).isEnabled())
-    await page.getByRole('button', { name: '安全停止', exact: true }).click()
   await navigate('dispersion')
   if (!(await page.locator('.dispersion-setup').isVisible()))
     await page.getByRole('button', { name: '新建任务与采集条件', exact: true }).click()
@@ -376,7 +327,7 @@ try {
   await page.waitForLoadState('networkidle')
   await capture('maintenance-verified')
   console.log(
-    'PASS: hardware stop, mercury apply/rollback, dispersion pause/stop, debug pointer, isolated backup verification'
+    'PASS: dispersion pause/stop, debug pointer, isolated backup verification'
   )
   for (const width of process.env.QA_CDP ? [null] : [1280, 1060]) {
     if (width) await page.setViewportSize({ width, height: width === 1060 ? 680 : 720 })
@@ -391,8 +342,6 @@ try {
         'analysis',
         'reports',
         'dispersion',
-        'hardware-acquisition',
-        'mercury-calibration',
         'postprocessing',
         'settings',
         'users',

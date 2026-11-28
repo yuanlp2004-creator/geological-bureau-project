@@ -4,6 +4,42 @@ import math
 from .errors import MethodDomainError
 
 
+def _monitor_line(line, position):
+    return {'line_id': str(line['id']), 'line_type': line['line_type'],
+            'ccd_index': position.ccd_index, 'point_index': position.point, 'pixel_index': position.point,
+            'wavelength_nm': line.get('actual_wavelength_nm') or line['wavelength_nm'],
+            'search_radius_points': 64, 'search_window_source': 'monitoring_default'}
+
+
+def monitoring_spec(lines):
+    bindings = {kind: next((line for line in lines if line['line_type'] == kind), None)
+                for kind in ('baseline', 'positioning')}
+    return {'monitored': any(bindings.values()), **bindings}
+
+
+def fixed_monitoring(methods, connection, snapshot, layout_id, selected):
+    from ..spectral_lines import canonical_lines
+
+    conditions = snapshot.payload.get('conditions', {})
+    if not conditions.get('dispersion_calibration_id'):
+        return monitoring_spec([])
+    try:
+        locator = methods.bind_geometry(connection, conditions)
+    except MethodDomainError:
+        return monitoring_spec([])
+    if locator.layout_id != layout_id:
+        return monitoring_spec([])
+    lines = []
+    for line in canonical_lines(snapshot.payload.get('lines'), conditions):
+        if not line.get('enabled') or line['line_type'] not in {'baseline', 'positioning'}:
+            continue
+        wavelength = float(line.get('actual_wavelength_nm') or line['wavelength_nm'])
+        point = locator.locate(wavelength) if locator.calibrated(wavelength) else None
+        if point and point.within_margin and point.ccd_index in selected:
+            lines.append(_monitor_line(line, point))
+    return monitoring_spec(lines)
+
+
 def configured_angles(conditions):
     exposures = conditions.get('angle_exposures')
     if not isinstance(exposures, list) or not exposures:
@@ -72,9 +108,11 @@ def sample_plan(methods, connection, snapshot):
                 '谱线对应多个转角，关联不明确' if matches else '谱线没有有效的转角、CCD及标定关联',
                 details={'line_id': line['id'], 'wavelength_nm': line['wavelength_nm']})
         turn, detected = matches[0]
-        turn['lines'].append({'id': str(line['id']), 'element': line['element'],
+        turn['lines'].append({'id': str(line['id']), 'element': line['element'], 'line_type': line['line_type'],
             'wavelength_nm': line['wavelength_nm'], 'actual_wavelength_nm': line.get('actual_wavelength_nm') or line['wavelength_nm'],
             'ccd_index': detected.ccd_index, 'point_index': detected.point,
+            **(_monitor_line(line, detected) | {'wavelength_nm': line['wavelength_nm']}
+               if line['line_type'] in {'baseline', 'positioning'} else {}),
             'exposure_interval': exposure_interval(line, conditions)})
         if line.get('critical_band'):
             turn['key_band'] = True
@@ -85,6 +123,7 @@ def sample_plan(methods, connection, snapshot):
         turn['wavelength_nm'] = min((line['wavelength_nm'] for line in turn['lines']), default=None)
         if any(line['exposure_interval'] for line in turn['lines']):
             turn['storage_mode'] = 'full_interval'
+        turn['monitoring'] = monitoring_spec(turn['lines'])
     turns.sort(key=lambda turn: (not turn['key_band'], -turn['priority'] if turn['key_band'] else 0,
                                turn['wavelength_nm'] if turn['wavelength_nm'] is not None else math.inf, turn['angle_deg']))
     for index, turn in enumerate(turns):

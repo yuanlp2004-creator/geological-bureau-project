@@ -1,18 +1,13 @@
-"""Hardware Acquisition API boundary; business services retain their existing behavior."""
+"""Historical turn acquisition queries and confirmed sample conversion."""
 
 from __future__ import annotations
 from typing import Any
-from ..schemas.hardware_acquisition import HardwareAnalysisSample
 from fastapi import APIRouter, Depends, HTTPException, Query
-from ..schemas.hardware_acquisition import (
-    HardwareTaskCreate,
-    HardwareIntervention,
-)
 from ..auth import Session
-from ..modules.hardware_acquisition import HardwareError
+from ..modules.acquisition import AcquisitionError, LegacyHardwareService
 from ..runtime import Runtime
+from ..schemas.hardware_acquisition import HardwareAnalysisSample
 from .dependencies import get_runtime, require_permission
-from .deployment_access import require_activation
 
 router = APIRouter()
 
@@ -22,12 +17,12 @@ def save_hardware_analysis_sample(task_id: int, payload: HardwareAnalysisSample,
     session: Session = Depends(require_permission('hardware-acquisition.execute')),
     _: Session = Depends(require_permission('acquisition.write')), *, runtime: Runtime = Depends(get_runtime)) -> dict:
     try:
-        return runtime.hardware_acquisition_service().save_analysis_sample(task_id, payload.model_dump(), session.user_id)
-    except HardwareError as exc:
+        return LegacyHardwareService(runtime.database).save_analysis_sample(task_id, payload.model_dump(), session.user_id)
+    except AcquisitionError as exc:
         raise hardware_error(exc) from exc
 
 
-def hardware_error(exc: HardwareError) -> HTTPException:
+def hardware_error(exc: AcquisitionError) -> HTTPException:
     return HTTPException(status_code=exc.status_code, detail=exc.detail())
 
 
@@ -35,7 +30,7 @@ def hardware_error(exc: HardwareError) -> HTTPException:
 def hardware_acquisition_options(
     _: Session = Depends(require_permission("hardware-acquisition.read")), *, runtime: Runtime = Depends(get_runtime)
 ) -> dict[str, Any]:
-    return runtime.hardware_acquisition_service().options()
+    return LegacyHardwareService(runtime.database).options()
 
 
 @router.get("/api/v1/hardware-acquisitions/tasks", tags=["hardware-acquisition"])
@@ -45,20 +40,7 @@ def list_hardware_acquisition_tasks(
     *,
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
-    return runtime.hardware_acquisition_service().list_tasks(limit)
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks", status_code=201, tags=["hardware-acquisition"])
-def create_hardware_acquisition_task(
-    payload: HardwareTaskCreate,
-    session: Session = Depends(require_permission("hardware-acquisition.write")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().create_task(payload.model_dump(mode="json"), session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
+    return LegacyHardwareService(runtime.database).list_tasks(limit)
 
 
 @router.get("/api/v1/hardware-acquisitions/tasks/{task_id}", tags=["hardware-acquisition"])
@@ -70,89 +52,8 @@ def get_hardware_acquisition_task(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict[str, Any]:
     try:
-        return runtime.hardware_acquisition_service().get_task(task_id, include_points=include_points)
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/start", tags=["hardware-acquisition"])
-def start_hardware_acquisition_task(
-    task_id: int,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        service = runtime.hardware_acquisition_service()
-        require_activation(runtime, begins_new_work=lambda: service.get_task(task_id)["status"] == "draft")
-        return runtime.messages.task(service.start(task_id, session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/step", tags=["hardware-acquisition"])
-def step_hardware_acquisition_task(
-    task_id: int,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().step(task_id, session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/pause", tags=["hardware-acquisition"])
-def pause_hardware_acquisition_task(
-    task_id: int,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().pause(task_id, session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/resume", tags=["hardware-acquisition"])
-def resume_hardware_acquisition_task(
-    task_id: int,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().resume(task_id, session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/stop", tags=["hardware-acquisition"])
-def stop_hardware_acquisition_task(
-    task_id: int,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.messages.task(runtime.hardware_acquisition_service().stop(task_id, session.user_id), source='hardware', category='acquisition')
-    except HardwareError as exc:
-        raise hardware_error(exc) from exc
-
-
-@router.post("/api/v1/hardware-acquisitions/tasks/{task_id}/intervene", tags=["hardware-acquisition"])
-def intervene_hardware_acquisition_task(
-    task_id: int,
-    payload: HardwareIntervention,
-    session: Session = Depends(require_permission("hardware-acquisition.execute")),
-    *,
-    runtime: Runtime = Depends(get_runtime),
-) -> dict[str, Any]:
-    try:
-        return runtime.hardware_acquisition_service().intervene(task_id, payload.action, payload.note, session.user_id)
-    except HardwareError as exc:
+        return LegacyHardwareService(runtime.database).get_task(task_id, include_points=include_points)
+    except AcquisitionError as exc:
         raise hardware_error(exc) from exc
 
 
@@ -166,8 +67,8 @@ def hardware_acquisition_frames(
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
     try:
-        return runtime.hardware_acquisition_service().frames(task_id, step_id=step_id, include_points=include_points)
-    except HardwareError as exc:
+        return LegacyHardwareService(runtime.database).frames(task_id, step_id=step_id, include_points=include_points)
+    except AcquisitionError as exc:
         raise hardware_error(exc) from exc
 
 
@@ -179,8 +80,8 @@ def hardware_acquisition_traces(
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
     try:
-        return runtime.hardware_acquisition_service().traces(task_id)
-    except HardwareError as exc:
+        return LegacyHardwareService(runtime.database).traces(task_id)
+    except AcquisitionError as exc:
         raise hardware_error(exc) from exc
 
 
@@ -192,6 +93,6 @@ def hardware_acquisition_decisions(
     runtime: Runtime = Depends(get_runtime),
 ) -> list[dict[str, Any]]:
     try:
-        return runtime.hardware_acquisition_service().decisions(task_id)
-    except HardwareError as exc:
+        return LegacyHardwareService(runtime.database).decisions(task_id)
+    except AcquisitionError as exc:
         raise hardware_error(exc) from exc

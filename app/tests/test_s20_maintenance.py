@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 from pathlib import Path
 
+import pytest
+
 from backend.db import Database
-from backend.modules.maintenance import MaintenanceService
+from backend.modules.maintenance import MaintenanceError, MaintenanceService
 
 
-def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
+def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path, monkeypatch) -> None:
     database = Database(tmp_path / "data" / "geospectrum.sqlite3")
     database.initialize()
     with database.write() as connection:
@@ -23,6 +26,7 @@ def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
     assert backup["verification"]["integrity"] == "ok"
     assert service.verify_backup(backup["id"])["verification"]["integrity"] == "ok"
     assert service.restore_rehearsal(backup["id"])["status"] == "verified"
+    assert_routine_maintenance_reads(database, service, backup["id"], monkeypatch)
     assert service.reclaim()["snapshot"]["entity_counts"]["methods"] == 1
     topics = service.help_topics()
     assert len(topics) >= 18
@@ -51,6 +55,34 @@ def test_s20_backup_verify_restore_and_reclaim(tmp_path: Path) -> None:
     } <= covered_routes
 
 
+def assert_routine_maintenance_reads(database, service, backup_id, monkeypatch):
+    connect = database.connect
+
+    def connect_without_full_checks():
+        connection = connect()
+        connection.set_authorizer(
+            lambda action, name, *_: sqlite3.SQLITE_DENY
+            if action == sqlite3.SQLITE_PRAGMA and name in {"integrity_check", "foreign_key_check"}
+            else sqlite3.SQLITE_OK
+        )
+        return connection
+
+    with monkeypatch.context() as patch:
+        patch.setattr(database, "connect", connect_without_full_checks)
+        status = service.status()
+        assert status["database_path"] == str(database.path)
+        assert status["database_bytes"] > 0 and status["wal_bytes"] >= 0
+        assert status["integrity"] == "unchecked" and status["foreign_key_errors"] is None
+        assert {operation["operation"] for operation in status["operations"]} == {"backup", "restore_rehearsal"}
+        assert [backup["id"] for backup in status["backups"]] == [backup_id]
+
+        def unexpected_status():
+            raise AssertionError("listing backups must not load maintenance status")
+
+        patch.setattr(service, "status", unexpected_status)
+        assert service.list_backups() == status["backups"]
+
+
 def test_relative_backup_directory_is_independent_of_working_directory(tmp_path: Path, monkeypatch) -> None:
     database = Database(tmp_path / "user-data" / "geospectrum.sqlite3")
     database.initialize()
@@ -65,6 +97,31 @@ def test_relative_backup_directory_is_independent_of_working_directory(tmp_path:
     monkeypatch.chdir(tmp_path)
     assert service.verify_backup(backup["id"])["verification"]["integrity"] == "ok"
     assert service.restore_rehearsal(backup["id"])["status"] == "verified"
+
+
+def test_backup_hash_rejects_byte_change_even_with_valid_sqlite_content(tmp_path, monkeypatch):
+    database = Database(tmp_path / "geospectrum.sqlite3")
+    database.initialize()
+    service = MaintenanceService(database)
+    sha256 = service._sha256
+
+    def hash_backup(path):
+        assert path != database.path
+        return sha256(path)
+
+    monkeypatch.setattr(service, "_sha256", hash_backup)
+    backup = service.backup(str(tmp_path / "backups"))
+    assert service.list_backups()[0]["source_sha256"] == ""
+    path = Path(backup["backup_path"])
+    payload = bytearray(path.read_bytes())
+    payload[63] ^= 1  # SQLite user_version header byte, outside the logical checks.
+    path.write_bytes(payload)
+    assert service._verify_path(path)["integrity"] == "ok"
+    for operation in (service.verify_backup, service.restore_rehearsal):
+        with pytest.raises(MaintenanceError) as failure:
+            operation(backup["id"])
+        assert failure.value.code == "MAINTENANCE_BACKUP_VERIFY"
+        assert failure.value.details == {"expected_sha256": backup["backup_sha256"], "actual_sha256": sha256(path)}
 
 
 def test_s20_log_temp_cleanup_and_error_code_topics(tmp_path: Path) -> None:

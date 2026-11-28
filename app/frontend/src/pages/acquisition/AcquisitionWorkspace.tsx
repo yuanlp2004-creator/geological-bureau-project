@@ -1,8 +1,9 @@
-import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection, prepareCaptureHandoff } from './captureConnection'
+import { activeCaptureTask, captureActivity, checkCaptureShutdown, ensureCaptureConnection } from './captureConnection'
 import { groupedCaptureTasks, updateCaptureTask } from './CaptureTurnPages'
 import { RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { api, type AcquisitionOptions, type AcquisitionTask } from '../../api'
+import type { AcquisitionIntervention, AcquisitionMonitoringOptions } from '../../api/acquisition'
 import { reportInvalidNumericInput } from '../../components/NumericInput'
 import { PageFileActions } from '../../components/PageFileActions'
 import { EMPTY_POINTS, Props } from './acquisitionView'
@@ -351,7 +352,10 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       if (!inputTask.position_controlled)
         await ensureCaptureConnection(token, inputTask.device_profile_id, inputTask.profile.transport, 'acquisition', operation)
       if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
+      const monitoring = inputTask.monitoring
       const next = await api.createAcquisitionTask(token, { ...payload, task_kind: 'sample',
+        anomaly_policy: monitoring?.anomaly_policy, retry_limit: monitoring?.retry_limit,
+        thresholds: monitoring?.thresholds, search_radius_points: monitoring?.search_radius_points,
         name: inputTask.name, queue_id: inputQueue.id, queue_item_id: item.id,
         sample_name: item.post_name ?? item.pre_name, name_length: inputQueue.name_length,
         sample_kind: inputTask.sample_kind, repeat_count: item.repeats, management_sample: (item.post_name ?? item.pre_name).toUpperCase().startsWith('D'),
@@ -367,7 +371,8 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       if (generation === selectionGeneration.current) onToast(error instanceof Error ? error.message : '切换样号失败')
     } finally { controlPending.current = false; busyRef.current = false; setBusy(false) }
   }
-  const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop', turnIndex?: number, singleTurn = false) => {
+  const apply = async (action: 'start' | 'preheat' | 'pause' | 'resume' | 'stop', turnIndex?: number,
+    singleTurn = false, intervention?: AcquisitionIntervention) => {
     if (!selected) return
     if ((action === 'start' || action === 'preheat') && runningTask && !(action === 'start' && selected.turns?.awaiting_turn))
       return onToast('当前摄谱尚未结束，请先完成或停止摄谱')
@@ -407,8 +412,9 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
       }
 
       const continuous = !singleTurn && Boolean(target.turns?.multiple || target.capture_turn?.multiple)
-      const next = action === 'start' ? await api.startAcquisitionTask(token, target.id, turnIndex, singleTurn, continuous)
-        : await methods[action](token, target.id, turnIndex)
+      const next = intervention ? await api.interveneAcquisitionTask(token, target.id, intervention)
+        : action === 'start' ? await api.startAcquisitionTask(token, target.id, turnIndex, singleTurn, continuous)
+          : await methods[action](token, target.id, turnIndex)
       if (action === 'pause' || action === 'stop') checkCaptureShutdown(next)
 
       if (!hardwareLockStore.completeOperation(operation, { capture: captureActivity(next), portReleased: handoff })) return
@@ -440,9 +446,11 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
     setCreateError(null)
     setBusy(true)
     try {
-      await prepareCaptureHandoff(token, operation, 'acquisition', canReadMethods)
-      if (!hardwareLockStore.owns(operation)) { hardwareLockStore.completeOperation(operation); return }
-      const next = isSample ? await api.createSampleSession(token, taskName)
+      const fields = new FormData(event.currentTarget as HTMLFormElement)
+      const next = isSample ? await api.createSampleSession(token, taskName, {
+        anomaly_policy: fields.get('anomaly_policy') as AcquisitionMonitoringOptions['anomaly_policy'],
+        retry_limit: Number(fields.get('retry_limit')),
+      })
         : await api.createEvaporationSession(token, { name: taskName, pre_excitation_seconds: preExcitation,
           sampling_period_seconds: samplingPeriod, frame_count: burnCount, dark_frame_count: darkCount,
           save_conditions: saveExcitation })
@@ -590,6 +598,7 @@ export function AcquisitionWorkspace({ token, canWrite, canExecute, onToast, tas
             </>}
             selected={selected}
             apply={apply}
+            intervene={decision => apply(decision.action === 'stop' ? 'stop' : 'resume', undefined, false, decision)}
             busy={busy}
             canExecute={canExecute && (!runningTask || selected?.id === runningTask.id)}
             canStart={Boolean(!inputCleared && formalTask && formalTask.sample_kind !== 'preheat' &&

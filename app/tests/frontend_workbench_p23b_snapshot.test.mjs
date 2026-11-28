@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorkbenchStore, createWorkbenchVisit } from '../frontend/src/stores/workbenchStoreCore.ts'
+import { createWorkbenchStore, createWorkbenchVisit, permissionScopeKey } from '../frontend/src/stores/workbenchStoreCore.ts'
 import {
   availableId, methodEditorSection, restoreMethodsSelection, restoreAnalysisSelection, restorePostProcessingSelection
 } from '../frontend/src/stores/workbenchRestore.ts'
@@ -8,7 +8,7 @@ import {
   createNavigationGuard, methodFormIsDirty, lineFormIsDirty, recalculationIsDirty
 } from '../frontend/src/layout/navigationGuard.ts'
 
-const identity = { userId: 12, permissionsKey: 'read/write', methodVersionId: 11 }
+const identity = { userId: 12, permissionsKey: permissionScopeKey(['read', 'write']), methodVersionId: 11 }
 const method = { selectedMethodId: 2, editorSection: 'print', selectedLineId: 'Fe' }
 const analysis = {
   selectedRunId: 5, manager: 'setup', railCollapsed: true,
@@ -30,7 +30,7 @@ test('all three intents consume once by account, permission set, view and method
   for (const [view, snapshot] of Object.entries({ methods: method, analysis, postprocessing: processing })) {
     const scope = { ...identity, view }
     const scopes = [
-      scope, { ...scope, userId: 13 }, { ...scope, permissionsKey: 'read' }, { ...scope, methodVersionId: null }
+      scope, { ...scope, userId: 13 }, { ...scope, permissionsKey: permissionScopeKey(['read']) }, { ...scope, methodVersionId: null }
     ]
     for (const key of scopes) store.saveSnapshot(key, snapshot)
     for (const key of scopes) {
@@ -52,6 +52,7 @@ test('all three intents consume once by account, permission set, view and method
   editable.selectedSources.push('result:3')
   editable.selectedCurves.length = 0
   assert.deepEqual(store.peekSnapshot(scope), processing)
+  assert.throws(() => store.peekSnapshot(scope).selectedCurves.push(31), TypeError)
 })
 
 test('A → B → A accepts the current load and leaves the new intent alone when old replies arrive', async () => {

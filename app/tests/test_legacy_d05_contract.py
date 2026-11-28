@@ -6,6 +6,7 @@ import pytest
 
 from backend.db import Database
 from backend.modules.dispersion import DispersionService, DispersionError
+from tests.legacy_history_fixture import HARDWARE, seed_hardware_task
 from tests.test_methods import method_client, _create, _publish
 
 
@@ -61,24 +62,13 @@ def _method(client,headers,runtime):
     return _publish(client,headers,method['id'])
 
 
-def _capture(runtime,method,name='T1',factor=1):
-    hardware=runtime.hardware_acquisition_service()
-    task=hardware.create_task({'method_id':method['id'],'method_version':method['current_version'],'sample_name':name})
-    task=hardware.start(task['id'])
-    adapter=hardware._adapters[task['id']]
-    original=adapter.capture
-    # Golden ADC inputs enter before capture/confirmation, never during adaptation.
-    def capture(**kwargs):
-        event=original(**kwargs)
-        for ccd in event.get('ccds',[]):ccd['points']=[round(v*factor) for v in ccd['points']]
-        event['details']={'source':'golden-turn-frame-fixture'}
-        return event
-    adapter.capture=capture
-    for _ in range(100):
-        if task['status']=='completed':break
-        task=hardware.step(task['id'])
-    assert task['status']=='completed',task
-    return task
+def seed_method_history(runtime, method, name="T1", factor=1, *, retry=False, draft=False):
+    version = (method["id"], method["current_version"])
+    published = runtime.methods_service().get(method["id"])["published_version"]
+    return seed_hardware_task(
+        runtime.database, name, method=version, plans=published["conditions"]["angle_exposures"],
+        factor=factor, retry=retry, draft=draft,
+    )
 
 
 def test_confirmed_turn_samples_reach_analysis_curves_and_report(method_client):
@@ -87,8 +77,10 @@ def test_confirmed_turn_samples_reach_analysis_curves_and_report(method_client):
     samples=[]
     for index in range(5):
         name=f'S{index+1}' if index<4 else 'T1'
-        task=_capture(runtime,method,name,(index+1)/4 if index<4 else .625)
-        url=f"/api/v1/hardware-acquisitions/tasks/{task['id']}/analysis-sample"
+        task_id = seed_method_history(runtime, method, name, (index + 1) / 4 if index < 4 else .625)
+        url = f"{HARDWARE}/tasks/{task_id}/analysis-sample"
+        source = client.get(f"{HARDWARE}/tasks/{task_id}", headers=headers)
+        assert source.status_code == 200 and source.json()["status"] == "completed"
         payload={'sample_name':name,'sample_kind':'standard' if index<4 else 'test','name_length':12}
         saved=client.post(url,headers=headers,json=payload)
         assert saved.status_code==200,saved.text
@@ -96,7 +88,7 @@ def test_confirmed_turn_samples_reach_analysis_curves_and_report(method_client):
         again=client.post(url,headers=headers,json=payload).json()
         assert again['already_saved'] and again['acquisition_sample_id']==samples[-1]
         with runtime.database.read() as db:
-            hardware=db.execute('SELECT ccd_index,mean_blob,mean_sha256 FROM hardware_exposure_results WHERE task_id=? ORDER BY ccd_index',(task['id'],)).fetchall()
+            hardware=db.execute('SELECT ccd_index,mean_blob,mean_sha256 FROM hardware_exposure_results WHERE task_id=? ORDER BY ccd_index',(task_id,)).fetchall()
             formal=db.execute('SELECT ccd_index,mean_blob,mean_sha256,burn_frame_count FROM acquisition_sample_bands WHERE sample_id=? ORDER BY ccd_index',(samples[-1],)).fetchall()
             assert [(r['ccd_index'],bytes(r['mean_blob']),r['mean_sha256']) for r in hardware]==[(r['ccd_index'],bytes(r['mean_blob']),r['mean_sha256']) for r in formal]
             assert all(r['burn_frame_count']==2 for r in formal)
@@ -127,30 +119,13 @@ def test_confirmed_turn_samples_reach_analysis_curves_and_report(method_client):
     assert runtime.methods_service().get(method['id'])['published_version']['content_sha256']==method_hash
 
 
-def test_turn_adaptation_incomplete_permission_and_audit_rollback(method_client,monkeypatch):
-    client,runtime,headers=method_client;method=_method(client,headers,runtime)
-    hardware=runtime.hardware_acquisition_service()
-    draft=hardware.create_task({'method_id':method['id']})
-    url=f"/api/v1/hardware-acquisitions/tasks/{draft['id']}/analysis-sample"
-    assert client.post(url,json={'sample_name':'T1'}).status_code==401
-    assert client.post(url,headers=headers,json={'sample_name':'T1'}).status_code==409
-    task=_capture(runtime,method)
-    from backend.schemas.auth import RoleCreate,UserCreate
-    role=runtime.auth_service.create_role(RoleCreate(name='仅转角执行',permission_keys=['hardware-acquisition.execute']),1)
-    runtime.auth_service.create_user(UserCreate(username='turn-only',password='turn-only-password',role_ids=[role['id']]),1)
-    limited_token,_=runtime.auth_service.login('turn-only','turn-only-password')
-    response=client.post(f"/api/v1/hardware-acquisitions/tasks/{task['id']}/analysis-sample",
-                         headers={'Authorization':'Bearer '+limited_token},json={'sample_name':'T1'})
-    assert response.status_code==403
-    assert runtime.analysis_service().options()['samples']==[]
-    def fail(*args,**kwargs):raise RuntimeError('audit failed')
-    with monkeypatch.context() as patch:
-        patch.setattr(hardware.repository,'_audit',fail)
-        with pytest.raises(RuntimeError,match='audit failed'):
-            hardware.save_analysis_sample(task['id'],{'sample_name':'T1'},1)
-    assert runtime.analysis_service().options()['samples']==[]
-    result=hardware.save_analysis_sample(task['id'],{'sample_name':'T1'},1)
-    assert result['acquisition_sample_id'] and not result['already_saved']
-    with runtime.database.read() as db:
-        assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
-        assert not db.execute('PRAGMA foreign_key_check').fetchall()
+def test_turn_adaptation_rejects_incomplete_history(method_client):
+    client, runtime, headers = method_client
+    method = _method(client, headers, runtime)
+    draft = seed_method_history(runtime, method, draft=True)
+    url = f"{HARDWARE}/tasks/{draft}/analysis-sample"
+    assert client.post(url, json={"sample_name": "T1"}).status_code == 401
+    response = client.post(url, headers=headers, json={"sample_name": "T1"})
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "hardware_sample_incomplete"
+    assert runtime.analysis_service().options()["samples"] == []

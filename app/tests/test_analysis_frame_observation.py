@@ -73,6 +73,16 @@ def test_committed_burn_frames_stay_observable_until_full_exposure_and_dark_are_
     assert any(row['diagnostic_code'] == 'analysis_frame_peak_missing' for row in second.json()['rows'])
     assert frame(0).json()['points'] == first.json()['points']
 
+    resolve_attempt = runtime.acquisition_service()._resolve_attempt
+
+    def observe_before_acceptance(*args, **kwargs):
+        assert runtime.acquisition_service().frames(task_id) == []
+        row = copper(frame(1))
+        assert row['code'] is None
+        assert row['concentration'] == pytest.approx(37.4)
+        return resolve_attempt(*args, **kwargs)
+
+    monkeypatch.setattr(runtime.acquisition_service(), '_resolve_attempt', observe_before_acceptance)
     final = step_to(2, 1)
     assert final['status'] == 'completed'
     row = copper(frame(1))

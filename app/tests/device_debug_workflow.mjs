@@ -11,12 +11,13 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   const panel = () => page.locator('.device-debug-panel:visible')
   const caps = await call(page, '/api/v1/capabilities')
   const entries = caps.capabilities.flatMap(item => item.navigation_entries)
-  assert.equal(entries.length, 26)
+  assert.equal(caps.capabilities.length, 16)
+  assert.equal(entries.length, 23)
   assert.equal(entries.filter(entry => entry.key === 'tools.devices').length, 1)
   assert.equal(entries.some(entry => entry.key === 'tools.mercury'), false)
   const formalWrites = []
   const observe = request => {
-    if (request.method() !== 'GET' && /\/api\/v1\/(acquisitions|hardware-acquisition|sample-queues)/.test(request.url())) formalWrites.push(request.url())
+    if (request.method() !== 'GET' && /\/api\/v1\/(acquisitions|hardware-acquisitions|sample-queues)\//.test(request.url())) formalWrites.push(request.url())
   }
   page.on('request', observe)
   await open()
@@ -280,10 +281,12 @@ export async function checkDeviceDebug(page, fixture, result, output) {
   await page.getByLabel('用户名',{exact:true}).fill('mercury_observer')
   await page.getByLabel('密码',{exact:true}).fill('Observer-QA-2026!')
   await page.getByRole('button',{name:'登录',exact:true}).click()
+  await page.waitForFunction(() => !!sessionStorage.getItem('geospectrum.token'))
   assert.equal(await page.getByRole('menuitem',{name:'设备调试',exact:true}).count(),0)
   const limited = await call(page,'/api/v1/capabilities')
   const legacyPermissions = ['runtime-events.read','mercury-calibration.read']
   const deviceEntry = limited.capabilities.flatMap(item=>item.navigation_entries).find(entry=>entry.key==='tools.devices')
   assert.equal(deviceEntry.required_any.some(permission=>legacyPermissions.includes(permission)),false)
+  assert.ok(Array.isArray(await call(page, '/api/v1/mercury-calibrations/sessions')))
   check('Legacy Mercury-only permission no longer exposes an empty device-debug entry')
 }

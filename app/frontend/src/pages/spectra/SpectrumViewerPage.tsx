@@ -43,7 +43,7 @@ const defaultMode = (record: SpectrumRecordSummary): SpectrumViewerSnapshot['mod
 
 export function SpectrumViewerPage(props: ViewerProps) {
   const scopeKey = props.userId === undefined ? null : buildWorkbenchScopeKey({
-    userId: props.userId, permissionsHash: props.permissionsKey ?? '',
+    userId: props.userId, permissionsKey: props.permissionsKey ?? '',
     page: props.viewing ?? 'spectra', methodVersionId: props.currentMethodVersionId
   })
   return <SpectrumViewer key={JSON.stringify([scopeKey, props.initialFileGroup, props.initialRecordId])} {...props} scopeKey={scopeKey} />

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from graphlib import CycleError, TopologicalSorter
 
 
 @dataclass(frozen=True)
@@ -399,13 +400,16 @@ SPECTRUM_VIEWER_MANIFEST = ModuleManifest(
 DEVICE_MANIFEST = ModuleManifest(
     key="devices",
     diagnostic_path='/api/v1/devices/profiles',
-    diagnostic_tables=('device_profiles', 'device_runtime_state', 'device_bluetooth_hidden'),
+    diagnostic_tables=(
+        'device_profiles', 'device_runtime_state', 'device_bluetooth_hidden',
+        'mercury_sessions', 'mercury_frames', 'mercury_alignment_versions',
+    ),
     diagnostic_note='只检测设备管理软件；设备连接和通信需另行验证。',
     version="0.1.0",
     title="设备与实时调试",
     api_prefix="/api/v1",
     route="/acquisition",
-    permissions=("devices.read", "devices.write", "devices.execute"),
+    permissions=("devices.read", "devices.write", "devices.execute", "mercury-calibration.read"),
     audit_actions=(
         "device_profile.create",
         "device.profile.select",
@@ -525,12 +529,18 @@ DISPERSION_MANIFEST = ModuleManifest(
 ACQUISITION_MANIFEST = ModuleManifest(
     key="acquisition",
     diagnostic_path='/api/v1/acquisitions/tasks?limit=1',
-    diagnostic_tables=('acquisition_tasks', 'acquisition_samples', 'acquisition_frames'),
+    diagnostic_tables=(
+        'acquisition_tasks', 'acquisition_samples', 'acquisition_frames',
+        'hardware_tasks', 'hardware_plan_steps', 'hardware_frames',
+    ),
     version="0.1.0",
     title="摄谱采集",
     api_prefix="/api/v1",
     route="/sample-acquisition",
-    permissions=("acquisition.read", "acquisition.write", "acquisition.execute"),
+    permissions=(
+        "acquisition.read", "acquisition.write", "acquisition.execute",
+        "hardware-acquisition.read", "hardware-acquisition.execute",
+    ),
     audit_actions=(
         "acquisition.task.create",
         "acquisition.task.discard",
@@ -546,6 +556,14 @@ ACQUISITION_MANIFEST = ModuleManifest(
         "acquisition.sample.rename",
         "acquisition.sample.discard",
         "acquisition.turn.position",
+        "acquisition.anomaly.detected",
+        "acquisition.decision.correct",
+        "acquisition.decision.retry",
+        "acquisition.decision.manual",
+        "acquisition.decision.accept",
+        "acquisition.decision.stop",
+        "acquisition.task.safety_stop",
+        "hardware.sample.save",
     ),
     dependencies=("core", "auth", "methods", "sample-queues", "devices"),
     capabilities=(
@@ -559,6 +577,8 @@ ACQUISITION_MANIFEST = ModuleManifest(
         "realtime-measurements",
         "sample-discard",
         "method-owned-sample-turns",
+        "arc-peak-monitoring",
+        "confirmed-turn-analysis-sample",
     ),
     navigation_entries=(
         nav(
@@ -589,85 +609,6 @@ ACQUISITION_MANIFEST = ModuleManifest(
             ("acquisition.read",),
         ),
     ),
-)
-
-HARDWARE_ACQUISITION_MANIFEST = ModuleManifest(
-    key="hardware-acquisition",
-    diagnostic_path='/api/v1/hardware-acquisitions/tasks?limit=1',
-    diagnostic_tables=('hardware_tasks', 'hardware_plan_steps', 'hardware_frames'),
-    diagnostic_note='只检测软件接口；真实转角协议与硬件仍待验收。',
-    version="0.1.0",
-    title="真实设备与自动转角",
-    api_prefix="/api/v1",
-    route="/hardware-acquisition",
-    permissions=("hardware-acquisition.read", "hardware-acquisition.write", "hardware-acquisition.execute"),
-    audit_actions=(
-        "hardware.task.create",
-        "hardware.task.start",
-        "hardware.task.deferred",
-        "hardware.turn.request",
-        "hardware.turn.response",
-        "hardware.frame.capture",
-        "hardware.anomaly.detected",
-        "hardware.decision.retry",
-        "hardware.decision.correct",
-        "hardware.decision.manual",
-        "hardware.decision.accept",
-        "hardware.task.pause",
-        "hardware.task.resume",
-        "hardware.task.stop",
-        "hardware.task.safety_stop",
-        "hardware.task.completed",
-        "hardware.sample.save",
-    ),
-    dependencies=("core", "auth", "methods", "devices", "acquisition"),
-    capabilities=(
-        "turn-plan-short-to-long",
-        "key-band-priority",
-        "hardware-trace",
-        "arc-baseline-anomaly",
-        "finite-retry",
-        "manual-takeover",
-        "safe-stop",
-        "serial-protocol-gate",
-        "confirmed-turn-analysis-sample",
-    ),
-    navigation_entries=(),
-)
-
-MERCURY_CALIBRATION_MANIFEST = ModuleManifest(
-    key="mercury-calibration",
-    diagnostic_path='/api/v1/mercury-calibrations/sessions?limit=1',
-    diagnostic_tables=('mercury_sessions', 'mercury_frames', 'mercury_alignment_versions'),
-    diagnostic_note='只检测软件接口；汞灯与光学系统仍需实机验证。',
-    version="0.1.0",
-    title="汞灯调试与光学校准",
-    api_prefix="/api/v1",
-    route="/mercury-calibration",
-    permissions=("mercury-calibration.read", "mercury-calibration.write", "mercury-calibration.execute"),
-    audit_actions=(
-        "mercury.session.create",
-        "mercury.session.start",
-        "mercury.session.deferred",
-        "mercury.frame.capture",
-        "mercury.calibration.suggest",
-        "mercury.calibration.apply",
-        "mercury.calibration.rollback",
-        "mercury.session.stop",
-        "mercury.session.safe_off",
-    ),
-    dependencies=("core", "auth", "devices", "dispersion"),
-    capabilities=(
-        "curated-mercury-lines",
-        "synthetic-spectrum",
-        "peak-offset",
-        "optical-correction-suggestion",
-        "immutable-alignment-version",
-        "rollback",
-        "safe-off",
-        "serial-protocol-gate",
-    ),
-    navigation_entries=(),
 )
 
 ANALYSIS_MANIFEST = ModuleManifest(
@@ -900,32 +841,28 @@ MAINTENANCE_MANIFEST = ModuleManifest(
 )
 
 
-def registered_manifests() -> tuple[ModuleManifest, ...]:
-    # 测试扩展使用相同契约接入，但 ``extensions.py`` 会按构建类型限制发现，
-    # 从而保证生产包中的模块集合保持静态。
-    core_manifests = (
-        CORE_MANIFEST,
-        ABOUT_MANIFEST,
-        AUTH_MANIFEST,
-        METHOD_MANIFEST,
-        LEGACY_MIGRATION_MANIFEST,
-        SAMPLE_QUEUE_MANIFEST,
-        SPECTRUM_MIGRATION_MANIFEST,
-        RESULT_MIGRATION_MANIFEST,
-        SPECTRUM_VIEWER_MANIFEST,
-        DEVICE_MANIFEST,
-        DISPERSION_MANIFEST,
-        ACQUISITION_MANIFEST,
-        HARDWARE_ACQUISITION_MANIFEST,
-        MERCURY_CALIBRATION_MANIFEST,
-        ANALYSIS_MANIFEST,
-        POSTPROCESSING_MANIFEST,
-        REPORTS_MANIFEST,
-        MAINTENANCE_MANIFEST,
-    )
-    from .extensions import discover_test_extensions
+_MANIFESTS = (
+    CORE_MANIFEST,
+    ABOUT_MANIFEST,
+    AUTH_MANIFEST,
+    METHOD_MANIFEST,
+    LEGACY_MIGRATION_MANIFEST,
+    SAMPLE_QUEUE_MANIFEST,
+    SPECTRUM_MIGRATION_MANIFEST,
+    RESULT_MIGRATION_MANIFEST,
+    SPECTRUM_VIEWER_MANIFEST,
+    DEVICE_MANIFEST,
+    DISPERSION_MANIFEST,
+    ACQUISITION_MANIFEST,
+    ANALYSIS_MANIFEST,
+    POSTPROCESSING_MANIFEST,
+    REPORTS_MANIFEST,
+    MAINTENANCE_MANIFEST,
+)
 
-    return core_manifests + tuple(extension.module_manifest() for extension in discover_test_extensions())
+
+def registered_manifests() -> tuple[ModuleManifest, ...]:
+    return _MANIFESTS
 
 
 def validate_manifests(manifests: tuple[ModuleManifest, ...] | list[ModuleManifest]) -> None:
@@ -938,14 +875,7 @@ def validate_manifests(manifests: tuple[ModuleManifest, ...] | list[ModuleManife
     declared_permissions = {permission for manifest in manifests for permission in manifest.permissions}
     allowed_groups = {"workspace", "methods", "analysis-tests", "data", "tools", "system", "help"}
     allowed_contexts = {"none", "current_method", "current_method_exp_seg", "page_scoped"}
-    allowed_statuses = {"normal", "deferred_external", "test_only"}
-    allowed_views = {
-        "acquisition": {"connection", "software", "device", "alignment"},
-        "dispersion": {"curve"},
-        "methods": {"lifecycle", "conditions", "lines", "print-settings", "print-preview"},
-        "analysis": {"raw", "quality", "curve", "standards", "samples"},
-        "postprocessing": {"recalculate"},
-    }
+    allowed_statuses = {"normal", "deferred_external"}
     for manifest in manifests:
         if manifest.diagnostic_path is not None:
             if not manifest.diagnostic_path.startswith(("/api/v1/", "/health", "/about")) or manifest.diagnostic_path.startswith("/api/v1/diagnostics"):
@@ -974,9 +904,11 @@ def validate_manifests(manifests: tuple[ModuleManifest, ...] | list[ModuleManife
                 raise ValueError(f"invalid navigation status: {entry.status}")
             if not entry.required_any or set(entry.required_any).difference(declared_permissions):
                 raise ValueError(f"invalid navigation permission for {entry.key}")
-            if entry.view is not None and entry.view not in allowed_views.get(entry.page, set()):
-                raise ValueError(f"invalid navigation view for {entry.key}: {entry.view}")
     for manifest in manifests:
         missing = set(manifest.dependencies).difference(keys)
         if missing:
             raise ValueError(f"{manifest.key} depends on unregistered module(s): {sorted(missing)}")
+    try:
+        TopologicalSorter({manifest.key: manifest.dependencies for manifest in manifests}).prepare()
+    except CycleError as exc:
+        raise ValueError("module dependency cycle: " + " -> ".join(exc.args[1])) from exc

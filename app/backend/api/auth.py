@@ -69,6 +69,7 @@ def logout(
     token = authorization.removeprefix("Bearer ").strip() if authorization else None
     if token:
         runtime.auth_service.logout(token)
+        runtime.support_diagnostics.active_session()
     return Response(status_code=204)
 
 
@@ -104,9 +105,11 @@ def update_user(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict:
     try:
-        return runtime.auth_service.update_user(user_id, payload, session.user_id)
+        user = runtime.auth_service.update_user(user_id, payload, session.user_id)
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    runtime.support_diagnostics.active_session()
+    return user
 
 
 @router.get("/api/v1/roles", tags=["auth"])
@@ -141,9 +144,11 @@ def update_role(
     runtime: Runtime = Depends(get_runtime),
 ) -> dict:
     try:
-        return runtime.auth_service.update_role(role_id, payload, session.user_id)
+        role = runtime.auth_service.update_role(role_id, payload, session.user_id)
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    runtime.support_diagnostics.active_session()
+    return role
 
 
 @router.get("/api/v1/audit", tags=["auth"])

@@ -133,7 +133,12 @@ class ExportService:
             kind_name, value = self.repository._split(identifier)
             if kind_name == "raw":
                 row = self.repository._raw(identifier, db)
-                frames, count, ccd_count, points = self.repository._raw_frames(row, "burn")
+                digest = row["burn_sha256"]
+                if (digest and _sha(row["burn_adcs_blob"] or b"") != digest) or any(
+                    item.get("phase") == "burn" for item in json.loads(row["bad_frame_indices_json"] or "[]")
+                ):
+                    raise PostProcessingError("postprocessing_frame_integrity_failed", "原始帧损坏或 SHA-256 校验失败", status_code=409)
+                frames, _, ccd_count, points = self.repository._raw_frames(row, "burn")
                 if kind == "processed_intensity":
                     for ccd in range(ccd_count):
                         values = [[frame[ccd][point] for frame in frames] for point in range(points)]
@@ -175,15 +180,21 @@ class ExportService:
                 if sample is None:
                     raise PostProcessingError("postprocessing_sample_not_found", "转换样品不存在", status_code=404)
                 if kind == "raw_intensity":
-                    from ..acquisition import AcquisitionService
+                    from ..acquisition import AcquisitionError, AcquisitionService
 
-                    snapshot = AcquisitionService(self.database).spectrum_snapshot(int(value), include_frames=True)
+                    try:
+                        snapshot = AcquisitionService(self.database).spectrum_snapshot(int(value), include_frames=True)
+                    except AcquisitionError as exc:
+                        raise PostProcessingError(exc.code, exc.message, status_code=409) from exc
                     frames = [frame for frame in snapshot["frames"] if frame.get("points") and frame["phase"] == "burn"]
                     if not frames:
                         raise PostProcessingError(
                             "postprocessing_raw_frames_unavailable", "该样品未保存原始帧，请选择处理后强度导出"
                         )
+                    shape = {(band.get("turn_index"), band["ccd_index"]): band["points_count"] for band in snapshot["bands"]}
                     for frame in frames:
+                        if frame["damaged"] or len(frame["points"]) != shape.get((frame.get("turn_index"), frame["ccd_index"])):
+                            raise PostProcessingError("postprocessing_frame_integrity_failed", "原始帧损坏或与 CCD 布局不一致", status_code=409)
                         for point, actual in enumerate(frame["points"]):
                             rows.append(
                                 [
@@ -198,13 +209,14 @@ class ExportService:
                             )
                     continue
                 bands = db.execute(
-                    "SELECT ccd_index, points_count, mean_blob FROM acquisition_sample_bands WHERE sample_id=? ORDER BY ccd_index",
+                    "SELECT ccd_index, points_count, mean_blob, mean_sha256 FROM acquisition_sample_bands WHERE sample_id=? ORDER BY ccd_index",
                     (int(value),),
                 ).fetchall()
                 for band in bands:
-                    for point, value_at_point in enumerate(
-                        struct.unpack(f"<{int(band['points_count'])}f", bytes(band["mean_blob"]))
-                    ):
+                    mean = band["mean_blob"]
+                    if len(mean) != band["points_count"] * 4 or _sha(mean) != band["mean_sha256"]:
+                        raise PostProcessingError("postprocessing_mean_integrity_failed", "谱带形状或 SHA-256 校验失败", status_code=409)
+                    for point, value_at_point in enumerate(struct.unpack(f"<{band['points_count']}f", mean)):
                         rows.append(
                             [
                                 identifier,
@@ -281,33 +293,32 @@ class ExportService:
         directory = Path(output_directory).expanduser()
         requested_name = str(payload.get("filename") or f"s18-{kind}")
         strategy = str(payload.get("same_name_strategy") or "suffix")
-        fingerprint = _sha(
-            {
-                "record_ids": record_ids,
-                "kind": kind,
-                "format": fmt,
-                "output_directory": str(directory),
-                "filename": requested_name,
-                "same_name_strategy": strategy,
-            }
-        )
+        export_id = f"s18-export-{uuid.uuid4().hex}"
+        request_key = payload.get("idempotency_key")
+        parameters = (_json(record_ids), kind, fmt, str(directory), requested_name, strategy)
+        fingerprint = _sha(["postprocessing.export", actor_user_id, request_key] if request_key else [export_id])
         with self.database.write() as db:
-            existing = db.execute(
-                "SELECT * FROM postprocessing_exports WHERE input_sha256=?", (fingerprint,)
-            ).fetchone()
-            if (
-                existing is not None
-                and existing["status"] == "completed"
-                and existing["actual_path"]
-                and Path(existing["actual_path"]).exists()
-            ):
-                return self.repository._export_dict(existing)
+            # Reserve the SQLite writer before checking the key or publishing the file.
+            db.execute("BEGIN IMMEDIATE")
+            if request_key:
+                existing = db.execute(
+                    "SELECT * FROM postprocessing_exports WHERE input_sha256=?", (fingerprint,)
+                ).fetchone()
+                if existing is not None:
+                    saved = tuple(existing[field] for field in (
+                        "source_record_ids_json", "kind", "format", "output_directory", "requested_name", "same_name_strategy"
+                    ))
+                    if saved != parameters:
+                        raise PostProcessingError(
+                            "postprocessing_export_key_conflict", "该导出请求键已用于其他参数", status_code=409
+                        )
+                    return self.repository._export_dict(existing)
             header, data = self._rows_for_export(record_ids, kind, db)
             if not data:
                 raise PostProcessingError("postprocessing_export_empty", "所选来源没有可导出的数值")
             content, media_type, extension = self._encode([header, *data], fmt)
+            content_hash = _sha(content)
             target = self._atomic_write(directory, requested_name, content, extension, strategy)
-            export_id = f"s18-export-{uuid.uuid4().hex}"
             report = {
                 "row_count": len(data),
                 "column_count": len(header),
@@ -325,14 +336,10 @@ class ExportService:
                 (
                     export_id,
                     fingerprint,
-                    _json(record_ids),
-                    kind,
-                    fmt,
-                    str(directory),
-                    requested_name,
+                    *parameters[:-1],
                     str(target),
                     strategy,
-                    _sha(content),
+                    content_hash,
                     len(content),
                     _json(report),
                     actor_user_id,
@@ -347,7 +354,7 @@ class ExportService:
                 ),
                 (
                     actor_user_id,
-                    _json(report | {"export_id": export_id, "path": str(target), "sha256": _sha(content)}),
+                    _json(report | {"export_id": export_id, "path": str(target), "sha256": content_hash}),
                     utc_now(),
                 ),
             )
@@ -356,7 +363,7 @@ class ExportService:
                 "status": "completed",
                 "input_sha256": fingerprint,
                 "path": str(target),
-                "content_sha256": _sha(content),
+                "content_sha256": content_hash,
                 "byte_length": len(content),
                 "report": report,
             }

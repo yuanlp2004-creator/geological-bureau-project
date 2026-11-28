@@ -29,18 +29,6 @@ export async function checkEmbeddedSpectra(page, output, checks) {
   for (let i = 0; i < 50 && sample.status !== 'completed'; i++)
     sample = await call(page, `/api/v1/acquisitions/tasks/${sample.id}/step`, {})
   assert.equal(sample.status, 'completed')
-  const mo = await call(page, '/api/v1/mercury-calibrations/options')
-  let mercury = await call(page, '/api/v1/mercury-calibrations/sessions', { name: '谱图检查汞灯',
-    line_ids: mo.reference_lines.filter((line) => line.enabled).slice(0, 3).map((line) => line.id) })
-  mercury = await call(page, `/api/v1/mercury-calibrations/sessions/${mercury.id}/start`, {})
-  for (let i = 0; i < 16 && !['ready', 'safe_off', 'deferred_external'].includes(mercury.status); i++)
-    mercury = await call(page, `/api/v1/mercury-calibrations/sessions/${mercury.id}/step`, {})
-  assert.equal(mercury.status, 'ready')
-  let hardware = await call(page, '/api/v1/hardware-acquisitions/tasks', { name: '谱图检查转角', method_id: method.id })
-  hardware = await call(page, `/api/v1/hardware-acquisitions/tasks/${hardware.id}/start`, {})
-  for (let i = 0; i < 100 && !['completed', 'failed', 'safety_stopped', 'manual_intervention'].includes(hardware.status); i++)
-    hardware = await call(page, `/api/v1/hardware-acquisitions/tasks/${hardware.id}/step`, {})
-  assert.equal(hardware.status, 'completed')
   const caps = await call(page, '/api/v1/capabilities')
   const entries = caps.capabilities.flatMap((capability) => capability.navigation_entries ?? [])
   const go = async (name) => {
@@ -95,7 +83,7 @@ export async function checkEmbeddedSpectra(page, output, checks) {
       await call(page, '/api/v1/settings', { display: { theme, density } }, 'PATCH')
       await page.reload(); await page.locator('.sidebar').waitFor()
       await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, theme)
-      for (const name of ['dispersion', 'sample-acquisition', 'mercury-calibration', 'hardware-acquisition']) {
+      for (const name of ['dispersion', 'sample-acquisition']) {
         await go(name)
         if (name === 'dispersion') await page.locator('.dispersion-task-list button').filter({ hasText: dispersion.name }).click()
         const scope = page.locator('.spectrum-inspector:visible').first()
@@ -103,11 +91,6 @@ export async function checkEmbeddedSpectra(page, output, checks) {
         let points, origin = 1
         if (name === 'dispersion') { origin = 0; points = dispersion.last_event.ccds[0].points }
         if (name === 'sample-acquisition') points = (await call(page, `/api/v1/acquisitions/tasks/${sample.id}?include_points=true`)).last_event.ccds[0].points
-        if (name === 'mercury-calibration') points = mercury.last_event.ccds[0].points
-        if (name === 'hardware-acquisition') {
-          const frames = await call(page, `/api/v1/hardware-acquisitions/tasks/${hardware.id}/frames?include_points=true`)
-          points = frames[frames.length - 1].points
-        }
         await exercise(scope, points, origin)
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name} overflow`)
         await scope.screenshot({ path: path.join(output, `${name}-${theme}-${width}.png`) })

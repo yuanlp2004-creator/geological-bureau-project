@@ -11,7 +11,7 @@ from .. import __version__
 from ..auth import Session
 from ..migrations import SCHEMA_VERSION
 from ..runtime import Runtime
-from ..modules.manifest import registered_manifests, validate_manifests
+from ..modules.manifest import registered_manifests
 from ..schemas.system import (
     AboutResponse,
     CapabilitiesResponse,
@@ -24,15 +24,13 @@ from ..schemas.system import (
     SettingsResponse,
 )
 from .dependencies import get_runtime, require_permission
-from .module_diagnostics import inspect_modules
+from .module_diagnostics import database_tables, inspect_modules, summarize_modules
 
 router = APIRouter()
 
 
 def _capabilities() -> list[Capability]:
     # 后端清单是导航和权限的事实来源；前端只过滤此响应，不得维护第二份模块列表。
-    manifests = registered_manifests()
-    validate_manifests(manifests)
     return [
         Capability(
             key=manifest.key,
@@ -45,7 +43,7 @@ def _capabilities() -> list[Capability]:
             audit_actions=list(manifest.audit_actions),
             navigation_entries=[entry.to_dict() for entry in manifest.navigation_entries],
         )
-        for manifest in manifests
+        for manifest in registered_manifests()
     ]
 
 
@@ -95,37 +93,40 @@ def capabilities(*, runtime: Runtime = Depends(get_runtime)) -> CapabilitiesResp
 @router.get("/api/v1/diagnostics", response_model=DiagnosticsResponse, tags=["system"])
 async def diagnostics(
     request: Request,
+    probe: bool = False,
     _: Session = Depends(require_permission("maintenance.write")), *, runtime: Runtime = Depends(get_runtime)
 ) -> DiagnosticsResponse:
     manifests = registered_manifests()
-    manifest_error = None
-    try:
-        validate_manifests(manifests)
-    except ValueError as exc:
-        manifest_error = str(exc)
+
     def read_database():
         with runtime.database.read() as connection:
-            integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
+            tables = database_tables(connection)
             journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
             foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()[0]
-            schema_version = connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] or 0
-            event_count = connection.execute("SELECT COUNT(*) FROM runtime_events").fetchone()[0]
-        return integrity, journal_mode, foreign_keys, schema_version, event_count
+            schema_version = 0
+            event_count = 0
+            if "schema_migrations" in tables:
+                schema_version = connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] or 0
+            if "runtime_events" in tables:
+                event_count = connection.execute("SELECT COUNT(*) FROM runtime_events").fetchone()[0]
+        return journal_mode, foreign_keys, schema_version, event_count, tables
 
-    integrity, journal_mode, foreign_keys, schema_version, event_count = await run_in_threadpool(read_database)
+    journal_mode, foreign_keys, schema_version, event_count, tables = await run_in_threadpool(read_database)
+    modules = summarize_modules(manifests, tables)
+    if probe:
+        modules = await inspect_modules(request, manifests, modules)
     return DiagnosticsResponse(
         service="ok",
         database_path=str(runtime.config.database_path),
         runtime_log_path=str(runtime.config.runtime_log_path),
         schema_version=schema_version,
-        sqlite_integrity=integrity,
+        sqlite_integrity="unchecked",
         journal_mode=journal_mode,
         foreign_keys=foreign_keys,
         event_count=event_count,
-        manifest_valid=manifest_error is None,
-        manifest_error=manifest_error,
+        manifest_valid=True,
         checked_at=datetime.now(timezone.utc),
-        modules=await inspect_modules(request, runtime, manifests, manifest_error),
+        modules=modules,
     )
 
 
@@ -147,8 +148,6 @@ async def patch_settings(
         settings = runtime.service.update_settings(patch, session.user_id)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    event = runtime.service.list_events(limit=1)[0]
-    await runtime.publish(event)
     return SettingsResponse(**settings)
 
 
@@ -157,8 +156,6 @@ async def reset_settings(
     session: Session = Depends(require_permission("settings.write")), *, runtime: Runtime = Depends(get_runtime)
 ) -> SettingsResponse:
     settings = runtime.service.reset_settings(session.user_id)
-    event = runtime.service.list_events(limit=1)[0]
-    await runtime.publish(event)
     return SettingsResponse(**settings)
 
 

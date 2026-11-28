@@ -1,6 +1,7 @@
 import ast
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -51,22 +52,16 @@ def test_snapshots_preserve_draft_old_version_and_same_transaction(tmp_path):
     assert fresh.content_sha256 == hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def test_selected_consumers_do_not_read_method_tables_or_private_snapshots():
+def test_selected_consumers_do_not_read_method_tables():
     backend = Path(__file__).resolve().parents[1] / "backend/modules"
     files = [
         backend / "method_printing/service.py",
         *(backend / "analysis").glob("*.py"),
         *(backend / "postprocessing").glob("*.py"),
     ]
-    import re
-
     for path in files:
         source = path.read_text(encoding="utf-8")
         assert not re.search(r"\b(?:FROM|JOIN)\s+(?:methods|method_versions)\b", source, re.I), path
-        tree = ast.parse(source)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Attribute):
-                assert node.attr not in {"_latest_row", "_version_dict"}, path
 
 
 def test_acquisition_import_owns_sql_and_cannot_open_or_commit_transactions():

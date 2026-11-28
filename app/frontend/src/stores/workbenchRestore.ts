@@ -34,9 +34,15 @@ export function restoreAnalysisSelection(
   runIds: readonly number[],
   selected: { id: number; curves: { lines: readonly { line_id: string }[] } } | null,
   explicitView?: AnalysisPageSnapshot['viewByRun'][number]
-): AnalysisPageSnapshot {
-  const viewByRun = Object.fromEntries(runIds.flatMap(id => snapshot?.viewByRun[id] ? [[id, snapshot.viewByRun[id]]] : []))
-  const lineByRun = Object.fromEntries(runIds.flatMap(id => snapshot?.lineByRun[id] ? [[id, snapshot.lineByRun[id]]] : []))
+) {
+  const viewByRun: Record<number, AnalysisPageSnapshot['viewByRun'][number]> = {}
+  const lineByRun: Record<number, string> = {}
+  for (const id of runIds) {
+    const view = snapshot?.viewByRun[id]
+    const line = snapshot?.lineByRun[id]
+    if (view) viewByRun[id] = view
+    if (line) lineByRun[id] = line
+  }
   if (selected) {
     if (explicitView) viewByRun[selected.id] = explicitView
     const lineId = availableId(selected.curves.lines.map(line => line.line_id), lineByRun[selected.id])
@@ -45,7 +51,7 @@ export function restoreAnalysisSelection(
   }
   return {
     selectedRunId: selected?.id ?? null,
-    manager: explicitView ? 'review' : snapshot?.manager ?? null,
+    manager: explicitView ? 'review' as const : snapshot?.manager ?? null,
     railCollapsed: snapshot?.railCollapsed ?? false,
     viewByRun,
     lineByRun
@@ -61,13 +67,14 @@ export function restorePostProcessingSelection(
       id: number; method_version_id: number; calculation_profile: PostProcessingPageSnapshot['profile']
     }[]
   }
-): PostProcessingPageSnapshot {
+) {
   const methodVersionId = availableId(options.methods.map(method => method.method_version_id), snapshot.methodVersionId)
   const sourceIds = new Set(options.sources.map(source => source.id))
   const curveIds = options.curve_snapshots.filter(curve =>
     curve.method_version_id === methodVersionId && curve.calculation_profile === snapshot.profile
   ).map(curve => curve.id)
-  const selectedCurves = snapshot.selectedCurves.filter(id => curveIds.includes(id))
+  const availableCurves = new Set(curveIds)
+  const selectedCurves = snapshot.selectedCurves.filter(id => availableCurves.has(id))
   return {
     ...snapshot,
     methodVersionId,
